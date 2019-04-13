@@ -1,6 +1,7 @@
 #include "reader.h"
 #include <fstream>
 #include <stdint.h>
+#include <sstream>
 
 namespace tanlang {
 
@@ -21,6 +22,8 @@ Reader::~Reader() {
 }
 
 void Reader::open(const std::string& file_name) {
+    // \note if u changed code inside this function, u also need to change code
+    // in `read_string` for Debug build!
     _filename = file_name;
     std::ifstream ifs(file_name);
     std::string line;
@@ -30,8 +33,7 @@ void Reader::open(const std::string& file_name) {
         auto* new_line = new line_info(lineno++);
         // delete whitespace at the beginning of the line
         for (int i = 0; i < line.length(); ++i) {
-            if (line[i] != '\n' && line[i] != '\r' &&
-                line[i] != ' ') {
+            if (line[i] != '\n' && line[i] != '\r' && line[i] != ' ') {
                 new_line->code = std::string(line.begin() + i, line.end());
                 break;
             }
@@ -57,5 +59,24 @@ bool Reader::eof() const { return _curr_line >= _lines.size(); }
 std::string Reader::get_filename() const { return _filename; }
 
 unsigned Reader::get_line_number() const { return _curr_line; }
+
+#ifdef DEBUG_ENABLED
+void Reader::read_string(const std::string& code) {
+    std::istringstream iss(code);
+    std::string line;
+    unsigned lineno = 0;
+    while (std::getline(iss, line)) {
+        auto* new_line = new line_info(lineno++);
+        // delete whitespace at the beginning of the line
+        for (int i = 0; i < line.length(); ++i) {
+            if (line[i] != '\n' && line[i] != '\r' && line[i] != ' ') {
+                new_line->code = std::string(line.begin() + i, line.end());
+                break;
+            }
+        }
+        _lines.push_back(new_line);
+    }
+}
+#endif
 
 }  // namespace tanlang

@@ -6,8 +6,6 @@
 #include "reader.h"
 
 TEST(Reader, test1) {
-    const std::string cwd("test");
-    EXPECT_EQ(boost::filesystem::current_path().stem(), cwd);
     tanlang::Reader ra;
     ra.open("test_program.tan");
     EXPECT_EQ(ra.get_filename(), "test_program.tan");

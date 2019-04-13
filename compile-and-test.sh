@@ -4,6 +4,8 @@ cmake ..
 make -j4
 if [ $? -eq 0 ]
 then
-    ctest -V
+    pushd ../src/test
+    ../../build/tan_tests
+    popd
 fi
 popd

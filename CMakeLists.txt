@@ -51,11 +51,11 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 
 # target test
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
-add_executable(reader_test ${TEST_SRCS} ${COMMON_SRCS})
-target_include_directories(reader_test PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
-target_link_libraries(reader_test gtest ${Boost_LIBRARIES} ${llvm_libs})
+add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
+target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
+target_link_libraries(tan_tests gtest ${Boost_LIBRARIES} ${llvm_libs})
 
-add_test(NAME cmake_reader_test COMMAND reader_test WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
+add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
 
 # target tanc (cli)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
