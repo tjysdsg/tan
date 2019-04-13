@@ -28,7 +28,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
+# ================================ thirdparty dependencies ========================== #
 # this project uses Google Test framework
 find_package(GTest REQUIRED)
 # C++ boost library
@@ -41,20 +41,24 @@ add_definitions(${LLVM_DEFINITIONS})
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
 llvm_map_components_to_libnames(llvm_libs support core irreader)
+# ================================----------------------- ========================== #
 
 # common source files shared by multiple targets
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 
 # target test
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
 add_executable(test ${TEST_SRCS} ${COMMON_SRCS})
-target_include_directories(test PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(test PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(test gtest ${Boost_LIBRARIES} ${llvm_libs})
 
 # target tanc (cli)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
-target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
 set_target_properties(tanc
     PROPERTIES
