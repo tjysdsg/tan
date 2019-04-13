@@ -2,3 +2,5 @@ build/
 *build*
 .idea/
 bin/
+# made by ctest
+Testing/
