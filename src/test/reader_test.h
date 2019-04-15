@@ -13,4 +13,4 @@ TEST(Reader, test1) {
     EXPECT_EQ(ra.get_line(4), "println(\"Building version {} ...\", version);");
     EXPECT_EQ(ra.next_line(), "prog_version = version;");
 }
-#endif  // __TAN_TEST_READER_TEST_H__
+#endif // __TAN_TEST_READER_TEST_H__

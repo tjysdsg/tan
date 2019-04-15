@@ -20,8 +20,7 @@ int main(int argc, char **argv) {
 
     if (vm.count("version")) {
         std::cout << "tanc version: " << TAN_VERSION_MAJOR << "."
-                  << TAN_VERSION_MINOR << "." << TAN_VERSION_PATCH
-                  << "\n";
+                  << TAN_VERSION_MINOR << "." << TAN_VERSION_PATCH << "\n";
         return 0;
     }
 

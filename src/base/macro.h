@@ -11,7 +11,7 @@
 #endif
 
 // UNLIKELY and LIKELY for optimization
-#if TAN_HAVE_BUILTIN(__builtin_expect) ||                              \
+#if TAN_HAVE_BUILTIN(__builtin_expect) ||                                      \
     (defined(__GNUC__) && !defined(__clang__))
 #    define TAN_LIKELY(x) (__builtin_expect(x, 0))
 #    define TAN_UNLIKELY(x) (__builtin_expect(!!(x), 1))
