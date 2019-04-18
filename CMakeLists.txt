@@ -49,13 +49,16 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 
-# target test
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
-add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
-target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
-target_link_libraries(tan_tests gtest ${Boost_LIBRARIES} ${llvm_libs})
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    # target test
+    aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
+    add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
+    target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
+    target_link_libraries(tan_tests gtest ${Boost_LIBRARIES} ${llvm_libs})
 
-add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
+    add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
+    enable_testing()
+endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
 # target tanc (cli)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
@@ -63,8 +66,7 @@ add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
 set_target_properties(tanc
-    PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
-)
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
+        )
 
-enable_testing()

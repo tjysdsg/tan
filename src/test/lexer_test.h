@@ -22,11 +22,11 @@ TEST(Lexer, hex_number) {
     lx1.read_string("0x2432ABFE");
     lx1.lex();
     oss1 << lx1;
-    EXPECT_TRUE((oss1.str() == "TOKEN_TYPE: 8; Value: 607300606"));
+    EXPECT_TRUE((oss1.str() == "TOKEN_TYPE: 8; Value: 607300606;"));
     lx2.read_string("0X2432ABFE");
     lx2.lex();
     oss2 << lx2;
-    EXPECT_TRUE((oss2.str() == "TOKEN_TYPE: 8; Value: 607300606"));
+    EXPECT_TRUE((oss2.str() == "TOKEN_TYPE: 8; Value: 607300606;"));
     // test overflow
     constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
     std::ostringstream stream;
@@ -35,8 +35,8 @@ TEST(Lexer, hex_number) {
     lx3.read_string(uint64_max_str);
     lx3.lex();
     oss3 << lx3;
-    EXPECT_TRUE(
-        (oss3.str() == "TOKEN_TYPE: 8; Value: " + std::to_string(uint64_max)));
+    EXPECT_TRUE(oss3.str() ==
+                "TOKEN_TYPE: 8; Value: " + std::to_string(uint64_max) + ";");
 }
 
 TEST(Lexer, binary_number) {
@@ -50,11 +50,11 @@ TEST(Lexer, binary_number) {
     lx1.read_string("0b1001010101");
     lx1.lex();
     oss1 << lx1;
-    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 8; Value: 597");
+    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 8; Value: 597;");
     lx2.read_string("0B1001010101");
     lx2.lex();
     oss2 << lx2;
-    EXPECT_TRUE(oss2.str() == "TOKEN_TYPE: 8; Value: 597");
+    EXPECT_TRUE(oss2.str() == "TOKEN_TYPE: 8; Value: 597;");
     // test overflow
     constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
     std::bitset<64> b(uint64_max);
@@ -63,8 +63,8 @@ TEST(Lexer, binary_number) {
     lx3.read_string(uint64_max_str);
     lx3.lex();
     oss3 << lx3;
-    EXPECT_TRUE(
-        (oss3.str() == "TOKEN_TYPE: 8; Value: " + std::to_string(uint64_max)));
+    EXPECT_TRUE(oss3.str() ==
+                "TOKEN_TYPE: 8; Value: " + std::to_string(uint64_max) + ";");
 }
 
 TEST(Lexer, dec_number) {
@@ -73,7 +73,23 @@ TEST(Lexer, dec_number) {
     lx1.lex();
     std::ostringstream oss1;
     oss1 << lx1;
-    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 8; Value: 91029321");
+    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 8; Value: 91029321;");
+}
+
+TEST(Lexer, identifier) {
+    tanlang::Lexer lx1;
+    lx1.read_string("_shit996");
+    lx1.lex();
+    std::ostringstream oss1;
+    oss1 << lx1;
+    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 4; Value: _shit996;");
+    //
+    tanlang::Lexer lx2;
+    lx2.read_string("_shit__");
+    lx2.lex();
+    std::ostringstream oss2;
+    oss2 << lx2;
+    EXPECT_TRUE(oss2.str() == "TOKEN_TYPE: 4; Value: _shit__;");
 }
 
 #endif //__TAN_TEST_LEXER_TEST_H__

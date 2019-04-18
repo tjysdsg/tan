@@ -10,6 +10,7 @@ namespace tanlang {
     enum TOKEN_TYPE : uint64_t {
         UNKOWN = 0,
         KEYWORD = 1ull,
+        // XXX = 1ull << 1,
         ID = 1ull << 2,
         INT = 1ull << 3,
         FLOAT = 1ull << 4,
@@ -55,12 +56,12 @@ namespace tanlang {
     };
 
     struct token_info {
-        TOKEN_TYPE type;
+        TOKEN_TYPE type = UNKOWN;
         union {
-            std::string str;
-            uint64_t val = 0;
+            std::string str{};
+            uint64_t val;
         };
-        token_info() {}
+        token_info(){};
         ~token_info(){};
     };
 
@@ -76,18 +77,18 @@ namespace tanlang {
     }
 
     token_info *advance_for_number(const std::string &str, size_t &current,
-                                   size_t max_len) {
+                                   size_t len) {
         assert(std::isdigit(str[current]));
         const size_t start = current;
         size_t curr = current;
         uint64_t val = 0;
-        if (str[curr] == '0') {       // hex or binary or 0
-            if (curr + 1 < max_len) { // hex or binary
+        if (str[curr] == '0') {   // hex or binary or 0
+            if (curr + 1 < len) { // hex or binary
                 if (str[curr + 1] == 'x' || str[curr + 1] == 'X') { // hex
                     curr += 2;
                     char c = str[curr];
                     // @Consider maybe std::stoull is faster? Need benchmarking.
-                    while (curr < max_len && std::isxdigit(c)) {
+                    while (curr < len && std::isxdigit(c)) {
                         if (c <= 'F' && c >= 'A') { // ABCDEF
                             val = 16u * val + (uint64_t)(c - 'A' + 10);
                         } else if (c <= 'f' && c >= 'a') { // abcdef
@@ -103,7 +104,7 @@ namespace tanlang {
                            str[curr + 1] == 'B') { // binary
                     curr += 2;
                     char c = str[curr];
-                    while (curr < max_len && (c == '1' || c == '0')) {
+                    while (curr < len && (c == '1' || c == '0')) {
                         if (c == '1') {
                             val = val * 2 + 1;
                         } else {
@@ -131,8 +132,34 @@ namespace tanlang {
         t->val = val;
         assert(start ==
                current); // we must not change current's value until now
-        current = current - 1;
+        current = curr - 1;
         return t;
+    }
+
+    token_info *advance_for_identifier(const std::string &str, size_t &current,
+                                       size_t len) {
+        assert(std::isalpha(str[current]) || str[current] == '_');
+        const size_t start = current;
+        size_t curr = current + 1;
+        char ch;
+        while (true) {
+            if (curr >= len)
+                break;
+            ch = str[curr];
+            if (std::isalpha(ch) || std::isdigit(ch) || ch == '_')
+                ++curr;
+            else
+                break;
+        }
+        auto *new_token = new token_info;
+        new_token->type = ID;
+        new_token->str = str.substr(start, curr - start);
+        current = curr - 1;
+        return new_token;
+    }
+
+    inline bool is_whitespace(const char c) {
+        return (c == '\n' || c == ' ' || c == '\t');
     }
 
     void Lexer::open(const std::string &file_name) { _reader->open(file_name); }
@@ -140,20 +167,23 @@ namespace tanlang {
     void Lexer::lex() {
         std::string line = _reader->next_line();
         while (!line.empty()) {
-            size_t start = 0, current = 0;
+            size_t /*start = 0,*/ current = 0;
             const size_t line_len = line.length();
             while (true) {
                 if (current >= line_len) {
                     break;
-                } else if (std::isdigit(line[current])) {
+                } /* else if (is_whitespace(line[current])) {
+                 } */
+                // Reader can make sure that the first character must not be
+                // whitespace, so we don't have to check here.
+                else if (std::isdigit(line[current])) {
                     auto *t = advance_for_number(line, current, line_len);
                     _token_infos.emplace_back(t);
-                    if (current >= line_len)
-                        break; // EOF
                 } else if (std::isalpha(line[current]) ||
                            line[current] == '_') {
+                    auto *t = advance_for_identifier(line, current, line_len);
+                    _token_infos.emplace_back(t);
                 } else {
-                    // TODO: recognize identifiers and keywords
                 }
                 ++current;
             }
@@ -184,9 +214,9 @@ namespace tanlang {
         for (auto *t : lexer._token_infos) {
             os << "TOKEN_TYPE: " << t->type;
             if (t->type == INT) {
-                os << "; Value: " << t->val;
+                os << "; Value: " << t->val << ";";
             } else {
-                os << "; Value: " << t->str;
+                os << "; Value: " << t->str << ";";
             }
         }
         return os;
