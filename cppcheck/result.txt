@@ -1,4 +1,21 @@
-[src/parse/parser.cpp:242]: (style) Variable 'stream_len' is assigned a value that is never used.
-[src/parse/parser.cpp:243]: (style) Variable 't' is assigned a value that is never used.
-[src/parse/syntax_error.cpp:18]: (style) The function 'log_syntax_error' is never used.
+[build/CMakeFiles/3.14.1/CompilerIdCXX/CMakeCXXCompilerId.cpp:0]: (information) Too many #ifdef configurations - cppcheck only checks 12 of 99 configurations. Use --force to check all configurations.
+[build/CMakeFiles/3.14.2/CompilerIdCXX/CMakeCXXCompilerId.cpp:0]: (information) Too many #ifdef configurations - cppcheck only checks 12 of 99 configurations. Use --force to check all configurations.
+[build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:7]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:17]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:7]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS;__CLASSIC_C__' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[build/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:17]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS;__CLASSIC_C__' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[cmake-build-debug/CMakeFiles/3.13.4/CompilerIdCXX/CMakeCXXCompilerId.cpp:0]: (information) Too many #ifdef configurations - cppcheck only checks 12 of 91 configurations. Use --force to check all configurations.
+[cmake-build-debug/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:7]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[cmake-build-debug/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:17]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[cmake-build-debug/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:7]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS;__CLASSIC_C__' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[cmake-build-debug/CMakeFiles/CheckLibraryExists/CheckFunctionExists.cxx:17]: (information) Skipping configuration 'CHECK_FUNCTION_EXISTS;__CLASSIC_C__' since the value of 'CHECK_FUNCTION_EXISTS' is unknown. Use -D if you want to check it. You can use -U to skip it explicitly.
+[src/lexer/lexer.cpp:82] -> [src/lexer/lexer.cpp:133]: (style) The expression 'start == current' is always true because 'start' and 'current' represent the same value.
+[src/lexer/lexer.cpp:144]: (style) The scope of the variable 'ch' can be reduced.
+[src/lexer/lexer.cpp:68]: (performance) Variable '_reader' is assigned in constructor body. Consider performing initialization in initialization list.
+[src/reader/reader.cpp:12]: (style) Struct 'line_info' has a constructor with 1 argument that is not explicit.
+[src/reader/reader.cpp:60]: (style) The function 'eof' is never used.
+[src/reader/reader.cpp:64]: (style) The function 'get_line_number' is never used.
+[src/lexer/lexer.cpp:201]: (style) The function 'get_token' is never used.
+[src/lexer/lexer.cpp:161]: (style) The function 'is_whitespace' is never used.
+[src/lexer/lexer.cpp:194]: (style) The function 'next_token' is never used.
 (information) Cppcheck cannot find all the include files (use --check-config for details)

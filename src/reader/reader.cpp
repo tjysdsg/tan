@@ -34,7 +34,8 @@ namespace tanlang {
             // delete whitespace at the beginning of the line
             for (size_t i = 0; i < line.length(); ++i) {
                 if (line[i] != '\n' && line[i] != '\r' && line[i] != ' ') {
-                    new_line->code = std::string(line.begin() + i, line.end());
+                    new_line->code =
+                        std::string(line.begin() + (long)i, line.end());
                     break;
                 }
             }
@@ -72,7 +73,8 @@ namespace tanlang {
             // delete whitespace at the beginning of the line
             for (size_t i = 0; i < line.length(); ++i) {
                 if (line[i] != '\n' && line[i] != '\r' && line[i] != ' ') {
-                    new_line->code = std::string(line.begin() + i, line.end());
+                    new_line->code =
+                        std::string(line.begin() + (long)i, line.end());
                     break;
                 }
             }

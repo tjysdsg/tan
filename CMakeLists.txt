@@ -16,6 +16,7 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 
 # C++11
 set(CMAKE_CXX_STANDARD 11)
+set(ENV{GCOV_PREFIX} ${CMAKE_BINARY_DIR}/coverage)
 
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version
@@ -23,9 +24,12 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif ()
 
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
 # compiler flags
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic-errors -Wconversion -Wsign-conversion")
+set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage -g -O0 ")
+set(CMAKE_EXE_LINKER_FLAGS" --coverage -lgcov ")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # ================================ thirdparty dependencies ========================== #
@@ -64,7 +68,9 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
+# coveralls
+target_compile_options(tan_tests PRIVATE --coverage)
+target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs} --coverage)
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
