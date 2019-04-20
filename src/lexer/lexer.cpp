@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <limits>
+#include <iomanip>
 #include <stdexcept>
 
 namespace tanlang {
@@ -60,6 +61,7 @@ namespace tanlang {
         union {
             std::string str{};
             uint64_t val;
+            double fval;
         };
         token_info(){};
         ~token_info(){};
@@ -76,12 +78,16 @@ namespace tanlang {
         }
     }
 
-    token_info *advance_for_integer(const std::string &str, size_t &current,
-                                    size_t len) {
+    token_info *advance_for_number(const std::string &str, size_t &current,
+                                   size_t len) {
         assert(std::isdigit(str[current]));
         const size_t start = current;
         size_t curr = current;
-        uint64_t val = 0;
+        union {
+            uint64_t val = 0;
+            double fval;
+        };
+        bool is_float = false;
         if (str[curr] == '0') {   // hex or binary or 0
             if (curr + 1 < len) { // hex or binary
                 if (str[curr + 1] == 'x' || str[curr + 1] == 'X') { // hex
@@ -121,15 +127,33 @@ namespace tanlang {
             }
         } else {
         dec:
-            while (std::isdigit(str[curr++])) {}
-            // borrow C++11 std
+            while (curr < len) {
+                char ch = str[curr];
+                if (ch == '.') {
+                    is_float = true;
+                } else if (!(std::isdigit(ch) || ch == 'e' ||
+                             ch == 'E')) { // if it's not float number or
+                                           // decimal integer
+                    break;
+                }
+                curr++;
+            }
             std::string subs = str.substr(start, curr - start);
-            val = std::stoull(subs);
+            if (is_float) {
+                // FIXME: might want to use custom version, depending on whether
+                // I can boost the performance
+                fval = std::stod(subs);
+            } else {
+                val = std::stoull(subs);
+            }
         }
     ret:
         auto *t = new token_info;
-        t->type = INT;
-        t->val = val;
+        t->type = is_float ? FLOAT : INT;
+        if (is_float)
+            t->fval = fval;
+        else
+            t->val = val;
         current = curr - 1;
         return t;
     }
@@ -192,7 +216,7 @@ namespace tanlang {
                 // Reader can make sure that the first character must not be
                 // whitespace, so we don't have to check here.
                 else if (std::isdigit(line[current])) { // number literal
-                    auto *t = advance_for_integer(line, current, line_len);
+                    auto *t = advance_for_number(line, current, line_len);
                     _token_infos.emplace_back(t);
                 } else if (std::isalpha(line[current]) ||
                            line[current] == '_') { // identifier
@@ -243,6 +267,8 @@ namespace tanlang {
             os << "TOKEN_TYPE: " << t->type;
             if (t->type == INT) {
                 os << "; Value: " << t->val << ";";
+            } else if (t->type == FLOAT) {
+                os << "; Value: " << t->fval << ";";
             } else if (t->type == CHAR) {
                 os << "; Value: " << char(t->val) << ";";
             } else {
