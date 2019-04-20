@@ -9,7 +9,7 @@ namespace tanlang {
         unsigned lineno = 0;
         std::string code;
         line_info() = default;
-        line_info(const unsigned lineno) { this->lineno = lineno; }
+        explicit line_info(const unsigned lineno) { this->lineno = lineno; }
     };
 
     Reader::~Reader() {
@@ -57,7 +57,7 @@ namespace tanlang {
         return (_lines[_curr_line - 1])->code;
     }
 
-    bool Reader::eof() const { return _curr_line >= _lines.size(); }
+    // bool Reader::eof() const { return _curr_line >= _lines.size(); }
 
     std::string Reader::get_filename() const { return _filename; }
 

@@ -65,7 +65,7 @@ namespace tanlang {
         ~token_info(){};
     };
 
-    Lexer::Lexer() { _reader = std::unique_ptr<Reader>(new Reader); }
+    Lexer::Lexer() : _reader(std::unique_ptr<Reader>(new Reader)) {}
 
     Lexer::~Lexer() {
         for (auto *&t : _token_infos) {
@@ -76,8 +76,8 @@ namespace tanlang {
         }
     }
 
-    token_info *advance_for_number(const std::string &str, size_t &current,
-                                   size_t len) {
+    token_info *advance_for_integer(const std::string &str, size_t &current,
+                                    size_t len) {
         assert(std::isdigit(str[current]));
         const size_t start = current;
         size_t curr = current;
@@ -130,8 +130,6 @@ namespace tanlang {
         auto *t = new token_info;
         t->type = INT;
         t->val = val;
-        assert(start ==
-               current); // we must not change current's value until now
         current = curr - 1;
         return t;
     }
@@ -141,11 +139,10 @@ namespace tanlang {
         assert(std::isalpha(str[current]) || str[current] == '_');
         const size_t start = current;
         size_t curr = current + 1;
-        char ch;
         while (true) {
             if (curr >= len)
                 break;
-            ch = str[curr];
+            char ch = str[curr];
             if (std::isalpha(ch) || std::isdigit(ch) || ch == '_')
                 ++curr;
             else
@@ -164,11 +161,10 @@ namespace tanlang {
         ++current; // omit the first "
         const size_t start = current;
         size_t curr = current + 1;
-        char ch;
         while (true) {
             if (curr >= len)
                 break;
-            ch = str[curr];
+            char ch = str[curr];
             if (ch == '"')
                 break;
             else
@@ -179,10 +175,6 @@ namespace tanlang {
         new_token->str = str.substr(start, curr - start);
         current = curr; // omit the second "
         return new_token;
-    }
-
-    inline bool is_whitespace(const char c) {
-        return (c == '\n' || c == ' ' || c == '\t');
     }
 
     void Lexer::open(const std::string &file_name) { _reader->open(file_name); }
@@ -200,7 +192,7 @@ namespace tanlang {
                 // Reader can make sure that the first character must not be
                 // whitespace, so we don't have to check here.
                 else if (std::isdigit(line[current])) { // number literal
-                    auto *t = advance_for_number(line, current, line_len);
+                    auto *t = advance_for_integer(line, current, line_len);
                     _token_infos.emplace_back(t);
                 } else if (std::isalpha(line[current]) ||
                            line[current] == '_') { // identifier

@@ -22,7 +22,7 @@ namespace tanlang {
         std::string get_line(unsigned idx) const;
         unsigned get_line_number() const;
         std::string get_filename() const;
-        bool eof() const;
+        // bool eof() const;
 
       private:
         std::string _filename;
