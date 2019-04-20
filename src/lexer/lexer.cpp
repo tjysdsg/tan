@@ -158,6 +158,29 @@ namespace tanlang {
         return new_token;
     }
 
+    token_info *advance_for_string_literal(const std::string &str,
+                                           size_t &current, size_t len) {
+        assert(str[current] == '"');
+        ++current; // omit the first "
+        const size_t start = current;
+        size_t curr = current + 1;
+        char ch;
+        while (true) {
+            if (curr >= len)
+                break;
+            ch = str[curr];
+            if (ch == '"')
+                break;
+            else
+                ++curr;
+        }
+        auto *new_token = new token_info;
+        new_token->type = STR_LITERAL;
+        new_token->str = str.substr(start, curr - start);
+        current = curr; // omit the second "
+        return new_token;
+    }
+
     inline bool is_whitespace(const char c) {
         return (c == '\n' || c == ' ' || c == '\t');
     }
@@ -176,14 +199,27 @@ namespace tanlang {
                  } */
                 // Reader can make sure that the first character must not be
                 // whitespace, so we don't have to check here.
-                else if (std::isdigit(line[current])) {
+                else if (std::isdigit(line[current])) { // number literal
                     auto *t = advance_for_number(line, current, line_len);
                     _token_infos.emplace_back(t);
                 } else if (std::isalpha(line[current]) ||
-                           line[current] == '_') {
+                           line[current] == '_') { // identifier
                     auto *t = advance_for_identifier(line, current, line_len);
                     _token_infos.emplace_back(t);
-                } else {
+                } else if (line[current] == '\'') { // char
+                    ++current;
+                    auto *t = new token_info;
+                    t->type = CHAR;
+                    t->val = (uint64_t)line[current];
+                    ++current;
+                    if (line[current] != '\'') {
+                        // TODO error handling
+                    }
+                    _token_infos.emplace_back(t);
+                } else if (line[current] == '"') { // string literals
+                    auto *t =
+                        advance_for_string_literal(line, current, line_len);
+                    _token_infos.emplace_back(t);
                 }
                 ++current;
             }
@@ -215,6 +251,8 @@ namespace tanlang {
             os << "TOKEN_TYPE: " << t->type;
             if (t->type == INT) {
                 os << "; Value: " << t->val << ";";
+            } else if (t->type == CHAR) {
+                os << "; Value: " << char(t->val) << ";";
             } else {
                 os << "; Value: " << t->str << ";";
             }

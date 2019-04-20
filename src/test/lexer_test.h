@@ -92,4 +92,22 @@ TEST(Lexer, identifier) {
     EXPECT_TRUE(oss2.str() == "TOKEN_TYPE: 4; Value: _shit__;");
 }
 
+TEST(Lexer, string_literal) {
+    tanlang::Lexer lx1;
+    lx1.read_string("\"shit fuck god damn\"");
+    lx1.lex();
+    std::ostringstream oss1;
+    oss1 << lx1;
+    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 32; Value: shit fuck god damn;");
+}
+
+TEST(Lexer, character) {
+    tanlang::Lexer lx1;
+    lx1.read_string("'s'");
+    lx1.lex();
+    std::ostringstream oss1;
+    oss1 << lx1;
+    EXPECT_TRUE(oss1.str() == "TOKEN_TYPE: 64; Value: s;");
+}
+
 #endif //__TAN_TEST_LEXER_TEST_H__
