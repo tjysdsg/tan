@@ -63,7 +63,7 @@ INT = 0
      |0[bB][0-1]+
 FLOAT = [0-9]* '.' [0-9]* ([eE],[+-]?,[0-9]+)?
 CHAR = SINGLE_QUOTE . SINGLE_QUOTE
-STR = DOUBLE_QUOTE [^DOUBLE_QUOTE]* DOUBLE_QUOTE
+STR = DOUBLE_QUOTE [^DOUBLE_QUOTE^'\n'^'\r']* DOUBLE_QUOTE
 ```
 
 ## EBNF Grammar For `tan`
