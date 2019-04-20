@@ -65,6 +65,15 @@ namespace tanlang {
 
 #ifdef DEBUG_ENABLED
     void Reader::read_string(const std::string &code) {
+        // if not empty, clear all
+        if (!_lines.empty()) {
+            for (auto *&t : _lines) {
+                if (t != nullptr) {
+                    delete t;
+                    t = nullptr;
+                }
+            }
+        }
         std::istringstream iss(code);
         std::string line;
         unsigned lineno = 0;

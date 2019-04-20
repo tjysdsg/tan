@@ -1,71 +1,14 @@
 #include "lexer.h"
-#include "reader.h"
+#include "src/lexer/lexer_internal.h"
 #include <cassert>
 #include <cctype>
 #include <cstdlib>
 #include <limits>
 #include <iomanip>
 #include <stdexcept>
+#include "base.h"
 
 namespace tanlang {
-    enum TOKEN_TYPE : uint64_t {
-        UNKOWN = 0,
-        KEYWORD = 1ull,
-        // XXX = 1ull << 1,
-        ID = 1ull << 2,
-        INT = 1ull << 3,
-        FLOAT = 1ull << 4,
-        STR_LITERAL = 1ull << 5,
-        CHAR = 1ull << 6,
-        // unary operatoullRs
-        POSITIVE = 1ull << 7,
-        NEGATIVE = 1ull << 8,
-        LOG_NOT = 1ull << 9,
-        BIT_NOT = 1ull << 10,
-        ADR_REF = 1ull << 11,
-        ADR_DEREF = 1ull << 12,
-        // binary operatullOrs
-        LSHIFT = 1ull << 14,
-        RSHIFT = 1ull << 15,
-        EQ = 1ull << 16,
-        NE = 1ull << 17,
-        LT = 1ull << 18,
-        LE = 1ull << 19,
-        GT = 1ull << 20,
-        GE = 1ull << 21,
-        LAND = 1ull << 22,
-        BAND = 1ull << 23,
-        LOR = 1ull << 24,
-        BOR = 1ull << 25,
-        BXOR = 1ull << 26,
-        ADD = 1ull << 27,
-        SUB = 1ull << 28,
-        MUL = 1ull << 29,
-        DIV = 1ull << 30,
-        MOD = 1ull << 31,
-        // assignment operators
-        LSHIFT_ASSIGN = 1ull << 32,
-        RSHIFT_ASSIGN = 1ull << 33,
-        BAND_ASSIGN = 1ull << 34,
-        BOR_ASSIGN = 1ull << 35,
-        BXOR_ASSIGN = 1ull << 36,
-        ADD_ASSIGN = 1ull << 37,
-        SUB_ASSIGN = 1ull << 38,
-        MUL_ASSIGN = 1ull << 39,
-        DIV_ASSIGN = 1ull << 40,
-        MOD_ASSIGN = 1ull << 41,
-    };
-
-    struct token_info {
-        TOKEN_TYPE type = UNKOWN;
-        union {
-            std::string str{};
-            uint64_t val;
-            double fval;
-        };
-        token_info(){};
-        ~token_info(){};
-    };
 
     Lexer::Lexer() : _reader(std::unique_ptr<Reader>(new Reader)) {}
 
@@ -179,6 +122,93 @@ namespace tanlang {
         return new_token;
     }
 
+#define _X_OR_XY_(x, y, type_x, type_y)                                        \
+    case x:                                                                    \
+        if (curr + 1 < len && str[curr + 1] == y) {                            \
+            type = (TOKEN_TYPE)(type_x | type_y);                              \
+            ++curr;                                                            \
+        } else {                                                               \
+            type = (TOKEN_TYPE)type_x;                                         \
+        }                                                                      \
+        goto ret;                                                              \
+        break;
+
+#define _X_OR_DOUBLE_X_(x, type_x)                                             \
+    case x:                                                                    \
+        if (curr + 1 < len && str[curr + 1] == x) {                            \
+            type = (TOKEN_TYPE)(type_x + 1);                                   \
+            ++curr;                                                            \
+        } else {                                                               \
+            type = (TOKEN_TYPE)type_x;                                         \
+        }                                                                      \
+        goto ret;                                                              \
+        break;
+
+#define _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_(x, type_x, y, type_y)             \
+    case x:                                                                    \
+        if (curr + 1 < len && str[curr + 1] == x) {                            \
+            type = (TOKEN_TYPE)(type_x + 1);                                   \
+            ++curr;                                                            \
+            if (curr + 1 < len && str[curr + 1] == y) {                        \
+                type = (TOKEN_TYPE)((type_x + 1) | type_y);                    \
+                ++curr;                                                        \
+            }                                                                  \
+        } else if (curr + 1 < len && str[curr + 1] == y) {                     \
+            type = (TOKEN_TYPE)(type_x | type_y);                              \
+            ++curr;                                                            \
+        } else {                                                               \
+            type = (TOKEN_TYPE)type_x;                                         \
+        }                                                                      \
+        goto ret;                                                              \
+        break;
+
+#define _X_OR_DOUBLE_X_OR_X_Y_(x, type_x, y, type_y)                           \
+    case x:                                                                    \
+        if (curr + 1 < len && str[curr + 1] == x) {                            \
+            type = (TOKEN_TYPE)(type_x + 1);                                   \
+            ++curr;                                                            \
+        } else if (curr + 1 < len && str[curr + 1] == y) {                     \
+            type = (TOKEN_TYPE)(type_x | type_y);                              \
+            ++curr;                                                            \
+        } else {                                                               \
+            type = (TOKEN_TYPE)type_x;                                         \
+        }                                                                      \
+        goto ret;                                                              \
+        break;
+
+    token_info *advance_for_symbol(const std::string &str, size_t &current,
+                                   size_t len) {
+        size_t curr = current;
+        TOKEN_TYPE type = UNKOWN;
+        while (true) {
+            if (curr >= len)
+                break;
+            char ch = str[curr];
+            switch (ch) {
+                _X_OR_XY_('!', '=', EXCLAIM, EQ)
+                _X_OR_DOUBLE_X_OR_X_Y_('|', BAR, '=', EQ)
+                _X_OR_DOUBLE_X_OR_X_Y_('&', AND, '=', EQ)
+                _X_OR_XY_('^', '=', CARET, EQ)
+                _X_OR_XY_('+', '=', PLUS, EQ)
+                _X_OR_XY_('-', '=', MINUS, EQ)
+                _X_OR_XY_('*', '=', STAR, EQ)
+                _X_OR_XY_('/', '=', SLASH, EQ)
+                _X_OR_XY_('%', '=', PERCENT, EQ)
+                _X_OR_DOUBLE_X_('=', EQ)
+                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('>', GT, '=', EQ)
+                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('<', LT, '=', EQ)
+            default:
+                break;
+            }
+            ++curr;
+        }
+    ret:
+        auto *new_token = new token_info;
+        new_token->type = type;
+        current = curr;
+        return new_token;
+    }
+
     token_info *advance_for_string_literal(const std::string &str,
                                            size_t &current, size_t len) {
         assert(str[current] == '"');
@@ -221,6 +251,7 @@ namespace tanlang {
                 } else if (std::isalpha(line[current]) ||
                            line[current] == '_') { // identifier
                     auto *t = advance_for_identifier(line, current, line_len);
+                    // TODO: lex keywords
                     _token_infos.emplace_back(t);
                 } else if (line[current] == '\'') { // char
                     ++current;
@@ -235,6 +266,9 @@ namespace tanlang {
                 } else if (line[current] == '"') { // string literals
                     auto *t =
                         advance_for_string_literal(line, current, line_len);
+                    _token_infos.emplace_back(t);
+                } else { // symbols
+                    auto *t = advance_for_symbol(line, current, line_len);
                     _token_infos.emplace_back(t);
                 }
                 ++current;

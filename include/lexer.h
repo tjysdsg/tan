@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include "reader.h"
 #include "config.h"
 
 namespace tanlang {

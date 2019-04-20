@@ -20,4 +20,7 @@
 #    define TAN_UNLIKELY(x) (x)
 #endif
 
+#define CONCAT3(x, y, z) x##y##z
+#define CONCAT2(x, y) x##y
+
 #endif // __TAN_SRC_BASE_MACRO_H__
