@@ -101,51 +101,78 @@ TEST(Lexer, identifier) {
     }
 }
 
+#define _LEXER_TEST_CASE_(_str, tval, _type, _val)                             \
+    do {                                                                       \
+        lx.read_string(_str);                                                  \
+        lx.lex();                                                              \
+        while (tanlang::token_info *t = lx.next_token()) {                     \
+            EXPECT_EQ(uint64_t(t->type), _type);                               \
+            EXPECT_EQ(t->tval, _val);                                          \
+        }                                                                      \
+    } while (0)
+
 TEST(Lexer, string_literal) {
-    tanlang::Lexer lx1;
-    lx1.read_string("\"shit fuck god damn\"");
-    lx1.lex();
-    while (tanlang::token_info *t = lx1.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::STR_LITERAL);
-        EXPECT_EQ(t->str, "shit fuck god damn");
-    }
+    tanlang::Lexer lx;
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("\"shit fuck god damn\"", str, STR_LITERAL,
+                      "shit fuck god damn");
+    _LEXER_TEST_CASE_("\"fhdsk1-2-0riesd\t_fdslklj'\"", str, STR_LITERAL,
+                      "fhdsk1-2-0riesd\t_fdslklj'");
+    _LEXER_TEST_CASE_("\"string!\"\"string!\"", str, STR_LITERAL, "string!");
 }
 
 TEST(Lexer, character) {
-    tanlang::Lexer lx1;
-    lx1.read_string("'s'");
-    lx1.lex();
-    while (tanlang::token_info *t = lx1.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::CHAR);
-        EXPECT_EQ(t->val, 's');
-    }
+    tanlang::Lexer lx;
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("'s'", val, CHAR, 's');
+    _LEXER_TEST_CASE_("'\\'", val, CHAR, '\\');
+    _LEXER_TEST_CASE_("'c''c'", val, CHAR, 'c');
 }
 
+#define _LEXER_SYMBOL_TEST_CASE_(str, _type)                                   \
+    do {                                                                       \
+        lx.read_string(str);                                                   \
+        lx.lex();                                                              \
+        while (tanlang::token_info *t = lx.next_token()) {                     \
+            EXPECT_EQ(uint64_t(t->type), _type);                               \
+        }                                                                      \
+    } while (0)
+
 TEST(Lexer, symbol) {
+    using namespace tanlang;
     tanlang::Lexer lx;
-    lx.read_string("<<");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::DOUBLE_LT);
-    }
-    //
-    lx.read_string("<<=");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::DOUBLE_LT_EQ);
-    } //
-    lx.read_string("!=");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::EXCLAIM_EQ);
-    }
-    //
-    lx.read_string("!");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::EXCLAIM);
-    }
-    // TODO: add more test cases
+    _LEXER_SYMBOL_TEST_CASE_("=", EQ);
+    _LEXER_SYMBOL_TEST_CASE_("+", PLUS);
+    _LEXER_SYMBOL_TEST_CASE_("+=", PLUS_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("-", MINUS);
+    _LEXER_SYMBOL_TEST_CASE_("-=", MINUS_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("!", EXCLAIM);
+    _LEXER_SYMBOL_TEST_CASE_("!=", EXCLAIM_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("~", TILDE);
+    _LEXER_SYMBOL_TEST_CASE_("~=", TILDE_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("^", CARET);
+    _LEXER_SYMBOL_TEST_CASE_("^=", CARET_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("*", STAR);
+    _LEXER_SYMBOL_TEST_CASE_("*=", STAR_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("/", SLASH);
+    _LEXER_SYMBOL_TEST_CASE_("/=", SLASH_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("%", PERCENT);
+    _LEXER_SYMBOL_TEST_CASE_("%=", PERCENT_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("&", AND);
+    _LEXER_SYMBOL_TEST_CASE_("&=", AND_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("|", BAR);
+    _LEXER_SYMBOL_TEST_CASE_("|=", BAR_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("<", LT);
+    _LEXER_SYMBOL_TEST_CASE_("<<", DOUBLE_LT);
+    _LEXER_SYMBOL_TEST_CASE_("<<=", DOUBLE_LT_EQ);
+    _LEXER_SYMBOL_TEST_CASE_("<=", LE);
+    _LEXER_SYMBOL_TEST_CASE_(">", GT);
+    _LEXER_SYMBOL_TEST_CASE_(">>", DOUBLE_GT);
+    _LEXER_SYMBOL_TEST_CASE_(">>=", DOUBLE_GT_EQ);
+    _LEXER_SYMBOL_TEST_CASE_(">=", GE);
+    _LEXER_SYMBOL_TEST_CASE_("&&", DOUBLE_AND);
+    _LEXER_SYMBOL_TEST_CASE_("||", DOUBLE_BAR);
+    _LEXER_SYMBOL_TEST_CASE_("==", DOUBLE_EQ);
 }
 
 #endif //__TAN_TEST_LEXER_TEST_H__
