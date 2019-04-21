@@ -301,7 +301,7 @@ namespace tanlang {
     }
     std::ostream &operator<<(std::ostream &os, const Lexer &lexer) {
         for (auto *t : lexer._token_infos) {
-            os << "TOKEN_TYPE: " << t->type;
+            os << "TOKEN_TYPE: " << get_token_type_name(t->type);
             if (t->type == INT) {
                 os << "; Value: " << t->val << "\n";
             } else if (t->type == FLOAT) {
@@ -313,6 +313,54 @@ namespace tanlang {
             }
         }
         return os;
+    }
+    std::string get_token_type_name(TOKEN_TYPE type) {
+        std::string ret;
+        switch (type) {
+            SWITCH_CASE_TOKEN_TYPE(UNKOWN);
+            SWITCH_CASE_TOKEN_TYPE(KEYWORD);
+            SWITCH_CASE_TOKEN_TYPE(ID);
+            SWITCH_CASE_TOKEN_TYPE(INT);
+            SWITCH_CASE_TOKEN_TYPE(FLOAT);
+            SWITCH_CASE_TOKEN_TYPE(STR_LITERAL);
+            SWITCH_CASE_TOKEN_TYPE(CHAR);
+            SWITCH_CASE_TOKEN_TYPE(EQ);
+            SWITCH_CASE_TOKEN_TYPE(PLUS);
+            SWITCH_CASE_TOKEN_TYPE(PLUS_EQ);
+            SWITCH_CASE_TOKEN_TYPE(MINUS);
+            SWITCH_CASE_TOKEN_TYPE(MINUS_EQ);
+            SWITCH_CASE_TOKEN_TYPE(EXCLAIM);
+            SWITCH_CASE_TOKEN_TYPE(EXCLAIM_EQ);
+            SWITCH_CASE_TOKEN_TYPE(TILDE);
+            SWITCH_CASE_TOKEN_TYPE(TILDE_EQ);
+            SWITCH_CASE_TOKEN_TYPE(CARET);
+            SWITCH_CASE_TOKEN_TYPE(CARET_EQ);
+            SWITCH_CASE_TOKEN_TYPE(STAR);
+            SWITCH_CASE_TOKEN_TYPE(STAR_EQ);
+            SWITCH_CASE_TOKEN_TYPE(SLASH);
+            SWITCH_CASE_TOKEN_TYPE(SLASH_EQ);
+            SWITCH_CASE_TOKEN_TYPE(PERCENT);
+            SWITCH_CASE_TOKEN_TYPE(PERCENT_EQ);
+            SWITCH_CASE_TOKEN_TYPE(AND);
+            SWITCH_CASE_TOKEN_TYPE(AND_EQ);
+            SWITCH_CASE_TOKEN_TYPE(BAR);
+            SWITCH_CASE_TOKEN_TYPE(BAR_EQ);
+            SWITCH_CASE_TOKEN_TYPE(LT);
+            SWITCH_CASE_TOKEN_TYPE(LE);
+            SWITCH_CASE_TOKEN_TYPE(GT);
+            SWITCH_CASE_TOKEN_TYPE(GE);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_AND);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_BAR);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_EQ);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_LT);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_LT_EQ);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT);
+            SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT_EQ);
+        default:
+            ret = "";
+            break;
+        }
+        return ret;
     }
 #endif
 

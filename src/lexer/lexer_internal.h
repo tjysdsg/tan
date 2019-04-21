@@ -16,28 +16,29 @@ namespace tanlang {
         // symbols
         EQ = 1ull << 7u,               // =
         PLUS = 1ull << 8u,             // +
+        MINUS = 1ull << 9u,            // -
+        EXCLAIM = 1ull << 10u,         // !
+        TILDE = 1ull << 11u,           // ~
+        CARET = 1ull << 12u,           // ^
+        STAR = 1ull << 13u,            // *
+        SLASH = 1ull << 14u,           // /
+        PERCENT = 1ull << 15u,         // %
+        AND = 1ull << 16u,             // &
+        BAR = 1ull << 17u,             // |
+        LT = 1ull << 18u,              // <
+        GT = 1ull << 19u,              // >
+                                       //
         PLUS_EQ = PLUS | EQ,           // +=
-        MINUS,                         // -
         MINUS_EQ = MINUS | EQ,         // -=
-        EXCLAIM,                       // !
         EXCLAIM_EQ = EXCLAIM | EQ,     // !=
-        TILDE,                         // ~
         TILDE_EQ = TILDE | EQ,         // ~=
-        CARET,                         // ^
         CARET_EQ = CARET | EQ,         // ^=
-        STAR,                          // *
         STAR_EQ = STAR | EQ,           // *=
-        SLASH,                         // /
         SLASH_EQ = SLASH | EQ,         // /=
-        PERCENT,                       // %
-        PERCENT_EQ = SLASH | EQ,       // %=
-        AND,                           // &
+        PERCENT_EQ = PERCENT | EQ,     // %=
         AND_EQ = AND | EQ,             // &=
-        BAR,                           // |
         BAR_EQ = BAR | EQ,             // |=
-        LT,                            // <
         LE = LT | EQ,                  // <=
-        GT,                            // >
         GE = GT | EQ,                  // >=
         DOUBLE_AND = AND + 1,          // &&
         DOUBLE_BAR = BAR + 1,          // ||
@@ -47,6 +48,11 @@ namespace tanlang {
         DOUBLE_GT = GT + 1,            // >>
         DOUBLE_GT_EQ = DOUBLE_GT | EQ, // >>=
     };
+
+#define SWITCH_CASE_TOKEN_TYPE(type)                                           \
+case ((type)):                                                                 \
+    ret = #type;                                                               \
+    break
 
     struct token_info {
         TOKEN_TYPE type = UNKOWN;
@@ -58,5 +64,8 @@ namespace tanlang {
         token_info(){};
         ~token_info(){};
     };
+#ifdef DEBUG_ENABLED
+    std::string get_token_type_name(TOKEN_TYPE type);
+#endif
 } // namespace tanlang
 #endif // __TAN_SRC_LEXER_LEXER_H__
