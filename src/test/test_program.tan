@@ -1,0 +1,30 @@
+#build_msg: str;
+#prog_version: u32;
+#(version:u32, success_msg:str) {
+    println("Building version {} ...", version);
+    prog_version = version;
+    build_msg = success_msg;
+    register_after_build(fn()->void{println(build_msg);});
+}
+
+fn main(argc: u32, argv: *str) -> u32 {
+    // get all arguments
+    args: &str[] = new str[argc];
+    for(i:u32; i<argc; i+=1) {
+        args[i] = *(str+i);
+    }
+    // parse arguments
+    for(i:u32; i<argc; i+=1) {
+        if (args[i] == "-v" || args[i] == "--version") {
+            println("Version: {}",prog_version);
+            return 0;
+        }
+
+        if (args[i] == "-h" || args[i] == "--help") {
+            print("Avaiable options:\n");
+            println("use -v or --version see program version");
+            return 1;
+        }
+    }
+    return 0;
+}
