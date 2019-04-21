@@ -1,11 +1,8 @@
 #include "lexer.h"
 #include "src/lexer/lexer_internal.h"
 #include <cassert>
-#include <cctype>
-#include <cstdlib>
 #include <limits>
 #include <iomanip>
-#include <stdexcept>
 #include "base.h"
 
 namespace tanlang {
@@ -124,54 +121,54 @@ namespace tanlang {
 
 #define _X_OR_XY_(x, y, type_x, type_y)                                        \
     case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == y) {                            \
-            type = (TOKEN_TYPE)(type_x | type_y);                              \
+        if (curr + 1 < len && str[curr + 1] == (y)) {                          \
+            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
             ++curr;                                                            \
         } else {                                                               \
-            type = (TOKEN_TYPE)type_x;                                         \
+            type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
         break;
 
 #define _X_OR_DOUBLE_X_(x, type_x)                                             \
     case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == x) {                            \
-            type = (TOKEN_TYPE)(type_x + 1);                                   \
+        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
+            type = (TOKEN_TYPE)((type_x) + 1);                                 \
             ++curr;                                                            \
         } else {                                                               \
-            type = (TOKEN_TYPE)type_x;                                         \
+            type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
         break;
 
 #define _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_(x, type_x, y, type_y)             \
     case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == x) {                            \
-            type = (TOKEN_TYPE)(type_x + 1);                                   \
+        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
+            type = (TOKEN_TYPE)((type_x) + 1);                                 \
             ++curr;                                                            \
-            if (curr + 1 < len && str[curr + 1] == y) {                        \
-                type = (TOKEN_TYPE)((type_x + 1) | type_y);                    \
+            if (curr + 1 < len && str[curr + 1] == (y)) {                      \
+                type = (TOKEN_TYPE)(((type_x) + 1) | (type_y));                \
                 ++curr;                                                        \
             }                                                                  \
-        } else if (curr + 1 < len && str[curr + 1] == y) {                     \
-            type = (TOKEN_TYPE)(type_x | type_y);                              \
+        } else if (curr + 1 < len && str[curr + 1] == (y)) {                   \
+            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
             ++curr;                                                            \
         } else {                                                               \
-            type = (TOKEN_TYPE)type_x;                                         \
+            type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
         break;
 
 #define _X_OR_DOUBLE_X_OR_X_Y_(x, type_x, y, type_y)                           \
     case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == x) {                            \
-            type = (TOKEN_TYPE)(type_x + 1);                                   \
+        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
+            type = (TOKEN_TYPE)((type_x) + 1);                                 \
             ++curr;                                                            \
-        } else if (curr + 1 < len && str[curr + 1] == y) {                     \
-            type = (TOKEN_TYPE)(type_x | type_y);                              \
+        } else if (curr + 1 < len && str[curr + 1] == (y)) {                   \
+            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
             ++curr;                                                            \
         } else {                                                               \
-            type = (TOKEN_TYPE)type_x;                                         \
+            type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
         break;

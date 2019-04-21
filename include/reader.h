@@ -1,7 +1,7 @@
 #ifndef __TAN_READER_READER_H__
 #define __TAN_READER_READER_H__
 #include "config.h"
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 

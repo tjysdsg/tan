@@ -1,6 +1,6 @@
 #ifndef __TAN_LEXER_LEXER_H__
 #define __TAN_LEXER_LEXER_H__
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <memory>

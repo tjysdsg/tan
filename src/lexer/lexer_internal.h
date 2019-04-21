@@ -8,14 +8,14 @@ namespace tanlang {
         UNKOWN = 0,
         KEYWORD = 1ull,
         // XXX = 1ull << 1,
-        ID = 1ull << 2,
-        INT = 1ull << 3,
-        FLOAT = 1ull << 4,
-        STR_LITERAL = 1ull << 5,
-        CHAR = 1ull << 6,
+        ID = 1ull << 2u,
+        INT = 1ull << 3u,
+        FLOAT = 1ull << 4u,
+        STR_LITERAL = 1ull << 5u,
+        CHAR = 1ull << 6u,
         // symbols
-        EQ = 1ull << 7,                // =
-        PLUS = 1ull << 8,              // +
+        EQ = 1ull << 7u,               // =
+        PLUS = 1ull << 8u,             // +
         PLUS_EQ = PLUS | EQ,           // +=
         MINUS,                         // -
         MINUS_EQ = MINUS | EQ,         // -=

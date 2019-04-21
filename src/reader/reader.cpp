@@ -1,6 +1,5 @@
 #include "reader.h"
 #include <fstream>
-#include <stdint.h>
 #include <sstream>
 
 namespace tanlang {
