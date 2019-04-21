@@ -60,9 +60,13 @@ namespace tanlang {
                     }
                     if (curr - start == 2) // only "0b", then still dec
                         goto dec;
-                }
+                } else
+                    // necessary, otherwise in `ret:` current = curr - 1 will
+                    // cause infinite loop
+                    ++curr;
             } else { // 0
                 val = 0;
+                ++curr;
                 goto ret;
             }
         } else {
@@ -189,12 +193,14 @@ namespace tanlang {
                 _X_OR_XY_('+', '=', PLUS, EQ)
                 _X_OR_XY_('-', '=', MINUS, EQ)
                 _X_OR_XY_('*', '=', STAR, EQ)
+                _X_OR_XY_('~', '=', TILDE, EQ)
                 _X_OR_XY_('/', '=', SLASH, EQ)
                 _X_OR_XY_('%', '=', PERCENT, EQ)
                 _X_OR_DOUBLE_X_('=', EQ)
                 _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('>', GT, '=', EQ)
                 _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('<', LT, '=', EQ)
             default:
+                goto ret;
                 break;
             }
             ++curr;
@@ -232,7 +238,7 @@ namespace tanlang {
 
     void Lexer::lex() {
         std::string line = _reader->next_line();
-        while (!line.empty()) {
+        do {
             size_t /*start = 0,*/ current = 0;
             const size_t line_len = line.length();
             while (true) {
@@ -271,7 +277,7 @@ namespace tanlang {
                 ++current;
             }
             line = _reader->next_line();
-        }
+        } while (!_reader->eof());
     }
 
     token_info *Lexer::next_token() const {
@@ -297,13 +303,13 @@ namespace tanlang {
         for (auto *t : lexer._token_infos) {
             os << "TOKEN_TYPE: " << t->type;
             if (t->type == INT) {
-                os << "; Value: " << t->val << ";";
+                os << "; Value: " << t->val << "\n";
             } else if (t->type == FLOAT) {
-                os << "; Value: " << t->fval << ";";
+                os << "; Value: " << t->fval << "\n";
             } else if (t->type == CHAR) {
-                os << "; Value: " << char(t->val) << ";";
+                os << "; Value: " << char(t->val) << "\n";
             } else {
-                os << "; Value: " << t->str << ";";
+                os << "; Value: " << t->str << "\n";
             }
         }
         return os;

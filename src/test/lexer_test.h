@@ -70,6 +70,12 @@ TEST(Lexer, dec_number) {
         EXPECT_EQ(uint64_t(t->type), tanlang::INT);
         EXPECT_EQ(t->val, 91029321);
     }
+    lx.read_string("hahah 0 is in the middle of the file 0");
+    lx.lex();
+    tanlang::token_info *t = lx.next_token(); // hahah
+    t = lx.next_token();                      // 0
+    EXPECT_EQ(uint64_t(t->type), tanlang::INT);
+    EXPECT_EQ(t->val, 0);
 }
 
 TEST(Lexer, float_number) {

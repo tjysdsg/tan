@@ -56,7 +56,7 @@ namespace tanlang {
         return (_lines[_curr_line - 1])->code;
     }
 
-    // bool Reader::eof() const { return _curr_line >= _lines.size(); }
+    bool Reader::eof() const { return _curr_line >= _lines.size(); }
 
     std::string Reader::get_filename() const { return _filename; }
 
@@ -72,6 +72,8 @@ namespace tanlang {
                     t = nullptr;
                 }
             }
+            _lines.clear();
+            _curr_line = 0;
         }
         std::istringstream iss(code);
         std::string line;
