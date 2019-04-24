@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "src/lexer/lexer_internal.h"
 #include <cassert>
+#include "src/base/error.h"
 #include <limits>
 #include <iomanip>
 #include "base.h"
@@ -84,8 +85,9 @@ namespace tanlang {
             }
             std::string subs = str.substr(start, curr - start);
             if (is_float) {
-                // FIXME: might want to use custom version, depending on whether
-                // I can boost the performance
+                // clang-format off
+                // FIXME: might want to use custom version, depending on whether I can boost the performance by that
+                // clang-format on
                 fval = std::stod(subs);
             } else {
                 val = std::stoull(subs);
@@ -246,15 +248,14 @@ namespace tanlang {
                     break;
                 } /* else if (is_whitespace(line[current])) {
                  } */
-                // Reader can make sure that the first character must not be
-                // whitespace, so we don't have to check here.
+                // tanlang::Reader can make sure that the first character must
+                // not be whitespace, so we don't have to check here.
                 else if (std::isdigit(line[current])) { // number literal
                     auto *t = advance_for_number(line, current, line_len);
                     _token_infos.emplace_back(t);
                 } else if (std::isalpha(line[current]) ||
                            line[current] == '_') { // identifier
                     auto *t = advance_for_identifier(line, current, line_len);
-                    // TODO: lex keywords
                     _token_infos.emplace_back(t);
                 } else if (line[current] == '\'') { // char
                     ++current;
@@ -263,7 +264,9 @@ namespace tanlang {
                     t->val = (uint64_t)line[current];
                     ++current;
                     if (line[current] != '\'') {
-                        // TODO error handling
+                        report_error(line, _reader->get_line_number(), current,
+                                     "Invalid Syntax");
+                        return;
                     }
                     _token_infos.emplace_back(t);
                 } else if (line[current] == '"') { // string literals
