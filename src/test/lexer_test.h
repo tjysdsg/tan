@@ -8,68 +8,45 @@
 #include <ios>
 #include <bitset>
 
+#define _LEXER_TEST_CASE_(_str, tval, _type, _val)                             \
+    do {                                                                       \
+        lx.read_string(_str);                                                  \
+        lx.lex();                                                              \
+        while (tanlang::token_info *t = lx.next_token()) {                     \
+            EXPECT_EQ(uint64_t(t->type), _type);                               \
+            EXPECT_EQ(t->tval, _val);                                          \
+        }                                                                      \
+    } while (0)
+
 TEST(Lexer, hex_number) {
     tanlang::Lexer lx;
-    lx.read_string("0x2432ABFE");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, 607300606);
-    }
-    lx.read_string("0X2432ABFE");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, 607300606);
-    }
-    // test overflow
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("0x2432ABFE", val, INT, 607300606);
+    _LEXER_TEST_CASE_("0X2432ABFE", val, INT, 607300606);
+    //
     constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
     std::ostringstream stream;
     stream << std::hex << uint64_max;
     std::string uint64_max_str = "0x" + stream.str();
-    lx.read_string(uint64_max_str);
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, uint64_max);
-    }
+    _LEXER_TEST_CASE_(uint64_max_str, val, INT, 607300606);
 }
 
 TEST(Lexer, binary_number) {
     tanlang::Lexer lx;
-    lx.read_string("0b1001010101");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, 597);
-    }
-    lx.read_string("0B1001010101");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, 597);
-    }
-    // test overflow
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("0b1001010101", val, INT, 597);
+    _LEXER_TEST_CASE_("0B1001010101", val, INT, 597);
+    //
     constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
     std::bitset<64> b(uint64_max);
     std::string uint64_max_str = "0b" + b.to_string();
-    /////////
-    lx.read_string(uint64_max_str);
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, uint64_max);
-    }
+    _LEXER_TEST_CASE_(uint64_max_str, val, INT, 597);
 }
 
 TEST(Lexer, dec_number) {
     tanlang::Lexer lx;
-    lx.read_string("91029321");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-        EXPECT_EQ(t->val, 91029321);
-    }
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("91029321", val, INT, 91029321);
     lx.read_string("hahah 0 is in the middle of the file 0");
     lx.lex();
     tanlang::token_info *t = lx.next_token(); // hahah
@@ -80,42 +57,16 @@ TEST(Lexer, dec_number) {
 
 TEST(Lexer, float_number) {
     tanlang::Lexer lx;
-    lx.read_string("91.029e1");
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::FLOAT);
-        EXPECT_EQ(t->fval, 910.29);
-    }
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("91.029e1", fval, FLOAT, 910.29);
 }
 
 TEST(Lexer, identifier) {
     tanlang::Lexer lx;
-    std::string str = "_shit996";
-    lx.read_string(str);
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::ID);
-        EXPECT_EQ(t->str, str);
-    }
-    //
-    str = "_shit__";
-    lx.read_string(str);
-    lx.lex();
-    while (tanlang::token_info *t = lx.next_token()) {
-        EXPECT_EQ(uint64_t(t->type), tanlang::ID);
-        EXPECT_EQ(t->str, str);
-    }
+    using namespace tanlang;
+    _LEXER_TEST_CASE_("_shit996", str, ID, "_shit996");
+    _LEXER_TEST_CASE_("_shit__", str, ID, "_shit__");
 }
-
-#define _LEXER_TEST_CASE_(_str, tval, _type, _val)                             \
-    do {                                                                       \
-        lx.read_string(_str);                                                  \
-        lx.lex();                                                              \
-        while (tanlang::token_info *t = lx.next_token()) {                     \
-            EXPECT_EQ(uint64_t(t->type), _type);                               \
-            EXPECT_EQ(t->tval, _val);                                          \
-        }                                                                      \
-    } while (0)
 
 TEST(Lexer, string_literal) {
     tanlang::Lexer lx;
