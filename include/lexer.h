@@ -23,6 +23,9 @@ namespace tanlang {
         void lex();
         token_info *next_token() const;
         token_info *get_token(const unsigned idx) const;
+        const std::vector<token_info *> *get_token_stream() const {
+            return &_token_infos;
+        }
 #ifdef DEBUG_ENABLED
         void read_string(const std::string &code);
         friend std::ostream &operator<<(std::ostream &os, const Lexer &lexer);

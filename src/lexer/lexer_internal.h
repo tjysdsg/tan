@@ -14,20 +14,24 @@ namespace tanlang {
         STR_LITERAL = 1ull << 5u,
         CHAR = 1ull << 6u,
         // symbols
-        EQ = 1ull << 7u,               // =
-        PLUS = 1ull << 8u,             // +
-        MINUS = 1ull << 9u,            // -
-        EXCLAIM = 1ull << 10u,         // !
-        TILDE = 1ull << 11u,           // ~
-        CARET = 1ull << 12u,           // ^
-        STAR = 1ull << 13u,            // *
-        SLASH = 1ull << 14u,           // /
-        PERCENT = 1ull << 15u,         // %
-        AND = 1ull << 16u,             // &
-        BAR = 1ull << 17u,             // |
-        LT = 1ull << 18u,              // <
-        GT = 1ull << 19u,              // >
-                                       //
+        EQ = 1ull << 7u,       // =
+        PLUS = 1ull << 8u,     // +
+        MINUS = 1ull << 9u,    // -
+        EXCLAIM = 1ull << 10u, // !
+        TILDE = 1ull << 11u,   // ~
+        CARET = 1ull << 12u,   // ^
+        STAR = 1ull << 13u,    // *
+        SLASH = 1ull << 14u,   // /
+        PERCENT = 1ull << 15u, // %
+        AND = 1ull << 16u,     // &
+        BAR = 1ull << 17u,     // |
+        LT = 1ull << 18u,      // <
+        GT = 1ull << 19u,      // >
+        //
+        OPEN_PAREN = 1ull << 20u,
+        CLOSE_PAREN = 1ull << 21u,
+
+        // composite symbols
         PLUS_EQ = PLUS | EQ,           // +=
         MINUS_EQ = MINUS | EQ,         // -=
         EXCLAIM_EQ = EXCLAIM | EQ,     // !=

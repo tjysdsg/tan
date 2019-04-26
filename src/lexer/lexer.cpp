@@ -125,6 +125,12 @@ namespace tanlang {
         return new_token;
     }
 
+#define _X_(x, type_x)                                                         \
+    case x:                                                                    \
+        type = (TOKEN_TYPE)(type_x);                                           \
+        goto ret;                                                              \
+        break
+
 #define _X_OR_XY_(x, y, type_x, type_y)                                        \
     case x:                                                                    \
         if (curr + 1 < len && str[curr + 1] == (y)) {                          \
@@ -134,7 +140,7 @@ namespace tanlang {
             type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
-        break;
+        break
 
 #define _X_OR_DOUBLE_X_(x, type_x)                                             \
     case x:                                                                    \
@@ -145,7 +151,7 @@ namespace tanlang {
             type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
-        break;
+        break
 
 #define _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_(x, type_x, y, type_y)             \
     case x:                                                                    \
@@ -163,7 +169,7 @@ namespace tanlang {
             type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
-        break;
+        break
 
 #define _X_OR_DOUBLE_X_OR_X_Y_(x, type_x, y, type_y)                           \
     case x:                                                                    \
@@ -177,7 +183,7 @@ namespace tanlang {
             type = (TOKEN_TYPE)(type_x);                                       \
         }                                                                      \
         goto ret;                                                              \
-        break;
+        break
 
     token_info *advance_for_symbol(const std::string &str, size_t &current,
                                    size_t len) {
@@ -188,19 +194,22 @@ namespace tanlang {
                 break;
             char ch = str[curr];
             switch (ch) {
-                _X_OR_XY_('!', '=', EXCLAIM, EQ)
-                _X_OR_DOUBLE_X_OR_X_Y_('|', BAR, '=', EQ)
-                _X_OR_DOUBLE_X_OR_X_Y_('&', AND, '=', EQ)
-                _X_OR_XY_('^', '=', CARET, EQ)
-                _X_OR_XY_('+', '=', PLUS, EQ)
-                _X_OR_XY_('-', '=', MINUS, EQ)
-                _X_OR_XY_('*', '=', STAR, EQ)
-                _X_OR_XY_('~', '=', TILDE, EQ)
-                _X_OR_XY_('/', '=', SLASH, EQ)
-                _X_OR_XY_('%', '=', PERCENT, EQ)
-                _X_OR_DOUBLE_X_('=', EQ)
-                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('>', GT, '=', EQ)
-                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('<', LT, '=', EQ)
+                _X_OR_XY_('!', '=', EXCLAIM, EQ);
+                _X_OR_DOUBLE_X_OR_X_Y_('|', BAR, '=', EQ);
+                _X_OR_DOUBLE_X_OR_X_Y_('&', AND, '=', EQ);
+                _X_OR_XY_('^', '=', CARET, EQ);
+                _X_OR_XY_('+', '=', PLUS, EQ);
+                _X_OR_XY_('-', '=', MINUS, EQ);
+                _X_OR_XY_('*', '=', STAR, EQ);
+                _X_OR_XY_('~', '=', TILDE, EQ);
+                _X_OR_XY_('/', '=', SLASH, EQ);
+                _X_OR_XY_('%', '=', PERCENT, EQ);
+                _X_OR_DOUBLE_X_('=', EQ);
+                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('>', GT, '=', EQ);
+                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('<', LT, '=', EQ);
+                //
+                _X_('(', OPEN_PAREN);
+                _X_(')', CLOSE_PAREN);
             default:
                 goto ret;
                 break;
@@ -359,6 +368,9 @@ namespace tanlang {
             SWITCH_CASE_TOKEN_TYPE(DOUBLE_LT_EQ);
             SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT);
             SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT_EQ);
+            //
+            SWITCH_CASE_TOKEN_TYPE(OPEN_PAREN);
+            SWITCH_CASE_TOKEN_TYPE(CLOSE_PAREN);
         default:
             ret = "";
             break;
