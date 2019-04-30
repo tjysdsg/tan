@@ -4,19 +4,20 @@
     println("Building version {} ...", version);
     prog_version = version;
     build_msg = success_msg;
-    register_after_build(fn()->void{println(build_msg);});
+    register_after_build(fn()->void { println(build_msg); });
 }
 
-fn main(argc: u32, argv: *str) -> u32 {
+fn main(argc: u32, argv: **str) -> u32 {
     // get all arguments
-    args: &str[] = new str[argc];
-    for(i:u32; i<argc; i+=1) {
-        args[i] = *(str+i);
+    args: **str = new(argc * sizeof(*str));
+    // this is redundant, but for illustration purposes
+    for(i: u32 = 0; i < argc; i += 1) {
+        args[i] = argv[i];
     }
     // parse arguments
-    for(i:u32; i<argc; i+=1) {
+    for(i: u32 = 0; i < argc; i += 1) {
         if (args[i] == "-v" || args[i] == "--version") {
-            println("Version: {}",prog_version);
+            println("Version: {}", prog_version);
             return 0;
         }
 
