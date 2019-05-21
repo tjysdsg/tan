@@ -16,9 +16,12 @@ namespace tanlang {
     }
 
 #define DEFINE_PARSER_FUNCTION_FOR_TYPE(type)                                  \
-    bool parse##type(ast_node *&new_node, std::vector<token_info *> ts,        \
+    bool parse##type(ast_node *&new_node, const std::vector<token_info *> &ts, \
                      size_t &curr_idx)
 
+    // parser function prototypes
+    // TODO: implement all parser functions
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(KEYWORD);
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR0);
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR1);
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR2);
@@ -35,26 +38,125 @@ namespace tanlang {
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR13);
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR14);
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR15);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(STMT);
+    // parser function for keywords
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(IF) {
+        // (
+        if (ts[++curr_idx]->type != OPEN_PAREN) {
+            return false;
+        }
+        // condition in if
+        ast_node *new_child_node = nullptr;
+        if (parseEXPR(new_child_node, ts, ++curr_idx)) {
+            return false;
+        }
+        new_node->children.push_back(new_child_node);
+        // )
+        if (ts[++curr_idx]->type != CLOSE_PAREN) {
+            return false;
+        }
 
+        // code block in if
+        if (ts[++curr_idx]->type != OPEN_BRACE) {
+            return false;
+        }
+        new_child_node = nullptr;
+        if (parseSTMT(new_child_node, ts, ++curr_idx)) {
+            return false;
+        }
+        new_node->children.push_back(new_child_node);
+
+        if (ts[++curr_idx]->type != CLOSE_BRACE) {
+            return false;
+        }
+        // else
+        if (ts[curr_idx + 1]->str == "else") {
+            ++curr_idx;
+            // code block in else
+            if (ts[++curr_idx]->type != OPEN_BRACE) {
+                return false;
+            }
+            new_child_node = nullptr;
+            if (parseSTMT(new_child_node, ts, ++curr_idx)) {
+                return false;
+            }
+            new_node->children.push_back(new_child_node);
+            if (ts[++curr_idx]->type != CLOSE_BRACE) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(FOR);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(WHILE);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(VARDECL);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(CONSTDECL);
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(FNDECL);
+
+    DEFINE_PARSER_FUNCTION_FOR_TYPE(KEYWORD) {
+        auto *t = ts[curr_idx];
+        // lexer set the type of all keywords as ID, since it's parser's job to
+        // recognize them
+        if (t->type == ID) {
+            new_node = new ast_node;
+            if (t->str == "if") {
+                new_node->type = MAKE_AST_NODE_TYPE(IF, STMT);
+                return parseIF(new_node, ts, curr_idx);
+            } else if (t->str == "for") {
+                new_node->type = MAKE_AST_NODE_TYPE(FOR, STMT);
+                return parseFOR(new_node, ts, curr_idx);
+            } else if (t->str == "while") {
+                new_node->type = MAKE_AST_NODE_TYPE(WHILE, STMT);
+                return parseWHILE(new_node, ts, curr_idx);
+            } else if (t->str == "var") {
+                new_node->type = MAKE_AST_NODE_TYPE(VARDECL, STMT);
+                return parseVARDECL(new_node, ts, curr_idx);
+            } else if (t->str == "let") {
+                new_node->type = MAKE_AST_NODE_TYPE(CONSTDECL, STMT);
+                return parseCONSTDECL(new_node, ts, curr_idx);
+            } else if (t->str == "enum") {
+            } else if (t->str == "fn") {
+                new_node->type = MAKE_AST_NODE_TYPE(FNDECL, STMT);
+                return parseFNDECL(new_node, ts, curr_idx);
+            } else if (t->str == "typename") {
+            } else if (t->str == "struct") {
+            } else if (t->str == "union") {
+            } else if (t->str == "case") {
+            } else if (t->str == "default") {
+            } else if (t->str == "do") {
+            } else if (t->str == "switch") {
+            } else if (t->str == "break") {
+            } else if (t->str == "continue") {
+            } else if (t->str == "return") {
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    // definitions of parser functions
     DEFINE_PARSER_FUNCTION_FOR_TYPE(EXPR) {
-        return !(parseEXPR0(new_node, ts, curr_idx) == false
-                 //&&
-                 // parseEXPR1(new_node, ts, curr_idx) == false &&
-                 // parseEXPR2(new_node, ts, curr_idx) == false &&
-                 // parseEXPR3(new_node, ts, curr_idx) == false &&
-                 // parseEXPR4(new_node, ts, curr_idx) == false &&
-                 // parseEXPR5(new_node, ts, curr_idx) == false &&
-                 // parseEXPR6(new_node, ts, curr_idx) == false &&
-                 // parseEXPR7(new_node, ts, curr_idx) == false &&
-                 // parseEXPR8(new_node, ts, curr_idx) == false &&
-                 // parseEXPR9(new_node, ts, curr_idx) == false &&
-                 // parseEXPR10(new_node, ts, curr_idx) == false &&
-                 // parseEXPR11(new_node, ts, curr_idx) == false &&
-                 // parseEXPR12(new_node, ts, curr_idx) == false &&
-                 // parseEXPR13(new_node, ts, curr_idx) == false &&
-                 // parseEXPR14(new_node, ts, curr_idx) == false &&
-                 // parseEXPR15(new_node, ts, curr_idx) == false
-        );
+        typedef bool (*parse_func_t)(
+            ast_node *&, const std::vector<token_info *> &, size_t &);
+        std::vector<parse_func_t> expr_parsers = {
+            parseEXPR0,  parseEXPR1,  parseEXPR2,  parseEXPR3,
+            parseEXPR4,  parseEXPR5,  parseEXPR6,  parseEXPR7,
+            parseEXPR8,  parseEXPR9,  parseEXPR10, parseEXPR11,
+            parseEXPR12, parseEXPR13, parseEXPR14, parseEXPR15,
+        };
+        auto new_idx = curr_idx + 1;
+        ast_node *new_child_node = nullptr;
+        for (parse_func_t pfn : expr_parsers) {
+            if (pfn(new_child_node, ts, new_idx)) {
+                curr_idx = new_idx;
+                new_node->children.push_back(new_child_node);
+                return true;
+            }
+            // TODO: error handling
+        }
+        return false;
     }
 
     DEFINE_PARSER_FUNCTION_FOR_TYPE(IDENTIFIER) {
@@ -63,7 +165,6 @@ namespace tanlang {
             new_node = new ast_node;
             new_node->type = MAKE_AST_NODE_TYPE(IDENTIFIER, EXPR);
             new_node->str = t->str;
-            // TODO: Keyword Recognition
             return true;
         }
         return false;
@@ -73,7 +174,8 @@ namespace tanlang {
         auto *t = ts[curr_idx];
         bool success = false;
         ast_node *child_node = nullptr;
-        if (parseIDENTIFIER(child_node, ts, curr_idx)) { // expr0 = IDENTIFIER
+        if (parseIDENTIFIER(child_node, ts,
+                            curr_idx)) { // expr0 = IDENTIFIER
             new_node->children.push_back(child_node);
             success = true;
         } else if (t->type == OPEN_PAREN) {
@@ -102,19 +204,13 @@ namespace tanlang {
         return success;
     }
 
-#define PARSER_FUNCTION_SWITCH_CASE_FOR_TYPE(type)                             \
-    case type: {                                                               \
-        ast_node *new_node = nullptr;                                          \
-        while (parse##type(new_node, ts, curr_idx) == false) {}                \
-        _ast->children.push_back(new_node);                                    \
-    } break
-
     Parser::~Parser() { free_ast_node(_ast); }
 
     void Parser::parse(Lexer const *lexer) {
-        typedef bool (*parse_func_t)(ast_node *&, std::vector<token_info *>,
-                                     size_t &);
+        typedef bool (*parse_func_t)(
+            ast_node *&, const std::vector<token_info *> &, size_t &);
         std::vector<parse_func_t> parse_functions = {
+            parseKEYWORD,
             parseIDENTIFIER,
             parseEXPR,
         };

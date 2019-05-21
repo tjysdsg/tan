@@ -7,7 +7,7 @@ namespace tanlang {
     // AST_NODE_TYPE = (AST_NODE_SUB_TYPE << 32) | AST_NODE_BASE_TYPE;
     typedef uint64_t AST_NODE_TYPE;
 #define MAKE_AST_NODE_TYPE(sub, base)                                          \
-    ((((uint64_t)(sub)) << 32) | (uint64_t)(base))
+    ((((uint64_t)(sub)) << 32u) | (uint64_t)(base))
 
 #define GET_AST_NODE_SUB_TYPE(type) ((uint32_t)((type) >> 32u))
 #define GET_AST_NODE_BASE_TYPE(type) ((uint32_t)((type)&0x00000000ffffffff))
@@ -51,7 +51,9 @@ namespace tanlang {
         FOR,
         DO_WHILE,
         SWITCH,
-        DECL,
+        VARDECL,   // variable declaration
+        CONSTDECL, // variable declaration
+        FNDECL,    // function declaration
         EXPR_STMT, // expr + ';'
         // unary operators
         POS,

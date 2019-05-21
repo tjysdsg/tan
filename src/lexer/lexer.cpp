@@ -210,6 +210,8 @@ namespace tanlang {
                 //
                 _X_('(', OPEN_PAREN);
                 _X_(')', CLOSE_PAREN);
+                _X_('{', OPEN_BRACE);
+                _X_('}', CLOSE_BRACE);
             default:
                 goto ret;
                 break;

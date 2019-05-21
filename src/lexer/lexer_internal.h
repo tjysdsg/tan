@@ -30,6 +30,8 @@ namespace tanlang {
         //
         OPEN_PAREN = 1ull << 20u,
         CLOSE_PAREN = 1ull << 21u,
+        OPEN_BRACE = 1ull << 22u,
+        CLOSE_BRACE = 1ull << 23u,
 
         // composite symbols
         PLUS_EQ = PLUS | EQ,           // +=
