@@ -1,7 +1,6 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 #include "config.h"
-#include "lexer.h"
 
 namespace po = boost::program_options;
 int main(int argc, char **argv) {
@@ -36,10 +35,7 @@ int main(int argc, char **argv) {
         std::vector<std::string> files =
             vm["files"].as<std::vector<std::string>>();
         for (const std::string &file : files) {
-            tanlang::Lexer lx;
-            lx.open(file);
-            lx.lex();
-            std::cout << lx << std::endl;
+            // TODO: call parser to parse files
         }
     }
     return 0;
