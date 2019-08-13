@@ -8,8 +8,14 @@ namespace tanlang {
         }
         return str;
     }
-    void report_error(const std::string &source, const size_t lineno,
-                      const size_t column, const std::string &error_message) {
+
+    void handle_error(const std::string &msg) {
+        fprintf(stderr, "%s", msg.c_str());
+    }
+
+    void report_code_error(const std::string &source, const size_t lineno,
+                           const size_t column,
+                           const std::string &error_message) {
         std::string error_output =
             "In line " + std::to_string(lineno) + ":\n\t" + source + "\n";
         error_output +=
