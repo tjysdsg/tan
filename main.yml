@@ -1,0 +1,13 @@
+name: Compile and test
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+    
+    steps:
+    - uses: actions/checkout@master
+    - name: Compile and test on master branch
+      run: ./compile-and-test.sh
