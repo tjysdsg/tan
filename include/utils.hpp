@@ -1,5 +1,5 @@
-#ifndef __TAN_INCLUDE_UTILS_HPP__
-#define __TAN_INCLUDE_UTILS_HPP__
+#ifndef TAN_INCLUDE_UTILS_HPP
+#define TAN_INCLUDE_UTILS_HPP
 #include <cstddef>
 #include <cassert>
 #include <tuple>
@@ -40,4 +40,4 @@ namespace tanlang {
 
 } // namespace tanlang
 
-#endif // __TAN_INCLUDE_UTILS_HPP__
+#endif // TAN_INCLUDE_UTILS_HPP

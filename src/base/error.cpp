@@ -17,7 +17,7 @@ namespace tanlang {
                            const size_t column,
                            const std::string &error_message) {
         std::string error_output =
-            "In line " + std::to_string(lineno) + ":\n\t" + source + "\n";
+            "In line " + std::to_string(lineno) + ":\n" + source + "\n";
         error_output +=
             std::string(" ") * column + "^\n" + error_message + "\n";
         std::cerr << error_output;
