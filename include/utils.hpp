@@ -18,7 +18,6 @@ namespace tanlang {
 
         // operator overloading
         bool operator==(const iterator<T> &other) {
-            // FIXME: check if parents are the same
             return this->index == other.index;
         }
 

@@ -54,8 +54,22 @@ TEST(Reader, test1) {
         ++rs;
         ++ls;
     }
-    tanlang::Reader ra1;
-    ra1.from_string("hi!\nthis is tan\n");
-    EXPECT_EQ(ra1.get_filename(), "");
+}
+
+TEST(Reader, test2) {
+	tanlang::Reader ra;
+	ra.from_string("hi!\nthis is tan\n");
+	EXPECT_EQ(ra.get_filename(), "");
+	std::vector<std::string> lines = {"hi!", "this is tan", ""};
+	// test reader's content and its iterator
+	auto rs = ra.begin();
+	auto re = ra.end();
+	auto ls = lines.begin();
+	auto le = lines.end();
+	while (rs != re and ls != le) {
+		EXPECT_EQ((*rs).code, *ls);
+		++rs;
+		++ls;
+	}
 }
 #endif // TAN_TEST_READER_TEST_H
