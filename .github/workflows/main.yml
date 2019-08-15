@@ -1,13 +1,24 @@
-name: Compile and test
+name: Continuous Build
 
-on: [push]
+on: 
+  push:
+    branches:
+    - master
+    - parser
 
 jobs:
-  build:
-
+  CI_master:
     runs-on: ubuntu-18.04
     
     steps:
     - uses: actions/checkout@master
-    - name: Compile and test on master branch
+    - name: compile and test
+      run: ./compile-and-test.sh
+
+  CI_parser:
+    runs-on: ubuntu-18.04
+    
+    steps:
+    - uses: actions/checkout@master
+    - name: compile and test
       run: ./compile-and-test.sh
