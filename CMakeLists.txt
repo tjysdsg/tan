@@ -14,8 +14,8 @@ project(tan LANGUAGES CXX VERSION ${TAN_VERSION})
 # generate include/config.h
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
-# C++11
-set(CMAKE_CXX_STANDARD 11)
+# C++17
+set(CMAKE_CXX_STANDARD 17)
 
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version

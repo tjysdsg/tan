@@ -2,16 +2,31 @@
 #define TAN_LEXER_TEST_H
 #include "lexer.h"
 #include "reader.h"
+#include <gtest/gtest.h>
 
-TEST(tokenize, test1) {
-    std::string code = "//this is a comment";
-    tanlang::line_info l(0);
-    l.code = code;
-    std::vector<tanlang::rule> rules;
-    rules.emplace_back(tanlang::rule(R"(//.*)", tanlang::TokenType::COMMENTS));
-    auto tokens = tanlang::tokenize(&l, rules);
-    EXPECT_EQ(tokens.size(), 1);
-    EXPECT_EQ(tokens[0]->type, tanlang::TokenType::COMMENTS);
-    EXPECT_EQ(tokens[0]->value, "//this is a comment");
+TEST(tokenize, line_comment) {
+	std::string code = "// this is a comment";
+	using tanlang::Reader;
+	using tanlang::tokenize;
+	using tanlang::TokenType;
+	Reader r;
+	r.from_string(code);
+	auto result = tokenize(&r);
+	EXPECT_EQ(result.size(), 1);
+	EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
+	EXPECT_EQ(result[0]->value, " this is a comment");
+}
+
+TEST(tokenize, block_comment) {
+	std::string code = "/* this is a comment */";
+	using tanlang::Reader;
+	using tanlang::tokenize;
+	using tanlang::TokenType;
+	Reader r;
+	r.from_string(code);
+	auto result = tokenize(&r);
+	EXPECT_EQ(result.size(), 1);
+	EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
+	EXPECT_EQ(result[0]->value, " this is a comment ");
 }
 #endif /* TAN_LEXER_TEST_H */

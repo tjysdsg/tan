@@ -5,13 +5,13 @@ IndentWidth: 4
 Language: Cpp
 AlignTrailingComments: true
 AllowShortBlocksOnASingleLine: true
-ColumnLimit: 80
+ColumnLimit: 120
 FixNamespaceComments: true
 IndentPPDirectives: AfterHash
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 ReflowComments: true
-SortIncludes: false
+SortIncludes: true
 SpaceBeforeAssignmentOperators: true
 Standard: Cpp11
 SpacesBeforeTrailingComments: 1
