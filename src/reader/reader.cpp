@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+
 namespace tanlang {
     Reader::~Reader() {
         for (size_t i = 0; i < _lines.size(); ++i) {
@@ -12,6 +13,7 @@ namespace tanlang {
             }
         }
     }
+
     // TODO: optimise Reader for speed
     void Reader::open(const std::string &filename) {
         // TODO: check file attributes before reading
@@ -25,7 +27,9 @@ namespace tanlang {
         _lines.reserve(n_lines);
         from_string(content);
     }
+
     std::string Reader::get_filename() const { return _filename; }
+
     void Reader::from_string(const std::string &code) {
         std::string line;
         unsigned lineno = 0;
@@ -44,7 +48,7 @@ namespace tanlang {
                 // delete whitespace at the beginning of the line
                 for (size_t i = 0; i < line.length(); ++i) {
                     if (!std::isspace(line[i])) {
-                        new_line->code = std::string(line.begin() + (long)i, line.end());
+                        new_line->code = std::string(line.begin() + (long) i, line.end());
                         break;
                     }
                 }

@@ -13,6 +13,7 @@ namespace tanlang {
         }
         return ptr;
     }
+
     code_ptr skip_until(Reader *reader, code_ptr ptr, const char delim) {
         const auto end = reader->back_ptr();
         while (ptr != end && (*reader)[ptr] != delim) {
@@ -20,13 +21,13 @@ namespace tanlang {
         }
         return ptr;
     }
-    /*
-     * NOTE: INVARIANT for all tokenize_xx functions
-     *      start is at least one token before the end
-     * NOTE: call of tokenize_keyword must before that of
-     *      tokenize_id
-     * */
 
+    /**
+     * \note: INVARIANT for all tokenize_xx functions
+     *      start is at least one token before the end
+     * \note: Call of tokenize_keyword must before that of
+     *      tokenize_id
+     */
     token *tokenize_id(Reader *reader, code_ptr &start) {
         token *ret = nullptr;
         auto forward = start;
@@ -42,6 +43,7 @@ namespace tanlang {
         start = forward;
         return ret;
     }
+
     token *tokenize_keyword(Reader *reader, code_ptr &start) {
         // find whether the value is in KEYWORDS (lexdef.h) based on
         // returned value of tokenize_id()
@@ -56,6 +58,7 @@ namespace tanlang {
         }
         return t;
     }
+
     token *tokenize_comments(Reader *reader, code_ptr &start) {
         token *t = nullptr;
         auto next = reader->forward_ptr(start);
@@ -91,22 +94,26 @@ namespace tanlang {
         }
         return t;
     }
+
     // TODO: implement tokenize_int, tokenize_float, tokenize_number
     token *tokenize_int(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
         return nullptr;
     }
+
     token *tokenize_float(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
         return nullptr;
     }
+
     token *tokenize_number(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
         return nullptr;
     }
+
     // TODO: support escape sequences inside char literals
     token *tokenize_char(Reader *reader, code_ptr &start) {
         token *t = nullptr;
@@ -125,6 +132,7 @@ namespace tanlang {
         }
         return t;
     }
+
     // TODO: support escape sequences inside string literals
     token *tokenize_string(Reader *reader, code_ptr &start) {
         token *t = nullptr;
@@ -143,6 +151,7 @@ namespace tanlang {
         }
         return t;
     }
+
     token *tokenize_punctuation(Reader *reader, code_ptr &start) {
         token *t = nullptr;
         auto next = reader->forward_ptr(start);
@@ -151,15 +160,15 @@ namespace tanlang {
         if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) {
             t = tokenize_comments(reader, start);
         }
-        // char literal
+            // char literal
         else if ((*reader)[start] == '\'') {
             t = tokenize_char(reader, start);
         }
-        // string literal
+            // string literal
         else if ((*reader)[start] == '"') {
             t = tokenize_string(reader, start);
         }
-        // operators
+            // operators
         else if (std::find(OP_SINGLE.begin(), OP_SINGLE.end(), (*reader)[start]) != OP_SINGLE.end()) {
             std::string value;
             do {
@@ -188,7 +197,7 @@ namespace tanlang {
             TokenType type = OPERATION_VALUE_TYPE_MAP[value.c_str()];
             t = new token(type, value);
         }
-        // other punctuations
+            // other punctuations
         else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
             t = new token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]));
             start = next;
@@ -197,6 +206,7 @@ namespace tanlang {
         }
         return t;
     }
+
     std::vector<token *> tokenize(Reader *reader, code_ptr start) {
         // TODO: DO NOT exit the program when errors occurred
         std::vector<token *> tokens;

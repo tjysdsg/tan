@@ -1,5 +1,6 @@
 #ifndef TAN_TEST_READER_TEST_H
 #define TAN_TEST_READER_TEST_H
+
 #include "reader.h"
 #include "utils.h"
 #include <boost/filesystem.hpp>
@@ -78,4 +79,5 @@ TEST(Reader, from_string2) {
         ++j;
     }
 }
+
 #endif // TAN_TEST_READER_TEST_H

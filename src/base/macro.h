@@ -1,6 +1,8 @@
 #ifndef __TAN_SRC_BASE_MACRO_H__
 #define __TAN_SRC_BASE_MACRO_H__
+
 #include "config.h"
+
 #define _STR_(s) #s
 #ifdef __has_builtin
 #    define TAN_HAVE_BUILTIN(x) __has_builtin(x)

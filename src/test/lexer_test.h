@@ -1,5 +1,6 @@
 #ifndef TAN_LEXER_TEST_H
 #define TAN_LEXER_TEST_H
+
 #include "lexer.h"
 #include "reader.h"
 #include <gtest/gtest.h>
@@ -29,4 +30,5 @@ TEST(tokenize, block_comment) {
     EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
     EXPECT_EQ(result[0]->value, " this is a comment ");
 }
+
 #endif /* TAN_LEXER_TEST_H */

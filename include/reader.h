@@ -1,23 +1,31 @@
 #ifndef TAN_READER_READER_H
 #define TAN_READER_READER_H
+
 #include "config.h"
 #include "utils.h"
 #include <cstdint>
 #include <string>
 #include <unistd.h>
 #include <vector>
+
 namespace tanlang {
     struct code_ptr {
         long r = 0;
         long c = 0;
+
         code_ptr() = default;
+
         code_ptr(long r, long c) : r(r), c(c) {}
+
         code_ptr(const code_ptr &other) {
             r = other.r;
             c = other.c;
         }
+
         ~code_ptr() = default;
+
         bool operator==(const code_ptr &other) { return r == other.r && c == other.c; }
+
         bool operator<(const code_ptr &other) {
             if (r < other.r) {
                 return true;
@@ -27,6 +35,7 @@ namespace tanlang {
                 return c < other.c;
             }
         }
+
         bool operator>(const code_ptr &other) {
             if (r > other.r) {
                 return true;
@@ -36,12 +45,15 @@ namespace tanlang {
                 return c > other.c;
             }
         }
+
         code_ptr &operator=(const code_ptr &other) {
             r = other.r;
             c = other.c;
             return *this;
         }
+
         static code_ptr npos() { return code_ptr(-1, -1); }
+
         bool operator!=(const code_ptr &other) { return !(*this == other); }
     };
 
@@ -49,7 +61,9 @@ namespace tanlang {
         unsigned lineno = 0;   // line number
         std::string code = ""; // actual code
         line_info() = default;
+
         explicit line_info(const unsigned lineno) { this->lineno = lineno; }
+
         ~line_info() = default;
     };
 
@@ -57,22 +71,33 @@ namespace tanlang {
 
     // TODO: support unicode
     class Reader final {
-      public:
+    public:
         Reader() = default;
+
         ~Reader();
+
         void open(const std::string &filename);
+
         void from_string(const std::string &code);
-        // bool set_encoding(const std::string& encoding);
+
         [[nodiscard]] std::string get_filename() const;
+
+        /// \brief Return the number of lines of code of the current file
         [[nodiscard]] size_t size() const { return _lines.size(); }
+
+        /** \brief Return line_info at the (@index + 1) line
+         *  \param index line of code starting from 0
+         */
         line_info &operator[](const size_t index) const {
             assert(index < _lines.size());
             return *(_lines[index]);
         }
+
         char operator[](const code_ptr &ptr) const {
             assert(ptr.r >= 0 && ptr.c >= 0);
             return _lines[static_cast<size_t>(ptr.r)]->code[static_cast<size_t>(ptr.c)];
         }
+
         // start inclusive, end exclusive string slice
         std::string operator()(const code_ptr &start, code_ptr end = code_ptr::npos()) const {
             assert(start.r >= 0 && start.c >= 0);
@@ -99,11 +124,14 @@ namespace tanlang {
             }
             return ret;
         }
+
         [[nodiscard]] code_ptr front_ptr() const { return code_ptr(0, 0); }
+
         [[nodiscard]] code_ptr back_ptr() const {
             return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length() - 1));
         }
-        // return a copy of code_ptr that points to the next position of ptr
+
+        /// \brief Return a copy of code_ptr that points to the next position of ptr
         [[nodiscard]] code_ptr forward_ptr(code_ptr ptr) {
             long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.r)]->code.length());
             if (ptr.c == n_cols - 1) {
@@ -117,7 +145,7 @@ namespace tanlang {
             return ptr;
         }
 
-      private:
+    private:
         std::string _filename = "";
         std::vector<line_info *> _lines{};
     };
