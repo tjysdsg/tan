@@ -6,6 +6,12 @@
 #include <regex>
 
 namespace tanlang {
+#define IS_DELIMITER(x) (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' \
+    || x == '@' || x == '#' || x == '$' || x == '%' || x == '^' || x == '&' || x == '*' || x == '('\
+     || x == ')' || x == '-' || x == '+' || x == '=' || x == ';' || x == '<' || x == '>'\
+      || x == '/' || x == '?' || x == '\\' || x == '|' || x == '{' || x == '}' || x == '['\
+       || x == ']' || x == '\'' || x == '"' || x == ':')
+
     code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
         const auto end = reader->back_ptr();
         while (ptr != end && std::isspace((*reader)[ptr])) {
@@ -35,6 +41,8 @@ namespace tanlang {
         while (forward != end) {
             if (std::isalnum((*reader)[forward]) || (*reader)[forward] == '_') {
                 forward = reader->forward_ptr(forward);
+            } else if (start == forward) {
+                return nullptr;
             } else {
                 ret = new token(TokenType::ID, (*reader)(start, forward));
                 break;
@@ -47,10 +55,12 @@ namespace tanlang {
     token *tokenize_keyword(Reader *reader, code_ptr &start) {
         // find whether the value is in KEYWORDS (lexdef.h) based on
         // returned value of tokenize_id()
-        auto *t = tokenize_id(reader, start);
+        code_ptr forward = start;
+        auto *t = tokenize_id(reader, forward);
         if (t) {
             if (std::find(std::begin(KEYWORDS), std::end(KEYWORDS), t->value) != std::end(KEYWORDS)) {
                 t->type = TokenType::KEYWORD;
+                start = forward;
             } else {
                 delete (t);
                 t = nullptr;
@@ -95,23 +105,32 @@ namespace tanlang {
         return t;
     }
 
-    // TODO: implement tokenize_int, tokenize_float, tokenize_number
-    token *tokenize_int(Reader *reader, code_ptr &start) {
-        auto forward = start;
-        const auto end = reader->back_ptr();
-        return nullptr;
-    }
-
-    token *tokenize_float(Reader *reader, code_ptr &start) {
-        auto forward = start;
-        const auto end = reader->back_ptr();
-        return nullptr;
-    }
-
+    // TODO: implement tokenize_number
     token *tokenize_number(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
-        return nullptr;
+        bool is_float = false;
+        auto *t = new token;
+        while (forward != end) {
+            const char ch = (*reader)[forward];
+            if (std::isdigit(ch) || (ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X') {
+            } else if (ch == '.') {
+                // TODO: '.' can only be followed by digits
+                is_float = true;
+            } else if (IS_DELIMITER(ch)) {
+                break;
+            } else {
+                report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
+                                  static_cast<size_t>(forward.c), "Unexpected character within a number literal");
+                delete t;
+                return nullptr;
+            }
+            forward = (*reader).forward_ptr(forward);
+        }
+        t->type = is_float ? TokenType::FLOAT : TokenType::INT;
+        t->value = (*reader)(start, forward);
+        start = forward;
+        return t;
     }
 
     // TODO: support escape sequences inside char literals
