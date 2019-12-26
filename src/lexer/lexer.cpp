@@ -14,7 +14,7 @@ namespace tanlang {
 
     code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
         const auto end = reader->back_ptr();
-        while (ptr != end && std::isspace((*reader)[ptr])) {
+        while (ptr < end && std::isspace((*reader)[ptr])) {
             ptr = reader->forward_ptr(ptr);
         }
         return ptr;
@@ -105,7 +105,6 @@ namespace tanlang {
         return t;
     }
 
-    // TODO: implement tokenize_number
     token *tokenize_number(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
@@ -134,12 +133,13 @@ namespace tanlang {
     }
 
     // TODO: support escape sequences inside char literals
+    // TODO: check line breaks in side two quotation marks
     token *tokenize_char(Reader *reader, code_ptr &start) {
         token *t = nullptr;
-        auto forward = start;
+        auto forward = reader->forward_ptr(start);
         const auto end = reader->back_ptr();
         forward = skip_until(reader, forward, '\'');
-        if (forward == end) {
+        if (forward > end) {
             report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
                               static_cast<size_t>(forward.c), "Incomplete character literal");
             exit(1);
@@ -153,12 +153,13 @@ namespace tanlang {
     }
 
     // TODO: support escape sequences inside string literals
+    // TODO: check line breaks in side two quotation marks
     token *tokenize_string(Reader *reader, code_ptr &start) {
         token *t = nullptr;
-        auto forward = start;
-        const auto end = reader->back_ptr();
+        auto forward = reader->forward_ptr(start);
         forward = skip_until(reader, forward, '"');
-        if (forward == end) {
+        const auto end = reader->back_ptr();
+        if (forward > end) {
             report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
                               static_cast<size_t>(forward.c), "Incomplete string literal");
             exit(1);

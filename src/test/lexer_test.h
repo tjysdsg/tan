@@ -19,6 +19,32 @@ TEST(tokenize, line_comment) {
     EXPECT_EQ(result[0]->value, " this is a comment");
 }
 
+TEST(tokenize, string_literal) {
+    std::string code = "\"hello world, motherfucker dsfs \nshit \t\"";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::STRING);
+    EXPECT_EQ(result[0]->value, "hello world, motherfucker dsfs shit \t");
+}
+
+TEST(tokenize, char_literal) {
+    std::string code = "'s'";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::CHAR);
+    EXPECT_EQ(result[0]->value, "s");
+}
+
 TEST(tokenize, block_comment) {
     std::string code = "/* this is a comment */";
     using tanlang::Reader;

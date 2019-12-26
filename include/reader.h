@@ -95,6 +95,8 @@ namespace tanlang {
 
         char operator[](const code_ptr &ptr) const {
             assert(ptr.r >= 0 && ptr.c >= 0);
+            if (static_cast<size_t>(ptr.r) >= this->size()) { return '\0'; }
+            if (static_cast<size_t>(ptr.c) >= this->_lines[ptr.r]->code.length()) { return '\0'; }
             return _lines[static_cast<size_t>(ptr.r)]->code[static_cast<size_t>(ptr.c)];
         }
 
