@@ -74,4 +74,13 @@ TEST(tokenize, number_literal) {
     EXPECT_EQ(result[4]->value, "0xaBFd");
 }
 
+TEST(tokenize, general_test1) {
+    tanlang::Reader r;
+    r.open("test_program.tan");
+    auto result = tanlang::tokenize(&r);
+    for (auto e : result) {
+        std::cout << e->value << std::endl;
+    }
+}
+
 #endif /* TAN_LEXER_TEST_H */

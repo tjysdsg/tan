@@ -4,6 +4,7 @@
 #include "utils.h"
 #include <array>
 #include <string>
+#include <unordered_map>
 
 namespace tanlang {
     enum class TokenType {
@@ -33,9 +34,13 @@ namespace tanlang {
     constexpr std::array OP{
             '~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/',
     };
-    // any element in OP_SINGLE MUST be an operator itself
-    constexpr std::array OP_SINGLE{',', '.'};
-    constexpr const_map<const char *, TokenType, 34> OPERATION_VALUE_TYPE_MAP(
+
+    const std::array<std::string, 34> OP_ALL{
+            "==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-",
+            "*=", "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", ",", "."
+    };
+
+    static std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP{
             // RELOP
             std::pair("==", TokenType::RELOP), std::pair("!=", TokenType::RELOP), std::pair(">=", TokenType::RELOP),
             std::pair("<=", TokenType::RELOP), std::pair(">", TokenType::RELOP), std::pair("<", TokenType::RELOP),
@@ -50,7 +55,9 @@ namespace tanlang {
             std::pair("/=", TokenType::BOP), std::pair("/", TokenType::BOP), std::pair("|=", TokenType::BOP),
             std::pair("|", TokenType::BOP), std::pair("<<=", TokenType::BOP), std::pair("<<", TokenType::BOP),
             std::pair(">>=", TokenType::BOP), std::pair(">>", TokenType::BOP), std::pair("!=", TokenType::BOP),
-            std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP));
+            std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP), std::pair("->", TokenType::BOP),
+            std::pair("=", TokenType::BOP)
+    };
 } // namespace tanlang
 
 #endif /*TAN_LEXDEF_H*/

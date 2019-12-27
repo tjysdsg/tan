@@ -14,7 +14,7 @@ namespace tanlang {
 
     code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
         const auto end = reader->back_ptr();
-        while (ptr < end && std::isspace((*reader)[ptr])) {
+        while (ptr < end && (std::isspace((*reader)[ptr]) || (*reader)[ptr] == '\0')) {
             ptr = reader->forward_ptr(ptr);
         }
         return ptr;
@@ -175,7 +175,6 @@ namespace tanlang {
     token *tokenize_punctuation(Reader *reader, code_ptr &start) {
         token *t = nullptr;
         auto next = reader->forward_ptr(start);
-
         // line comment or block comment
         if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) {
             t = tokenize_comments(reader, start);
@@ -189,32 +188,38 @@ namespace tanlang {
             t = tokenize_string(reader, start);
         }
             // operators
-        else if (std::find(OP_SINGLE.begin(), OP_SINGLE.end(), (*reader)[start]) != OP_SINGLE.end()) {
+        else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) {
             std::string value;
             do {
-                if (std::find(OP.begin(), OP.end(), (*reader)[next]) == OP.end()) {
-                    // operator containing one char
-                    value = std::string(1, (*reader)[start]);
-                    start = next;
+                code_ptr nnext = reader->forward_ptr(next);
+                code_ptr nnnext = reader->forward_ptr(nnext);
+                code_ptr back_ptr = reader->back_ptr();
+                std::string two = (*reader)(start, nnext);
+                std::string three = (*reader)(start, reader->forward_ptr(nnext));
+
+                if (next < back_ptr && nnext < back_ptr &&
+                    std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) {
+                    // operator containing three characters
+                    value = (*reader)(start, nnnext);
+                    start = nnnext;
                     break;
                 }
-                code_ptr nnext = reader->forward_ptr(next);
-                if (nnext == reader->back_ptr() || std::find(OP.begin(), OP.end(), (*reader)[nnext]) == OP.end()) {
-                    value = std::string{(*reader)[start], (*reader)[next]};
-                    if (OPERATION_VALUE_TYPE_MAP.contains(value.c_str())) {
+
+                if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
+                    value = (*reader)(start, nnext);
+                    if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) {
                         // operator containing two chars
                         start = nnext;
                         break;
                     }
                 }
-
                 // operator containing three chars
-                value = std::string{(*reader)[start], (*reader)[next], (*reader)[nnext]};
-                assert(OPERATION_VALUE_TYPE_MAP.contains(value.c_str()));
-                start = (*reader).forward_ptr(nnext);
+                value = std::string{(*reader)[start]};
+                assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
+                start = next;
             } while (false);
             // create new token, fill in token
-            TokenType type = OPERATION_VALUE_TYPE_MAP[value.c_str()];
+            TokenType type = OPERATION_VALUE_TYPE_MAP[value];
             t = new token(type, value);
         }
             // other punctuations
@@ -273,6 +278,8 @@ namespace tanlang {
                     exit(1);
                 }
                 tokens.emplace_back(new_token);
+            } else {
+                start = reader->forward_ptr(start);
             }
             start = skip_whitespace(reader, start);
         }

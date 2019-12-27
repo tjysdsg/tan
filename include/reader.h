@@ -46,11 +46,7 @@ namespace tanlang {
             }
         }
 
-        code_ptr &operator=(const code_ptr &other) {
-            r = other.r;
-            c = other.c;
-            return *this;
-        }
+        code_ptr &operator=(const code_ptr &other) = default;
 
         static code_ptr npos() { return code_ptr(-1, -1); }
 
@@ -96,7 +92,7 @@ namespace tanlang {
         char operator[](const code_ptr &ptr) const {
             assert(ptr.r >= 0 && ptr.c >= 0);
             if (static_cast<size_t>(ptr.r) >= this->size()) { return '\0'; }
-            if (static_cast<size_t>(ptr.c) >= this->_lines[ptr.r]->code.length()) { return '\0'; }
+            if (static_cast<size_t>(ptr.c) >= this->_lines[static_cast<size_t >(ptr.r)]->code.length()) { return '\0'; }
             return _lines[static_cast<size_t>(ptr.r)]->code[static_cast<size_t>(ptr.c)];
         }
 
@@ -107,7 +103,7 @@ namespace tanlang {
             // if end can contain -1 only if r and c are both -1
             assert(!((end.r == -1) ^ (end.c == -1)));
             if (end.r == -1 && end.c == -1) {
-                end.r = static_cast<long>(_lines.size() - 1);
+                end.r = static_cast<long>(start.r);
                 end.c = static_cast<long>(_lines[static_cast<size_t>(end.r)]->code.length());
             }
             auto s_row = start.r;
@@ -136,7 +132,7 @@ namespace tanlang {
         /// \brief Return a copy of code_ptr that points to the next position of ptr
         [[nodiscard]] code_ptr forward_ptr(code_ptr ptr) {
             long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.r)]->code.length());
-            if (ptr.c == n_cols - 1) {
+            if (ptr.c >= n_cols - 1) {
                 if (ptr.r < static_cast<long>(_lines.size())) {
                     ++ptr.r;
                 }
