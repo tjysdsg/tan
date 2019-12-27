@@ -63,8 +63,6 @@ namespace tanlang {
         ~line_info() = default;
     };
 
-    class Reader;
-
     // TODO: support unicode
     class Reader final {
     public:
@@ -96,7 +94,13 @@ namespace tanlang {
             return _lines[static_cast<size_t>(ptr.r)]->code[static_cast<size_t>(ptr.c)];
         }
 
-        // start inclusive, end exclusive string slice
+        /**
+         * \brief Get a string by specifying a range of code
+         * \param start start of the string, inclusive
+         * \param end end of the string, exclusive
+         * \note Without specifying @end, this function defaults to return the string starting from
+         *       @start and and to the end of the line
+         * */
         std::string operator()(const code_ptr &start, code_ptr end = code_ptr::npos()) const {
             assert(start.r >= 0 && start.c >= 0);
             assert(end.r >= -1 && end.c >= -1);
@@ -123,8 +127,9 @@ namespace tanlang {
             return ret;
         }
 
-        [[nodiscard]] code_ptr front_ptr() const { return code_ptr(0, 0); }
-
+        /**
+         * \brief Return a code pointer pointing one character after the final character in the code
+         * */
         [[nodiscard]] code_ptr back_ptr() const {
             return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length() - 1));
         }

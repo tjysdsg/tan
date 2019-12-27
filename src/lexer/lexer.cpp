@@ -133,7 +133,7 @@ namespace tanlang {
     }
 
     // TODO: support escape sequences inside char literals
-    // TODO: check line breaks in side two quotation marks
+    // TODO: check line breaks inside two quotation marks
     token *tokenize_char(Reader *reader, code_ptr &start) {
         token *t = nullptr;
         auto forward = reader->forward_ptr(start);
@@ -153,7 +153,7 @@ namespace tanlang {
     }
 
     // TODO: support escape sequences inside string literals
-    // TODO: check line breaks in side two quotation marks
+    // TODO: check line breaks inside two quotation marks
     token *tokenize_string(Reader *reader, code_ptr &start) {
         token *t = nullptr;
         auto forward = reader->forward_ptr(start);
