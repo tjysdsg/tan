@@ -16,6 +16,7 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 
 # C++17
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 99)
 
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version

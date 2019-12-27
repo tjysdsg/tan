@@ -21,23 +21,39 @@ namespace tanlang {
         UOP,         // unary operator
         BOP,         // binary operator
     };
-    constexpr std::array KEYWORDS{
-            "for", "while", "do", "if", "else", "fn", "var", "int", "float",
-            "continue", "break", "let", "struct", "enum", "union", "switch", "case", "str",
+
+    static std::unordered_map<TokenType, std::string> token_type_names{
+            {TokenType::COMMENTS,    "COMMENTS"},
+            {TokenType::KEYWORD,     "KEYWORD"},
+            {TokenType::INT,         "INT"},
+            {TokenType::FLOAT,       "FLOAT"},
+            {TokenType::ID,          "ID"},
+            {TokenType::CHAR,        "CHAR"},
+            {TokenType::STRING,      "STRING"},
+            {TokenType::PUNCTUATION, "PUNCTUATION"},
+            {TokenType::RELOP,       "RELOP"},
+            {TokenType::UOP,         "UOP"},
+            {TokenType::BOP,         "BOP"},
     };
-    constexpr std::array PUNCTUATIONS{
+
+    static constexpr std::array KEYWORDS{
+            "for", "while", "do", "if", "else", "fn", "var", "int", "float",
+            "continue", "break", "let", "struct", "enum", "union", "switch",
+            "case", "str", "u32",
+    };
+    static constexpr std::array PUNCTUATIONS{
             '~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']',
             '{', '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '<', '>', '/', '?',
     };
     // any symbol in OP can both be an operator itself or the start of an
     // operator
-    constexpr std::array OP{
+    static constexpr std::array OP{
             '~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/',
     };
 
     const std::array<std::string, 34> OP_ALL{
             "==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-",
-            "*=", "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", ",", "."
+            "*=", "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."
     };
 
     static std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP{
@@ -55,7 +71,7 @@ namespace tanlang {
             std::pair("/=", TokenType::BOP), std::pair("/", TokenType::BOP), std::pair("|=", TokenType::BOP),
             std::pair("|", TokenType::BOP), std::pair("<<=", TokenType::BOP), std::pair("<<", TokenType::BOP),
             std::pair(">>=", TokenType::BOP), std::pair(">>", TokenType::BOP), std::pair("!=", TokenType::BOP),
-            std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP), std::pair("->", TokenType::BOP),
+            std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP),
             std::pair("=", TokenType::BOP)
     };
 } // namespace tanlang
