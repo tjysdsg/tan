@@ -1,14 +1,12 @@
 #ifndef TAN_PARSEDEF_H
 #define TAN_PARSEDEF_H
 
-#include "utils.h"
 #include <unordered_map>
 
 namespace tanlang {
 enum PrecedenceLevel {
   PREC_LOWEST,
   PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
-  PREC_TERNARY = 100,     // ?:
   PREC_LOGICAL_OR = 110,  // ||
   PREC_LOGICAL_AND = 120, // &&
   PREC_COMPARISON = 130,  // < <= > >= == != === !== ~=
@@ -23,31 +21,77 @@ enum PrecedenceLevel {
 
 enum class ASTType {
   PROGRAM,
+
   SUM,
   SUBTRACT,
   MULTIPLY,
   DIVIDE,
+  MOD,
+  ASSIGN,
+
+  BAND, // binary and
+  LAND, // logical and
+  BOR,  // binary or
+  LOR,  // logical or
+  BNOT, // binary not
+  LNOT, // logical not
+  XOR,
+
   NUM_LITERAL,
   STRING_LITERAL,
   EOF_,
 };
 
+#define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
+
 static std::unordered_map<ASTType, std::string> ast_type_names{
-    {ASTType::PROGRAM, "PROGRAM"},
-    {ASTType::SUM, "SUM"},
-    {ASTType::SUBTRACT, "SUBTRACT"},
-    {ASTType::MULTIPLY, "MULTIPLY"},
-    {ASTType::DIVIDE, "DIVIDE"},
-    {ASTType::NUM_LITERAL, "NUM_LITERAL"},
-    {ASTType::STRING_LITERAL, "STRING_LITERAL"},
+    MAKE_ASTTYPE_NAME_PAIR(PROGRAM),
+
+    MAKE_ASTTYPE_NAME_PAIR(SUM),
+    MAKE_ASTTYPE_NAME_PAIR(SUBTRACT),
+    MAKE_ASTTYPE_NAME_PAIR(MULTIPLY),
+    MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
+    MAKE_ASTTYPE_NAME_PAIR(MOD),
+    MAKE_ASTTYPE_NAME_PAIR(ASSIGN),
+
+    MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL),
+    MAKE_ASTTYPE_NAME_PAIR(STRING_LITERAL),
+    MAKE_ASTTYPE_NAME_PAIR(BAND),
+    MAKE_ASTTYPE_NAME_PAIR(LAND),
+    MAKE_ASTTYPE_NAME_PAIR(BOR),
+    MAKE_ASTTYPE_NAME_PAIR(LOR),
+    MAKE_ASTTYPE_NAME_PAIR(BNOT),
+    MAKE_ASTTYPE_NAME_PAIR(LNOT),
+    MAKE_ASTTYPE_NAME_PAIR(XOR),
 };
 
 // operator precedence for each token
-static constexpr const_map<ASTType, int, 8>
-    op_precedence(std::pair(ASTType::PROGRAM, PREC_LOWEST), std::pair(ASTType::EOF_, PREC_LOWEST),
-                  std::pair(ASTType::SUM, PREC_TERM), std::pair(ASTType::SUBTRACT, PREC_TERM),
-                  std::pair(ASTType::MULTIPLY, PREC_FACTOR), std::pair(ASTType::DIVIDE, PREC_FACTOR),
-                  std::pair(ASTType::NUM_LITERAL, PREC_LOWEST),
-                  std::pair(ASTType::STRING_LITERAL, PREC_LOWEST));
+static std::unordered_map<ASTType, int>
+    op_precedence{
+    {ASTType::PROGRAM, PREC_LOWEST},
+    {ASTType::EOF_, PREC_LOWEST},
+
+    {ASTType::SUM, PREC_TERM},
+    {ASTType::SUBTRACT, PREC_TERM},
+    {ASTType::BOR, PREC_TERM},
+    {ASTType::XOR, PREC_TERM},
+
+    {ASTType::MULTIPLY, PREC_FACTOR},
+    {ASTType::DIVIDE, PREC_FACTOR},
+    {ASTType::MOD, PREC_FACTOR},
+    {ASTType::BAND, PREC_FACTOR},
+
+    {ASTType::ASSIGN, PREC_ASSIGN},
+
+    {ASTType::BNOT, PREC_UNARY},
+    {ASTType::LNOT, PREC_UNARY},
+
+    {ASTType::LAND, PREC_LOGICAL_AND},
+    {ASTType::LOR, PREC_LOGICAL_OR},
+
+    {ASTType::NUM_LITERAL, PREC_LOWEST},
+    {ASTType::STRING_LITERAL, PREC_LOWEST}
+};
+
 } // namespace tanlang
 #endif /* TAN_PARSEDEF_H */
