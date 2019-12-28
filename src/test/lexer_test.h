@@ -18,6 +18,10 @@ TEST(tokenize, line_comment) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
     EXPECT_EQ(result[0]->value, " this is a comment");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 TEST(tokenize, string_literal) {
@@ -31,6 +35,10 @@ TEST(tokenize, string_literal) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->type, TokenType::STRING);
     EXPECT_EQ(result[0]->value, "hello world, motherfucker dsfs shit \t");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 TEST(tokenize, char_literal) {
@@ -44,6 +52,10 @@ TEST(tokenize, char_literal) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->type, TokenType::CHAR);
     EXPECT_EQ(result[0]->value, "s");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 TEST(tokenize, block_comment) {
@@ -57,6 +69,10 @@ TEST(tokenize, block_comment) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
     EXPECT_EQ(result[0]->value, " this is a comment ");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 TEST(tokenize, number_literal) {
@@ -73,6 +89,10 @@ TEST(tokenize, number_literal) {
     EXPECT_EQ(result[2]->value, "0b10010111");
     EXPECT_EQ((int) result[4]->type, (int) TokenType::INT);
     EXPECT_EQ(result[4]->value, "0xaBFd");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 TEST(tokenize, general_test1) {
@@ -283,6 +303,10 @@ TEST(tokenize, general_test1) {
     for (size_t i = 0; i < expected.size(); ++i) {
         EXPECT_EQ(result[i]->type, expected[i].second);
         EXPECT_EQ(result[i]->value, expected[i].first);
+    }
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
     }
 }
 

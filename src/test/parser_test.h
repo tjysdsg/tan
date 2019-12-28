@@ -20,6 +20,11 @@ TEST(parser, arithmatic) {
     Parser p(tokens);
     p.parse();
     p._root->printTree();
+
+    for (auto *&t : tokens) {
+        delete t;
+        t = nullptr;
+    }
 }
 
 #endif /* TAN_PARSER_TEST_H */

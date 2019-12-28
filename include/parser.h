@@ -45,6 +45,8 @@ namespace tanlang {
 
         explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {}
 
+        ~Parser();
+
         ASTNode *advance();
 
         ASTNode *peek();
@@ -71,7 +73,12 @@ namespace tanlang {
         ASTNode(ASTType op, int associativity, int lbp,
                 int rbp) : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {};
 
-        virtual ~ASTNode() = default;
+        virtual ~ASTNode() {
+            for (auto *&c : _children) {
+                delete c;
+                c = nullptr;
+            }
+        };
 
         [[nodiscard]] virtual int get_ivalue() const {
             assert(false);
@@ -102,35 +109,9 @@ namespace tanlang {
             _children.emplace_back(c);
         }
 
-        void printTree() {
-            using std::cout;
-            std::cout << ast_type_names[this->_op] << "\n";
-            printSubtree("");
-            cout << "\n";
-        }
+        void printTree();
 
-        void printSubtree(const std::string &prefix) {
-            using std::cout;
-            using std::endl;
-            if (_children.empty()) return;
-            cout << prefix;
-            size_t n_children = _children.size();
-            cout << (n_children > 1 ? "├── " : "");
-
-            for (size_t i = 0; i < n_children; ++i) {
-                ASTNode *c = _children[i];
-                if (i < n_children - 1) {
-                    bool printStrand = n_children > 1 && !c->_children.empty();
-                    std::string newPrefix = prefix + (printStrand ? "│\t" : "\t");
-                    std::cout << ast_type_names[c->_op] << "\n";
-                    c->printSubtree(newPrefix);
-                } else {
-                    cout << (n_children > 1 ? prefix : "") << "└── ";
-                    std::cout << ast_type_names[c->_op] << "\n";
-                    c->printSubtree(prefix + "\t");
-                }
-            }
-        }
+        void printSubtree(const std::string &prefix);
     };
 
     class ASTInfixBinaryOp : public ASTNode {
@@ -138,22 +119,9 @@ namespace tanlang {
         ASTInfixBinaryOp() : ASTNode(ASTType::EOF_, 0, op_precedence[ASTType::EOF_], 0) {
         };
 
-        [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override {
-            _children.emplace_back(left);
-            auto *n = parser->next_expression(_lbp);
-            if (!n) {
-                // # TODO: report error
-                throw "SHIT";
-            } else {
-                _children.emplace_back(n);
-            }
-            return this;
-        }
+        [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override;
 
-        [[nodiscard]] ASTNode *nud(Parser *parser) override {
-            assert(false);
-            return nullptr;
-        }
+        [[nodiscard]] ASTNode *nud(Parser *parser) override;
     };
 
     class ASTNumberLiteral final : public ASTNode {
@@ -167,11 +135,6 @@ namespace tanlang {
                 _ivalue = std::stoi(str);
             }
         };
-
-        [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override {
-            assert(false);
-            return nullptr;
-        }
 
         [[nodiscard]] ASTNode *nud(Parser *parser) override {
             return this;
@@ -201,12 +164,13 @@ namespace tanlang {
 
     class ASTStringLiteral final : public ASTNode {
     public:
-        ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1, op_precedence[ASTType::STRING_LITERAL],
-                                                    0) {
+        explicit ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
+                                                             op_precedence[ASTType::STRING_LITERAL],
+                                                             0) {
             _svalue = std::move(str);
         }
 
-        std::string get_svalue() const override {
+        [[nodiscard]] std::string get_svalue() const override {
             return _svalue;
         }
 
