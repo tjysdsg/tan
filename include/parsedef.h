@@ -42,56 +42,10 @@ enum class ASTType {
   EOF_,
 };
 
-#define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
-
-static std::unordered_map<ASTType, std::string> ast_type_names{
-    MAKE_ASTTYPE_NAME_PAIR(PROGRAM),
-
-    MAKE_ASTTYPE_NAME_PAIR(SUM),
-    MAKE_ASTTYPE_NAME_PAIR(SUBTRACT),
-    MAKE_ASTTYPE_NAME_PAIR(MULTIPLY),
-    MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
-    MAKE_ASTTYPE_NAME_PAIR(MOD),
-    MAKE_ASTTYPE_NAME_PAIR(ASSIGN),
-
-    MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL),
-    MAKE_ASTTYPE_NAME_PAIR(STRING_LITERAL),
-    MAKE_ASTTYPE_NAME_PAIR(BAND),
-    MAKE_ASTTYPE_NAME_PAIR(LAND),
-    MAKE_ASTTYPE_NAME_PAIR(BOR),
-    MAKE_ASTTYPE_NAME_PAIR(LOR),
-    MAKE_ASTTYPE_NAME_PAIR(BNOT),
-    MAKE_ASTTYPE_NAME_PAIR(LNOT),
-    MAKE_ASTTYPE_NAME_PAIR(XOR),
-};
+extern std::unordered_map<ASTType, std::string> ast_type_names;
 
 // operator precedence for each token
-static std::unordered_map<ASTType, int>
-    op_precedence{
-    {ASTType::PROGRAM, PREC_LOWEST},
-    {ASTType::EOF_, PREC_LOWEST},
-
-    {ASTType::SUM, PREC_TERM},
-    {ASTType::SUBTRACT, PREC_TERM},
-    {ASTType::BOR, PREC_TERM},
-    {ASTType::XOR, PREC_TERM},
-
-    {ASTType::MULTIPLY, PREC_FACTOR},
-    {ASTType::DIVIDE, PREC_FACTOR},
-    {ASTType::MOD, PREC_FACTOR},
-    {ASTType::BAND, PREC_FACTOR},
-
-    {ASTType::ASSIGN, PREC_ASSIGN},
-
-    {ASTType::BNOT, PREC_UNARY},
-    {ASTType::LNOT, PREC_UNARY},
-
-    {ASTType::LAND, PREC_LOGICAL_AND},
-    {ASTType::LOR, PREC_LOGICAL_OR},
-
-    {ASTType::NUM_LITERAL, PREC_LOWEST},
-    {ASTType::STRING_LITERAL, PREC_LOWEST}
-};
+extern std::unordered_map<ASTType, int> op_precedence;
 
 } // namespace tanlang
 #endif /* TAN_PARSEDEF_H */
