@@ -34,8 +34,8 @@ namespace tanlang {
      * \note: Call of tokenize_keyword must before that of
      *      tokenize_id
      */
-    token *tokenize_id(Reader *reader, code_ptr &start) {
-        token *ret = nullptr;
+    Token *tokenize_id(Reader *reader, code_ptr &start) {
+        Token *ret = nullptr;
         auto forward = start;
         const auto end = reader->back_ptr();
         while (forward != end) {
@@ -44,7 +44,7 @@ namespace tanlang {
             } else if (start == forward) {
                 return nullptr;
             } else {
-                ret = new token(TokenType::ID, (*reader)(start, forward));
+                ret = new Token(TokenType::ID, (*reader)(start, forward));
                 break;
             }
         }
@@ -52,7 +52,7 @@ namespace tanlang {
         return ret;
     }
 
-    token *tokenize_keyword(Reader *reader, code_ptr &start) {
+    Token *tokenize_keyword(Reader *reader, code_ptr &start) {
         // find whether the value is in KEYWORDS (lexdef.h) based on
         // returned value of tokenize_id()
         code_ptr forward = start;
@@ -69,13 +69,13 @@ namespace tanlang {
         return t;
     }
 
-    token *tokenize_comments(Reader *reader, code_ptr &start) {
-        token *t = nullptr;
+    Token *tokenize_comments(Reader *reader, code_ptr &start) {
+        Token *t = nullptr;
         auto next = reader->forward_ptr(start);
         if ((*reader)[next] == '/') {
             // line comments
             auto value = (*reader)(reader->forward_ptr(next));
-            t = new token(TokenType::COMMENTS, value);
+            t = new Token(TokenType::COMMENTS, value);
             start.c = static_cast<long>((*reader)[static_cast<size_t>(start.r)].code.length());
             start = (*reader).forward_ptr(start);
         } else if ((*reader)[next] == '*') {
@@ -88,7 +88,7 @@ namespace tanlang {
                 std::smatch result;
                 if (std::regex_match(str, result, re)) {
                     std::string value = str.substr(2, static_cast<size_t>(result.length(0) - 4));
-                    t = new token(TokenType::COMMENTS, value);
+                    t = new Token(TokenType::COMMENTS, value);
                     forward.c = result.length(0);
                     start = forward;
                 }
@@ -105,12 +105,12 @@ namespace tanlang {
         return t;
     }
 
-    token *tokenize_number(Reader *reader, code_ptr &start) {
+    Token *tokenize_number(Reader *reader, code_ptr &start) {
         auto forward = start;
         const auto end = reader->back_ptr();
         bool is_float = false;
-        auto *t = new token;
-        while (forward != end) {
+        auto *t = new Token;
+        while (forward < end) {
             const char ch = (*reader)[forward];
             if (std::isdigit(ch) || (ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X') {
             } else if (ch == '.') {
@@ -134,8 +134,8 @@ namespace tanlang {
 
     // TODO: support escape sequences inside char literals
     // TODO: check line breaks inside two quotation marks
-    token *tokenize_char(Reader *reader, code_ptr &start) {
-        token *t = nullptr;
+    Token *tokenize_char(Reader *reader, code_ptr &start) {
+        Token *t = nullptr;
         auto forward = reader->forward_ptr(start);
         const auto end = reader->back_ptr();
         forward = skip_until(reader, forward, '\'');
@@ -146,7 +146,7 @@ namespace tanlang {
         } else {
             std::string value = (*reader)(reader->forward_ptr(start),
                                           forward); // not including the single quotes
-            t = new token(TokenType::CHAR, value);
+            t = new Token(TokenType::CHAR, value);
             start = (*reader).forward_ptr(forward);
         }
         return t;
@@ -154,8 +154,8 @@ namespace tanlang {
 
     // TODO: support escape sequences inside string literals
     // TODO: check line breaks inside two quotation marks
-    token *tokenize_string(Reader *reader, code_ptr &start) {
-        token *t = nullptr;
+    Token *tokenize_string(Reader *reader, code_ptr &start) {
+        Token *t = nullptr;
         auto forward = reader->forward_ptr(start);
         forward = skip_until(reader, forward, '"');
         const auto end = reader->back_ptr();
@@ -166,14 +166,14 @@ namespace tanlang {
         } else {
             std::string value = (*reader)(reader->forward_ptr(start),
                                           forward); // not including the double quotes
-            t = new token(TokenType::STRING, value);
+            t = new Token(TokenType::STRING, value);
             start = (*reader).forward_ptr(forward);
         }
         return t;
     }
 
-    token *tokenize_punctuation(Reader *reader, code_ptr &start) {
-        token *t = nullptr;
+    Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
+        Token *t = nullptr;
         auto next = reader->forward_ptr(start);
         // line comment or block comment
         if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) {
@@ -213,18 +213,18 @@ namespace tanlang {
                         break;
                     }
                 }
-                // operator containing three chars
+                // operator containing one chars
                 value = std::string{(*reader)[start]};
                 assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
                 start = next;
             } while (false);
             // create new token, fill in token
             TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-            t = new token(type, value);
+            t = new Token(type, value);
         }
             // other punctuations
         else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
-            t = new token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]));
+            t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]));
             start = next;
         } else {
             t = nullptr;
@@ -232,9 +232,9 @@ namespace tanlang {
         return t;
     }
 
-    std::vector<token *> tokenize(Reader *reader, code_ptr start) {
+    std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
         // TODO: DO NOT exit the program when errors occurred
-        std::vector<token *> tokens;
+        std::vector<Token *> tokens;
         const auto end = reader->back_ptr();
         while (start < end) {
             // if start with a letter

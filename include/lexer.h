@@ -7,19 +7,19 @@
 #include <vector>
 
 namespace tanlang {
-    struct token {
+    struct Token {
         TokenType type = TokenType::END;
         std::string value = "";
 
-        token() = default;
+        Token() = default;
 
-        token(TokenType tokenType, std::string value) : type(tokenType), value(std::move(value)) {}
+        Token(TokenType tokenType, std::string value) : type(tokenType), value(std::move(value)) {}
 
-        ~token() = default;
+        ~Token() = default;
     };
 
-    struct line_info; // defined in include/reader.h
-    std::vector<token *> tokenize(Reader *p_reader, code_ptr start = code_ptr(0, 0));
+    struct line_info; // defined in reader.h
+    std::vector<Token *> tokenize(Reader *p_reader, code_ptr start = code_ptr(0, 0));
 } // namespace tanlang
 
 #endif /* TAN_LEXER_H */

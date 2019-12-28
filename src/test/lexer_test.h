@@ -67,7 +67,7 @@ TEST(tokenize, number_literal) {
     Reader r;
     r.from_string(code);
     auto result = tokenize(&r);
-    EXPECT_EQ(result.size(), 5);
+    EXPECT_EQ(result.size(), 6);
 //    std::cout << (int) result[2]->type << '\n' << (int) TokenType::INT << '\n';
     EXPECT_EQ((int) result[2]->type, (int) TokenType::INT);
     EXPECT_EQ(result[2]->value, "0b10010111");

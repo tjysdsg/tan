@@ -122,7 +122,9 @@ namespace tanlang {
                 for (auto r = s_row; r < e_row - 1; ++r) {
                     ret += _lines[static_cast<size_t>(r)]->code + "\n";
                 }
-                ret += _lines[static_cast<size_t>(e_row)]->code.substr(0, static_cast<size_t>(end.c));
+                if (end.c > 0) {
+                    ret += _lines[static_cast<size_t>(e_row)]->code.substr(0, static_cast<size_t>(end.c));
+                }
             }
             return ret;
         }
@@ -131,7 +133,7 @@ namespace tanlang {
          * \brief Return a code pointer pointing one character after the final character in the code
          * */
         [[nodiscard]] code_ptr back_ptr() const {
-            return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length() - 1));
+            return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length()));
         }
 
         /// \brief Return a copy of code_ptr that points to the next position of ptr

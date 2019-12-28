@@ -1,5 +1,6 @@
 #include "lexer_test.h"
 #include "reader_test.h"
+#include "parser_test.h"
 #include <gtest/gtest.h>
 
 int main(int argc, char **argv) {
