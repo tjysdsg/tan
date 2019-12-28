@@ -23,11 +23,8 @@ class Parser final {
   ~Parser();
 
   ASTNode *advance();
-
   ASTNode *peek();
-
   ASTNode *next_expression(int rbp = 0);
-
   ASTNode *parse();
 
   std::vector<Token *> _tokens;
@@ -135,6 +132,37 @@ class ASTNumberLiteral final : public ASTNode {
     int _ivalue;
     float _fvalue;
   };
+};
+
+class ASTPrefix : public ASTNode {
+ public:
+  ASTPrefix() : ASTNode(ASTType::EOF_, 1, op_precedence[ASTType::EOF_], 0) {}
+
+  [[nodiscard]] ASTNode *nud(Parser *parser) override {
+      auto *n = parser->next_expression(_lbp);
+      if (!n) {
+          // TODO: report error
+      } else {
+          _children.emplace_back(n);
+      }
+      return this;
+  }
+};
+
+class ASTBinaryNot final : public ASTPrefix {
+ public:
+  ASTBinaryNot() : ASTPrefix() {
+      _op = ASTType::BNOT;
+      _lbp = op_precedence[_op];
+  }
+};
+
+class ASTLogicalNot final : public ASTPrefix {
+ public:
+  ASTLogicalNot() : ASTPrefix() {
+      _op = ASTType::LNOT;
+      _lbp = op_precedence[_op];
+  }
 };
 
 class ASTStringLiteral final : public ASTNode {

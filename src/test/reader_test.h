@@ -22,7 +22,7 @@ TEST(Reader, open) {
                                       "println(\"Success!!\");",
                                       "}",
                                       "",
-                                      "fn main(argc: u32, argv: [[]]) -> u32 {",
+                                      "fn main(argc: u32, argv: [[]]) : u32 {",
                                       "// get all arguments",
                                       "args: [[]] = Vec::from_buffer(Buffer::new(argc * sizeof(*str)));",
                                       "// this is redundant, but for illustration purposes",

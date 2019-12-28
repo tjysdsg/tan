@@ -138,6 +138,9 @@ class Reader final {
 
   /// \brief Return a copy of code_ptr that points to the next position of ptr
   [[nodiscard]] code_ptr forward_ptr(code_ptr ptr) {
+      if (static_cast<size_t >(ptr.r) >= _lines.size()) {
+          return ptr;
+      }
       long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.r)]->code.length());
       if (ptr.c >= n_cols - 1) {
           if (ptr.r < static_cast<long>(_lines.size())) {

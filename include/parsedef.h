@@ -6,6 +6,7 @@
 namespace tanlang {
 enum PrecedenceLevel {
   PREC_LOWEST,
+  PREC_LITERAL = 10,
   PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
   PREC_LOGICAL_OR = 110,  // ||
   PREC_LOGICAL_AND = 120, // &&

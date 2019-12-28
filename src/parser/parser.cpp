@@ -6,8 +6,14 @@ using std::string;
 namespace tanlang {
 
 ASTNode *Parser::advance() {
+    auto *r = peek();
+    ++_curr_token;
+    return r;
+}
+
+ASTNode *Parser::peek() {
     if (_curr_token >= _tokens.size()) return nullptr;
-    Token *token = _tokens[_curr_token++];
+    Token *token = _tokens[_curr_token];
     ASTNode *node = nullptr;
     if (token->value == "+" && token->type == TokenType::BOP) {
         node = new ASTSum;
@@ -17,6 +23,10 @@ ASTNode *Parser::advance() {
         node = new ASTMultiply;
     } else if (token->value == "/" && token->type == TokenType::BOP) {
         node = new ASTDivide;
+    } else if (token->value == "!" && token->type == TokenType::UOP) {
+        node = new ASTLogicalNot;
+    } else if (token->value == "~" && token->type == TokenType::UOP) {
+        node = new ASTBinaryNot;
     } else if (token->type == TokenType::INT) {
         node = new ASTNumberLiteral(token->value, false);
     } else if (token->type == TokenType::FLOAT) {
@@ -30,27 +40,24 @@ ASTNode *Parser::advance() {
     return node;
 }
 
-ASTNode *Parser::peek() {
-    auto *r = advance();
-    --_curr_token;
-    return r;
-}
-
 ASTNode *Parser::next_expression(int rbp) {
     ASTNode *node = advance();
     if (!node) {
         return nullptr;
     }
     auto *n = node;
-    node = advance();
-    if (!node) {
-        return n;
-    }
     ASTNode *left = n->nud(this);
+    node = peek();
+    if (!node) {
+        return left;
+    }
     while (rbp < node->_lbp) {
         n = node;
+        ++_curr_token;
         node = peek();
+        if (!node) break;
         left = n->led(left, this);
+        ++_curr_token;
     }
     return left;
 }
@@ -105,7 +112,7 @@ ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
     _children.emplace_back(left);
     auto *n = parser->next_expression(_lbp);
     if (!n) {
-        // # TODO: report error
+        // TODO: report error
         throw "SHIT";
     } else {
         _children.emplace_back(n);

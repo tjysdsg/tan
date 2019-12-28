@@ -17,9 +17,9 @@ std::unordered_map<TokenType, std::string> token_type_names{
 };
 
 const std::vector<std::string> KEYWORDS{
-    "for", "while", "do", "if", "else", "fn", "var", "int", "float",
-    "continue", "break", "let", "struct", "enum", "union", "switch",
-    "case", "str", "u32",
+    "for", "while", "do", "if", "else", "fn", "var",
+    "int", "float", "continue", "break", "let", "struct", "enum",
+    "union", "switch", "case", "str", "u32",
 };
 
 const std::vector<char> PUNCTUATIONS{
@@ -27,32 +27,37 @@ const std::vector<char> PUNCTUATIONS{
     '{', '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '<', '>', '/', '?',
 };
 
-// any symbol in OP can both be an operator itself or the start of an
+// any symbol in OP can both be an operator itself or the first character of an
 // operator
-const std::vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/'};
+const std::vector<char> OP{'~', '!', '%', '^', '&', '*', '-',
+                           '=', '+', '|', '<', '>', '/', '.'};
 
 const std::vector<std::string> OP_ALL{
-    "==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-",
-    "*=", "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."
-};
+    "==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%",
+    "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=", "*", "/=",
+    "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 
 std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP{
     // RELOP
-    std::pair("==", TokenType::RELOP), std::pair("!=", TokenType::RELOP), std::pair(">=", TokenType::RELOP),
-    std::pair("<=", TokenType::RELOP), std::pair(">", TokenType::RELOP), std::pair("<", TokenType::RELOP),
+    std::pair("==", TokenType::RELOP), std::pair("!=", TokenType::RELOP),
+    std::pair(">=", TokenType::RELOP), std::pair("<=", TokenType::RELOP),
+    std::pair(">", TokenType::RELOP), std::pair("<", TokenType::RELOP),
     std::pair("&&", TokenType::RELOP), std::pair("||", TokenType::RELOP),
     // UOP
     std::pair("~", TokenType::UOP),
+    std::pair("!", TokenType::UOP),
     // BOP
-    std::pair("%=", TokenType::BOP), std::pair("%", TokenType::BOP), std::pair("^=", TokenType::BOP),
-    std::pair("^", TokenType::BOP), std::pair("&=", TokenType::BOP), std::pair("&", TokenType::BOP),
-    std::pair("+=", TokenType::BOP), std::pair("+", TokenType::BOP), std::pair("-=", TokenType::BOP),
-    std::pair("-", TokenType::BOP), std::pair("*=", TokenType::BOP), std::pair("*", TokenType::BOP),
-    std::pair("/=", TokenType::BOP), std::pair("/", TokenType::BOP), std::pair("|=", TokenType::BOP),
-    std::pair("|", TokenType::BOP), std::pair("<<=", TokenType::BOP), std::pair("<<", TokenType::BOP),
-    std::pair(">>=", TokenType::BOP), std::pair(">>", TokenType::BOP), std::pair("!=", TokenType::BOP),
-    std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP),
-    std::pair("=", TokenType::BOP)
-};
+    std::pair("%=", TokenType::BOP), std::pair("%", TokenType::BOP),
+    std::pair("^=", TokenType::BOP), std::pair("^", TokenType::BOP),
+    std::pair("&=", TokenType::BOP), std::pair("&", TokenType::BOP),
+    std::pair("+=", TokenType::BOP), std::pair("+", TokenType::BOP),
+    std::pair("-=", TokenType::BOP), std::pair("-", TokenType::BOP),
+    std::pair("*=", TokenType::BOP), std::pair("*", TokenType::BOP),
+    std::pair("/=", TokenType::BOP), std::pair("/", TokenType::BOP),
+    std::pair("|=", TokenType::BOP), std::pair("|", TokenType::BOP),
+    std::pair("<<=", TokenType::BOP), std::pair("<<", TokenType::BOP),
+    std::pair(">>=", TokenType::BOP), std::pair(">>", TokenType::BOP),
+    std::pair("!=", TokenType::BOP), std::pair(",", TokenType::BOP),
+    std::pair(".", TokenType::BOP), std::pair("=", TokenType::BOP)};
 
-}
+} // namespace tanlang

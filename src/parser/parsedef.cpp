@@ -48,7 +48,7 @@ std::unordered_map<ASTType, int> op_precedence{
     {ASTType::LAND, PREC_LOGICAL_AND},
     {ASTType::LOR, PREC_LOGICAL_OR},
 
-    {ASTType::NUM_LITERAL, PREC_LOWEST},
-    {ASTType::STRING_LITERAL, PREC_LOWEST}
+    {ASTType::NUM_LITERAL, PREC_LITERAL},
+    {ASTType::STRING_LITERAL, PREC_LITERAL}
 };
 }
