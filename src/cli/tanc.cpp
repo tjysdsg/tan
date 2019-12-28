@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     // Declare the supported options.
     po::options_description desc("Allowed options");
     desc.add_options()("help", "produce help message")("version,v", "version of current program")(
-            "files", po::value<std::vector<std::string>>(), "Input file for compiling");
+        "files", po::value<std::vector<std::string>>(), "Input file for compiling");
     // positional option file
     po::positional_options_description p;
     p.add("files", -1);

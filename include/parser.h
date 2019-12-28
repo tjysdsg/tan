@@ -2,8 +2,8 @@
 #define TAN_PARSER_H
 
 #include "base.h"
+#include "parsedef.h"
 #include "lexer.h"
-#include <unordered_map>
 #include "utils.h"
 #include <string>
 #include <vector>
@@ -11,204 +11,179 @@
 #include <iomanip>
 
 namespace tanlang {
-    enum class ASTType {
-        PROGRAM, SUM, SUBTRACT, MULTIPLY, DIVIDE, NUM_LITERAL, STRING_LITERAL, EOF_,
-    };
 
-    static std::unordered_map<ASTType, std::string> ast_type_names{
-            {ASTType::PROGRAM,        "PROGRAM"},
-            {ASTType::SUM,            "SUM"},
-            {ASTType::SUBTRACT,       "SUBTRACT"},
-            {ASTType::MULTIPLY,       "MULTIPLY"},
-            {ASTType::DIVIDE,         "DIVIDE"},
-            {ASTType::NUM_LITERAL,    "NUM_LITERAL"},
-            {ASTType::STRING_LITERAL, "STRING_LITERAL"},
-    };
+class ASTNode;
 
-    // operator precedence for each token
-    static constexpr const_map<ASTType, int, 8> op_precedence(
-            std::pair(ASTType::PROGRAM, 0),
-            std::pair(ASTType::EOF_, 0),
-            std::pair(ASTType::SUM, 10),
-            std::pair(ASTType::SUBTRACT, 10),
-            std::pair(ASTType::MULTIPLY, 20),
-            std::pair(ASTType::DIVIDE, 20),
-            std::pair(ASTType::NUM_LITERAL, 0),
-            std::pair(ASTType::STRING_LITERAL, 0)
-    );
+class Parser final {
+ public:
+  Parser() = delete;
 
-    class ASTNode;
+  explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {}
 
-    class Parser final {
-    public:
-        Parser() = delete;
+  ~Parser();
 
-        explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {}
+  ASTNode *advance();
 
-        ~Parser();
+  ASTNode *peek();
 
-        ASTNode *advance();
+  ASTNode *next_expression(int rbp = 0);
 
-        ASTNode *peek();
+  ASTNode *parse();
 
-        ASTNode *next_expression(int rbp = 0);
+  std::vector<Token *> _tokens;
+  ASTNode *_root = nullptr;
+  size_t _curr_token;
+};
 
-        ASTNode *parse();
+class ASTNode {
+ public:
+  ASTType _op = ASTType::PROGRAM;
+  int _associativity{}; // 0 left, 1 non-left
+  std::vector<ASTNode *> _children{};
+  int _lbp = 0;
+  int _rbp = 0;
 
-        std::vector<Token *> _tokens;
-        ASTNode *_root = nullptr;
-        size_t _curr_token;
-    };
+  ASTNode() = default;
 
-    class ASTNode {
-    public:
-        ASTType _op = ASTType::PROGRAM;
-        int _associativity{}; // 0 left, 1 non-left
-        std::vector<ASTNode *> _children{};
-        int _lbp = 0;
-        int _rbp = 0;
+  ASTNode(ASTType op, int associativity, int lbp,
+          int rbp) : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {};
 
-        ASTNode() = default;
+  virtual ~ASTNode() {
+      for (auto *&c : _children) {
+          delete c;
+          c = nullptr;
+      }
+  };
 
-        ASTNode(ASTType op, int associativity, int lbp,
-                int rbp) : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {};
+  [[nodiscard]] virtual int get_ivalue() const {
+      assert(false);
+      return 0;
+  }
 
-        virtual ~ASTNode() {
-            for (auto *&c : _children) {
-                delete c;
-                c = nullptr;
-            }
-        };
+  [[nodiscard]] virtual float get_fvalue() const {
+      assert(false);
+      return 0;
+  }
 
-        [[nodiscard]] virtual int get_ivalue() const {
-            assert(false);
-            return 0;
-        }
+  [[nodiscard]] virtual std::string get_svalue() const {
+      assert(false);
+      return "";
+  }
 
-        [[nodiscard]] virtual float get_fvalue() const {
-            assert(false);
-            return 0;
-        }
+  [[nodiscard]] virtual ASTNode *led(ASTNode *left, Parser *parser) {
+      assert(false);
+      return nullptr;
+  }
 
-        [[nodiscard]] virtual std::string get_svalue() const {
-            assert(false);
-            return "";
-        }
+  [[nodiscard]] virtual ASTNode *nud(Parser *parser) {
+      assert(false);
+      return nullptr;
+  }
 
-        [[nodiscard]] virtual ASTNode *led(ASTNode *left, Parser *parser) {
-            assert(false);
-            return nullptr;
-        }
+  virtual void add(ASTNode *c) {
+      _children.emplace_back(c);
+  }
 
-        [[nodiscard]] virtual ASTNode *nud(Parser *parser) {
-            assert(false);
-            return nullptr;
-        }
+  void printTree();
 
-        virtual void add(ASTNode *c) {
-            _children.emplace_back(c);
-        }
+  void printSubtree(const std::string &prefix);
+};
 
-        void printTree();
+class ASTInfixBinaryOp : public ASTNode {
+ public:
+  ASTInfixBinaryOp() : ASTNode(ASTType::EOF_, 0, op_precedence[ASTType::EOF_], 0) {
+  };
 
-        void printSubtree(const std::string &prefix);
-    };
+  [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override;
 
-    class ASTInfixBinaryOp : public ASTNode {
-    public:
-        ASTInfixBinaryOp() : ASTNode(ASTType::EOF_, 0, op_precedence[ASTType::EOF_], 0) {
-        };
+  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+};
 
-        [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override;
+class ASTNumberLiteral final : public ASTNode {
+ public:
+  ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL, 1,
+                                                                    op_precedence[ASTType::NUM_LITERAL], 0) {
+      _is_float = is_float;
+      if (is_float) {
+          _fvalue = std::stof(str);
+      } else {
+          _ivalue = std::stoi(str);
+      }
+  };
 
-        [[nodiscard]] ASTNode *nud(Parser *parser) override;
-    };
+  [[nodiscard]] ASTNode *nud(Parser *parser) override {
+      return this;
+  }
 
-    class ASTNumberLiteral final : public ASTNode {
-    public:
-        ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL, 1,
-                                                                          op_precedence[ASTType::NUM_LITERAL], 0) {
-            _is_float = is_float;
-            if (is_float) {
-                _fvalue = std::stof(str);
-            } else {
-                _ivalue = std::stoi(str);
-            }
-        };
+  [[nodiscard]] bool is_float() const {
+      return _is_float;
+  }
 
-        [[nodiscard]] ASTNode *nud(Parser *parser) override {
-            return this;
-        }
+  [[nodiscard]] int get_ivalue() const override {
+      assert(!_is_float);
+      return _ivalue;
+  }
 
-        [[nodiscard]] bool is_float() const {
-            return _is_float;
-        }
+  [[nodiscard]] float get_fvalue() const override {
+      assert(_is_float);
+      return _fvalue;
+  }
 
-        [[nodiscard]] int get_ivalue() const override {
-            assert(!_is_float);
-            return _ivalue;
-        }
+ private:
+  bool _is_float = false;
+  union {
+    int _ivalue;
+    float _fvalue;
+  };
+};
 
-        [[nodiscard]] float get_fvalue() const override {
-            assert(_is_float);
-            return _fvalue;
-        }
+class ASTStringLiteral final : public ASTNode {
+ public:
+  explicit ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
+                                                       op_precedence[ASTType::STRING_LITERAL],
+                                                       0) {
+      _svalue = std::move(str);
+  }
 
-    private:
-        bool _is_float = false;
-        union {
-            int _ivalue;
-            float _fvalue;
-        };
-    };
+  [[nodiscard]] std::string get_svalue() const override {
+      return _svalue;
+  }
 
-    class ASTStringLiteral final : public ASTNode {
-    public:
-        explicit ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
-                                                             op_precedence[ASTType::STRING_LITERAL],
-                                                             0) {
-            _svalue = std::move(str);
-        }
+ private:
+  std::string _svalue;
+};
 
-        [[nodiscard]] std::string get_svalue() const override {
-            return _svalue;
-        }
+class ASTSum final : public ASTInfixBinaryOp {
+ public:
+  ASTSum() : ASTInfixBinaryOp() {
+      _op = ASTType::SUM;
+      _lbp = op_precedence[ASTType::SUM];
+  };
+};
 
-    private:
-        std::string _svalue;
-    };
+class ASTSubtract final : public ASTInfixBinaryOp {
+ public:
+  ASTSubtract() : ASTInfixBinaryOp() {
+      _op = ASTType::SUBTRACT;
+      _lbp = op_precedence[ASTType::SUBTRACT];
+  };
+};
 
-    class ASTSum final : public ASTInfixBinaryOp {
-    public:
-        ASTSum() : ASTInfixBinaryOp() {
-            _op = ASTType::SUM;
-            _lbp = op_precedence[ASTType::SUM];
-        };
-    };
+class ASTMultiply final : public ASTInfixBinaryOp {
+ public:
+  ASTMultiply() : ASTInfixBinaryOp() {
+      _op = ASTType::MULTIPLY;
+      _lbp = op_precedence[ASTType::MULTIPLY];
+  };
+};
 
-    class ASTSubtract final : public ASTInfixBinaryOp {
-    public:
-        ASTSubtract() : ASTInfixBinaryOp() {
-            _op = ASTType::SUBTRACT;
-            _lbp = op_precedence[ASTType::SUBTRACT];
-        };
-    };
-
-    class ASTMultiply final : public ASTInfixBinaryOp {
-    public:
-        ASTMultiply() : ASTInfixBinaryOp() {
-            _op = ASTType::MULTIPLY;
-            _lbp = op_precedence[ASTType::MULTIPLY];
-        };
-    };
-
-    class ASTDivide final : public ASTInfixBinaryOp {
-    public:
-        ASTDivide() : ASTInfixBinaryOp() {
-            _op = ASTType::DIVIDE;
-            _lbp = op_precedence[ASTType::DIVIDE];
-        };
-    };
+class ASTDivide final : public ASTInfixBinaryOp {
+ public:
+  ASTDivide() : ASTInfixBinaryOp() {
+      _op = ASTType::DIVIDE;
+      _lbp = op_precedence[ASTType::DIVIDE];
+  };
+};
 }
 
 #endif /* TAN_PARSER_H */
