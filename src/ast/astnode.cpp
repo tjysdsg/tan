@@ -127,8 +127,7 @@ ASTNode *ASTPrefix::nud(Parser *parser) {
 ASTPrefix::ASTPrefix() : ASTNode(ASTType::EOF_, 1, op_precedence[ASTType::EOF_], 0) {}
 ASTStringLiteral::ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
                                                               op_precedence[ASTType::STRING_LITERAL],
-                                                              0) {
-    _svalue = std::move(str);
+                                                              0), _svalue(std::move(str)) {
 }
 std::string ASTStringLiteral::get_svalue() const {
     return _svalue;

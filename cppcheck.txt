@@ -1,0 +1,14 @@
+src/ast/astnode.cpp:60:0: style: The function 'get_fvalue' is never used. [unusedFunction]
+
+^
+src/ast/astnode.cpp:56:0: style: The function 'get_ivalue' is never used. [unusedFunction]
+
+^
+src/ast/astnode.cpp:64:0: style: The function 'get_svalue' is never used. [unusedFunction]
+
+^
+src/base/error.cpp:12:0: style: The function 'handle_error' is never used. [unusedFunction]
+
+^
+nofile:0:0: information: Cppcheck cannot find all the include files (use --check-config for details) [missingIncludeSystem]
+

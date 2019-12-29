@@ -1,2 +1,2 @@
-cppcheck --enable=all -Isrc/ -Iinclude/ . 2> cppcheck/result.txt
+cppcheck --enable=all -I./ -Iinclude/ -i cmake-build-debug . 2> cppcheck.txt
 
