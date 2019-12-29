@@ -1,7 +1,6 @@
 #include "parser.h"
 #include <vector>
 #include "ast.h"
-#include <iostream>
 
 using std::string;
 
@@ -36,8 +35,7 @@ ASTNode *Parser::peek() {
     } else if (token->type == TokenType::STRING) {
         node = new ASTStringLiteral(token->value);
     } else {
-        // TODO: report error
-        throw "FUCK";
+        throw std::runtime_error("unknown token " + token->to_string());
     }
     return node;
 }
@@ -80,50 +78,4 @@ Parser::~Parser() {
     _root = nullptr;
 }
 
-void ASTNode::printSubtree(const std::string &prefix) {
-    using std::cout;
-    using std::endl;
-    if (_children.empty()) return;
-    cout << prefix;
-    size_t n_children = _children.size();
-    cout << (n_children > 1 ? "├── " : "");
-
-    for (size_t i = 0; i < n_children; ++i) {
-        ASTNode *c = _children[i];
-        if (i < n_children - 1) {
-            bool printStrand = n_children > 1 && !c->_children.empty();
-            std::string newPrefix = prefix + (printStrand ? "│\t" : "\t");
-            std::cout << ast_type_names[c->_op] << "\n";
-            c->printSubtree(newPrefix);
-        } else {
-            cout << (n_children > 1 ? prefix : "") << "└── ";
-            std::cout << ast_type_names[c->_op] << "\n";
-            c->printSubtree(prefix + "\t");
-        }
-    }
-}
-
-void ASTNode::printTree() {
-    using std::cout;
-    std::cout << ast_type_names[this->_op] << "\n";
-    printSubtree("");
-    cout << "\n";
-}
-
-ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
-    _children.emplace_back(left);
-    auto *n = parser->next_expression(_lbp);
-    if (!n) {
-        // TODO: report error
-        throw "SHIT";
-    } else {
-        _children.emplace_back(n);
-    }
-    return this;
-}
-
-ASTNode *ASTInfixBinaryOp::nud(Parser *parser) {
-    assert(false);
-    return nullptr;
-}
 }

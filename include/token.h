@@ -23,18 +23,31 @@ enum class TokenType {
 };
 
 extern std::unordered_map<TokenType, std::string> token_type_names;
-
 extern const std::vector<std::string> KEYWORDS;
-
 extern const std::vector<char> PUNCTUATIONS;
-
-// any symbol in OP can both be an operator itself or the start of an
-// operator
+// any symbol in OP can both be an operator itself or the start of an operator
 extern const std::vector<char> OP;
-
 extern const std::vector<std::string> OP_ALL;
-
 extern std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP;
+
+struct Token {
+  TokenType type = TokenType::END;
+  std::string value = "";
+
+  Token() = default;
+  Token(TokenType tokenType, std::string value) : type(tokenType), value(std::move(value)) {}
+  ~Token() = default;
+
+  std::string to_string() {
+      return "<Token: " + token_type_names[type] + "; " + value;
+  }
+
+  std::ostream &operator<<(std::ostream &os) {
+      os << to_string();
+      return os;
+  }
+};
+
 } // namespace tanlang
 
 #endif /*TAN_LEXDEF_H*/

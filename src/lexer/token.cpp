@@ -1,4 +1,4 @@
-#include "lexdef.h"
+#include "token.h"
 
 namespace tanlang {
 

@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include "base.h"
-#include "lexdef.h"
+#include "token.h"
 #include <algorithm>
 #include <cctype>
 #include <regex>

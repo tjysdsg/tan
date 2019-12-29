@@ -3,7 +3,7 @@
 
 #include "ast.h"
 #include "parser.h"
-#include "lexdef.h"
+#include "token.h"
 #include <gtest/gtest.h>
 #include <iostream>
 
