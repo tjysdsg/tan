@@ -12,7 +12,7 @@ using tanlang::TokenType;
 using tanlang::Parser;
 
 TEST(parser, arithmatic) {
-    std::string code = "1 + 2 * 3";
+    std::string code = "1 + 2 * 3 / 4";
     Reader r;
     r.from_string(code);
     auto tokens = tokenize(&r);

@@ -52,12 +52,12 @@ ASTNode *Parser::next_expression(int rbp) {
         return left;
     }
     while (rbp < node->_lbp) {
+        node = peek();
         n = node;
         ++_curr_token;
-        node = peek();
-        if (!node) break;
         left = n->led(left, this);
-        ++_curr_token;
+        node = peek();
+        if (!node) { break; };
     }
     return left;
 }
