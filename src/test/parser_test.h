@@ -1,6 +1,7 @@
 #ifndef TAN_PARSER_TEST_H
 #define TAN_PARSER_TEST_H
 
+#include "ast.h"
 #include "parser.h"
 #include "lexdef.h"
 #include <gtest/gtest.h>

@@ -1,5 +1,7 @@
 #include "parser.h"
 #include <vector>
+#include "ast.h"
+#include <iostream>
 
 using std::string;
 

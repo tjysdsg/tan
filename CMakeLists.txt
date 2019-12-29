@@ -51,6 +51,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     # target test
