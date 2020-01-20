@@ -34,9 +34,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # ================================ thirdparty dependencies ========================== #
 # this project uses Google Test framework
 find_package(GTest REQUIRED)
-# C++ boost library
-find_package(Boost 1.50 COMPONENTS filesystem program_options REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
@@ -58,7 +55,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests gtest ${Boost_LIBRARIES} ${llvm_libs})
+    target_link_libraries(tan_tests gtest ${llvm_libs})
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
     enable_testing()
@@ -68,7 +65,7 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
+target_link_libraries(tanc pthread ${llvm_libs})
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"

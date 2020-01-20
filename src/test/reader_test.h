@@ -3,7 +3,6 @@
 
 #include "reader.h"
 #include "utils.h"
-#include <boost/filesystem.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 
