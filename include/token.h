@@ -39,12 +39,12 @@ struct Token {
   ~Token() = default;
 
   std::string to_string() {
-      return "<Token: " + token_type_names[type] + "; " + value;
+    return "<Token: " + token_type_names[type] + "; " + value;
   }
 
   std::ostream &operator<<(std::ostream &os) {
-      os << to_string();
-      return os;
+    os << to_string();
+    return os;
   }
 };
 

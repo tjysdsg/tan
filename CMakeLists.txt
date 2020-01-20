@@ -29,13 +29,17 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # compiler flags
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic-errors -Wconversion -Wsign-conversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # ================================ thirdparty dependencies ========================== #
 # this project uses Google Test framework
 find_package(GTest REQUIRED)
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
+# resolve symlink, because CLION with WSL doesn't seem to recognize this
+get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
+get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
+
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 # Find the libraries that correspond to the LLVM components

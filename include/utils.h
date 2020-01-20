@@ -17,15 +17,15 @@ class const_map {
   constexpr const_map(Elements... elements) : data_{std::move(elements)...} {}
 
   constexpr bool contains(const K &key) const {
-      return std::find_if(data_.begin(), data_.end(), [&key](const auto &elt) { return elt.first == key; }) !=
-          data_.end();
+    return std::find_if(data_.begin(), data_.end(), [&key](const auto &elt) { return elt.first == key; }) !=
+        data_.end();
   }
 
   constexpr const V &operator[](const K &key) const {
-      auto it = std::find_if(data_.begin(), data_.end(), [&key](const auto &elt) { return elt.first == key; });
-      if (it != data_.end())
-          return it->second;
-      throw "key not found";
+    auto it = std::find_if(data_.begin(), data_.end(), [&key](const auto &elt) { return elt.first == key; });
+    if (it != data_.end())
+      return it->second;
+    throw "key not found";
   }
 };
 } // namespace tanlang

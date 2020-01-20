@@ -3,8 +3,20 @@
 #include <vector>
 #include "base.h"
 #include "parser.h"
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Verifier.h>
 
 namespace tanlang {
+
 enum PrecedenceLevel {
   PREC_LOWEST,
   PREC_LITERAL = 10,
@@ -67,6 +79,7 @@ class ASTNode {
   virtual void add(ASTNode *c);
   void printTree();
   void printSubtree(const std::string &prefix);
+  virtual Value *codegen() { assert(false); };
 };
 
 class ASTInfixBinaryOp : public ASTNode {
