@@ -26,14 +26,13 @@ enum PrecedenceLevel {
 
 enum class ASTType {
   PROGRAM,
-
+  STATEMENT, // statement or compound statements
   SUM,
   SUBTRACT,
   MULTIPLY,
   DIVIDE,
   MOD,
   ASSIGN,
-
   BAND, // binary and
   LAND, // logical and
   BOR,  // binary or
@@ -41,6 +40,9 @@ enum class ASTType {
   BNOT, // binary not
   LNOT, // logical not
   XOR,
+
+  //
+  RET,
 
   NUM_LITERAL,
   STRING_LITERAL,
@@ -70,8 +72,8 @@ class ASTNode {
   virtual void add(ASTNode *c);
   void printTree();
   void printSubtree(const std::string &prefix);
-  virtual Value *codegen(Parser *parser) {
-    UNUSED(parser);
+  virtual Value *codegen(ParserContext *parser_context) {
+    UNUSED(parser_context);
     assert(false);
   }
 };
@@ -79,10 +81,16 @@ class ASTNode {
 class ASTProgram : public ASTNode {
  public:
   ASTProgram();
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 
  public:
   std::vector<Value *> _code{};
+};
+
+class ASTStatement : public ASTNode {
+ public:
+  ASTStatement();
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTInfixBinaryOp : public ASTNode {
@@ -99,7 +107,7 @@ class ASTNumberLiteral final : public ASTNode {
   [[nodiscard]] bool is_float() const;
   [[nodiscard]] int get_ivalue() const override;
   [[nodiscard]] float get_fvalue() const override;
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 
  private:
   bool _is_float = false;
@@ -113,6 +121,12 @@ class ASTPrefix : public ASTNode {
  public:
   ASTPrefix();
   [[nodiscard]] ASTNode *nud(Parser *parser) override;
+};
+
+class ASTReturn final : public ASTPrefix {
+ public:
+  ASTReturn();
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTBinaryNot final : public ASTPrefix {
@@ -137,25 +151,25 @@ class ASTStringLiteral final : public ASTNode {
 class ASTSum final : public ASTInfixBinaryOp {
  public:
   ASTSum();
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTSubtract final : public ASTInfixBinaryOp {
  public:
   ASTSubtract();
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTMultiply final : public ASTInfixBinaryOp {
  public:
   ASTMultiply();
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTDivide final : public ASTInfixBinaryOp {
  public:
   ASTDivide();
-  Value *codegen(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 }

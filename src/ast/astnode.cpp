@@ -43,6 +43,14 @@ void ASTNode::printTree() {
   cout << "\n";
 }
 
+ASTStatement::ASTStatement() {
+  _op = ASTType::STATEMENT;
+}
+
+ASTReturn::ASTReturn() {
+  _op = ASTType::RET;
+}
+
 ASTNode::~ASTNode() {
   for (auto *&c : _children) {
     delete c;
@@ -106,10 +114,10 @@ ASTNode *ASTInfixBinaryOp::nud(Parser *parser) {
   assert(false);
   return nullptr;
 }
+
 ASTInfixBinaryOp::ASTInfixBinaryOp() : ASTNode(ASTType::INVALID, 0, op_precedence[ASTType::INVALID], 0) {}
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL,
-                                                                                    1,
+ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL, 1,
                                                                                     op_precedence[ASTType::NUM_LITERAL],
                                                                                     0) {
   _is_float = is_float;
@@ -123,13 +131,16 @@ ASTNode *ASTNumberLiteral::nud(Parser *parser) {
   UNUSED(parser);
   return this;
 }
+
 bool ASTNumberLiteral::is_float() const {
   return _is_float;
 }
+
 int ASTNumberLiteral::get_ivalue() const {
   assert(!_is_float);
   return _ivalue;
 }
+
 float ASTNumberLiteral::get_fvalue() const {
   assert(_is_float);
   return _fvalue;
@@ -144,6 +155,7 @@ ASTNode *ASTPrefix::nud(Parser *parser) {
   }
   return this;
 }
+
 ASTPrefix::ASTPrefix() : ASTNode(ASTType::INVALID, 1, op_precedence[ASTType::INVALID], 0) {}
 
 ASTStringLiteral::ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
@@ -186,60 +198,68 @@ ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
 }
 
 // ================= codegen functions ================ //
-Value *ASTNumberLiteral::codegen(Parser *parser) {
+Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   if (_is_float) {
-    return ConstantFP::get(parser->_context, APFloat(_fvalue));
+    return ConstantFP::get(*parser_context->_context, APFloat(_fvalue));
   } else {
-    return ConstantInt::get(parser->_context, APInt(32, _ivalue, true));
+    return ConstantInt::get(*parser_context->_context, APInt(32, _ivalue, true));
   }
 }
 
-Value *ASTSum::codegen(Parser *parser) {
-  Value *lhs = _children[0]->codegen(parser);
-  Value *rhs = _children[1]->codegen(parser);
+Value *ASTSum::codegen(ParserContext *parser_context) {
+  Value *lhs = _children[0]->codegen(parser_context);
+  Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
+    assert(false);
     return nullptr;
   }
-  return parser->_builder.CreateFAdd(lhs, rhs, "add_tmp");
+  return parser_context->_builder->CreateFAdd(lhs, rhs, "add_tmp");
 }
 
-Value *ASTSubtract::codegen(Parser *parser) {
-  Value *lhs = _children[0]->codegen(parser);
-  Value *rhs = _children[1]->codegen(parser);
+Value *ASTSubtract::codegen(ParserContext *parser_context) {
+  Value *lhs = _children[0]->codegen(parser_context);
+  Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
+    assert(false);
     return nullptr;
   }
-  return parser->_builder.CreateFSub(lhs, rhs, "sub_tmp");
+  return parser_context->_builder->CreateFSub(lhs, rhs, "sub_tmp");
 }
 
-Value *ASTMultiply::codegen(Parser *parser) {
-  Value *lhs = _children[0]->codegen(parser);
-  Value *rhs = _children[1]->codegen(parser);
+Value *ASTMultiply::codegen(ParserContext *parser_context) {
+  Value *lhs = _children[0]->codegen(parser_context);
+  Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
+    assert(false);
     return nullptr;
   }
-  return parser->_builder.CreateFMul(lhs, rhs, "mul_tmp");
+  return parser_context->_builder->CreateFMul(lhs, rhs, "mul_tmp");
 }
 
-Value *ASTDivide::codegen(Parser *parser) {
-  Value *lhs = _children[0]->codegen(parser);
-  Value *rhs = _children[1]->codegen(parser);
+Value *ASTDivide::codegen(ParserContext *parser_context) {
+  Value *lhs = _children[0]->codegen(parser_context);
+  Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
+    assert(false);
     return nullptr;
   }
-  return parser->_builder.CreateFDiv(lhs, rhs, "div_tmp");
+  return parser_context->_builder->CreateFDiv(lhs, rhs, "div_tmp");
 }
 
-Value *ASTProgram::codegen(Parser *parser) {
+Value *ASTReturn::codegen(ParserContext *parser_context) {
+  return parser_context->_builder->CreateRet(_children[0]->codegen(parser_context));
+}
+
+Value *ASTProgram::codegen(ParserContext *parser_context) {
   using llvm::Function;
   using llvm::FunctionType;
   using llvm::Type;
   using llvm::BasicBlock;
   using llvm::verifyFunction;
   // Make the function type:  double(double,double) etc.
-  std::vector<Type *> Doubles(2, Type::getDoubleTy(parser->_context));
-  FunctionType *FT = FunctionType::get(Type::getDoubleTy(parser->_context), Doubles, false);
-  Function *F = Function::Create(FT, Function::ExternalLinkage, "main", *parser->_module);
+  std::vector<Type *> Doubles(2, Type::getDoubleTy(*parser_context->_context));
+  FunctionType *FT = FunctionType::get(Type::getDoubleTy(*parser_context->_context), Doubles, false);
+  Function *F = Function::Create(FT, Function::ExternalLinkage, "main", *parser_context->_module);
 
   // TODO: main function arguments
   unsigned Idx = 0;
@@ -247,15 +267,21 @@ Value *ASTProgram::codegen(Parser *parser) {
     Arg.setName(std::to_string(Idx++));
   }
 
-  // create a new basic block to start insertion into.
-  BasicBlock *BB = BasicBlock::Create(parser->_context, "entry", F);
-  parser->_builder.SetInsertPoint(BB);
+  // create a new basic block to start insertion into
+  BasicBlock *main_block = BasicBlock::Create(*parser_context->_context, "entry", F);
+  parser_context->_builder->SetInsertPoint(main_block);
 
-  if (Value *RetVal = _children[0]->codegen(parser)) {
-    // finish off the function.
-    parser->_builder.CreateRet(RetVal);
-    // validate the generated code, checking for consistency.
-    verifyFunction(*F);
+  for (auto *child : _children) {
+    child->codegen(parser_context);
+  }
+  // validate the generated code, checking for consistency
+  verifyFunction(*F);
+  return nullptr;
+}
+
+Value *ASTStatement::codegen(ParserContext *parser_context) {
+  for (auto *child : _children) {
+    child->codegen(parser_context);
   }
   return nullptr;
 }
@@ -266,6 +292,7 @@ Value *ASTProgram::codegen(Parser *parser) {
 
 std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(PROGRAM),
+    MAKE_ASTTYPE_NAME_PAIR(STATEMENT),
 
     MAKE_ASTTYPE_NAME_PAIR(SUM),
     MAKE_ASTTYPE_NAME_PAIR(SUBTRACT),
@@ -283,6 +310,7 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(BNOT),
     MAKE_ASTTYPE_NAME_PAIR(LNOT),
     MAKE_ASTTYPE_NAME_PAIR(XOR),
+    MAKE_ASTTYPE_NAME_PAIR(RET),
 };
 
 #undef MAKE_ASTTYPE_NAME_PAIR

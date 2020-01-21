@@ -7,7 +7,7 @@
 int main() {
   using tanlang::Reader;
   using tanlang::Parser;
-  std::string code = "1 + 2 * 3 / 4";
+  std::string code = "return 1 + 2 * 3 / 4; return 2 + 3 / 5;";
   Reader r;
   r.from_string(code);
   auto tokens = tokenize(&r);
@@ -15,8 +15,8 @@ int main() {
   Parser p(tokens);
   p.parse();
   p._root->printTree();
-  p._root->codegen(&p);
-  p._module->print(llvm::errs(), nullptr);
+  p._root->codegen(p._parser_context);
+  p._parser_context->_module->print(llvm::errs(), nullptr);
 
   for (auto *&t : tokens) {
     delete t;

@@ -34,6 +34,10 @@ ASTNode *Parser::peek() {
     node = new ASTNumberLiteral(token->value, true);
   } else if (token->type == TokenType::STRING) {
     node = new ASTStringLiteral(token->value);
+  } else if (token->type == TokenType::KEYWORD && token->value == "return") {
+    node = new ASTReturn;
+  } else if (token->type == TokenType::PUNCTUATION && token->value == ";") {
+    return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     throw std::runtime_error("unknown token " + token->to_string());
   }
@@ -62,13 +66,25 @@ ASTNode *Parser::next_expression(int rbp) {
   return left;
 }
 
+ASTNode *Parser::next_statement() {
+  auto *statement = new ASTStatement();
+  ASTNode* node = peek();
+  while (node) {
+    statement->_children.push_back(next_expression(0));
+    node = peek();
+  }
+  return statement;
+}
+
 ASTNode *Parser::parse() {
   size_t n_tokens = _tokens.size();
   _root = new ASTProgram;
   while (_curr_token < n_tokens) {
-    auto *n = next_expression(0);
+    auto *n = next_statement();
+    // auto *n = next_expression(0);
     if (!n) { break; }
     _root->add(n);
+    ++_curr_token;
   }
   return _root;
 }
