@@ -145,6 +145,9 @@ ASTNode *ASTNumberLiteral::nud(Parser *parser) {
   return this;
 }
 
+/**
+ * \brief: parse a list of (compound) statements
+ * */
 ASTNode *ASTProgram::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   auto *t = parser->_tokens[parser->_curr_token];
@@ -162,6 +165,10 @@ ASTNode *ASTProgram::nud(Parser *parser) {
   return this;
 }
 
+/**
+ * \brief: parse a statement if _is_compound is false, othewise parse a list of (compound) statements and add them
+ *          to _children.
+ * */
 ASTNode *ASTStatement::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   if (_is_compound) {
@@ -182,6 +189,7 @@ ASTNode *ASTStatement::nud(Parser *parser) {
       this->_associativity = n->_associativity;
       this->_lbp = n->_lbp;
       this->_rbp = n->_rbp;
+      ++parser->_curr_token;
     }
   }
   return this;
@@ -412,6 +420,10 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(LNOT),
     MAKE_ASTTYPE_NAME_PAIR(XOR),
     MAKE_ASTTYPE_NAME_PAIR(RET),
+    MAKE_ASTTYPE_NAME_PAIR(GT),
+    MAKE_ASTTYPE_NAME_PAIR(GE),
+    MAKE_ASTTYPE_NAME_PAIR(LT),
+    MAKE_ASTTYPE_NAME_PAIR(LE),
 };
 
 #undef MAKE_ASTTYPE_NAME_PAIR

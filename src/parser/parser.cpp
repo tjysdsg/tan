@@ -78,6 +78,11 @@ ASTNode *Parser::next_expression(int rbp) {
   return left;
 }
 
+/**
+ * \brief: parse a single non-compound statement
+ * \note: since a statement parsing might fail, _curr_token is one before the next new token to be parsed. Therefore,
+ *          remember to increment _curr_token after successfully finishing a next_statement() call!
+ * */
 ASTNode *Parser::next_statement() {
   auto *statement = new ASTStatement();
   ASTNode *node = peek();

@@ -1,4 +1,3 @@
-#include "config.h"
 #include "ast.h"
 #include "reader.h"
 #include "parser.h"
