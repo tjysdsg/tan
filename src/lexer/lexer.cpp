@@ -44,7 +44,7 @@ Token *tokenize_id(Reader *reader, code_ptr &start) {
     } else if (start == forward) {
       return nullptr;
     } else {
-      ret = new Token(TokenType::ID, (*reader)(start, forward));
+      ret = new Token(TokenType::ID, (*reader)(start, forward), start);
       break;
     }
   }
@@ -75,11 +75,11 @@ Token *tokenize_comments(Reader *reader, code_ptr &start) {
   if ((*reader)[next] == '/') {
     // line comments
     auto value = (*reader)(reader->forward_ptr(next));
-    t = new Token(TokenType::COMMENTS, value);
+    t = new Token(TokenType::COMMENTS, value, start);
     start.c = static_cast<long>((*reader)[static_cast<size_t>(start.r)].code.length());
     start = (*reader).forward_ptr(start);
   } else if ((*reader)[next] == '*') {
-    /* block commments */
+    /* block comments */
     auto forward = start;
     // loop for each line
     while (static_cast<size_t>(forward.r) < reader->size()) {
@@ -88,7 +88,7 @@ Token *tokenize_comments(Reader *reader, code_ptr &start) {
       std::smatch result;
       if (std::regex_match(str, result, re)) {
         std::string value = str.substr(2, static_cast<size_t>(result.length(0) - 4));
-        t = new Token(TokenType::COMMENTS, value);
+        t = new Token(TokenType::COMMENTS, value, start);
         forward.c = result.length(0);
         start = forward;
       }
@@ -128,6 +128,8 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
   }
   t->type = is_float ? TokenType::FLOAT : TokenType::INT;
   t->value = (*reader)(start, forward);
+  t->l = static_cast<size_t>(start.r);
+  t->c = static_cast<size_t>(start.c);
   start = forward;
   return t;
 }
@@ -146,7 +148,7 @@ Token *tokenize_char(Reader *reader, code_ptr &start) {
   } else {
     std::string value = (*reader)(reader->forward_ptr(start),
                                   forward); // not including the single quotes
-    t = new Token(TokenType::CHAR, value);
+    t = new Token(TokenType::CHAR, value, start);
     start = (*reader).forward_ptr(forward);
   }
   return t;
@@ -166,7 +168,7 @@ Token *tokenize_string(Reader *reader, code_ptr &start) {
   } else {
     std::string value = (*reader)(reader->forward_ptr(start),
                                   forward); // not including the double quotes
-    t = new Token(TokenType::STRING, value);
+    t = new Token(TokenType::STRING, value, start);
     start = (*reader).forward_ptr(forward);
   }
   return t;
@@ -220,11 +222,10 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
     } while (false);
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, value);
-  }
-    // other punctuations
+    t = new Token(type, value, start);
+  } // other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]));
+    t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]), start);
     start = next;
   } else {
     t = nullptr;

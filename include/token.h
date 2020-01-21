@@ -2,6 +2,7 @@
 #define TAN_LEXDEF_H
 
 #include "utils.h"
+#include "reader.h"
 #include <array>
 #include <string>
 #include <unordered_map>
@@ -33,13 +34,15 @@ extern std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP;
 struct Token {
   TokenType type = TokenType::END;
   std::string value = "";
+  size_t l = 0, c = 0;
 
   Token() = default;
-  Token(TokenType tokenType, std::string value) : type(tokenType), value(std::move(value)) {}
+  Token(TokenType tokenType, std::string value, const code_ptr &cursor)
+      : type(tokenType), value(std::move(value)), l(static_cast<size_t>(cursor.r)), c(static_cast<size_t>(cursor.c)) {}
   ~Token() = default;
 
   std::string to_string() {
-    return "<Token: " + token_type_names[type] + "; " + value;
+    return "<Token: " + token_type_names[type] + "; " + value + ">";
   }
 
   std::ostream &operator<<(std::ostream &os) {
