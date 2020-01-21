@@ -36,6 +36,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 find_package(GTest REQUIRED)
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
 # resolve symlink, because CLION with WSL doesn't seem to recognize this
 get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
 get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)

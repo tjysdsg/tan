@@ -19,7 +19,9 @@ class Parser final {
  public:
   Parser() = delete;
 
-  explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {}
+  explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {
+    _module = new Module("shit", _context);
+  }
 
   ~Parser();
 
@@ -32,11 +34,10 @@ class Parser final {
   ASTNode *_root = nullptr;
   size_t _curr_token;
 
- private:
-  LLVMContext _context;
+ public:
+  LLVMContext _context = LLVMContext();
   IRBuilder<> _builder = IRBuilder<>(_context);
   Module *_module;
-  std::map<std::string, Value *> _named_values;
 };
 }
 

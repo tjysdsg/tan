@@ -64,7 +64,7 @@ ASTNode *Parser::next_expression(int rbp) {
 
 ASTNode *Parser::parse() {
   size_t n_tokens = _tokens.size();
-  _root = new ASTNode;
+  _root = new ASTProgram;
   while (_curr_token < n_tokens) {
     auto *n = next_expression(0);
     if (!n) { break; }

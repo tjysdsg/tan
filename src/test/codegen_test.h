@@ -1,12 +1,16 @@
-#include "config.h"
+#ifndef TAN_CODEGEN_TEST_H
+#define TAN_CODEGEN_TEST_H
+
 #include "ast.h"
-#include "reader.h"
 #include "parser.h"
+#include <gtest/gtest.h>
 #include <iostream>
 
-int main() {
-  using tanlang::Reader;
-  using tanlang::Parser;
+using tanlang::Reader;
+using tanlang::tokenize;
+using tanlang::Parser;
+
+TEST(codegen, arithmatic) {
   std::string code = "1 + 2 * 3 / 4";
   Reader r;
   r.from_string(code);
@@ -15,12 +19,12 @@ int main() {
   Parser p(tokens);
   p.parse();
   p._root->printTree();
-  p._root->codegen(&p);
-  p._module->print(llvm::errs(), nullptr);
+  auto *value = p._root->codegen(&p);
 
   for (auto *&t : tokens) {
     delete t;
     t = nullptr;
   }
-  return 0;
 }
+
+#endif /* TAN_CODEGEN_TEST_H */

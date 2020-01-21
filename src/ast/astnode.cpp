@@ -1,7 +1,17 @@
 #include "src/ast/astnode.h"
 #include <iostream>
+#include <llvm/ADT/APFloat.h>
+#include <llvm/IR/Function.h>
+#include <llvm/ADT/APInt.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Verifier.h>
 
 namespace tanlang {
+using llvm::ConstantFP;
+using llvm::ConstantInt;
+using llvm::APFloat;
+using llvm::APInt;
+using llvm::IRBuilder;
 
 void ASTNode::printSubtree(const std::string &prefix) {
   using std::cout;
@@ -75,6 +85,10 @@ std::string ASTNode::get_svalue() const {
 ASTNode::ASTNode(ASTType op, int associativity, int lbp, int rbp)
     : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {}
 
+ASTProgram::ASTProgram() {
+  _op = ASTType::PROGRAM;
+}
+
 ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
   _children.emplace_back(left);
   auto *n = parser->next_expression(_lbp);
@@ -92,7 +106,7 @@ ASTNode *ASTInfixBinaryOp::nud(Parser *parser) {
   assert(false);
   return nullptr;
 }
-ASTInfixBinaryOp::ASTInfixBinaryOp() : ASTNode(ASTType::EOF_, 0, op_precedence[ASTType::EOF_], 0) {}
+ASTInfixBinaryOp::ASTInfixBinaryOp() : ASTNode(ASTType::INVALID, 0, op_precedence[ASTType::INVALID], 0) {}
 
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL,
                                                                                     1,
@@ -130,7 +144,7 @@ ASTNode *ASTPrefix::nud(Parser *parser) {
   }
   return this;
 }
-ASTPrefix::ASTPrefix() : ASTNode(ASTType::EOF_, 1, op_precedence[ASTType::EOF_], 0) {}
+ASTPrefix::ASTPrefix() : ASTNode(ASTType::INVALID, 1, op_precedence[ASTType::INVALID], 0) {}
 
 ASTStringLiteral::ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
                                                               op_precedence[ASTType::STRING_LITERAL],
@@ -171,6 +185,83 @@ ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
   _lbp = op_precedence[ASTType::SUBTRACT];
 }
 
+// ================= codegen functions ================ //
+Value *ASTNumberLiteral::codegen(Parser *parser) {
+  if (_is_float) {
+    return ConstantFP::get(parser->_context, APFloat(_fvalue));
+  } else {
+    return ConstantInt::get(parser->_context, APInt(32, _ivalue, true));
+  }
+}
+
+Value *ASTSum::codegen(Parser *parser) {
+  Value *lhs = _children[0]->codegen(parser);
+  Value *rhs = _children[1]->codegen(parser);
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
+  return parser->_builder.CreateFAdd(lhs, rhs, "add_tmp");
+}
+
+Value *ASTSubtract::codegen(Parser *parser) {
+  Value *lhs = _children[0]->codegen(parser);
+  Value *rhs = _children[1]->codegen(parser);
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
+  return parser->_builder.CreateFSub(lhs, rhs, "sub_tmp");
+}
+
+Value *ASTMultiply::codegen(Parser *parser) {
+  Value *lhs = _children[0]->codegen(parser);
+  Value *rhs = _children[1]->codegen(parser);
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
+  return parser->_builder.CreateFMul(lhs, rhs, "mul_tmp");
+}
+
+Value *ASTDivide::codegen(Parser *parser) {
+  Value *lhs = _children[0]->codegen(parser);
+  Value *rhs = _children[1]->codegen(parser);
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
+  return parser->_builder.CreateFDiv(lhs, rhs, "div_tmp");
+}
+
+Value *ASTProgram::codegen(Parser *parser) {
+  using llvm::Function;
+  using llvm::FunctionType;
+  using llvm::Type;
+  using llvm::BasicBlock;
+  using llvm::verifyFunction;
+  // Make the function type:  double(double,double) etc.
+  std::vector<Type *> Doubles(2, Type::getDoubleTy(parser->_context));
+  FunctionType *FT = FunctionType::get(Type::getDoubleTy(parser->_context), Doubles, false);
+  Function *F = Function::Create(FT, Function::ExternalLinkage, "main", *parser->_module);
+
+  // TODO: main function arguments
+  unsigned Idx = 0;
+  for (auto &Arg : F->args()) {
+    Arg.setName(std::to_string(Idx++));
+  }
+
+  // create a new basic block to start insertion into.
+  BasicBlock *BB = BasicBlock::Create(parser->_context, "entry", F);
+  parser->_builder.SetInsertPoint(BB);
+
+  if (Value *RetVal = _children[0]->codegen(parser)) {
+    // finish off the function.
+    parser->_builder.CreateRet(RetVal);
+    // validate the generated code, checking for consistency.
+    verifyFunction(*F);
+  }
+  return nullptr;
+}
+
+// ================= codegen functions ends ================ //
+
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
 std::unordered_map<ASTType, std::string> ast_type_names{
@@ -194,10 +285,12 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(XOR),
 };
 
+#undef MAKE_ASTTYPE_NAME_PAIR
+
 // operator precedence for each token
 std::unordered_map<ASTType, int> op_precedence{
     {ASTType::PROGRAM, PREC_LOWEST},
-    {ASTType::EOF_, PREC_LOWEST},
+    {ASTType::INVALID, PREC_LOWEST},
 
     {ASTType::SUM, PREC_TERM},
     {ASTType::SUBTRACT, PREC_TERM},

@@ -3,17 +3,8 @@
 #include <vector>
 #include "base.h"
 #include "parser.h"
-#include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/STLExtras.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Verifier.h>
+#include <llvm/IR/IRBuilder.h>
 
 namespace tanlang {
 
@@ -53,7 +44,7 @@ enum class ASTType {
 
   NUM_LITERAL,
   STRING_LITERAL,
-  EOF_,
+  INVALID,
 };
 
 extern std::unordered_map<ASTType, std::string> ast_type_names;
@@ -62,7 +53,7 @@ extern std::unordered_map<ASTType, int> op_precedence;
 
 class ASTNode {
  public:
-  ASTType _op = ASTType::PROGRAM;
+  ASTType _op = ASTType::INVALID;
   int _associativity{}; // 0 left, 1 non-left
   std::vector<ASTNode *> _children{};
   int _lbp = 0;
@@ -79,7 +70,19 @@ class ASTNode {
   virtual void add(ASTNode *c);
   void printTree();
   void printSubtree(const std::string &prefix);
-  virtual Value *codegen() { assert(false); };
+  virtual Value *codegen(Parser *parser) {
+    UNUSED(parser);
+    assert(false);
+  }
+};
+
+class ASTProgram : public ASTNode {
+ public:
+  ASTProgram();
+  Value *codegen(Parser *parser) override;
+
+ public:
+  std::vector<Value *> _code{};
 };
 
 class ASTInfixBinaryOp : public ASTNode {
@@ -96,6 +99,7 @@ class ASTNumberLiteral final : public ASTNode {
   [[nodiscard]] bool is_float() const;
   [[nodiscard]] int get_ivalue() const override;
   [[nodiscard]] float get_fvalue() const override;
+  Value *codegen(Parser *parser) override;
 
  private:
   bool _is_float = false;
@@ -133,21 +137,25 @@ class ASTStringLiteral final : public ASTNode {
 class ASTSum final : public ASTInfixBinaryOp {
  public:
   ASTSum();
+  Value *codegen(Parser *parser) override;
 };
 
 class ASTSubtract final : public ASTInfixBinaryOp {
  public:
   ASTSubtract();
+  Value *codegen(Parser *parser) override;
 };
 
 class ASTMultiply final : public ASTInfixBinaryOp {
  public:
   ASTMultiply();
+  Value *codegen(Parser *parser) override;
 };
 
 class ASTDivide final : public ASTInfixBinaryOp {
  public:
   ASTDivide();
+  Value *codegen(Parser *parser) override;
 };
 
 }
