@@ -28,6 +28,16 @@ ASTNode *Parser::peek() {
     node = new ASTLogicalNot;
   } else if (token->value == "~" && token->type == TokenType::UOP) {
     node = new ASTBinaryNot;
+  } else if (token->type == TokenType::RELOP) {
+    if (token->value == ">") {
+      node = new ASTCompare(ASTType::GT);
+    } else if (token->value == ">=") {
+      node = new ASTCompare(ASTType::GE);
+    } else if (token->value == "<") {
+      node = new ASTCompare(ASTType::LT);
+    } else if (token->value == "<=") {
+      node = new ASTCompare(ASTType::LE);
+    }
   } else if (token->type == TokenType::INT) {
     node = new ASTNumberLiteral(token->value, false);
   } else if (token->type == TokenType::FLOAT) {
@@ -68,7 +78,7 @@ ASTNode *Parser::next_expression(int rbp) {
 
 ASTNode *Parser::next_statement() {
   auto *statement = new ASTStatement();
-  ASTNode* node = peek();
+  ASTNode *node = peek();
   while (node) {
     statement->_children.push_back(next_expression(0));
     node = peek();

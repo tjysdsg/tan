@@ -45,10 +45,17 @@ void ASTNode::printTree() {
 
 ASTStatement::ASTStatement() {
   _op = ASTType::STATEMENT;
+  _lbp = op_precedence[_op];
+}
+
+ASTCompare::ASTCompare(ASTType type) {
+  _op = type;
+  _lbp = op_precedence[type];
 }
 
 ASTReturn::ASTReturn() {
   _op = ASTType::RET;
+  _lbp = op_precedence[_op];
 }
 
 ASTNode::~ASTNode() {
@@ -206,6 +213,35 @@ Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   }
 }
 
+Value *ASTCompare::codegen(ParserContext *parser_context) {
+  Value *lhs = _children[0]->codegen(parser_context);
+  Value *rhs = _children[1]->codegen(parser_context);
+  if (!lhs || !rhs) {
+    assert(false);
+    return nullptr;
+  }
+  // TODO: handle type conversion
+  auto *ltype = lhs->getType();
+  auto *rtype = rhs->getType();
+  if (ltype->isFloatingPointTy() || rtype->isFloatingPointTy()) {
+    if (ltype->isIntegerTy()) {
+      parser_context->_builder->CreateUIToFP(lhs, rtype);
+    }
+    if (rtype->isIntegerTy()) {
+      parser_context->_builder->CreateUIToFP(rhs, ltype);
+    }
+  }
+  if (_op == ASTType::GT) {
+    return parser_context->_builder->CreateICmpUGT(lhs, rhs, "gt_tmp");
+  } else if (_op == ASTType::GE) {
+    return parser_context->_builder->CreateICmpUGE(lhs, rhs, "ge_tmp");
+  } else if (_op == ASTType::LT) {
+    return parser_context->_builder->CreateICmpULT(lhs, rhs, "lt_tmp");
+  } else if (_op == ASTType::LE) {
+    return parser_context->_builder->CreateICmpULE(lhs, rhs, "le_tmp");
+  }
+}
+
 Value *ASTSum::codegen(ParserContext *parser_context) {
   Value *lhs = _children[0]->codegen(parser_context);
   Value *rhs = _children[1]->codegen(parser_context);
@@ -318,6 +354,7 @@ std::unordered_map<ASTType, std::string> ast_type_names{
 // operator precedence for each token
 std::unordered_map<ASTType, int> op_precedence{
     {ASTType::PROGRAM, PREC_LOWEST},
+    {ASTType::STATEMENT, PREC_LOWEST},
     {ASTType::INVALID, PREC_LOWEST},
 
     {ASTType::SUM, PREC_TERM},
@@ -329,8 +366,14 @@ std::unordered_map<ASTType, int> op_precedence{
     {ASTType::DIVIDE, PREC_FACTOR},
     {ASTType::MOD, PREC_FACTOR},
     {ASTType::BAND, PREC_FACTOR},
+    {ASTType::GT, PREC_COMPARISON},
+    {ASTType::GE, PREC_COMPARISON},
+    {ASTType::LT, PREC_COMPARISON},
+    {ASTType::LE, PREC_COMPARISON},
 
     {ASTType::ASSIGN, PREC_ASSIGN},
+
+    {ASTType::RET, PREC_KEYWORD},
 
     {ASTType::BNOT, PREC_UNARY},
     {ASTType::LNOT, PREC_UNARY},

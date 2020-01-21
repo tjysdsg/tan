@@ -40,7 +40,7 @@ class Parser final {
   Parser() = delete;
 
   explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {
-    _parser_context = new ParserContext;
+    _parser_context = new ParserContext("main");
   }
 
   ~Parser();

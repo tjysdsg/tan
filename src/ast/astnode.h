@@ -10,6 +10,7 @@ namespace tanlang {
 
 enum PrecedenceLevel {
   PREC_LOWEST,
+  PREC_KEYWORD = 5, // FIXME?
   PREC_LITERAL = 10,
   PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
   PREC_LOGICAL_OR = 110,  // ||
@@ -39,10 +40,14 @@ enum class ASTType {
   LOR,  // logical or
   BNOT, // binary not
   LNOT, // logical not
+  GT, // >
+  GE, // >=
+  LT, // <
+  LE, // <=
   XOR,
 
   //
-  RET,
+      RET,
 
   NUM_LITERAL,
   STRING_LITERAL,
@@ -132,20 +137,30 @@ class ASTReturn final : public ASTPrefix {
 class ASTBinaryNot final : public ASTPrefix {
  public:
   ASTBinaryNot();
+  // Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTLogicalNot final : public ASTPrefix {
  public:
   ASTLogicalNot();
+  // Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTStringLiteral final : public ASTNode {
  public:
   explicit ASTStringLiteral(std::string str);
   [[nodiscard]] std::string get_svalue() const override;
+  // Value *codegen(ParserContext *parser_context) override;
 
  private:
   std::string _svalue;
+};
+
+class ASTCompare final : public ASTInfixBinaryOp {
+ public:
+  ASTCompare() = delete;
+  explicit ASTCompare(ASTType type);
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTSum final : public ASTInfixBinaryOp {
