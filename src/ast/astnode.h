@@ -87,6 +87,7 @@ class ASTProgram : public ASTNode {
  public:
   ASTProgram();
   Value *codegen(ParserContext *parser_context) override;
+  [[nodiscard]] ASTNode *nud(Parser *parser) override;
 
  public:
   std::vector<Value *> _code{};
@@ -95,7 +96,11 @@ class ASTProgram : public ASTNode {
 class ASTStatement : public ASTNode {
  public:
   ASTStatement();
+  explicit ASTStatement(bool is_compound);
   Value *codegen(ParserContext *parser_context) override;
+  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+ public:
+  bool _is_compound = false;
 };
 
 class ASTInfixBinaryOp : public ASTNode {
@@ -137,13 +142,13 @@ class ASTReturn final : public ASTPrefix {
 class ASTBinaryNot final : public ASTPrefix {
  public:
   ASTBinaryNot();
-  // Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTLogicalNot final : public ASTPrefix {
  public:
   ASTLogicalNot();
-  // Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTStringLiteral final : public ASTNode {

@@ -43,6 +43,12 @@ void ASTNode::printTree() {
   cout << "\n";
 }
 
+ASTStatement::ASTStatement(bool is_compound) {
+  _op = ASTType::STATEMENT;
+  _lbp = op_precedence[_op];
+  _is_compound = is_compound;
+}
+
 ASTStatement::ASTStatement() {
   _op = ASTType::STATEMENT;
   _lbp = op_precedence[_op];
@@ -139,6 +145,48 @@ ASTNode *ASTNumberLiteral::nud(Parser *parser) {
   return this;
 }
 
+ASTNode *ASTProgram::nud(Parser *parser) {
+  size_t n_tokens = parser->_tokens.size();
+  auto *t = parser->_tokens[parser->_curr_token];
+  if (t->type == TokenType::PUNCTUATION && t->value == "{") {
+    auto *n = parser->advance();
+    _children.push_back(n->nud(parser));
+    return this;
+  }
+  while (parser->_curr_token < n_tokens) {
+    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    if (!n || n->_children.empty()) { break; }
+    _children.push_back(n);
+    ++parser->_curr_token;
+  }
+  return this;
+}
+
+ASTNode *ASTStatement::nud(Parser *parser) {
+  size_t n_tokens = parser->_tokens.size();
+  if (_is_compound) {
+    while (parser->_curr_token < n_tokens) {
+      auto *n = parser->next_statement();
+      if (!n || n->_children.empty()) { break; }
+      _children.push_back(n);
+      ++parser->_curr_token;
+    }
+  } else {
+    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    if (!n || n->_children.empty()) {
+      // TODO: report errors
+    } else {
+      this->_is_compound = n->_is_compound;
+      this->_children = n->_children;
+      this->_op = n->_op;
+      this->_associativity = n->_associativity;
+      this->_lbp = n->_lbp;
+      this->_rbp = n->_rbp;
+    }
+  }
+  return this;
+}
+
 bool ASTNumberLiteral::is_float() const {
   return _is_float;
 }
@@ -211,6 +259,23 @@ Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   } else {
     return ConstantInt::get(*parser_context->_context, APInt(32, _ivalue, true));
   }
+}
+
+Value *ASTBinaryNot::codegen(ParserContext *parser_context) {
+  auto *rhs = _children[0]->codegen(parser_context);
+  if (!rhs) {
+    assert(false);
+  }
+  return parser_context->_builder->CreateNot(rhs);
+}
+
+Value *ASTLogicalNot::codegen(ParserContext *parser_context) {
+  // FIXME
+  auto *rhs = _children[0]->codegen(parser_context);
+  if (!rhs) {
+    assert(false);
+  }
+  return parser_context->_builder->CreateNot(rhs);
 }
 
 Value *ASTCompare::codegen(ParserContext *parser_context) {

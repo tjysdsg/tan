@@ -7,7 +7,7 @@
 int main() {
   using tanlang::Reader;
   using tanlang::Parser;
-  std::string code = "return 1 + 2 * 3 / 4; return 2 + 3 < 5;";
+  std::string code = "{ return 1 + 2 * 3 / 4; return 1 + ~3 < 5; }";
   Reader r;
   r.from_string(code);
   auto tokens = tokenize(&r);
