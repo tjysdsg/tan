@@ -8,6 +8,7 @@
 
 // TODO: error reporting
 // TODO: implement scope
+// FIXME: memory leaks
 
 namespace tanlang {
 using llvm::ConstantFP;
@@ -38,7 +39,6 @@ void ASTNode::printSubtree(const std::string &prefix) {
     }
   }
 }
-
 void ASTNode::printTree() {
   using std::cout;
   std::cout << ast_type_names[this->_op] << "\n";
@@ -46,6 +46,7 @@ void ASTNode::printTree() {
   cout << "\n";
 }
 
+// ======================== con/de-structors =================== //
 ASTStatement::ASTStatement(bool is_compound) {
   _op = ASTType::STATEMENT;
   _lbp = op_precedence[_op];
@@ -74,61 +75,11 @@ ASTNode::~ASTNode() {
   }
 }
 
-ASTNode *ASTNode::led(ASTNode *left, Parser *parser) {
-  UNUSED(left);
-  UNUSED(parser);
-  assert(false);
-  return nullptr;
-}
-
-ASTNode *ASTNode::nud(Parser *parser) {
-  UNUSED(parser);
-  assert(false);
-  return nullptr;
-}
-
-void ASTNode::add(ASTNode *c) {
-  _children.emplace_back(c);
-}
-
-int ASTNode::get_ivalue() const {
-  assert(false);
-  return 0;
-}
-
-float ASTNode::get_fvalue() const {
-  assert(false);
-  return 0;
-}
-
-std::string ASTNode::get_svalue() const {
-  assert(false);
-  return "";
-}
-
 ASTNode::ASTNode(ASTType op, int associativity, int lbp, int rbp)
     : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {}
 
 ASTProgram::ASTProgram() {
   _op = ASTType::PROGRAM;
-}
-
-ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
-  _children.emplace_back(left);
-  auto *n = parser->next_expression(_lbp);
-  if (!n) {
-    // TODO: report error
-    throw "SHIT";
-  } else {
-    _children.emplace_back(n);
-  }
-  return this;
-}
-
-ASTNode *ASTInfixBinaryOp::nud(Parser *parser) {
-  UNUSED(parser);
-  assert(false);
-  return nullptr;
 }
 
 ASTInfixBinaryOp::ASTInfixBinaryOp() : ASTNode(ASTType::INVALID, 0, op_precedence[ASTType::INVALID], 0) {}
@@ -143,94 +94,12 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTN
     _ivalue = std::stoi(str);
   }
 }
-ASTNode *ASTNumberLiteral::nud(Parser *parser) {
-  UNUSED(parser);
-  return this;
-}
-
-/**
- * \brief: parse a list of (compound) statements
- * */
-ASTNode *ASTProgram::nud(Parser *parser) {
-  size_t n_tokens = parser->_tokens.size();
-  auto *t = parser->_tokens[parser->_curr_token];
-  if (t->type == TokenType::PUNCTUATION && t->value == "{") {
-    auto *n = parser->advance();
-    _children.push_back(n->nud(parser));
-    return this;
-  }
-  while (parser->_curr_token < n_tokens) {
-    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
-    if (!n || n->_children.empty()) { break; }
-    _children.push_back(n);
-    ++parser->_curr_token;
-  }
-  return this;
-}
-
-/**
- * \brief: parse a statement if _is_compound is false, othewise parse a list of (compound) statements and add them
- *          to _children.
- * */
-ASTNode *ASTStatement::nud(Parser *parser) {
-  size_t n_tokens = parser->_tokens.size();
-  if (_is_compound) {
-    while (parser->_curr_token < n_tokens) {
-      auto *n = parser->next_statement();
-      if (!n || n->_children.empty()) { break; }
-      _children.push_back(n);
-      ++parser->_curr_token;
-    }
-  } else {
-    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
-    if (!n || n->_children.empty()) {
-      // TODO: report errors
-    } else {
-      this->_is_compound = n->_is_compound;
-      this->_children = n->_children;
-      this->_op = n->_op;
-      this->_associativity = n->_associativity;
-      this->_lbp = n->_lbp;
-      this->_rbp = n->_rbp;
-      ++parser->_curr_token;
-    }
-  }
-  return this;
-}
-
-bool ASTNumberLiteral::is_float() const {
-  return _is_float;
-}
-
-int ASTNumberLiteral::get_ivalue() const {
-  assert(!_is_float);
-  return _ivalue;
-}
-
-float ASTNumberLiteral::get_fvalue() const {
-  assert(_is_float);
-  return _fvalue;
-}
-
-ASTNode *ASTPrefix::nud(Parser *parser) {
-  auto *n = parser->next_expression(_lbp);
-  if (!n) {
-    // TODO: report error
-  } else {
-    _children.emplace_back(n);
-  }
-  return this;
-}
 
 ASTPrefix::ASTPrefix() : ASTNode(ASTType::INVALID, 1, op_precedence[ASTType::INVALID], 0) {}
 
 ASTStringLiteral::ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
                                                               op_precedence[ASTType::STRING_LITERAL],
                                                               0), _svalue(std::move(str)) {
-}
-
-std::string ASTStringLiteral::get_svalue() const {
-  return _svalue;
 }
 
 ASTLogicalNot::ASTLogicalNot() : ASTPrefix() {
@@ -262,13 +131,138 @@ ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
   _op = ASTType::SUBTRACT;
   _lbp = op_precedence[ASTType::SUBTRACT];
 }
+// ============================================================ //
+
+// ============================= parser =========================//
+ASTNode *ASTNode::led(ASTNode *left, Parser *parser) {
+  UNUSED(left);
+  UNUSED(parser);
+  assert(false);
+}
+
+ASTNode *ASTNode::nud(Parser *parser) {
+  UNUSED(parser);
+  assert(false);
+}
+
+ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
+  _children.emplace_back(left);
+  auto *n = parser->next_expression(_lbp);
+  if (!n) {
+    // TODO: report error
+    throw "SHIT";
+  } else {
+    _children.emplace_back(n);
+  }
+  return this;
+}
+
+ASTNode *ASTNumberLiteral::nud(Parser *parser) {
+  UNUSED(parser);
+  return this;
+}
+
+/**
+ * \brief: parse a list of (compound) statements
+ * */
+ASTNode *ASTProgram::nud(Parser *parser) {
+  size_t n_tokens = parser->_tokens.size();
+  auto *t = parser->_tokens[parser->_curr_token];
+  if (t->type == TokenType::PUNCTUATION && t->value == "{") {
+    auto *n = parser->advance();
+    _children.push_back(n->nud(parser));
+    return this;
+  }
+  while (parser->_curr_token < n_tokens) {
+    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    if (!n || n->_children.empty()) { break; }
+    _children.push_back(n);
+    ++parser->_curr_token;
+  }
+  return this;
+}
+
+/**
+ * \brief: parse a statement if _is_compound is false, otherwise parse a list of (compound) statements and add them
+ *          to _children.
+ * */
+ASTNode *ASTStatement::nud(Parser *parser) {
+  size_t n_tokens = parser->_tokens.size();
+  if (_is_compound) {
+    while (parser->_curr_token < n_tokens) {
+      auto *n = parser->next_statement();
+      if (!n || n->_children.empty()) { break; }
+      _children.push_back(n);
+      ++parser->_curr_token;
+    }
+  } else {
+    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    if (n && !n->_children.empty()) {
+      this->_is_compound = n->_is_compound;
+      this->_children = n->_children;
+      this->_op = n->_op;
+      this->_associativity = n->_associativity;
+      this->_lbp = n->_lbp;
+      this->_rbp = n->_rbp;
+      ++parser->_curr_token;
+    }
+  }
+  return this;
+}
+
+ASTNode *ASTPrefix::nud(Parser *parser) {
+  auto *n = parser->next_expression(_lbp);
+  if (!n) {
+    // TODO: report error
+  } else {
+    _children.emplace_back(n);
+  }
+  return this;
+}
+// ==============================================================//
+
+void ASTNode::add(ASTNode *c) {
+  _children.emplace_back(c);
+}
+
+// ========================== getter/setter ====================//
+int ASTNode::get_ivalue() const {
+  assert(false);
+}
+
+float ASTNode::get_fvalue() const {
+  assert(false);
+}
+
+std::string ASTNode::get_svalue() const {
+  assert(false);
+}
+
+bool ASTNumberLiteral::is_float() const {
+  return _is_float;
+}
+
+int ASTNumberLiteral::get_ivalue() const {
+  assert(!_is_float);
+  return _ivalue;
+}
+
+float ASTNumberLiteral::get_fvalue() const {
+  assert(_is_float);
+  return _fvalue;
+}
+
+std::string ASTStringLiteral::get_svalue() const {
+  return _svalue;
+}
+// ==============================================================//
 
 // ================= codegen functions ================ //
 Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   if (_is_float) {
     return ConstantFP::get(*parser_context->_context, APFloat(_fvalue));
   } else {
-    return ConstantInt::get(*parser_context->_context, APInt(32, _ivalue, true));
+    return ConstantInt::get(*parser_context->_context, APInt(32, static_cast<uint64_t>(_ivalue), true));
   }
 }
 

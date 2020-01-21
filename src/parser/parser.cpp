@@ -51,7 +51,8 @@ ASTNode *Parser::peek() {
   } else if (token->type == TokenType::PUNCTUATION && (token->value == ";" || token->value == "}")) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
-    throw std::runtime_error("unknown token " + token->to_string());
+    throw std::runtime_error("unknown token " + token->to_string() + "; LINE " + std::to_string(token->l) + ":COL "
+                                 + std::to_string(token->c));
   }
   return node;
 }

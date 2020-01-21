@@ -69,15 +69,15 @@ class ASTNode {
   ASTNode() = default;
   ASTNode(ASTType op, int associativity, int lbp, int rbp);
   virtual ~ASTNode();
-  [[nodiscard]] virtual int get_ivalue() const;
-  [[nodiscard]] virtual float get_fvalue() const;
-  [[nodiscard]] virtual std::string get_svalue() const;
-  [[nodiscard]] virtual ASTNode *led(ASTNode *left, Parser *parser);
-  [[nodiscard]] virtual ASTNode *nud(Parser *parser);
+  [[noreturn]][[nodiscard]] virtual int get_ivalue() const;
+  [[noreturn]][[nodiscard]] virtual float get_fvalue() const;
+  [[noreturn]][[nodiscard]] virtual std::string get_svalue() const;
+  [[noreturn]][[nodiscard]] virtual ASTNode *led(ASTNode *left, Parser *parser);
+  [[noreturn]][[nodiscard]] virtual ASTNode *nud(Parser *parser);
   virtual void add(ASTNode *c);
   void printTree();
   void printSubtree(const std::string &prefix);
-  virtual Value *codegen(ParserContext *parser_context) {
+  [[noreturn]]virtual Value *codegen(ParserContext *parser_context) {
     UNUSED(parser_context);
     assert(false);
   }
@@ -88,9 +88,6 @@ class ASTProgram : public ASTNode {
   ASTProgram();
   Value *codegen(ParserContext *parser_context) override;
   [[nodiscard]] ASTNode *nud(Parser *parser) override;
-
- public:
-  std::vector<Value *> _code{};
 };
 
 class ASTStatement : public ASTNode {
@@ -107,7 +104,6 @@ class ASTInfixBinaryOp : public ASTNode {
  public:
   ASTInfixBinaryOp();
   [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override;
-  [[nodiscard]] ASTNode *nud(Parser *parser) override;
 };
 
 class ASTNumberLiteral final : public ASTNode {
