@@ -41,7 +41,7 @@ struct Token {
       : type(tokenType), value(std::move(value)), l(static_cast<size_t>(cursor.r)), c(static_cast<size_t>(cursor.c)) {}
   ~Token() = default;
 
-  std::string to_string() {
+  [[nodiscard]] std::string to_string() const {
     return "<Token: " + token_type_names[type] + "; " + value + ">";
   }
 

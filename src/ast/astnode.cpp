@@ -1,5 +1,6 @@
 #include "src/ast/astnode.h"
 #include <iostream>
+#include <string>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
 #include <llvm/ADT/APInt.h>
@@ -15,6 +16,10 @@ using llvm::APFloat;
 using llvm::APInt;
 using llvm::IRBuilder;
 
+// ================= helper functions ================//
+void ASTNode::report_error() {
+  report_code_error(_token->l, _token->c, "Unexpected token " + _token->to_string());
+}
 void ASTNode::printSubtree(const std::string &prefix) const {
   using std::cout;
   using std::endl;
@@ -44,40 +49,46 @@ void ASTNode::printTree() const {
   cout << "\n";
 }
 
-// ======================== con/de-structors =================== //
-ASTStatement::ASTStatement(bool is_compound) {
-  _op = ASTType::STATEMENT;
-  _lbp = op_precedence[_op];
+// ====================================================//
+
+// ======================== cdtors =================== //
+ASTStatement::ASTStatement(bool is_compound, Token *token) : ASTNode(ASTType::STATEMENT,
+                                                                     op_precedence[ASTType::STATEMENT],
+                                                                     0,
+                                                                     token) {
   _is_compound = is_compound;
 }
 
-ASTStatement::ASTStatement() {
-  _op = ASTType::STATEMENT;
-  _lbp = op_precedence[_op];
+ASTStatement::ASTStatement(Token *token) : ASTNode(ASTType::STATEMENT,
+                                                   op_precedence[ASTType::STATEMENT],
+                                                   0,
+                                                   token) {
 }
 
-ASTCompare::ASTCompare(ASTType type) {
+ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
+  // TODO: assert type
   _op = type;
   _lbp = op_precedence[type];
 }
 
-ASTReturn::ASTReturn() {
+ASTReturn::ASTReturn(Token *token) : ASTPrefix(token) {
   _op = ASTType::RET;
   _lbp = op_precedence[_op];
 }
 
-ASTNode::ASTNode(ASTType op, int associativity, int lbp, int rbp)
-    : _op(op), _associativity(associativity), _lbp(lbp), _rbp(rbp) {}
+ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token)
+    : _op(op), _lbp(lbp), _rbp(rbp), _token(token) {}
 
-ASTProgram::ASTProgram() {
-  _op = ASTType::PROGRAM;
-}
+ASTProgram::ASTProgram() : ASTNode(ASTType::PROGRAM, op_precedence[ASTType::PROGRAM], 0, nullptr) {}
 
-ASTInfixBinaryOp::ASTInfixBinaryOp() : ASTNode(ASTType::INVALID, 0, op_precedence[ASTType::INVALID], 0) {}
+ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token) : ASTNode(ASTType::INVALID,
+                                                           op_precedence[ASTType::INVALID],
+                                                           0,
+                                                           token) {}
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTNode(ASTType::NUM_LITERAL, 1,
-                                                                                    op_precedence[ASTType::NUM_LITERAL],
-                                                                                    0) {
+ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
+                                                                                                  op_precedence[ASTType::NUM_LITERAL],
+                                                                                                  0, token) {
   _is_float = is_float;
   if (is_float) {
     _fvalue = std::stof(str);
@@ -86,39 +97,38 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float) : ASTN
   }
 }
 
-ASTPrefix::ASTPrefix() : ASTNode(ASTType::INVALID, 1, op_precedence[ASTType::INVALID], 0) {}
+ASTPrefix::ASTPrefix(Token *token) : ASTNode(ASTType::INVALID, op_precedence[ASTType::INVALID], 0, token) {}
 
-ASTStringLiteral::ASTStringLiteral(std::string str) : ASTNode(ASTType::STRING_LITERAL, 1,
-                                                              op_precedence[ASTType::STRING_LITERAL],
-                                                              0), _svalue(std::move(str)) {
-}
+ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
+                                                                            op_precedence[ASTType::STRING_LITERAL],
+                                                                            0, token), _svalue(std::move(str)) {}
 
-ASTLogicalNot::ASTLogicalNot() : ASTPrefix() {
+ASTLogicalNot::ASTLogicalNot(Token *token) : ASTPrefix(token) {
   _op = ASTType::LNOT;
   _lbp = op_precedence[_op];
 }
 
-ASTBinaryNot::ASTBinaryNot() : ASTPrefix() {
+ASTBinaryNot::ASTBinaryNot(Token *token) : ASTPrefix(token) {
   _op = ASTType::BNOT;
   _lbp = op_precedence[_op];
 }
 
-ASTMultiply::ASTMultiply() : ASTInfixBinaryOp() {
+ASTMultiply::ASTMultiply(Token *token) : ASTInfixBinaryOp(token) {
   _op = ASTType::MULTIPLY;
   _lbp = op_precedence[ASTType::MULTIPLY];
 }
 
-ASTDivide::ASTDivide() : ASTInfixBinaryOp() {
+ASTDivide::ASTDivide(Token *token) : ASTInfixBinaryOp(token) {
   _op = ASTType::DIVIDE;
   _lbp = op_precedence[ASTType::DIVIDE];
 }
 
-ASTSum::ASTSum() : ASTInfixBinaryOp() {
+ASTSum::ASTSum(Token *token) : ASTInfixBinaryOp(token) {
   _op = ASTType::SUM;
   _lbp = op_precedence[ASTType::SUM];
 }
 
-ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
+ASTSubtract::ASTSubtract(Token *token) : ASTInfixBinaryOp(token) {
   _op = ASTType::SUBTRACT;
   _lbp = op_precedence[ASTType::SUBTRACT];
 }
@@ -128,25 +138,33 @@ ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
 void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
-  assert(false);
+  if (!_token) {
+    throw std::runtime_error("Unexpected empty token");
+  }
+  report_error();
 }
 
 void ASTNode::nud(Parser *parser) {
   UNUSED(parser);
-  assert(false);
+  if (!_token) {
+    throw std::runtime_error("Unexpected empty token");
+  }
+  report_error();
 }
 
 void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _children.emplace_back(left);
   auto n = parser->next_expression(_lbp);
   if (!n) {
-    // TODO: report error
-    throw "SHIT";
+    report_error();
   } else {
     _children.emplace_back(n);
   }
 }
 
+/**
+ * This defined only to overwrite ASTNode::nud() because the latter throws
+ * */
 void ASTNumberLiteral::nud(Parser *parser) {
   UNUSED(parser);
 }
@@ -187,12 +205,7 @@ void ASTStatement::nud(Parser *parser) {
   } else {
     auto n = std::reinterpret_pointer_cast<ASTStatement>(parser->next_statement());
     if (n && !n->_children.empty()) {
-      this->_is_compound = n->_is_compound;
-      this->_children = n->_children;
-      this->_op = n->_op;
-      this->_associativity = n->_associativity;
-      this->_lbp = n->_lbp;
-      this->_rbp = n->_rbp;
+      *this = *n;
       ++parser->_curr_token;
     }
   }
@@ -201,7 +214,7 @@ void ASTStatement::nud(Parser *parser) {
 void ASTPrefix::nud(Parser *parser) {
   auto n = parser->next_expression(_lbp);
   if (!n) {
-    // TODO: report error
+    throw std::runtime_error("Expect a token"); // FIXME: improve this error
   } else {
     _children.emplace_back(n);
   }
@@ -214,15 +227,15 @@ void ASTNode::add(ASTNode *c) {
 
 // ========================== getter/setter ====================//
 int ASTNode::get_ivalue() const {
-  assert(false);
+  throw std::runtime_error("NOT IMPLEMENTED");
 }
 
 float ASTNode::get_fvalue() const {
-  assert(false);
+  throw std::runtime_error("NOT IMPLEMENTED");
 }
 
 std::string ASTNode::get_svalue() const {
-  assert(false);
+  throw std::runtime_error("NOT IMPLEMENTED");
 }
 
 bool ASTNumberLiteral::is_float() const {
