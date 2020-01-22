@@ -62,21 +62,21 @@ class ASTNode {
  public:
   ASTType _op = ASTType::INVALID;
   int _associativity{}; // 0 left, 1 non-left
-  std::vector<ASTNode *> _children{};
+  std::vector<std::shared_ptr<ASTNode>> _children{};
   int _lbp = 0;
   int _rbp = 0;
 
   ASTNode() = default;
   ASTNode(ASTType op, int associativity, int lbp, int rbp);
-  virtual ~ASTNode();
-  [[noreturn]][[nodiscard]] virtual int get_ivalue() const;
-  [[noreturn]][[nodiscard]] virtual float get_fvalue() const;
-  [[noreturn]][[nodiscard]] virtual std::string get_svalue() const;
-  [[noreturn]][[nodiscard]] virtual ASTNode *led(ASTNode *left, Parser *parser);
-  [[noreturn]][[nodiscard]] virtual ASTNode *nud(Parser *parser);
+  virtual ~ASTNode() = default;
+  [[nodiscard]] virtual int get_ivalue() const;
+  [[nodiscard]] virtual float get_fvalue() const;
+  [[nodiscard]] virtual std::string get_svalue() const;
+  virtual void led(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  virtual void nud(Parser *parser);
   virtual void add(ASTNode *c);
-  void printTree();
-  void printSubtree(const std::string &prefix);
+  void printTree() const;
+  void printSubtree(const std::string &prefix) const;
   [[noreturn]]virtual Value *codegen(ParserContext *parser_context) {
     UNUSED(parser_context);
     assert(false);
@@ -87,7 +87,7 @@ class ASTProgram : public ASTNode {
  public:
   ASTProgram();
   Value *codegen(ParserContext *parser_context) override;
-  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+  void nud(Parser *parser) override;
 };
 
 class ASTStatement : public ASTNode {
@@ -95,7 +95,7 @@ class ASTStatement : public ASTNode {
   ASTStatement();
   explicit ASTStatement(bool is_compound);
   Value *codegen(ParserContext *parser_context) override;
-  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+  void nud(Parser *parser) override;
  public:
   bool _is_compound = false;
 };
@@ -103,13 +103,13 @@ class ASTStatement : public ASTNode {
 class ASTInfixBinaryOp : public ASTNode {
  public:
   ASTInfixBinaryOp();
-  [[nodiscard]] ASTNode *led(ASTNode *left, Parser *parser) override;
+  void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
 };
 
 class ASTNumberLiteral final : public ASTNode {
  public:
   ASTNumberLiteral(const std::string &str, bool is_float);
-  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+  void nud(Parser *parser) override;
   [[nodiscard]] bool is_float() const;
   [[nodiscard]] int get_ivalue() const override;
   [[nodiscard]] float get_fvalue() const override;
@@ -126,7 +126,7 @@ class ASTNumberLiteral final : public ASTNode {
 class ASTPrefix : public ASTNode {
  public:
   ASTPrefix();
-  [[nodiscard]] ASTNode *nud(Parser *parser) override;
+  void nud(Parser *parser) override;
 };
 
 class ASTReturn final : public ASTPrefix {

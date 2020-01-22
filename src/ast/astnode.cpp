@@ -8,8 +8,6 @@
 
 // TODO: error reporting
 // TODO: implement scope
-// FIXME: memory leaks
-
 namespace tanlang {
 using llvm::ConstantFP;
 using llvm::ConstantInt;
@@ -17,7 +15,7 @@ using llvm::APFloat;
 using llvm::APInt;
 using llvm::IRBuilder;
 
-void ASTNode::printSubtree(const std::string &prefix) {
+void ASTNode::printSubtree(const std::string &prefix) const {
   using std::cout;
   using std::endl;
   if (_children.empty()) return;
@@ -26,7 +24,7 @@ void ASTNode::printSubtree(const std::string &prefix) {
   cout << (n_children > 1 ? "├── " : "");
 
   for (size_t i = 0; i < n_children; ++i) {
-    ASTNode *c = _children[i];
+    const auto &c = _children[i];
     if (i < n_children - 1) {
       bool printStrand = n_children > 1 && !c->_children.empty();
       std::string newPrefix = prefix + (printStrand ? "│\t" : "\t");
@@ -39,7 +37,7 @@ void ASTNode::printSubtree(const std::string &prefix) {
     }
   }
 }
-void ASTNode::printTree() {
+void ASTNode::printTree() const {
   using std::cout;
   std::cout << ast_type_names[this->_op] << "\n";
   printSubtree("");
@@ -66,13 +64,6 @@ ASTCompare::ASTCompare(ASTType type) {
 ASTReturn::ASTReturn() {
   _op = ASTType::RET;
   _lbp = op_precedence[_op];
-}
-
-ASTNode::~ASTNode() {
-  for (auto *&c : _children) {
-    delete c;
-    c = nullptr;
-  }
 }
 
 ASTNode::ASTNode(ASTType op, int associativity, int lbp, int rbp)
@@ -134,69 +125,67 @@ ASTSubtract::ASTSubtract() : ASTInfixBinaryOp() {
 // ============================================================ //
 
 // ============================= parser =========================//
-ASTNode *ASTNode::led(ASTNode *left, Parser *parser) {
+void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
   assert(false);
 }
 
-ASTNode *ASTNode::nud(Parser *parser) {
+void ASTNode::nud(Parser *parser) {
   UNUSED(parser);
   assert(false);
 }
 
-ASTNode *ASTInfixBinaryOp::led(ASTNode *left, Parser *parser) {
+void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _children.emplace_back(left);
-  auto *n = parser->next_expression(_lbp);
+  auto n = parser->next_expression(_lbp);
   if (!n) {
     // TODO: report error
     throw "SHIT";
   } else {
     _children.emplace_back(n);
   }
-  return this;
 }
 
-ASTNode *ASTNumberLiteral::nud(Parser *parser) {
+void ASTNumberLiteral::nud(Parser *parser) {
   UNUSED(parser);
-  return this;
 }
 
 /**
  * \brief: parse a list of (compound) statements
  * */
-ASTNode *ASTProgram::nud(Parser *parser) {
+void ASTProgram::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   auto *t = parser->_tokens[parser->_curr_token];
   if (t->type == TokenType::PUNCTUATION && t->value == "{") {
-    auto *n = parser->advance();
-    _children.push_back(n->nud(parser));
-    return this;
+    auto n = parser->advance();
+    n->nud(parser);
+    _children.push_back(n);
+    return;
   }
   while (parser->_curr_token < n_tokens) {
-    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    auto n = std::reinterpret_pointer_cast<ASTStatement>(parser->next_statement());
     if (!n || n->_children.empty()) { break; }
     _children.push_back(n);
     ++parser->_curr_token;
   }
-  return this;
 }
 
 /**
  * \brief: parse a statement if _is_compound is false, otherwise parse a list of (compound) statements and add them
  *          to _children.
  * */
-ASTNode *ASTStatement::nud(Parser *parser) {
+void ASTStatement::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   if (_is_compound) {
     while (parser->_curr_token < n_tokens) {
-      auto *n = parser->next_statement();
+      auto n = parser->next_statement();
       if (!n || n->_children.empty()) { break; }
       _children.push_back(n);
       ++parser->_curr_token;
     }
   } else {
-    auto *n = reinterpret_cast<ASTStatement *>(parser->next_statement());
+    auto n = std::reinterpret_pointer_cast<ASTStatement>(parser->next_statement());
     if (n && !n->_children.empty()) {
       this->_is_compound = n->_is_compound;
       this->_children = n->_children;
@@ -207,17 +196,15 @@ ASTNode *ASTStatement::nud(Parser *parser) {
       ++parser->_curr_token;
     }
   }
-  return this;
 }
 
-ASTNode *ASTPrefix::nud(Parser *parser) {
-  auto *n = parser->next_expression(_lbp);
+void ASTPrefix::nud(Parser *parser) {
+  auto n = parser->next_expression(_lbp);
   if (!n) {
     // TODO: report error
   } else {
     _children.emplace_back(n);
   }
-  return this;
 }
 // ==============================================================//
 
@@ -377,7 +364,7 @@ Value *ASTProgram::codegen(ParserContext *parser_context) {
   BasicBlock *main_block = BasicBlock::Create(*parser_context->_context, "entry", F);
   parser_context->_builder->SetInsertPoint(main_block);
 
-  for (auto *child : _children) {
+  for (const auto &child : _children) {
     child->codegen(parser_context);
   }
   // validate the generated code, checking for consistency
@@ -386,7 +373,7 @@ Value *ASTProgram::codegen(ParserContext *parser_context) {
 }
 
 Value *ASTStatement::codegen(ParserContext *parser_context) {
-  for (auto *child : _children) {
+  for (const auto &child : _children) {
     child->codegen(parser_context);
   }
   return nullptr;

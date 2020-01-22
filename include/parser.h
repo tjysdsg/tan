@@ -38,21 +38,19 @@ class ASTNode;
 class Parser final {
  public:
   Parser() = delete;
-
+  ~Parser() = default;
   explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {
     _parser_context = new ParserContext("main");
   }
 
-  ~Parser();
-
-  ASTNode *advance();
-  ASTNode *peek();
-  ASTNode *next_expression(int rbp = 0);
-  ASTNode *next_statement();
-  ASTNode *parse();
+  std::shared_ptr<ASTNode> advance();
+  std::shared_ptr<ASTNode> peek();
+  std::shared_ptr<ASTNode> next_expression(int rbp = 0);
+  std::shared_ptr<ASTNode> next_statement();
+  std::shared_ptr<ASTNode> parse();
 
   std::vector<Token *> _tokens;
-  ASTNode *_root = nullptr;
+  std::shared_ptr<ASTNode> _root{};
   size_t _curr_token;
 
  public:

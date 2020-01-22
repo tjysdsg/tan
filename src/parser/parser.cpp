@@ -1,53 +1,54 @@
 #include "parser.h"
 #include <vector>
+#include <memory>
 #include "ast.h"
 
 using std::string;
 
 namespace tanlang {
 
-ASTNode *Parser::advance() {
-  auto *r = peek();
+std::shared_ptr<ASTNode> Parser::advance() {
+  auto r = peek();
   ++_curr_token;
   return r;
 }
 
-ASTNode *Parser::peek() {
+std::shared_ptr<ASTNode> Parser::peek() {
   if (_curr_token >= _tokens.size()) return nullptr;
   Token *token = _tokens[_curr_token];
-  ASTNode *node = nullptr;
+  std::shared_ptr<ASTNode> node;
   if (token->value == "+" && token->type == TokenType::BOP) {
-    node = new ASTSum;
+    node = std::make_shared<ASTSum>();
   } else if (token->value == "-" && token->type == TokenType::BOP) {
-    node = new ASTSubtract;
+    node = std::make_shared<ASTSubtract>();
   } else if (token->value == "*" && token->type == TokenType::BOP) {
-    node = new ASTMultiply;
+    node = std::make_shared<ASTMultiply>();
   } else if (token->value == "/" && token->type == TokenType::BOP) {
-    node = new ASTDivide;
+    node = std::make_shared<ASTDivide>();
   } else if (token->value == "!" && token->type == TokenType::UOP) {
-    node = new ASTLogicalNot;
+    node = std::make_shared<ASTLogicalNot>();
   } else if (token->value == "~" && token->type == TokenType::UOP) {
-    node = new ASTBinaryNot;
+    node = std::make_shared<ASTBinaryNot>();
   } else if (token->type == TokenType::RELOP) {
     if (token->value == ">") {
-      node = new ASTCompare(ASTType::GT);
+      node = std::make_shared<ASTCompare>(ASTType::GT);
     } else if (token->value == ">=") {
-      node = new ASTCompare(ASTType::GE);
+      node = std::make_shared<ASTCompare>(ASTType::GE);
     } else if (token->value == "<") {
-      node = new ASTCompare(ASTType::LT);
+      node = std::make_shared<ASTCompare>(ASTType::LT);
     } else if (token->value == "<=") {
-      node = new ASTCompare(ASTType::LE);
+      node = std::make_shared<ASTCompare>(ASTType::LE);
     }
   } else if (token->type == TokenType::INT) {
-    node = new ASTNumberLiteral(token->value, false);
+    node = std::make_shared<ASTNumberLiteral>(token->value, false);
   } else if (token->type == TokenType::FLOAT) {
-    node = new ASTNumberLiteral(token->value, true);
+    node = std::make_shared<ASTNumberLiteral>(token->value, true);
   } else if (token->type == TokenType::STRING) {
-    node = new ASTStringLiteral(token->value);
+    node = std::make_shared<ASTStringLiteral>(token->value);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
-    node = new ASTReturn;
+    node = std::make_shared<ASTReturn>();
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
-    node = new ASTStatement(true);
+    node = std::make_shared<ASTStatement>(true);
   } else if (token->type == TokenType::PUNCTUATION && (token->value == ";" || token->value == "}")) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
@@ -57,13 +58,14 @@ ASTNode *Parser::peek() {
   return node;
 }
 
-ASTNode *Parser::next_expression(int rbp) {
-  ASTNode *node = advance();
+std::shared_ptr<ASTNode> Parser::next_expression(int rbp) {
+  std::shared_ptr<ASTNode> node = advance();
   if (!node) {
     return nullptr;
   }
-  auto *n = node;
-  ASTNode *left = n->nud(this);
+  auto n = node;
+  n->nud(this);
+  auto left = n;
   node = peek();
   if (!node) {
     return left;
@@ -72,7 +74,8 @@ ASTNode *Parser::next_expression(int rbp) {
     node = peek();
     n = node;
     ++_curr_token;
-    left = n->led(left, this);
+    n->led(left, this);
+    left = n;
     node = peek();
     if (!node) { break; };
   }
@@ -84,9 +87,9 @@ ASTNode *Parser::next_expression(int rbp) {
  * \note: since a statement parsing might fail, _curr_token is one before the next new token to be parsed. Therefore,
  *          remember to increment _curr_token after successfully finishing a next_statement() call!
  * */
-ASTNode *Parser::next_statement() {
-  auto *statement = new ASTStatement();
-  ASTNode *node = peek();
+std::shared_ptr<ASTNode> Parser::next_statement() {
+  auto statement = std::make_shared<ASTStatement>();
+  auto node = peek();
   while (node) {
     statement->_children.push_back(next_expression(0));
     node = peek();
@@ -94,14 +97,10 @@ ASTNode *Parser::next_statement() {
   return statement;
 }
 
-ASTNode *Parser::parse() {
-  _root = new ASTProgram;
-  return _root->nud(this);
-}
-
-Parser::~Parser() {
-  delete _root;
-  _root = nullptr;
+std::shared_ptr<ASTNode> Parser::parse() {
+  _root = std::make_shared<ASTProgram>();
+  _root->nud(this);
+  return _root;
 }
 
 }
