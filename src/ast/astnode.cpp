@@ -249,7 +249,7 @@ std::string ASTStringLiteral::get_svalue() const {
 }
 // ==============================================================//
 
-// ================= codegen functions ================ //
+// ================= codegen functions ========================= //
 Value *ASTNode::codegen(ParserContext *parser_context) {
   if (_children.empty()) return nullptr;
   auto *result = _children[0]->codegen(parser_context);
@@ -281,6 +281,11 @@ Value *ASTLogicalNot::codegen(ParserContext *parser_context) {
   auto *rhs = _children[0]->codegen(parser_context);
   if (!rhs) {
     assert(false);
+  }
+  if (rhs->getType()->isIntegerTy()) {
+    rhs = parser_context->_builder->CreateIntCast(rhs, parser_context->_builder->getInt1Ty(), false);
+  } else {
+    rhs = parser_context->_builder->CreateFPToUI(rhs, parser_context->_builder->getInt1Ty());
   }
   return parser_context->_builder->CreateNot(rhs);
 }
@@ -402,16 +407,17 @@ Value *ASTReturn::codegen(ParserContext *parser_context) {
  */
 static AllocaInst *CreateEntryBlockAlloca(Function *func, const std::string &name, ParserContext *parser_context) {
   IRBuilder<> tmp_builder(&func->getEntryBlock(), func->getEntryBlock().begin());
-  return tmp_builder.CreateAlloca(Type::getDoubleTy(*parser_context->_context), 0, name.c_str());
+  return tmp_builder.CreateAlloca(parser_context->_builder->getFloatTy(), nullptr, name);
 }
 
 Value *ASTProgram::codegen(ParserContext *parser_context) {
   // make function prototype
-  std::vector<Type *> arg_types(2, parser_context->_builder->getFloatTy());
-  FunctionType *FT = FunctionType::get(parser_context->_builder->getFloatTy(), arg_types, false);
+  Type *float_type = parser_context->_builder->getFloatTy();
+  std::vector<Type *> arg_types(2, float_type);
+  FunctionType *FT = FunctionType::get(float_type, arg_types, false);
   Function *F = Function::Create(FT, Function::ExternalLinkage, "main", *parser_context->_module);
 
-  // TODO: main function arguments
+  // TODO: function argument type
   unsigned Idx = 0;
   for (auto &Arg : F->args()) {
     Arg.setName("arg" + std::to_string(Idx++));
