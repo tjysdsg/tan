@@ -277,17 +277,16 @@ Value *ASTBinaryNot::codegen(ParserContext *parser_context) {
 }
 
 Value *ASTLogicalNot::codegen(ParserContext *parser_context) {
-  // FIXME
   auto *rhs = _children[0]->codegen(parser_context);
   if (!rhs) {
     assert(false);
   }
-  if (rhs->getType()->isIntegerTy()) {
-    rhs = parser_context->_builder->CreateIntCast(rhs, parser_context->_builder->getInt1Ty(), false);
-  } else {
-    rhs = parser_context->_builder->CreateFPToUI(rhs, parser_context->_builder->getInt1Ty());
-  }
-  return parser_context->_builder->CreateNot(rhs);
+  // get value size in bits
+  llvm::DataLayout data_layout(parser_context->_module.get());
+  auto size_in_bits = data_layout.getTypeSizeInBits(rhs->getType());
+  auto mask = ConstantInt::get(*parser_context->_context,
+                               APInt(static_cast<uint32_t>(size_in_bits), std::numeric_limits<uint64_t>::max(), false));
+  return parser_context->_builder->CreateXor(mask, rhs);
 }
 
 Value *ASTCompare::codegen(ParserContext *parser_context) {
