@@ -364,8 +364,7 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
     // float arithmetic
     if (_op == ASTType::MULTIPLY) {
 //      return parser_context->_builder->CreateFMul(lhs, rhs);
-      auto *i = parser_context->_builder->CreateFMul(lhs, rhs);
-      return i;
+      return parser_context->_builder->CreateFMul(lhs, rhs);
     } else if (_op == ASTType::DIVIDE) {
       return parser_context->_builder->CreateFDiv(lhs, rhs);
     } else if (_op == ASTType::SUM) {

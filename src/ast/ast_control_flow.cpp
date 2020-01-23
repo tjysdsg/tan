@@ -26,6 +26,7 @@ void ASTIf::nud(tanlang::Parser *parser) {
   auto if_clause = parser->advance(TokenType::PUNCTUATION, "{");
   if_clause->nud(parser);
   _children.push_back(if_clause);
+  ++parser->_curr_token;
 
   // else clause
   Token *token = parser->get_curr_token();
