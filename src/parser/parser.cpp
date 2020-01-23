@@ -1,6 +1,5 @@
 #include "parser.h"
 #include <memory>
-#include "ast.h"
 
 using std::string;
 
@@ -12,18 +11,38 @@ std::shared_ptr<ASTNode> Parser::advance() {
   return r;
 }
 
+std::shared_ptr<ASTNode> Parser::advance(TokenType type, const std::string &value) {
+  auto r = peek(type, value);
+  ++_curr_token;
+  return r;
+}
+
+std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) {
+  if (_curr_token >= _tokens.size()) {
+    throw std::runtime_error("Unexpected EOF"); // improve error
+  }
+  Token *token = _tokens[_curr_token];
+  if (token->type != type || token->value != value) {
+    report_code_error(token->l,
+                      token->c,
+                      "Expect token " + value + " with type " + token_type_names[type] + ", but got "
+                          + token->to_string() + " instead");
+  }
+  return peek();
+}
+
 std::shared_ptr<ASTNode> Parser::peek() {
   if (_curr_token >= _tokens.size()) return nullptr;
   Token *token = _tokens[_curr_token];
   std::shared_ptr<ASTNode> node;
   if (token->value == "+" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTSum>(token);
+    node = std::make_shared<ASTArithmetic>(ASTType::SUM, token);
   } else if (token->value == "-" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTSubtract>(token);
+    node = std::make_shared<ASTArithmetic>(ASTType::SUBTRACT, token);
   } else if (token->value == "*" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTMultiply>(token);
+    node = std::make_shared<ASTArithmetic>(ASTType::MULTIPLY, token);
   } else if (token->value == "/" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTDivide>(token);
+    node = std::make_shared<ASTArithmetic>(ASTType::DIVIDE, token);
   } else if (token->value == "!" && token->type == TokenType::UOP) {
     node = std::make_shared<ASTLogicalNot>(token);
   } else if (token->value == "~" && token->type == TokenType::UOP) {
@@ -44,11 +63,20 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTNumberLiteral>(token->value, true, token);
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token->value, token);
+  } else if (token->type == TokenType::ID) {
+    node = std::make_shared<ASTIdentifier>(token->value, token);
+  } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
+    node = std::make_shared<ASTParenthesis>(token);
+  } else if (token->type == TokenType::KEYWORD && token->value == "if") {
+    node = std::make_shared<ASTIf>(token);
+  } else if (token->type == TokenType::KEYWORD && token->value == "else") {
+    node = std::make_shared<ASTElse>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);
-  } else if (token->type == TokenType::PUNCTUATION && (token->value == ";" || token->value == "}")) {
+  } else if (token->type == TokenType::PUNCTUATION
+      && (token->value == ";" || token->value == "}" || token->value == ")")) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     report_code_error(token->l, token->c, "Unknown token " + token->to_string());

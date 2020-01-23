@@ -1,11 +1,11 @@
 #include "src/ast/astnode.h"
-#include <iostream>
-#include <string>
+#include "parser.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/IR/Instruction.h>
 
 // TODO: error reporting
 // TODO: implement scope
@@ -14,7 +14,13 @@ using llvm::ConstantFP;
 using llvm::ConstantInt;
 using llvm::APFloat;
 using llvm::APInt;
+using llvm::Type;
 using llvm::IRBuilder;
+using llvm::AllocaInst;
+using llvm::Function;
+using llvm::FunctionType;
+using llvm::BasicBlock;
+using llvm::verifyFunction;
 
 // ================= helper functions ================//
 void ASTNode::report_error() {
@@ -113,25 +119,11 @@ ASTBinaryNot::ASTBinaryNot(Token *token) : ASTPrefix(token) {
   _lbp = op_precedence[_op];
 }
 
-ASTMultiply::ASTMultiply(Token *token) : ASTInfixBinaryOp(token) {
-  _op = ASTType::MULTIPLY;
-  _lbp = op_precedence[ASTType::MULTIPLY];
+ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
+  _op = type;
+  _lbp = op_precedence[type];
 }
 
-ASTDivide::ASTDivide(Token *token) : ASTInfixBinaryOp(token) {
-  _op = ASTType::DIVIDE;
-  _lbp = op_precedence[ASTType::DIVIDE];
-}
-
-ASTSum::ASTSum(Token *token) : ASTInfixBinaryOp(token) {
-  _op = ASTType::SUM;
-  _lbp = op_precedence[ASTType::SUM];
-}
-
-ASTSubtract::ASTSubtract(Token *token) : ASTInfixBinaryOp(token) {
-  _op = ASTType::SUBTRACT;
-  _lbp = op_precedence[ASTType::SUBTRACT];
-}
 // ============================================================ //
 
 // ============================= parser =========================//
@@ -258,6 +250,16 @@ std::string ASTStringLiteral::get_svalue() const {
 // ==============================================================//
 
 // ================= codegen functions ================ //
+Value *ASTNode::codegen(ParserContext *parser_context) {
+  if (_children.empty()) return nullptr;
+  auto *result = _children[0]->codegen(parser_context);
+  size_t n = _children.size();
+  for (size_t i = 1; i < n; ++i) {
+    _children[i]->codegen(parser_context);
+  }
+  return result;
+}
+
 Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   if (_is_float) {
     return ConstantFP::get(*parser_context->_context, APFloat(_fvalue));
@@ -291,104 +293,154 @@ Value *ASTCompare::codegen(ParserContext *parser_context) {
     return nullptr;
   }
   // TODO: handle type conversion
-  auto *ltype = lhs->getType();
-  auto *rtype = rhs->getType();
-  if (ltype->isFloatingPointTy() || rtype->isFloatingPointTy()) {
+  Type *ltype = lhs->getType();
+  Type *rtype = rhs->getType();
+  Type *float_type = parser_context->_builder->getFloatTy();
+  if (ltype->isPointerTy()) {
+    lhs = parser_context->_builder->CreateLoad(float_type, lhs);
+  }
+  if (rtype->isPointerTy()) {
+    rhs = parser_context->_builder->CreateLoad(float_type, rhs);
+  }
+  if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
-      parser_context->_builder->CreateUIToFP(lhs, rtype);
+      lhs = parser_context->_builder->CreateSIToFP(lhs, float_type);
     }
     if (rtype->isIntegerTy()) {
-      parser_context->_builder->CreateUIToFP(rhs, ltype);
+      rhs = parser_context->_builder->CreateSIToFP(rhs, float_type);
+    }
+
+    if (_op == ASTType::GT) {
+      return parser_context->_builder->CreateFCmpOGT(lhs, rhs);
+    } else if (_op == ASTType::GE) {
+      return parser_context->_builder->CreateFCmpOGE(lhs, rhs);
+    } else if (_op == ASTType::LT) {
+      return parser_context->_builder->CreateFCmpOLT(lhs, rhs);
+    } else if (_op == ASTType::LE) {
+      return parser_context->_builder->CreateFCmpOLE(lhs, rhs);
+    } else {
+      // TODO: report error
+      return nullptr;
     }
   }
   if (_op == ASTType::GT) {
-    return parser_context->_builder->CreateICmpUGT(lhs, rhs, "gt_tmp");
+    return parser_context->_builder->CreateICmpUGT(lhs, rhs);
   } else if (_op == ASTType::GE) {
-    return parser_context->_builder->CreateICmpUGE(lhs, rhs, "ge_tmp");
+    return parser_context->_builder->CreateICmpUGE(lhs, rhs);
   } else if (_op == ASTType::LT) {
-    return parser_context->_builder->CreateICmpULT(lhs, rhs, "lt_tmp");
+    return parser_context->_builder->CreateICmpULT(lhs, rhs);
   } else if (_op == ASTType::LE) {
-    return parser_context->_builder->CreateICmpULE(lhs, rhs, "le_tmp");
+    return parser_context->_builder->CreateICmpULE(lhs, rhs);
+  } else {
+    // TODO: report error
+    return nullptr;
   }
 }
 
-Value *ASTSum::codegen(ParserContext *parser_context) {
+Value *ASTArithmetic::codegen(ParserContext *parser_context) {
   Value *lhs = _children[0]->codegen(parser_context);
   Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
     assert(false);
     return nullptr;
   }
-  return parser_context->_builder->CreateFAdd(lhs, rhs, "add_tmp");
-}
+  Type *ltype = lhs->getType();
+  Type *rtype = rhs->getType();
+  Type *float_type = parser_context->_builder->getFloatTy();
 
-Value *ASTSubtract::codegen(ParserContext *parser_context) {
-  Value *lhs = _children[0]->codegen(parser_context);
-  Value *rhs = _children[1]->codegen(parser_context);
-  if (!lhs || !rhs) {
-    assert(false);
+  if (ltype->isPointerTy()) {
+    lhs = parser_context->_builder->CreateLoad(float_type, lhs);
+  }
+  if (rtype->isPointerTy()) {
+    rhs = parser_context->_builder->CreateLoad(float_type, rhs);
+  }
+  if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
+    if (ltype->isIntegerTy()) {
+      lhs = parser_context->_builder->CreateSIToFP(lhs, float_type);
+    }
+    if (rtype->isIntegerTy()) {
+      rhs = parser_context->_builder->CreateSIToFP(rhs, float_type);
+    }
+    // float arithmetic
+    if (_op == ASTType::MULTIPLY) {
+//      return parser_context->_builder->CreateFMul(lhs, rhs);
+      auto *i = parser_context->_builder->CreateFMul(lhs, rhs);
+      return i;
+    } else if (_op == ASTType::DIVIDE) {
+      return parser_context->_builder->CreateFDiv(lhs, rhs);
+    } else if (_op == ASTType::SUM) {
+      return parser_context->_builder->CreateFAdd(lhs, rhs);
+    } else if (_op == ASTType::SUBTRACT) {
+      return parser_context->_builder->CreateFSub(lhs, rhs);
+    } else {
+      // TODO: report error
+      return nullptr;
+    }
+  }
+
+  // integer arithmetic
+  if (_op == ASTType::MULTIPLY) {
+    return parser_context->_builder->CreateMul(lhs, rhs, "mul_tmp");
+  } else if (_op == ASTType::DIVIDE) {
+    return parser_context->_builder->CreateUDiv(lhs, rhs, "div_tmp");
+  } else if (_op == ASTType::SUM) {
+    return parser_context->_builder->CreateAdd(lhs, rhs, "sum_tmp");
+  } else if (_op == ASTType::SUBTRACT) {
+    return parser_context->_builder->CreateSub(lhs, rhs, "sub_tmp");
+  } else {
+    // TODO: report error
     return nullptr;
   }
-  return parser_context->_builder->CreateFSub(lhs, rhs, "sub_tmp");
-}
-
-Value *ASTMultiply::codegen(ParserContext *parser_context) {
-  Value *lhs = _children[0]->codegen(parser_context);
-  Value *rhs = _children[1]->codegen(parser_context);
-  if (!lhs || !rhs) {
-    assert(false);
-    return nullptr;
-  }
-  return parser_context->_builder->CreateFMul(lhs, rhs, "mul_tmp");
-}
-
-Value *ASTDivide::codegen(ParserContext *parser_context) {
-  Value *lhs = _children[0]->codegen(parser_context);
-  Value *rhs = _children[1]->codegen(parser_context);
-  if (!lhs || !rhs) {
-    assert(false);
-    return nullptr;
-  }
-  return parser_context->_builder->CreateFDiv(lhs, rhs, "div_tmp");
 }
 
 Value *ASTReturn::codegen(ParserContext *parser_context) {
   return parser_context->_builder->CreateRet(_children[0]->codegen(parser_context));
 }
 
+/**
+ * \brief Create an alloca instruction in the entry block of
+ * the function. This is used for mutable variables etc.
+ */
+static AllocaInst *CreateEntryBlockAlloca(Function *func, const std::string &name, ParserContext *parser_context) {
+  IRBuilder<> tmp_builder(&func->getEntryBlock(), func->getEntryBlock().begin());
+  return tmp_builder.CreateAlloca(Type::getDoubleTy(*parser_context->_context), 0, name.c_str());
+}
+
 Value *ASTProgram::codegen(ParserContext *parser_context) {
-  using llvm::Function;
-  using llvm::FunctionType;
-  using llvm::Type;
-  using llvm::BasicBlock;
-  using llvm::verifyFunction;
-  // Make the function type:  double(double,double) etc.
-  std::vector<Type *> Doubles(2, Type::getDoubleTy(*parser_context->_context));
-  FunctionType *FT = FunctionType::get(Type::getDoubleTy(*parser_context->_context), Doubles, false);
+  // make function prototype
+  std::vector<Type *> arg_types(2, parser_context->_builder->getFloatTy());
+  FunctionType *FT = FunctionType::get(parser_context->_builder->getFloatTy(), arg_types, false);
   Function *F = Function::Create(FT, Function::ExternalLinkage, "main", *parser_context->_module);
 
   // TODO: main function arguments
   unsigned Idx = 0;
   for (auto &Arg : F->args()) {
-    Arg.setName(std::to_string(Idx++));
+    Arg.setName("arg" + std::to_string(Idx++));
   }
 
+  // function implementation
   // create a new basic block to start insertion into
   BasicBlock *main_block = BasicBlock::Create(*parser_context->_context, "entry", F);
   parser_context->_builder->SetInsertPoint(main_block);
+
+  // TODO: create a new scope
+  // Record the function arguments in the NamedValues map.
+  for (auto &Arg : F->args()) {
+    parser_context->add_variable(Arg.getName(), &Arg);
+    // Create an alloca for this variable.
+    AllocaInst *alloca = CreateEntryBlockAlloca(F, Arg.getName(), parser_context);
+    // Store the initial value into the alloca.
+    parser_context->_builder->CreateStore(&Arg, alloca);
+
+    // Add arguments to variable symbol table.
+    parser_context->set_variable(Arg.getName(), alloca);
+  }
 
   for (const auto &child : _children) {
     child->codegen(parser_context);
   }
   // validate the generated code, checking for consistency
   verifyFunction(*F);
-  return nullptr;
-}
-
-Value *ASTStatement::codegen(ParserContext *parser_context) {
-  for (const auto &child : _children) {
-    child->codegen(parser_context);
-  }
   return nullptr;
 }
 
@@ -417,10 +469,15 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(LNOT),
     MAKE_ASTTYPE_NAME_PAIR(XOR),
     MAKE_ASTTYPE_NAME_PAIR(RET),
+    MAKE_ASTTYPE_NAME_PAIR(IF),
+    MAKE_ASTTYPE_NAME_PAIR(ELSE),
     MAKE_ASTTYPE_NAME_PAIR(GT),
     MAKE_ASTTYPE_NAME_PAIR(GE),
     MAKE_ASTTYPE_NAME_PAIR(LT),
     MAKE_ASTTYPE_NAME_PAIR(LE),
+    MAKE_ASTTYPE_NAME_PAIR(ID),
+    MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS),
+
 };
 
 #undef MAKE_ASTTYPE_NAME_PAIR
@@ -447,7 +504,11 @@ std::unordered_map<ASTType, int> op_precedence{
 
     {ASTType::ASSIGN, PREC_ASSIGN},
 
+    {ASTType::PARENTHESIS, PREC_CALL},
+
     {ASTType::RET, PREC_KEYWORD},
+    {ASTType::IF, PREC_KEYWORD},
+    {ASTType::ELSE, PREC_KEYWORD},
 
     {ASTType::BNOT, PREC_UNARY},
     {ASTType::LNOT, PREC_UNARY},

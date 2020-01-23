@@ -1,12 +1,18 @@
 #ifndef TAN_SRC_AST_ASTNODE_H_
 #define TAN_SRC_AST_ASTNODE_H_
-#include <vector>
 #include "base.h"
-#include "parser.h"
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
 
+namespace llvm {
+class Value;
+}
+
 namespace tanlang {
+struct Token;
+struct ParserContext;
+class Parser;
+using llvm::Value;
 
 enum PrecedenceLevel {
   PREC_LOWEST,
@@ -46,8 +52,13 @@ enum class ASTType {
   LE, // <=
   XOR,
 
-  //
-      RET,
+  ID, // identifiers
+
+  PARENTHESIS, // ( )
+
+  RET,
+  IF,
+  ELSE,
 
   NUM_LITERAL,
   STRING_LITERAL,
@@ -80,11 +91,8 @@ class ASTNode {
   virtual void add(ASTNode *c);
   void printTree() const;
   void printSubtree(const std::string &prefix) const;
-  virtual Value *codegen(ParserContext *parser_context) {
-    UNUSED(parser_context);
-    assert(false);
-  }
-  void report_error();
+  virtual Value *codegen(ParserContext *parser_context);
+  [[noreturn]]void report_error();
 };
 
 class ASTProgram : public ASTNode {
@@ -98,7 +106,6 @@ class ASTStatement : public ASTNode {
  public:
   explicit ASTStatement(Token *token);
   ASTStatement(bool is_compound, Token *token);
-  Value *codegen(ParserContext *parser_context) override;
   void nud(Parser *parser) override;
  public:
   bool _is_compound = false;
@@ -168,27 +175,9 @@ class ASTCompare final : public ASTInfixBinaryOp {
   Value *codegen(ParserContext *parser_context) override;
 };
 
-class ASTSum final : public ASTInfixBinaryOp {
+class ASTArithmetic final : public ASTInfixBinaryOp {
  public:
-  explicit ASTSum(Token *token);
-  Value *codegen(ParserContext *parser_context) override;
-};
-
-class ASTSubtract final : public ASTInfixBinaryOp {
- public:
-  explicit ASTSubtract(Token *token);
-  Value *codegen(ParserContext *parser_context) override;
-};
-
-class ASTMultiply final : public ASTInfixBinaryOp {
- public:
-  explicit ASTMultiply(Token *token);
-  Value *codegen(ParserContext *parser_context) override;
-};
-
-class ASTDivide final : public ASTInfixBinaryOp {
- public:
-  explicit ASTDivide(Token *token);
+  explicit ASTArithmetic(ASTType type, Token *token);
   Value *codegen(ParserContext *parser_context) override;
 };
 
