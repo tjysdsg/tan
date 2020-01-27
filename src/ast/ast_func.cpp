@@ -3,13 +3,13 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/Function.h>
-#include "src/ast/common.h"
 #include "token.h"
 
 namespace tanlang {
 using llvm::Type;
 using llvm::verifyFunction;
 using llvm::FunctionType;
+using llvm::Function;
 
 ASTFunction::ASTFunction(Token *token) : ASTNode(ASTType::FUNC, 0, 0, token) {}
 

@@ -1,6 +1,5 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
-
 #include "lexer.h"
 #include "ast.h"
 #include <vector>
@@ -8,6 +7,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <memory>
+#include <stack>
 
 namespace tanlang {
 using llvm::Value;
@@ -20,7 +20,7 @@ struct ParserContext {
   std::unique_ptr<LLVMContext> _context;
   std::unique_ptr<IRBuilder<>> _builder;
   std::unique_ptr<Module> _module;
-  std::unique_ptr<Scope> _scope;
+  std::stack<std::unique_ptr<Scope>> _scope;
 
   ParserContext &operator=(const ParserContext &) = delete;
   ParserContext(const ParserContext &) = delete;
@@ -28,26 +28,32 @@ struct ParserContext {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>("main", *_context);
-    _scope = std::make_unique<Scope>();
+    _scope = std::stack<std::unique_ptr<Scope>>();
+    _scope.push(std::make_unique<Scope>()); // outer-est scope
   }
 
   explicit ParserContext(const std::string &module_name) {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>(module_name, *_context);
-    _scope = std::make_unique<Scope>();
+    _scope = std::stack<std::unique_ptr<Scope>>();
+    _scope.push(std::make_unique<Scope>()); // outer-est scope
+  }
+
+  const std::unique_ptr<Scope>& get_current_scope() {
+    return _scope.top();
   }
 
   void add_variable(const std::string &name, Value *value) {
-    _scope->_named_variables.insert(std::make_pair(name, value));
+    get_current_scope()->_named_variables.insert(std::make_pair(name, value));
   }
 
   void set_variable(const std::string &name, Value *value) {
-    _scope->_named_variables[name] = value;
+    get_current_scope()->_named_variables[name] = value;
   }
 
   Value *get_variable(const std::string &name) {
-    return _scope->_named_variables[name];
+    return get_current_scope()->_named_variables[name];
   }
 };
 

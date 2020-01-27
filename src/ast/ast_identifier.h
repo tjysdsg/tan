@@ -1,9 +1,9 @@
 #ifndef TAN_SRC_AST_AST_IDENTIFIER_H_
 #define TAN_SRC_AST_AST_IDENTIFIER_H_
 #include <utility>
-
 #include "src/ast/astnode.h"
 #include "token.h"
+
 namespace tanlang {
 class ASTIdentifier final : public ASTNode {
  public:
