@@ -1,4 +1,5 @@
 #include "src/ast/astnode.h"
+#include "src/ast/common.h"
 #include "parser.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
@@ -57,7 +58,11 @@ void ASTNode::printTree() const {
 
 // =================== cdtors =========================//
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
-  // TODO: check ASTType
+  if (!is_ast_type_in(type,
+                      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT,
+                       ASTType::LOR})) {
+    report_code_error(token->l, token->c, "Invalid ASTType for comparisons " + token->to_string());
+  }
   _op = type;
   _lbp = op_precedence[type];
 }
