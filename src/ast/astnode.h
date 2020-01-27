@@ -28,11 +28,14 @@ enum PrecedenceLevel {
   PREC_FACTOR = 150,      // * / % &
   PREC_SHIFT = 160,       // << >>
   PREC_UNARY = 170,       // + - ! ~
-  PREC_CALL = 200         // . ( [
+  PREC_CALL = 200,        // . ( [
+  PREC_HIGHEST = 500,
 };
 
 enum class ASTType {
   PROGRAM,
+  FUNC,
+  ARG_DEF,
   STATEMENT, // statement or compound statements
   SUM,
   SUBTRACT,
@@ -53,6 +56,7 @@ enum class ASTType {
   XOR,
 
   ID, // identifiers
+  TYPENAME,
 
   PARENTHESIS, // ( )
 
@@ -93,6 +97,16 @@ class ASTNode {
   void printSubtree(const std::string &prefix) const;
   virtual Value *codegen(ParserContext *parser_context);
   [[noreturn]]void report_error();
+};
+
+class ASTTypeName : public ASTNode {
+ public:
+  ASTTypeName() = delete;
+  explicit ASTTypeName(Token *token);
+  void nud(Parser *parser) override;
+
+ public:
+  std::string _name;
 };
 
 class ASTInfixBinaryOp : public ASTNode {

@@ -12,7 +12,7 @@ class ASTIdentifier final : public ASTNode {
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
 
- private:
+ public:
   std::string _name{};
 };
 

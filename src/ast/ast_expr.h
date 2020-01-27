@@ -15,6 +15,14 @@ class ASTParenthesis : public ASTNode {
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
 };
+
+class ASTArgDef : public ASTNode {
+ public:
+  explicit ASTArgDef(Token *token) : ASTNode(ASTType::ARG_DEF, 0, 0, token) {};
+  void nud(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
+};
+
 }
 
 #endif //TAN_SRC_AST_AST_EXPR_H_

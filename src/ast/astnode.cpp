@@ -53,10 +53,12 @@ void ASTNode::printTree() const {
   printSubtree("");
   cout << "\n";
 }
-
 // ====================================================//
 
 // =================== cdtors =========================//
+ASTTypeName::ASTTypeName(Token *token) : ASTNode(ASTType::TYPENAME, 0, 0, token),
+                                         _name(token->value) {}
+
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   if (!is_ast_type_in(type,
                       {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT,
@@ -114,6 +116,10 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
 // ============================================================ //
 
 // ============================= parser =========================//
+void ASTTypeName::nud(Parser *parser) {
+  UNUSED(parser);
+}
+
 void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
@@ -367,6 +373,9 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(LE),
     MAKE_ASTTYPE_NAME_PAIR(ID),
     MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS),
+    MAKE_ASTTYPE_NAME_PAIR(FUNC),
+    MAKE_ASTTYPE_NAME_PAIR(ARG_DEF),
+    MAKE_ASTTYPE_NAME_PAIR(TYPENAME),
 
 };
 

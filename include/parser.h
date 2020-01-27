@@ -65,6 +65,7 @@ class Parser final {
   std::shared_ptr<ASTNode> peek();
   std::shared_ptr<ASTNode> peek(TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(int rbp = 0);
+  std::shared_ptr<ASTNode> next_node();
   std::shared_ptr<ASTNode> next_statement();
   std::shared_ptr<ASTNode> parse();
 

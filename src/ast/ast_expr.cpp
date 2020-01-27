@@ -29,4 +29,15 @@ Value *ASTParenthesis::codegen(ParserContext *parser_context) {
   }
   return result;
 }
+
+void ASTArgDef::nud(Parser *parser) {
+  _children.push_back(parser->next_node()); // name
+  parser->advance(TokenType::PUNCTUATION, ":");
+  _children.push_back(parser->next_node()); // type
+}
+
+Value *ASTArgDef::codegen(ParserContext *parser_context) {
+  return ASTNode::codegen(parser_context);
+}
+
 }

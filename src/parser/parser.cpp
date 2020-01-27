@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "src/ast/ast_statement.h"
+#include "src/ast/ast_func.h"
 #include <memory>
 
 using std::string;
@@ -68,20 +69,32 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTIdentifier>(token->value, token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token);
+  } else if (token->type == TokenType::KEYWORD && token->value == "fn") {
+    node = std::make_shared<ASTFunction>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "if") {
     node = std::make_shared<ASTIf>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "else") {
     node = std::make_shared<ASTElse>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
+  } else if (token->type == TokenType::KEYWORD &&
+      (token->value == "int" || token->value == "float")) { // types
+    node = std::make_shared<ASTTypeName>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);
   } else if (token->type == TokenType::PUNCTUATION
-      && (token->value == ";" || token->value == "}" || token->value == ")")) {
+      && (token->value == ";" || token->value == "}" || token->value == ")" || token->value == ":"
+          || token->value == ",")) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     report_code_error(token->l, token->c, "Unknown token " + token->to_string());
   }
+  return node;
+}
+
+std::shared_ptr<ASTNode> Parser::next_node() {
+  std::shared_ptr<ASTNode> node = advance();
+  node->nud(this);
   return node;
 }
 
