@@ -1,10 +1,10 @@
 #include "parser.h"
 #include "src/ast/ast_statement.h"
 #include "src/ast/astnode.h"
-#include <llvm/IR/Verifier.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/ADT/APFloat.h>
+#include <llvm/IR/Verifier.h>
 
 namespace tanlang {
 using llvm::ConstantFP;

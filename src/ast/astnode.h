@@ -94,9 +94,10 @@ class ASTNode {
   virtual void nud(Parser *parser);
   virtual void add(ASTNode *c);
   void printTree() const;
-  void printSubtree(const std::string &prefix) const;
   virtual Value *codegen(ParserContext *parser_context);
   [[noreturn]]void report_error();
+ private:
+  void printTree(const std::string &prefix, bool last_child) const;
 };
 
 class ASTTypeName : public ASTNode {

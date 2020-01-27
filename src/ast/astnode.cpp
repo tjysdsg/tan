@@ -23,33 +23,28 @@ using llvm::BasicBlock;
 void ASTNode::report_error() {
   report_code_error(_token->l, _token->c, "Unexpected token " + _token->to_string());
 }
-void ASTNode::printSubtree(const std::string &prefix) const {
+
+void ASTNode::printTree() const {
+  using std::cout;
+  cout << ast_type_names[this->_op] << "\n";
+  size_t n_children = _children.size();
+  for (size_t i = 0; i < n_children; ++i) {
+    _children[i]->printTree("", i >= n_children - 1);
+  }
+}
+
+void ASTNode::printTree(const std::string &prefix, bool last_child) const {
   using std::cout;
   using std::endl;
+
+  cout << prefix << (last_child ? "└── " : "├── ") << ast_type_names[this->_op] << "\n";
   if (_children.empty()) return;
-  cout << prefix;
   size_t n_children = _children.size();
-  cout << (n_children > 1 ? "├── " : "");
 
   for (size_t i = 0; i < n_children; ++i) {
     const auto &c = _children[i];
-    if (i < n_children - 1) {
-      bool printStrand = n_children > 1 && !c->_children.empty();
-      std::string newPrefix = prefix + (printStrand ? "│\t" : "\t");
-      std::cout << ast_type_names[c->_op] << "\n";
-      c->printSubtree(newPrefix);
-    } else {
-      cout << (n_children > 1 ? prefix : "") << "└── ";
-      std::cout << ast_type_names[c->_op] << "\n";
-      c->printSubtree(prefix + "\t");
-    }
+    c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
   }
-}
-void ASTNode::printTree() const {
-  using std::cout;
-  std::cout << ast_type_names[this->_op] << "\n";
-  printSubtree("");
-  cout << "\n";
 }
 // ====================================================//
 
