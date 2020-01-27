@@ -95,22 +95,6 @@ class ASTNode {
   [[noreturn]]void report_error();
 };
 
-class ASTProgram : public ASTNode {
- public:
-  ASTProgram();
-  Value *codegen(ParserContext *parser_context) override;
-  void nud(Parser *parser) override;
-};
-
-class ASTStatement : public ASTNode {
- public:
-  explicit ASTStatement(Token *token);
-  ASTStatement(bool is_compound, Token *token);
-  void nud(Parser *parser) override;
- public:
-  bool _is_compound = false;
-};
-
 class ASTInfixBinaryOp : public ASTNode {
  public:
   explicit ASTInfixBinaryOp(Token *token);

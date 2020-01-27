@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "src/ast/ast_statement.h"
 #include <memory>
 
 using std::string;
@@ -80,7 +81,6 @@ std::shared_ptr<ASTNode> Parser::peek() {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     report_code_error(token->l, token->c, "Unknown token " + token->to_string());
-    exit(1);
   }
   return node;
 }

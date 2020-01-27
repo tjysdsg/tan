@@ -5,4 +5,5 @@
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_expr.h"
 #include "src/ast/scope.h"
+#include "src/ast/ast_statement.h"
 #endif /* TAN_INCLUDE_AST_H_ */
