@@ -1,5 +1,6 @@
 #include "src/ast/astnode.h"
 #include "parser.h"
+#include "src/ast/common.h"
 #include "ast_statement.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
@@ -58,6 +59,7 @@ void ASTNode::printTree() const {
 
 // ====================================================//
 
+// =================== cdtors =========================//
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   // TODO: assert type
   _op = type;
@@ -108,7 +110,6 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
   _op = type;
   _lbp = op_precedence[type];
 }
-
 // ============================================================ //
 
 // ============================= parser =========================//
@@ -154,13 +155,13 @@ void ASTPrefix::nud(Parser *parser) {
     _children.emplace_back(n);
   }
 }
-// ==============================================================//
+// ============================================================== //
 
 void ASTNode::add(ASTNode *c) {
   _children.emplace_back(c);
 }
 
-// ========================== getter/setter ====================//
+// ========================== getter/setter ==================== //
 int ASTNode::get_ivalue() const {
   throw std::runtime_error("NOT IMPLEMENTED");
 }
@@ -190,7 +191,7 @@ float ASTNumberLiteral::get_fvalue() const {
 std::string ASTStringLiteral::get_svalue() const {
   return _svalue;
 }
-// ==============================================================//
+// ============================================================= //
 
 // ================= codegen functions ========================= //
 Value *ASTNode::codegen(ParserContext *parser_context) {
@@ -239,7 +240,7 @@ Value *ASTCompare::codegen(ParserContext *parser_context) {
     assert(false);
     return nullptr;
   }
-  // TODO: handle type conversion
+
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
   Type *float_type = parser_context->_builder->getFloatTy();
@@ -310,7 +311,6 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
     }
     // float arithmetic
     if (_op == ASTType::MULTIPLY) {
-//      return parser_context->_builder->CreateFMul(lhs, rhs);
       return parser_context->_builder->CreateFMul(lhs, rhs);
     } else if (_op == ASTType::DIVIDE) {
       return parser_context->_builder->CreateFDiv(lhs, rhs);

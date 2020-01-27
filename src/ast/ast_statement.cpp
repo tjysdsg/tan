@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "src/ast/ast_statement.h"
 #include "src/ast/astnode.h"
+#include "src/ast/common.h"
 
 namespace tanlang {
 using llvm::ConstantFP;
@@ -75,15 +76,6 @@ void ASTStatement::nud(Parser *parser) {
       ++parser->_curr_token;
     }
   }
-}
-
-/**
- * \brief Create an alloca instruction in the entry block of
- * the function. This is used for mutable variables etc.
- */
-static AllocaInst *CreateEntryBlockAlloca(Function *func, const std::string &name, ParserContext *parser_context) {
-  IRBuilder<> tmp_builder(&func->getEntryBlock(), func->getEntryBlock().begin());
-  return tmp_builder.CreateAlloca(parser_context->_builder->getFloatTy(), nullptr, name);
 }
 
 Value *ASTProgram::codegen(ParserContext *parser_context) {
