@@ -1,11 +1,7 @@
 #include "src/ast/ast_control_flow.h"
 #include "parser.h"
 #include "token.h"
-#include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
-#include <llvm/ADT/APInt.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Verifier.h>
 
 namespace tanlang {
 using llvm::ConstantFP;
@@ -41,8 +37,10 @@ void ASTIf::nud(tanlang::Parser *parser) {
 Value *ASTIf::codegen(ParserContext *parser_context) {
   Value *condition = _children[0]->codegen(parser_context);
   if (!condition) {
-    // TODO: report error
-    return nullptr;
+    auto *condition_token = _children[0]->_token;
+    report_code_error(condition_token->l,
+                      condition_token->c,
+                      "Invalid condition expression " + condition_token->to_string());
   }
 
   // convert condition to a bool by comparing non-equal to 0
@@ -52,8 +50,7 @@ Value *ASTIf::codegen(ParserContext *parser_context) {
                                                      */
   Function *func = parser_context->_builder->GetInsertBlock()->getParent();
 
-  // Create blocks for the then (and else) clause
-  // Insert the 'then' block at the end of the function.
+  // Create blocks for the then (and else) clause. Insert the 'then' block at the end of the function.
   BasicBlock *then_bb = BasicBlock::Create(*parser_context->_context, "then", func);
   BasicBlock *else_bb = BasicBlock::Create(*parser_context->_context, "else");
   BasicBlock *merge_bb = BasicBlock::Create(*parser_context->_context, "fi");
@@ -62,8 +59,12 @@ Value *ASTIf::codegen(ParserContext *parser_context) {
   // Emit then value
   parser_context->_builder->SetInsertPoint(then_bb);
   Value *then = _children[1]->codegen(parser_context);
-  if (!then)
-    throw "SHIT";
+  if (!then) {
+    auto *condition_token = _children[1]->_token;
+    report_code_error(condition_token->l,
+                      condition_token->c,
+                      "Invalid condition expression " + condition_token->to_string());
+  }
   parser_context->_builder->CreateBr(merge_bb);
   // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
   then_bb = parser_context->_builder->GetInsertBlock();
@@ -75,10 +76,12 @@ Value *ASTIf::codegen(ParserContext *parser_context) {
     parser_context->_builder->SetInsertPoint(else_bb);
 
     else_ = _children[2]->codegen(parser_context);
-    if (!else_)
-      // TODO: report error
-      throw "SHIT";
-
+    if (!else_) {
+      auto *condition_token = _children[2]->_token;
+      report_code_error(condition_token->l,
+                        condition_token->c,
+                        "Invalid condition expression " + condition_token->to_string());
+    }
     parser_context->_builder->CreateBr(merge_bb);
     // codegen of 'Else' can change the current block, update ElseBB for the PHI.
     else_bb = parser_context->_builder->GetInsertBlock();

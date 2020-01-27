@@ -9,8 +9,6 @@
 #include <llvm/IR/Instruction.h>
 
 namespace tanlang {
-using llvm::Value;
-using llvm::Type;
 using llvm::AllocaInst;
 using llvm::Function;
 

@@ -1,12 +1,9 @@
 #include "src/ast/astnode.h"
 #include "parser.h"
-#include "src/ast/common.h"
-#include "ast_statement.h"
 #include <llvm/ADT/APFloat.h>
 #include <llvm/IR/Function.h>
 #include <llvm/ADT/APInt.h>
 #include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Verifier.h>
 #include <llvm/IR/Instruction.h>
 
 // TODO: error reporting
@@ -22,7 +19,6 @@ using llvm::AllocaInst;
 using llvm::Function;
 using llvm::FunctionType;
 using llvm::BasicBlock;
-using llvm::verifyFunction;
 
 // ================= helper functions ================//
 void ASTNode::report_error() {
@@ -61,7 +57,7 @@ void ASTNode::printTree() const {
 
 // =================== cdtors =========================//
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
-  // TODO: assert type
+  // TODO: check ASTType
   _op = type;
   _lbp = op_precedence[type];
 }
@@ -266,9 +262,6 @@ Value *ASTCompare::codegen(ParserContext *parser_context) {
       return parser_context->_builder->CreateFCmpOLT(lhs, rhs);
     } else if (_op == ASTType::LE) {
       return parser_context->_builder->CreateFCmpOLE(lhs, rhs);
-    } else {
-      // TODO: report error
-      return nullptr;
     }
   }
   if (_op == ASTType::GT) {
@@ -279,10 +272,8 @@ Value *ASTCompare::codegen(ParserContext *parser_context) {
     return parser_context->_builder->CreateICmpULT(lhs, rhs);
   } else if (_op == ASTType::LE) {
     return parser_context->_builder->CreateICmpULE(lhs, rhs);
-  } else {
-    // TODO: report error
-    return nullptr;
   }
+  return nullptr;
 }
 
 Value *ASTArithmetic::codegen(ParserContext *parser_context) {
@@ -318,9 +309,6 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
       return parser_context->_builder->CreateFAdd(lhs, rhs);
     } else if (_op == ASTType::SUBTRACT) {
       return parser_context->_builder->CreateFSub(lhs, rhs);
-    } else {
-      // TODO: report error
-      return nullptr;
     }
   }
 
@@ -333,10 +321,8 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
     return parser_context->_builder->CreateAdd(lhs, rhs, "sum_tmp");
   } else if (_op == ASTType::SUBTRACT) {
     return parser_context->_builder->CreateSub(lhs, rhs, "sub_tmp");
-  } else {
-    // TODO: report error
-    return nullptr;
   }
+  return nullptr;
 }
 
 Value *ASTReturn::codegen(ParserContext *parser_context) {

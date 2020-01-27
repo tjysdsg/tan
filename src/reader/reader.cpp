@@ -6,10 +6,10 @@
 
 namespace tanlang {
 Reader::~Reader() {
-  for (size_t i = 0; i < _lines.size(); ++i) {
-    if (_lines[i]) {
-      delete _lines[i];
-      _lines[i] = nullptr;
+  for (auto &_line : _lines) {
+    if (_line) {
+      delete _line;
+      _line = nullptr;
     }
   }
 }
