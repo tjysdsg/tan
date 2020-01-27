@@ -81,7 +81,7 @@ Value *ASTFunction::codegen(ParserContext *parser_context) {
   BasicBlock *main_block = BasicBlock::Create(*parser_context->_context, "entry", F);
   parser_context->_builder->SetInsertPoint(main_block);
 
-  // TODO: create a new scope
+  parser_context->push_scope(); // new scope
   // add all function arguments to scope
   for (auto &Arg : F->args()) {
     parser_context->add_variable(Arg.getName(), &Arg);
@@ -93,6 +93,7 @@ Value *ASTFunction::codegen(ParserContext *parser_context) {
 
   // validate the generated code, checking for consistency
   verifyFunction(*F);
+  parser_context->pop_scope(); // pop scope
   return nullptr;
 }
 

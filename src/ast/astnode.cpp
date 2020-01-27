@@ -7,8 +7,6 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instruction.h>
 
-// TODO: error reporting
-// TODO: implement scope
 namespace tanlang {
 using llvm::ConstantFP;
 using llvm::ConstantInt;

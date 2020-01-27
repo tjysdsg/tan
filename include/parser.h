@@ -20,7 +20,7 @@ struct ParserContext {
   std::unique_ptr<LLVMContext> _context;
   std::unique_ptr<IRBuilder<>> _builder;
   std::unique_ptr<Module> _module;
-  std::stack<std::unique_ptr<Scope>> _scope;
+  std::stack<std::shared_ptr<Scope>> _scope;
 
   ParserContext &operator=(const ParserContext &) = delete;
   ParserContext(const ParserContext &) = delete;
@@ -28,20 +28,33 @@ struct ParserContext {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>("main", *_context);
-    _scope = std::stack<std::unique_ptr<Scope>>();
-    _scope.push(std::make_unique<Scope>()); // outer-est scope
+    _scope = std::stack<std::shared_ptr<Scope>>();
+    _scope.push(std::make_shared<Scope>()); // outer-est scope
   }
 
   explicit ParserContext(const std::string &module_name) {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>(module_name, *_context);
-    _scope = std::stack<std::unique_ptr<Scope>>();
-    _scope.push(std::make_unique<Scope>()); // outer-est scope
+    _scope = std::stack<std::shared_ptr<Scope>>();
+    _scope.push(std::make_shared<Scope>()); // outer-est scope
   }
 
-  const std::unique_ptr<Scope>& get_current_scope() {
+  std::shared_ptr<Scope> get_current_scope() {
     return _scope.top();
+  }
+
+  std::shared_ptr<Scope> push_scope() {
+    auto r = std::make_shared<Scope>();
+    _scope.push(r);
+    return r;
+  }
+
+  std::shared_ptr<Scope> pop_scope() {
+    // FIXME check null
+    auto r = _scope.top();
+    _scope.pop();
+    return r;
   }
 
   void add_variable(const std::string &name, Value *value) {

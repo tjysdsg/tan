@@ -8,7 +8,8 @@ int main() {
   using tanlang::Parser;
   // std::string code = "if (arg0 * 2 < 0.5) { return (1 + 2) * 3 / 4; } else { return 1 + !arg1 < 5; }";
   std::string
-      code = "fn main(weight: float, age: int) : float { return weight/age; } \n fn work(arg1 : float, arg2 : int) : float { return arg1 + arg2; }";
+      code =
+      "fn main(weight: float, age: int) : float { return weight/age; } \n fn work(arg1 : float, arg2 : int) : float { return arg1 + arg2; }";
   Reader r;
   r.from_string(code);
   auto tokens = tokenize(&r);
