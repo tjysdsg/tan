@@ -92,7 +92,6 @@ class ASTNode {
   [[nodiscard]] virtual std::string get_svalue() const;
   virtual void led(const std::shared_ptr<ASTNode> &left, Parser *parser);
   virtual void nud(Parser *parser);
-  virtual void add(ASTNode *c);
   void printTree() const;
   virtual Value *codegen(ParserContext *parser_context);
   [[noreturn]]void report_error();

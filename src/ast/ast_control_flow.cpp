@@ -12,28 +12,6 @@ using llvm::Function;
 using llvm::Type;
 using llvm::PHINode;
 
-// =================== if ===================//
-void ASTIf::nud(tanlang::Parser *parser) {
-  // condition
-  auto condition = parser->advance(TokenType::PUNCTUATION, "(");
-  condition->nud(parser);
-  _children.push_back(condition);
-  // if clause
-  auto if_clause = parser->advance(TokenType::PUNCTUATION, "{");
-  if_clause->nud(parser);
-  _children.push_back(if_clause);
-  ++parser->_curr_token;
-
-  // else clause
-  Token *token = parser->get_curr_token();
-  if (token->type == TokenType::KEYWORD && token->value == "else") {
-    auto else_clause = parser->advance();
-    else_clause->nud(parser);
-    _children.push_back(else_clause); // else clause
-    _has_else = true;
-  }
-}
-
 Value *ASTIf::codegen(ParserContext *parser_context) {
   Value *condition = _children[0]->codegen(parser_context);
   if (!condition) {
@@ -91,14 +69,6 @@ Value *ASTIf::codegen(ParserContext *parser_context) {
   parser_context->_builder->SetInsertPoint(merge_bb);
   return nullptr;
 }
-// ============================================//
 
-// =================== else ===================//
-void ASTElse::nud(tanlang::Parser *parser) {
-  auto else_clause = parser->advance(TokenType::PUNCTUATION, "{");
-  else_clause->nud(parser);
-  _children.push_back(else_clause);
-}
-// ============================================//
 }
 

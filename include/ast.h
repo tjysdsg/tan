@@ -6,4 +6,5 @@
 #include "src/ast/ast_expr.h"
 #include "src/ast/scope.h"
 #include "src/ast/ast_statement.h"
+#include "src/ast/ast_func.h"
 #endif /* TAN_INCLUDE_AST_H_ */

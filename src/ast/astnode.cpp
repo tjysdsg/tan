@@ -109,10 +109,6 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
 // ============================================================ //
 
 // ============================= parser =========================//
-void ASTTypeName::nud(Parser *parser) {
-  UNUSED(parser);
-}
-
 void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
@@ -129,37 +125,7 @@ void ASTNode::nud(Parser *parser) {
   }
   report_error();
 }
-
-void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
-  _children.emplace_back(left);
-  auto n = parser->next_expression(_lbp);
-  if (!n) {
-    report_error();
-  } else {
-    _children.emplace_back(n);
-  }
-}
-
-/**
- * This defined only to overwrite ASTNode::nud() because the latter throws
- * */
-void ASTNumberLiteral::nud(Parser *parser) {
-  UNUSED(parser);
-}
-
-void ASTPrefix::nud(Parser *parser) {
-  auto n = parser->next_expression(_lbp);
-  if (!n) {
-    throw std::runtime_error("Expect a token"); // FIXME: improve this error
-  } else {
-    _children.emplace_back(n);
-  }
-}
 // ============================================================== //
-
-void ASTNode::add(ASTNode *c) {
-  _children.emplace_back(c);
-}
 
 // ========================== getter/setter ==================== //
 int ASTNode::get_ivalue() const {
@@ -333,6 +299,9 @@ Value *ASTReturn::codegen(ParserContext *parser_context) {
   return parser_context->_builder->CreateRet(_children[0]->codegen(parser_context));
 }
 
+Value *ASTArgDef::codegen(ParserContext *parser_context) {
+  return ASTNode::codegen(parser_context);
+}
 // ================= codegen functions ends ================ //
 
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
