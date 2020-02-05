@@ -363,9 +363,9 @@ std::unordered_map<ASTType, int> op_precedence{
 
     {ASTType::PARENTHESIS, PREC_CALL},
 
-    {ASTType::RET, PREC_KEYWORD},
-    {ASTType::IF, PREC_KEYWORD},
-    {ASTType::ELSE, PREC_KEYWORD},
+    {ASTType::RET, PREC_LOWEST},
+    {ASTType::IF, PREC_LOWEST},
+    {ASTType::ELSE, PREC_LOWEST},
 
     {ASTType::BNOT, PREC_UNARY},
     {ASTType::LNOT, PREC_UNARY},

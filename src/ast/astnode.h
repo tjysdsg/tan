@@ -16,7 +16,6 @@ using llvm::Value;
 
 enum PrecedenceLevel {
   PREC_LOWEST,
-  PREC_KEYWORD = 5, // FIXME?
   PREC_LITERAL = 10,
   PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
   PREC_LOGICAL_OR = 110,  // ||

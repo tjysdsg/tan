@@ -51,7 +51,9 @@ struct ParserContext {
   }
 
   std::shared_ptr<Scope> pop_scope() {
-    // FIXME check null
+    if (_scope.size() == 1) {
+      throw std::runtime_error("Cannot pop the outer-est scope");
+    }
     auto r = _scope.back();
     _scope.pop_back();
     return r;

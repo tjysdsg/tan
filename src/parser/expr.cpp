@@ -22,10 +22,6 @@ void ASTParenthesis::nud(Parser *parser) {
   }
 }
 
-void ASTIdentifier::nud(Parser *parser) {
-  UNUSED(parser);
-}
-
 void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _children.emplace_back(left);
   auto n = parser->next_expression(_lbp);
@@ -36,20 +32,22 @@ void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser)
   }
 }
 
+void ASTPrefix::nud(Parser *parser) {
+  _children.emplace_back(parser->next_expression(_lbp));
+}
+
 /**
- * This defined only to overwrite ASTNode::nud() because the latter throws
+ * This is defined merely to overwrite ASTNode::nud() because the latter throws
  * */
 void ASTNumberLiteral::nud(Parser *parser) {
   UNUSED(parser);
 }
 
-void ASTPrefix::nud(Parser *parser) {
-  auto n = parser->next_expression(_lbp);
-  if (!n) {
-    throw std::runtime_error("Expect a token"); // FIXME: improve this error
-  } else {
-    _children.emplace_back(n);
-  }
+/**
+ * This is defined merely to overwrite ASTNode::nud() because the latter throws
+ * */
+void ASTIdentifier::nud(Parser *parser) {
+  UNUSED(parser);
 }
 
 }
