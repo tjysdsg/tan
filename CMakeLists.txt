@@ -29,16 +29,18 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # compiler flags
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic-errors -Wconversion -Wsign-conversion")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # ================================ thirdparty dependencies ========================== #
 # this project uses Google Test framework
 find_package(GTest REQUIRED)
-# C++ boost library
-find_package(Boost 1.50 COMPONENTS filesystem program_options REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
+include_directories(${LLVM_INCLUDE_DIRS})
+# resolve symlink, because CLION with WSL doesn't seem to recognize this
+get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
+get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
+
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 # Find the libraries that correspond to the LLVM components
@@ -58,7 +60,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests gtest ${Boost_LIBRARIES} ${llvm_libs})
+    target_link_libraries(tan_tests gtest ${llvm_libs})
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
     enable_testing()
@@ -68,7 +70,7 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
+target_link_libraries(tanc pthread ${llvm_libs})
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
