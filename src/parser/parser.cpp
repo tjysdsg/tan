@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "src/ast/ast_statement.h"
 #include "src/ast/ast_func.h"
-#include "src/parser/grammar_check.h"
+#include "src/parser/token_check.h"
 #include <memory>
 
 using std::string;
@@ -80,13 +80,11 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTElse>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
-  } else if (check_typename_grammar(token)) { // types
+  } else if (check_typename_token(token)) { // types
     node = std::make_shared<ASTTypeName>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);
-  } else if (token->type == TokenType::PUNCTUATION
-      && (token->value == ";" || token->value == "}" || token->value == ")" || token->value == ":"
-          || token->value == ",")) {
+  } else if (check_terminal_token(token)) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     report_code_error(token->l, token->c, "Unknown token " + token->to_string());
