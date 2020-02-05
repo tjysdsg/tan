@@ -20,7 +20,7 @@ struct ParserContext {
   std::unique_ptr<LLVMContext> _context;
   std::unique_ptr<IRBuilder<>> _builder;
   std::unique_ptr<Module> _module;
-  std::stack<std::shared_ptr<Scope>> _scope;
+  std::vector<std::shared_ptr<Scope>> _scope;
 
   ParserContext &operator=(const ParserContext &) = delete;
   ParserContext(const ParserContext &) = delete;
@@ -28,45 +28,59 @@ struct ParserContext {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>("main", *_context);
-    _scope = std::stack<std::shared_ptr<Scope>>();
-    _scope.push(std::make_shared<Scope>()); // outer-est scope
+    _scope = std::vector<std::shared_ptr<Scope>>();
+    _scope.push_back(std::make_shared<Scope>()); // outer-est scope
   }
 
   explicit ParserContext(const std::string &module_name) {
     _context = std::make_unique<LLVMContext>();
     _builder = std::make_unique<IRBuilder<>>(*_context);
     _module = std::make_unique<Module>(module_name, *_context);
-    _scope = std::stack<std::shared_ptr<Scope>>();
-    _scope.push(std::make_shared<Scope>()); // outer-est scope
+    _scope = std::vector<std::shared_ptr<Scope>>();
+    _scope.push_back(std::make_shared<Scope>()); // outer-est scope
   }
 
   std::shared_ptr<Scope> get_current_scope() {
-    return _scope.top();
+    return _scope.back();
   }
 
   std::shared_ptr<Scope> push_scope() {
     auto r = std::make_shared<Scope>();
-    _scope.push(r);
+    _scope.push_back(r);
     return r;
   }
 
   std::shared_ptr<Scope> pop_scope() {
     // FIXME check null
-    auto r = _scope.top();
-    _scope.pop();
+    auto r = _scope.back();
+    _scope.pop_back();
     return r;
   }
 
-  void add_variable(const std::string &name, Value *value) {
-    get_current_scope()->_named_variables.insert(std::make_pair(name, value));
+  void add(const std::string &name, Value *value) {
+    get_current_scope()->_named.insert(std::make_pair(name, value));
   }
 
-  void set_variable(const std::string &name, Value *value) {
-    get_current_scope()->_named_variables[name] = value;
+  void set(const std::string &name, Value *value) {
+    get_current_scope()->_named[name] = value;
   }
 
-  Value *get_variable(const std::string &name) {
-    return get_current_scope()->_named_variables[name];
+  Value *get(const std::string &name) {
+    // search from the outer-est scope to the inner-est scope
+    bool found = false;
+    Value *result = nullptr;
+    auto scope = _scope.end(); // scope is an iterator
+    --scope;
+    // std::shared_ptr<Scope> scope = get_current_scope();
+    while (!found && scope >= _scope.begin()) {
+      auto search = (*scope)->_named.find(name);
+      if (search != (*scope)->_named.end()) {
+        found = true;
+        result = search->second;
+      }
+      --scope;
+    }
+    return result;
   }
 };
 

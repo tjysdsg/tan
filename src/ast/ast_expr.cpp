@@ -21,7 +21,7 @@ Value *ASTVarDecl::codegen(ParserContext *parser_context) {
   Value *var = create_block_alloca(parser_context->_builder->GetInsertBlock(), type, name);
 
   // add to current scope
-  parser_context->add_variable(name, var);
+  parser_context->add(name, var);
 
   // set initial value
   if (_has_initial_val) {

@@ -6,7 +6,7 @@
 
 namespace tanlang {
 struct Scope {
-  std::unordered_map<std::string, Value*> _named_variables;
+  std::unordered_map<std::string, Value*> _named;
 };
 }
 

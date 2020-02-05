@@ -57,7 +57,7 @@ Value *ASTFunction::codegen(ParserContext *parser_context) {
   parser_context->push_scope(); // new scope
   // add all function arguments to scope
   for (auto &Arg : F->args()) {
-    parser_context->add_variable(Arg.getName(), &Arg);
+    parser_context->add(Arg.getName(), &Arg);
   }
 
   _children[_children.size() - 1]->codegen(parser_context);
