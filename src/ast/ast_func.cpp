@@ -60,9 +60,7 @@ Value *ASTFunction::codegen(ParserContext *parser_context) {
     parser_context->add_variable(Arg.getName(), &Arg);
   }
 
-  for (const auto &child : _children) {
-    child->codegen(parser_context);
-  }
+  _children[_children.size() - 1]->codegen(parser_context);
 
   // validate the generated code, checking for consistency
   verifyFunction(*F);

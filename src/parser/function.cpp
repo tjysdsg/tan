@@ -12,7 +12,7 @@ void ASTFunction::nud(Parser *parser) {
   if (parser->get_curr_token()->type != TokenType::PUNCTUATION || parser->get_curr_token()->value != ")") {
     size_t token_size = parser->_tokens.size();
     while (parser->_curr_token < token_size) {
-      std::shared_ptr<ASTNode> arg = std::make_shared<ASTArgDef>(parser->get_curr_token());
+      std::shared_ptr<ASTNode> arg = std::make_shared<ASTArgDecl>(parser->get_curr_token());
       arg->nud(parser);
       _children.push_back(arg);
       if (parser->get_curr_token()->type == TokenType::PUNCTUATION && parser->get_curr_token()->value == ",") {

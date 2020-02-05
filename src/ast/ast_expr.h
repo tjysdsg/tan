@@ -10,17 +10,26 @@ class ASTParenthesis : public ASTNode {
   ASTParenthesis() = delete;
   explicit ASTParenthesis(Token *token) : ASTNode(ASTType::PARENTHESIS,
                                                   op_precedence[ASTType::PARENTHESIS],
-                                                  0,
-                                                  token) {};
+                                                  0, token) {};
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
 };
 
-class ASTArgDef : public ASTNode {
+class ASTArgDecl : public ASTNode {
  public:
-  explicit ASTArgDef(Token *token) : ASTNode(ASTType::ARG_DEF, 0, 0, token) {};
+  explicit ASTArgDecl(Token *token) : ASTNode(ASTType::ARG_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
+};
+
+class ASTVarDecl : public ASTNode {
+ public:
+  explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
+  void nud(Parser *parser) override;
+  Value *codegen(ParserContext *parser_context) override;
+
+ public:
+  bool _has_initial_val;
 };
 
 }

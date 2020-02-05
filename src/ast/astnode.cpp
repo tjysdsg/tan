@@ -298,10 +298,6 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
 Value *ASTReturn::codegen(ParserContext *parser_context) {
   return parser_context->_builder->CreateRet(_children[0]->codegen(parser_context));
 }
-
-Value *ASTArgDef::codegen(ParserContext *parser_context) {
-  return ASTNode::codegen(parser_context);
-}
 // ================= codegen functions ends ================ //
 
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
@@ -336,9 +332,9 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(ID),
     MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS),
     MAKE_ASTTYPE_NAME_PAIR(FUNC),
-    MAKE_ASTTYPE_NAME_PAIR(ARG_DEF),
+    MAKE_ASTTYPE_NAME_PAIR(ARG_DECL),
+    MAKE_ASTTYPE_NAME_PAIR(VAR_DECL),
     MAKE_ASTTYPE_NAME_PAIR(TYPENAME),
-
 };
 
 #undef MAKE_ASTTYPE_NAME_PAIR

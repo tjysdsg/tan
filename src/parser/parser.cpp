@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "src/ast/ast_statement.h"
 #include "src/ast/ast_func.h"
+#include "src/parser/grammar_check.h"
 #include <memory>
 
 using std::string;
@@ -69,6 +70,8 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTIdentifier>(token->value, token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token);
+  } else if (token->type == TokenType::KEYWORD && token->value == "var") {
+    node = std::make_shared<ASTVarDecl>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "fn") {
     node = std::make_shared<ASTFunction>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "if") {
@@ -77,8 +80,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTElse>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
-  } else if (token->type == TokenType::KEYWORD &&
-      (token->value == "int" || token->value == "float")) { // types
+  } else if (check_typename_grammar(token)) { // types
     node = std::make_shared<ASTTypeName>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);

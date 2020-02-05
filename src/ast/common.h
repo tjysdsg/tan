@@ -12,14 +12,16 @@
 namespace tanlang {
 using llvm::AllocaInst;
 using llvm::Function;
+using llvm::Type;
 
 /**
- * \brief Create an alloca instruction in the entry block of
- * the function. This is used for mutable variables etc.
+ * \brief Create an `alloca` instruction in the specified block. This is used for mutable variables etc.
  */
-AllocaInst *CreateEntryBlockAlloca(Function *func, const std::string &name, ParserContext *parser_context);
+AllocaInst *create_block_alloca(BasicBlock *block, Type *type, const std::string &name);
 
 bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list);
+
+Type *typename_to_llvm_type(const std::string &type_name, ParserContext *parser_context);
 
 }
 

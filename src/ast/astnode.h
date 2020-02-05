@@ -35,7 +35,9 @@ enum PrecedenceLevel {
 enum class ASTType {
   PROGRAM,
   FUNC,
-  ARG_DEF,
+  ARG_DECL,
+  VAR_DECL,
+
   STATEMENT, // statement or compound statements
   SUM,
   SUBTRACT,
