@@ -1,5 +1,7 @@
-#ifndef __TAN_BASE_H__
-#define __TAN_BASE_H__
+#ifndef TAN_BASE_H
+#define TAN_BASE_H
+
 #include "src/base/error.h"
 #include "src/base/macro.h"
-#endif // __TAN_BASE_H__
+
+#endif // TAN_BASE_H

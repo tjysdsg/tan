@@ -1,18 +1,30 @@
-#ifndef __TAN_PARSER_PARSER_H__
-#define __TAN_PARSER_PARSER_H__
-#include <cctype>
-#include <iostream>
-#include <cstdint>
+#ifndef TAN_PARSER_H
+#define TAN_PARSER_H
+
+#include "lexer.h"
+#include <vector>
 
 namespace tanlang {
-    enum class SYNTAX_ERROR {
-        NONE,
-    };
 
-    // struct source_code {
-    //    std::string code;
-    //    uint32_t cursor = 0;
-    //};
+class ASTNode;
 
-} // namespace tanlang
-#endif // __TAN_PARSER_PARSER_H__
+class Parser final {
+ public:
+  Parser() = delete;
+
+  explicit Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {}
+
+  ~Parser();
+
+  ASTNode *advance();
+  ASTNode *peek();
+  ASTNode *next_expression(int rbp = 0);
+  ASTNode *parse();
+
+  std::vector<Token *> _tokens;
+  ASTNode *_root = nullptr;
+  size_t _curr_token;
+};
+}
+
+#endif /* TAN_PARSER_H */

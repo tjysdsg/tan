@@ -1,370 +1,288 @@
 #include "lexer.h"
-#include "src/lexer/lexer_internal.h"
-#include <cassert>
-#include "src/base/error.h"
-#include <limits>
-#include <iomanip>
 #include "base.h"
+#include "token.h"
+#include <algorithm>
+#include <cctype>
+#include <regex>
 
 namespace tanlang {
+#define IS_DELIMITER(x) (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' \
+    || x == '@' || x == '#' || x == '$' || x == '%' || x == '^' || x == '&' || x == '*' || x == '('\
+     || x == ')' || x == '-' || x == '+' || x == '=' || x == ';' || x == '<' || x == '>'\
+      || x == '/' || x == '?' || x == '\\' || x == '|' || x == '{' || x == '}' || x == '['\
+       || x == ']' || x == '\'' || x == '"' || x == ':')
 
-    Lexer::Lexer() : _reader(std::unique_ptr<Reader>(new Reader)) {}
-
-    Lexer::~Lexer() {
-        for (auto *&t : _token_infos) {
-            if (t != nullptr) {
-                delete t;
-                t = nullptr;
-            }
-        }
+code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
+    const auto end = reader->back_ptr();
+    while (ptr < end && (std::isspace((*reader)[ptr]) || (*reader)[ptr] == '\0')) {
+        ptr = reader->forward_ptr(ptr);
     }
+    return ptr;
+}
 
-    token_info *advance_for_number(const std::string &str, size_t &current,
-                                   size_t len) {
-        assert(std::isdigit(str[current]));
-        const size_t start = current;
-        size_t curr = current;
-        union {
-            uint64_t val = 0;
-            double fval;
-        };
-        bool is_float = false;
-        if (str[curr] == '0') {   // hex or binary or 0
-            if (curr + 1 < len) { // hex or binary
-                if (str[curr + 1] == 'x' || str[curr + 1] == 'X') { // hex
-                    curr += 2;
-                    char c = str[curr];
-                    // @Consider maybe std::stoull is faster? Need benchmarking.
-                    while (curr < len && std::isxdigit(c)) {
-                        if (c <= 'F' && c >= 'A') { // ABCDEF
-                            val = 16u * val + (uint64_t)(c - 'A' + 10);
-                        } else if (c <= 'f' && c >= 'a') { // abcdef
-                            val = 16u * val + (uint64_t)(c - 'a' + 10);
-                        } else { // 0123456789
-                            val = 16u * val + (uint64_t)(c - '0');
-                        }
-                        c = str[++curr];
-                    }
-                    if (curr - start == 2) // only "0x", then still dec
-                        goto dec;
-                } else if (str[curr + 1] == 'b' ||
-                           str[curr + 1] == 'B') { // binary
-                    curr += 2;
-                    char c = str[curr];
-                    while (curr < len && (c == '1' || c == '0')) {
-                        if (c == '1') {
-                            val = val * 2 + 1;
-                        } else {
-                            val *= 2;
-                        }
-                        c = str[++curr];
-                    }
-                    if (curr - start == 2) // only "0b", then still dec
-                        goto dec;
-                } else
-                    // necessary, otherwise in `ret:` current = curr - 1 will
-                    // cause infinite loop
-                    ++curr;
-            } else { // 0
-                val = 0;
-                ++curr;
-                goto ret;
-            }
+code_ptr skip_until(Reader *reader, code_ptr ptr, const char delim) {
+    const auto end = reader->back_ptr();
+    while (ptr != end && (*reader)[ptr] != delim) {
+        ptr = reader->forward_ptr(ptr);
+    }
+    return ptr;
+}
+
+/**
+ * \note: INVARIANT for all tokenize_xx functions
+ *      start is at least one token before the end
+ * \note: Call of tokenize_keyword must before that of
+ *      tokenize_id
+ */
+Token *tokenize_id(Reader *reader, code_ptr &start) {
+    Token *ret = nullptr;
+    auto forward = start;
+    const auto end = reader->back_ptr();
+    while (forward != end) {
+        if (std::isalnum((*reader)[forward]) || (*reader)[forward] == '_') {
+            forward = reader->forward_ptr(forward);
+        } else if (start == forward) {
+            return nullptr;
         } else {
-        dec:
-            while (curr < len) {
-                char ch = str[curr];
-                if (ch == '.') {
-                    is_float = true;
-                } else if (!(std::isdigit(ch) || ch == 'e' ||
-                             ch == 'E')) { // if it's not float number or
-                                           // decimal integer
-                    break;
-                }
-                curr++;
-            }
-            std::string subs = str.substr(start, curr - start);
-            if (is_float) {
-                // clang-format off
-                // FIXME: might want to use custom version, depending on whether I can boost the performance by that
-                // clang-format on
-                fval = std::stod(subs);
-            } else {
-                val = std::stoull(subs);
-            }
-        }
-    ret:
-        auto *t = new token_info;
-        t->type = is_float ? FLOAT : INT;
-        if (is_float)
-            t->fval = fval;
-        else
-            t->val = val;
-        current = curr - 1;
-        return t;
-    }
-
-    token_info *advance_for_identifier(const std::string &str, size_t &current,
-                                       size_t len) {
-        assert(std::isalpha(str[current]) || str[current] == '_');
-        const size_t start = current;
-        size_t curr = current + 1;
-        while (true) {
-            if (curr >= len)
-                break;
-            char ch = str[curr];
-            if (std::isalpha(ch) || std::isdigit(ch) || ch == '_')
-                ++curr;
-            else
-                break;
-        }
-        auto *new_token = new token_info;
-        new_token->type = ID;
-        new_token->str = str.substr(start, curr - start);
-        current = curr - 1;
-        return new_token;
-    }
-
-#define _X_OR_XY_(x, y, type_x, type_y)                                        \
-    case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == (y)) {                          \
-            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
-            ++curr;                                                            \
-        } else {                                                               \
-            type = (TOKEN_TYPE)(type_x);                                       \
-        }                                                                      \
-        goto ret;                                                              \
-        break;
-
-#define _X_OR_DOUBLE_X_(x, type_x)                                             \
-    case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
-            type = (TOKEN_TYPE)((type_x) + 1);                                 \
-            ++curr;                                                            \
-        } else {                                                               \
-            type = (TOKEN_TYPE)(type_x);                                       \
-        }                                                                      \
-        goto ret;                                                              \
-        break;
-
-#define _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_(x, type_x, y, type_y)             \
-    case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
-            type = (TOKEN_TYPE)((type_x) + 1);                                 \
-            ++curr;                                                            \
-            if (curr + 1 < len && str[curr + 1] == (y)) {                      \
-                type = (TOKEN_TYPE)(((type_x) + 1) | (type_y));                \
-                ++curr;                                                        \
-            }                                                                  \
-        } else if (curr + 1 < len && str[curr + 1] == (y)) {                   \
-            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
-            ++curr;                                                            \
-        } else {                                                               \
-            type = (TOKEN_TYPE)(type_x);                                       \
-        }                                                                      \
-        goto ret;                                                              \
-        break;
-
-#define _X_OR_DOUBLE_X_OR_X_Y_(x, type_x, y, type_y)                           \
-    case x:                                                                    \
-        if (curr + 1 < len && str[curr + 1] == (x)) {                          \
-            type = (TOKEN_TYPE)((type_x) + 1);                                 \
-            ++curr;                                                            \
-        } else if (curr + 1 < len && str[curr + 1] == (y)) {                   \
-            type = (TOKEN_TYPE)((type_x) | (type_y));                          \
-            ++curr;                                                            \
-        } else {                                                               \
-            type = (TOKEN_TYPE)(type_x);                                       \
-        }                                                                      \
-        goto ret;                                                              \
-        break;
-
-    token_info *advance_for_symbol(const std::string &str, size_t &current,
-                                   size_t len) {
-        size_t curr = current;
-        TOKEN_TYPE type = UNKOWN;
-        while (true) {
-            if (curr >= len)
-                break;
-            char ch = str[curr];
-            switch (ch) {
-                _X_OR_XY_('!', '=', EXCLAIM, EQ)
-                _X_OR_DOUBLE_X_OR_X_Y_('|', BAR, '=', EQ)
-                _X_OR_DOUBLE_X_OR_X_Y_('&', AND, '=', EQ)
-                _X_OR_XY_('^', '=', CARET, EQ)
-                _X_OR_XY_('+', '=', PLUS, EQ)
-                _X_OR_XY_('-', '=', MINUS, EQ)
-                _X_OR_XY_('*', '=', STAR, EQ)
-                _X_OR_XY_('~', '=', TILDE, EQ)
-                _X_OR_XY_('/', '=', SLASH, EQ)
-                _X_OR_XY_('%', '=', PERCENT, EQ)
-                _X_OR_DOUBLE_X_('=', EQ)
-                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('>', GT, '=', EQ)
-                _X_OR_DOUBLE_X_OR_DOUBLE_X_Y_OR_X_Y_('<', LT, '=', EQ)
-            default:
-                goto ret;
-                break;
-            }
-            ++curr;
-        }
-    ret:
-        auto *new_token = new token_info;
-        new_token->type = type;
-        current = curr;
-        return new_token;
-    }
-
-    token_info *advance_for_string_literal(const std::string &str,
-                                           size_t &current, size_t len) {
-        assert(str[current] == '"');
-        ++current; // omit the first "
-        const size_t start = current;
-        size_t curr = current + 1;
-        while (true) {
-            if (curr >= len)
-                break;
-            char ch = str[curr];
-            if (ch == '"')
-                break;
-            else
-                ++curr;
-        }
-        auto *new_token = new token_info;
-        new_token->type = STR_LITERAL;
-        new_token->str = str.substr(start, curr - start);
-        current = curr; // omit the second "
-        return new_token;
-    }
-
-    void Lexer::open(const std::string &file_name) { _reader->open(file_name); }
-
-    void Lexer::lex() {
-        std::string line = _reader->next_line();
-        do {
-            size_t /*start = 0,*/ current = 0;
-            const size_t line_len = line.length();
-            while (true) {
-                if (current >= line_len) {
-                    break;
-                } /* else if (is_whitespace(line[current])) {
-                 } */
-                // tanlang::Reader can make sure that the first character must
-                // not be whitespace, so we don't have to check here.
-                else if (std::isdigit(line[current])) { // number literal
-                    auto *t = advance_for_number(line, current, line_len);
-                    _token_infos.emplace_back(t);
-                } else if (std::isalpha(line[current]) ||
-                           line[current] == '_') { // identifier
-                    auto *t = advance_for_identifier(line, current, line_len);
-                    _token_infos.emplace_back(t);
-                } else if (line[current] == '\'') { // char
-                    ++current;
-                    auto *t = new token_info;
-                    t->type = CHAR;
-                    t->val = (uint64_t)line[current];
-                    ++current;
-                    if (line[current] != '\'') {
-                        report_error(line, _reader->get_line_number(), current,
-                                     "Invalid Syntax");
-                        return;
-                    }
-                    _token_infos.emplace_back(t);
-                } else if (line[current] == '"') { // string literals
-                    auto *t =
-                        advance_for_string_literal(line, current, line_len);
-                    _token_infos.emplace_back(t);
-                } else { // symbols
-                    auto *t = advance_for_symbol(line, current, line_len);
-                    _token_infos.emplace_back(t);
-                }
-                ++current;
-            }
-            line = _reader->next_line();
-        } while (!_reader->eof());
-    }
-
-    token_info *Lexer::next_token() const {
-        if (++_curr_token > _token_infos.size())
-            return nullptr;
-        else
-            return _token_infos[_curr_token - 1];
-    }
-
-    token_info *Lexer::get_token(const unsigned idx) const {
-        _curr_token = idx;
-        if (_curr_token - 1 > _token_infos.size())
-            return nullptr;
-        else
-            return _token_infos[_curr_token - 1];
-    }
-
-#ifdef DEBUG_ENABLED
-    void Lexer::read_string(const std::string &code) {
-        _reader->read_string(code);
-    }
-    std::ostream &operator<<(std::ostream &os, const Lexer &lexer) {
-        for (auto *t : lexer._token_infos) {
-            os << "TOKEN_TYPE: " << get_token_type_name(t->type);
-            if (t->type == INT) {
-                os << "; Value: " << t->val << "\n";
-            } else if (t->type == FLOAT) {
-                os << "; Value: " << t->fval << "\n";
-            } else if (t->type == CHAR) {
-                os << "; Value: " << char(t->val) << "\n";
-            } else {
-                os << "; Value: " << t->str << "\n";
-            }
-        }
-        return os;
-    }
-    std::string get_token_type_name(TOKEN_TYPE type) {
-        std::string ret;
-        switch (type) {
-            SWITCH_CASE_TOKEN_TYPE(UNKOWN);
-            SWITCH_CASE_TOKEN_TYPE(KEYWORD);
-            SWITCH_CASE_TOKEN_TYPE(ID);
-            SWITCH_CASE_TOKEN_TYPE(INT);
-            SWITCH_CASE_TOKEN_TYPE(FLOAT);
-            SWITCH_CASE_TOKEN_TYPE(STR_LITERAL);
-            SWITCH_CASE_TOKEN_TYPE(CHAR);
-            SWITCH_CASE_TOKEN_TYPE(EQ);
-            SWITCH_CASE_TOKEN_TYPE(PLUS);
-            SWITCH_CASE_TOKEN_TYPE(PLUS_EQ);
-            SWITCH_CASE_TOKEN_TYPE(MINUS);
-            SWITCH_CASE_TOKEN_TYPE(MINUS_EQ);
-            SWITCH_CASE_TOKEN_TYPE(EXCLAIM);
-            SWITCH_CASE_TOKEN_TYPE(EXCLAIM_EQ);
-            SWITCH_CASE_TOKEN_TYPE(TILDE);
-            SWITCH_CASE_TOKEN_TYPE(TILDE_EQ);
-            SWITCH_CASE_TOKEN_TYPE(CARET);
-            SWITCH_CASE_TOKEN_TYPE(CARET_EQ);
-            SWITCH_CASE_TOKEN_TYPE(STAR);
-            SWITCH_CASE_TOKEN_TYPE(STAR_EQ);
-            SWITCH_CASE_TOKEN_TYPE(SLASH);
-            SWITCH_CASE_TOKEN_TYPE(SLASH_EQ);
-            SWITCH_CASE_TOKEN_TYPE(PERCENT);
-            SWITCH_CASE_TOKEN_TYPE(PERCENT_EQ);
-            SWITCH_CASE_TOKEN_TYPE(AND);
-            SWITCH_CASE_TOKEN_TYPE(AND_EQ);
-            SWITCH_CASE_TOKEN_TYPE(BAR);
-            SWITCH_CASE_TOKEN_TYPE(BAR_EQ);
-            SWITCH_CASE_TOKEN_TYPE(LT);
-            SWITCH_CASE_TOKEN_TYPE(LE);
-            SWITCH_CASE_TOKEN_TYPE(GT);
-            SWITCH_CASE_TOKEN_TYPE(GE);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_AND);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_BAR);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_EQ);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_LT);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_LT_EQ);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT);
-            SWITCH_CASE_TOKEN_TYPE(DOUBLE_GT_EQ);
-        default:
-            ret = "";
+            ret = new Token(TokenType::ID, (*reader)(start, forward));
             break;
         }
-        return ret;
     }
-#endif
+    start = forward;
+    return ret;
+}
 
+Token *tokenize_keyword(Reader *reader, code_ptr &start) {
+    // find whether the value is in KEYWORDS (lexdef.h) based on
+    // returned value of tokenize_id()
+    code_ptr forward = start;
+    auto *t = tokenize_id(reader, forward);
+    if (t) {
+        if (std::find(std::begin(KEYWORDS), std::end(KEYWORDS), t->value) != std::end(KEYWORDS)) {
+            t->type = TokenType::KEYWORD;
+            start = forward;
+        } else {
+            delete (t);
+            t = nullptr;
+        }
+    }
+    return t;
+}
+
+Token *tokenize_comments(Reader *reader, code_ptr &start) {
+    Token *t = nullptr;
+    auto next = reader->forward_ptr(start);
+    if ((*reader)[next] == '/') {
+        // line comments
+        auto value = (*reader)(reader->forward_ptr(next));
+        t = new Token(TokenType::COMMENTS, value);
+        start.c = static_cast<long>((*reader)[static_cast<size_t>(start.r)].code.length());
+        start = (*reader).forward_ptr(start);
+    } else if ((*reader)[next] == '*') {
+        /* block commments */
+        auto forward = start;
+        // loop for each line
+        while (static_cast<size_t>(forward.r) < reader->size()) {
+            auto re = std::regex(R"(.*\*\/)");
+            auto str = (*reader)(forward);
+            std::smatch result;
+            if (std::regex_match(str, result, re)) {
+                std::string value = str.substr(2, static_cast<size_t>(result.length(0) - 4));
+                t = new Token(TokenType::COMMENTS, value);
+                forward.c = result.length(0);
+                start = forward;
+            }
+            ++forward.r;
+        }
+        if (!t) {
+            report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                              static_cast<size_t>(start.c), "Invalid comments");
+        }
+    } else {
+        report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                          static_cast<size_t>(start.c), "Invalid comments");
+    }
+    return t;
+}
+
+Token *tokenize_number(Reader *reader, code_ptr &start) {
+    auto forward = start;
+    const auto end = reader->back_ptr();
+    bool is_float = false;
+    auto *t = new Token;
+    while (forward < end) {
+        const char ch = (*reader)[forward];
+        if (std::isdigit(ch) || (ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X') {
+        } else if (ch == '.') {
+            // TODO: '.' can only be followed by digits
+            is_float = true;
+        } else if (IS_DELIMITER(ch)) {
+            break;
+        } else {
+            report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
+                              static_cast<size_t>(forward.c), "Unexpected character within a number literal");
+            delete t;
+            return nullptr;
+        }
+        forward = (*reader).forward_ptr(forward);
+    }
+    t->type = is_float ? TokenType::FLOAT : TokenType::INT;
+    t->value = (*reader)(start, forward);
+    start = forward;
+    return t;
+}
+
+// TODO: support escape sequences inside char literals
+// TODO: check line breaks inside two quotation marks
+Token *tokenize_char(Reader *reader, code_ptr &start) {
+    Token *t = nullptr;
+    auto forward = reader->forward_ptr(start);
+    const auto end = reader->back_ptr();
+    forward = skip_until(reader, forward, '\'');
+    if (forward > end) {
+        report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
+                          static_cast<size_t>(forward.c), "Incomplete character literal");
+        exit(1);
+    } else {
+        std::string value = (*reader)(reader->forward_ptr(start),
+                                      forward); // not including the single quotes
+        t = new Token(TokenType::CHAR, value);
+        start = (*reader).forward_ptr(forward);
+    }
+    return t;
+}
+
+// TODO: support escape sequences inside string literals
+// TODO: check line breaks inside two quotation marks
+Token *tokenize_string(Reader *reader, code_ptr &start) {
+    Token *t = nullptr;
+    auto forward = reader->forward_ptr(start);
+    forward = skip_until(reader, forward, '"');
+    const auto end = reader->back_ptr();
+    if (forward > end) {
+        report_code_error((*reader)[static_cast<size_t>(forward.r)].code, static_cast<size_t>(forward.r),
+                          static_cast<size_t>(forward.c), "Incomplete string literal");
+        exit(1);
+    } else {
+        std::string value = (*reader)(reader->forward_ptr(start),
+                                      forward); // not including the double quotes
+        t = new Token(TokenType::STRING, value);
+        start = (*reader).forward_ptr(forward);
+    }
+    return t;
+}
+
+Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
+    Token *t = nullptr;
+    auto next = reader->forward_ptr(start);
+    // line comment or block comment
+    if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) {
+        t = tokenize_comments(reader, start);
+    }
+        // char literal
+    else if ((*reader)[start] == '\'') {
+        t = tokenize_char(reader, start);
+    }
+        // string literal
+    else if ((*reader)[start] == '"') {
+        t = tokenize_string(reader, start);
+    }
+        // operators
+    else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) {
+        std::string value;
+        do {
+            code_ptr nnext = reader->forward_ptr(next);
+            code_ptr nnnext = reader->forward_ptr(nnext);
+            code_ptr back_ptr = reader->back_ptr();
+            std::string two = (*reader)(start, nnext);
+            std::string three = (*reader)(start, reader->forward_ptr(nnext));
+
+            if (next < back_ptr && nnext < back_ptr &&
+                std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) {
+                // operator containing three characters
+                value = (*reader)(start, nnnext);
+                start = nnnext;
+                break;
+            }
+
+            if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
+                value = (*reader)(start, nnext);
+                if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) {
+                    // operator containing two chars
+                    start = nnext;
+                    break;
+                }
+            }
+            // operator containing one chars
+            value = std::string{(*reader)[start]};
+            assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
+            start = next;
+        } while (false);
+        // create new token, fill in token
+        TokenType type = OPERATION_VALUE_TYPE_MAP[value];
+        t = new Token(type, value);
+    }
+        // other punctuations
+    else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
+        t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]));
+        start = next;
+    } else {
+        t = nullptr;
+    }
+    return t;
+}
+
+std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
+    // TODO: DO NOT exit the program when errors occurred
+    std::vector<Token *> tokens;
+    const auto end = reader->back_ptr();
+    while (start < end) {
+        // if start with a letter
+        if (std::isalpha((*reader)[start])) {
+            auto *new_token = tokenize_keyword(reader, start);
+            if (!new_token) {
+                // if this is not a keyword, probably an identifier
+                new_token = tokenize_id(reader, start);
+                if (!new_token) {
+                    report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                                      static_cast<size_t>(start.c), "Invalid identifier");
+                    exit(1);
+                }
+            }
+            tokens.emplace_back(new_token);
+        } else if ((*reader)[start] == '_') {
+            // start with an underscore, must be an identifier
+            auto *new_token = tokenize_id(reader, start);
+            if (!new_token) {
+                report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                                  static_cast<size_t>(start.c), "Invalid identifier");
+                exit(1);
+            }
+            tokens.emplace_back(new_token);
+        } else if (std::isdigit((*reader)[start])) {
+            // number literal
+            auto *new_token = tokenize_number(reader, start);
+            if (!new_token) {
+                report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                                  static_cast<size_t>(start.c), "Invalid number literal");
+                exit(1);
+            }
+            tokens.emplace_back(new_token);
+        } else if (std::find(std::begin(PUNCTUATIONS), std::end(PUNCTUATIONS), (*reader)[start]) !=
+            std::end(PUNCTUATIONS)) {
+            // punctuations
+            auto *new_token = tokenize_punctuation(reader, start);
+            if (!new_token) {
+                report_code_error((*reader)[static_cast<size_t>(start.r)].code, static_cast<size_t>(start.r),
+                                  static_cast<size_t>(start.c), "Invalid symbol(s)");
+                exit(1);
+            }
+            tokens.emplace_back(new_token);
+        } else {
+            start = reader->forward_ptr(start);
+        }
+        start = skip_whitespace(reader, start);
+    }
+    return tokens;
+}
 } // namespace tanlang

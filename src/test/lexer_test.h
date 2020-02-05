@@ -1,135 +1,312 @@
-#ifndef __TAN_TEST_LEXER_TEST_H__
-#define __TAN_TEST_LEXER_TEST_H__
+#ifndef TAN_LEXER_TEST_H
+#define TAN_LEXER_TEST_H
+
 #include "lexer.h"
-#include "src/lexer/lexer_internal.h"
+#include "token.h"
+#include "reader.h"
 #include <gtest/gtest.h>
-#include <limits>
-#include <string>
-#include <ios>
-#include <bitset>
+#include <iostream>
 
-#define _LEXER_TEST_CASE_(_str, tval, _type, _val)                             \
-    do {                                                                       \
-        lx.read_string(_str);                                                  \
-        lx.lex();                                                              \
-        while (tanlang::token_info *t = lx.next_token()) {                     \
-            EXPECT_EQ(uint64_t(t->type), _type);                               \
-            EXPECT_EQ(t->tval, _val);                                          \
-        }                                                                      \
-    } while (0)
-
-TEST(Lexer, hex_number) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("0x2432ABFE", val, INT, 607300606);
-    _LEXER_TEST_CASE_("0X2432ABFE", val, INT, 607300606);
-    //
-    constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
-    std::ostringstream stream;
-    stream << std::hex << uint64_max;
-    std::string uint64_max_str = "0x" + stream.str();
-    _LEXER_TEST_CASE_(uint64_max_str, val, INT, 607300606);
+TEST(tokenize, line_comment) {
+    std::string code = "// this is a comment";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
+    EXPECT_EQ(result[0]->value, " this is a comment");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, binary_number) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("0b1001010101", val, INT, 597);
-    _LEXER_TEST_CASE_("0B1001010101", val, INT, 597);
-    //
-    constexpr uint64_t uint64_max = std::numeric_limits<uint64_t>::max();
-    std::bitset<64> b(uint64_max);
-    std::string uint64_max_str = "0b" + b.to_string();
-    _LEXER_TEST_CASE_(uint64_max_str, val, INT, 597);
+TEST(tokenize, string_literal) {
+    std::string code = "\"hello world, motherfucker dsfs \nshit \t\"";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::STRING);
+    EXPECT_EQ(result[0]->value, "hello world, motherfucker dsfs shit \t");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, dec_number) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("91029321", val, INT, 91029321);
-    lx.read_string("hahah 0 is in the middle of the file 0");
-    lx.lex();
-    tanlang::token_info *t = lx.next_token(); // hahah
-    t = lx.next_token();                      // 0
-    EXPECT_EQ(uint64_t(t->type), tanlang::INT);
-    EXPECT_EQ(t->val, 0);
+TEST(tokenize, char_literal) {
+    std::string code = "'s'";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::CHAR);
+    EXPECT_EQ(result[0]->value, "s");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, float_number) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("91.029e1", fval, FLOAT, 910.29);
+TEST(tokenize, block_comment) {
+    std::string code = "/* this is a comment */";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0]->type, TokenType::COMMENTS);
+    EXPECT_EQ(result[0]->value, " this is a comment ");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, identifier) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("_shit996", str, ID, "_shit996");
-    _LEXER_TEST_CASE_("_shit__", str, ID, "_shit__");
+TEST(tokenize, number_literal) {
+    std::string code = "fuck;0b10010111+0xaBFd,";
+    using tanlang::Reader;
+    using tanlang::tokenize;
+    using tanlang::TokenType;
+    Reader r;
+    r.from_string(code);
+    auto result = tokenize(&r);
+    EXPECT_EQ(result.size(), 6);
+//    std::cout << (int) result[2]->type << '\n' << (int) TokenType::INT << '\n';
+    EXPECT_EQ((int) result[2]->type, (int) TokenType::INT);
+    EXPECT_EQ(result[2]->value, "0b10010111");
+    EXPECT_EQ((int) result[4]->type, (int) TokenType::INT);
+    EXPECT_EQ(result[4]->value, "0xaBFd");
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, string_literal) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("\"shit fuck god damn\"", str, STR_LITERAL,
-                      "shit fuck god damn");
-    _LEXER_TEST_CASE_("\"fhdsk1-2-0riesd\t_fdslklj'\"", str, STR_LITERAL,
-                      "fhdsk1-2-0riesd\t_fdslklj'");
-    _LEXER_TEST_CASE_("\"string!\"\"string!\"", str, STR_LITERAL, "string!");
+TEST(tokenize, general_test1) {
+    tanlang::Reader r;
+    r.open("test_program.tan");
+    auto result = tanlang::tokenize(&r);
+    using TT=tanlang::TokenType;
+    std::vector<std::pair<std::string, TT>> expected = {
+        std::pair("#", TT::PUNCTUATION),
+        std::pair("build_msg", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("str", TT::KEYWORD),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("#", TT::PUNCTUATION),
+        std::pair("prog_version", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("u32", TT::KEYWORD),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("#", TT::PUNCTUATION),
+        std::pair("before_build", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("println", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("Building version {u32} ...", TT::STRING),
+        std::pair(",", TT::PUNCTUATION),
+        std::pair("prog_version", TT::ID),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("println", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("{str}", TT::STRING),
+        std::pair(",", TT::PUNCTUATION),
+        std::pair("build_msg", TT::ID),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair("#", TT::PUNCTUATION),
+        std::pair("after_build", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("println", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("Success!!", TT::STRING),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair("fn", TT::KEYWORD),
+        std::pair("main", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("argc", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("u32", TT::KEYWORD),
+        std::pair(",", TT::PUNCTUATION),
+        std::pair("argv", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("u32", TT::KEYWORD),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair(" get all arguments", TT::COMMENTS),
+        std::pair("args", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("=", TT::BOP),
+        std::pair("Vec", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("from_buffer", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("Buffer", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("new", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("argc", TT::ID),
+        std::pair("*", TT::BOP),
+        std::pair("sizeof", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("*", TT::BOP),
+        std::pair("str", TT::KEYWORD),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair(" this is redundant, but for illustration purposes", TT::COMMENTS),
+        std::pair("for", TT::KEYWORD),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("u32", TT::KEYWORD),
+        std::pair("=", TT::BOP),
+        std::pair("0", TT::INT),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("<", TT::RELOP),
+        std::pair("argc", TT::ID),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("+=", TT::BOP),
+        std::pair("1", TT::INT),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("args", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("=", TT::BOP),
+        std::pair("argv", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair(" parse arguments", TT::COMMENTS),
+        std::pair("for", TT::KEYWORD),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair(":", TT::PUNCTUATION),
+        std::pair("u32", TT::KEYWORD),
+        std::pair("=", TT::BOP),
+        std::pair("0", TT::INT),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("<", TT::RELOP),
+        std::pair("argc", TT::ID),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("+=", TT::BOP),
+        std::pair("1", TT::INT),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("if", TT::KEYWORD),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("args", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("==", TT::RELOP),
+        std::pair("-v", TT::STRING),
+        std::pair("||", TT::RELOP),
+        std::pair("args", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("==", TT::RELOP),
+        std::pair("--version", TT::STRING),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("println", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("Version: {}", TT::STRING),
+        std::pair(",", TT::PUNCTUATION),
+        std::pair("#", TT::PUNCTUATION),
+        std::pair("prog_version", TT::ID),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("return", TT::ID),
+        std::pair("0", TT::INT),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair("if", TT::KEYWORD),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("args", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("==", TT::RELOP),
+        std::pair("-h", TT::STRING),
+        std::pair("||", TT::RELOP),
+        std::pair("args", TT::ID),
+        std::pair("[", TT::PUNCTUATION),
+        std::pair("i", TT::ID),
+        std::pair("]", TT::PUNCTUATION),
+        std::pair("==", TT::RELOP),
+        std::pair("--help", TT::STRING),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair("{", TT::PUNCTUATION),
+        std::pair("print", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("Avaiable options:\\n", TT::STRING),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("println", TT::ID),
+        std::pair("(", TT::PUNCTUATION),
+        std::pair("use -v or --version see program version", TT::STRING),
+        std::pair(")", TT::PUNCTUATION),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("return", TT::ID),
+        std::pair("1", TT::INT),
+        std::pair(";", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair("}", TT::PUNCTUATION),
+        std::pair("return", TT::ID),
+        std::pair("0", TT::INT),
+        std::pair(";", TT::PUNCTUATION),
+    };
+    for (size_t i = 0; i < expected.size(); ++i) {
+        EXPECT_EQ(result[i]->type, expected[i].second);
+        EXPECT_EQ(result[i]->value, expected[i].first);
+    }
+    for (auto *&t : result) {
+        delete t;
+        t = nullptr;
+    }
 }
 
-TEST(Lexer, character) {
-    tanlang::Lexer lx;
-    using namespace tanlang;
-    _LEXER_TEST_CASE_("'s'", val, CHAR, 's');
-    _LEXER_TEST_CASE_("'\\'", val, CHAR, '\\');
-    _LEXER_TEST_CASE_("'c''c'", val, CHAR, 'c');
-}
-
-#define _LEXER_SYMBOL_TEST_CASE_(str, _type)                                   \
-    do {                                                                       \
-        lx.read_string(str);                                                   \
-        lx.lex();                                                              \
-        while (tanlang::token_info *t = lx.next_token()) {                     \
-            EXPECT_EQ(uint64_t(t->type), _type);                               \
-        }                                                                      \
-    } while (0)
-
-TEST(Lexer, symbol) {
-    using namespace tanlang;
-    tanlang::Lexer lx;
-    _LEXER_SYMBOL_TEST_CASE_("=", EQ);
-    _LEXER_SYMBOL_TEST_CASE_("+", PLUS);
-    _LEXER_SYMBOL_TEST_CASE_("+=", PLUS_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("-", MINUS);
-    _LEXER_SYMBOL_TEST_CASE_("-=", MINUS_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("!", EXCLAIM);
-    _LEXER_SYMBOL_TEST_CASE_("!=", EXCLAIM_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("~", TILDE);
-    _LEXER_SYMBOL_TEST_CASE_("~=", TILDE_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("^", CARET);
-    _LEXER_SYMBOL_TEST_CASE_("^=", CARET_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("*", STAR);
-    _LEXER_SYMBOL_TEST_CASE_("*=", STAR_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("/", SLASH);
-    _LEXER_SYMBOL_TEST_CASE_("/=", SLASH_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("%", PERCENT);
-    _LEXER_SYMBOL_TEST_CASE_("%=", PERCENT_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("&", AND);
-    _LEXER_SYMBOL_TEST_CASE_("&=", AND_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("|", BAR);
-    _LEXER_SYMBOL_TEST_CASE_("|=", BAR_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("<", LT);
-    _LEXER_SYMBOL_TEST_CASE_("<<", DOUBLE_LT);
-    _LEXER_SYMBOL_TEST_CASE_("<<=", DOUBLE_LT_EQ);
-    _LEXER_SYMBOL_TEST_CASE_("<=", LE);
-    _LEXER_SYMBOL_TEST_CASE_(">", GT);
-    _LEXER_SYMBOL_TEST_CASE_(">>", DOUBLE_GT);
-    _LEXER_SYMBOL_TEST_CASE_(">>=", DOUBLE_GT_EQ);
-    _LEXER_SYMBOL_TEST_CASE_(">=", GE);
-    _LEXER_SYMBOL_TEST_CASE_("&&", DOUBLE_AND);
-    _LEXER_SYMBOL_TEST_CASE_("||", DOUBLE_BAR);
-    _LEXER_SYMBOL_TEST_CASE_("==", DOUBLE_EQ);
-}
-
-#endif //__TAN_TEST_LEXER_TEST_H__
+#endif /* TAN_LEXER_TEST_H */

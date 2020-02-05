@@ -14,9 +14,9 @@ project(tan LANGUAGES CXX VERSION ${TAN_VERSION})
 # generate include/config.h
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
-# C++11
-set(CMAKE_CXX_STANDARD 11)
-set(ENV{GCOV_PREFIX} ${CMAKE_BINARY_DIR}/coverage)
+# C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 99)
 
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version
@@ -28,8 +28,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # compiler flags
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic-errors -Wconversion -Wsign-conversion")
-set(CMAKE_CXX_FLAGS_DEBUG "-fprofile-arcs -ftest-coverage -g -O0 ")
-set(CMAKE_EXE_LINKER_FLAGS" --coverage -lgcov ")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # ================================ thirdparty dependencies ========================== #
@@ -52,6 +51,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     # target test
@@ -68,9 +68,7 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-# coveralls
-target_compile_options(tan_tests PRIVATE --coverage)
-target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs} --coverage)
+target_link_libraries(tanc pthread ${Boost_LIBRARIES} ${llvm_libs})
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
