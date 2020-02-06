@@ -1,6 +1,7 @@
 #include "ast.h"
 #include "reader.h"
 #include "parser.h"
+#include "compiler.h"
 #include <iostream>
 
 int main() {
@@ -17,6 +18,9 @@ int main() {
   p._root->printTree();
   p._root->codegen(p._parser_context);
   p._parser_context->_module->print(llvm::errs(), nullptr);
+
+  tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p._parser_context->_module.release()));
+  compiler.emit_object("output.o");
 
   for (auto *&t : tokens) {
     delete t;

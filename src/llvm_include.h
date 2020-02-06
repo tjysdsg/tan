@@ -9,6 +9,15 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/Instruction.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/MC/MCTargetOptions.h>
+#include <llvm/IR/Module.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Pass.h>
+#include <llvm/IR/LegacyPassManager.h>
 
 namespace tanlang {
 
@@ -25,6 +34,7 @@ using llvm::verifyFunction;
 using llvm::FunctionType;
 using llvm::IRBuilder;
 using llvm::BasicBlock;
+using llvm::Module;
 
 }
 

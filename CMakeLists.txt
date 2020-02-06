@@ -43,9 +43,6 @@ get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-# Find the libraries that correspond to the LLVM components
-# that we wish to use
-llvm_map_components_to_libnames(llvm_libs support core irreader)
 # ================================----------------------- ========================== #
 
 # common source files shared by multiple targets
@@ -53,6 +50,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -60,7 +58,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests gtest ${llvm_libs})
+    target_link_libraries(tan_tests gtest LLVM-9)
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
     enable_testing()
@@ -70,7 +68,7 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread ${llvm_libs})
+target_link_libraries(tanc pthread LLVM-9)
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
