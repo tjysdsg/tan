@@ -18,11 +18,11 @@ Value *ASTVarDecl::codegen(CompilerSession *parser_context) {
   std::string name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0])->_name;
   std::string type_name = std::reinterpret_pointer_cast<ASTTypeName>(_children[1])->_name;
   Type *type = typename_to_llvm_type(type_name, parser_context);
-  Value *var = create_block_alloca(parser_context->_builder->GetInsertBlock(), type, name);
+  Value *var = create_block_alloca(parser_context->get_builder()->GetInsertBlock(), type, name);
 
   // set initial value
   if (_has_initial_val) {
-    parser_context->_builder->CreateStore(_children[2]->codegen(parser_context), var);
+    parser_context->get_builder()->CreateStore(_children[2]->codegen(parser_context), var);
   }
 
   // add to current scope
@@ -36,9 +36,9 @@ Value *ASTVarDecl::codegen(CompilerSession *parser_context) {
 
 Value *ASTNumberLiteral::codegen(CompilerSession *parser_context) {
   if (_is_float) {
-    return ConstantFP::get(*parser_context->_context, APFloat(_fvalue));
+    return ConstantFP::get(*parser_context->get_context(), APFloat(_fvalue));
   } else {
-    return ConstantInt::get(*parser_context->_context, APInt(32, static_cast<uint64_t>(_ivalue), true));
+    return ConstantInt::get(*parser_context->get_context(), APInt(32, static_cast<uint64_t>(_ivalue), true));
   }
 }
 
@@ -47,7 +47,7 @@ Value *ASTBinaryNot::codegen(CompilerSession *parser_context) {
   if (!rhs) {
     assert(false);
   }
-  return parser_context->_builder->CreateNot(rhs);
+  return parser_context->get_builder()->CreateNot(rhs);
 }
 
 Value *ASTLogicalNot::codegen(CompilerSession *parser_context) {
@@ -56,11 +56,11 @@ Value *ASTLogicalNot::codegen(CompilerSession *parser_context) {
     assert(false);
   }
   // get value size in bits
-  llvm::DataLayout data_layout(parser_context->_module.get());
+  llvm::DataLayout data_layout(parser_context->get_module().get());
   auto size_in_bits = data_layout.getTypeSizeInBits(rhs->getType());
-  auto mask = ConstantInt::get(*parser_context->_context,
+  auto mask = ConstantInt::get(*parser_context->get_context(),
                                APInt(static_cast<uint32_t>(size_in_bits), std::numeric_limits<uint64_t>::max(), false));
-  return parser_context->_builder->CreateXor(mask, rhs);
+  return parser_context->get_builder()->CreateXor(mask, rhs);
 }
 
 Value *ASTCompare::codegen(CompilerSession *parser_context) {
@@ -73,39 +73,39 @@ Value *ASTCompare::codegen(CompilerSession *parser_context) {
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = parser_context->_builder->getFloatTy();
+  Type *float_type = parser_context->get_builder()->getFloatTy();
   if (ltype->isPointerTy()) {
-    lhs = parser_context->_builder->CreateLoad(float_type, lhs);
+    lhs = parser_context->get_builder()->CreateLoad(float_type, lhs);
   }
   if (rtype->isPointerTy()) {
-    rhs = parser_context->_builder->CreateLoad(float_type, rhs);
+    rhs = parser_context->get_builder()->CreateLoad(float_type, rhs);
   }
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
-      lhs = parser_context->_builder->CreateSIToFP(lhs, float_type);
+      lhs = parser_context->get_builder()->CreateSIToFP(lhs, float_type);
     }
     if (rtype->isIntegerTy()) {
-      rhs = parser_context->_builder->CreateSIToFP(rhs, float_type);
+      rhs = parser_context->get_builder()->CreateSIToFP(rhs, float_type);
     }
 
     if (_op == ASTType::GT) {
-      return parser_context->_builder->CreateFCmpOGT(lhs, rhs);
+      return parser_context->get_builder()->CreateFCmpOGT(lhs, rhs);
     } else if (_op == ASTType::GE) {
-      return parser_context->_builder->CreateFCmpOGE(lhs, rhs);
+      return parser_context->get_builder()->CreateFCmpOGE(lhs, rhs);
     } else if (_op == ASTType::LT) {
-      return parser_context->_builder->CreateFCmpOLT(lhs, rhs);
+      return parser_context->get_builder()->CreateFCmpOLT(lhs, rhs);
     } else if (_op == ASTType::LE) {
-      return parser_context->_builder->CreateFCmpOLE(lhs, rhs);
+      return parser_context->get_builder()->CreateFCmpOLE(lhs, rhs);
     }
   }
   if (_op == ASTType::GT) {
-    return parser_context->_builder->CreateICmpUGT(lhs, rhs);
+    return parser_context->get_builder()->CreateICmpUGT(lhs, rhs);
   } else if (_op == ASTType::GE) {
-    return parser_context->_builder->CreateICmpUGE(lhs, rhs);
+    return parser_context->get_builder()->CreateICmpUGE(lhs, rhs);
   } else if (_op == ASTType::LT) {
-    return parser_context->_builder->CreateICmpULT(lhs, rhs);
+    return parser_context->get_builder()->CreateICmpULT(lhs, rhs);
   } else if (_op == ASTType::LE) {
-    return parser_context->_builder->CreateICmpULE(lhs, rhs);
+    return parser_context->get_builder()->CreateICmpULE(lhs, rhs);
   }
   return nullptr;
 }
@@ -119,42 +119,42 @@ Value *ASTArithmetic::codegen(CompilerSession *parser_context) {
   }
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = parser_context->_builder->getFloatTy();
+  Type *float_type = parser_context->get_builder()->getFloatTy();
 
   if (ltype->isPointerTy()) {
-    lhs = parser_context->_builder->CreateLoad(float_type, lhs);
+    lhs = parser_context->get_builder()->CreateLoad(float_type, lhs);
   }
   if (rtype->isPointerTy()) {
-    rhs = parser_context->_builder->CreateLoad(float_type, rhs);
+    rhs = parser_context->get_builder()->CreateLoad(float_type, rhs);
   }
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
-      lhs = parser_context->_builder->CreateSIToFP(lhs, float_type);
+      lhs = parser_context->get_builder()->CreateSIToFP(lhs, float_type);
     }
     if (rtype->isIntegerTy()) {
-      rhs = parser_context->_builder->CreateSIToFP(rhs, float_type);
+      rhs = parser_context->get_builder()->CreateSIToFP(rhs, float_type);
     }
     // float arithmetic
     if (_op == ASTType::MULTIPLY) {
-      return parser_context->_builder->CreateFMul(lhs, rhs);
+      return parser_context->get_builder()->CreateFMul(lhs, rhs);
     } else if (_op == ASTType::DIVIDE) {
-      return parser_context->_builder->CreateFDiv(lhs, rhs);
+      return parser_context->get_builder()->CreateFDiv(lhs, rhs);
     } else if (_op == ASTType::SUM) {
-      return parser_context->_builder->CreateFAdd(lhs, rhs);
+      return parser_context->get_builder()->CreateFAdd(lhs, rhs);
     } else if (_op == ASTType::SUBTRACT) {
-      return parser_context->_builder->CreateFSub(lhs, rhs);
+      return parser_context->get_builder()->CreateFSub(lhs, rhs);
     }
   }
 
   // integer arithmetic
   if (_op == ASTType::MULTIPLY) {
-    return parser_context->_builder->CreateMul(lhs, rhs, "mul_tmp");
+    return parser_context->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
   } else if (_op == ASTType::DIVIDE) {
-    return parser_context->_builder->CreateUDiv(lhs, rhs, "div_tmp");
+    return parser_context->get_builder()->CreateUDiv(lhs, rhs, "div_tmp");
   } else if (_op == ASTType::SUM) {
-    return parser_context->_builder->CreateAdd(lhs, rhs, "sum_tmp");
+    return parser_context->get_builder()->CreateAdd(lhs, rhs, "sum_tmp");
   } else if (_op == ASTType::SUBTRACT) {
-    return parser_context->_builder->CreateSub(lhs, rhs, "sub_tmp");
+    return parser_context->get_builder()->CreateSub(lhs, rhs, "sub_tmp");
   }
   return nullptr;
 }
@@ -180,8 +180,7 @@ Value *ASTAssignment::codegen(CompilerSession *parser_context) {
 
   // TODO: check type
   // TODO: implicit type conversion
-
-  parser_context->_builder->CreateStore(val, variable);
+  parser_context->get_builder()->CreateStore(val, variable);
   return val;
 }
 

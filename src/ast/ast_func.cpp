@@ -10,16 +10,16 @@ ASTFunction::ASTFunction(Token *token) : ASTNode(ASTType::FUNC, 0, 0, token) {}
 static Type *type_from_string(const std::string &type_name, CompilerSession *parser_context) {
   Type *t = nullptr;
   if (type_name == "int") {
-    t = parser_context->_builder->getInt32Ty();
+    t = parser_context->get_builder()->getInt32Ty();
   } else if (type_name == "float") {
-    t = parser_context->_builder->getFloatTy();
+    t = parser_context->get_builder()->getFloatTy();
   }
   return t;
 }
 
 Value *ASTFunction::codegen(CompilerSession *parser_context) {
   // make function prototype
-  Type *float_type = parser_context->_builder->getFloatTy();
+  Type *float_type = parser_context->get_builder()->getFloatTy();
   // std::vector<Type *> arg_types(2, float_type);
   std::vector<Type *> arg_types;
   // set function arg types
@@ -34,7 +34,7 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
 
   // create function
   FunctionType *FT = FunctionType::get(float_type, arg_types, false);
-  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, parser_context->_module.get());
+  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, parser_context->get_module().get());
 
   // set argument names
   auto args = F->args().begin();
@@ -45,8 +45,8 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
 
   // function implementation
   // create a new basic block to start insertion into
-  BasicBlock *main_block = BasicBlock::Create(*parser_context->_context, "entry", F);
-  parser_context->_builder->SetInsertPoint(main_block);
+  BasicBlock *main_block = BasicBlock::Create(*parser_context->get_context(), "entry", F);
+  parser_context->get_builder()->SetInsertPoint(main_block);
 
   parser_context->push_scope(); // new scope
   // add all function arguments to scope

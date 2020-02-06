@@ -7,12 +7,6 @@ namespace tanlang {
 
 class CompilerSession {
  public:
-  std::unique_ptr<LLVMContext> _context;
-  std::unique_ptr<IRBuilder<>> _builder;
-  std::unique_ptr<Module> _module;
-  std::vector<std::shared_ptr<Scope>> _scope;
-
- public:
   CompilerSession &operator=(const CompilerSession &) = delete;
   CompilerSession(const CompilerSession &) = delete;
 
@@ -24,9 +18,16 @@ class CompilerSession {
   void add(const std::string &name, Value *value);
   void set(const std::string &name, Value *value);
   Value *get(const std::string &name);
+  std::unique_ptr<LLVMContext> &get_context();
+  std::unique_ptr<IRBuilder<>> &get_builder();
+  std::unique_ptr<Module> &get_module();
 
  private:
   bool _is_jit_enabled = false;
+  std::unique_ptr<LLVMContext> _context;
+  std::unique_ptr<IRBuilder<>> _builder;
+  std::unique_ptr<Module> _module;
+  std::vector<std::shared_ptr<Scope>> _scope;
   // ExecutionSession _execution_session;
   // RTDyldObjectLinkingLayer _object_layer;
   // IRCompileLayer _compile_layer;

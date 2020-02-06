@@ -27,7 +27,7 @@ Value *ASTProgram::codegen(CompilerSession *parser_context) {
 }
 
 Value *ASTReturn::codegen(CompilerSession *parser_context) {
-  return parser_context->_builder->CreateRet(_children[0]->codegen(parser_context));
+  return parser_context->get_builder()->CreateRet(_children[0]->codegen(parser_context));
 }
 
 } // namespace tanlang

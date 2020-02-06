@@ -24,7 +24,7 @@ int main() {
   p.parse();
   p._root->printTree();
   p._root->codegen(p._parser_context);
-  p._parser_context->_module->print(llvm::errs(), nullptr);
+  p._parser_context->get_module()->print(llvm::errs(), nullptr);
 
   /*
   // Get the anonymous expression's JITSymbol.

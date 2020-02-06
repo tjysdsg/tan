@@ -63,4 +63,15 @@ Value *CompilerSession::get(const std::string &name) {
   return result;
 }
 
+std::unique_ptr<LLVMContext> &CompilerSession::get_context() {
+  return _context;
+}
+
+std::unique_ptr<IRBuilder<>> &CompilerSession::get_builder() {
+  return _builder;
+}
+
+std::unique_ptr<Module> &CompilerSession::get_module() {
+  return _module;
+}
 } // namespace tanlang
