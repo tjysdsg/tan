@@ -6,7 +6,8 @@
 int main() {
   using tanlang::Reader;
   using tanlang::Parser;
-  std::string code = "fn main(weight: float, age: int) : float { var val : int = 100; val = 200; return val * weight/age; } \n";
+  std::string code =
+      "fn main(weight: float, age: int) : float { var val : int = 100; val = 20.50; return val * weight/age; } \n";
   Reader r;
   r.from_string(code);
   auto tokens = tokenize(&r);

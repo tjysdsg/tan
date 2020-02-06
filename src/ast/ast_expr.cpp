@@ -160,10 +160,7 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
 }
 
 Value *ASTAssignment::codegen(ParserContext *parser_context) {
-  // Assignment requires the lhs to be an identifier.
-  // This assume we're building without RTTI because LLVM builds that way by
-  // default. If you build LLVM with RTTI this can be changed to a
-  // dynamic_cast for automatic error checking.
+  // Assignment requires the lhs to be an mutable variable.
   auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
   if (!lhs) {
     report_code_error(lhs->_token->l, lhs->_token->c, "Left-hand operand of assignment must be a variable");
@@ -175,11 +172,14 @@ Value *ASTAssignment::codegen(ParserContext *parser_context) {
     report_code_error(rhs->_token->l, rhs->_token->c, "Invalid expression for right-hand operand of the assignment");
   }
 
-  // look up the name.
+  // look up variable by name
   Value *variable = parser_context->get(lhs->_name);
   if (!variable) {
     report_code_error(lhs->_token->l, lhs->_token->c, "Invalid variable name");
   }
+
+  // TODO: check type
+  // TODO: implicit type conversion
 
   parser_context->_builder->CreateStore(val, variable);
   return val;

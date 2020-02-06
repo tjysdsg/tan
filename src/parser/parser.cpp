@@ -4,8 +4,6 @@
 #include "src/parser/token_check.h"
 #include <memory>
 
-using std::string;
-
 namespace tanlang {
 
 std::shared_ptr<ASTNode> Parser::advance() {
