@@ -1,5 +1,6 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
+#include "src/compiler/jit.h"
 #include "src/llvm_include.h"
 
 namespace tanlang {

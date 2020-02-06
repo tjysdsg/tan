@@ -5,14 +5,14 @@
 
 namespace tanlang {
 class Parser;
-struct ParserContext;
+class CompilerSession;
 
 class ASTIf final : public ASTNode {
  public:
   ASTIf() = delete;
   explicit ASTIf(Token *token) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token) {}
   void nud(Parser *parser) override;
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
 
  public:
   bool _has_else = false;

@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-Value *ASTParenthesis::codegen(ParserContext *parser_context) {
+Value *ASTParenthesis::codegen(CompilerSession *parser_context) {
   auto *result = _children[0]->codegen(parser_context);
   size_t n = _children.size();
   for (size_t i = 1; i < n; ++i) {
@@ -14,7 +14,7 @@ Value *ASTParenthesis::codegen(ParserContext *parser_context) {
   return result;
 }
 
-Value *ASTVarDecl::codegen(ParserContext *parser_context) {
+Value *ASTVarDecl::codegen(CompilerSession *parser_context) {
   std::string name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0])->_name;
   std::string type_name = std::reinterpret_pointer_cast<ASTTypeName>(_children[1])->_name;
   Type *type = typename_to_llvm_type(type_name, parser_context);
@@ -34,7 +34,7 @@ Value *ASTVarDecl::codegen(ParserContext *parser_context) {
   return nullptr;
 }
 
-Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
+Value *ASTNumberLiteral::codegen(CompilerSession *parser_context) {
   if (_is_float) {
     return ConstantFP::get(*parser_context->_context, APFloat(_fvalue));
   } else {
@@ -42,7 +42,7 @@ Value *ASTNumberLiteral::codegen(ParserContext *parser_context) {
   }
 }
 
-Value *ASTBinaryNot::codegen(ParserContext *parser_context) {
+Value *ASTBinaryNot::codegen(CompilerSession *parser_context) {
   auto *rhs = _children[0]->codegen(parser_context);
   if (!rhs) {
     assert(false);
@@ -50,7 +50,7 @@ Value *ASTBinaryNot::codegen(ParserContext *parser_context) {
   return parser_context->_builder->CreateNot(rhs);
 }
 
-Value *ASTLogicalNot::codegen(ParserContext *parser_context) {
+Value *ASTLogicalNot::codegen(CompilerSession *parser_context) {
   auto *rhs = _children[0]->codegen(parser_context);
   if (!rhs) {
     assert(false);
@@ -63,7 +63,7 @@ Value *ASTLogicalNot::codegen(ParserContext *parser_context) {
   return parser_context->_builder->CreateXor(mask, rhs);
 }
 
-Value *ASTCompare::codegen(ParserContext *parser_context) {
+Value *ASTCompare::codegen(CompilerSession *parser_context) {
   Value *lhs = _children[0]->codegen(parser_context);
   Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
@@ -110,7 +110,7 @@ Value *ASTCompare::codegen(ParserContext *parser_context) {
   return nullptr;
 }
 
-Value *ASTArithmetic::codegen(ParserContext *parser_context) {
+Value *ASTArithmetic::codegen(CompilerSession *parser_context) {
   Value *lhs = _children[0]->codegen(parser_context);
   Value *rhs = _children[1]->codegen(parser_context);
   if (!lhs || !rhs) {
@@ -159,7 +159,7 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
   return nullptr;
 }
 
-Value *ASTAssignment::codegen(ParserContext *parser_context) {
+Value *ASTAssignment::codegen(CompilerSession *parser_context) {
   // Assignment requires the lhs to be an mutable variable.
   auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
   if (!lhs) {
@@ -186,7 +186,7 @@ Value *ASTAssignment::codegen(ParserContext *parser_context) {
 }
 
 /// \attention UNUSED
-Value *ASTArgDecl::codegen(ParserContext *parser_context) {
+Value *ASTArgDecl::codegen(CompilerSession *parser_context) {
   UNUSED(parser_context);
   assert(false);
 }

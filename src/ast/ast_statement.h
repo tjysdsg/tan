@@ -7,7 +7,7 @@ namespace tanlang {
 class ASTProgram final : public ASTNode {
  public:
   ASTProgram();
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
   void nud(Parser *parser) override;
 };
 

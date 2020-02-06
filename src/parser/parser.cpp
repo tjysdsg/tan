@@ -6,6 +6,11 @@
 
 namespace tanlang {
 
+Parser::Parser(std::vector<Token *> tokens)
+    : _tokens(std::move(tokens)), _curr_token(0) {
+  _parser_context = new CompilerSession("main");
+}
+
 std::shared_ptr<ASTNode> Parser::advance() {
   auto r = peek();
   ++_curr_token;
@@ -141,6 +146,10 @@ std::shared_ptr<ASTNode> Parser::parse() {
   _root = std::make_shared<ASTProgram>();
   _root->nud(this);
   return _root;
+}
+
+Token *Parser::get_curr_token() const {
+  return _tokens[_curr_token];
 }
 
 }

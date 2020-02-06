@@ -3,7 +3,7 @@
 
 namespace tanlang {
 
-Value *ASTIdentifier::codegen(ParserContext *parser_context) {
+Value *ASTIdentifier::codegen(CompilerSession *parser_context) {
   auto *v = parser_context->get(_name);
   if (!v) {
     return nullptr;

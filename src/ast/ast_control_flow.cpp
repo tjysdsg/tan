@@ -4,7 +4,7 @@
 
 namespace tanlang {
 
-Value *ASTIf::codegen(ParserContext *parser_context) {
+Value *ASTIf::codegen(CompilerSession *parser_context) {
   Value *condition = _children[0]->codegen(parser_context);
   if (!condition) {
     auto *condition_token = _children[0]->_token;

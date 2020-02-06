@@ -9,7 +9,7 @@ struct Token;
 class ASTFunction: public ASTNode {
  public:
   explicit ASTFunction(Token* token);
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
   void nud(Parser *parser) override;
 };
 }

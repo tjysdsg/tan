@@ -11,7 +11,7 @@ class ASTIdentifier final : public ASTNode {
   ASTIdentifier() = delete;
   explicit ASTIdentifier(std::string name, Token *token) : ASTNode(ASTType::ID, 0, 0, token), _name(std::move(name)) {}
   void nud(Parser *parser) override;
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
 
  public:
   std::string _name{};

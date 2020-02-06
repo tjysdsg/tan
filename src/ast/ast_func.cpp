@@ -7,7 +7,7 @@ namespace tanlang {
 
 ASTFunction::ASTFunction(Token *token) : ASTNode(ASTType::FUNC, 0, 0, token) {}
 
-static Type *type_from_string(const std::string &type_name, ParserContext *parser_context) {
+static Type *type_from_string(const std::string &type_name, CompilerSession *parser_context) {
   Type *t = nullptr;
   if (type_name == "int") {
     t = parser_context->_builder->getInt32Ty();
@@ -17,7 +17,7 @@ static Type *type_from_string(const std::string &type_name, ParserContext *parse
   return t;
 }
 
-Value *ASTFunction::codegen(ParserContext *parser_context) {
+Value *ASTFunction::codegen(CompilerSession *parser_context) {
   // make function prototype
   Type *float_type = parser_context->_builder->getFloatTy();
   // std::vector<Type *> arg_types(2, float_type);
@@ -34,7 +34,7 @@ Value *ASTFunction::codegen(ParserContext *parser_context) {
 
   // create function
   FunctionType *FT = FunctionType::get(float_type, arg_types, false);
-  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, *parser_context->_module);
+  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, parser_context->_module.get());
 
   // set argument names
   auto args = F->args().begin();

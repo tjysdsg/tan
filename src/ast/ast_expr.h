@@ -12,7 +12,7 @@ class ASTParenthesis final : public ASTNode {
                                                   op_precedence[ASTType::PARENTHESIS],
                                                   0, token) {};
   void nud(Parser *parser) override;
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
 };
 
 class ASTArgDecl final : public ASTNode {
@@ -20,7 +20,7 @@ class ASTArgDecl final : public ASTNode {
   ASTArgDecl() = delete;
   explicit ASTArgDecl(Token *token) : ASTNode(ASTType::ARG_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
 };
 
 class ASTVarDecl final : public ASTNode {
@@ -28,7 +28,7 @@ class ASTVarDecl final : public ASTNode {
   ASTVarDecl() = delete;
   explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
-  Value *codegen(ParserContext *parser_context) override;
+  Value *codegen(CompilerSession *parser_context) override;
 
  public:
   bool _has_initial_val = false;
