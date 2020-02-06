@@ -11,6 +11,10 @@ Parser::Parser(std::vector<Token *> tokens)
   _parser_context = new CompilerSession("main");
 }
 
+Parser::~Parser() {
+  delete _parser_context;
+}
+
 std::shared_ptr<ASTNode> Parser::advance() {
   auto r = peek();
   ++_curr_token;
@@ -150,6 +154,10 @@ std::shared_ptr<ASTNode> Parser::parse() {
 
 Token *Parser::get_curr_token() const {
   return _tokens[_curr_token];
+}
+
+Value *Parser::codegen() {
+  return _root->codegen(_parser_context);
 }
 
 }

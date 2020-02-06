@@ -11,17 +11,13 @@
 #include <stack>
 
 namespace tanlang {
-using llvm::Value;
-using llvm::LLVMContext;
-using llvm::IRBuilder;
-using llvm::BasicBlock;
-using llvm::Module;
 
 class ASTNode;
+
 class Parser {
  public:
   Parser() = delete;
-  ~Parser() = default;
+  ~Parser();
   explicit Parser(std::vector<Token *> tokens);
 
   std::shared_ptr<ASTNode> advance();
@@ -33,6 +29,7 @@ class Parser {
   std::shared_ptr<ASTNode> next_statement();
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
+  Value* codegen();
 
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};

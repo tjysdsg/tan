@@ -2,20 +2,45 @@
 
 namespace tanlang {
 
+void CompilerSession::initialize_scope() {
+  _scope = std::vector<std::shared_ptr<Scope >>();
+  _scope.push_back(std::make_shared<Scope>()); // outer-est scope
+}
+
 CompilerSession::CompilerSession() {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>("main", *_context);
-  _scope = std::vector<std::shared_ptr<Scope >>();
-  _scope.push_back(std::make_shared<Scope>()); // outer-est scope
+  initialize_scope();
 }
 
 CompilerSession::CompilerSession(const std::string &module_name) {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
-  _scope = std::vector<std::shared_ptr<Scope >>();
-  _scope.push_back(std::make_shared<Scope>()); // outer-est scope
+  initialize_scope();
+}
+
+CompilerSession::CompilerSession(std::unique_ptr<IRBuilder<>> builder,
+                                 std::unique_ptr<Module> module,
+                                 std::unique_ptr<ExecutionSession> execution_session,
+                                 std::unique_ptr<RTDyldObjectLinkingLayer> object_layer,
+                                 std::unique_ptr<IRCompileLayer> compile_layer,
+                                 std::unique_ptr<DataLayout> data_layout,
+                                 std::unique_ptr<MangleAndInterner> mangle,
+                                 std::unique_ptr<ThreadSafeContext> ctx) {
+  _context = nullptr;
+  _builder = std::move(builder);
+  _module = std::move(module);
+  // jit related
+  _is_jit_enabled = true;
+  _execution_session = std::move(execution_session);
+  _object_layer = std::move(object_layer);
+  _compile_layer = std::move(compile_layer);
+  _data_layout = std::move(data_layout);
+  _mangle = std::move(mangle);
+  _ctx = std::move(ctx);
+  initialize_scope();
 }
 
 std::shared_ptr<Scope> CompilerSession::get_current_scope() {
@@ -63,8 +88,11 @@ Value *CompilerSession::get(const std::string &name) {
   return result;
 }
 
-std::unique_ptr<LLVMContext> &CompilerSession::get_context() {
-  return _context;
+LLVMContext *CompilerSession::get_context() {
+  if (_is_jit_enabled) {
+    return _ctx->getContext();
+  }
+  return _context.get();
 }
 
 std::unique_ptr<IRBuilder<>> &CompilerSession::get_builder() {
@@ -74,4 +102,5 @@ std::unique_ptr<IRBuilder<>> &CompilerSession::get_builder() {
 std::unique_ptr<Module> &CompilerSession::get_module() {
   return _module;
 }
+
 } // namespace tanlang
