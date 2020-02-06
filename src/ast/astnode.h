@@ -82,9 +82,6 @@ class ASTNode {
 
   ASTNode(ASTType op, int lbp, int rbp, Token *token);
   virtual ~ASTNode() = default;
-  [[nodiscard]] virtual int get_ivalue() const;
-  [[nodiscard]] virtual float get_fvalue() const;
-  [[nodiscard]] virtual std::string get_svalue() const;
   virtual void led(const std::shared_ptr<ASTNode> &left, Parser *parser);
   virtual void nud(Parser *parser);
   void printTree() const;
@@ -115,8 +112,6 @@ class ASTNumberLiteral final : public ASTNode {
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
   void nud(Parser *parser) override;
   [[nodiscard]] bool is_float() const;
-  [[nodiscard]] int get_ivalue() const override;
-  [[nodiscard]] float get_fvalue() const override;
   Value *codegen(ParserContext *parser_context) override;
 
  private:
@@ -154,9 +149,6 @@ class ASTLogicalNot final : public ASTPrefix {
 class ASTStringLiteral final : public ASTNode {
  public:
   explicit ASTStringLiteral(std::string str, Token *token);
-  [[nodiscard]] std::string get_svalue() const override;
-  // Value *codegen(ParserContext *parser_context) override;
-
  private:
   std::string _svalue;
 };
@@ -164,13 +156,19 @@ class ASTStringLiteral final : public ASTNode {
 class ASTCompare final : public ASTInfixBinaryOp {
  public:
   ASTCompare() = delete;
-  explicit ASTCompare(ASTType type, Token *token);
+  ASTCompare(ASTType type, Token *token);
   Value *codegen(ParserContext *parser_context) override;
 };
 
 class ASTArithmetic final : public ASTInfixBinaryOp {
  public:
-  explicit ASTArithmetic(ASTType type, Token *token);
+  ASTArithmetic(ASTType type, Token *token);
+  Value *codegen(ParserContext *parser_context) override;
+};
+
+class ASTAssignment final : public ASTInfixBinaryOp {
+ public:
+  explicit ASTAssignment(Token *token);
   Value *codegen(ParserContext *parser_context) override;
 };
 

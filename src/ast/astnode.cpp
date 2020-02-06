@@ -95,6 +95,11 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
   _op = type;
   _lbp = op_precedence[type];
 }
+
+ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
+  _op = ASTType::ASSIGN;
+  _lbp = op_precedence[_op];
+}
 // ============================================================ //
 
 // ============================= parser =========================//
@@ -117,34 +122,8 @@ void ASTNode::nud(Parser *parser) {
 // ============================================================== //
 
 // ========================== getter/setter ==================== //
-int ASTNode::get_ivalue() const {
-  throw std::runtime_error("NOT IMPLEMENTED");
-}
-
-float ASTNode::get_fvalue() const {
-  throw std::runtime_error("NOT IMPLEMENTED");
-}
-
-std::string ASTNode::get_svalue() const {
-  throw std::runtime_error("NOT IMPLEMENTED");
-}
-
 bool ASTNumberLiteral::is_float() const {
   return _is_float;
-}
-
-int ASTNumberLiteral::get_ivalue() const {
-  assert(!_is_float);
-  return _ivalue;
-}
-
-float ASTNumberLiteral::get_fvalue() const {
-  assert(_is_float);
-  return _fvalue;
-}
-
-std::string ASTStringLiteral::get_svalue() const {
-  return _svalue;
 }
 // ============================================================= //
 

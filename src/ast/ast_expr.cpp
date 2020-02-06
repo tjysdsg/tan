@@ -20,13 +20,17 @@ Value *ASTVarDecl::codegen(ParserContext *parser_context) {
   Type *type = typename_to_llvm_type(type_name, parser_context);
   Value *var = create_block_alloca(parser_context->_builder->GetInsertBlock(), type, name);
 
-  // add to current scope
-  parser_context->add(name, var);
-
   // set initial value
   if (_has_initial_val) {
     parser_context->_builder->CreateStore(_children[2]->codegen(parser_context), var);
   }
+
+  // add to current scope
+  // NOTE: adding to scope AFTER setting the intial value allows initialization like:
+  //     var a = a;
+  //     where the latter `a` refers to outer a variable in the outer scope.
+  parser_context->add(name, var);
+
   return nullptr;
 }
 
@@ -153,6 +157,32 @@ Value *ASTArithmetic::codegen(ParserContext *parser_context) {
     return parser_context->_builder->CreateSub(lhs, rhs, "sub_tmp");
   }
   return nullptr;
+}
+
+Value *ASTAssignment::codegen(ParserContext *parser_context) {
+  // Assignment requires the lhs to be an identifier.
+  // This assume we're building without RTTI because LLVM builds that way by
+  // default. If you build LLVM with RTTI this can be changed to a
+  // dynamic_cast for automatic error checking.
+  auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
+  if (!lhs) {
+    report_code_error(lhs->_token->l, lhs->_token->c, "Left-hand operand of assignment must be a variable");
+  }
+  // codegen the rhs
+  auto rhs = _children[1];
+  Value *val = rhs->codegen(parser_context);
+  if (!val) {
+    report_code_error(rhs->_token->l, rhs->_token->c, "Invalid expression for right-hand operand of the assignment");
+  }
+
+  // look up the name.
+  Value *variable = parser_context->get(lhs->_name);
+  if (!variable) {
+    report_code_error(lhs->_token->l, lhs->_token->c, "Invalid variable name");
+  }
+
+  parser_context->_builder->CreateStore(val, variable);
+  return val;
 }
 
 /// \attention UNUSED

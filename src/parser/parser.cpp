@@ -46,6 +46,8 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTArithmetic>(ASTType::MULTIPLY, token);
   } else if (token->value == "/" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::DIVIDE, token);
+  } else if (token->value == "=" && token->type == TokenType::BOP) {
+    node = std::make_shared<ASTAssignment>(token);
   } else if (token->value == "!" && token->type == TokenType::UOP) {
     node = std::make_shared<ASTLogicalNot>(token);
   } else if (token->value == "~" && token->type == TokenType::UOP) {
