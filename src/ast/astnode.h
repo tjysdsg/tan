@@ -1,18 +1,12 @@
 #ifndef TAN_SRC_AST_ASTNODE_H_
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/IRBuilder.h>
-
-namespace llvm {
-class Value;
-}
+#include "src/llvm_include.h"
 
 namespace tanlang {
 struct Token;
 struct ParserContext;
 class Parser;
-using llvm::Value;
 
 enum PrecedenceLevel {
   PREC_LOWEST,
@@ -100,7 +94,7 @@ class ASTNode {
   void printTree(const std::string &prefix, bool last_child) const;
 };
 
-class ASTTypeName : public ASTNode {
+class ASTTypeName final : public ASTNode {
  public:
   ASTTypeName() = delete;
   explicit ASTTypeName(Token *token);

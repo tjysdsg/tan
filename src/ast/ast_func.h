@@ -1,10 +1,9 @@
 #ifndef TAN_SRC_AST_AST_FUNC_H_
 #define TAN_SRC_AST_AST_FUNC_H_
 #include "src/ast/astnode.h"
-#include <llvm/IR/Value.h>
+#include "src/llvm_include.h"
 
 namespace tanlang {
-using llvm::Value;
 struct Token;
 
 class ASTFunction: public ASTNode {

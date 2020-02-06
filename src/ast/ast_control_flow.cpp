@@ -1,16 +1,8 @@
 #include "src/ast/ast_control_flow.h"
 #include "parser.h"
 #include "token.h"
-#include <llvm/IR/Function.h>
 
 namespace tanlang {
-using llvm::ConstantFP;
-using llvm::ConstantInt;
-using llvm::APFloat;
-using llvm::APInt;
-using llvm::Function;
-using llvm::Type;
-using llvm::PHINode;
 
 Value *ASTIf::codegen(ParserContext *parser_context) {
   Value *condition = _children[0]->codegen(parser_context);

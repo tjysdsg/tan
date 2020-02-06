@@ -5,7 +5,7 @@
 namespace tanlang {
 struct Token;
 
-class ASTParenthesis : public ASTNode {
+class ASTParenthesis final : public ASTNode {
  public:
   ASTParenthesis() = delete;
   explicit ASTParenthesis(Token *token) : ASTNode(ASTType::PARENTHESIS,
@@ -15,21 +15,23 @@ class ASTParenthesis : public ASTNode {
   Value *codegen(ParserContext *parser_context) override;
 };
 
-class ASTArgDecl : public ASTNode {
+class ASTArgDecl final : public ASTNode {
  public:
+  ASTArgDecl() = delete;
   explicit ASTArgDecl(Token *token) : ASTNode(ASTType::ARG_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
 };
 
-class ASTVarDecl : public ASTNode {
+class ASTVarDecl final : public ASTNode {
  public:
+  ASTVarDecl() = delete;
   explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
   Value *codegen(ParserContext *parser_context) override;
 
  public:
-  bool _has_initial_val;
+  bool _has_initial_val = false;
 };
 
 }

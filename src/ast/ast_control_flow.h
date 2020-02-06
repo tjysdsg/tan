@@ -7,7 +7,7 @@ namespace tanlang {
 class Parser;
 struct ParserContext;
 
-class ASTIf : public ASTNode {
+class ASTIf final : public ASTNode {
  public:
   ASTIf() = delete;
   explicit ASTIf(Token *token) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token) {}
@@ -18,7 +18,7 @@ class ASTIf : public ASTNode {
   bool _has_else = false;
 };
 
-class ASTElse : public ASTNode {
+class ASTElse final : public ASTNode {
  public:
   ASTElse() = delete;
   explicit ASTElse(Token *token) : ASTNode(ASTType::ELSE, op_precedence[ASTType::ELSE], 0, token) {}

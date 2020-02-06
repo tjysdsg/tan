@@ -5,6 +5,7 @@
 #include "token.h"
 
 namespace tanlang {
+
 class ASTIdentifier final : public ASTNode {
  public:
   ASTIdentifier() = delete;

@@ -1,23 +1,9 @@
 #include "src/ast/astnode.h"
 #include "src/ast/common.h"
 #include "parser.h"
-#include <llvm/ADT/APFloat.h>
-#include <llvm/IR/Function.h>
-#include <llvm/ADT/APInt.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/Instruction.h>
+#include "src/llvm_include.h"
 
 namespace tanlang {
-using llvm::ConstantFP;
-using llvm::ConstantInt;
-using llvm::APFloat;
-using llvm::APInt;
-using llvm::Type;
-using llvm::IRBuilder;
-using llvm::AllocaInst;
-using llvm::Function;
-using llvm::FunctionType;
-using llvm::BasicBlock;
 
 // ================= helper functions ================//
 void ASTNode::report_error() {
