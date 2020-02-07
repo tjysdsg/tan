@@ -26,6 +26,15 @@ int main() {
     throw std::runtime_error("JIT evaluation failed");
   }
 
+  auto main_func_symbol = jit.lookup("main");
+  if (main_func_symbol.takeError()) {
+    throw std::runtime_error("JIT symbol lookup failed");
+  }
+
+  auto *fp = (float (*)()) (intptr_t) main_func_symbol.get().getAddress();
+  assert(fp && "Failed to codegen function");
+  fprintf(stderr, "Evaluated to %f\n", fp());
+
   // tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p._parser_context->_module.release()));
   // compiler.emit_object("output.o");
 
