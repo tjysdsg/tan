@@ -1,10 +1,13 @@
 #include "compiler_session.h"
 
+#include <utility>
+
 namespace tanlang {
 
 void CompilerSession::initialize_scope() {
-  _scope = std::vector<std::shared_ptr<Scope >>();
+  _scope = std::vector<std::shared_ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
+  _scope.back()->_code_block = _builder->GetInsertBlock();
 }
 
 CompilerSession::CompilerSession() {
@@ -101,6 +104,14 @@ std::unique_ptr<IRBuilder<>> &CompilerSession::get_builder() {
 
 std::unique_ptr<Module> &CompilerSession::get_module() {
   return _module;
+}
+
+void CompilerSession::set_code_block(BasicBlock* block) {
+  _scope.back()->_code_block = block;
+}
+
+BasicBlock* CompilerSession::get_code_block() const {
+  return _scope.back()->_code_block;
 }
 
 } // namespace tanlang

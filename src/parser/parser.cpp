@@ -15,19 +15,19 @@ Parser::~Parser() {
   delete _parser_context;
 }
 
-std::shared_ptr<ASTNode> Parser::advance() {
-  auto r = peek();
+std::shared_ptr<ASTNode> Parser::advance(bool strict) {
+  auto r = peek(strict);
   ++_curr_token;
   return r;
 }
 
-std::shared_ptr<ASTNode> Parser::advance(TokenType type, const std::string &value) {
-  auto r = peek(type, value);
+std::shared_ptr<ASTNode> Parser::advance(TokenType type, const std::string &value, bool strict) {
+  auto r = peek(type, value, strict);
   ++_curr_token;
   return r;
 }
 
-std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) {
+std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value, bool strict) {
   if (_curr_token >= _tokens.size()) {
     throw std::runtime_error("Unexpected EOF"); // improve error
   }
@@ -38,10 +38,10 @@ std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) 
                       "Expect token " + value + " with type " + token_type_names[type] + ", but got "
                           + token->to_string() + " instead");
   }
-  return peek();
+  return peek(strict);
 }
 
-std::shared_ptr<ASTNode> Parser::peek() {
+std::shared_ptr<ASTNode> Parser::peek(bool strict) {
   if (_curr_token >= _tokens.size()) return nullptr;
   Token *token = _tokens[_curr_token];
   std::shared_ptr<ASTNode> node;
@@ -76,7 +76,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token->value, token);
   } else if (token->type == TokenType::ID) {
-    node = std::make_shared<ASTIdentifier>(token->value, token);
+    node = std::make_shared<ASTIdentifier>(token->value, token, strict);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "var") {
@@ -102,7 +102,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
 }
 
 std::shared_ptr<ASTNode> Parser::next_node() {
-  std::shared_ptr<ASTNode> node = advance();
+  std::shared_ptr<ASTNode> node = advance(true);
   node->nud(this);
   return node;
 }
@@ -137,7 +137,7 @@ std::shared_ptr<ASTNode> Parser::next_expression(int rbp) {
  *          remember to increment _curr_token after successfully finishing a next_statement() call!
  * */
 std::shared_ptr<ASTNode> Parser::next_statement() {
-  auto statement = std::make_shared<ASTStatement>(nullptr);
+  auto statement = std::make_shared<ASTStatement>(get_curr_token());
   auto node = peek();
   while (node) {
     statement->_children.push_back(next_expression(0));

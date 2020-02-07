@@ -6,18 +6,21 @@
 #include "src/llvm_include.h"
 using tanlang::Reader;
 using tanlang::Parser;
+using tanlang::JIT;
 
 int main() {
   std::string code =
-      "fn main(weight: float, age: int) : float { var val : int = 100; val = 20.50; return val * weight/age; } \n";
+      "fn work(hours: int, salary: float) : float { return hours * salary; } \n"
+      "fn main() : float { return work(2, 2.1); } \n";
   Reader r;
   r.from_string(code);
   auto tokens = tokenize(&r);
 
-  tanlang::JIT jit(tokens);
+  JIT jit(tokens);
   jit.parse();
   jit._root->printTree();
   jit.codegen();
+  jit._parser_context->get_module()->print(llvm::errs(), nullptr);
   auto e = jit.evaluate();
   if (e) {
     throw std::runtime_error("JIT evaluation failed");

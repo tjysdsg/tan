@@ -5,9 +5,12 @@
 #include "src/ast/astnode.h"
 
 namespace tanlang {
+
 struct Scope {
-  std::unordered_map<std::string, Value*> _named;
+  std::unordered_map<std::string, Value *> _named;
+  BasicBlock* _code_block = nullptr;
 };
+
 }
 
 #endif //TAN_SRC_AST_SCOPE_H_

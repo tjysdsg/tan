@@ -27,7 +27,7 @@ enum PrecedenceLevel {
 
 enum class ASTType {
   PROGRAM,
-  FUNC,
+  FUNC_CALL,
   ARG_DECL,
   VAR_DECL,
 

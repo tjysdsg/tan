@@ -20,16 +20,16 @@ class Parser {
   ~Parser();
   explicit Parser(std::vector<Token *> tokens);
 
-  std::shared_ptr<ASTNode> advance();
-  std::shared_ptr<ASTNode> advance(TokenType type, const std::string &value);
-  std::shared_ptr<ASTNode> peek();
-  std::shared_ptr<ASTNode> peek(TokenType type, const std::string &value);
+  std::shared_ptr<ASTNode> advance(bool strict = false);
+  std::shared_ptr<ASTNode> advance(TokenType type, const std::string &value, bool strict = false);
+  std::shared_ptr<ASTNode> peek(bool strict = false);
+  std::shared_ptr<ASTNode> peek(TokenType type, const std::string &value, bool strict = false);
   std::shared_ptr<ASTNode> next_expression(int rbp = 0);
   std::shared_ptr<ASTNode> next_node();
   std::shared_ptr<ASTNode> next_statement();
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
-  Value* codegen();
+  Value *codegen();
 
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};

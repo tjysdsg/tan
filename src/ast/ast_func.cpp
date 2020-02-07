@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-ASTFunction::ASTFunction(Token *token) : ASTNode(ASTType::FUNC, 0, 0, token) {}
+ASTFunction::ASTFunction(Token *token) : ASTNode(ASTType::FUNC_CALL, 0, 0, token) {}
 
 static Type *type_from_string(const std::string &type_name, CompilerSession *parser_context) {
   Type *t = nullptr;
@@ -18,6 +18,8 @@ static Type *type_from_string(const std::string &type_name, CompilerSession *par
 }
 
 Value *ASTFunction::codegen(CompilerSession *parser_context) {
+  // new scope
+  parser_context->push_scope();
   // make function prototype
   Type *float_type = parser_context->get_builder()->getFloatTy();
   // std::vector<Type *> arg_types(2, float_type);
@@ -45,10 +47,10 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
 
   // function implementation
   // create a new basic block to start insertion into
-  BasicBlock *main_block = BasicBlock::Create(*parser_context->get_context(), "entry", F);
+  BasicBlock *main_block = BasicBlock::Create(*parser_context->get_context(), "func_entry", F);
   parser_context->get_builder()->SetInsertPoint(main_block);
+  parser_context->set_code_block(main_block); // set current scope's code block
 
-  parser_context->push_scope(); // new scope
   // add all function arguments to scope
   for (auto &Arg : F->args()) {
     parser_context->add(Arg.getName(), &Arg);
@@ -59,6 +61,7 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
   // validate the generated code, checking for consistency
   verifyFunction(*F);
   parser_context->pop_scope(); // pop scope
+  parser_context->get_builder()->SetInsertPoint(parser_context->get_code_block()); // restore parent code block
   return nullptr;
 }
 
