@@ -1,0 +1,6 @@
+fn print_args(argc: int, argv: u8**) : void;
+
+fn main(argc: int, argv: u8**) : float {
+    print_args(argc, argv);
+    return 0;
+}

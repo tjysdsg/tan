@@ -1,5 +1,5 @@
 build/
-*build*
+cmake-build*/
 .idea/
 bin/
 # made by ctest
