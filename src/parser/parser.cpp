@@ -102,12 +102,6 @@ std::shared_ptr<ASTNode> Parser::peek() {
   return node;
 }
 
-std::shared_ptr<ASTNode> Parser::next_node() {
-  std::shared_ptr<ASTNode> node = advance();
-  node->nud(this);
-  return node;
-}
-
 std::shared_ptr<ASTNode> Parser::next_expression(int rbp) {
   std::shared_ptr<ASTNode> node = advance();
   if (!node) {
@@ -185,6 +179,15 @@ template<>
 std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
   auto *token = get_curr_token();
   std::shared_ptr<ASTNode> node = std::make_shared<ASTFunctionCall>(token->value, token);
+  ++_curr_token;
+  TRY_NUD(node, strict);
+  return node;
+}
+
+template<>
+std::shared_ptr<ASTNode> Parser::parse<ASTType::TYPENAME>(bool strict) {
+  auto *token = get_curr_token();
+  std::shared_ptr<ASTNode> node = std::make_shared<ASTTypeName>(token);
   ++_curr_token;
   TRY_NUD(node, strict);
   return node;

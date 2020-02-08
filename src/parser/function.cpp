@@ -6,7 +6,7 @@ namespace tanlang {
 
 void ASTFunction::nud(Parser *parser) {
   _children.push_back(std::make_shared<ASTNode>()); // function return type, set later
-  _children.push_back(parser->next_node()); // function name
+  _children.push_back(parser->parse<ASTType::ID>(true)); // function name
   parser->advance(TokenType::PUNCTUATION, "(");
   // if the argument list isn't empty
   if (parser->get_curr_token()->type != TokenType::PUNCTUATION || parser->get_curr_token()->value != ")") {
@@ -22,8 +22,7 @@ void ASTFunction::nud(Parser *parser) {
   }
   parser->advance(TokenType::PUNCTUATION, ")");
   parser->advance(TokenType::PUNCTUATION, ":");
-  // figure out function return type
-  _children[0] = parser->next_node();
+  _children[0] = parser->parse<ASTType::TYPENAME>(true); // return type
 
   // function code
   std::shared_ptr<ASTNode> code = std::make_shared<ASTStatement>(parser->get_curr_token());

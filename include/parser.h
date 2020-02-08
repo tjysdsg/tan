@@ -25,7 +25,6 @@ class Parser {
   std::shared_ptr<ASTNode> peek();
   std::shared_ptr<ASTNode> peek(TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(int rbp = 0);
-  std::shared_ptr<ASTNode> next_node();
   std::shared_ptr<ASTNode> next_statement();
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
@@ -37,7 +36,7 @@ class Parser {
 
  public:
   template<ASTType first_type, ASTType... types>
-  std::shared_ptr<ASTNode> parse(bool strict = true) {
+  std::shared_ptr<ASTNode> parse(bool strict) {
     // NOTE: strict is not used here, but used in specialized template functions defined in parser.cpp
     size_t token_index = _curr_token;
     std::shared_ptr<ASTNode> node;
@@ -47,7 +46,7 @@ class Parser {
       if constexpr (sizeof...(types) > 0) return parse<types...>(false);
       else { // no fallback
         if (strict) {
-          throw std::runtime_error("Cannot parse any of" + (... + types));
+          throw std::runtime_error("All parsing failed");
         }
         return nullptr;
       }
