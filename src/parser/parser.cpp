@@ -15,33 +15,32 @@ Parser::~Parser() {
   delete _parser_context;
 }
 
-std::shared_ptr<ASTNode> Parser::advance(bool strict) {
-  auto r = peek(strict);
+std::shared_ptr<ASTNode> Parser::advance() {
+  auto r = peek();
   ++_curr_token;
   return r;
 }
 
-std::shared_ptr<ASTNode> Parser::advance(TokenType type, const std::string &value, bool strict) {
-  auto r = peek(type, value, strict);
+std::shared_ptr<ASTNode> Parser::advance(TokenType type, const std::string &value) {
+  auto r = peek(type, value);
   ++_curr_token;
   return r;
 }
 
-std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value, bool strict) {
+std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) {
   if (_curr_token >= _tokens.size()) {
     throw std::runtime_error("Unexpected EOF"); // improve error
   }
   Token *token = _tokens[_curr_token];
   if (token->type != type || token->value != value) {
-    report_code_error(token->l,
-                      token->c,
+    report_code_error(token->l, token->c,
                       "Expect token " + value + " with type " + token_type_names[type] + ", but got "
                           + token->to_string() + " instead");
   }
-  return peek(strict);
+  return peek();
 }
 
-std::shared_ptr<ASTNode> Parser::peek(bool strict) {
+std::shared_ptr<ASTNode> Parser::peek() {
   if (_curr_token >= _tokens.size()) return nullptr;
   Token *token = _tokens[_curr_token];
   std::shared_ptr<ASTNode> node;
@@ -76,7 +75,9 @@ std::shared_ptr<ASTNode> Parser::peek(bool strict) {
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token->value, token);
   } else if (token->type == TokenType::ID) {
-    node = std::make_shared<ASTIdentifier>(token->value, token, strict);
+    size_t token_index = _curr_token;
+    node = parse<ASTType::FUNC_CALL, ASTType::ID>(false);
+    _curr_token = token_index;
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "var") {
@@ -102,7 +103,7 @@ std::shared_ptr<ASTNode> Parser::peek(bool strict) {
 }
 
 std::shared_ptr<ASTNode> Parser::next_node() {
-  std::shared_ptr<ASTNode> node = advance(true);
+  std::shared_ptr<ASTNode> node = advance();
   node->nud(this);
   return node;
 }
@@ -160,4 +161,33 @@ Value *Parser::codegen() {
   return _root->codegen(_parser_context);
 }
 
+#define TRY_NUD(node, strict)                                                  \
+  do {                                                                         \
+    try {                                                                      \
+      node->nud(this);                                                         \
+    } catch (const std::runtime_error &e) {                                    \
+      if (strict)                                                              \
+        throw e;                                                               \
+      return nullptr;                                                          \
+    }                                                                          \
+  } while (false)
+
+template<>
+std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(bool strict) {
+  auto *token = get_curr_token();
+  std::shared_ptr<ASTNode> node = std::make_shared<ASTIdentifier>(token->value, token);
+  ++_curr_token;
+  TRY_NUD(node, strict);
+  return node;
 }
+
+template<>
+std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
+  auto *token = get_curr_token();
+  std::shared_ptr<ASTNode> node = std::make_shared<ASTFunctionCall>(token->value, token);
+  ++_curr_token;
+  TRY_NUD(node, strict);
+  return node;
+}
+
+} // namespace tanlang

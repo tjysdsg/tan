@@ -1,6 +1,6 @@
+#include "parser.h"
 #include "src/ast/ast_expr.h"
 #include "token.h"
-#include "parser.h"
 
 namespace tanlang {
 
@@ -22,7 +22,8 @@ void ASTParenthesis::nud(Parser *parser) {
   }
 }
 
-void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left,
+                           Parser *parser) {
   _children.emplace_back(left);
   auto n = parser->next_expression(_lbp);
   if (!n) {
@@ -39,24 +40,11 @@ void ASTPrefix::nud(Parser *parser) {
 /**
  * This is defined merely to overwrite ASTNode::nud() because the latter throws
  * */
-void ASTNumberLiteral::nud(Parser *parser) {
-  UNUSED(parser);
-}
+void ASTNumberLiteral::nud(Parser *parser) { UNUSED(parser); }
 
-void ASTIdentifier::nud(Parser *parser) {
-  auto *token = parser->get_curr_token();
-  if (!_strict && token->type == TokenType::PUNCTUATION && token->value == "(") { // function call
-    _op = ASTType::FUNC_CALL;
-    ++parser->_curr_token;
-    size_t token_size = parser->_tokens.size();
-    while (parser->_curr_token < token_size) {
-      _children.push_back(parser->next_expression());
-      if (parser->get_curr_token()->type == TokenType::PUNCTUATION && parser->get_curr_token()->value == ",") {
-        ++parser->_curr_token;
-      } else { break; }
-    }
-    parser->advance(TokenType::PUNCTUATION, ")");
-  }
-}
+/**
+ * This is defined merely to overwrite ASTNode::nud() because the latter throws
+ * */
+void ASTIdentifier::nud(Parser *parser) { UNUSED(parser); }
 
-}
+} // namespace tanlang

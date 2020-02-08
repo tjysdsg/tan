@@ -31,4 +31,26 @@ void ASTFunction::nud(Parser *parser) {
   _children.push_back(code);
 }
 
+void ASTFunctionCall::nud(Parser *parser) {
+  if (_parsed) {
+    parser->_curr_token = _parsed_index;
+    return;
+  }
+  auto *token = parser->get_curr_token();
+  if (token->type != TokenType::PUNCTUATION || token->value != "(") { // function call
+    report_code_error(token->l, token->c, "Invalid function call");
+  }
+  ++parser->_curr_token;
+  size_t token_size = parser->_tokens.size();
+  while (parser->_curr_token < token_size) {
+    _children.push_back(parser->next_expression());
+    if (parser->get_curr_token()->type == TokenType::PUNCTUATION && parser->get_curr_token()->value == ",") {
+      ++parser->_curr_token;
+    } else { break; }
+  }
+  parser->advance(TokenType::PUNCTUATION, ")");
+  _parsed = true;
+  _parsed_index = parser->_curr_token;
 }
+
+} // namespace tanlang

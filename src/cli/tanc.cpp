@@ -6,6 +6,7 @@
 #include "src/llvm_include.h"
 using tanlang::Reader;
 using tanlang::Parser;
+using tanlang::Token;
 using tanlang::JIT;
 
 int main() {

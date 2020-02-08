@@ -27,6 +27,7 @@ enum PrecedenceLevel {
 
 enum class ASTType {
   PROGRAM,
+  FUNC_DECL,
   FUNC_CALL,
   ARG_DECL,
   VAR_DECL,
@@ -89,6 +90,9 @@ class ASTNode {
   [[noreturn]]void report_error();
  private:
   void printTree(const std::string &prefix, bool last_child) const;
+ protected:
+  bool _parsed = false;
+  size_t _parsed_index = 0;
 };
 
 class ASTTypeName final : public ASTNode {
