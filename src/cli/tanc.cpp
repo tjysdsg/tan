@@ -7,7 +7,6 @@
 using tanlang::Reader;
 using tanlang::Parser;
 using tanlang::Token;
-using tanlang::JIT;
 
 int main() {
   std::string code =
@@ -17,27 +16,13 @@ int main() {
   r.from_string(code);
   auto tokens = tokenize(&r);
 
-  JIT jit(tokens);
-  jit.parse();
-  jit._root->printTree();
-  jit.codegen();
-  jit.get_compiler_session()->get_module()->print(llvm::errs(), nullptr);
-  auto e = jit.evaluate();
-  if (e) {
-    throw std::runtime_error("JIT evaluation failed");
-  }
+  Parser p(tokens);
+  p.parse();
+  p._root->printTree();
+  p.codegen();
 
-  auto main_func_symbol = jit.lookup("main");
-  if (main_func_symbol.takeError()) {
-    throw std::runtime_error("JIT symbol lookup failed");
-  }
-
-  auto *fp = (float (*)()) (intptr_t) main_func_symbol.get().getAddress();
-  assert(fp && "Failed to codegen function");
-  fprintf(stderr, "Evaluated to %f\n", fp());
-
-  // tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p._compiler_session->_module.release()));
-  // compiler.emit_object("output.o");
+  tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p.get_compiler_session()->get_module().release()));
+  compiler.emit_object("output.o");
 
   for (auto *&t : tokens) {
     delete t;
