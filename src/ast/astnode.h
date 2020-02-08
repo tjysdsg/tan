@@ -33,35 +33,36 @@ enum class ASTType {
   VAR_DECL,
 
   STATEMENT, // statement or compound statements
-  SUM,
-  SUBTRACT,
-  MULTIPLY,
-  DIVIDE,
-  MOD,
-  ASSIGN,
-  BAND, // binary and
-  LAND, // logical and
-  BOR,  // binary or
-  LOR,  // logical or
-  BNOT, // binary not
-  LNOT, // logical not
-  GT, // >
-  GE, // >=
-  LT, // <
-  LE, // <=
-  XOR,
+  SUM,       // +
+  SUBTRACT,  // -
+  MULTIPLY,  // *
+  DIVIDE,    // /
+  MOD,       // %
+  ASSIGN,    // =
+  BAND,      // binary and
+  LAND,      // logical and
+  BOR,       // binary or
+  LOR,       // logical or
+  BNOT,      // binary not
+  LNOT,      // logical not
+  GT,        // >
+  GE,        // >=
+  LT,        // <
+  LE,        // <=
+  XOR,       // ^
 
   ID, // identifiers
-  TYPENAME,
 
+  /// types in tan
+  TY, // type name
   PARENTHESIS, // ( )
 
-  RET,
-  IF,
-  ELSE,
+  RET,  // return
+  IF,   // if
+  ELSE, // else
 
-  NUM_LITERAL,
-  STRING_LITERAL,
+  NUM_LITERAL,    // int or float literal
+  STRING_LITERAL, // "xxx"
   INVALID,
 };
 
@@ -71,7 +72,7 @@ extern std::unordered_map<ASTType, int> op_precedence;
 
 class ASTNode {
  public:
-  ASTType _op = ASTType::INVALID;
+  ASTType _type = ASTType::INVALID;
   std::vector<std::shared_ptr<ASTNode>> _children{};
   int _lbp = 0;
   int _rbp = 0;
@@ -87,22 +88,14 @@ class ASTNode {
   virtual void nud(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
-  [[noreturn]]void report_error();
+  [[noreturn]] void report_error();
+
  private:
   void printTree(const std::string &prefix, bool last_child) const;
+
  protected:
   bool _parsed = false;
   size_t _parsed_index = 0;
-};
-
-class ASTTypeName final : public ASTNode {
- public:
-  ASTTypeName() = delete;
-  explicit ASTTypeName(Token *token);
-  void nud(Parser *parser) override;
-
- public:
-  std::string _name;
 };
 
 class ASTInfixBinaryOp : public ASTNode {
@@ -153,6 +146,7 @@ class ASTLogicalNot final : public ASTPrefix {
 class ASTStringLiteral final : public ASTNode {
  public:
   explicit ASTStringLiteral(std::string str, Token *token);
+
  private:
   std::string _svalue;
 };
@@ -176,6 +170,6 @@ class ASTAssignment final : public ASTInfixBinaryOp {
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-}
+} // namespace tanlang
 
 #endif /* TAN_SRC_AST_ASTNODE_H_ */

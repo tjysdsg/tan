@@ -25,7 +25,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   std::vector<Type *> arg_types;
   // set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
-    std::shared_ptr<ASTTypeName> type_name = std::reinterpret_pointer_cast<ASTTypeName>(_children[i]->_children[1]);
+    std::shared_ptr<ASTTy> type_name = std::reinterpret_pointer_cast<ASTTy>(_children[i]->_children[1]);
     arg_types.push_back(type_from_string(type_name->_name, compiler_session));
   }
 

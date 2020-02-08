@@ -12,7 +12,7 @@ void ASTNode::report_error() {
 
 void ASTNode::printTree() const {
   using std::cout;
-  cout << ast_type_names[this->_op] << "\n";
+  cout << ast_type_names[this->_type] << "\n";
   size_t n_children = _children.size();
   for (size_t i = 0; i < n_children; ++i) {
     _children[i]->printTree("", i >= n_children - 1);
@@ -21,9 +21,8 @@ void ASTNode::printTree() const {
 
 void ASTNode::printTree(const std::string &prefix, bool last_child) const {
   using std::cout;
-  using std::endl;
 
-  cout << prefix << (last_child ? "└── " : "├── ") << ast_type_names[this->_op] << "\n";
+  cout << prefix << (last_child ? "└── " : "├── ") << ast_type_names[this->_type] << "\n";
   if (_children.empty()) return;
   size_t n_children = _children.size();
 
@@ -35,26 +34,23 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
 // ====================================================//
 
 // =================== cdtors =========================//
-ASTTypeName::ASTTypeName(Token *token) : ASTNode(ASTType::TYPENAME, 0, 0, token),
-                                         _name(token->value) {}
-
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   if (!is_ast_type_in(type,
                       {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT,
                        ASTType::LOR})) {
     report_code_error(token->l, token->c, "Invalid ASTType for comparisons " + token->to_string());
   }
-  _op = type;
+  _type = type;
   _lbp = op_precedence[type];
 }
 
 ASTReturn::ASTReturn(Token *token) : ASTPrefix(token) {
-  _op = ASTType::RET;
-  _lbp = op_precedence[_op];
+  _type = ASTType::RET;
+  _lbp = op_precedence[_type];
 }
 
 ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token)
-    : _op(op), _lbp(lbp), _rbp(rbp), _token(token) {}
+    : _type(op), _lbp(lbp), _rbp(rbp), _token(token) {}
 
 ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token) : ASTNode(ASTType::INVALID,
                                                            op_precedence[ASTType::INVALID],
@@ -79,26 +75,26 @@ ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTT
                                                                             0, token), _svalue(std::move(str)) {}
 
 ASTLogicalNot::ASTLogicalNot(Token *token) : ASTPrefix(token) {
-  _op = ASTType::LNOT;
-  _lbp = op_precedence[_op];
+  _type = ASTType::LNOT;
+  _lbp = op_precedence[_type];
 }
 
 ASTBinaryNot::ASTBinaryNot(Token *token) : ASTPrefix(token) {
-  _op = ASTType::BNOT;
-  _lbp = op_precedence[_op];
+  _type = ASTType::BNOT;
+  _lbp = op_precedence[_type];
 }
 
 ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   if (!is_ast_type_in(type, {ASTType::SUM, ASTType::SUBTRACT, ASTType::MULTIPLY, ASTType::DIVIDE, ASTType::MOD})) {
     report_code_error(token->l, token->c, "Invalid ASTType for comparisons " + token->to_string());
   }
-  _op = type;
+  _type = type;
   _lbp = op_precedence[type];
 }
 
 ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
-  _op = ASTType::ASSIGN;
-  _lbp = op_precedence[_op];
+  _type = ASTType::ASSIGN;
+  _lbp = op_precedence[_type];
 }
 // ============================================================ //
 
@@ -174,7 +170,7 @@ std::unordered_map<ASTType, std::string> ast_type_names{
     MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL),
     MAKE_ASTTYPE_NAME_PAIR(ARG_DECL),
     MAKE_ASTTYPE_NAME_PAIR(VAR_DECL),
-    MAKE_ASTTYPE_NAME_PAIR(TYPENAME),
+    MAKE_ASTTYPE_NAME_PAIR(TY),
 };
 
 #undef MAKE_ASTTYPE_NAME_PAIR

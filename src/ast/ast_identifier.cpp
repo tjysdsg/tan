@@ -1,5 +1,5 @@
-#include <include/parser.h>
 #include "src/ast/ast_identifier.h"
+#include <include/parser.h>
 
 namespace tanlang {
 
@@ -11,4 +11,4 @@ Value *ASTIdentifier::codegen(CompilerSession *compiler_session) {
   return v;
 }
 
-}
+} // namespace tanlang

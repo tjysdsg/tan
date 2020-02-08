@@ -22,7 +22,7 @@ void ASTFunction::nud(Parser *parser) {
   }
   parser->advance(TokenType::PUNCTUATION, ")");
   parser->advance(TokenType::PUNCTUATION, ":");
-  _children[0] = parser->parse<ASTType::TYPENAME>(true); // return type
+  _children[0] = parser->parse<ASTType::TY>(true); // return type
 
   // get function body if exists, otherwise it's a external function
   auto *token = parser->get_curr_token();

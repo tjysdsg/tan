@@ -91,7 +91,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
   } else if (check_typename_token(token)) { // types
-    node = std::make_shared<ASTTypeName>(token);
+    node = std::make_shared<ASTTy>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);
   } else if (check_terminal_token(token)) {
@@ -185,9 +185,9 @@ std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
 }
 
 template<>
-std::shared_ptr<ASTNode> Parser::parse<ASTType::TYPENAME>(bool strict) {
+std::shared_ptr<ASTNode> Parser::parse<ASTType::TY>(bool strict) {
   auto *token = get_curr_token();
-  std::shared_ptr<ASTNode> node = std::make_shared<ASTTypeName>(token);
+  std::shared_ptr<ASTNode> node = std::make_shared<ASTTy>(token);
   ++_curr_token;
   TRY_NUD(node, strict);
   return node;

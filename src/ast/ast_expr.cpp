@@ -16,7 +16,7 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
   std::string name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0])->_name;
-  std::string type_name = std::reinterpret_pointer_cast<ASTTypeName>(_children[1])->_name;
+  std::string type_name = std::reinterpret_pointer_cast<ASTTy>(_children[1])->_name;
   Type *type = typename_to_llvm_type(type_name, compiler_session);
   Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
 
@@ -88,23 +88,23 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
       rhs = compiler_session->get_builder()->CreateSIToFP(rhs, float_type);
     }
 
-    if (_op == ASTType::GT) {
+    if (_type == ASTType::GT) {
       return compiler_session->get_builder()->CreateFCmpOGT(lhs, rhs);
-    } else if (_op == ASTType::GE) {
+    } else if (_type == ASTType::GE) {
       return compiler_session->get_builder()->CreateFCmpOGE(lhs, rhs);
-    } else if (_op == ASTType::LT) {
+    } else if (_type == ASTType::LT) {
       return compiler_session->get_builder()->CreateFCmpOLT(lhs, rhs);
-    } else if (_op == ASTType::LE) {
+    } else if (_type == ASTType::LE) {
       return compiler_session->get_builder()->CreateFCmpOLE(lhs, rhs);
     }
   }
-  if (_op == ASTType::GT) {
+  if (_type == ASTType::GT) {
     return compiler_session->get_builder()->CreateICmpUGT(lhs, rhs);
-  } else if (_op == ASTType::GE) {
+  } else if (_type == ASTType::GE) {
     return compiler_session->get_builder()->CreateICmpUGE(lhs, rhs);
-  } else if (_op == ASTType::LT) {
+  } else if (_type == ASTType::LT) {
     return compiler_session->get_builder()->CreateICmpULT(lhs, rhs);
-  } else if (_op == ASTType::LE) {
+  } else if (_type == ASTType::LE) {
     return compiler_session->get_builder()->CreateICmpULE(lhs, rhs);
   }
   return nullptr;
@@ -135,25 +135,25 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
       rhs = compiler_session->get_builder()->CreateSIToFP(rhs, float_type);
     }
     // float arithmetic
-    if (_op == ASTType::MULTIPLY) {
+    if (_type == ASTType::MULTIPLY) {
       return compiler_session->get_builder()->CreateFMul(lhs, rhs);
-    } else if (_op == ASTType::DIVIDE) {
+    } else if (_type == ASTType::DIVIDE) {
       return compiler_session->get_builder()->CreateFDiv(lhs, rhs);
-    } else if (_op == ASTType::SUM) {
+    } else if (_type == ASTType::SUM) {
       return compiler_session->get_builder()->CreateFAdd(lhs, rhs);
-    } else if (_op == ASTType::SUBTRACT) {
+    } else if (_type == ASTType::SUBTRACT) {
       return compiler_session->get_builder()->CreateFSub(lhs, rhs);
     }
   }
 
   // integer arithmetic
-  if (_op == ASTType::MULTIPLY) {
+  if (_type == ASTType::MULTIPLY) {
     return compiler_session->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
-  } else if (_op == ASTType::DIVIDE) {
+  } else if (_type == ASTType::DIVIDE) {
     return compiler_session->get_builder()->CreateUDiv(lhs, rhs, "div_tmp");
-  } else if (_op == ASTType::SUM) {
+  } else if (_type == ASTType::SUM) {
     return compiler_session->get_builder()->CreateAdd(lhs, rhs, "sum_tmp");
-  } else if (_op == ASTType::SUBTRACT) {
+  } else if (_type == ASTType::SUBTRACT) {
     return compiler_session->get_builder()->CreateSub(lhs, rhs, "sub_tmp");
   }
   return nullptr;
