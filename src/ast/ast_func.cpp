@@ -5,17 +5,6 @@
 
 namespace tanlang {
 
-// FIXME: move this to common.h
-static Type *type_from_string(const std::string &type_name, CompilerSession *parser_context) {
-  Type *t = nullptr;
-  if (type_name == "int") {
-    t = parser_context->get_builder()->getInt32Ty();
-  } else if (type_name == "float") {
-    t = parser_context->get_builder()->getFloatTy();
-  }
-  return t;
-}
-
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   // new scope
   compiler_session->push_scope();
@@ -26,7 +15,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   // set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     std::shared_ptr<ASTTy> type_name = std::reinterpret_pointer_cast<ASTTy>(_children[i]->_children[1]);
-    arg_types.push_back(type_from_string(type_name->_name, compiler_session));
+    arg_types.push_back(type_name->to_llvm_type(compiler_session));
   }
 
   // get function name

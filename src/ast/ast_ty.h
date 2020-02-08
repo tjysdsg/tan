@@ -5,6 +5,13 @@
 #define TY_HAS_BASE(t) ((bool)((uint64_t)t & TY_BASE_MASK))
 #define TY_HAS_COMPOSITE(t) ((bool)((uint64_t)t & TY_COMPOSITE_MASK))
 #define TY_HAS_QUALIFIER(t) ((bool)((uint64_t)t & TY_QUALIFIER_MASK))
+
+#define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
+#define TY_GET_COMPOSITE(t) ((Ty)((uint64_t)t & TY_COMPOSITE_MASK))
+#define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
+
+#define TY_IS(t1, t2) ((bool)((uint64_t)(t1) & (uint64_t)(t2)))
+
 #define TY_OR(a, b) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b))
 #define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
 
@@ -45,8 +52,8 @@ class ASTTy final : public ASTNode {
   explicit ASTTy(Token *token);
   void nud(Parser *parser) override;
 
- private:
-  [[nodiscard]] Ty get_ty();
+  [[nodiscard]] llvm::Type *to_llvm_type(CompilerSession *compiler_session) const;
+
  private:
   Ty _ty = Ty::INVALID;
 };

@@ -10,6 +10,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/Instruction.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Target/TargetOptions.h>

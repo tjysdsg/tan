@@ -18,20 +18,5 @@ bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list) {
   return std::any_of(list.begin(), list.end(), Equal(t));
 }
 
-Type *typename_to_llvm_type(const std::string &type_name, CompilerSession *parser_context) {
-  if (type_name == "int" || type_name == "i32" || type_name == "u32") {
-    return parser_context->get_builder()->getInt32Ty();
-  } else if (type_name == "i64" || type_name == "u64") {
-    return parser_context->get_builder()->getInt64Ty();
-  } else if (type_name == "i16" || type_name == "u16") {
-    return parser_context->get_builder()->getInt16Ty();
-  } else if (type_name == "float") {
-    return parser_context->get_builder()->getFloatTy();
-  } else if (type_name == "double") {
-    return parser_context->get_builder()->getDoubleTy();
-  } else {
-    return nullptr;
-  }
-}
+} // namespace tanlang
 
-}

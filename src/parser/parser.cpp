@@ -188,7 +188,6 @@ template<>
 std::shared_ptr<ASTNode> Parser::parse<ASTType::TY>(bool strict) {
   auto *token = get_curr_token();
   std::shared_ptr<ASTNode> node = std::make_shared<ASTTy>(token);
-  ++_curr_token;
   TRY_NUD(node, strict);
   return node;
 }
