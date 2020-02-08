@@ -24,6 +24,7 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif ()
 
+# custom *.cmake directory
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # compiler flags
@@ -32,7 +33,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 # ================================ thirdparty dependencies ========================== #
-# this project uses Google Test framework
+# Google Test framework
 find_package(GTest REQUIRED)
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
@@ -43,6 +44,9 @@ get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
 
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
+
+# gflags
+find_package(gflags REQUIRED)
 # ================================----------------------- ========================== #
 
 # common source files shared by multiple targets
@@ -68,7 +72,7 @@ endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
 add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread LLVM-9)
+target_link_libraries(tanc pthread LLVM-9 gflags)
 set_target_properties(tanc
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"
@@ -78,7 +82,7 @@ set_target_properties(tanc
 set(JIT_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-jit.cpp)
 add_executable(tan-jit ${COMMON_SRCS} ${JIT_SRCS})
 target_include_directories(tan-jit PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tan-jit pthread LLVM-9)
+target_link_libraries(tan-jit pthread LLVM-9 gflags)
 set_target_properties(tan-jit
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin"

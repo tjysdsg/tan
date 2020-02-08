@@ -4,25 +4,28 @@
 #include "compiler.h"
 #include <iostream>
 #include "src/llvm_include.h"
+#include <gflags/gflags.h>
+
 using tanlang::Reader;
 using tanlang::Parser;
 using tanlang::Token;
 
-int main() {
-  std::string code =
-      "fn work(hours: int, salary: float) : float { return hours * salary; } \n"
-      "fn main() : float { return work(2, 2.1); } \n";
-  Reader r;
-  r.from_string(code);
-  auto tokens = tokenize(&r);
+DEFINE_string(files, "main.tan", "comma-separated list of files to compile");
+DEFINE_string(output, "output.o", "output file path");
 
+int main() {
+  // Read code
+  Reader r;
+  r.open(FLAGS_files); // FIXME: multiple files
+  auto tokens = tokenize(&r);
   Parser p(tokens);
   p.parse();
-  p._root->printTree();
+  // p._root->printTree();
   p.codegen();
+  // p.get_compiler_session()->get_module()->print(llvm::errs(), nullptr);
 
   tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p.get_compiler_session()->get_module().release()));
-  compiler.emit_object("output.o");
+  compiler.emit_object(FLAGS_output);
 
   for (auto *&t : tokens) {
     delete t;

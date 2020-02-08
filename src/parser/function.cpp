@@ -24,10 +24,17 @@ void ASTFunction::nud(Parser *parser) {
   parser->advance(TokenType::PUNCTUATION, ":");
   _children[0] = parser->parse<ASTType::TYPENAME>(true); // return type
 
-  // function code
-  std::shared_ptr<ASTNode> code = std::make_shared<ASTStatement>(parser->get_curr_token());
-  code->nud(parser);
-  _children.push_back(code);
+  // get function body if exists, otherwise it's a external function
+  auto *token = parser->get_curr_token();
+  if (token->type == TokenType::PUNCTUATION && token->value == "{") {
+    std::shared_ptr<ASTNode> code = std::make_shared<ASTStatement>(token);
+    code->nud(parser);
+    _children.push_back(code);
+    _is_external = false;
+  } else {
+    ++parser->_curr_token;
+    _is_external = true;
+  }
 }
 
 void ASTFunctionCall::nud(Parser *parser) {

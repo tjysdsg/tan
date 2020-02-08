@@ -4,3 +4,6 @@ build/
 bin/
 # made by ctest
 Testing/
+
+*.o
+*.out

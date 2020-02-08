@@ -6,11 +6,14 @@
 namespace tanlang {
 struct Token;
 
-class ASTFunction : public ASTNode {
+class ASTFunction final : public ASTNode {
  public:
   explicit ASTFunction(Token *token) : ASTNode(ASTType::FUNC_DECL, 0, 0, token) {}
   Value *codegen(CompilerSession *compiler_session) override;
   void nud(Parser *parser) override;
+
+ private:
+  bool _is_external = false;
 };
 
 class ASTFunctionCall final : public ASTNode {
