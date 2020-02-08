@@ -48,14 +48,19 @@ void ASTTy::nud(Parser *parser) {
     } else if (composite_tys.find(token->value) != composite_tys.end()) {
       _ty = TY_OR(_ty, composite_tys[token->value]);
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) {
-      _ty = TY_OR(_ty, qualifier_tys[token->value]);
+      if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { // pointer to pointer (to ...)
+        auto sub = std::make_shared<ASTTy>(token);
+        // swap self and child
+        sub->_ty = this->_ty;
+        this->_ty = Ty::POINTER;
+        _children.push_back(sub);
+      } else {
+        _ty = TY_OR(_ty, qualifier_tys[token->value]);
+      }
     } else {
       break;
     }
     ++parser->_curr_token;
-  }
-  if (!check_ty_validity(_ty)) {
-    report_code_error(_token->l, _token->c, "Invalid type");
   }
 }
 
