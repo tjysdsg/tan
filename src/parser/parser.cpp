@@ -8,11 +8,11 @@ namespace tanlang {
 
 Parser::Parser(std::vector<Token *> tokens)
     : _tokens(std::move(tokens)), _curr_token(0) {
-  _parser_context = new CompilerSession("main");
+  _compiler_session = new CompilerSession("main");
 }
 
 Parser::~Parser() {
-  delete _parser_context;
+  delete _compiler_session;
 }
 
 std::shared_ptr<ASTNode> Parser::advance() {
@@ -152,7 +152,7 @@ Token *Parser::get_curr_token() const {
 }
 
 Value *Parser::codegen() {
-  return _root->codegen(_parser_context);
+  return _root->codegen(_compiler_session);
 }
 
 #define TRY_NUD(node, strict)                                                  \

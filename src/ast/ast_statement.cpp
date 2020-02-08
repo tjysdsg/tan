@@ -19,15 +19,15 @@ ASTStatement::ASTStatement(Token *token) : ASTNode(ASTType::STATEMENT,
 
 ASTProgram::ASTProgram() : ASTNode(ASTType::PROGRAM, op_precedence[ASTType::PROGRAM], 0, nullptr) {}
 
-Value *ASTProgram::codegen(CompilerSession *parser_context) {
+Value *ASTProgram::codegen(CompilerSession *compiler_session) {
   for (const auto &e : _children) {
-    e->codegen(parser_context);
+    e->codegen(compiler_session);
   }
   return nullptr;
 }
 
-Value *ASTReturn::codegen(CompilerSession *parser_context) {
-  return parser_context->get_builder()->CreateRet(_children[0]->codegen(parser_context));
+Value *ASTReturn::codegen(CompilerSession *compiler_session) {
+  return compiler_session->get_builder()->CreateRet(_children[0]->codegen(compiler_session));
 }
 
 } // namespace tanlang

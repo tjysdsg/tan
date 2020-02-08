@@ -12,7 +12,7 @@ class ASTIf final : public ASTNode {
   ASTIf() = delete;
   explicit ASTIf(Token *token) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token) {}
   void nud(Parser *parser) override;
-  Value *codegen(CompilerSession *parser_context) override;
+  Value *codegen(CompilerSession *compiler_session) override;
 
  public:
   bool _has_else = false;

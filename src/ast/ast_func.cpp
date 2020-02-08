@@ -16,17 +16,17 @@ static Type *type_from_string(const std::string &type_name, CompilerSession *par
   return t;
 }
 
-Value *ASTFunction::codegen(CompilerSession *parser_context) {
+Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   // new scope
-  parser_context->push_scope();
+  compiler_session->push_scope();
   // make function prototype
-  Type *float_type = parser_context->get_builder()->getFloatTy();
+  Type *float_type = compiler_session->get_builder()->getFloatTy();
   // std::vector<Type *> arg_types(2, float_type);
   std::vector<Type *> arg_types;
   // set function arg types
   for (size_t i = 2; i < _children.size() - 1; ++i) {
     std::shared_ptr<ASTTypeName> type_name = std::reinterpret_pointer_cast<ASTTypeName>(_children[i]->_children[1]);
-    arg_types.push_back(type_from_string(type_name->_name, parser_context));
+    arg_types.push_back(type_from_string(type_name->_name, compiler_session));
   }
 
   // get function name
@@ -35,7 +35,7 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
 
   // create function
   FunctionType *FT = FunctionType::get(float_type, arg_types, false);
-  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, parser_context->get_module().get());
+  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
 
   // set argument names
   auto args = F->args().begin();
@@ -46,27 +46,27 @@ Value *ASTFunction::codegen(CompilerSession *parser_context) {
 
   // function implementation
   // create a new basic block to start insertion into
-  BasicBlock *main_block = BasicBlock::Create(*parser_context->get_context(), "func_entry", F);
-  parser_context->get_builder()->SetInsertPoint(main_block);
-  parser_context->set_code_block(main_block); // set current scope's code block
+  BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", F);
+  compiler_session->get_builder()->SetInsertPoint(main_block);
+  compiler_session->set_code_block(main_block); // set current scope's code block
 
   // add all function arguments to scope
   for (auto &Arg : F->args()) {
-    parser_context->add(Arg.getName(), &Arg);
+    compiler_session->add(Arg.getName(), &Arg);
   }
 
-  _children[_children.size() - 1]->codegen(parser_context);
+  _children[_children.size() - 1]->codegen(compiler_session);
 
   // validate the generated code, checking for consistency
   verifyFunction(*F);
-  parser_context->pop_scope(); // pop scope
-  parser_context->get_builder()->SetInsertPoint(parser_context->get_code_block()); // restore parent code block
+  compiler_session->pop_scope(); // pop scope
+  compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); // restore parent code block
   return nullptr;
 }
 
-Value *ASTFunctionCall::codegen(CompilerSession *parser_context) {
+Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   // Look up the name in the global module table.
-  Function *func = parser_context->get_module()->getFunction(_name);
+  Function *func = compiler_session->get_module()->getFunction(_name);
   if (!func) {
     throw std::runtime_error("Invalid function call");
   }
@@ -79,12 +79,12 @@ Value *ASTFunctionCall::codegen(CompilerSession *parser_context) {
   std::vector<Value *> args_value;
   size_t n_args = _children.size();
   for (size_t i = 0; i < n_args; ++i) {
-    args_value.push_back(_children[i]->codegen(parser_context));
+    args_value.push_back(_children[i]->codegen(compiler_session));
     if (!args_value.back()) {
       return nullptr;
     }
   }
-  return parser_context->get_builder()->CreateCall(func, args_value, "calltmp");
+  return compiler_session->get_builder()->CreateCall(func, args_value, "calltmp");
 }
 
 } // namespace tanlang

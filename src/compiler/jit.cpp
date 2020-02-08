@@ -37,30 +37,30 @@ JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
   auto ctx = std::make_unique<ThreadSafeContext>(std::move(context)); // NOTE context is now nullptr
   execution_session->getMainJITDylib().setGenerator(
       cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(data_layout->getGlobalPrefix())));
-  _parser_context = new CompilerSession(std::move(builder),
-                                        std::move(module),
-                                        std::move(execution_session),
-                                        std::move(object_layer),
-                                        std::move(compile_layer),
-                                        std::move(data_layout),
-                                        std::move(mangle),
-                                        std::move(ctx));
+  _compiler_session = new CompilerSession(std::move(builder),
+                                          std::move(module),
+                                          std::move(execution_session),
+                                          std::move(object_layer),
+                                          std::move(compile_layer),
+                                          std::move(data_layout),
+                                          std::move(mangle),
+                                          std::move(ctx));
 }
 
 Expected<JITEvaluatedSymbol> JIT::lookup(StringRef name) {
-  llvm::ArrayRef<JITDylib *> search_order = {&_parser_context->get_execution_session()->getMainJITDylib()};
-  auto symbol = (*_parser_context->get_mangle())(name);
-  return _parser_context->get_execution_session()->lookup(search_order, symbol);
+  llvm::ArrayRef<JITDylib *> search_order = {&_compiler_session->get_execution_session()->getMainJITDylib()};
+  auto symbol = (*_compiler_session->get_mangle())(name);
+  return _compiler_session->get_execution_session()->lookup(search_order, symbol);
 }
 
 Error JIT::evaluate(std::unique_ptr<Module> module) {
   if (!module) {
-    module = std::move(_parser_context->get_module());
+    module = std::move(_compiler_session->get_module());
   }
-  auto e = _parser_context->get_compile_layer()->add(_parser_context->get_execution_session()->getMainJITDylib(),
-                                                     ThreadSafeModule(std::move(module),
-                                                                      *_parser_context->get_threadsafe_context()));
-  _parser_context->get_execution_session()->dump(llvm::errs());
+  auto e = _compiler_session->get_compile_layer()->add(_compiler_session->get_execution_session()->getMainJITDylib(),
+                                                       ThreadSafeModule(std::move(module),
+                                                                      *_compiler_session->get_threadsafe_context()));
+  _compiler_session->get_execution_session()->dump(llvm::errs());
   return e;
 }
 

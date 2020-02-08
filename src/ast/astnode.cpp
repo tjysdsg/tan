@@ -128,12 +128,12 @@ bool ASTNumberLiteral::is_float() const {
 // ============================================================= //
 
 // ================= codegen functions ========================= //
-Value *ASTNode::codegen(CompilerSession *parser_context) {
+Value *ASTNode::codegen(CompilerSession *compiler_session) {
   if (_children.empty()) return nullptr;
-  auto *result = _children[0]->codegen(parser_context);
+  auto *result = _children[0]->codegen(compiler_session);
   size_t n = _children.size();
   for (size_t i = 1; i < n; ++i) {
-    _children[i]->codegen(parser_context);
+    _children[i]->codegen(compiler_session);
   }
   return result;
 }

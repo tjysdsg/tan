@@ -21,7 +21,7 @@ int main() {
   jit.parse();
   jit._root->printTree();
   jit.codegen();
-  jit._parser_context->get_module()->print(llvm::errs(), nullptr);
+  jit.get_compiler_session()->get_module()->print(llvm::errs(), nullptr);
   auto e = jit.evaluate();
   if (e) {
     throw std::runtime_error("JIT evaluation failed");
@@ -36,7 +36,7 @@ int main() {
   assert(fp && "Failed to codegen function");
   fprintf(stderr, "Evaluated to %f\n", fp());
 
-  // tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p._parser_context->_module.release()));
+  // tanlang::Compiler compiler(std::shared_ptr<llvm::Module>(p._compiler_session->_module.release()));
   // compiler.emit_object("output.o");
 
   for (auto *&t : tokens) {

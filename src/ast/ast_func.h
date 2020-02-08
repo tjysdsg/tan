@@ -9,7 +9,7 @@ struct Token;
 class ASTFunction : public ASTNode {
  public:
   explicit ASTFunction(Token *token) : ASTNode(ASTType::FUNC_DECL, 0, 0, token) {}
-  Value *codegen(CompilerSession *parser_context) override;
+  Value *codegen(CompilerSession *compiler_session) override;
   void nud(Parser *parser) override;
 };
 
@@ -19,7 +19,7 @@ class ASTFunctionCall final : public ASTNode {
   ASTFunctionCall(std::string name, Token *token) : ASTNode(ASTType::FUNC_CALL, 0, 0, token),
                                                     _name(std::move(name)) {}
   void nud(Parser *parser) override;
-  Value *codegen(CompilerSession *parser_context) override;
+  Value *codegen(CompilerSession *compiler_session) override;
 
  public:
   std::string _name{};

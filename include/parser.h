@@ -54,8 +54,11 @@ class Parser {
     return node;
   }
 
+ protected:
+  CompilerSession *_compiler_session;
+
  public:
-  CompilerSession *_parser_context; // FIXME: make this private
+  [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
 };
 
 } // namespace tanlang
