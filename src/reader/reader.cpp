@@ -5,6 +5,7 @@
 #include <sstream>
 
 namespace tanlang {
+
 Reader::~Reader() {
   for (auto &_line : _lines) {
     if (_line) {
@@ -16,9 +17,12 @@ Reader::~Reader() {
 
 // TODO: optimise Reader for speed
 void Reader::open(const std::string &filename) {
-  // TODO: check file attributes before reading
   _filename = filename;
-  std::ifstream ifs(filename);
+  std::ifstream ifs;
+  ifs.open(filename, std::ios::in);
+  if (!ifs) {
+    throw std::runtime_error("Cannot open file: " + filename);
+  }
   // read the whole file at once
   std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   // count the number of lines
@@ -57,4 +61,5 @@ void Reader::from_string(const std::string &code) {
     }
   }
 }
+
 } // namespace tanlang

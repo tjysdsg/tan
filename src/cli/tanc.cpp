@@ -13,7 +13,9 @@ using tanlang::Token;
 DEFINE_string(files, "main.tan", "comma-separated list of files to compile");
 DEFINE_string(output, "output.o", "output file path");
 
-int main() {
+int main(int argc, char **argv) {
+  gflags::SetUsageMessage("tan compiler");
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
   // Read code
   Reader r;
   r.open(FLAGS_files); // FIXME: multiple files
