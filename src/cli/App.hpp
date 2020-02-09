@@ -42,7 +42,6 @@ bool App<PARSER_TYPE>::parse() {
   if (_print_ast) {
     _parser->_root->printTree();
   }
-  // _parser->evaluate(); // FIXME: 'main' symbol evaluated the main function in tan-jit.cpp, causing infinite loop
   return true;
 }
 
@@ -53,8 +52,11 @@ bool App<PARSER_TYPE>::compile() {
   if (_print_ir_code) {
     _parser->get_compiler_session()->get_module()->print(llvm::errs(), nullptr);
   }
-  _compiler = std::make_unique<Compiler>(_parser->get_compiler_session()->get_module().release());
-  _compiler->emit_object(FLAGS_output);
+  _parser->evaluate();
+  if constexpr (std::is_same<PARSER_TYPE, Parser>::value) { // only compile to file if JIT is disabled
+    _compiler = std::make_unique<Compiler>(_parser->get_compiler_session()->get_module().release());
+    _compiler->emit_object(FLAGS_output);
+  }
   return true;
 }
 

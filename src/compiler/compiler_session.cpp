@@ -70,7 +70,15 @@ void CompilerSession::add(const std::string &name, Value *value) {
 }
 
 void CompilerSession::set(const std::string &name, Value *value) {
-  get_current_scope()->_named[name] = value;
+  // search from the outer-est scope to the inner-est scope
+  auto scope = _scope.end(); // scope is an iterator
+  --scope;
+  while (scope >= _scope.begin()) {
+    auto search = (*scope)->_named.find(name);
+    if (search != (*scope)->_named.end()) { break; } // FIXME: report error if name not found
+    --scope;
+  }
+  (*scope)->_named[name] = value;
 }
 
 Value *CompilerSession::get(const std::string &name) {
@@ -79,7 +87,6 @@ Value *CompilerSession::get(const std::string &name) {
   Value *result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
-  // std::shared_ptr<Scope> scope = get_current_scope();
   while (!found && scope >= _scope.begin()) {
     auto search = (*scope)->_named.find(name);
     if (search != (*scope)->_named.end()) {
@@ -106,11 +113,11 @@ std::unique_ptr<Module> &CompilerSession::get_module() {
   return _module;
 }
 
-void CompilerSession::set_code_block(BasicBlock* block) {
+void CompilerSession::set_code_block(BasicBlock *block) {
   _scope.back()->_code_block = block;
 }
 
-BasicBlock* CompilerSession::get_code_block() const {
+BasicBlock *CompilerSession::get_code_block() const {
   return _scope.back()->_code_block;
 }
 

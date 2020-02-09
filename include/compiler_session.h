@@ -16,8 +16,8 @@ class CompilerSession final {
   std::shared_ptr<Scope> get_current_scope();
   std::shared_ptr<Scope> push_scope();
   std::shared_ptr<Scope> pop_scope();
-  void set_code_block(BasicBlock* block);
-  [[nodiscard]] BasicBlock* get_code_block() const;
+  void set_code_block(BasicBlock *block);
+  [[nodiscard]] BasicBlock *get_code_block() const;
   void add(const std::string &name, Value *value);
   void set(const std::string &name, Value *value);
   Value *get(const std::string &name);

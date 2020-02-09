@@ -57,21 +57,22 @@ Error JIT::evaluate(std::unique_ptr<Module> module) {
   if (!module) {
     module = std::move(_compiler_session->get_module());
   }
-  auto e = _compiler_session->get_compile_layer()->add(_compiler_session->get_execution_session()->getMainJITDylib(),
-                                                       ThreadSafeModule(std::move(module),
-                                                                        *_compiler_session->get_threadsafe_context()));
+  auto e = _compiler_session->get_compile_layer()->add(
+      _compiler_session->get_execution_session()->getMainJITDylib(),
+      ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context())
+  );
   _compiler_session->get_execution_session()->dump(llvm::errs());
   if (e) {
     throw std::runtime_error("JIT evaluation failed");
   }
-  auto main_func_symbol = lookup("main");
+  auto main_func_symbol = lookup("jit_main"); // main function is renamed to 'jit_main' in ast_func.cpp
   if (main_func_symbol.takeError()) {
-    throw std::runtime_error("JIT main function symbol lookup failed");
+    throw std::runtime_error("Cannot find main function");
   }
   auto *fp = (float (*)(int, char **)) (intptr_t) main_func_symbol.get().getAddress();
   assert(fp && "Failed to generate code for main function");
   float result = fp(0, nullptr);
-  fprintf(stderr, "Evaluated to %f\n", result);
+  fprintf(stdout, "Main function returned %f\n", result);
   return e;
 }
 

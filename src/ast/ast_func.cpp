@@ -24,6 +24,10 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   // create function
   FunctionType *FT = FunctionType::get(float_type, arg_types, false);
+  // if main function and JIT is enabled, rename 'main' to 'jit_main' to avoid calling recursive main function of current process
+  if (func_name == "main" && compiler_session->is_jit_enabled()) {
+    func_name = "jit_main";
+  }
   // FIXME: external linkage
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
   // F->setCallingConv(llvm::CallingConv::C);

@@ -1,0 +1,3 @@
+modernize-use-trailing-return-type:
+  NOLINT
+  NOLINTNEXTLINE
