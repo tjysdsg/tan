@@ -53,6 +53,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/tanc COMMON_SRCS)
 
 # ====== tests for debug build ======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -66,17 +67,24 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     enable_testing()
 endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
+# ===== target libtanc =====
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
+add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
+target_include_directories(tan PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(tan pthread LLVM-9)
+set_target_properties(tan PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+
 # ===== target CLI compiler =====
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
-add_executable(tanc ${COMMON_SRCS} ${CLI_SRCS})
+add_executable(tanc ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread LLVM-9 gflags)
+target_link_libraries(tanc pthread gflags tan)
 set_target_properties(tanc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # ===== target CLI JIT =====
 set(JIT_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-jit.cpp)
-add_executable(tan-jit ${COMMON_SRCS} ${JIT_SRCS})
+add_executable(tan-jit ${JIT_SRCS})
 target_include_directories(tan-jit PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tan-jit pthread LLVM-9 gflags)
+target_link_libraries(tan-jit pthread gflags tan)
 set_target_properties(tan-jit PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 

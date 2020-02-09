@@ -1,5 +1,5 @@
-#ifndef TAN_SRC_CLI_APP_H_
-#define TAN_SRC_CLI_APP_H_
+#ifndef TAN_INCLUDE_TANC_H_
+#define TAN_INCLUDE_TANC_H_
 #include "token.h"
 #include "parser.h"
 #include "compiler.h"
@@ -7,11 +7,11 @@ using tanlang::Token;
 using tanlang::Compiler;
 
 template<typename PARSER_TYPE>
-class App final {
+class TanC final {
  public:
-  App() = delete;
-  App(int argc, char **argv);
-  ~App();
+  TanC() = delete;
+  TanC(std::vector<std::string> files, bool print_ast, bool print_ir_code);
+  ~TanC();
   bool read();
   bool parse();
   bool compile();
@@ -26,6 +26,6 @@ class App final {
   std::unique_ptr<Compiler> _compiler{};
   size_t _curr_file = 0;
 };
-#include "src/cli/App.hpp"
+#include "src/tanc/tanc.hpp"
 
-#endif // TAN_SRC_CLI_APP_H_
+#endif /* TAN_INCLUDE_TANC_H_ */

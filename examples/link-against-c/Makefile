@@ -7,3 +7,4 @@ main: main.tan
 run: .PHONY
 	./a.out
 
+all: .PHONY

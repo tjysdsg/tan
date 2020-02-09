@@ -1,46 +1,27 @@
-#include <gflags/gflags.h>
-#include "App.h"
-
-DEFINE_string(files, "main.tan", "comma-separated list of files to compile");
-DEFINE_bool(print_ir_code, false, "print out llvm IR code if true");
-DEFINE_bool(print_ast, false, "print out abstract syntax tree if true");
+#include "reader.h"
+#include "parser.h"
+#include "compiler.h"
 using tanlang::Reader;
 using tanlang::Parser;
-using tanlang::Token;
-using tanlang::Compiler;
 
-static std::vector<std::string> flag_to_list(const std::string &flag, const std::string delimiter = ",") {
-  size_t last = 0;
-  size_t next = 0;
-  std::vector<std::string> results;
-  while ((next = flag.find(delimiter, last)) != std::string::npos) {
-    results.push_back(flag.substr(last, next - last));
-    last = next + 1;
-  }
-  results.push_back(flag.substr(last));
-  return results;
+template<typename PARSER_TYPE>
+TanC<PARSER_TYPE>::TanC(std::vector<std::string> files, bool print_ast, bool print_ir_code) {
+  _print_ast = print_ast;
+  _print_ir_code = print_ir_code;
+  _input_files = files;
 }
 
 template<typename PARSER_TYPE>
-App<PARSER_TYPE>::App(int argc, char **argv) {
-  gflags::SetUsageMessage("tan compiler");
-  gflags::ParseCommandLineFlags(&argc, &argv, false);
-  _print_ast = FLAGS_print_ast;
-  _print_ir_code = FLAGS_print_ir_code;
-  _input_files = flag_to_list(FLAGS_files);
-}
-
-template<typename PARSER_TYPE>
-bool App<PARSER_TYPE>::read() {
+bool TanC<PARSER_TYPE>::read() {
   if (_curr_file >= _input_files.size()) return false;
   Reader r;
-  r.open(_input_files[_curr_file]); // FIXME: multiple files
+  r.open(_input_files[_curr_file]);
   _tokens = tokenize(&r);
   return true;
 }
 
 template<typename PARSER_TYPE>
-bool App<PARSER_TYPE>::parse() {
+bool TanC<PARSER_TYPE>::parse() {
   if (_curr_file >= _input_files.size()) return false;
   _parser = std::make_unique<PARSER_TYPE>(_tokens);
   _parser->parse();
@@ -51,7 +32,7 @@ bool App<PARSER_TYPE>::parse() {
 }
 
 template<typename PARSER_TYPE>
-bool App<PARSER_TYPE>::compile() {
+bool TanC<PARSER_TYPE>::compile() {
   std::cout << "Compiling TAN file: " << _input_files[_curr_file] << "\n";
   if (_curr_file >= _input_files.size()) return false;
   _parser->codegen();
@@ -67,7 +48,7 @@ bool App<PARSER_TYPE>::compile() {
 }
 
 template<typename PARSER_TYPE>
-App<PARSER_TYPE>::~App() {
+TanC<PARSER_TYPE>::~TanC() {
   for (auto *&t : _tokens) {
     delete t;
     t = nullptr;
