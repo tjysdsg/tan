@@ -1,5 +1,7 @@
 #include "src/compiler/jit.h"
 
+// FIXME: segfault
+
 namespace tanlang {
 
 JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {

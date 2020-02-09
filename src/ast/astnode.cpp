@@ -7,7 +7,7 @@ namespace tanlang {
 
 // ================= helper functions ================//
 void ASTNode::report_error() {
-  report_code_error(_token->l, _token->c, "Unexpected token " + _token->to_string());
+  report_code_error(_token, "Unexpected token " + _token->to_string());
 }
 
 void ASTNode::printTree() const {
@@ -38,7 +38,7 @@ ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   if (!is_ast_type_in(type,
                       {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT,
                        ASTType::LOR})) {
-    report_code_error(token->l, token->c, "Invalid ASTType for comparisons " + token->to_string());
+    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
   }
   _type = type;
   _lbp = op_precedence[type];
@@ -86,7 +86,7 @@ ASTBinaryNot::ASTBinaryNot(Token *token) : ASTPrefix(token) {
 
 ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   if (!is_ast_type_in(type, {ASTType::SUM, ASTType::SUBTRACT, ASTType::MULTIPLY, ASTType::DIVIDE, ASTType::MOD})) {
-    report_code_error(token->l, token->c, "Invalid ASTType for comparisons " + token->to_string());
+    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
   }
   _type = type;
   _lbp = op_precedence[type];

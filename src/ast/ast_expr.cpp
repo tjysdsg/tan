@@ -44,17 +44,13 @@ Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
 
 Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
   auto *rhs = _children[0]->codegen(compiler_session);
-  if (!rhs) {
-    assert(false);
-  }
+  if (!rhs) { assert(false); }
   return compiler_session->get_builder()->CreateNot(rhs);
 }
 
 Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
   auto *rhs = _children[0]->codegen(compiler_session);
-  if (!rhs) {
-    assert(false);
-  }
+  if (!rhs) { assert(false); }
   // get value size in bits
   llvm::DataLayout data_layout(compiler_session->get_module().get());
   auto size_in_bits = data_layout.getTypeSizeInBits(rhs->getType());
@@ -113,10 +109,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
-  if (!lhs || !rhs) {
-    assert(false);
-    return nullptr;
-  }
+  if (!lhs || !rhs) { assert(false); }
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
   Type *float_type = compiler_session->get_builder()->getFloatTy();
@@ -163,19 +156,19 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   // Assignment requires the lhs to be an mutable variable.
   auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
   if (!lhs) {
-    report_code_error(lhs->_token->l, lhs->_token->c, "Left-hand operand of assignment must be a variable");
+    report_code_error(lhs->_token, "Left-hand operand of assignment must be a variable");
   }
   // codegen the rhs
   auto rhs = _children[1];
   Value *val = rhs->codegen(compiler_session);
   if (!val) {
-    report_code_error(rhs->_token->l, rhs->_token->c, "Invalid expression for right-hand operand of the assignment");
+    report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
 
   // look up variable by name
   Value *variable = compiler_session->get(lhs->_name);
   if (!variable) {
-    report_code_error(lhs->_token->l, lhs->_token->c, "Invalid variable name");
+    report_code_error(lhs->_token, "Invalid variable name");
   }
 
   // TODO: check type
@@ -190,4 +183,4 @@ Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
   assert(false);
 }
 
-}
+} // namespace tanlang

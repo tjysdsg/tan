@@ -19,6 +19,7 @@ bool compile_file(const char *input_path, bool print_ast, bool print_ir_code) {
   }
   return true;
 }
+
 extern bool evaluate_file(const char *input_path, bool print_ast, bool print_ir_code) {
   std::string input_file(input_path);
   TanC<tanlang::JIT> app(std::vector<std::string>({input_file}), print_ast, print_ir_code);

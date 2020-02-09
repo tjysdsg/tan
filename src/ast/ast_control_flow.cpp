@@ -8,9 +8,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   Value *condition = _children[0]->codegen(compiler_session);
   if (!condition) {
     auto *condition_token = _children[0]->_token;
-    report_code_error(condition_token->l,
-                      condition_token->c,
-                      "Invalid condition expression " + condition_token->to_string());
+    report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
   }
 
   // convert condition to a bool by comparing non-equal to 0
@@ -31,9 +29,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   Value *then = _children[1]->codegen(compiler_session);
   if (!then) {
     auto *condition_token = _children[1]->_token;
-    report_code_error(condition_token->l,
-                      condition_token->c,
-                      "Invalid condition expression " + condition_token->to_string());
+    report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
   }
   compiler_session->get_builder()->CreateBr(merge_bb);
   // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
@@ -48,9 +44,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
     else_ = _children[2]->codegen(compiler_session);
     if (!else_) {
       auto *condition_token = _children[2]->_token;
-      report_code_error(condition_token->l,
-                        condition_token->c,
-                        "Invalid condition expression " + condition_token->to_string());
+      report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
     }
     compiler_session->get_builder()->CreateBr(merge_bb);
     // codegen of 'Else' can change the current block, update ElseBB for the PHI.

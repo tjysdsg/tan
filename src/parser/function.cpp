@@ -44,7 +44,7 @@ void ASTFunctionCall::nud(Parser *parser) {
   }
   auto *token = parser->get_curr_token();
   if (token->type != TokenType::PUNCTUATION || token->value != "(") { // function call
-    report_code_error(token->l, token->c, "Invalid function call");
+    report_code_error(token, "Invalid function call");
   }
   ++parser->_curr_token;
   size_t token_size = parser->_tokens.size();

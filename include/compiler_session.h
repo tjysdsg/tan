@@ -11,7 +11,9 @@ class CompilerSession final {
   CompilerSession(const CompilerSession &) = delete;
 
   CompilerSession();
-  ~CompilerSession() = default;
+  ~CompilerSession() {
+    
+  };
   explicit CompilerSession(const std::string &module_name);
   std::shared_ptr<Scope> get_current_scope();
   std::shared_ptr<Scope> push_scope();

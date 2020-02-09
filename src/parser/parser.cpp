@@ -33,9 +33,8 @@ std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) 
   }
   Token *token = _tokens[_curr_token];
   if (token->type != type || token->value != value) {
-    report_code_error(token->l, token->c,
-                      "Expect token " + value + " with type " + token_type_names[type] + ", but got "
-                          + token->to_string() + " instead");
+    report_code_error(token, "Expect token " + value + " with type " + token_type_names[type] + ", but got "
+        + token->to_string() + " instead");
   }
   return peek();
 }
@@ -97,7 +96,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
   } else if (check_terminal_token(token)) {
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
-    report_code_error(token->l, token->c, "Unknown token " + token->to_string());
+    report_code_error(token, "Unknown token " + token->to_string());
   }
   return node;
 }

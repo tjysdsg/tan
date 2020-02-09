@@ -5,11 +5,13 @@
 
 namespace tanlang {
 
+struct Token;
+
 [[noreturn]] void report_code_error(const std::string &source,
-                                   size_t lineno,
-                                   size_t column,
-                                   const std::string &error_message);
-[[noreturn]] void report_code_error(size_t l, size_t c, const std::string &error_message);
+                                    size_t line,
+                                    size_t col,
+                                    const std::string &error_message);
+[[noreturn]] void report_code_error(Token *token, const std::string &error_message);
 
 } // namespace tanlang
 

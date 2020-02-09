@@ -17,7 +17,7 @@ class ASTNode;
 class Parser {
  public:
   Parser() = delete;
-  ~Parser();
+  virtual ~Parser();
   explicit Parser(std::vector<Token *> tokens);
 
   std::shared_ptr<ASTNode> advance();
