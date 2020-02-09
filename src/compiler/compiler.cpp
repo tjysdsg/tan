@@ -2,7 +2,7 @@
 
 namespace tanlang {
 
-Compiler::Compiler(const std::shared_ptr<Module> &module) : _llvm_module(module) {
+Compiler::Compiler(Module *module) : _llvm_module(module) {
   auto target_triple = llvm::sys::getDefaultTargetTriple();
 
   llvm::InitializeAllTargetInfos();

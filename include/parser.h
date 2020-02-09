@@ -29,6 +29,10 @@ class Parser {
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
   Value *codegen();
+  virtual Error evaluate(std::unique_ptr<Module> module = nullptr) {
+    UNUSED(module);
+    return Error::success();
+  };
 
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};

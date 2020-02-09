@@ -1,0 +1,7 @@
+fn work(hours: int, salary: float) : float {
+    return hours * salary;
+}
+
+fn main(argc: int, argv: u8**) : float {
+    return work(2, 2.1);
+}

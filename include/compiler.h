@@ -8,12 +8,12 @@ namespace tanlang {
 class Compiler {
  public:
   Compiler() = delete;
-  explicit Compiler(const std::shared_ptr<Module> &module);
+  explicit Compiler(Module *module);
 
   void emit_object(const std::string &filename);
 
  private:
-  std::shared_ptr<Module> _llvm_module;
+  Module *_llvm_module;
   llvm::TargetMachine *_target_machine = nullptr;
 };
 
