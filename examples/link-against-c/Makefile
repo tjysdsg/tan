@@ -1,8 +1,8 @@
-.PHONY: output.o print_shit.h print_shit.c
-	g++ output.o print_shit.h print_shit.c -o a.out
+.PHONY: main print_shit.h print_shit.c
+	g++ main.tan.o print_shit.h print_shit.c -o a.out
 
-output.o: main.tan
-	../../bin/tanc main.tan output.o
+main: main.tan
+	../../bin/tanc main.tan
 
 run: .PHONY
 	./a.out

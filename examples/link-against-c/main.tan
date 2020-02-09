@@ -1,11 +1,6 @@
 fn print_shit(hours: int, salary: float) : int;
 
-fn work(hours: int, salary: float) : float {
-    print_shit(hours, salary);
-    return hours * salary;
-}
-
 fn main(argc: int, argv: u8**) : float {
-    var salary: float = work(2, 2.1);
+    print_shit(4, 2.5);
     return 0;
 }
