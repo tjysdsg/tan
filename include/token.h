@@ -1,13 +1,12 @@
 #ifndef TAN_LEXDEF_H
 #define TAN_LEXDEF_H
-
-#include "utils.h"
 #include "reader.h"
 #include <array>
 #include <string>
 #include <unordered_map>
 
 namespace tanlang {
+
 enum class TokenType {
   END = -1,
   COMMENTS,
@@ -35,20 +34,19 @@ struct Token {
   TokenType type = TokenType::END;
   std::string value = "";
   size_t l = 0, c = 0;
+  line_info *line;
 
   Token() = default;
-  Token(TokenType tokenType, std::string value, const code_ptr &cursor)
-      : type(tokenType), value(std::move(value)), l(static_cast<size_t>(cursor.r)), c(static_cast<size_t>(cursor.c)) {}
+  Token(TokenType tokenType, std::string value, const code_ptr &cursor, line_info *line)
+      : type(tokenType),
+        value(std::move(value)),
+        l(static_cast<size_t>(cursor.l)),
+        c(static_cast<size_t>(cursor.c)),
+        line(line) {}
   ~Token() = default;
 
-  [[nodiscard]] std::string to_string() const {
-    return "<Token: " + token_type_names[type] + "; " + value + ">";
-  }
-
-  std::ostream &operator<<(std::ostream &os) {
-    os << to_string();
-    return os;
-  }
+  [[nodiscard]] std::string to_string() const;
+  std::ostream &operator<<(std::ostream &os) const;
 };
 
 } // namespace tanlang

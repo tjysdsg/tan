@@ -1,35 +1,30 @@
 #ifndef TAN_READER_READER_H
 #define TAN_READER_READER_H
-
 #include "config.h"
-#include "utils.h"
+#include "base.h"
 #include <cstdint>
 #include <string>
 #include <unistd.h>
 #include <vector>
 
 namespace tanlang {
+
 struct code_ptr {
-  long r = 0;
+  long l = 0;
   long c = 0;
 
   code_ptr() = default;
-
-  code_ptr(long r, long c) : r(r), c(c) {}
-
+  code_ptr(long r, long c) : l(r), c(c) {}
   code_ptr(const code_ptr &other) {
-    r = other.r;
+    l = other.l;
     c = other.c;
   }
-
   ~code_ptr() = default;
-
-  bool operator==(const code_ptr &other) { return r == other.r && c == other.c; }
-
+  bool operator==(const code_ptr &other) { return l == other.l && c == other.c; }
   bool operator<(const code_ptr &other) {
-    if (r < other.r) {
+    if (l < other.l) {
       return true;
-    } else if (r > other.r) {
+    } else if (l > other.l) {
       return false;
     } else {
       return c < other.c;
@@ -37,9 +32,9 @@ struct code_ptr {
   }
 
   bool operator>(const code_ptr &other) {
-    if (r > other.r) {
+    if (l > other.l) {
       return true;
-    } else if (r < other.r) {
+    } else if (l < other.l) {
       return false;
     } else {
       return c > other.c;
@@ -47,9 +42,7 @@ struct code_ptr {
   }
 
   code_ptr &operator=(const code_ptr &other) = default;
-
   static code_ptr npos() { return code_ptr(-1, -1); }
-
   bool operator!=(const code_ptr &other) { return !(*this == other); }
 };
 
@@ -57,9 +50,7 @@ struct line_info {
   unsigned lineno = 0;   // line number
   std::string code = ""; // actual code
   line_info() = default;
-
   explicit line_info(const unsigned lineno) { this->lineno = lineno; }
-
   ~line_info() = default;
 };
 
@@ -67,13 +58,9 @@ struct line_info {
 class Reader final {
  public:
   Reader() = default;
-
   ~Reader();
-
   void open(const std::string &filename);
-
   void from_string(const std::string &code);
-
   [[nodiscard]] std::string get_filename() const;
 
   /// \brief Return the number of lines of code of the current file
@@ -88,10 +75,10 @@ class Reader final {
   }
 
   char operator[](const code_ptr &ptr) const {
-    assert(ptr.r >= 0 && ptr.c >= 0);
-    if (static_cast<size_t>(ptr.r) >= this->size()) { return '\0'; }
-    if (static_cast<size_t>(ptr.c) >= this->_lines[static_cast<size_t >(ptr.r)]->code.length()) { return '\0'; }
-    return _lines[static_cast<size_t>(ptr.r)]->code[static_cast<size_t>(ptr.c)];
+    assert(ptr.l >= 0 && ptr.c >= 0);
+    if (static_cast<size_t>(ptr.l) >= this->size()) { return '\0'; }
+    if (static_cast<size_t>(ptr.c) >= this->_lines[static_cast<size_t >(ptr.l)]->code.length()) { return '\0'; }
+    return _lines[static_cast<size_t>(ptr.l)]->code[static_cast<size_t>(ptr.c)];
   }
 
   /**
@@ -102,16 +89,16 @@ class Reader final {
    *       @start and and to the end of the line
    * */
   std::string operator()(const code_ptr &start, code_ptr end = code_ptr::npos()) const {
-    assert(start.r >= 0 && start.c >= 0);
-    assert(end.r >= -1 && end.c >= -1);
-    // if end can contain -1 only if r and c are both -1
-    assert(!((end.r == -1) ^ (end.c == -1)));
-    if (end.r == -1 && end.c == -1) {
-      end.r = static_cast<long>(start.r);
-      end.c = static_cast<long>(_lines[static_cast<size_t>(end.r)]->code.length());
+    assert(start.l >= 0 && start.c >= 0);
+    assert(end.l >= -1 && end.c >= -1);
+    // if end can contain -1 only if l and c are both -1
+    assert(!((end.l == -1) ^ (end.c == -1)));
+    if (end.l == -1 && end.c == -1) {
+      end.l = static_cast<long>(start.l);
+      end.c = static_cast<long>(_lines[static_cast<size_t>(end.l)]->code.length());
     }
-    auto s_row = start.r;
-    auto e_row = end.r;
+    auto s_row = start.l;
+    auto e_row = end.l;
     std::string ret;
     if (s_row == e_row) {
       assert(start.c != end.c);
@@ -138,13 +125,13 @@ class Reader final {
 
   /// \brief Return a copy of code_ptr that points to the next position of ptr
   [[nodiscard]] code_ptr forward_ptr(code_ptr ptr) {
-    if (static_cast<size_t >(ptr.r) >= _lines.size()) {
+    if (static_cast<size_t >(ptr.l) >= _lines.size()) {
       return ptr;
     }
-    long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.r)]->code.length());
+    long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.l)]->code.length());
     if (ptr.c >= n_cols - 1) {
-      if (ptr.r < static_cast<long>(_lines.size())) {
-        ++ptr.r;
+      if (ptr.l < static_cast<long>(_lines.size())) {
+        ++ptr.l;
       }
       ptr.c = 0;
     } else {

@@ -2,7 +2,6 @@
 #define TAN_TEST_READER_TEST_H
 
 #include "reader.h"
-#include "utils.h"
 #include <gtest/gtest.h>
 #include <iostream>
 
