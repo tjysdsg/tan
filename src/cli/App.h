@@ -19,7 +19,6 @@ class App final {
 
  private:
   std::vector<std::string> _input_files{};
-  std::string _output_file{};
   bool _print_ast = false;
   bool _print_ir_code = false;
   std::vector<Token *> _tokens{};

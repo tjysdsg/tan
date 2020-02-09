@@ -1,6 +1,7 @@
 #include <gflags/gflags.h>
+#include "App.h"
+
 DEFINE_string(files, "main.tan", "comma-separated list of files to compile");
-DEFINE_string(output, "output.o", "output file path");
 DEFINE_bool(print_ir_code, false, "print out llvm IR code if true");
 DEFINE_bool(print_ast, false, "print out abstract syntax tree if true");
 using tanlang::Reader;
@@ -8,21 +9,25 @@ using tanlang::Parser;
 using tanlang::Token;
 using tanlang::Compiler;
 
+static std::vector<std::string> flag_to_list(const std::string &flag, const std::string delimiter = ",") {
+  size_t last = 0;
+  size_t next = 0;
+  std::vector<std::string> results;
+  while ((next = flag.find(delimiter, last)) != std::string::npos) {
+    results.push_back(flag.substr(last, next - last));
+    last = next + 1;
+  }
+  results.push_back(flag.substr(last));
+  return results;
+}
+
 template<typename PARSER_TYPE>
 App<PARSER_TYPE>::App(int argc, char **argv) {
   gflags::SetUsageMessage("tan compiler");
   gflags::ParseCommandLineFlags(&argc, &argv, false);
   _print_ast = FLAGS_print_ast;
   _print_ir_code = FLAGS_print_ir_code;
-  _output_file = FLAGS_output;
-  std::string delimiter = ",";
-  size_t last = 0;
-  size_t next = 0;
-  while ((next = FLAGS_files.find(delimiter, last)) != std::string::npos) {
-    _input_files.push_back(FLAGS_files.substr(last, next - last));
-    last = next + 1;
-  }
-  _input_files.push_back(FLAGS_files.substr(last));
+  _input_files = flag_to_list(FLAGS_files);
 }
 
 template<typename PARSER_TYPE>
@@ -47,6 +52,7 @@ bool App<PARSER_TYPE>::parse() {
 
 template<typename PARSER_TYPE>
 bool App<PARSER_TYPE>::compile() {
+  std::cout << "Compiling TAN file: " << _input_files[_curr_file] << "\n";
   if (_curr_file >= _input_files.size()) return false;
   _parser->codegen();
   if (_print_ir_code) {
@@ -55,7 +61,7 @@ bool App<PARSER_TYPE>::compile() {
   _parser->evaluate();
   if constexpr (std::is_same<PARSER_TYPE, Parser>::value) { // only compile to file if JIT is disabled
     _compiler = std::make_unique<Compiler>(_parser->get_compiler_session()->get_module().release());
-    _compiler->emit_object(FLAGS_output);
+    _compiler->emit_object(_input_files[_curr_file] + ".o");
   }
   return true;
 }
@@ -67,3 +73,4 @@ App<PARSER_TYPE>::~App() {
     t = nullptr;
   }
 }
+

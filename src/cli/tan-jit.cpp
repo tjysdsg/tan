@@ -6,9 +6,9 @@ int main(int argc, char **argv) {
   while (true) {
     r = app.read();
     if (!r) break;
-    r &= app.parse();
+    r = app.parse();
     if (!r) break;
-    r &= app.compile();
+    r = app.compile();
     if (!r) break;
     app.next_file();
   }
