@@ -48,10 +48,10 @@ struct code_ptr {
 
 struct line_info {
   // TODO: remember source file location
-  unsigned lineno = 0;   // line number
-  std::string code = ""; // actual code
-  line_info() = default;
-  explicit line_info(const unsigned lineno) { this->lineno = lineno; }
+  unsigned lineno;   // line number
+  std::string code; // actual code
+  line_info() = delete;
+  line_info(const unsigned lineno, const std::string code) : lineno(lineno), code(code) {}
   ~line_info() = default;
 };
 

@@ -5,6 +5,7 @@
 #include "compiler.h"
 using tanlang::Token;
 using tanlang::Compiler;
+using tanlang::Reader;
 
 template<typename PARSER_TYPE>
 class TanC final {
@@ -22,9 +23,13 @@ class TanC final {
   bool _print_ast = false;
   bool _print_ir_code = false;
   std::vector<Token *> _tokens{};
-  std::unique_ptr<PARSER_TYPE> _parser{};
-  std::unique_ptr<Compiler> _compiler{};
   size_t _curr_file = 0;
+
+ private:
+  // prevent classes from destruction, making data sharing between them impossible
+  std::unique_ptr<Reader> _reader;
+  std::unique_ptr<PARSER_TYPE> _parser;
+  std::unique_ptr<Compiler> _compiler;
 };
 #include "src/tanc/tanc.hpp"
 

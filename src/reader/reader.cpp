@@ -1,5 +1,5 @@
-#include "reader.h"
 #include "base.h"
+#include "reader.h"
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -48,7 +48,7 @@ void Reader::from_string(const std::string &code) {
         line = code.substr(line_start, c - line_start + 1);
       }
       // FIXME: avoid `new` inside a loop
-      new_line = new line_info(lineno++);
+      new_line = new line_info(lineno++, line);
       // delete whitespace at the beginning of the line
       for (size_t i = 0; i < line.length(); ++i) {
         if (!std::isspace(line[i])) {

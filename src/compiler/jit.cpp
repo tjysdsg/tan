@@ -18,14 +18,12 @@ JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
   auto object_layer = std::make_unique<RTDyldObjectLinkingLayer>(
       *execution_session, []() { return std::make_unique<SectionMemoryManager>(); });
   auto jit_machine_builder = JITTargetMachineBuilder::detectHost();
-  if (!jit_machine_builder) {
-    // return jit_machine_builder.takeError();
-    return;
+  if (jit_machine_builder.takeError()) {
+    throw std::runtime_error("Failed to build JIT machine");
   }
   auto pdata_layout = jit_machine_builder->getDefaultDataLayoutForTarget();
-  if (!pdata_layout) {
-    // return data_layout.takeError();
-    return;
+  if (pdata_layout.takeError()) {
+    throw std::runtime_error("Failed to get machine data layout");
   }
   auto data_layout = std::make_unique<DataLayout>(pdata_layout.get());
   module->setDataLayout(*data_layout);

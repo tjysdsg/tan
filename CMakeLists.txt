@@ -57,6 +57,8 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/tanc COMMON_SRCS)
 
 # ====== tests for debug build ======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    # add DEBUG macro
+    add_definitions(-DDEBUG)
     # target test
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})

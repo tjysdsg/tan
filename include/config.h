@@ -1,8 +1,5 @@
 #ifndef TAN_INCLUDE_CONFIG_H
 #define TAN_INCLUDE_CONFIG_H
-#ifndef NDEBUG
-#    define DEBUG_ENABLED
-#endif
 
 // clang-format off
 #define TAN_VERSION_MAJOR 0

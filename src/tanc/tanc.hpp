@@ -14,9 +14,9 @@ TanC<PARSER_TYPE>::TanC(std::vector<std::string> files, bool print_ast, bool pri
 template<typename PARSER_TYPE>
 bool TanC<PARSER_TYPE>::read() {
   if (_curr_file >= _input_files.size()) return false;
-  Reader r;
-  r.open(_input_files[_curr_file]);
-  _tokens = tokenize(&r);
+  _reader = std::make_unique<Reader>();
+  _reader->open(_input_files[_curr_file]);
+  _tokens = tokenize(_reader.get());
   return true;
 }
 
