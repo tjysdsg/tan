@@ -29,15 +29,18 @@ class Parser {
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
   Value *codegen();
-  virtual Error evaluate(std::unique_ptr<Module> module = nullptr) {
-    UNUSED(module);
-    return Error::success();
-  };
+  virtual Error evaluate(std::unique_ptr<Module> module = nullptr);
   virtual void dump() const;
 
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};
   size_t _curr_token;
+
+ protected:
+  CompilerSession *_compiler_session;
+
+ public:
+  [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
 
  public:
   template<ASTType first_type, ASTType... types>
@@ -58,12 +61,6 @@ class Parser {
     }
     return node;
   }
-
- protected:
-  CompilerSession *_compiler_session;
-
- public:
-  [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
 };
 
 } // namespace tanlang

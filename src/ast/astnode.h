@@ -88,7 +88,6 @@ class ASTNode {
   virtual void nud(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
-  [[noreturn]] void report_error();
 
  private:
   void printTree(const std::string &prefix, bool last_child) const;
@@ -102,21 +101,6 @@ class ASTInfixBinaryOp : public ASTNode {
  public:
   explicit ASTInfixBinaryOp(Token *token);
   void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
-};
-
-class ASTNumberLiteral final : public ASTNode {
- public:
-  ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
-  void nud(Parser *parser) override;
-  [[nodiscard]] bool is_float() const;
-  Value *codegen(CompilerSession *compiler_session) override;
-
- private:
-  bool _is_float = false;
-  union {
-    int _ivalue;
-    float _fvalue;
-  };
 };
 
 class ASTPrefix : public ASTNode {
@@ -143,14 +127,6 @@ class ASTLogicalNot final : public ASTPrefix {
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-class ASTStringLiteral final : public ASTNode {
- public:
-  explicit ASTStringLiteral(std::string str, Token *token);
-
- private:
-  std::string _svalue;
-};
-
 class ASTCompare final : public ASTInfixBinaryOp {
  public:
   ASTCompare() = delete;
@@ -161,12 +137,6 @@ class ASTCompare final : public ASTInfixBinaryOp {
 class ASTArithmetic final : public ASTInfixBinaryOp {
  public:
   ASTArithmetic(ASTType type, Token *token);
-  Value *codegen(CompilerSession *compiler_session) override;
-};
-
-class ASTAssignment final : public ASTInfixBinaryOp {
- public:
-  explicit ASTAssignment(Token *token);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 

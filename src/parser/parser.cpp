@@ -2,6 +2,7 @@
 #include "src/ast/ast_statement.h"
 #include "src/ast/ast_func.h"
 #include "src/parser/token_check.h"
+#include "src/ast/ast_expr.h"
 #include <memory>
 
 namespace tanlang {
@@ -156,6 +157,11 @@ Value *Parser::codegen() {
 
 void Parser::dump() const {
   get_compiler_session()->get_module()->print(llvm::outs(), nullptr);
+}
+
+Error Parser::evaluate(std::unique_ptr<Module> module) {
+  UNUSED(module);
+  return Error::success();
 }
 
 #define TRY_NUD(node, strict)                                                  \

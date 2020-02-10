@@ -25,10 +25,12 @@ Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->CreateStore(_children[2]->codegen(compiler_session), var);
   }
 
-  // add to current scope
-  // NOTE: adding to scope AFTER setting the intial value allows initialization like:
-  //     var a = a;
-  //     where the latter `a` refers to outer a variable in the outer scope.
+  /**
+   * add to current scope
+   * \NOTE: adding to scope AFTER setting the initial value allows initialization like:
+   *     var a = a;
+   *     where the latter `a` refers to outer a variable in the outer scope.
+   * */
   compiler_session->add(name, var);
 
   return nullptr;
@@ -153,7 +155,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
-  // Assignment requires the lhs to be an mutable variable.
+  // assignment requires the lhs to be an mutable variable.
   auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
   if (!lhs) {
     report_code_error(lhs->_token, "Left-hand operand of assignment must be a variable");
@@ -177,10 +179,29 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   return val;
 }
 
-/// \attention UNUSED
 Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
   UNUSED(compiler_session);
   assert(false);
+}
+
+ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
+                                                                                                  op_precedence[ASTType::NUM_LITERAL],
+                                                                                                  0, token) {
+  _is_float = is_float;
+  if (is_float) {
+    _fvalue = std::stof(str);
+  } else {
+    _ivalue = std::stoi(str);
+  }
+}
+
+ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
+                                                                            op_precedence[ASTType::STRING_LITERAL],
+                                                                            0, token), _svalue(std::move(str)) {}
+
+ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
+  _type = ASTType::ASSIGN;
+  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang

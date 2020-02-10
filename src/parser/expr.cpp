@@ -27,7 +27,7 @@ void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left,
   _children.emplace_back(left);
   auto n = parser->next_expression(_lbp);
   if (!n) {
-    report_error();
+    report_code_error(_token, "Unexpected token");
   } else {
     _children.emplace_back(n);
   }

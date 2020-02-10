@@ -5,11 +5,6 @@
 
 namespace tanlang {
 
-// ================= helper functions ================//
-void ASTNode::report_error() {
-  report_code_error(_token, "Unexpected token " + _token->to_string());
-}
-
 void ASTNode::printTree() const {
   using std::cout;
   cout << ast_type_names[this->_type] << "\n";
@@ -57,22 +52,7 @@ ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token) : ASTNode(ASTType::INVALID,
                                                            0,
                                                            token) {}
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
-                                                                                                  op_precedence[ASTType::NUM_LITERAL],
-                                                                                                  0, token) {
-  _is_float = is_float;
-  if (is_float) {
-    _fvalue = std::stof(str);
-  } else {
-    _ivalue = std::stoi(str);
-  }
-}
-
 ASTPrefix::ASTPrefix(Token *token) : ASTNode(ASTType::INVALID, op_precedence[ASTType::INVALID], 0, token) {}
-
-ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
-                                                                            op_precedence[ASTType::STRING_LITERAL],
-                                                                            0, token), _svalue(std::move(str)) {}
 
 ASTLogicalNot::ASTLogicalNot(Token *token) : ASTPrefix(token) {
   _type = ASTType::LNOT;
@@ -91,37 +71,20 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
   _type = type;
   _lbp = op_precedence[type];
 }
-
-ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
-  _type = ASTType::ASSIGN;
-  _lbp = op_precedence[_type];
-}
 // ============================================================ //
 
 // ============================= parser =========================//
 void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
-  if (!_token) {
-    throw std::runtime_error("Unexpected empty token");
-  }
-  report_error();
+  throw std::runtime_error("Not implemented");
 }
 
 void ASTNode::nud(Parser *parser) {
   UNUSED(parser);
-  if (!_token) {
-    throw std::runtime_error("Unexpected empty token");
-  }
-  report_error();
+  throw std::runtime_error("Not implemented");
 }
 // ============================================================== //
-
-// ========================== getter/setter ==================== //
-bool ASTNumberLiteral::is_float() const {
-  return _is_float;
-}
-// ============================================================= //
 
 // ================= codegen functions ========================= //
 Value *ASTNode::codegen(CompilerSession *compiler_session) {
@@ -133,8 +96,8 @@ Value *ASTNode::codegen(CompilerSession *compiler_session) {
   }
   return result;
 }
-// ================= codegen functions ends ================ //
 
+/// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
 std::unordered_map<ASTType, std::string> ast_type_names{
