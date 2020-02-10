@@ -37,9 +37,9 @@ bool TanC<PARSER_TYPE>::compile() {
   if (_curr_file >= _input_files.size()) return false;
   _parser->codegen();
   if (_print_ir_code) {
-    _parser->get_compiler_session()->get_module()->print(llvm::errs(), nullptr);
+    _parser->dump();
   }
-  _parser->evaluate();
+  if (_parser->evaluate()) { return false; }
   if constexpr (std::is_same<PARSER_TYPE, Parser>::value) { // only compile to file if JIT is disabled
     _compiler = std::make_unique<Compiler>(_parser->get_compiler_session()->get_module().release());
     _compiler->emit_object(_input_files[_curr_file] + ".o");

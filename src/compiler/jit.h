@@ -12,6 +12,7 @@ class JIT : public Parser {
   explicit JIT(std::vector<Token *> tokens);
   Expected<JITEvaluatedSymbol> lookup(StringRef Name);
   Error evaluate(std::unique_ptr<Module> module = nullptr) override;
+  void dump() const override;
 };
 
 } // namespace tanlang

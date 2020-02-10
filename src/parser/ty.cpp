@@ -32,13 +32,6 @@ std::unordered_map<std::string, Ty> composite_tys = {
     {"array", Ty::ARRAY},
 };
 
-static bool check_ty_validity(Ty ty) {
-  bool base = TY_HAS_BASE(ty);
-  bool comp = TY_HAS_COMPOSITE(ty);
-  if (!base) return false;
-  return !(base && comp);
-}
-
 void ASTTy::nud(Parser *parser) {
   Token *token = nullptr;
   while (true) {

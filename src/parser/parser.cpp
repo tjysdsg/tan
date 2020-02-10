@@ -154,6 +154,10 @@ Value *Parser::codegen() {
   return _root->codegen(_compiler_session);
 }
 
+void Parser::dump() const {
+  get_compiler_session()->get_module()->print(llvm::outs(), nullptr);
+}
+
 #define TRY_NUD(node, strict)                                                  \
   do {                                                                         \
     try {                                                                      \

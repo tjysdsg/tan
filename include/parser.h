@@ -33,6 +33,7 @@ class Parser {
     UNUSED(module);
     return Error::success();
   };
+  virtual void dump() const;
 
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};
