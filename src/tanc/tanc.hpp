@@ -40,7 +40,7 @@ bool TanC<PARSER_TYPE>::compile() {
     _parser->dump();
   }
   if (_parser->evaluate()) { return false; }
-  if constexpr (std::is_same<PARSER_TYPE, Parser>::value) { // only compile to file if JIT is disabled
+  if constexpr (std::is_same<PARSER_TYPE, Parser>::value) { // only compile to file if Interpreter is disabled
     _compiler = std::make_unique<Compiler>(_parser->get_compiler_session()->get_module().release());
     _compiler->emit_object(_input_files[_curr_file] + ".o");
   }

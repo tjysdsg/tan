@@ -1,5 +1,5 @@
-#ifndef TAN_SRC_COMPILER_JIT_H_
-#define TAN_SRC_COMPILER_JIT_H_
+#ifndef TAN_SRC_COMPILER_INTERPRETER_H_
+#define TAN_SRC_COMPILER_INTERPRETER_H_
 #include <memory>
 #include <utility>
 #include "parser.h"
@@ -7,9 +7,9 @@
 
 namespace tanlang {
 
-class JIT : public Parser {
+class Interpreter : public Parser {
  public:
-  explicit JIT(std::vector<Token *> tokens);
+  explicit Interpreter(std::vector<Token *> tokens);
   Expected<JITEvaluatedSymbol> lookup(StringRef Name);
   Error evaluate(std::unique_ptr<Module> module = nullptr) override;
   void dump() const override;
@@ -17,4 +17,4 @@ class JIT : public Parser {
 
 } // namespace tanlang
 
-#endif /* TAN_SRC_COMPILER_JIT_H_ */
+#endif /*TAN_SRC_COMPILER_INTERPRETER_H_*/

@@ -1,15 +1,15 @@
-#include "src/compiler/jit.h"
+#include "src/compiler/interpreter.h"
 
 namespace tanlang {
 
-JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
+Interpreter::Interpreter(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
   auto context = std::make_unique<LLVMContext>();
   auto builder = std::make_unique<IRBuilder<>>(*context);
-  auto module = std::make_unique<Module>("JIT", *context);
+  auto module = std::make_unique<Module>("Interpreter", *context);
 
   // jit related
   auto execution_session = std::make_unique<ExecutionSession>();
@@ -17,7 +17,7 @@ JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
       *execution_session, []() { return std::make_unique<SectionMemoryManager>(); });
   auto jit_machine_builder = JITTargetMachineBuilder::detectHost();
   if (jit_machine_builder.takeError()) {
-    throw std::runtime_error("Failed to build JIT machine");
+    throw std::runtime_error("Failed to build Interpreter machine");
   }
   auto pdata_layout = jit_machine_builder->getDefaultDataLayoutForTarget();
   if (pdata_layout.takeError()) {
@@ -45,13 +45,13 @@ JIT::JIT(std::vector<Token *> tokens) : Parser(std::move(tokens)) {
                                           std::move(ctx));
 }
 
-Expected<JITEvaluatedSymbol> JIT::lookup(StringRef name) {
+Expected<JITEvaluatedSymbol> Interpreter::lookup(StringRef name) {
   llvm::ArrayRef<JITDylib *> search_order = {&_compiler_session->get_execution_session()->getMainJITDylib()};
   auto symbol = (*_compiler_session->get_mangle())(name);
   return _compiler_session->get_execution_session()->lookup(search_order, symbol);
 }
 
-Error JIT::evaluate(std::unique_ptr<Module> module) {
+Error Interpreter::evaluate(std::unique_ptr<Module> module) {
   if (!module) {
     module = std::move(_compiler_session->get_module());
   }
@@ -59,7 +59,7 @@ Error JIT::evaluate(std::unique_ptr<Module> module) {
       _compiler_session->get_execution_session()->getMainJITDylib(),
       ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context())
   );
-  if (e) { throw std::runtime_error("JIT evaluation failed"); }
+  if (e) { throw std::runtime_error("Interpreter evaluation failed"); }
   auto main_func_symbol = lookup("jit_main"); // main function is renamed to 'jit_main' in ast_func.cpp
   if (main_func_symbol.takeError()) {
     throw std::runtime_error("Cannot find main function");
@@ -71,7 +71,7 @@ Error JIT::evaluate(std::unique_ptr<Module> module) {
   return e;
 }
 
-void JIT::dump() const {
+void Interpreter::dump() const {
   _compiler_session->get_execution_session()->dump(llvm::outs());
 }
 

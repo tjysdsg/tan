@@ -83,10 +83,10 @@ target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DI
 target_link_libraries(tanc pthread gflags tan)
 set_target_properties(tanc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
-# ===== target CLI JIT =====
-set(JIT_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-jit.cpp)
-add_executable(tan-jit ${JIT_SRCS})
-target_include_directories(tan-jit PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tan-jit pthread gflags tan)
-set_target_properties(tan-jit PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+# ===== target CLI interpreter =====
+set(INTERPRETER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-interpreter.cpp)
+add_executable(tan-interpreter ${INTERPRETER_SRCS})
+target_include_directories(tan-interpreter PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(tan-interpreter pthread gflags tan)
+set_target_properties(tan-interpreter PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
