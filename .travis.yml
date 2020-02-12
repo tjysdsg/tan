@@ -1,11 +1,10 @@
-dist: trusty
-sudo: false
+dist: bionic
 language: cpp
 
-addons:
-  apt:
-    packages:
-      - g++-6
+before_install:
+    - sudo apt-get update
+    - sudo apt-get -y install build-essential libgtest-dev libgflags-dev
+    - sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" # install llvm, https://apt.llvm.org/
 
 script:
-  - CXX=/usr/bin/g++-6 CC=/usr/bin/gcc-6 ./compile-and-test.sh
+  - ./compile-and-test.sh
