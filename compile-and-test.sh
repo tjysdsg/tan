@@ -1,7 +1,7 @@
 mkdir -p build
 pushd build
-cmake ..
-if make -j4;
+cmake .. || exit 1
+if make -j8;
 then
     pushd ../src/test
     ../../build/tan_tests

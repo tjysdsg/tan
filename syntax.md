@@ -1,5 +1,7 @@
 # Grammar of `tan`
 
+**OUTDATED**
+
 ## Symbols/Operators
 
 ### Unary operators
