@@ -3,7 +3,7 @@ language: cpp
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get -y install build-essential libgtest-dev libgflags-dev
+    - sudo apt-get -y install build-essential libgtest-dev libgflags2.2 libgflags-dev
     - sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)" # install llvm, https://apt.llvm.org/
 
 script:
