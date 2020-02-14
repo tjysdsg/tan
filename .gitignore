@@ -1,4 +1,5 @@
 build/
+gtest-build/
 cmake-build*/
 .idea/
 bin/
