@@ -1,5 +1,5 @@
 mkdir -p build
 pushd build
 cmake ..
-make -j*
+make -j8
 popd
