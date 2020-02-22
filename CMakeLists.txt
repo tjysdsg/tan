@@ -15,23 +15,15 @@ project(tan LANGUAGES CXX VERSION ${TAN_VERSION})
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
-# C++17
-set(CMAKE_CXX_STANDARD 17)
-
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif ()
 
-# compiler flags
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic-errors -Wconversion")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
 # ================================ thirdparty dependencies ========================== #
+#
 # ===== Google test ======
-# find_package(GTest REQUIRED)
 # Download and unpack googletest at configure time
 configure_file(cmake/GTest-CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -39,12 +31,14 @@ execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 if (result)
     message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    return()
 endif ()
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 if (result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    return()
 endif ()
 
 # Prevent overriding the parent project's compiler/linker
@@ -77,7 +71,8 @@ add_definitions(${LLVM_DEFINITIONS})
 
 # ===== gflags =====
 find_package(gflags REQUIRED)
-# ================================----------------------- ========================== #
+#
+# ================================ thirdparty dependencies end ========================== #
 
 # common source files shared by multiple targets
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
@@ -88,38 +83,60 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/tanc COMMON_SRCS)
 
+macro(set_other_options target_name)
+    message(${target_name})
+    target_compile_features(${target_name} PRIVATE cxx_std_17)
+    target_compile_options(${target_name}
+            PRIVATE -Wall
+            PRIVATE -Wextra
+            PRIVATE -pedantic-errors
+            PRIVATE -Wconversion
+            )
+
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        # add `DEBUG` and `_DEBUG` macro
+        target_compile_definitions(${target_name} PRIVATE -DDEBUG)
+        target_compile_definitions(${target_name} PRIVATE -D_DEBUG)
+    else ()
+        target_compile_options(${target_name} PRIVATE -O3)
+    endif ()
+    set_target_properties(${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+    set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+    set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+endmacro()
+
+
 # ====== tests for debug build ======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    # add DEBUG macro
-    add_definitions(-DDEBUG)
     # target test
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src/test)
     target_link_libraries(tan_tests gtest_main LLVM-9)
+    set_other_options(tan_tests)
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
     enable_testing()
-endif (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+endif ()
 
 # ===== target libtanc =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_include_directories(tan PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(tan PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(tan pthread LLVM-9)
-set_target_properties(tan PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set_other_options(tan)
 
 # ===== target CLI compiler =====
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
 add_executable(tanc ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(tanc pthread gflags tan)
-set_target_properties(tanc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set_other_options(tanc)
 
 # ===== target CLI interpreter =====
 set(INTERPRETER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-interpreter.cpp)
 add_executable(tan-interpreter ${INTERPRETER_SRCS})
 target_include_directories(tan-interpreter PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(tan-interpreter pthread gflags tan)
-set_target_properties(tan-interpreter PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+set_other_options(tan-interpreter)
 
