@@ -1,24 +1,15 @@
 name: Continuous Build
 
-on: 
+on:
   push:
     branches:
-    - master
-    - parser
+      - master
 
 jobs:
   CI_master:
     runs-on: ubuntu-18.04
-    
-    steps:
-    - uses: actions/checkout@master
-    - name: compile and test
-      run: ./compile-and-test.sh
 
-  CI_parser:
-    runs-on: ubuntu-18.04
-    
     steps:
-    - uses: actions/checkout@master
-    - name: compile and test
-      run: ./compile-and-test.sh
+      - uses: actions/checkout@master
+      - name: compile and test
+        run: ./scripts/install-dep.sh; ./scripts/compile-and-test.sh

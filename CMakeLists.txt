@@ -24,40 +24,11 @@ endif ()
 # ================================ thirdparty dependencies ========================== #
 #
 # ===== Google test ======
-# Download and unpack googletest at configure time
-configure_file(cmake/GTest-CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if (result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-    return()
-endif ()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if (result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-    return()
-endif ()
+add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif ()
-
+# ===== gflags =====
+add_subdirectory(${PROJECT_SOURCE_DIR}/dep/gflags)
+include_directories(${GFLAGS_INCLUDE_DIR})
 
 # ===== LLVM =====
 find_package(LLVM REQUIRED CONFIG)
@@ -65,13 +36,8 @@ include_directories(${LLVM_INCLUDE_DIRS})
 # resolve symlink, because CLION with WSL doesn't seem to recognize this
 get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
 get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
-
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-
-# ===== gflags =====
-find_package(gflags REQUIRED)
-#
 # ================================ thirdparty dependencies end ========================== #
 
 # common source files shared by multiple targets
@@ -130,13 +96,13 @@ set_other_options(tan)
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
 add_executable(tanc ${CLI_SRCS})
 target_include_directories(tanc PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tanc pthread gflags tan)
+target_link_libraries(tanc pthread gflags::gflags tan)
 set_other_options(tanc)
 
 # ===== target CLI interpreter =====
 set(INTERPRETER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-interpreter.cpp)
 add_executable(tan-interpreter ${INTERPRETER_SRCS})
 target_include_directories(tan-interpreter PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(tan-interpreter pthread gflags tan)
+target_link_libraries(tan-interpreter pthread gflags::gflags tan)
 set_other_options(tan-interpreter)
 

@@ -4,7 +4,6 @@ cmake-build*/
 .idea/
 bin/
 lib/
-dep/
 # made by ctest
 Testing/
 
