@@ -1,3 +1,5 @@
+#include <src/ast/ast_struct.h>
+
 #include "src/ast/ast_expr.h"
 #include "src/parser/token_check.h"
 #include "parser.h"
@@ -22,6 +24,14 @@ void ASTVarDecl::nud(Parser *parser) {
     _children.push_back(parser->next_expression());
     _has_initial_val = true;
   }
+}
+
+void ASTStruct::nud(Parser *parser) {
+  _children.push_back(parser->next_expression()); // name
+  auto comp_statements = parser->advance();
+  comp_statements->nud(parser);
+  ++parser->_curr_token;
+  _children.insert(_children.begin() + 1, comp_statements->_children.begin(), comp_statements->_children.end());
 }
 
 }

@@ -53,6 +53,7 @@ void ASTStatement::nud(Parser *parser) {
       ++parser->_curr_token;
     }
   }
+  // TODO: increment parser->_curr_token, and adjust relevant calls to this function
 }
 
 }

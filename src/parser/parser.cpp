@@ -7,8 +7,7 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens)
-    : _tokens(std::move(tokens)), _curr_token(0) {
+Parser::Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)), _curr_token(0) {
   _compiler_session = new CompilerSession("main");
 }
 
@@ -34,14 +33,16 @@ std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) 
   }
   Token *token = _tokens[_curr_token];
   if (token->type != type || token->value != value) {
-    report_code_error(token, "Expect token " + value + " with type " + token_type_names[type] + ", but got "
-        + token->to_string() + " instead");
+    report_code_error(token,
+                      "Expect token " + value + " with type " + token_type_names[type] + ", but got "
+                          + token->to_string() + " instead"
+    );
   }
   return peek();
 }
 
 std::shared_ptr<ASTNode> Parser::peek() {
-  if (_curr_token >= _tokens.size()) return nullptr;
+  if (_curr_token >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[_curr_token];
   std::shared_ptr<ASTNode> node;
   if (token->value == "+" && token->type == TokenType::BOP) {
@@ -58,6 +59,8 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTLogicalNot>(token);
   } else if (token->value == "~" && token->type == TokenType::UOP) {
     node = std::make_shared<ASTBinaryNot>(token);
+  } else if (token->value == "struct" && token->type == TokenType::KEYWORD) {
+    node = std::make_shared<ASTStruct>(token);
   } else if (token->type == TokenType::RELOP) {
     if (token->value == ">") {
       node = std::make_shared<ASTCompare>(ASTType::GT, token);
@@ -128,8 +131,8 @@ std::shared_ptr<ASTNode> Parser::next_expression(int rbp) {
 
 /**
  * \brief: parse a single non-compound statement
- * \note: since a statement parsing might fail, _curr_token is one before the next new token to be parsed. Therefore,
- *          remember to increment _curr_token after successfully finishing a next_statement() call!
+ * \note: since a statement parsing might fail, _curr_token is set as one before the next new token to be parsed.
+ *        As a result, remember to increment _curr_token after successfully finishing a next_statement() call!
  * */
 std::shared_ptr<ASTNode> Parser::next_statement() {
   auto statement = std::make_shared<ASTStatement>(get_curr_token());
@@ -175,8 +178,7 @@ Error Parser::evaluate(std::unique_ptr<Module> module) {
     }                                                                          \
   } while (false)
 
-template<>
-std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(bool strict) {
+template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(bool strict) {
   auto *token = get_curr_token();
   std::shared_ptr<ASTNode> node = std::make_shared<ASTIdentifier>(token->value, token);
   ++_curr_token;
@@ -184,8 +186,7 @@ std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(bool strict) {
   return node;
 }
 
-template<>
-std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
+template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
   auto *token = get_curr_token();
   std::shared_ptr<ASTNode> node = std::make_shared<ASTFunctionCall>(token->value, token);
   ++_curr_token;
@@ -193,8 +194,7 @@ std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(bool strict) {
   return node;
 }
 
-template<>
-std::shared_ptr<ASTNode> Parser::parse<ASTType::TY>(bool strict) {
+template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::TY>(bool strict) {
   auto *token = get_curr_token();
   std::shared_ptr<ASTNode> node = std::make_shared<ASTTy>(token);
   TRY_NUD(node, strict);
