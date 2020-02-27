@@ -1,3 +1,4 @@
+#!/bin/bash
 . /etc/os-release
 
 if [ "$NAME" = "ubuntu" ]; then
