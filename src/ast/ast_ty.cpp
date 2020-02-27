@@ -46,14 +46,16 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
         break;
       }
       case Ty::STRING: {
-        // TODO
+        type = compiler_session->get_builder()->getInt8Ty(); // LLVM stores string literals as int8*
         break;
       }
       case Ty::VOID: {
         type = compiler_session->get_builder()->getVoidTy();
         break;
       }
-      default: { throw std::runtime_error("Invalid base type: " + std::to_string((uint64_t) base)); }
+      default: {
+        throw std::runtime_error("Invalid base type: " + std::to_string((uint64_t) base));
+      }
     }
   }
   // pointer

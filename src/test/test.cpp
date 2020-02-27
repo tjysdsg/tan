@@ -1,6 +1,5 @@
 #include "lexer_test.h"
 #include "reader_test.h"
-#include "parser_test.h"
 #include "codegen_test.h"
 #include <gtest/gtest.h>
 

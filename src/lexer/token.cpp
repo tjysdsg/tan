@@ -19,7 +19,7 @@ std::unordered_map<TokenType, std::string> token_type_names{
 const std::vector<std::string> KEYWORDS{
     "for", "while", "do", "if", "else", "fn", "var",
     "int", "float", "continue", "break", "let", "struct", "enum",
-    "union", "switch", "case", "str", "u32", "return",
+    "union", "switch", "case", "u32", "return", "str",
 };
 
 const std::vector<char> PUNCTUATIONS{

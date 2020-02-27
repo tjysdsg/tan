@@ -47,7 +47,6 @@ struct code_ptr {
 };
 
 struct line_info {
-  // TODO: remember source file location
   unsigned lineno;   // line number
   std::string code; // actual code
   line_info() = delete;
