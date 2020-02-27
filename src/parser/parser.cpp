@@ -129,21 +129,6 @@ std::shared_ptr<ASTNode> Parser::next_expression(int rbp) {
   return left;
 }
 
-/**
- * \brief: parse a single non-compound statement
- * \note: since a statement parsing might fail, _curr_token is set as one before the next new token to be parsed.
- *        As a result, remember to increment _curr_token after successfully finishing a next_statement() call!
- * */
-std::shared_ptr<ASTNode> Parser::next_statement() {
-  auto statement = std::make_shared<ASTStatement>(get_curr_token());
-  auto node = peek();
-  while (node) {
-    statement->_children.push_back(next_expression(0));
-    node = peek();
-  }
-  return statement;
-}
-
 std::shared_ptr<ASTNode> Parser::parse() {
   _root = std::make_shared<ASTProgram>();
   _root->nud(this);
@@ -177,6 +162,13 @@ Error Parser::evaluate(std::unique_ptr<Module> module) {
       return nullptr;                                                          \
     }                                                                          \
   } while (false)
+
+template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::STATEMENT>(bool strict) {
+  auto *token = get_curr_token();
+  std::shared_ptr<ASTNode> node = std::make_shared<ASTStatement>(token);
+  TRY_NUD(node, strict);
+  return node;
+}
 
 template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(bool strict) {
   auto *token = get_curr_token();

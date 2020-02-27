@@ -10,7 +10,7 @@ namespace tanlang {
 void ASTProgram::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   while (parser->_curr_token < n_tokens - 1) {
-    _children.push_back(parser->next_statement());
+    _children.push_back(parser->parse<ASTType::STATEMENT>(true));
   }
 }
 

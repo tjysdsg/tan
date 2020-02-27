@@ -25,7 +25,6 @@ class Parser {
   std::shared_ptr<ASTNode> peek();
   std::shared_ptr<ASTNode> peek(TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(int rbp = 0);
-  std::shared_ptr<ASTNode> next_statement();
   std::shared_ptr<ASTNode> parse();
   [[nodiscard]] Token *get_curr_token() const;
   Value *codegen();

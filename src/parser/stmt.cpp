@@ -41,19 +41,21 @@ void ASTStatement::nud(Parser *parser) {
   size_t n_tokens = parser->_tokens.size();
   if (_is_compound) {
     while (parser->_curr_token < n_tokens) {
-      auto n = parser->next_statement();
-      if (!n || n->_children.empty()) { break; }
-      _children.push_back(n);
+      auto node = parser->peek();
+      while (node) {
+        _children.push_back(parser->next_expression(0));
+        node = parser->peek();
+      }
       ++parser->_curr_token;
     }
   } else {
-    auto n = std::reinterpret_pointer_cast<ASTStatement>(parser->next_statement());
-    if (n && !n->_children.empty()) {
-      *this = *n;
-      ++parser->_curr_token;
+    auto node = parser->peek();
+    while (node) {
+      _children.push_back(parser->next_expression(0));
+      node = parser->peek();
     }
+    ++parser->_curr_token;
   }
-  // TODO: increment parser->_curr_token, and adjust relevant calls to this function
 }
 
 }
