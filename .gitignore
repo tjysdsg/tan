@@ -2,10 +2,12 @@ build/
 gtest-build/
 cmake-build*/
 .idea/
-bin/
-lib/
+/bin/
+/lib/
 # made by ctest
 Testing/
 
 *.o
 *.out
+*.pch
+*.gch

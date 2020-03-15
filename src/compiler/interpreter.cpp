@@ -60,7 +60,7 @@ Error Interpreter::evaluate(std::unique_ptr<Module> module) {
       ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context())
   );
   if (e) { throw std::runtime_error("Interpreter evaluation failed"); }
-  auto main_func_symbol = lookup("jit_main"); // main function is renamed to 'jit_main' in ast_func.cpp
+  auto main_func_symbol = lookup("__tan_main"); // main function is renamed to 'jit_main' in ast_func.cpp
   if (main_func_symbol.takeError()) {
     throw std::runtime_error("Cannot find main function");
   }

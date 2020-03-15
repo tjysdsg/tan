@@ -1,6 +1,6 @@
-fn print_args(argc: int, argv: u8**) : void;
+fn print_args(argc: i32, argv: i8**) : void;
 
-fn main(argc: int, argv: u8**) : float {
+fn main(argc: i32, argv: i8**) : int {
     print_args(argc, argv);
     return 0;
 }
