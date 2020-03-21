@@ -62,6 +62,9 @@ get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
 get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
+
+# ===== others ======
+add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
 # ================================ thirdparty dependencies end ========================== #
 
 # common source files shared by multiple targets
