@@ -112,7 +112,8 @@ std::unordered_map<ASTType, std::string>
                    MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE), MAKE_ASTTYPE_NAME_PAIR(ID),
                    MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS), MAKE_ASTTYPE_NAME_PAIR(FUNC_CALL),
                    MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL), MAKE_ASTTYPE_NAME_PAIR(ARG_DECL),
-                   MAKE_ASTTYPE_NAME_PAIR(VAR_DECL), MAKE_ASTTYPE_NAME_PAIR(TY),};
+                   MAKE_ASTTYPE_NAME_PAIR(VAR_DECL), MAKE_ASTTYPE_NAME_PAIR(TY),
+                   MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS),};
 
 #undef MAKE_ASTTYPE_NAME_PAIR
 
@@ -129,7 +130,7 @@ std::unordered_map<ASTType, int>
 
                   {ASTType::ASSIGN, PREC_ASSIGN},
 
-                  {ASTType::PARENTHESIS, PREC_CALL},
+                  {ASTType::PARENTHESIS, PREC_CALL}, {ASTType::MEMBER_ACCESS, PREC_HIGHEST},
 
                   {ASTType::RET, PREC_LOWEST}, {ASTType::IF, PREC_LOWEST}, {ASTType::ELSE, PREC_LOWEST},
 

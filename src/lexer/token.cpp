@@ -60,7 +60,7 @@ std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP{
     std::pair(".", TokenType::BOP), std::pair("=", TokenType::BOP)};
 
 std::string Token::to_string() const {
-  return "<Token " + token_type_names[type] + "L" + std::to_string(l) + ":C" + std::to_string(c) + ">: " + value;
+  return "<Token " + token_type_names[type] + " L" + std::to_string(l) + ":C" + std::to_string(c) + ">: " + value;
 }
 
 std::ostream &Token::operator<<(std::ostream &os) const {

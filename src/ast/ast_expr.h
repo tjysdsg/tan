@@ -2,31 +2,34 @@
 #define TAN_SRC_AST_AST_EXPR_H_
 #include "src/ast/astnode.h"
 #include "astnode.h"
+#include "src/ast/ast_ty.h"
 
 namespace tanlang {
 struct Token;
 
 class ASTParenthesis final : public ASTNode {
- public:
+public:
   ASTParenthesis() = delete;
-  explicit ASTParenthesis(Token *token) : ASTNode(ASTType::PARENTHESIS,
-                                                  op_precedence[ASTType::PARENTHESIS],
-                                                  0, token) {};
+
+  explicit ASTParenthesis(Token *token) : ASTNode(ASTType::PARENTHESIS, op_precedence[ASTType::PARENTHESIS], 0, token
+  ) {};
   void nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTArgDecl final : public ASTNode {
- public:
+public:
   ASTArgDecl() = delete;
+
   explicit ASTArgDecl(Token *token) : ASTNode(ASTType::ARG_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-class ASTVarDecl final : public ASTNode {
- public:
-  ASTVarDecl() = delete;
+class ASTVarDecl final : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
+public:
+  ASTVarDecl() = default;
+
   explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
 
@@ -36,18 +39,22 @@ class ASTVarDecl final : public ASTNode {
    * */
   Value *codegen(CompilerSession *compiler_session) override;
 
- public:
+public:
   bool _has_initial_val = false;
+  Value *_llvm_value = nullptr;
+  std::shared_ptr<ASTTy> _ty = nullptr;
 };
 
 class ASTNumberLiteral final : public ASTNode {
- public:
+public:
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
   void nud(Parser *parser) override;
+
   [[nodiscard]] bool is_float() const { return _is_float; }
+
   Value *codegen(CompilerSession *compiler_session) override;
 
- private:
+private:
   bool _is_float = false;
   union {
     int _ivalue;
@@ -56,15 +63,15 @@ class ASTNumberLiteral final : public ASTNode {
 };
 
 class ASTStringLiteral final : public ASTNode {
- public:
+public:
   explicit ASTStringLiteral(std::string str, Token *token);
 
- private:
+private:
   std::string _svalue;
 };
 
 class ASTAssignment final : public ASTInfixBinaryOp {
- public:
+public:
   explicit ASTAssignment(Token *token);
   Value *codegen(CompilerSession *compiler_session) override;
 };

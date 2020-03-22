@@ -50,7 +50,8 @@ enum class ASTType {
   ID, // identifiers
 
   /// types in tan
-      TY, // type name
+
+  TY, // type name
   PARENTHESIS, // ( )
 
   RET,  // return
@@ -59,6 +60,7 @@ enum class ASTType {
 
   NUM_LITERAL,    // int or float literal
   STRING_LITERAL, // "xxx"
+  MEMBER_ACCESS,  // struct.a
   INVALID,
 };
 

@@ -3,6 +3,7 @@
 #include "src/ast/ast_func.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_expr.h"
+#include "src/ast/ast_dot.h"
 #include <memory>
 
 namespace tanlang {
@@ -93,6 +94,8 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTElse>(token);
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token);
+  } else if (token->type == TokenType::BOP && token->value == ".") { // member access
+    node = std::make_shared<ASTDot>(token);
   } else if (check_typename_token(token)) { // types
     node = std::make_shared<ASTTy>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {

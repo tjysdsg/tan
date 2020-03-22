@@ -65,26 +65,29 @@ std::shared_ptr<Scope> CompilerSession::pop_scope() {
   return r;
 }
 
-void CompilerSession::add(const std::string &name, Value *value) {
+void CompilerSession::add(const std::string &name, std::shared_ptr<ASTNode> value) {
   get_current_scope()->_named.insert(std::make_pair(name, value));
 }
 
-void CompilerSession::set(const std::string &name, Value *value) {
+void CompilerSession::set(const std::string &name, std::shared_ptr<ASTNode> value) {
   // search from the outer-est scope to the inner-est scope
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (scope >= _scope.begin()) {
     auto search = (*scope)->_named.find(name);
-    if (search != (*scope)->_named.end()) { break; } // FIXME: report error if name not found
+    if (search != (*scope)->_named.end()) {
+      // FIXME: print stack trace
+      throw std::runtime_error("Cannot set the value of " + name);
+    }
     --scope;
   }
   (*scope)->_named[name] = value;
 }
 
-Value *CompilerSession::get(const std::string &name) {
+std::shared_ptr<ASTNode> CompilerSession::get(const std::string &name) {
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  Value *result = nullptr;
+  std::shared_ptr<ASTNode> result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {

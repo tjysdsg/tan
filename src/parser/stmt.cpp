@@ -46,6 +46,7 @@ void ASTStatement::nud(Parser *parser) {
         _children.push_back(parser->next_expression(0));
         node = parser->peek();
       }
+      if (parser->get_curr_token()->value == "}") { break; }
       ++parser->_curr_token;
     }
   } else {

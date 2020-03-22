@@ -21,9 +21,9 @@ public:
   std::shared_ptr<Scope> pop_scope();
   void set_code_block(BasicBlock *block);
   [[nodiscard]] BasicBlock *get_code_block() const;
-  void add(const std::string &name, Value *value);
-  void set(const std::string &name, Value *value);
-  Value *get(const std::string &name);
+  void add(const std::string &name, std::shared_ptr<ASTNode> value);
+  void set(const std::string &name, std::shared_ptr<ASTNode> value);
+  std::shared_ptr<ASTNode> get(const std::string &name);
   LLVMContext *get_context();
   std::unique_ptr<IRBuilder<>> &get_builder();
   std::unique_ptr<Module> &get_module();

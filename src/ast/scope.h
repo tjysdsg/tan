@@ -7,8 +7,8 @@
 namespace tanlang {
 
 struct Scope {
-  std::unordered_map<std::string, Value *> _named;
-  BasicBlock* _code_block = nullptr;
+  std::unordered_map<std::string, std::shared_ptr<ASTNode>> _named{};
+  BasicBlock *_code_block = nullptr;
 };
 
 }

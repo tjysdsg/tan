@@ -16,23 +16,16 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
   std::string name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0])->_name;
-  auto ast_ty = std::reinterpret_pointer_cast<ASTTy>(_children[1]);
-  Type *type = ast_ty->to_llvm_type(compiler_session);
+  _ty = std::reinterpret_pointer_cast<ASTTy>(_children[1]);
+  Type *type = _ty->to_llvm_type(compiler_session);
   Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
 
   // set initial value
   if (_has_initial_val) {
     compiler_session->get_builder()->CreateStore(_children[2]->codegen(compiler_session), var);
   }
-
-  /**
-   * add to current scope
-   * \NOTE: adding to scope AFTER setting the initial value allows initialization like:
-   *     var a = a;
-   *     where the latter `a` refers to outer a variable in the outer scope.
-   * */
-  compiler_session->add(name, var);
-
+  _llvm_value = var;
+  compiler_session->add(name, this->shared_from_this());
   return nullptr;
 }
 
@@ -168,10 +161,9 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   }
 
   // look up variable by name
-  Value *variable = compiler_session->get(lhs->_name);
-  if (!variable) {
-    report_code_error(lhs->_token, "Invalid variable name");
-  }
+  auto var_decl = std::reinterpret_pointer_cast<ASTVarDecl>(compiler_session->get(lhs->_name));
+  Value *variable = var_decl->_llvm_value;
+  if (!variable) { report_code_error(lhs->_token, "Cannot find variable '" + lhs->_name + "' in current scope"); }
 
   // TODO: check type
   // TODO: implicit type conversion
@@ -186,7 +178,9 @@ Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
 
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
                                                                                                   op_precedence[ASTType::NUM_LITERAL],
-                                                                                                  0, token) {
+                                                                                                  0,
+                                                                                                  token
+) {
   _is_float = is_float;
   if (is_float) {
     _fvalue = std::stof(str);
@@ -197,7 +191,9 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token 
 
 ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
                                                                             op_precedence[ASTType::STRING_LITERAL],
-                                                                            0, token), _svalue(std::move(str)) {}
+                                                                            0,
+                                                                            token
+), _svalue(std::move(str)) {}
 
 ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
   _type = ASTType::ASSIGN;
