@@ -138,6 +138,9 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
+template<typename T>
+std::shared_ptr<T> ast_cast(std::shared_ptr<ASTNode> node) { return std::reinterpret_pointer_cast<T>(node); }
+
 } // namespace tanlang
 
 #endif /* TAN_SRC_AST_ASTNODE_H_ */

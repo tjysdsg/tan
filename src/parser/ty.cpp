@@ -19,12 +19,10 @@ std::unordered_map<std::string, Ty> composite_tys = {{"struct", Ty::STRUCT}, {"a
 
 void ASTTy::nud(Parser *parser) {
   Token *token = nullptr;
-  while (true) {
+  while (parser->_curr_token < parser->_tokens.size()) {
     token = parser->get_curr_token();
     if (basic_tys.find(token->value) != basic_tys.end()) {
       _ty = TY_OR(_ty, basic_tys[token->value]);
-    } else if (composite_tys.find(token->value) != composite_tys.end()) {
-      _ty = TY_OR(_ty, composite_tys[token->value]);
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) {
       if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { // pointer to pointer (to ...)
         auto sub = std::make_shared<ASTTy>(token);
@@ -37,7 +35,7 @@ void ASTTy::nud(Parser *parser) {
       }
     } else if (token->type == TokenType::ID) { // struct name
       _type_name = token->value;
-      _ty = TY_OR(_ty, composite_tys[token->value]);
+      _ty = TY_OR(_ty, Ty::STRUCT);
     } else {
       break;
     }

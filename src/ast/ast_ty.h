@@ -2,12 +2,7 @@
 #define TAN_SRC_AST_AST_TY_H_
 #include "src/ast/astnode.h"
 
-#define TY_HAS_BASE(t) ((bool)((uint64_t)t & TY_BASE_MASK))
-#define TY_HAS_COMPOSITE(t) ((bool)((uint64_t)t & TY_COMPOSITE_MASK))
-#define TY_HAS_QUALIFIER(t) ((bool)((uint64_t)t & TY_QUALIFIER_MASK))
-
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
-#define TY_GET_COMPOSITE(t) ((Ty)((uint64_t)t & TY_COMPOSITE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
 
 #define TY_IS(t1, t2) ((bool)((uint64_t)(t1) & (uint64_t)(t2)))
@@ -22,11 +17,13 @@ enum class Ty : uint64_t {
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
   VOID = 1u,
-  INT = 1u << 1u,
-  FLOAT = 1u << 2u,
-  DOUBLE = 1u << 3u,
-  STRING = 1u << 5u,
-  FUNC_PTR = 1u << 6u, // TODO: function ptr
+  INT,
+  FLOAT,
+  DOUBLE,
+  STRING,
+  FUNC_PTR, // TODO: function ptr
+  STRUCT,   // struct (or class)
+  ARRAY,
 
   /// qualifiers 13->32 bits
   #define TY_QUALIFIER_MASK 0xffffff000u
@@ -39,11 +36,6 @@ enum class Ty : uint64_t {
   BIT32 = 1u << 18u,
   BIT64 = 1u << 19u,
   BIT128 = 1u << 20u,
-
-  /// composite types 33->? bits
-  #define TY_COMPOSITE_MASK 0xffffff000000000ull
-  STRUCT = 1ull << 33u,   // struct (or class)
-  ARRAY = 1ull << 34u,
 };
 
 class ASTTy final : public ASTNode {
@@ -54,9 +46,10 @@ public:
 
   [[nodiscard]] llvm::Type *to_llvm_type(CompilerSession *compiler_session) const;
 
+public:
+  std::string _type_name{};
 private:
   Ty _ty = Ty::INVALID;
-  std::string _type_name{};
 };
 
 } // namespace tanlang

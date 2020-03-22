@@ -10,7 +10,7 @@ public:
 
   explicit ASTDot(Token *token) : ASTNode(ASTType::MEMBER_ACCESS, op_precedence[ASTType::MEMBER_ACCESS], 0, token) {};
   void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
-  // Value *codegen(CompilerSession *compiler_session) override;
+  Value *codegen(CompilerSession *compiler_session) override;
 };
 
 }

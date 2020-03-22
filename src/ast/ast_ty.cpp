@@ -1,6 +1,7 @@
 #include "ast_ty.h"
 #include "compiler_session.h"
 #include "src/llvm_include.h"
+#include "src/ast/ast_struct.h"
 
 namespace tanlang {
 
@@ -8,18 +9,13 @@ ASTTy::ASTTy(Token *token) : ASTNode(ASTType::TY, 0, 0, token) {}
 
 llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   Ty base = TY_GET_BASE(_ty);
-  Ty comp = TY_GET_COMPOSITE(_ty);
   Ty qual = TY_GET_QUALIFIER(_ty);
-  if (TY_HAS_COMPOSITE(_ty)) {
-    // TODO
-  }
   llvm::Type *type = nullptr;
-
   if (!_children.empty()) { // pointer to pointer (to ...)
     auto child = std::reinterpret_pointer_cast<ASTTy>(_children[0]);
     type = child->to_llvm_type(compiler_session);
   } else {
-    // base type with qualifier
+    // primitive types
     switch (base) {
       case Ty::INT: {
         unsigned bits = 32;
@@ -52,6 +48,14 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       case Ty::VOID: {
         type = compiler_session->get_builder()->getVoidTy();
         break;
+      }
+      case Ty::STRUCT: {
+        auto st = std::reinterpret_pointer_cast<ASTStruct>(compiler_session->get(_type_name));
+        type = st->_llvm_type;
+        break;
+      }
+      case Ty::ARRAY: {
+        // TODO: array type to llvm type
       }
       default: {
         throw std::runtime_error("Invalid base type: " + std::to_string((uint64_t) base));

@@ -10,7 +10,9 @@ AllocaInst *create_block_alloca(BasicBlock *block, Type *type, const std::string
 struct Equal {
   const ASTType val;
   Equal() = delete;
+
   explicit Equal(ASTType v) : val(v) {}
+
   bool operator()(ASTType v) const { return v == val; }
 };
 

@@ -24,9 +24,9 @@ Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
   if (_has_initial_val) {
     compiler_session->get_builder()->CreateStore(_children[2]->codegen(compiler_session), var);
   }
-  _llvm_value = var;
+  this->_llvm_value = var;
   compiler_session->add(name, this->shared_from_this());
-  return nullptr;
+  return _llvm_value;
 }
 
 Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
@@ -148,27 +148,21 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
-  // assignment requires the lhs to be an mutable variable.
-  auto lhs = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0]);
-  if (!lhs) {
-    report_code_error(lhs->_token, "Left-hand operand of assignment must be a variable");
+  Value *to = _children[0]->codegen(compiler_session);
+  if (!to) {
+    report_code_error(_children[0]->_token, "Invalid left-hand operand of the assignment");
   }
   // codegen the rhs
   auto rhs = _children[1];
-  Value *val = rhs->codegen(compiler_session);
-  if (!val) {
+  Value *from = rhs->codegen(compiler_session);
+  if (!from) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
 
-  // look up variable by name
-  auto var_decl = std::reinterpret_pointer_cast<ASTVarDecl>(compiler_session->get(lhs->_name));
-  Value *variable = var_decl->_llvm_value;
-  if (!variable) { report_code_error(lhs->_token, "Cannot find variable '" + lhs->_name + "' in current scope"); }
-
   // TODO: check type
   // TODO: implicit type conversion
-  compiler_session->get_builder()->CreateStore(val, variable);
-  return val;
+  compiler_session->get_builder()->CreateStore(from, to);
+  return to;
 }
 
 Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
