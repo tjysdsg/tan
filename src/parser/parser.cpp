@@ -45,6 +45,10 @@ std::shared_ptr<ASTNode> Parser::peek(TokenType type, const std::string &value) 
 std::shared_ptr<ASTNode> Parser::peek() {
   if (_curr_token >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[_curr_token];
+  while (token->type == TokenType::COMMENTS) {
+    ++_curr_token;
+    token = _tokens[_curr_token];
+  }
   std::shared_ptr<ASTNode> node;
   if (token->value == "+" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::SUM, token);

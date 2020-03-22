@@ -47,15 +47,16 @@ enum class Ty : uint64_t {
 };
 
 class ASTTy final : public ASTNode {
- public:
+public:
   ASTTy() = delete;
   explicit ASTTy(Token *token);
   void nud(Parser *parser) override;
 
   [[nodiscard]] llvm::Type *to_llvm_type(CompilerSession *compiler_session) const;
 
- private:
+private:
   Ty _ty = Ty::INVALID;
+  std::string _type_name{};
 };
 
 } // namespace tanlang
