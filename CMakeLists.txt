@@ -91,7 +91,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests gtest_main LLVM-9)
+    target_link_libraries(tan_tests tan gtest_main LLVM-9)
     set_other_options(tan_tests)
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
