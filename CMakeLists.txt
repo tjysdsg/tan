@@ -55,7 +55,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/dep/gflags)
 include_directories(${GFLAGS_INCLUDE_DIR})
 
 # ===== LLVM =====
-find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM 9 REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
 # resolve symlink, because CLION with WSL doesn't seem to recognize this
 get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
