@@ -4,7 +4,3 @@
 [submodule "dep/gflags"]
 	path = dep/gflags
 	url = https://github.com/gflags/gflags
-[submodule "dep/llvm-project"]
-    path = dep/llvm-project
-    url = https://github.com/llvm/llvm-project
-    branch = release/9.x
