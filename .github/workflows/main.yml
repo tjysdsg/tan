@@ -11,5 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
+        with:
+          submodules: 'recursive'
       - name: compile and test
         run: ./scripts/install-dep.sh; ./scripts/compile-and-test.sh

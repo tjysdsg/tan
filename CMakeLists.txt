@@ -54,24 +54,10 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/gflags)
 include_directories(${GFLAGS_INCLUDE_DIR})
 
-# ===== LLVM =====
-find_package(LLVM 9 REQUIRED CONFIG)
-include_directories(${LLVM_INCLUDE_DIRS})
-# resolve symlink, because CLION with WSL doesn't seem to recognize this
-get_filename_component(LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS}/llvm/" REALPATH)
-get_filename_component(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} DIRECTORY)
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-
-# ===== Clang =====
-find_package(Clang REQUIRED)
-include_directories(${CLANG_INCLUDE_DIRS})
-add_definitions(${CLANG_DEFINITIONS})
-set(CLANG_LIBS clang clangTooling clangFrontend clangBasic clangDriver clangToolingCore clangFrontendTool
-        clangSerialization clangCodeGen)
-
 # ===== others ======
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
+include_directories(${DEP_INCLUDES})
+link_directories(${DEP_LIB_DIRS})
 # ================================ thirdparty dependencies end ========================== #
 
 # common source files shared by multiple targets
@@ -91,7 +77,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
     target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests tan gtest_main LLVM-9)
+    target_link_libraries(tan_tests tan gtest_main ${DEP_LIBS})
     set_other_options(tan_tests)
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
@@ -101,13 +87,13 @@ endif ()
 # ===== target libtan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread LLVM-9 ${CLANG_LIBS})
+target_link_libraries(tan pthread ${DEP_LIBS})
 set_other_options(tan)
 
 # ===== target CLI compiler =====
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
 add_executable(tanc ${CLI_SRCS})
-target_link_libraries(tanc tan pthread gflags::gflags)
+target_link_libraries(tanc tan pthread gflags::gflags ${DEP_LIBS})
 set_other_options(tanc)
 
 # ===== target CLI interpreter =====
@@ -119,5 +105,5 @@ set_other_options(tan-interpreter)
 # ===== target CLI linker =====
 set(LINKER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-ld.cpp)
 add_executable(tan-ld ${LINKER_SRCS})
-target_link_libraries(tan-ld tan gflags::gflags)
+target_link_libraries(tan-ld tan gflags::gflags ${DEP_LIBS})
 set_other_options(tan-ld)
