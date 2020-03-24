@@ -20,6 +20,8 @@ public:
 
   bool done() { return _curr_file >= _input_files.size(); }
 
+  std::string current_filename() { return _input_files[_curr_file]; }
+
 private:
   std::vector<std::string> _input_files{};
   bool _print_ast = false;
