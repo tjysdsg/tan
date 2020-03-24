@@ -1,5 +1,5 @@
 #include <gflags/gflags.h>
-#include "src/lib/libtanc.h"
+#include "libtanc.h"
 DEFINE_string(files, "main.tan", "comma-separated list of files to compile");
 DEFINE_bool(print_ir_code, false, "print out llvm IR code if true");
 DEFINE_bool(print_ast, false, "print out abstract syntax tree if true");

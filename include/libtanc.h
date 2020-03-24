@@ -4,8 +4,8 @@
 extern "C" {
 /**
  * \brief Compile a source file into an object file.
- * \details The output file is named as "<name of the souce file>.o" and it is at current working directory.
- *          If current build is release, all exceptions are captured and e.what() is printed out to stderr.
+ * \details The output file is named as "<name of the source file>.o" and it is located at current working directory.
+ *          If current build is release, all exceptions are captured and `e.what()` is printed out to stderr.
  *          If current build is debug, all exceptions are not captured, making debugging easier.
  * \param input_path the source file path, can be relative or absolute path.
  * \param print_ast print out Abstract Syntax Tree to stdout if true.
@@ -15,6 +15,21 @@ extern "C" {
  *         a try-catch clause.
  * */
 bool compile_file(const char *input_path, bool print_ast, bool print_ir_code);
+
+/**
+ * \brief Compile multiple source files into object files.
+ * \details The output files are named as "<name of the source file>.o" and they are located at current working directory.
+ *          If current build is release, all exceptions are captured and `e.what()` is printed out to stderr.
+ *          If current build is debug, all exceptions are not captured, making debugging easier.
+ * \param n_files the number of source files.
+ * \param input_paths the path of the source files, can be relative or absolute path.
+ * \param print_ast print out Abstract Syntax Tree to stdout if true.
+ * \param print_ir_code print out LLVM IR code to stdout if true.
+ * \return If current build is release, returns true if no error occurred, and vice versa.
+ *  If current build is debug, either returns true or doesn't return, because all errors are captured by
+ *         a try-catch clause.
+ * */
+bool compile_files(unsigned n_files, char **input_paths, bool print_ast, bool print_ir_code);
 
 /**
  * \brief Evaluate the main function in a source file.
