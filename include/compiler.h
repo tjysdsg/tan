@@ -9,6 +9,7 @@ class Compiler {
  public:
   Compiler() = delete;
   explicit Compiler(Module *module);
+  ~Compiler();
 
   void emit_object(const std::string &filename);
 

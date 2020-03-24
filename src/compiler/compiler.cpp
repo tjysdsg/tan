@@ -2,6 +2,11 @@
 
 namespace tanlang {
 
+Compiler::~Compiler() {
+  delete _llvm_module;
+  delete _target_machine;
+}
+
 Compiler::Compiler(Module *module) : _llvm_module(module) {
   auto target_triple = llvm::sys::getDefaultTargetTriple();
 
