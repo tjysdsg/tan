@@ -1,0 +1,22 @@
+name: Build Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  CI_master:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: do a release build
+        run: ./scripts/install-dep.sh; ./scripts/compile-release.sh
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: tan-release
+          path: tan-release

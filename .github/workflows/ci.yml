@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
         with:
           submodules: 'recursive'
       - name: compile and test
