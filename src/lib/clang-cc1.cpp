@@ -6,42 +6,37 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if __GNUC__ >= 9
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winit-list-lifetime"
-#endif
-
-#include "clang/Basic/Stack.h"
-#include "clang/Basic/TargetOptions.h"
-#include "clang/CodeGen/ObjectFilePCHContainerOperations.h"
-#include "clang/Config/config.h"
-#include "clang/Driver/DriverDiagnostic.h"
-#include "clang/Driver/Options.h"
-#include "clang/Frontend/CompilerInstance.h"
-#include "clang/Frontend/CompilerInvocation.h"
-#include "clang/Frontend/FrontendDiagnostic.h"
-#include "clang/Frontend/TextDiagnosticBuffer.h"
-#include "clang/Frontend/TextDiagnosticPrinter.h"
-#include "clang/Frontend/Utils.h"
-#include "clang/FrontendTool/Utils.h"
-#include "llvm/ADT/Statistic.h"
-#include "llvm/Config/llvm-config.h"
-#include "llvm/LinkAllPasses.h"
-#include "llvm/Option/Arg.h"
-#include "llvm/Option/ArgList.h"
-#include "llvm/Option/OptTable.h"
-#include "llvm/Support/BuryPointer.h"
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/Path.h"
-#include "llvm/Support/Signals.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/TimeProfiler.h"
-#include "llvm/Support/Timer.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Target/TargetMachine.h"
+#include <clang/Basic/Stack.h>
+#include <clang/Basic/TargetOptions.h>
+#include <clang/CodeGen/ObjectFilePCHContainerOperations.h>
+#include <clang/Config/config.h>
+#include <clang/Driver/DriverDiagnostic.h>
+#include <clang/Driver/Options.h>
+#include <clang/Frontend/CompilerInstance.h>
+#include <clang/Frontend/CompilerInvocation.h>
+#include <clang/Frontend/FrontendDiagnostic.h>
+#include <clang/Frontend/TextDiagnosticBuffer.h>
+#include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Frontend/Utils.h>
+#include <clang/FrontendTool/Utils.h>
+#include <llvm/ADT/Statistic.h>
+#include <llvm/Config/llvm-config.h>
+#include <llvm/LinkAllPasses.h>
+#include <llvm/Option/Arg.h>
+#include <llvm/Option/ArgList.h>
+#include <llvm/Option/OptTable.h>
+#include <llvm/Support/BuryPointer.h>
+#include <llvm/Support/Compiler.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Signals.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TimeProfiler.h>
+#include <llvm/Support/Timer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Target/TargetMachine.h>
 #include <cstdio>
 
 #ifdef CLANG_HAVE_RLIMITS

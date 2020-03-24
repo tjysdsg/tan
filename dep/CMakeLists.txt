@@ -154,10 +154,32 @@ set(CLANG_LIBS
         clangFrontend
         clangFrontendTool
         clangSerialization
+        clangFrontendTool
+        clangCodeGen
+        clangFrontend
+        clangDriver
+        clangSerialization
+        clangSema
+        clangStaticAnalyzerFrontend
+        clangStaticAnalyzerCheckers
+        clangStaticAnalyzerCore
+        clangAnalysis
+        clangASTMatchers
+        clangAST
+        clangParse
+        clangSema
+        clangBasic
+        clangEdit
+        clangLex
+        clangARCMigrate
+        clangRewriteFrontend
+        clangRewrite
+        clangCrossTU
+        clangIndex
         )
 
 set(DEP_INCLUDES ${LLVM_INCLUDE_DIRS} PARENT_SCOPE)
 set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
-        z dl cursesw rt tinfo pthread m xml2
+        z dl rt tinfo pthread m xml2
         PARENT_SCOPE)
 set(DEP_LIB_DIRS ${LLVM_LIBRARY_DIR} PARENT_SCOPE)
