@@ -38,6 +38,7 @@ void ASTArrayLiteral::nud(Parser *parser) {
   if (parser->get_curr_token()->value == "]") { // empty array
     return;
   }
+  ASTType element_type = ASTType::INVALID;
   while (!parser->eof()) {
     if (parser->get_curr_token()->value == ",") {
       ++parser->_curr_token;
@@ -47,6 +48,17 @@ void ASTArrayLiteral::nud(Parser *parser) {
       break;
     }
     auto node = parser->peek();
+    if (!node) {
+      report_code_error(_token, "Unexpected token");
+    }
+    /// check whether element types are the same
+    if (element_type == ASTType::INVALID) {
+      element_type = node->_type;
+    } else {
+      if (element_type != node->_type) {
+        report_code_error(_token, "All elements in an array must have the same type");
+      }
+    }
     if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
         || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
       node->nud(parser);

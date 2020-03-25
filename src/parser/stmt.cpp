@@ -1,6 +1,7 @@
 #include "src/ast/ast_expr.h"
 #include "token.h"
 #include "parser.h"
+#include "src/parser/token_check.h"
 
 namespace tanlang {
 
@@ -38,9 +39,8 @@ void ASTElse::nud(tanlang::Parser *parser) {
  *          to _children.
  * */
 void ASTStatement::nud(Parser *parser) {
-  size_t n_tokens = parser->_tokens.size();
   if (_is_compound) {
-    while (parser->_curr_token < n_tokens) {
+    while (!parser->eof()) {
       auto node = parser->peek();
       while (node) {
         _children.push_back(parser->next_expression(0));

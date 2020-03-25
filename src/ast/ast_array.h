@@ -15,7 +15,7 @@ public:
   explicit ASTArrayLiteral(Token *token) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, token) {}
 
   void nud(Parser *parser) override;
-  // Value *codegen(CompilerSession *compiler_session) override;
+  Value *codegen(CompilerSession *compiler_session) override;
 };
 
 } // namespace tanlang

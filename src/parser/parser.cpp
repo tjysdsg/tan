@@ -107,7 +107,7 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTTy>(token);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token);
-  } else if (check_terminal_token(token)) {
+  } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr; // FIXME: nullptr represent a terminal symbol, like statements ending with a semicolon
   } else {
     report_code_error(token, "Unknown token " + token->to_string());

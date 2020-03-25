@@ -1,4 +1,4 @@
 fn main(argc: int, argv: u8**) : i32 {
-    [1, 2, 3];
+    var shit: array = [1, 2, 3];
     return 0;
 }
