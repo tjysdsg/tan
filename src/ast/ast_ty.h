@@ -47,6 +47,8 @@ public:
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
 
+  friend class ASTNPtr;
+
 private:
   std::string _type_name{};
   Ty _ty = Ty::INVALID;

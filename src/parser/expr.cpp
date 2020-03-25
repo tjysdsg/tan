@@ -1,7 +1,7 @@
-#include <src/ast/ast_identifier.h>
-
-#include "parser.h"
 #include "src/ast/ast_expr.h"
+#include "src/ast/ast_identifier.h"
+#include "src/ast/ast_array.h"
+#include "parser.h"
 #include "token.h"
 
 namespace tanlang {
@@ -31,6 +31,30 @@ void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser)
     report_code_error(_token, "Unexpected token");
   } else {
     _children.emplace_back(n);
+  }
+}
+
+void ASTArrayLiteral::nud(Parser *parser) {
+  if (parser->get_curr_token()->value == "]") { // empty array
+    return;
+  }
+  while (!parser->eof()) {
+    if (parser->get_curr_token()->value == ",") {
+      ++parser->_curr_token;
+      continue;
+    } else if (parser->get_curr_token()->value == "]") {
+      ++parser->_curr_token;
+      break;
+    }
+    auto node = parser->peek();
+    if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
+        || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
+      node->nud(parser);
+      _children.push_back(node);
+      ++parser->_curr_token;
+    } else {
+      report_code_error(_token, "Expect literals");
+    }
   }
 }
 

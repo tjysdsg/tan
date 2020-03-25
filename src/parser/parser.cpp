@@ -4,6 +4,7 @@
 #include "src/parser/token_check.h"
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_dot.h"
+#include "src/ast/ast_array.h"
 #include <memory>
 
 namespace tanlang {
@@ -64,6 +65,8 @@ std::shared_ptr<ASTNode> Parser::peek() {
     node = std::make_shared<ASTLogicalNot>(token);
   } else if (token->value == "~" && token->type == TokenType::UOP) {
     node = std::make_shared<ASTBinaryNot>(token);
+  } else if (token->value == "[") {
+    node = std::make_shared<ASTArrayLiteral>(token);
   } else if (token->value == "struct" && token->type == TokenType::KEYWORD) {
     node = std::make_shared<ASTStruct>(token);
   } else if (token->type == TokenType::RELOP) {

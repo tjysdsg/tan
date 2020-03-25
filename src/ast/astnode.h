@@ -61,6 +61,7 @@ enum class ASTType {
 
   NUM_LITERAL,    // int or float literal
   STRING_LITERAL, // "xxx"
+  ARRAY_LITERAL,  // [1, 2, 3]
   MEMBER_ACCESS,  // struct.a
   INVALID,
 };
@@ -70,6 +71,9 @@ extern std::unordered_map<ASTType, std::string> ast_type_names;
 extern std::unordered_map<ASTType, int> op_precedence;
 
 class ASTNode {
+public:
+  template<typename T> friend class ASTFactory;
+
 public:
   ASTType _type = ASTType::INVALID;
   std::vector<std::shared_ptr<ASTNode>> _children{};
@@ -94,6 +98,14 @@ private:
 protected:
   bool _parsed = false;
   size_t _parsed_index = 0;
+};
+
+// dummy, all literal types inherit from this class
+class ASTLiteral : public ASTNode {
+public:
+  ASTLiteral() = delete;
+
+  ASTLiteral(ASTType op, int lbp, int rbp, Token *token) : ASTNode(op, lbp, rbp, token) {}
 };
 
 class ASTInfixBinaryOp : public ASTNode {

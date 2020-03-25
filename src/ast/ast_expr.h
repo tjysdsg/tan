@@ -57,6 +57,8 @@ private:
 class ASTNumberLiteral final : public ASTNode {
 public:
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
+  explicit ASTNumberLiteral(int value);
+  explicit ASTNumberLiteral(float value);
   void nud(Parser *parser) override;
 
   [[nodiscard]] bool is_float() const { return _is_float; }

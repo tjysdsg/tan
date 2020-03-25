@@ -15,7 +15,7 @@ namespace tanlang {
 class ASTNode;
 
 class Parser {
- public:
+public:
   Parser() = delete;
   virtual ~Parser();
   explicit Parser(std::vector<Token *> tokens);
@@ -31,26 +31,27 @@ class Parser {
   virtual Error evaluate(std::unique_ptr<Module> module = nullptr);
   virtual void dump() const;
 
+  bool eof() const { return _curr_token >= _tokens.size(); }
+
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};
   size_t _curr_token;
 
- protected:
+protected:
   CompilerSession *_compiler_session;
 
- public:
+public:
   [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
 
- public:
-  template<ASTType first_type, ASTType... types>
-  std::shared_ptr<ASTNode> parse(bool strict) {
+public:
+  template<ASTType first_type, ASTType... types> std::shared_ptr<ASTNode> parse(bool strict) {
     // NOTE: strict is not used here, but used in specialized template functions defined in parser.cpp
     size_t token_index = _curr_token;
     std::shared_ptr<ASTNode> node;
     node = parse<first_type>(sizeof...(types) == 0); // if no fallback parsing, strict is true
     if (!node) { // if failed, go fallback
       _curr_token = token_index;
-      if constexpr (sizeof...(types) > 0) return parse<types...>(false);
+      if constexpr (sizeof...(types) > 0) { return parse<types...>(false); }
       else { // no fallback
         if (strict) {
           throw std::runtime_error("All parsing failed");

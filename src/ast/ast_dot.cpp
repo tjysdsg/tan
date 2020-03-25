@@ -20,7 +20,6 @@ Value *ASTDot::codegen(CompilerSession *compiler_session) {
     } else { // instance access
       auto instance = ast_cast<ASTVarDecl>(tmp);
       struct_ast = ast_cast<ASTStruct>(compiler_session->get(instance->get_type_name()));
-      std::string struct_name = struct_ast->get_name();
       unsigned member_index = static_cast<unsigned>(struct_ast->get_member_index(member_name));
       llvm::Value *member_ptr = compiler_session->get_builder()
                                                 ->CreateStructGEP(instance->get_llvm_value(compiler_session),

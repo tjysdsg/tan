@@ -190,8 +190,7 @@ Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
 
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
                                                                                                   op_precedence[ASTType::NUM_LITERAL],
-                                                                                                  0,
-                                                                                                  token
+                                                                                                  0, token
 ) {
   _is_float = is_float;
   if (is_float) {
@@ -199,6 +198,24 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token 
   } else {
     _ivalue = std::stoi(str);
   }
+}
+
+ASTNumberLiteral::ASTNumberLiteral(int value) : ASTNode(ASTType::NUM_LITERAL,
+                                                        op_precedence[ASTType::NUM_LITERAL],
+                                                        0,
+                                                        nullptr
+) {
+  _ivalue = value;
+  _is_float = false;
+}
+
+ASTNumberLiteral::ASTNumberLiteral(float value) : ASTNode(ASTType::NUM_LITERAL,
+                                                          op_precedence[ASTType::NUM_LITERAL],
+                                                          0,
+                                                          nullptr
+) {
+  _fvalue = value;
+  _is_float = true;
 }
 
 ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
