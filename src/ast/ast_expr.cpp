@@ -15,9 +15,8 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
-  std::string name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[0])->_name;
-  _ty = std::reinterpret_pointer_cast<ASTTy>(_children[1]);
-  Type *type = _ty->to_llvm_type(compiler_session);
+  std::string name = ast_cast<ASTIdentifier>(_children[0])->get_name();
+  Type *type = ast_cast<ASTTy>(_children[1])->to_llvm_type(compiler_session);
   Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
 
   // set initial value
@@ -26,6 +25,25 @@ Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
   }
   this->_llvm_value = var;
   compiler_session->add(name, this->shared_from_this());
+  return _llvm_value;
+}
+
+std::string ASTVarDecl::get_name() const {
+  auto n = ast_cast<ASTIdentifier>(_children[0]);
+  return n->get_name();
+}
+
+std::string ASTVarDecl::get_type_name() const {
+  auto t = ast_cast<ASTTy>(_children[1]);
+  return t->get_type_name();
+}
+
+llvm::Type *ASTVarDecl::to_llvm_type(CompilerSession *compiler_session) const {
+  auto t = ast_cast<ASTTy>(_children[1]);
+  return t->to_llvm_type(compiler_session);
+}
+
+llvm::Value *ASTVarDecl::get_llvm_value(CompilerSession *) const {
   return _llvm_value;
 }
 

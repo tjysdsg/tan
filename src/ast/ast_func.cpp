@@ -14,13 +14,13 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   std::vector<Type *> arg_types;
   // set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
-    std::shared_ptr<ASTTy> type_name = std::reinterpret_pointer_cast<ASTTy>(_children[i]->_children[1]);
+    std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_types.push_back(type_name->to_llvm_type(compiler_session));
   }
 
   // get function name
   std::shared_ptr<ASTIdentifier> fname = std::reinterpret_pointer_cast<ASTIdentifier>(_children[1]);
-  std::string func_name = fname->_name;
+  std::string func_name = fname->get_name();
 
   // create function
   FunctionType *FT = FunctionType::get(float_type, arg_types, false);
@@ -35,8 +35,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   // set argument names
   auto args = F->args().begin();
   for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
-    std::shared_ptr<ASTIdentifier> arg_name = std::reinterpret_pointer_cast<ASTIdentifier>(_children[i]->_children[0]);
-    (args + j)->setName(arg_name->_name);
+    std::shared_ptr<ASTIdentifier> arg_name = ast_cast<ASTIdentifier>(_children[i]->_children[0]);
+    (args + j)->setName(arg_name->get_name());
   }
 
   // function implementation

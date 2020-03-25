@@ -26,9 +26,12 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-class ASTVarDecl final : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
+class ASTVarDecl final
+    : public ASTNode, public std::enable_shared_from_this<ASTVarDecl>, public Named, public Typed, public Valued {
 public:
   ASTVarDecl() = default;
+
+  friend class ASTFunction; // FIXME: is this necessary?
 
   explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
   void nud(Parser *parser) override;
@@ -39,8 +42,14 @@ public:
    * */
   Value *codegen(CompilerSession *compiler_session) override;
 
+  std::string get_name() const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
+
 public:
   bool _has_initial_val = false;
+private:
   Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
 };

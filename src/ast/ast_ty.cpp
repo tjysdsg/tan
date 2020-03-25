@@ -51,7 +51,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       }
       case Ty::STRUCT: {
         auto st = std::reinterpret_pointer_cast<ASTStruct>(compiler_session->get(_type_name));
-        type = st->_llvm_type;
+        type = st->to_llvm_type(compiler_session);
         break;
       }
       case Ty::ARRAY: {
@@ -67,6 +67,10 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
     type = llvm::PointerType::get(type, 0);
   }
   return type;
+}
+
+std::string ASTTy::get_type_name() const {
+  return _type_name;
 }
 
 } // namespace tanlang

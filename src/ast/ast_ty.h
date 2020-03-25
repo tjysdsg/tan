@@ -38,17 +38,17 @@ enum class Ty : uint64_t {
   BIT128 = 1u << 20u,
 };
 
-class ASTTy final : public ASTNode {
+class ASTTy final : public ASTNode, public Typed {
 public:
   ASTTy() = delete;
   explicit ASTTy(Token *token);
   void nud(Parser *parser) override;
 
-  [[nodiscard]] llvm::Type *to_llvm_type(CompilerSession *compiler_session) const;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
 
-public:
-  std::string _type_name{};
 private:
+  std::string _type_name{};
   Ty _ty = Ty::INVALID;
 };
 

@@ -1,3 +1,5 @@
+#include <src/ast/ast_identifier.h>
+
 #include "parser.h"
 #include "src/ast/ast_expr.h"
 #include "token.h"
@@ -22,8 +24,7 @@ void ASTParenthesis::nud(Parser *parser) {
   }
 }
 
-void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left,
-                           Parser *parser) {
+void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _children.emplace_back(left);
   auto n = parser->next_expression(_lbp);
   if (!n) {
