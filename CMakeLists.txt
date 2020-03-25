@@ -74,8 +74,8 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     # target test
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
-    add_executable(tan_tests ${TEST_SRCS} ${COMMON_SRCS})
-    target_include_directories(tan_tests PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
+    add_executable(tan_tests ${TEST_SRCS})
+    target_include_directories(tan_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/src/test)
     target_link_libraries(tan_tests tan gtest_main ${DEP_LIBS})
     set_other_options(tan_tests)

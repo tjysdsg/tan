@@ -4,4 +4,4 @@ a.out: main.tan.o
 	../../bin/tan-ld $^ -o $@
 
 main.tan.o:
-	../../bin/tanc $^ $@
+	../../bin/tanc main.tan

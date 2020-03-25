@@ -8,12 +8,7 @@
 namespace tanlang {
 
 enum class TokenType {
-  END = -1,
-  COMMENTS,
-  KEYWORD,
-  INT,
-  FLOAT,
-  ID,          // identifier
+  END = -1, COMMENTS, KEYWORD, INT, FLOAT, ID,          // identifier
   CHAR,        // character
   STRING,      // string literal
   PUNCTUATION, // , ; . ( ) { } etc.
@@ -37,12 +32,14 @@ struct Token {
   line_info *line;
 
   Token() = default;
+
   Token(TokenType tokenType, std::string value, const code_ptr &cursor, line_info *line)
       : type(tokenType),
         value(std::move(value)),
         l(static_cast<size_t>(cursor.l)),
         c(static_cast<size_t>(cursor.c)),
         line(line) {}
+
   ~Token() = default;
 
   [[nodiscard]] std::string to_string() const;
