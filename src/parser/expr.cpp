@@ -44,7 +44,6 @@ void ASTArrayLiteral::nud(Parser *parser) {
       ++parser->_curr_token;
       continue;
     } else if (parser->get_curr_token()->value == "]") {
-      ++parser->_curr_token;
       break;
     }
     auto node = parser->peek();
@@ -61,7 +60,8 @@ void ASTArrayLiteral::nud(Parser *parser) {
     }
     if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
         || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
-      node->nud(parser);
+      if (node->_type == ASTType::ARRAY_LITERAL) { ++parser->_curr_token; }
+      node->nud(parser); // TODO: set convention of parser->_curr_token before and after calling nud()/led()
       _children.push_back(node);
       ++parser->_curr_token;
     } else {
