@@ -47,6 +47,7 @@ using llvm::Function;
 using llvm::PHINode;
 using llvm::verifyFunction;
 using llvm::FunctionType;
+using llvm::ArrayType;
 using llvm::IRBuilder;
 using llvm::BasicBlock;
 using llvm::Module;

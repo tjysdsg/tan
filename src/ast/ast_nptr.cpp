@@ -11,9 +11,15 @@ ASTNPtr::ASTNPtr(Ty orig_type, int n) : ASTStruct(nullptr) {
   ptr_ty->_children.push_back(orig_ty);
   ptr_ty->_ty = Ty::POINTER;
   auto member_ptr = ASTFactory<ASTVarDecl>::Create("ptr", ptr_ty);
-  _children.push_back(ptr_ty); // first element of the struct
+  // TODO: type name
+  _children.push_back(ASTFactory<ASTIdentifier>::Create("nptr"));
+  _children.push_back(member_ptr); // first element of the struct
 
-  _children.push_back(std::make_shared<ASTNumberLiteral>(n));
+  auto size = std::make_shared<ASTNumberLiteral>(n);
+  auto size_ty = std::make_shared<ASTTy>(nullptr);
+  size_ty->_ty = TY_OR(Ty::INT, Ty::BIT32);
+  auto member_size = ASTFactory<ASTVarDecl>::Create("size", size_ty, ASTFactory<ASTNumberLiteral>::Create(n));
+  _children.push_back(member_size);
 }
 
 } // namespace tanlang

@@ -6,6 +6,7 @@
 
 namespace tanlang {
 struct Token;
+enum class Ty : uint64_t;
 
 class CompilerSession;
 
@@ -101,11 +102,13 @@ protected:
 };
 
 // dummy, all literal types inherit from this class
-class ASTLiteral : public ASTNode {
+class ASTLiteral : public ASTNode, public Valued, public Typed {
 public:
   ASTLiteral() = delete;
 
   ASTLiteral(ASTType op, int lbp, int rbp, Token *token) : ASTNode(op, lbp, rbp, token) {}
+
+  virtual Ty get_ty() const;
 };
 
 class ASTInfixBinaryOp : public ASTNode {

@@ -49,10 +49,11 @@ llvm::Value *ASTVarDecl::get_llvm_value(CompilerSession *) const {
 
 Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
   if (_is_float) {
-    return ConstantFP::get(*compiler_session->get_context(), APFloat(_fvalue));
+    _llvm_value = ConstantFP::get(*compiler_session->get_context(), APFloat(_fvalue));
   } else {
-    return ConstantInt::get(*compiler_session->get_context(), APInt(32, static_cast<uint64_t>(_ivalue), true));
+    _llvm_value = ConstantInt::get(*compiler_session->get_context(), APInt(32, static_cast<uint64_t>(_ivalue), true));
   }
+  return _llvm_value;
 }
 
 Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
@@ -188,9 +189,8 @@ Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
   assert(false);
 }
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token) : ASTNode(ASTType::NUM_LITERAL,
-                                                                                                  op_precedence[ASTType::NUM_LITERAL],
-                                                                                                  0, token
+ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token)
+    : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token
 ) {
   _is_float = is_float;
   if (is_float) {
@@ -200,33 +200,80 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token 
   }
 }
 
-ASTNumberLiteral::ASTNumberLiteral(int value) : ASTNode(ASTType::NUM_LITERAL,
-                                                        op_precedence[ASTType::NUM_LITERAL],
-                                                        0,
-                                                        nullptr
+ASTNumberLiteral::ASTNumberLiteral(int value) : ASTLiteral(ASTType::NUM_LITERAL,
+                                                           op_precedence[ASTType::NUM_LITERAL],
+                                                           0,
+                                                           nullptr
 ) {
   _ivalue = value;
   _is_float = false;
 }
 
-ASTNumberLiteral::ASTNumberLiteral(float value) : ASTNode(ASTType::NUM_LITERAL,
-                                                          op_precedence[ASTType::NUM_LITERAL],
-                                                          0,
-                                                          nullptr
+ASTNumberLiteral::ASTNumberLiteral(float value) : ASTLiteral(ASTType::NUM_LITERAL,
+                                                             op_precedence[ASTType::NUM_LITERAL],
+                                                             0,
+                                                             nullptr
 ) {
   _fvalue = value;
   _is_float = true;
 }
 
-ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTNode(ASTType::STRING_LITERAL,
-                                                                            op_precedence[ASTType::STRING_LITERAL],
-                                                                            0,
-                                                                            token
+llvm::Value *ASTNumberLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+
+std::string ASTNumberLiteral::get_type_name() const {
+  // TODO: other type names
+  if (_is_float) {
+    return "float";
+  } else {
+    return "int";
+  }
+}
+
+llvm::Type *ASTNumberLiteral::to_llvm_type(CompilerSession *compiler_session) const {
+  // TODO: other types
+  if (_is_float) {
+    return compiler_session->get_builder()->getFloatTy();
+  } else {
+    return compiler_session->get_builder()->getInt32Ty();
+  }
+}
+
+Ty ASTNumberLiteral::get_ty() const {
+  // TODO: other types
+  if (_is_float) {
+    return Ty::FLOAT;
+  } else {
+    return TY_OR(Ty::INT, Ty::BIT32);
+  }
+}
+
+ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTLiteral(ASTType::STRING_LITERAL,
+                                                                               op_precedence[ASTType::STRING_LITERAL],
+                                                                               0,
+                                                                               token
 ), _svalue(std::move(str)) {}
 
 ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
   _type = ASTType::ASSIGN;
   _lbp = op_precedence[_type];
+}
+
+llvm::Value *ASTStringLiteral::get_llvm_value(CompilerSession *) const {
+  return _llvm_value;
+}
+
+Value *ASTStringLiteral::codegen(CompilerSession *compiler_session) {
+  // TODO: codegen for string
+  throw std::runtime_error("NOT IMPLEMENTED");
+}
+
+std::string ASTStringLiteral::get_type_name() const {
+  return "str";
+}
+
+llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const {
+  // TODO: get llvm type for string
+  return nullptr;
 }
 
 } // namespace tanlang

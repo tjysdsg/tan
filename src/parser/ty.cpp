@@ -22,24 +22,27 @@ void ASTTy::nud(Parser *parser) {
   Token *token = nullptr;
   while (parser->_curr_token < parser->_tokens.size()) {
     token = parser->get_curr_token();
-    if (basic_tys.find(token->value) != basic_tys.end()) {
+    if (basic_tys.find(token->value) != basic_tys.end()) { // basic types
       _ty = TY_OR(_ty, basic_tys[token->value]);
-    } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) {
+    } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { // qualifiers
       if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { // pointer to pointer (to ...)
         auto sub = std::make_shared<ASTTy>(token);
         // swap self and child
         sub->_ty = this->_ty;
         this->_ty = Ty::POINTER;
         _children.push_back(sub);
-      } else {
+      } else { // other qualifiers other than pointer to pointers
         _ty = TY_OR(_ty, qualifier_tys[token->value]);
       }
-    } else if (token->type == TokenType::ID) { // struct name
+    } else if (token->type == TokenType::ID) { // struct or array
       _type_name = token->value;
-      _ty = TY_OR(_ty, Ty::STRUCT);
-    } else {
-      break;
-    }
+      if (composite_tys.find(token->value) == composite_tys.end()) {
+        // TOOD: work with typedef
+        _ty = TY_OR(_ty, Ty::STRUCT);
+      } else {
+        _ty = TY_OR(_ty, composite_tys[token->value]);
+      }
+    } else { break; }
     ++parser->_curr_token;
   }
 }

@@ -10,7 +10,7 @@ class Value;
 
 namespace tanlang {
 
-struct CompilerSession;
+class CompilerSession;
 
 class Named {
 public:

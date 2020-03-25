@@ -56,6 +56,8 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       }
       case Ty::ARRAY: {
         // TODO: array type to llvm type
+        type = ArrayType::get(compiler_session->get_builder()->getInt32Ty(), 3);
+        break;
       }
       default: {
         throw std::runtime_error("Invalid base type: " + std::to_string((uint64_t) base));

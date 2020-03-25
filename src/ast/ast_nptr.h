@@ -16,6 +16,9 @@ public:
   ASTNPtr() = delete;
   ASTNPtr(Ty orig_type, int n); // FIXME: unsigned? but ASTNumberLiteral
   void nud(Parser *parser) override;
+
+  std::string get_type_name() const override { return _type_name; }
+
 private:
   std::string _type_name = "nptr";
 };

@@ -54,7 +54,7 @@ private:
   std::shared_ptr<ASTTy> _ty = nullptr;
 };
 
-class ASTNumberLiteral final : public ASTNode {
+class ASTNumberLiteral final : public ASTLiteral {
 public:
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
   explicit ASTNumberLiteral(int value);
@@ -64,21 +64,31 @@ public:
   [[nodiscard]] bool is_float() const { return _is_float; }
 
   Value *codegen(CompilerSession *compiler_session) override;
-
+  llvm::Value *get_llvm_value(CompilerSession *compiler_session) const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  Ty get_ty() const override;
 private:
   bool _is_float = false;
   union {
     int _ivalue;
     float _fvalue;
   };
+  llvm::Value *_llvm_value = nullptr;
 };
 
-class ASTStringLiteral final : public ASTNode {
+class ASTStringLiteral final : public ASTLiteral {
 public:
   explicit ASTStringLiteral(std::string str, Token *token);
+  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  // TODO: Ty get_ty() const override;
 
 private:
   std::string _svalue;
+  llvm::Value *_llvm_value = nullptr;
 };
 
 class ASTAssignment final : public ASTInfixBinaryOp {

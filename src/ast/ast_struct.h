@@ -8,7 +8,8 @@ namespace tanlang {
 /**
  * \brief Struct type
  * \details nud() function also handles struct declaration.
- * Children are ASTVarDecl, which are the member variables of the struct
+ * First child node is the name of the struct,
+ * subsequent children are ASTVarDecl, which are the member variables of the struct
  *
  * */
 class ASTStruct : public ASTNode, public std::enable_shared_from_this<ASTStruct>, public Typed {

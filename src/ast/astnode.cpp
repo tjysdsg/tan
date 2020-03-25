@@ -2,6 +2,7 @@
 #include "src/ast/common.h"
 #include "parser.h"
 #include "src/llvm_include.h"
+#include "src/ast/ast_ty.h"
 
 namespace tanlang {
 
@@ -26,7 +27,8 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
     c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
   }
 }
-// ====================================================//
+
+Ty ASTLiteral::get_ty() const { return Ty::INVALID; }
 
 // =================== cdtors =========================//
 ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
