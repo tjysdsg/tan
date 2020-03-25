@@ -74,6 +74,11 @@ void ASTPrefix::nud(Parser *parser) {
   _children.emplace_back(parser->next_expression(_lbp));
 }
 
+void ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+  _children.push_back(left);
+  _children.push_back(parser->next_expression(0));
+}
+
 /**
  * This is defined merely to overwrite ASTNode::nud() because the latter throws
  * */

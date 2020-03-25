@@ -94,6 +94,7 @@ private:
 class ASTAssignment final : public ASTInfixBinaryOp {
 public:
   explicit ASTAssignment(Token *token);
+  void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
