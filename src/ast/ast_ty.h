@@ -40,6 +40,11 @@ enum class Ty : uint64_t {
   BIT128 = 1u << 20u,
 };
 
+/**
+ * Things to remember when adding a new type
+ * - set _type_name in ASTTy::nud()
+ * - set _llvm_type in ASTTy::codegen()
+ */
 class ASTTy final : public ASTNode, public Typed {
 public:
   ASTTy() = delete;

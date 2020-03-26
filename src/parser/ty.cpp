@@ -17,15 +17,17 @@ std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
 /// current token should be "[" when this is called
+/// this will set _type_name
 void ASTTy::nud_array(Parser *parser) {
   ++parser->_curr_token;
   /// element type
   if (parser->get_curr_token()->value == "]") { /// empty
-    report_code_error(parser->get_curr_token(), "Empty array type is invalid");
+    report_code_error(parser->get_curr_token(), "An array type must be specified");
   } else {
     auto child = std::make_shared<ASTTy>(parser->get_curr_token());
-    child->nud(parser);
+    child->nud(parser); /// this set the _type_name of child
     _children.push_back(child);
+    _type_name = child->_type_name;
   }
   parser->advance(TokenType::PUNCTUATION, ",");
 
@@ -40,6 +42,8 @@ void ASTTy::nud_array(Parser *parser) {
     report_code_error(parser->_tokens[parser->_curr_token - 1], "Expect an unsigned integer");
   }
   _n_elements = static_cast<size_t>(size1->_ivalue);
+  _type_name =
+      "[" + _type_name + ", " + std::to_string(_n_elements) + "]"; /// set _type_name to [<element type>, <n_elements>]
 }
 
 void ASTTy::nud(Parser *parser) {
@@ -48,23 +52,25 @@ void ASTTy::nud(Parser *parser) {
     token = parser->get_curr_token();
     if (basic_tys.find(token->value) != basic_tys.end()) { // basic types
       _ty = TY_OR(_ty, basic_tys[token->value]);
+      _type_name += token->value; /// just append the type name for basic types and qualifiers
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { // qualifiers
       if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { // pointer to pointer (to ...)
         auto sub = std::make_shared<ASTTy>(token);
-        // swap self and child
+        /// swap self and child, so this is a pointer with no basic type, and the child is a pointer to something
         sub->_ty = this->_ty;
         this->_ty = Ty::POINTER;
         _children.push_back(sub);
       } else { // qualifiers other than pointer to pointers
         _ty = TY_OR(_ty, qualifier_tys[token->value]);
       }
+      _type_name += token->value; /// just append the type name for basic types and qualifiers
     } else if (token->type == TokenType::ID) { // struct or array
-      _type_name = token->value;
       // TODO: identify type aliases
+      _type_name = token->value; /// _type_name is the name of the struct
       _ty = TY_OR(_ty, Ty::STRUCT);
     } else if (token->value == "[") {
       _ty = TY_OR(_ty, Ty::ARRAY);
-      nud_array(parser);
+      nud_array(parser); /// set _type_name in nud_array()
     } else { break; }
     ++parser->_curr_token;
   }
