@@ -6,9 +6,14 @@
 
 namespace tanlang {
 
+std::string ASTNode::to_string(bool print_prefix) const {
+  if (print_prefix) { return ast_type_names[this->_type]; }
+  else { return ""; }
+}
+
 void ASTNode::printTree() const {
   using std::cout;
-  cout << ast_type_names[this->_type] << "\n";
+  cout << this->to_string(true) << "\n";
   size_t n_children = _children.size();
   for (size_t i = 0; i < n_children; ++i) {
     _children[i]->printTree("", i >= n_children - 1);
@@ -18,7 +23,7 @@ void ASTNode::printTree() const {
 void ASTNode::printTree(const std::string &prefix, bool last_child) const {
   using std::cout;
 
-  cout << prefix << (last_child ? "└── " : "├── ") << ast_type_names[this->_type] << "\n";
+  cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
   if (_children.empty()) { return; }
   size_t n_children = _children.size();
 

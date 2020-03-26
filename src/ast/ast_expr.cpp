@@ -247,6 +247,15 @@ Ty ASTNumberLiteral::get_ty() const {
   }
 }
 
+std::string ASTNumberLiteral::to_string(bool print_prefix) const {
+  std::string ret = "";
+  if (print_prefix) {
+    ret += ASTLiteral::to_string(print_prefix) + " ";
+  }
+  if (_is_float) { ret += std::to_string(_fvalue); } else { ret += std::to_string(_ivalue); }
+  return ret;
+}
+
 ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTLiteral(ASTType::STRING_LITERAL,
                                                                                op_precedence[ASTType::STRING_LITERAL],
                                                                                0,

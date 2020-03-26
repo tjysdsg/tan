@@ -32,4 +32,18 @@ llvm::Type *ASTArrayLiteral::to_llvm_type(CompilerSession *) const {
   return _llvm_type;
 }
 
+std::string ASTArrayLiteral::to_string(bool print_prefix) const {
+  std::string ret = "";
+  if (print_prefix) { ret = ASTLiteral::to_string(true) + " ["; }
+  else { ret = "["; }
+  size_t i = 0;
+  size_t n = _children.size();
+  for (auto c : _children) {
+    ret += c->to_string(false);
+    if (i < n - 1) { ret += ", "; }
+    ++i;
+  }
+  return ret + "]";
+}
+
 } // namespace tanlang

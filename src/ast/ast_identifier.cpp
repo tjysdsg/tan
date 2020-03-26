@@ -14,4 +14,9 @@ std::string ASTIdentifier::get_name() const {
   return _name;
 }
 
+std::string ASTIdentifier::to_string(bool print_prefix) const {
+  if (print_prefix) { return ASTNode::to_string(print_prefix) + " " + _name; }
+  else { return _name; }
+}
+
 } // namespace tanlang

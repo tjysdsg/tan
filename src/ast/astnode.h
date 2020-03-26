@@ -92,6 +92,7 @@ public:
   virtual void nud(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
+  virtual std::string to_string(bool print_prefix = true) const;
 
 private:
   void printTree(const std::string &prefix, bool last_child) const;

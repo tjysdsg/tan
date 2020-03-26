@@ -59,6 +59,8 @@ void ASTTy::nud(Parser *parser) {
         /// swap self and child, so this is a pointer with no basic type, and the child is a pointer to something
         sub->_ty = this->_ty;
         this->_ty = Ty::POINTER;
+        /// remember to set the name of sub
+        sub->_type_name = _type_name;
         _children.push_back(sub);
       } else { // qualifiers other than pointer to pointers
         _ty = TY_OR(_ty, qualifier_tys[token->value]);

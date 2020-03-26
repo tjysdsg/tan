@@ -52,6 +52,7 @@ public:
   void nud(Parser *parser) override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
+  std::string to_string(bool print_prefix = true) const override;
 
 private:
   void nud_array(Parser *parser);

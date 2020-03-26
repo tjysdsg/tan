@@ -71,6 +71,7 @@ public:
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
   Ty get_ty() const override;
+  std::string to_string(bool print_prefix = true) const override;
 private:
   bool _is_float = false;
   union {

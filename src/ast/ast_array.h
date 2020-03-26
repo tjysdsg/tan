@@ -20,6 +20,7 @@ public:
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
   Value *codegen(CompilerSession *compiler_session) override;
+  std::string to_string(bool print_prefix = true) const override;
 private:
   llvm::Value *_llvm_value = nullptr;
   llvm::Type *_llvm_type = nullptr;

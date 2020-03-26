@@ -79,4 +79,8 @@ std::string ASTTy::get_type_name() const {
   return _type_name;
 }
 
+std::string ASTTy::to_string(bool print_prefix) const {
+  return ASTNode::to_string(print_prefix) + " " + _type_name;
+}
+
 } // namespace tanlang
