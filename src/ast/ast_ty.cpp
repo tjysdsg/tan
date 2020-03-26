@@ -56,11 +56,6 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       break;
     }
     default: {
-      /// Base type could be 0 because this might be a pointer to pointer, but other than that, the base type must
-      /// be non-zero
-      if (_children.empty()) {
-        throw std::runtime_error("Invalid base type" + std::to_string((uint64_t) base));
-      }
       break;
     }
   }

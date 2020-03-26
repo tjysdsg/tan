@@ -71,11 +71,6 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/tanc COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 
 # ====== tests for debug build ======
-
-# set compiler to clang for fuzzing
-set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-set(CMAKE_C_COMPILER "/usr/bin/clang")
-
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     # target test
     aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
@@ -87,16 +82,6 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
     add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
     enable_testing()
-
-    # target fuzzing
-    aux_source_directory(${PROJECT_SOURCE_DIR}/src/test/fuzzing FUZZING_SRCS)
-    add_executable(tan_fuzzing ${FUZZING_SRCS})
-    #
-    target_include_directories(tan_fuzzing PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_fuzzing tan ${DEP_LIBS} /usr/lib/clang/9.0.1/lib/linux/libclang_rt.fuzzer-x86_64.a)
-    target_compile_options(tan_fuzzing PRIVATE -fsanitize=fuzzer-no-link)
-    set_other_options(tan_fuzzing)
 endif ()
 
 # ===== target libtan =====
@@ -122,3 +107,5 @@ set(LINKER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-ld.cpp)
 add_executable(tan-ld ${LINKER_SRCS})
 target_link_libraries(tan-ld tan gflags::gflags ${DEP_LIBS})
 set_other_options(tan-ld)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/test/)

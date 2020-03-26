@@ -14,13 +14,18 @@ struct code_ptr {
   long c = 0;
 
   code_ptr() = default;
+
   code_ptr(long r, long c) : l(r), c(c) {}
+
   code_ptr(const code_ptr &other) {
     l = other.l;
     c = other.c;
   }
+
   ~code_ptr() = default;
+
   bool operator==(const code_ptr &other) { return l == other.l && c == other.c; }
+
   bool operator<(const code_ptr &other) {
     if (l < other.l) {
       return true;
@@ -42,7 +47,9 @@ struct code_ptr {
   }
 
   code_ptr &operator=(const code_ptr &other) = default;
+
   static code_ptr npos() { return code_ptr(-1, -1); }
+
   bool operator!=(const code_ptr &other) { return !(*this == other); }
 };
 
@@ -50,13 +57,15 @@ struct line_info {
   unsigned lineno;   // line number
   std::string code; // actual code
   line_info() = delete;
+
   line_info(const unsigned lineno, const std::string code) : lineno(lineno), code(code) {}
+
   ~line_info() = default;
 };
 
 // TODO: support unicode
 class Reader final {
- public:
+public:
   Reader() = default;
   ~Reader();
   void open(const std::string &filename);
@@ -102,8 +111,9 @@ class Reader final {
     std::string ret;
     if (s_row == e_row) {
       assert(start.c != end.c);
-      ret = _lines[static_cast<size_t>(s_row)]->code.substr(static_cast<unsigned long>(start.c),
-                                                            static_cast<unsigned long>(end.c - start.c));
+      ret = _lines[static_cast<size_t>(s_row)]->code
+                                              .substr(static_cast<unsigned long>(start.c),
+                                                      static_cast<unsigned long>(end.c - start.c));
     } else {
       ret += _lines[static_cast<size_t>(s_row)]->code.substr(static_cast<unsigned long>(start.c));
       for (auto r = s_row; r < e_row - 1; ++r) {
@@ -120,6 +130,7 @@ class Reader final {
    * \brief Return a code pointer pointing one character after the final character in the code
    * */
   [[nodiscard]] code_ptr back_ptr() const {
+    if (_lines.empty()) { return code_ptr(0, 1); }
     return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length()));
   }
 
@@ -140,7 +151,7 @@ class Reader final {
     return ptr;
   }
 
- private:
+private:
   std::string _filename = "";
   std::vector<line_info *> _lines{};
 };

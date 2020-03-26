@@ -1,3 +1,4 @@
+fuzzing/
 dep-build/
 build/
 gtest-build/
