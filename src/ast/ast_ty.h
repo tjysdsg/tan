@@ -48,14 +48,14 @@ enum class Ty : uint64_t {
 class ASTTy final : public ASTNode, public Typed {
 public:
   ASTTy() = delete;
-  explicit ASTTy(Token *token);
-  void nud(Parser *parser) override;
+  ASTTy(Token *token, size_t token_index);
+  size_t nud(Parser *parser) override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
 
 private:
-  void nud_array(Parser *parser);
+  size_t nud_array(Parser *parser);
 
 private:
   std::string _type_name{};

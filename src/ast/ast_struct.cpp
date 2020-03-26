@@ -6,7 +6,7 @@
 
 namespace tanlang {
 
-ASTStruct::ASTStruct(Token *token) : ASTNode(ASTType::STRUCT_DECL, 0, 0, token) {}
+ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTNode(ASTType::STRUCT_DECL, 0, 0, token, token_index) {}
 
 Value *ASTStruct::codegen(CompilerSession *compiler_session) {
   using llvm::StructType;

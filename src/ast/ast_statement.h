@@ -5,19 +5,19 @@
 namespace tanlang {
 
 class ASTProgram final : public ASTNode {
- public:
+public:
   ASTProgram();
   Value *codegen(CompilerSession *compiler_session) override;
-  void nud(Parser *parser) override;
+  size_t nud(Parser *parser) override;
 };
 
 class ASTStatement final : public ASTNode {
- public:
+public:
   ASTStatement() = delete;
-  explicit ASTStatement(Token *token);
-  ASTStatement(bool is_compound, Token *token);
-  void nud(Parser *parser) override;
- public:
+  ASTStatement(Token *token, size_t token_index);
+  ASTStatement(bool is_compound, Token *token, size_t token_index);
+  size_t nud(Parser *parser) override;
+public:
   bool _is_compound = false;
 };
 

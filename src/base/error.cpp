@@ -4,13 +4,10 @@
 
 namespace tanlang {
 
-void report_code_error(const std::string &source,
-                       size_t line,
-                       size_t col,
-                       const std::string &error_message) {
+void report_code_error(const std::string &source, size_t line, size_t col, const std::string &error_message) {
   std::string error_output =
-      "[ERROR] at LINE" + std::to_string(line) + ": " + error_message + "\n"
-          + source + "\n" + std::string(col, ' ') + "^";
+      "[ERROR] at LINE" + std::to_string(line) + ": " + error_message + "\n" + source + "\n" + std::string(col, ' ')
+          + "^";
   throw std::runtime_error(error_output);
 }
 

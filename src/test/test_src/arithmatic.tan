@@ -1,0 +1,7 @@
+fn main(argc: int, argv: char**) : int {
+    var a: float = 1.0;
+    var b: int = 5.0;
+    var c: float = 3.1415926;
+    var d: float = c * ((a + b) / 2.0);
+    return d;
+}

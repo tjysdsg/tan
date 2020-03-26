@@ -6,57 +6,68 @@
 namespace tanlang {
 
 // =================== if ===================//
-void ASTIf::nud(tanlang::Parser *parser) {
-  // condition
-  auto condition = parser->advance(TokenType::PUNCTUATION, "(");
-  condition->nud(parser);
+size_t ASTIf::nud(tanlang::Parser *parser) {
+  _end_index = _start_index + 1; /// skip "if"
+  /// condition
+  auto condition = parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+  _end_index = condition->nud(parser);
   _children.push_back(condition);
-  // if clause
-  auto if_clause = parser->advance(TokenType::PUNCTUATION, "{");
-  if_clause->nud(parser);
+  /// if clause
+  auto if_clause = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+  _end_index = if_clause->nud(parser);
   _children.push_back(if_clause);
-  ++parser->_curr_token;
 
-  // else clause
-  Token *token = parser->get_curr_token();
+  /// else clause, if any
+  auto *token = parser->at(_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
-    auto else_clause = parser->advance();
-    else_clause->nud(parser);
-    _children.push_back(else_clause); // else clause
+    auto else_clause = parser->peek(_end_index);
+    _end_index = else_clause->nud(parser);
+    _children.push_back(else_clause);
     _has_else = true;
   }
+  // TODO: test if, else if, ..., else
+  return _end_index;
 }
 
 // =================== else ===================//
-void ASTElse::nud(tanlang::Parser *parser) {
-  auto else_clause = parser->advance(TokenType::PUNCTUATION, "{");
-  else_clause->nud(parser);
+size_t ASTElse::nud(tanlang::Parser *parser) {
+  _end_index = _start_index + 1; /// skip "else"
+  auto else_clause = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+  _end_index = else_clause->nud(parser);
   _children.push_back(else_clause);
+  return _end_index;
 }
 
 /**
  * \brief: parse a statement if _is_compound is false, otherwise parse a list of (compound) statements and add them
  *          to _children.
  * */
-void ASTStatement::nud(Parser *parser) {
-  if (_is_compound) {
-    while (!parser->eof()) {
-      auto node = parser->peek();
-      while (node) {
-        _children.push_back(parser->next_expression(0));
-        node = parser->peek();
+size_t ASTStatement::nud(Parser *parser) {
+  _end_index = _start_index;
+  if (_is_compound) { /// compound statement
+    ++_end_index; /// skip "{"
+    while (!parser->eof(_end_index)) {
+      auto node = parser->peek(_end_index);
+      while (node) { /// stops at a terminal token
+        // FIXME: call parser->parse<ASTType::STATEMENT>(_end_index, true) instead of next expression
+        _children.push_back(parser->next_expression(_end_index, 0));
+        node = parser->peek(_end_index);
       }
-      if (parser->get_curr_token()->value == "}") { break; }
-      ++parser->_curr_token;
+      if (parser->at(_end_index)->value == "}") {
+        ++_end_index; /// skip "}"
+        break;
+      }
+      ++_end_index;
     }
-  } else {
-    auto node = parser->peek();
-    while (node) {
-      _children.push_back(parser->next_expression(0));
-      node = parser->peek();
+  } else { /// single statement
+    auto node = parser->peek(_end_index);
+    while (node) { /// stops at a terminal token
+      _children.push_back(parser->next_expression(_end_index, 0));
+      node = parser->peek(_end_index);
     }
-    ++parser->_curr_token;
+    ++_end_index; /// skip terminal token
   }
+  return _end_index;
 }
 
 }

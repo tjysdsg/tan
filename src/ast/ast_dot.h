@@ -8,8 +8,13 @@ class ASTDot final : public ASTNode {
 public:
   ASTDot() = delete;
 
-  explicit ASTDot(Token *token) : ASTNode(ASTType::MEMBER_ACCESS, op_precedence[ASTType::MEMBER_ACCESS], 0, token) {};
-  void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  ASTDot(Token *token, size_t token_index) : ASTNode(ASTType::MEMBER_ACCESS,
+                                                     op_precedence[ASTType::MEMBER_ACCESS],
+                                                     0,
+                                                     token,
+                                                     token_index
+  ) {};
+  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 

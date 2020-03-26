@@ -15,8 +15,8 @@ namespace tanlang {
 class ASTStruct : public ASTNode, public std::enable_shared_from_this<ASTStruct>, public Typed {
 public:
   ASTStruct() = delete;
-  explicit ASTStruct(Token *token);
-  void nud(Parser *parser) override;
+  ASTStruct(Token *token, size_t token_index);
+  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
   size_t get_member_index(std::string name);
   std::string get_type_name() const override;

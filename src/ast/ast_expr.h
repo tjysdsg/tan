@@ -11,9 +11,13 @@ class ASTParenthesis final : public ASTNode {
 public:
   ASTParenthesis() = delete;
 
-  explicit ASTParenthesis(Token *token) : ASTNode(ASTType::PARENTHESIS, op_precedence[ASTType::PARENTHESIS], 0, token
+  ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,
+                                                             op_precedence[ASTType::PARENTHESIS],
+                                                             0,
+                                                             token,
+                                                             token_index
   ) {};
-  void nud(Parser *parser) override;
+  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
@@ -21,20 +25,22 @@ class ASTArgDecl final : public ASTNode {
 public:
   ASTArgDecl() = delete;
 
-  explicit ASTArgDecl(Token *token) : ASTNode(ASTType::ARG_DECL, 0, 0, token) {};
-  void nud(Parser *parser) override;
+  ASTArgDecl(Token *token, size_t token_index) : ASTNode(ASTType::ARG_DECL, 0, 0, token, token_index) {};
+  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTVarDecl final
     : public ASTNode, public std::enable_shared_from_this<ASTVarDecl>, public Named, public Typed, public Valued {
 public:
-  ASTVarDecl() = default;
-
   friend class ASTFunction; // FIXME: is this necessary?
+  ASTVarDecl() = delete;
 
-  explicit ASTVarDecl(Token *token) : ASTNode(ASTType::VAR_DECL, 0, 0, token) {};
-  void nud(Parser *parser) override;
+  // TODO: delete this and fix relevant callers
+  explicit ASTVarDecl(size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, nullptr, token_index) {}
+
+  ASTVarDecl(Token *token, size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, token, token_index) {};
+  size_t nud(Parser *parser) override;
 
   /**
    * \attention UNUSED
@@ -59,10 +65,8 @@ public:
   friend class ASTTy;
 
 public:
-  ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
-  explicit ASTNumberLiteral(int value);
-  explicit ASTNumberLiteral(float value);
-  void nud(Parser *parser) override;
+  ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index);
+  size_t nud(Parser *parser) override;
 
   [[nodiscard]] bool is_float() const { return _is_float; }
 
@@ -83,7 +87,7 @@ private:
 
 class ASTStringLiteral final : public ASTLiteral {
 public:
-  explicit ASTStringLiteral(std::string str, Token *token);
+  ASTStringLiteral(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
@@ -97,8 +101,8 @@ private:
 
 class ASTAssignment final : public ASTInfixBinaryOp {
 public:
-  explicit ASTAssignment(Token *token);
-  void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  ASTAssignment(Token *token, size_t token_index);
+  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 };
 

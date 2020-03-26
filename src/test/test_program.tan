@@ -1,0 +1,33 @@
+#build_msg: str;
+#prog_version: u32;
+#before_build() {
+    println("Building version {u32} ...", prog_version);
+    println("{str}", build_msg);
+}
+
+#after_build() {
+    println("Success!!");
+}
+
+fn main(argc: u32, argv: [[]]) : u32 {
+    // get all arguments
+    args: [[]] = Vec::from_buffer(Buffer::new(argc * sizeof(*str)));
+    // this is redundant, but for illustration purposes
+    for(i: u32 = 0; i < argc; i += 1) {
+        args[i] = argv[i];
+    }
+    // parse arguments
+    for(i: u32 = 0; i < argc; i += 1) {
+        if (args[i] == "-v" || args[i] == "--version") {
+            println("Version: {}", #prog_version);
+            return 0;
+        }
+
+        if (args[i] == "-h" || args[i] == "--help") {
+            print("Avaiable options:\n");
+            println("use -v or --version see program version");
+            return 1;
+        }
+    }
+    return 0;
+}

@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-ASTTy::ASTTy(Token *token) : ASTNode(ASTType::TY, 0, 0, token) {}
+ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
 llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   Ty base = TY_GET_BASE(_ty);

@@ -10,9 +10,11 @@ class ASTIdentifier final : public ASTNode {
 public:
   ASTIdentifier() = delete;
 
-  ASTIdentifier(std::string name, Token *token) : ASTNode(ASTType::ID, 0, 0, token), _name(std::move(name)) {}
+  ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType::ID, 0, 0, token, token_index) {
+    _name = token->value;
+  }
 
-  void nud(Parser *parser) override;
+  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
   std::string get_name() const;
   std::string to_string(bool print_prefix = true) const override;

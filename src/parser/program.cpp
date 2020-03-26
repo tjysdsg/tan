@@ -7,11 +7,12 @@ namespace tanlang {
 /**
  * \brief: parse a list of (compound) statements
  * */
-void ASTProgram::nud(Parser *parser) {
-  size_t n_tokens = parser->_tokens.size();
-  while (parser->_curr_token < n_tokens - 1) {
-    _children.push_back(parser->parse<ASTType::STATEMENT>(true));
+size_t ASTProgram::nud(Parser *parser) {
+  _end_index = _start_index;
+  while (!parser->eof(_end_index)) {
+    _children.push_back(parser->parse<ASTType::STATEMENT>(_end_index, true));
   }
+  return _end_index;
 }
 
 }

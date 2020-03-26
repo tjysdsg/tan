@@ -13,9 +13,10 @@ class ASTArrayLiteral : public ASTLiteral {
 public:
   ASTArrayLiteral() = delete;
 
-  explicit ASTArrayLiteral(Token *token) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, token) {}
+  ASTArrayLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, token, token_index
+  ) {}
 
-  void nud(Parser *parser) override;
+  size_t nud(Parser *parser) override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;

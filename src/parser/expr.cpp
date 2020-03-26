@@ -1,55 +1,60 @@
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_array.h"
-#include "parser.h"
 #include "token.h"
+#include "parser.h"
 
 namespace tanlang {
 
-void ASTParenthesis::nud(Parser *parser) {
+size_t ASTParenthesis::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip (
   while (true) {
-    Token *t = parser->get_curr_token();
+    auto *t = parser->at(_end_index);
     if (!t) {
       throw std::runtime_error("Unexpected EOF");
-    } else if (t->type == TokenType::PUNCTUATION && t->value == ")") {
-      ++parser->_curr_token;
+    } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
+      ++_end_index;
       break;
     }
-    auto n = parser->next_expression(PREC_LOWEST);
+    auto n = parser->next_expression(_end_index, PREC_LOWEST);
     if (n) {
       _children.push_back(n);
     } else {
       throw std::runtime_error("Unexpected " + t->to_string());
     }
   }
+  return _end_index;
 }
 
-void ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
-  _children.emplace_back(left);
-  auto n = parser->next_expression(_lbp);
+size_t ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+  _end_index = _start_index + 1; /// skip operator
+  _children.emplace_back(left); /// lhs
+  auto n = parser->next_expression(_end_index, _lbp);
   if (!n) {
     report_code_error(_token, "Unexpected token");
   } else {
     _children.emplace_back(n);
   }
+  return _end_index;
 }
 
-void ASTArrayLiteral::nud(Parser *parser) {
-  if (parser->get_curr_token()->value == "]") { // empty array
-    return;
+size_t ASTArrayLiteral::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip '['
+  if (parser->at(_end_index)->value == "]") { /// empty array
+    ++_end_index;
+    return _end_index;
   }
   ASTType element_type = ASTType::INVALID;
-  while (!parser->eof()) {
-    if (parser->get_curr_token()->value == ",") {
-      ++parser->_curr_token;
+  while (!parser->eof(_end_index)) {
+    if (parser->at(_end_index)->value == ",") {
+      ++_end_index;
       continue;
-    } else if (parser->get_curr_token()->value == "]") {
+    } else if (parser->at(_end_index)->value == "]") {
+      ++_end_index;
       break;
     }
-    auto node = parser->peek();
-    if (!node) {
-      report_code_error(_token, "Unexpected token");
-    }
+    auto node = parser->peek(_end_index);
+    if (!node) { report_code_error(_token, "Unexpected token"); }
     /// check whether element types are the same
     if (element_type == ASTType::INVALID) {
       element_type = node->_type;
@@ -60,33 +65,45 @@ void ASTArrayLiteral::nud(Parser *parser) {
     }
     if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
         || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
-      if (node->_type == ASTType::ARRAY_LITERAL) { ++parser->_curr_token; }
-      node->nud(parser); // TODO: set convention of parser->_curr_token before and after calling nud()/led()
+      if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
+      _end_index = node->nud(parser);
       _children.push_back(node);
-      ++parser->_curr_token;
     } else {
       report_code_error(_token, "Expect literals");
     }
   }
+  return _end_index;
 }
 
-void ASTPrefix::nud(Parser *parser) {
-  _children.emplace_back(parser->next_expression(_lbp));
+size_t ASTPrefix::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip self
+  _children.emplace_back(parser->next_expression(_end_index, _lbp));
+  return _end_index;
 }
 
-void ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+  _end_index = _start_index + 1; /// skip "="
   _children.push_back(left);
-  _children.push_back(parser->next_expression(0));
+  _children.push_back(parser->next_expression(_end_index, 0));
+  return _end_index;
 }
 
 /**
  * This is defined merely to overwrite ASTNode::nud() because the latter throws
  * */
-void ASTNumberLiteral::nud(Parser *parser) { UNUSED(parser); }
+size_t ASTNumberLiteral::nud(Parser *parser) {
+  _end_index = _start_index + 1;
+  UNUSED(parser);
+  return _end_index;
+}
 
 /**
  * This is defined merely to overwrite ASTNode::nud() because the latter throws
  * */
-void ASTIdentifier::nud(Parser *parser) { UNUSED(parser); }
+size_t ASTIdentifier::nud(Parser *parser) {
+  _end_index = _start_index + 1;
+  UNUSED(parser);
+  return _end_index;
+}
 
 } // namespace tanlang

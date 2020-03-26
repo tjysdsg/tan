@@ -189,8 +189,8 @@ Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
   assert(false);
 }
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token)
-    : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token
+ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)
+    : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index
 ) {
   _is_float = is_float;
   if (is_float) {
@@ -198,24 +198,6 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token 
   } else {
     _ivalue = std::stoi(str);
   }
-}
-
-ASTNumberLiteral::ASTNumberLiteral(int value) : ASTLiteral(ASTType::NUM_LITERAL,
-                                                           op_precedence[ASTType::NUM_LITERAL],
-                                                           0,
-                                                           nullptr
-) {
-  _ivalue = value;
-  _is_float = false;
-}
-
-ASTNumberLiteral::ASTNumberLiteral(float value) : ASTLiteral(ASTType::NUM_LITERAL,
-                                                             op_precedence[ASTType::NUM_LITERAL],
-                                                             0,
-                                                             nullptr
-) {
-  _fvalue = value;
-  _is_float = true;
 }
 
 llvm::Value *ASTNumberLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
@@ -256,13 +238,16 @@ std::string ASTNumberLiteral::to_string(bool print_prefix) const {
   return ret;
 }
 
-ASTStringLiteral::ASTStringLiteral(std::string str, Token *token) : ASTLiteral(ASTType::STRING_LITERAL,
-                                                                               op_precedence[ASTType::STRING_LITERAL],
-                                                                               0,
-                                                                               token
-), _svalue(std::move(str)) {}
+ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
+                                                                                  op_precedence[ASTType::STRING_LITERAL],
+                                                                                  0,
+                                                                                  token,
+                                                                                  token_index
+) {
+  _svalue = token->value;
+}
 
-ASTAssignment::ASTAssignment(Token *token) : ASTInfixBinaryOp(token) {
+ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   _type = ASTType::ASSIGN;
   _lbp = op_precedence[_type];
 }

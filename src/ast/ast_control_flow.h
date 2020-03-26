@@ -5,26 +5,37 @@
 
 namespace tanlang {
 class Parser;
+
 class CompilerSession;
 
 class ASTIf final : public ASTNode {
- public:
+public:
   ASTIf() = delete;
-  explicit ASTIf(Token *token) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token) {}
-  void nud(Parser *parser) override;
+
+  ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token, token_index
+  ) {}
+
+  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 
- public:
+public:
   bool _has_else = false;
 };
 
 class ASTElse final : public ASTNode {
- public:
+public:
   ASTElse() = delete;
-  explicit ASTElse(Token *token) : ASTNode(ASTType::ELSE, op_precedence[ASTType::ELSE], 0, token) {}
-  void nud(Parser *parser) override;
 
- public:
+  explicit ASTElse(Token *token, size_t token_index) : ASTNode(ASTType::ELSE,
+                                                               op_precedence[ASTType::ELSE],
+                                                               0,
+                                                               token,
+                                                               token_index
+  ) {}
+
+  size_t nud(Parser *parser) override;
+
+public:
   bool _has_else = false;
 };
 }

@@ -36,7 +36,7 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
 Ty ASTLiteral::get_ty() const { return Ty::INVALID; }
 
 // =================== cdtors =========================//
-ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
+ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   if (!is_ast_type_in(type,
                       {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR}
   )) {
@@ -46,29 +46,35 @@ ASTCompare::ASTCompare(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
   _lbp = op_precedence[type];
 }
 
-ASTReturn::ASTReturn(Token *token) : ASTPrefix(token) {
+ASTReturn::ASTReturn(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   _type = ASTType::RET;
   _lbp = op_precedence[_type];
 }
 
-ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token) : _type(op), _lbp(lbp), _rbp(rbp), _token(token) {}
+ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
+    : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
 
-ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token) : ASTNode(ASTType::INVALID, op_precedence[ASTType::INVALID], 0, token
+ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
+                                                                               PREC_LOWEST,
+                                                                               0,
+                                                                               token,
+                                                                               token_index
 ) {}
 
-ASTPrefix::ASTPrefix(Token *token) : ASTNode(ASTType::INVALID, op_precedence[ASTType::INVALID], 0, token) {}
+ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALID, PREC_LOWEST, 0, token, token_index
+) {}
 
-ASTLogicalNot::ASTLogicalNot(Token *token) : ASTPrefix(token) {
+ASTLogicalNot::ASTLogicalNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   _type = ASTType::LNOT;
   _lbp = op_precedence[_type];
 }
 
-ASTBinaryNot::ASTBinaryNot(Token *token) : ASTPrefix(token) {
+ASTBinaryNot::ASTBinaryNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   _type = ASTType::BNOT;
   _lbp = op_precedence[_type];
 }
 
-ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(token) {
+ASTArithmetic::ASTArithmetic(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   if (!is_ast_type_in(type, {ASTType::SUM, ASTType::SUBTRACT, ASTType::MULTIPLY, ASTType::DIVIDE, ASTType::MOD})) {
     report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
   }
@@ -78,13 +84,13 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token) : ASTInfixBinaryOp(toke
 // ============================================================ //
 
 // ============================= parser =========================//
-void ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
   throw std::runtime_error("Not implemented");
 }
 
-void ASTNode::nud(Parser *parser) {
+size_t ASTNode::nud(Parser *parser) {
   UNUSED(parser);
   throw std::runtime_error("Not implemented");
 }

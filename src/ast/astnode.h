@@ -13,7 +13,9 @@ class CompilerSession;
 class Parser;
 
 enum PrecedenceLevel {
-  PREC_LOWEST, PREC_LITERAL = 10, PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
+  PREC_LOWEST = 0, //
+  PREC_LITERAL = 10,      // "string" 1.0 2
+  PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
   PREC_LOGICAL_OR = 110,  // ||
   PREC_LOGICAL_AND = 120, // &&
   PREC_COMPARISON = 130,  // < <= > >= == != === !== ~=
@@ -75,6 +77,8 @@ class ASTNode {
 public:
   template<typename T> friend class ASTFactory;
 
+  friend class Parser;
+
 public:
   ASTType _type = ASTType::INVALID;
   std::vector<std::shared_ptr<ASTNode>> _children{};
@@ -82,14 +86,14 @@ public:
   int _rbp = 0;
   Token *_token = nullptr;
 
-  ASTNode() = default;
+  ASTNode() = delete;
   ASTNode(const ASTNode &) = default;
   ASTNode &operator=(const ASTNode &) = default;
 
-  ASTNode(ASTType op, int lbp, int rbp, Token *token);
+  ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
-  virtual void led(const std::shared_ptr<ASTNode> &left, Parser *parser);
-  virtual void nud(Parser *parser);
+  [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  [[nodiscard]] virtual size_t nud(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
   virtual std::string to_string(bool print_prefix = true) const;
@@ -99,7 +103,8 @@ private:
 
 protected:
   bool _parsed = false;
-  size_t _parsed_index = 0;
+  size_t _start_index = 0;
+  size_t _end_index = 0;
 };
 
 // dummy, all literal types inherit from this class
@@ -107,51 +112,52 @@ class ASTLiteral : public ASTNode, public Valued, public Typed {
 public:
   ASTLiteral() = delete;
 
-  ASTLiteral(ASTType op, int lbp, int rbp, Token *token) : ASTNode(op, lbp, rbp, token) {}
+  ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op, lbp, rbp, token, token_index
+  ) {}
 
   virtual Ty get_ty() const;
 };
 
 class ASTInfixBinaryOp : public ASTNode {
 public:
-  explicit ASTInfixBinaryOp(Token *token);
-  void led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  ASTInfixBinaryOp(Token *token, size_t token_index);
+  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
 };
 
 class ASTPrefix : public ASTNode {
 public:
-  explicit ASTPrefix(Token *token);
-  void nud(Parser *parser) override;
+  ASTPrefix(Token *token, size_t token_index);
+  size_t nud(Parser *parser) override;
 };
 
 class ASTReturn final : public ASTPrefix {
 public:
-  explicit ASTReturn(Token *token);
+  ASTReturn(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTBinaryNot final : public ASTPrefix {
 public:
-  explicit ASTBinaryNot(Token *token);
+  ASTBinaryNot(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTLogicalNot final : public ASTPrefix {
 public:
-  explicit ASTLogicalNot(Token *token);
+  ASTLogicalNot(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTCompare final : public ASTInfixBinaryOp {
 public:
   ASTCompare() = delete;
-  ASTCompare(ASTType type, Token *token);
+  ASTCompare(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
-  ASTArithmetic(ASTType type, Token *token);
+  ASTArithmetic(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
