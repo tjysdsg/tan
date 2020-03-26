@@ -33,6 +33,9 @@ public:
 
   bool eof() const { return _curr_token >= _tokens.size(); }
 
+  [[nodiscard]] Token *operator[](const size_t idx) const { return _tokens[idx]; }
+
+public:
   std::vector<Token *> _tokens;
   std::shared_ptr<ASTNode> _root{};
   size_t _curr_token;

@@ -5,7 +5,9 @@ namespace tanlang {
 
 Value *ASTArrayLiteral::codegen(CompilerSession *compiler_session) {
   using llvm::Constant;
-  auto e_type = ast_cast<ASTLiteral>(_children[0])->to_llvm_type(compiler_session);
+  auto sub = ast_cast<ASTLiteral>(_children[0]);
+  sub->codegen(compiler_session);
+  auto e_type = sub->to_llvm_type(compiler_session);
   std::vector<Constant *> constants;
   size_t n = _children.size();
   constants.reserve(n);
@@ -13,6 +15,7 @@ Value *ASTArrayLiteral::codegen(CompilerSession *compiler_session) {
     constants.push_back((Constant *) _children[i]->codegen(compiler_session));
   }
   auto ret = llvm::ConstantArray::get((llvm::ArrayType *) e_type, constants);
+  _llvm_type = ret->getType(); // crucial
   return ret;
 }
 

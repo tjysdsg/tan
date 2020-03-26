@@ -56,6 +56,9 @@ private:
 
 class ASTNumberLiteral final : public ASTLiteral {
 public:
+  friend class ASTTy;
+
+public:
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token);
   explicit ASTNumberLiteral(int value);
   explicit ASTNumberLiteral(float value);

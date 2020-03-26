@@ -45,15 +45,16 @@ public:
   ASTTy() = delete;
   explicit ASTTy(Token *token);
   void nud(Parser *parser) override;
-
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
 
-  friend class ASTNPtr;
+private:
+  void nud_array(Parser *parser);
 
 private:
   std::string _type_name{};
   Ty _ty = Ty::INVALID;
+  size_t _n_elements = 0;
 };
 
 } // namespace tanlang

@@ -16,7 +16,31 @@ std::unordered_map<std::string, Ty> basic_tys =
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-std::unordered_map<std::string, Ty> composite_tys = {{"struct", Ty::STRUCT}, {"array", Ty::ARRAY},};
+/// current token should be "[" when this is called
+void ASTTy::nud_array(Parser *parser) {
+  ++parser->_curr_token;
+  /// element type
+  if (parser->get_curr_token()->value == "]") { /// empty
+    report_code_error(parser->get_curr_token(), "Empty array type is invalid");
+  } else {
+    auto child = std::make_shared<ASTTy>(parser->get_curr_token());
+    child->nud(parser);
+    _children.push_back(child);
+  }
+  parser->advance(TokenType::PUNCTUATION, ",");
+
+  /// size
+  auto size = parser->advance();
+  if (size->_type != ASTType::NUM_LITERAL) {
+    report_code_error(parser->_tokens[parser->_curr_token - 1], "Expect an unsigned integer"
+    );
+  }
+  auto size1 = ast_cast<ASTNumberLiteral>(size);
+  if (size1->is_float() || size1->_ivalue < 0) {
+    report_code_error(parser->_tokens[parser->_curr_token - 1], "Expect an unsigned integer");
+  }
+  _n_elements = static_cast<size_t>(size1->_ivalue);
+}
 
 void ASTTy::nud(Parser *parser) {
   Token *token = nullptr;
@@ -31,17 +55,16 @@ void ASTTy::nud(Parser *parser) {
         sub->_ty = this->_ty;
         this->_ty = Ty::POINTER;
         _children.push_back(sub);
-      } else { // other qualifiers other than pointer to pointers
+      } else { // qualifiers other than pointer to pointers
         _ty = TY_OR(_ty, qualifier_tys[token->value]);
       }
     } else if (token->type == TokenType::ID) { // struct or array
       _type_name = token->value;
-      if (composite_tys.find(token->value) == composite_tys.end()) {
-        // TOOD: work with typedef
-        _ty = TY_OR(_ty, Ty::STRUCT);
-      } else {
-        _ty = TY_OR(_ty, composite_tys[token->value]);
-      }
+      // TODO: identify type aliases
+      _ty = TY_OR(_ty, Ty::STRUCT);
+    } else if (token->value == "[") {
+      _ty = TY_OR(_ty, Ty::ARRAY);
+      nud_array(parser);
     } else { break; }
     ++parser->_curr_token;
   }

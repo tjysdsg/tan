@@ -1,5 +1,5 @@
 fn main(argc: int, argv: u8**) : i32 {
-    // var shit: array = [1, 2, 3];
-    var fuck: array = [[1, 2, 3], [1, 2, 3], [1, 2, 3]];
+    // var shit: [i32, 3] = [1, 2, 3];
+    var fuck: [[i32, 3], 4] = [[1, 1, 1], [2, 2, 2], [3, 3, 3], [3, 3, 3]];
     return 0;
 }
