@@ -75,6 +75,12 @@ size_t ASTArrayLiteral::nud(Parser *parser) {
   return _end_index;
 }
 
+size_t ASTStringLiteral::nud(Parser *parser) {
+  UNUSED(parser);
+  _end_index = _start_index + 1; /// skip self
+  return _end_index;
+}
+
 size_t ASTPrefix::nud(Parser *parser) {
   _end_index = _start_index + 1; /// skip self
   _children.emplace_back(parser->next_expression(_end_index, _lbp));
@@ -88,18 +94,12 @@ size_t ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) 
   return _end_index;
 }
 
-/**
- * This is defined merely to overwrite ASTNode::nud() because the latter throws
- * */
 size_t ASTNumberLiteral::nud(Parser *parser) {
   _end_index = _start_index + 1;
   UNUSED(parser);
   return _end_index;
 }
 
-/**
- * This is defined merely to overwrite ASTNode::nud() because the latter throws
- * */
 size_t ASTIdentifier::nud(Parser *parser) {
   _end_index = _start_index + 1;
   UNUSED(parser);

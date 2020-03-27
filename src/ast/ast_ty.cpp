@@ -2,6 +2,7 @@
 #include "compiler_session.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_struct.h"
+#include "src/ast/ast_expr.h"
 
 namespace tanlang {
 
@@ -38,7 +39,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       break;
     }
     case Ty::STRING: {
-      type = compiler_session->get_builder()->getInt8Ty(); // LLVM stores string literals as int8*
+      type = compiler_session->get_builder()->getInt8PtrTy(); /// str as char*
       break;
     }
     case Ty::VOID: {

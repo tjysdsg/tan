@@ -257,17 +257,26 @@ llvm::Value *ASTStringLiteral::get_llvm_value(CompilerSession *) const {
 }
 
 Value *ASTStringLiteral::codegen(CompilerSession *compiler_session) {
-  // TODO: codegen for string
-  throw std::runtime_error("NOT IMPLEMENTED");
+  using llvm::Constant;
+  llvm::Type *e_type = compiler_session->get_builder()->getInt8Ty(); /// char
+  std::vector<Constant *> constants;
+  size_t n = _svalue.length();
+  constants.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    constants.push_back(ConstantInt::get(e_type, (uint64_t) _svalue[i], true));
+  }
+  auto str = llvm::ConstantArray::get((llvm::ArrayType *) e_type, constants);
+  _llvm_type = compiler_session->get_builder()->getInt8PtrTy(); /// str as char*
+  _llvm_value = llvm::ConstantExpr::getIntToPtr(str, _llvm_type);
+  return _llvm_value;
 }
 
 std::string ASTStringLiteral::get_type_name() const {
   return "str";
 }
 
-llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const {
-  // TODO: get llvm type for string
-  return nullptr;
-}
+llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
+
+Ty ASTStringLiteral::get_ty() const { return Ty::STRING; }
 
 } // namespace tanlang

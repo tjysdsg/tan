@@ -1,0 +1,4 @@
+fn main(argc: int, argv: char**) : int {
+    var s: str = "shit";
+    return 0;
+}
