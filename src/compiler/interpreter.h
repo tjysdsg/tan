@@ -8,7 +8,7 @@
 namespace tanlang {
 
 class Interpreter : public Parser {
- public:
+public:
   explicit Interpreter(std::vector<Token *> tokens);
   Expected<JITEvaluatedSymbol> lookup(StringRef Name);
   Error evaluate(std::unique_ptr<Module> module = nullptr) override;

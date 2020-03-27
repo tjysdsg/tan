@@ -13,8 +13,9 @@ Interpreter::Interpreter(std::vector<Token *> tokens) : Parser(std::move(tokens)
 
   // jit related
   auto execution_session = std::make_unique<ExecutionSession>();
-  auto object_layer = std::make_unique<RTDyldObjectLinkingLayer>(
-      *execution_session, []() { return std::make_unique<SectionMemoryManager>(); });
+  auto object_layer = std::make_unique<RTDyldObjectLinkingLayer>(*execution_session,
+                                                                 []() { return std::make_unique<SectionMemoryManager>(); }
+  );
   auto jit_machine_builder = JITTargetMachineBuilder::detectHost();
   if (jit_machine_builder.takeError()) {
     throw std::runtime_error("Failed to build Interpreter machine");
@@ -27,14 +28,14 @@ Interpreter::Interpreter(std::vector<Token *> tokens) : Parser(std::move(tokens)
   module->setDataLayout(*data_layout);
   auto mangle = std::make_unique<MangleAndInterner>(*execution_session, *data_layout);
 
-  auto compile_layer =
-      std::make_unique<IRCompileLayer>(*execution_session, *object_layer,
-                                       ConcurrentIRCompiler(jit_machine_builder.get()));
+  auto compile_layer = std::make_unique<IRCompileLayer>(*execution_session,
+                                                        *object_layer,
+                                                        ConcurrentIRCompiler(jit_machine_builder.get()));
 
   execution_session->createJITDylib("<jit-main>");
   auto ctx = std::make_unique<ThreadSafeContext>(std::move(context)); // NOTE context is now nullptr
-  execution_session->getMainJITDylib().setGenerator(
-      cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(data_layout->getGlobalPrefix())));
+  execution_session->getMainJITDylib()
+                   .setGenerator(cantFail(DynamicLibrarySearchGenerator::GetForCurrentProcess(data_layout->getGlobalPrefix())));
   _compiler_session = new CompilerSession(std::move(builder),
                                           std::move(module),
                                           std::move(execution_session),
@@ -55,10 +56,9 @@ Error Interpreter::evaluate(std::unique_ptr<Module> module) {
   if (!module) {
     module = std::move(_compiler_session->get_module());
   }
-  auto e = _compiler_session->get_compile_layer()->add(
-      _compiler_session->get_execution_session()->getMainJITDylib(),
-      ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context())
-  );
+  auto e = _compiler_session->get_compile_layer()
+                            ->add(_compiler_session->get_execution_session()->getMainJITDylib(),
+                                  ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context()));
   if (e) { throw std::runtime_error("Interpreter evaluation failed"); }
   auto main_func_symbol = lookup("__tan_main"); // main function is renamed to 'jit_main' in ast_func.cpp
   if (main_func_symbol.takeError()) {

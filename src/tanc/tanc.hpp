@@ -11,18 +11,16 @@ TanC<PARSER_TYPE>::TanC(std::vector<std::string> files, bool print_ast, bool pri
   _input_files = files;
 }
 
-template<typename PARSER_TYPE>
-bool TanC<PARSER_TYPE>::read() {
-  if (_curr_file >= _input_files.size()) return false;
+template<typename PARSER_TYPE> bool TanC<PARSER_TYPE>::read() {
+  if (_curr_file >= _input_files.size()) { return false; }
   _reader = std::make_unique<Reader>();
   _reader->open(_input_files[_curr_file]);
   _tokens = tokenize(_reader.get());
   return true;
 }
 
-template<typename PARSER_TYPE>
-bool TanC<PARSER_TYPE>::parse() {
-  if (_curr_file >= _input_files.size()) return false;
+template<typename PARSER_TYPE> bool TanC<PARSER_TYPE>::parse() {
+  if (_curr_file >= _input_files.size()) { return false; }
   _parser = std::make_unique<PARSER_TYPE>(_tokens);
   _parser->parse();
   if (_print_ast) {
@@ -31,10 +29,9 @@ bool TanC<PARSER_TYPE>::parse() {
   return true;
 }
 
-template<typename PARSER_TYPE>
-bool TanC<PARSER_TYPE>::compile() {
+template<typename PARSER_TYPE> bool TanC<PARSER_TYPE>::compile() {
   std::cout << "Compiling TAN file: " << _input_files[_curr_file] << "\n";
-  if (_curr_file >= _input_files.size()) return false;
+  if (_curr_file >= _input_files.size()) { return false; }
   _parser->codegen();
   if (_print_ir_code) {
     _parser->dump();
@@ -47,8 +44,7 @@ bool TanC<PARSER_TYPE>::compile() {
   return true;
 }
 
-template<typename PARSER_TYPE>
-TanC<PARSER_TYPE>::~TanC() {
+template<typename PARSER_TYPE> TanC<PARSER_TYPE>::~TanC() {
   for (auto *&t : _tokens) {
     delete t;
     t = nullptr;

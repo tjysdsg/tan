@@ -42,8 +42,7 @@ void Reader::from_string(const std::string &code) {
   for (size_t c = 0; c < code.length(); ++c) {
     if (code[c] == '\n' || c == code.length() - 1) {
       if (code[c] == '\n') {
-        line = code.substr(line_start,
-                           c - line_start); // not including trailing '\n'
+        line = code.substr(line_start, c - line_start); // not including trailing '\n'
       } else {
         line = code.substr(line_start, c - line_start + 1);
       }
