@@ -3,7 +3,7 @@ fn sign(a: int) : int {
     if (a > 0) {
         ret = 1;
     } else if (a < 0) {
-        ret = 0 - 1; // TODO: change this after implementing tokenization of negative number
+        ret = -1;
     } else {
         ret = 0;
     }

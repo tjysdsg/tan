@@ -2,6 +2,7 @@
 #include "token.h"
 #include "common.h"
 #include "parser.h"
+#include "astnode.h"
 
 namespace tanlang {
 

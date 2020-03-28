@@ -159,6 +159,7 @@ class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
+  size_t nud(Parser *parser) override; /// for parsing negative number
 };
 
 template<typename T>

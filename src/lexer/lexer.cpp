@@ -6,7 +6,6 @@
 #include <regex>
 
 namespace tanlang {
-// TODO: negative number XD
 
 #define IS_DELIMITER(x)                                                        \
   (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' ||          \
@@ -123,6 +122,7 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
   while (forward < end) {
     const char ch = (*reader)[forward];
     if (std::isdigit(ch) || (ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X') {
+    } else if (ch == '-') { /// negative number
     } else if (ch == '.') {
       // TODO: '.' can only be followed by digits
       is_float = true;
@@ -194,13 +194,14 @@ Token *tokenize_string(Reader *reader, code_ptr &start) {
 Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
   Token *t = nullptr;
   auto next = reader->forward_ptr(start);
-  if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) { // line comment or block comment
+
+  if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) { /// line comment or block comment
     t = tokenize_comments(reader, start);
-  } else if ((*reader)[start] == '\'') { // char literal
+  } else if ((*reader)[start] == '\'') { /// char literal
     t = tokenize_char(reader, start);
-  } else if ((*reader)[start] == '"') { // string literal
+  } else if ((*reader)[start] == '"') { /// string literal
     t = tokenize_string(reader, start);
-  } else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) { // operators
+  } else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) { /// operators
     std::string value;
     do {
       code_ptr nnext = reader->forward_ptr(next);
@@ -210,7 +211,7 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
       std::string three = (*reader)(start, reader->forward_ptr(nnext));
 
       if (next < back_ptr && nnext < back_ptr
-          && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { // operator containing three characters
+          && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
         value = (*reader)(start, nnnext);
         start = nnnext;
         break;
@@ -218,12 +219,12 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
 
       if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
         value = (*reader)(start, nnext);
-        if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) { // operator containing two chars
+        if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) { /// operator containing two chars
           start = nnext;
           break;
         }
       }
-      // operator containing one chars
+      /// operator containing one chars
       value = std::string{(*reader)[start]};
       assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
       start = next;
@@ -231,7 +232,7 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
     t = new Token(type, value, start, &(*reader)[static_cast<size_t>(start.l)]);
-  } // other punctuations
+  } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
     t = new Token(TokenType::PUNCTUATION,
                   std::string(1, (*reader)[start]),
@@ -250,11 +251,11 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
   std::vector<Token *> tokens;
   const auto end = reader->back_ptr();
   while (start < end) {
-    // if start with a letter
+    /// if start with a letter
     if (std::isalpha((*reader)[start])) {
       auto *new_token = tokenize_keyword(reader, start);
       if (!new_token) {
-        // if this is not a keyword, probably an identifier
+        /// if this is not a keyword, probably an identifier
         new_token = tokenize_id(reader, start);
         if (!new_token) {
           report_code_error((*reader)[static_cast<size_t>(start.l)].code,
@@ -267,7 +268,7 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       }
       tokens.emplace_back(new_token);
     } else if ((*reader)[start] == '_') {
-      // start with an underscore, must be an identifier
+      /// start with an underscore, must be an identifier
       auto *new_token = tokenize_id(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,
@@ -279,7 +280,7 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       }
       tokens.emplace_back(new_token);
     } else if (std::isdigit((*reader)[start])) {
-      // number literal
+      /// number literal
       auto *new_token = tokenize_number(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,
@@ -292,7 +293,7 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       tokens.emplace_back(new_token);
     } else if (std::find(std::begin(PUNCTUATIONS), std::end(PUNCTUATIONS), (*reader)[start])
         != std::end(PUNCTUATIONS)) {
-      // punctuations
+      /// punctuations
       auto *new_token = tokenize_punctuation(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,

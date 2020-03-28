@@ -94,6 +94,14 @@ size_t ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) 
   return _end_index;
 }
 
+size_t ASTArithmetic::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip "-"
+  auto lhs = std::make_shared<ASTNumberLiteral>("0", false, nullptr, _start_index);
+  _children.push_back(lhs);
+  _children.push_back(parser->next_expression(_end_index, 0));
+  return _end_index;
+}
+
 size_t ASTNumberLiteral::nud(Parser *parser) {
   _end_index = _start_index + 1;
   UNUSED(parser);
