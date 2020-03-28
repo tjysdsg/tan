@@ -7,5 +7,6 @@ fn main(argc: int, argv: u8**) : i32 {
     var useless_shit: Useless; // = Useless.new(1, 2);
     useless_shit.shit = 100;
     useless_shit.fuck = 10;
+    var shit: i8 = useless_shit.shit;
     return 0;
 }

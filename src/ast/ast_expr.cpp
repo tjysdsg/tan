@@ -83,7 +83,6 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  // TODO: implement pointer compare?
   if (ltype->isPointerTy()) {
     lhs = compiler_session->get_builder()->CreateLoad(lhs);
     ltype = lhs->getType();
@@ -178,6 +177,9 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   // codegen the rhs
   auto rhs = _children[1];
   Value *from = rhs->codegen(compiler_session);
+  if (from->getType()->isPointerTy()) {
+    from = compiler_session->get_builder()->CreateLoad(from);
+  }
   if (!from) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }

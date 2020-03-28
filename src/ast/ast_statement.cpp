@@ -30,8 +30,7 @@ Value *ASTProgram::codegen(CompilerSession *compiler_session) {
 
 Value *ASTReturn::codegen(CompilerSession *compiler_session) {
   auto *result = _children[0]->codegen(compiler_session);
-  /// create load if children is a pointer
-  // TODO: implement return pointer
+  /// create load if children is a pointer (because created by alloca)
   if (result->getType()->isPointerTy()) {
     result = compiler_session->get_builder()->CreateLoad(result, "load");
   }
