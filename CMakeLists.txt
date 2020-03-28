@@ -67,7 +67,6 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/tanc COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 
 # ====== tests for debug build ======
@@ -95,12 +94,6 @@ set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
 add_executable(tanc ${CLI_SRCS})
 target_link_libraries(tanc tan pthread gflags::gflags ${DEP_LIBS})
 set_other_options(tanc)
-
-# ===== target CLI interpreter =====
-set(INTERPRETER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-interpreter.cpp)
-add_executable(tan-interpreter ${INTERPRETER_SRCS})
-target_link_libraries(tan-interpreter tan pthread gflags::gflags)
-set_other_options(tan-interpreter)
 
 # ===== target CLI linker =====
 set(LINKER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-ld.cpp)

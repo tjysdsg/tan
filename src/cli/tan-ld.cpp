@@ -1,6 +1,5 @@
 #include <gflags/gflags.h>
-#include "linker.h"
-#include "base.h"
+#include "libtanc.h"
 
 DEFINE_string(o, "a.out", "output file");
 
@@ -10,13 +9,10 @@ int main(int argc, char **argv) {
   gflags::SetUsageMessage("tan linker");
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  using tanlang::Linker;
-  Linker linker;
-  linker.add_flag("-o" + FLAGS_o);
-  for (int i = 0; i < argc; ++i) {
-    linker.add_file(std::string(argv[i]));
-  }
-  // TODO: other flags
-  if (!linker.link()) { return 1; }
+  TanCompilation config;
+  // TODO: add cli options for these
+  config.type = EXE;
+  config.out_file = "a.out";
+  tan_link((unsigned) argc, argv, &config);
   return 0;
 }

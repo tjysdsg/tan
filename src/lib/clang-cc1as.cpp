@@ -204,10 +204,10 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
 
   // Language Options
   Opts.IncludePaths = Args.getAllArgValues(OPT_I);
-  Opts.NoInitialTextSection = Args.hasArg(OPT_n);
-  Opts.SaveTemporaryLabels = Args.hasArg(OPT_msave_temp_labels);
+  Opts.NoInitialTextSection = (unsigned int) Args.hasArg(OPT_n);
+  Opts.SaveTemporaryLabels = (unsigned int) Args.hasArg(OPT_msave_temp_labels);
   // Any DebugInfoKind implies GenDwarfForAssembly.
-  Opts.GenDwarfForAssembly = Args.hasArg(OPT_debug_info_kind_EQ);
+  Opts.GenDwarfForAssembly = (unsigned int) Args.hasArg(OPT_debug_info_kind_EQ);
 
   if (const Arg *A = Args.getLastArg(OPT_compress_debug_sections, OPT_compress_debug_sections_EQ)) {
     if (A->getOption().getID() == OPT_compress_debug_sections) {
@@ -223,8 +223,8 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
     }
   }
 
-  Opts.RelaxELFRelocations = Args.hasArg(OPT_mrelax_relocations);
-  Opts.DwarfVersion = getLastArgIntValue(Args, OPT_dwarf_version_EQ, 2, Diags);
+  Opts.RelaxELFRelocations = (unsigned int) Args.hasArg(OPT_mrelax_relocations);
+  Opts.DwarfVersion = (unsigned int) getLastArgIntValue(Args, OPT_dwarf_version_EQ, 2, Diags);
   Opts.DwarfDebugFlags = Args.getLastArgValue(OPT_dwarf_debug_flags);
   Opts.DwarfDebugProducer = Args.getLastArgValue(OPT_dwarf_debug_producer);
   Opts.DebugCompilationDir = Args.getLastArgValue(OPT_fdebug_compilation_dir);
@@ -250,7 +250,7 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
   Opts.LLVMArgs = Args.getAllArgValues(OPT_mllvm);
   Opts.OutputPath = Args.getLastArgValue(OPT_o);
   Opts.SplitDwarfOutput = Args.getLastArgValue(OPT_split_dwarf_output);
-  if (Arg * A = Args.getLastArg(OPT_filetype)) {
+  if (const Arg *A = Args.getLastArg(OPT_filetype)) {
     StringRef Name = A->getValue();
     unsigned OutputType =
         StringSwitch<unsigned>(Name).Case("asm", FT_Asm).Case("null", FT_Null).Case("obj", FT_Obj).Default(~0U);
@@ -261,21 +261,21 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
       Opts.OutputType = FileType(OutputType);
     }
   }
-  Opts.ShowHelp = Args.hasArg(OPT_help);
-  Opts.ShowVersion = Args.hasArg(OPT_version);
+  Opts.ShowHelp = (unsigned int) Args.hasArg(OPT_help);
+  Opts.ShowVersion = (unsigned int) Args.hasArg(OPT_version);
 
   // Transliterate Options
-  Opts.OutputAsmVariant = getLastArgIntValue(Args, OPT_output_asm_variant, 0, Diags);
-  Opts.ShowEncoding = Args.hasArg(OPT_show_encoding);
-  Opts.ShowInst = Args.hasArg(OPT_show_inst);
+  Opts.OutputAsmVariant = (unsigned int) getLastArgIntValue(Args, OPT_output_asm_variant, 0, Diags);
+  Opts.ShowEncoding = (unsigned int) Args.hasArg(OPT_show_encoding);
+  Opts.ShowInst = (unsigned int) Args.hasArg(OPT_show_inst);
 
   // Assemble Options
-  Opts.RelaxAll = Args.hasArg(OPT_mrelax_all);
-  Opts.NoExecStack = Args.hasArg(OPT_mno_exec_stack);
-  Opts.FatalWarnings = Args.hasArg(OPT_massembler_fatal_warnings);
+  Opts.RelaxAll = (unsigned int) Args.hasArg(OPT_mrelax_all);
+  Opts.NoExecStack = (unsigned int) Args.hasArg(OPT_mno_exec_stack);
+  Opts.FatalWarnings = (unsigned int) Args.hasArg(OPT_massembler_fatal_warnings);
   Opts.RelocationModel = Args.getLastArgValue(OPT_mrelocation_model, "pic");
   Opts.TargetABI = Args.getLastArgValue(OPT_target_abi);
-  Opts.IncrementalLinkerCompatible = Args.hasArg(OPT_mincremental_linker_compatible);
+  Opts.IncrementalLinkerCompatible = (unsigned int) Args.hasArg(OPT_mincremental_linker_compatible);
   Opts.SymbolDefs = Args.getAllArgValues(OPT_defsym);
 
   // EmbedBitcode Option. If -fembed-bitcode is enabled, set the flag.
@@ -339,7 +339,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   // may be created with a combination of default and explicit settings.
   MAI->setCompressDebugSections(Opts.CompressDebugSections);
 
-  MAI->setRelaxELFRelocations(Opts.RelaxELFRelocations);
+  MAI->setRelaxELFRelocations((bool) Opts.RelaxELFRelocations);
 
   bool IsBinary = Opts.OutputType == AssemblerInvocation::FT_Obj;
   if (Opts.OutputPath.empty()) {
@@ -400,7 +400,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   if (!Opts.MainFileName.empty()) {
     Ctx.setMainFileName(StringRef(Opts.MainFileName));
   }
-  Ctx.setDwarfVersion(Opts.DwarfVersion);
+  Ctx.setDwarfVersion((uint16_t) Opts.DwarfVersion);
   if (Opts.GenDwarfForAssembly) {
     Ctx.setGenDwarfRootFile(Opts.InputFile, SrcMgr.getMemoryBuffer(BufferIndex)->getBuffer());
   }
@@ -409,7 +409,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   std::string FS;
   if (!Opts.Features.empty()) {
     FS = Opts.Features[0];
-    for (unsigned i = 1, e = Opts.Features.size(); i != e; ++i) {
+    for (unsigned i = 1, e = (unsigned int) Opts.Features.size(); i != e; ++i) {
       FS += "," + Opts.Features[i];
     }
   }
@@ -438,7 +438,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
 
     auto FOut = llvm::make_unique<formatted_raw_ostream>(*Out);
     Str.reset(TheTarget->createAsmStreamer(Ctx, std::move(FOut), /*asmverbose*/ true,
-        /*useDwarfDirectory*/ true, IP, std::move(CE), std::move(MAB), Opts.ShowInst
+        /*useDwarfDirectory*/ true, IP, std::move(CE), std::move(MAB), (bool) Opts.ShowInst
     ));
   } else if (Opts.OutputType == AssemblerInvocation::FT_Null) {
     Str.reset(createNullStreamer(Ctx));
@@ -461,12 +461,12 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
                                                 std::move(OW),
                                                 std::move(CE),
                                                 *STI,
-                                                Opts.RelaxAll,
-                                                Opts.IncrementalLinkerCompatible,
+                                                (bool) Opts.RelaxAll,
+                                                (bool) Opts.IncrementalLinkerCompatible,
         /*DWARFMustBeAtTheEnd*/
                                                 true
     ));
-    Str.get()->InitSections(Opts.NoExecStack);
+    Str.get()->InitSections((bool) Opts.NoExecStack);
   }
 
   // When -fembed-bitcode is passed to clang_as, a 1-byte marker
@@ -498,12 +498,12 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
     int64_t Value;
     // We have already error checked this in the driver.
     Val.getAsInteger(0, Value);
-    Ctx.setSymbolValue(Parser->getStreamer(), Sym, Value);
+    Ctx.setSymbolValue(Parser->getStreamer(), Sym, (uint64_t) Value);
   }
 
   if (!Failed) {
     Parser->setTargetParser(*TAP.get());
-    Failed = Parser->Run(Opts.NoInitialTextSection);
+    Failed = Parser->Run((bool) Opts.NoInitialTextSection);
   }
 
   // Close Streamer first.
@@ -579,7 +579,7 @@ int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
   //
   // FIXME: Remove this, one day.
   if (!Asm.LLVMArgs.empty()) {
-    unsigned NumArgs = Asm.LLVMArgs.size();
+    unsigned NumArgs = (unsigned) Asm.LLVMArgs.size();
     auto Args = llvm::make_unique<const char *[]>(NumArgs + 2);
     Args[0] = "clang (LLVM option parsing)";
     for (unsigned i = 0; i != NumArgs; ++i) {

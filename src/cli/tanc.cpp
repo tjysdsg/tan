@@ -11,6 +11,16 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; ++i) {
     files.push_back(argv[i]);
   }
-  compile_files((unsigned) files.size(), files.data(), FLAGS_print_ast, FLAGS_print_ir_code);
+  TanCompilation config;
+  // TODO: create options for these
+  config.type = OBJ;
+  config.out_file = "a.out";
+  config.verbose = 0;
+  if (FLAGS_print_ast) {
+    config.verbose = 2;
+  } else if (FLAGS_print_ir_code) {
+    config.verbose = 1;
+  }
+  compile_files((unsigned) files.size(), files.data(), &config);
   return 0;
 }

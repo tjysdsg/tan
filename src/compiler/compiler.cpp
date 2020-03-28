@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "libtanc.h"
 
 namespace tanlang {
 
@@ -7,7 +8,7 @@ Compiler::~Compiler() {
   delete _target_machine;
 }
 
-Compiler::Compiler(Module *module) : _llvm_module(module) {
+Compiler::Compiler(Module *module, TanCompilation *config) : _llvm_module(module) {
   auto target_triple = llvm::sys::getDefaultTargetTriple();
 
   llvm::InitializeAllTargetInfos();
@@ -30,7 +31,11 @@ Compiler::Compiler(Module *module) : _llvm_module(module) {
   auto features = "";
 
   llvm::TargetOptions opt;
-  auto RM = llvm::Optional<llvm::Reloc::Model>();
+  /// relocation model
+  auto RM = llvm::Reloc::Model::PIC_;
+  if (config->type == SLIB) {
+    RM = llvm::Reloc::Model::Static;
+  }
   _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   module->setDataLayout(_target_machine->createDataLayout());
   module->setTargetTriple(target_triple);

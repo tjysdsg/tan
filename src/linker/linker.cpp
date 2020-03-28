@@ -23,12 +23,6 @@ void Linker::add_files(std::vector<std::string> filenames) {
 }
 
 bool Linker::link() {
-  // llvm::ErrorOr<std::string> clang_path_or_error = llvm::sys::findProgramByName("clang");
-  // if (!clang_path_or_error) {
-  //   return false;
-  // }
-  // std::string clang_path = clang_path_or_error.get();
-  // std::string cmd = clang_path;
   std::vector<std::string> args{};
   args.insert(args.end(), _input_files.begin(), _input_files.end());
   args.insert(args.end(), _flags.begin(), _flags.end());

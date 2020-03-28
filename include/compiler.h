@@ -1,19 +1,20 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
-#include "src/compiler/interpreter.h"
 #include "src/llvm_include.h"
+
+struct TanCompilation;
 
 namespace tanlang {
 
 class Compiler {
- public:
+public:
   Compiler() = delete;
-  explicit Compiler(Module *module);
+  Compiler(Module *module, TanCompilation *config);
   ~Compiler();
 
   void emit_object(const std::string &filename);
 
- private:
+private:
   Module *_llvm_module;
   llvm::TargetMachine *_target_machine = nullptr;
 };

@@ -1,5 +1,9 @@
 #include "libtanc.h"
-#include "tanc.h"
+#include "linker.h"
+#include "reader.h"
+#include "parser.h"
+#include "lexer.h"
+#include "compiler.h"
 #include <string>
 
 #ifndef DEBUG
@@ -16,85 +20,57 @@ try {
   catch (const std::exception &e) {                                            \
     std::cerr << "Error encountered in file " << app.current_filename()        \
               << ": " << e.what() << '\n';                                     \
-    exit(1);                                                                   \
+    return false;                                                              \
   }
 #else
 #define END_TRY
 #endif
 
-bool compile_file(const char *input_path, bool print_ast, bool print_ir_code) {
-  std::string input_file(input_path);
-  TanC<tanlang::Parser> app(std::vector<std::string>({input_file}), print_ast, print_ir_code);
-
-  BEGIN_TRY
-
-  bool r;
-  r = app.read();
-  if (!r) {
-    return false;
-  }
-  r = app.parse();
-  if (!r) {
-    return false;
-  }
-  r = app.compile();
-  if (!r) {
-    return false;
-  }
-
-  END_TRY
-  return true;
+static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
+  using tanlang::Linker;
+  Linker linker;
+  linker.add_flag("-o" + std::string(config->out_file));
+  linker.add_files(input_paths);
+  /// default flags
+  linker.add_flags({"-fPIE"});
+  return linker.link();
 }
 
-bool compile_files(unsigned n_files, char **input_paths, bool print_ast, bool print_ir_code) {
+bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config) {
+  bool print_ir_code = config->verbose >= 1;
+  bool print_ast = config->verbose >= 2;
   std::vector<std::string> files;
   files.reserve(n_files);
   for (size_t i = 0; i < n_files; ++i) {
     files.push_back(std::string(input_paths[i]));
   }
-  TanC<tanlang::Parser> app(files, print_ast, print_ir_code);
-  bool r;
-  while (!app.done()) {
-    BEGIN_TRY
-
-    r = app.read();
-    if (!r) {
-      return false;
-    }
-    r = app.parse();
-    if (!r) {
-      return false;
-    }
-    r = app.compile();
-    if (!r) {
-      return false;
-    }
-    app.next_file();
-
-    END_TRY
+  for (size_t i = 0; i < n_files; ++i) {
+    BEGIN_TRY;
+    tanlang::Reader reader;
+    reader.open(files[i]);
+    auto tokens = tanlang::tokenize(&reader);
+    tanlang::Parser parser(tokens);
+    parser.parse();
+    if (print_ast) { parser._root->printTree(); }
+    std::cout << "Compiling TAN file: " << files[i] << "\n";
+    parser.codegen();
+    if (print_ir_code) { parser.dump(); }
+    tanlang::Compiler compiler(parser.get_compiler_session()->get_module().release(), config);
+    files[i] += ".o"; /// prepare the filename for linking
+    compiler.emit_object(files[i]);
+    END_TRY;
   }
+
+  _link(files, config);
   return true;
 }
 
-extern bool evaluate_file(const char *input_path, bool print_ast, bool print_ir_code) {
-  std::string input_file(input_path);
-  TanC<tanlang::Interpreter> app(std::vector<std::string>({input_file}), print_ast, print_ir_code);
-  BEGIN_TRY
-
-  bool r;
-  r = app.read();
-  if (!r) {
-    return false;
+bool tan_link(unsigned n_files, char **input_paths, TanCompilation *config) {
+  if (config->type == OBJ) { return true; }
+  std::vector<std::string> files;
+  files.reserve(n_files);
+  for (size_t i = 0; i < n_files; ++i) {
+    files.push_back(std::string(input_paths[i]));
   }
-  r = app.parse();
-  if (!r) {
-    return false;
-  }
-  r = app.compile();
-  if (!r) {
-    return false;
-  }
-
-  END_TRY
-  return true;
+  return _link(files, config);
 }
