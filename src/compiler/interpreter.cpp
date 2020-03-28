@@ -60,13 +60,13 @@ Error Interpreter::evaluate(std::unique_ptr<Module> module) {
                             ->add(_compiler_session->get_execution_session()->getMainJITDylib(),
                                   ThreadSafeModule(std::move(module), *_compiler_session->get_threadsafe_context()));
   if (e) { throw std::runtime_error("Interpreter evaluation failed"); }
-  auto main_func_symbol = lookup("__tan_main"); // main function is renamed to 'jit_main' in ast_func.cpp
+  auto main_func_symbol = lookup("__tan_main"); /// "main" function is renamed in ast_func.cpp
   if (main_func_symbol.takeError()) {
     throw std::runtime_error("Cannot find main function");
   }
-  auto *fp = (float (*)(int, char **)) (intptr_t) main_func_symbol.get().getAddress();
+  auto *fp = (int (*)(int, char **)) (intptr_t) main_func_symbol.get().getAddress();
   assert(fp && "Failed to generate code for main function");
-  float result = fp(0, nullptr);
+  int result = fp(0, nullptr);
   std::cout << "Main function returned " << result << "\n";
   return e;
 }

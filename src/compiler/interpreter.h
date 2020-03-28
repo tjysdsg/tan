@@ -2,6 +2,7 @@
 #define TAN_SRC_COMPILER_INTERPRETER_H_
 #include <memory>
 #include <utility>
+#include <vector>
 #include "parser.h"
 #include "src/llvm_include.h"
 
