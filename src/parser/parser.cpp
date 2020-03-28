@@ -71,9 +71,9 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token, index);
   } else if (token->type == TokenType::ID) {
+    /// `parse` will modify the first argument, which we don't want
     size_t token_index = index;
-    node = parse<ASTType::FUNC_CALL, ASTType::ID>(index, false);
-    index = token_index; // FIXME
+    node = parse<ASTType::FUNC_CALL, ASTType::ID>(token_index, false);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token, index);
   } else if (token->type == TokenType::KEYWORD && token->value == "var") {
@@ -93,8 +93,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token, index);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
-    return nullptr;        // FIXME: nullptr represent a terminal symbol, like
-    // statements ending with a semicolon
+    return nullptr;
   } else {
     report_code_error(token, "Unknown token " + token->to_string());
   }
@@ -123,7 +122,7 @@ std::shared_ptr<ASTNode> Parser::next_expression(size_t &index, int rbp) {
 
 std::shared_ptr<ASTNode> Parser::parse() {
   _root = std::make_shared<ASTProgram>();
-  _root->nud(this);
+  (void) _root->nud(this); /// fix the [[nodiscard]] warning
   return _root;
 }
 

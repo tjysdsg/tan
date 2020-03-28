@@ -36,9 +36,6 @@ public:
   friend class ASTFunction; // FIXME: is this necessary?
   ASTVarDecl() = delete;
 
-  // TODO: delete this and fix relevant callers
-  explicit ASTVarDecl(size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, nullptr, token_index) {}
-
   ASTVarDecl(Token *token, size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, token, token_index) {};
   size_t nud(Parser *parser) override;
 

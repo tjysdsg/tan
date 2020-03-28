@@ -49,7 +49,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   // add all function arguments to scope
   for (auto &a : F->args()) {
-    auto arg = std::make_shared<ASTVarDecl>(0);
+    auto arg = std::make_shared<ASTVarDecl>(nullptr, 0);
     arg->_llvm_value = &a;
     compiler_session->add(a.getName(), arg);
   }

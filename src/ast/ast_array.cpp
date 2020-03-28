@@ -24,8 +24,15 @@ llvm::Value *ASTArrayLiteral::get_llvm_value(CompilerSession *) const {
 }
 
 std::string ASTArrayLiteral::get_type_name() const {
-  // TODO: add element type name
-  return "array";
+  std::string ret = "[";
+  size_t i = 0;
+  size_t n = _children.size();
+  for (auto c : _children) {
+    ret += ast_cast<ASTLiteral>(c)->get_type_name();
+    if (i < n - 1) { ret += ", "; }
+    ++i;
+  }
+  return ret + "]";
 }
 
 llvm::Type *ASTArrayLiteral::to_llvm_type(CompilerSession *) const {
@@ -33,9 +40,9 @@ llvm::Type *ASTArrayLiteral::to_llvm_type(CompilerSession *) const {
 }
 
 std::string ASTArrayLiteral::to_string(bool print_prefix) const {
-  std::string ret = "";
-  if (print_prefix) { ret = ASTLiteral::to_string(true) + " ["; }
-  else { ret = "["; }
+  std::string ret;
+  if (print_prefix) { ret = ASTLiteral::to_string(true) + " "; }
+  ret += "[";
   size_t i = 0;
   size_t n = _children.size();
   for (auto c : _children) {

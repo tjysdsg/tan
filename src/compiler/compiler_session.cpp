@@ -76,7 +76,6 @@ void CompilerSession::set(const std::string &name, std::shared_ptr<ASTNode> valu
   while (scope >= _scope.begin()) {
     auto search = (*scope)->_named.find(name);
     if (search != (*scope)->_named.end()) {
-      // FIXME: print stack trace
       throw std::runtime_error("Cannot set the value of " + name);
     }
     --scope;
