@@ -596,5 +596,5 @@ int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
   // results now.
   TimerGroup::printAll(errs());
 
-  return !!Failed;
+  return Failed;
 }

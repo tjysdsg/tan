@@ -111,7 +111,7 @@ static void ApplyOneQAOverride(raw_ostream &OS,
     StringRef ReplPattern = Edit.substr(2).split('/').second;
     ReplPattern = ReplPattern.slice(0, ReplPattern.size() - 1);
 
-    for (unsigned i = 1, e = Args.size(); i != e; ++i) {
+    for (unsigned i = 1, e = (unsigned) Args.size(); i != e; ++i) {
       // Ignore end-of-line response file markers
       if (Args[i] == nullptr) {
         continue;
@@ -232,19 +232,19 @@ static void getCLEnvVarOptions(std::string &EnvValue, llvm::StringSaver &Saver, 
 
 static void SetBackdoorDriverOutputsFromEnvVars(Driver &TheDriver) {
   // Handle CC_PRINT_OPTIONS and CC_PRINT_OPTIONS_FILE.
-  TheDriver.CCPrintOptions = !!::getenv("CC_PRINT_OPTIONS");
+  TheDriver.CCPrintOptions = ::getenv("CC_PRINT_OPTIONS") != nullptr;
   if (TheDriver.CCPrintOptions) {
     TheDriver.CCPrintOptionsFilename = ::getenv("CC_PRINT_OPTIONS_FILE");
   }
 
   // Handle CC_PRINT_HEADERS and CC_PRINT_HEADERS_FILE.
-  TheDriver.CCPrintHeaders = !!::getenv("CC_PRINT_HEADERS");
+  TheDriver.CCPrintHeaders = ::getenv("CC_PRINT_HEADERS") != nullptr;
   if (TheDriver.CCPrintHeaders) {
     TheDriver.CCPrintHeadersFilename = ::getenv("CC_PRINT_HEADERS_FILE");
   }
 
   // Handle CC_LOG_DIAGNOSTICS and CC_LOG_DIAGNOSTICS_FILE.
-  TheDriver.CCLogDiagnostics = !!::getenv("CC_LOG_DIAGNOSTICS");
+  TheDriver.CCLogDiagnostics = ::getenv("CC_LOG_DIAGNOSTICS") != nullptr;
   if (TheDriver.CCLogDiagnostics) {
     TheDriver.CCLogDiagnosticsFilename = ::getenv("CC_LOG_DIAGNOSTICS_FILE");
   }
@@ -374,13 +374,13 @@ extern int clang_main(int argc_, const char **argv_) {
     // If -cc1 came from a response file, remove the EOL sentinels.
     if (MarkEOLs) {
       auto newEnd = std::remove(argv.begin(), argv.end(), nullptr);
-      argv.resize(newEnd - argv.begin());
+      argv.resize((size_t) (newEnd - argv.begin()));
     }
     return ExecuteCC1Tool(argv, argv[1] + 4);
   }
 
   bool CanonicalPrefixes = true;
-  for (int i = 1, size = argv.size(); i < size; ++i) {
+  for (size_t i = 1, size = argv.size(); i < size; ++i) {
     // Skip end-of-line response file markers
     if (argv[i] == nullptr) {
       continue;
@@ -462,8 +462,8 @@ extern int clang_main(int argc_, const char **argv_) {
       // Pretend that every command failed.
       FailingCommands.clear();
       for (const auto &J : C->getJobs()) {
-        if (const Command *C = dyn_cast<Command>(&J)) {
-          FailingCommands.push_back(std::make_pair(-1, C));
+        if (const Command *C_ = dyn_cast<Command>(&J)) {
+          FailingCommands.push_back(std::make_pair(-1, C_));
         }
       }
     }
