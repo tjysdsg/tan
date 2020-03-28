@@ -1,14 +1,13 @@
 #include "libtanc.h"
-#include "linker.h"
-#include "reader.h"
-#include "parser.h"
-#include "lexer.h"
 #include "compiler.h"
+#include "lexer.h"
+#include "linker.h"
+#include "parser.h"
+#include "reader.h"
 #include <string>
 
 #ifndef DEBUG
-#define BEGIN_TRY                                                              \
-try {
+#define BEGIN_TRY try {
 
 #else
 #define BEGIN_TRY
@@ -18,7 +17,7 @@ try {
 #define END_TRY                                                                \
   }                                                                            \
   catch (const std::exception &e) {                                            \
-    std::cerr << "Error encountered in file " << app.current_filename()        \
+    std::cerr << "Error encountered in file " << files[i]                      \
               << ": " << e.what() << '\n';                                     \
     return false;                                                              \
   }
