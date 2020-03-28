@@ -83,13 +83,17 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = compiler_session->get_builder()->getFloatTy();
+  // TODO: implement pointer compare?
   if (ltype->isPointerTy()) {
-    lhs = compiler_session->get_builder()->CreateLoad(float_type, lhs);
+    lhs = compiler_session->get_builder()->CreateLoad(lhs);
+    ltype = lhs->getType();
   }
   if (rtype->isPointerTy()) {
-    rhs = compiler_session->get_builder()->CreateLoad(float_type, rhs);
+    rhs = compiler_session->get_builder()->CreateLoad(rhs);
+    rtype = rhs->getType();
   }
+
+  Type *float_type = compiler_session->get_builder()->getFloatTy();
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
       lhs = compiler_session->get_builder()->CreateSIToFP(lhs, float_type);
@@ -99,23 +103,23 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
     }
 
     if (_type == ASTType::GT) {
-      return compiler_session->get_builder()->CreateFCmpOGT(lhs, rhs);
+      return compiler_session->get_builder()->CreateFCmpOGT(lhs, rhs, "gt");
     } else if (_type == ASTType::GE) {
-      return compiler_session->get_builder()->CreateFCmpOGE(lhs, rhs);
+      return compiler_session->get_builder()->CreateFCmpOGE(lhs, rhs, "ge");
     } else if (_type == ASTType::LT) {
-      return compiler_session->get_builder()->CreateFCmpOLT(lhs, rhs);
+      return compiler_session->get_builder()->CreateFCmpOLT(lhs, rhs, "lt");
     } else if (_type == ASTType::LE) {
-      return compiler_session->get_builder()->CreateFCmpOLE(lhs, rhs);
+      return compiler_session->get_builder()->CreateFCmpOLE(lhs, rhs, "le");
     }
   }
   if (_type == ASTType::GT) {
-    return compiler_session->get_builder()->CreateICmpUGT(lhs, rhs);
+    return compiler_session->get_builder()->CreateICmpUGT(lhs, rhs, "gt");
   } else if (_type == ASTType::GE) {
-    return compiler_session->get_builder()->CreateICmpUGE(lhs, rhs);
+    return compiler_session->get_builder()->CreateICmpUGE(lhs, rhs, "ge");
   } else if (_type == ASTType::LT) {
-    return compiler_session->get_builder()->CreateICmpULT(lhs, rhs);
+    return compiler_session->get_builder()->CreateICmpULT(lhs, rhs, "lt");
   } else if (_type == ASTType::LE) {
-    return compiler_session->get_builder()->CreateICmpULE(lhs, rhs);
+    return compiler_session->get_builder()->CreateICmpULE(lhs, rhs, "le");
   }
   return nullptr;
 }

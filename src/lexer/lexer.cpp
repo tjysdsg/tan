@@ -6,6 +6,7 @@
 #include <regex>
 
 namespace tanlang {
+// TODO: negative number XD
 
 #define IS_DELIMITER(x)                                                        \
   (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' ||          \

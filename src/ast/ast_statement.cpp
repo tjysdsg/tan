@@ -29,7 +29,13 @@ Value *ASTProgram::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTReturn::codegen(CompilerSession *compiler_session) {
-  return compiler_session->get_builder()->CreateRet(_children[0]->codegen(compiler_session));
+  auto *result = _children[0]->codegen(compiler_session);
+  /// create load if children is a pointer
+  // TODO: implement return pointer
+  if (result->getType()->isPointerTy()) {
+    result = compiler_session->get_builder()->CreateLoad(result, "load");
+  }
+  return compiler_session->get_builder()->CreateRet(result);
 }
 
 } // namespace tanlang

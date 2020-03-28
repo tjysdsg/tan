@@ -1,3 +1,5 @@
+#include <src/ast/ast_control_flow.h>
+
 #include "src/ast/ast_expr.h"
 #include "token.h"
 #include "parser.h"
@@ -5,7 +7,6 @@
 
 namespace tanlang {
 
-// =================== if ===================//
 size_t ASTIf::nud(tanlang::Parser *parser) {
   _end_index = _start_index + 1; /// skip "if"
   /// condition
@@ -25,14 +26,12 @@ size_t ASTIf::nud(tanlang::Parser *parser) {
     _children.push_back(else_clause);
     _has_else = true;
   }
-  // TODO: test if, else if, ..., else
   return _end_index;
 }
 
-// =================== else ===================//
 size_t ASTElse::nud(tanlang::Parser *parser) {
   _end_index = _start_index + 1; /// skip "else"
-  auto else_clause = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+  auto else_clause = parser->peek(_end_index);
   _end_index = else_clause->nud(parser);
   _children.push_back(else_clause);
   return _end_index;

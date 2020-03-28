@@ -99,11 +99,12 @@ size_t ASTNode::nud(Parser *parser) {
 // ================= codegen functions ========================= //
 Value *ASTNode::codegen(CompilerSession *compiler_session) {
   if (_children.empty()) { return nullptr; }
-  auto *result = _children[0]->codegen(compiler_session);
   size_t n = _children.size();
-  for (size_t i = 1; i < n; ++i) {
+  Value *result = nullptr;
+  for (size_t i = 0; i < n - 1; ++i) {
     _children[i]->codegen(compiler_session);
   }
+  result = _children[n - 1]->codegen(compiler_session);
   return result;
 }
 

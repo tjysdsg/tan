@@ -6,24 +6,23 @@
 namespace tanlang {
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
-  // new scope
+  /// new scope
   compiler_session->push_scope();
-  // make function prototype
-  Type *float_type = compiler_session->get_builder()->getFloatTy();
-  // std::vector<Type *> arg_types(2, float_type);
+  /// make function prototype
+  Type *ret_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
   std::vector<Type *> arg_types;
-  // set function arg types
+  /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_types.push_back(type_name->to_llvm_type(compiler_session));
   }
 
-  // get function name
+  /// get function name
   std::shared_ptr<ASTIdentifier> fname = std::reinterpret_pointer_cast<ASTIdentifier>(_children[1]);
   std::string func_name = fname->get_name();
 
-  // create function
-  FunctionType *FT = FunctionType::get(float_type, arg_types, false);
+  /// create function
+  FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
   // if main function and jit enabled, rename 'main' to '__tan_main' to avoid calling recursive main function of current process
   if (func_name == "main" && compiler_session->is_jit_enabled()) {
     func_name = "__tan_main";
@@ -32,33 +31,34 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
   // F->setCallingConv(llvm::CallingConv::C);
 
-  // set argument names
+  /// set argument names
   auto args = F->args().begin();
   for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
     std::shared_ptr<ASTIdentifier> arg_name = ast_cast<ASTIdentifier>(_children[i]->_children[0]);
     (args + j)->setName(arg_name->get_name());
   }
 
-  // function implementation
-  // create a new basic block to start insertion into
+  /// function implementation
+  /// create a new basic block to start insertion into
   if (!_is_external) {
     BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", F);
     compiler_session->get_builder()->SetInsertPoint(main_block);
     compiler_session->set_code_block(main_block); // set current scope's code block
   }
 
-  // add all function arguments to scope
+  /// add all function arguments to scope
   for (auto &a : F->args()) {
     auto arg = std::make_shared<ASTVarDecl>(nullptr, 0);
     arg->_llvm_value = &a;
     compiler_session->add(a.getName(), arg);
   }
 
+  /// generate function body
   if (!_is_external) {
     _children[_children.size() - 1]->codegen(compiler_session);
   }
 
-  // validate the generated code, checking for consistency
+  /// validate the generated code, checking for consistency
   verifyFunction(*F);
   compiler_session->pop_scope(); // pop scope
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); // restore parent code block

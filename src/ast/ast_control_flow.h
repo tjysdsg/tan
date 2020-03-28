@@ -34,6 +34,7 @@ public:
   ) {}
 
   size_t nud(Parser *parser) override;
+  Value *codegen(CompilerSession *compiler_session) override;
 
 public:
   bool _has_else = false;
