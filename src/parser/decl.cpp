@@ -26,7 +26,7 @@ size_t ASTStruct::nud(Parser *parser) {
   _end_index = _start_index + 1; /// skip "struct"
   _children.push_back(parser->next_expression(_end_index)); // name
   auto comp_statements = parser->peek(_end_index);
-  _end_index = comp_statements->nud(parser); // FIXME: struct declaration with no definition
+  _end_index = comp_statements->parse(parser); // FIXME: struct declaration with no definition
   _children.insert(_children.begin() + 1, comp_statements->_children.begin(), comp_statements->_children.end());
   return _end_index;
 }

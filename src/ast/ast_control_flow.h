@@ -15,8 +15,9 @@ public:
   ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token, token_index
   ) {}
 
-  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
+protected:
+  size_t nud(Parser *parser) override;
 
 public:
   bool _has_else = false;
@@ -33,9 +34,10 @@ public:
                                                                token_index
   ) {}
 
-  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
 
+protected:
+  size_t nud(Parser *parser) override;
 public:
   bool _has_else = false;
 };

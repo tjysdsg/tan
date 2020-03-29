@@ -11,18 +11,18 @@ size_t ASTIf::nud(tanlang::Parser *parser) {
   _end_index = _start_index + 1; /// skip "if"
   /// condition
   auto condition = parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-  _end_index = condition->nud(parser);
+  _end_index = condition->parse(parser);
   _children.push_back(condition);
   /// if clause
   auto if_clause = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-  _end_index = if_clause->nud(parser);
+  _end_index = if_clause->parse(parser);
   _children.push_back(if_clause);
 
   /// else clause, if any
   auto *token = parser->at(_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
     auto else_clause = parser->peek(_end_index);
-    _end_index = else_clause->nud(parser);
+    _end_index = else_clause->parse(parser);
     _children.push_back(else_clause);
     _has_else = true;
   }
@@ -32,7 +32,7 @@ size_t ASTIf::nud(tanlang::Parser *parser) {
 size_t ASTElse::nud(tanlang::Parser *parser) {
   _end_index = _start_index + 1; /// skip "else"
   auto else_clause = parser->peek(_end_index);
-  _end_index = else_clause->nud(parser);
+  _end_index = else_clause->parse(parser);
   _children.push_back(else_clause);
   return _end_index;
 }

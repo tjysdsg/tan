@@ -14,11 +14,12 @@ public:
     _name = token->value;
   }
 
-  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
   std::string get_name() const;
   std::string to_string(bool print_prefix = true) const override;
 
+protected:
+  size_t nud(Parser *parser) override;
 private:
   std::string _name{};
 };

@@ -92,11 +92,15 @@ public:
 
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
-  [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
-  [[nodiscard]] virtual size_t nud(Parser *parser);
+  [[nodiscard]] virtual size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  [[nodiscard]] virtual size_t parse(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
   virtual std::string to_string(bool print_prefix = true) const;
+
+protected:
+  [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  [[nodiscard]] virtual size_t nud(Parser *parser);
 
 private:
   void printTree(const std::string &prefix, bool last_child) const;
@@ -121,12 +125,14 @@ public:
 class ASTInfixBinaryOp : public ASTNode {
 public:
   ASTInfixBinaryOp(Token *token, size_t token_index);
+protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
 };
 
 class ASTPrefix : public ASTNode {
 public:
   ASTPrefix(Token *token, size_t token_index);
+protected:
   size_t nud(Parser *parser) override;
 };
 
@@ -159,6 +165,7 @@ class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
+protected:
   size_t nud(Parser *parser) override; /// for parsing negative number
 };
 

@@ -27,7 +27,6 @@ public:
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
   std::shared_ptr<ASTNode> parse();
   Value *codegen();
-  virtual Error evaluate(std::unique_ptr<Module> module = nullptr);
   virtual void dump() const;
 
   bool eof(size_t index) const { return index >= _tokens.size(); }

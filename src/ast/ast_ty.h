@@ -49,11 +49,12 @@ class ASTTy final : public ASTNode, public Typed {
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
-  size_t nud(Parser *parser) override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
 
+protected:
+  size_t nud(Parser *parser) override;
 private:
   size_t nud_array(Parser *parser);
 

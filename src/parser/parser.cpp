@@ -1,10 +1,11 @@
 #include "parser.h"
 #include "src/ast/ast_array.h"
-#include "src/ast/ast_dot.h"
+#include "src/ast/ast_member_access.h"
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_statement.h"
 #include "src/parser/token_check.h"
+#include "src/parser/parser.hpp"
 #include <memory>
 
 namespace tanlang {
@@ -16,7 +17,9 @@ Parser::Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)) {
 Parser::~Parser() { delete _compiler_session; }
 
 std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::string &value) {
-  if (index >= _tokens.size()) { throw std::runtime_error("Unexpected EOF"); }
+  if (index >= _tokens.size()) {
+    throw std::runtime_error("Unexpected EOF");
+  }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
     report_code_error(token,
@@ -28,7 +31,9 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::
 }
 
 std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
-  if (index >= _tokens.size()) { return nullptr; }
+  if (index >= _tokens.size()) {
+    return nullptr;
+  }
   Token *token = _tokens[index];
   /// skip comments
   while (token->type == TokenType::COMMENTS) {
@@ -51,7 +56,14 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   } else if (token->value == "~" && token->type == TokenType::UOP) {
     node = std::make_shared<ASTBinaryNot>(token, index);
   } else if (token->value == "[") {
-    node = std::make_shared<ASTArrayLiteral>(token, index);
+    auto prev = this->at(index - 1);
+    if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
+      /// array literal if there is no identifier, "]", or ")" before
+      node = std::make_shared<ASTArrayLiteral>(token, index);
+    } else {
+      /// otherwise bracket access
+      node = std::make_shared<ASTMemberAccess>(token, index);
+    }
   } else if (token->value == "struct" && token->type == TokenType::KEYWORD) {
     node = std::make_shared<ASTStruct>(token, index);
   } else if (token->type == TokenType::RELOP) {
@@ -87,7 +99,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   } else if (token->type == TokenType::KEYWORD && token->value == "return") {
     node = std::make_shared<ASTReturn>(token, index);
   } else if (token->type == TokenType::BOP && token->value == ".") { // member access
-    node = std::make_shared<ASTDot>(token, index);
+    node = std::make_shared<ASTMemberAccess>(token, index);
   } else if (check_typename_token(token)) { // types
     node = std::make_shared<ASTTy>(token, index);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
@@ -103,26 +115,32 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
 std::shared_ptr<ASTNode> Parser::next_expression(size_t &index, int rbp) {
   std::shared_ptr<ASTNode> node = peek(index);
   ++index;
-  if (!node) { return nullptr; }
+  if (!node) {
+    return nullptr;
+  }
   auto n = node;
-  index = n->nud(this);
+  index = n->parse(this);
   auto left = n;
   node = peek(index);
-  if (!node) { return left; }
+  if (!node) {
+    return left;
+  }
   while (rbp < node->_lbp) {
     node = peek(index);
     n = node;
-    index = n->led(left, this);
+    index = n->parse(left, this);
     left = n;
     node = peek(index);
-    if (!node) { break; };
+    if (!node) {
+      break;
+    };
   }
   return left;
 }
 
 std::shared_ptr<ASTNode> Parser::parse() {
   _root = std::make_shared<ASTProgram>();
-  (void) _root->nud(this); /// fix the [[nodiscard]] warning
+  (void) _root->parse(this); /// fix the [[nodiscard]] warning
   return _root;
 }
 
@@ -132,55 +150,11 @@ void Parser::dump() const {
   get_compiler_session()->get_module()->print(llvm::outs(), nullptr);
 }
 
-Error Parser::evaluate(std::unique_ptr<Module> module) {
-  UNUSED(module);
-  return Error::success();
-}
-
 Token *Parser::at(const size_t idx) const {
   if (this->eof(idx)) {
     throw std::runtime_error("Unexpected EOF"); // TODO: better error
   }
   return _tokens[idx];
-}
-
-#define TRY_NUD(node, strict)                                                  \
-  do {                                                                         \
-    try {                                                                      \
-      index = node->nud(this);                                                 \
-    } catch (const std::runtime_error &e) {                                    \
-      if (strict)                                                              \
-        throw e;                                                               \
-      return nullptr;                                                          \
-    }                                                                          \
-  } while (false)
-
-template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::STATEMENT>(size_t &index, bool strict) {
-  auto *token = this->at(index);
-  std::shared_ptr<ASTNode> node = std::make_shared<ASTStatement>(token, index);
-  TRY_NUD(node, strict);
-  return node;
-}
-
-template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::ID>(size_t &index, bool strict) {
-  auto *token = this->at(index);
-  std::shared_ptr<ASTNode> node = std::make_shared<ASTIdentifier>(token, index);
-  TRY_NUD(node, strict);
-  return node;
-}
-
-template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::FUNC_CALL>(size_t &index, bool strict) {
-  auto *token = this->at(index);
-  std::shared_ptr<ASTNode> node = std::make_shared<ASTFunctionCall>(token, index);
-  TRY_NUD(node, strict);
-  return node;
-}
-
-template<> std::shared_ptr<ASTNode> Parser::parse<ASTType::TY>(size_t &index, bool strict) {
-  auto *token = this->at(index);
-  std::shared_ptr<ASTNode> node = std::make_shared<ASTTy>(token, index);
-  TRY_NUD(node, strict);
-  return node;
 }
 
 } // namespace tanlang

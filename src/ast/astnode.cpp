@@ -81,9 +81,15 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token, size_t token_index) : A
   _type = type;
   _lbp = op_precedence[type];
 }
-// ============================================================ //
 
-// ============================= parser =========================//
+size_t ASTNode::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+  return this->led(left, parser);
+}
+
+size_t ASTNode::parse(Parser *parser) {
+  return this->nud(parser);
+}
+
 size_t ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   UNUSED(left);
   UNUSED(parser);
@@ -94,9 +100,7 @@ size_t ASTNode::nud(Parser *parser) {
   UNUSED(parser);
   throw std::runtime_error("Not implemented");
 }
-// ============================================================== //
 
-// ================= codegen functions ========================= //
 Value *ASTNode::codegen(CompilerSession *compiler_session) {
   if (_children.empty()) { return nullptr; }
   size_t n = _children.size();

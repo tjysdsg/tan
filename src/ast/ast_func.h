@@ -12,8 +12,8 @@ public:
   ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
   Value *codegen(CompilerSession *compiler_session) override;
+protected:
   size_t nud(Parser *parser) override;
-
 private:
   bool _is_external = false;
 };
@@ -25,9 +25,9 @@ public:
   ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0, 0, token, token_index
   ) { _name = token->value; }
 
-  size_t nud(Parser *parser) override;
   Value *codegen(CompilerSession *compiler_session) override;
-
+protected:
+  size_t nud(Parser *parser) override;
 public:
   std::string _name{};
 };

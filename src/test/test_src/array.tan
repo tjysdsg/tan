@@ -1,5 +1,10 @@
 fn main(argc: int, argv: u8**) : i32 {
-    // var shit: [i32, 3] = [1, 2, 3];
-    var fuck: [[i32, 3], 4] = [[1, 1, 1], [2, 2, 2], [3, 3, 3], [3, 3, 3]];
-    return 0;
+    var flat: [i32, 3] = [1, 2, 3];
+    var nested: [[i32, 3], 4] = [[1, 1, 1], [2, 2, 2], [3, 3, 3], [3, 3, 3]];
+    var e1: i32 = flat[1];
+    // tan does support nested array, but the offset should be calculated by hand, or user can use a struct to
+    //      store the information about array length.
+    // therefore, the following evaluate to 1 INSTEAD OF 2.
+    var e2: i32 = nested[1][0];
+    return e2;
 }

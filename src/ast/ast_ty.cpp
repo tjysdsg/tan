@@ -53,7 +53,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
     }
     case Ty::ARRAY: {
       auto e_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
-      type = ArrayType::get(e_type, _n_elements);
+      type = e_type->getPointerTo();
       break;
     }
     default: {

@@ -14,7 +14,7 @@ size_t ASTFunction::nud(Parser *parser) {
   if (parser->at(_end_index)->value != ")") {
     while (!parser->eof(_end_index)) {
       std::shared_ptr<ASTNode> arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
-      _end_index = arg->nud(parser);
+      _end_index = arg->parse(parser);
       _children.push_back(arg);
       if (parser->at(_end_index)->value == ",") {
         ++_end_index;
@@ -31,7 +31,7 @@ size_t ASTFunction::nud(Parser *parser) {
   auto *token = parser->at(_end_index);
   if (token->value == "{") {
     auto code = parser->peek(_end_index);
-    _end_index = code->nud(parser);
+    _end_index = code->parse(parser);
     _children.push_back(code);
     _is_external = false;
   } else {

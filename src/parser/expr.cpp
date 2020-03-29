@@ -66,7 +66,7 @@ size_t ASTArrayLiteral::nud(Parser *parser) {
     if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
         || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
-      _end_index = node->nud(parser);
+      _end_index = node->parse(parser);
       _children.push_back(node);
     } else {
       report_code_error(_token, "Expect literals");
