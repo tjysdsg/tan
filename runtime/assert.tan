@@ -1,0 +1,8 @@
+// TODO: __FILE__, __LINE__, bool
+// TODO: define this using meta-programming
+
+fn assert(a: u32) : void {
+    if (!a) {
+        __assert("Assertion failed", "filename", 0);
+    }
+}

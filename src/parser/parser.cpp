@@ -6,6 +6,7 @@
 #include "src/ast/ast_statement.h"
 #include "src/parser/token_check.h"
 #include "src/parser/parser.hpp"
+#include "intrinsic.h"
 #include <memory>
 
 namespace tanlang {
@@ -41,7 +42,9 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
     token = _tokens[index];
   }
   std::shared_ptr<ASTNode> node;
-  if (token->value == "+" && token->type == TokenType::BOP) {
+  if (Intrinsic::intrinsics.find(token->value) != Intrinsic::intrinsics.end()) { /// intrinsics
+    node = std::make_shared<Intrinsic>(token, index);
+  } else if (token->value == "+" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::SUM, token, index);
   } else if (token->value == "-" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::SUBTRACT, token, index);
@@ -144,7 +147,10 @@ std::shared_ptr<ASTNode> Parser::parse() {
   return _root;
 }
 
-Value *Parser::codegen() { return _root->codegen(_compiler_session); }
+Value *Parser::codegen() {
+  Intrinsic::InitCodegen(_compiler_session);
+  return _root->codegen(_compiler_session);
+}
 
 void Parser::dump() const {
   get_compiler_session()->get_module()->print(llvm::outs(), nullptr);

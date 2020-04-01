@@ -66,6 +66,8 @@ enum class ASTType {
   STRING_LITERAL, // "xxx"
   ARRAY_LITERAL,  // [1, 2, 3]
   MEMBER_ACCESS,  // struct.a
+
+  INTRINSIC, // intrinsic functions, operators, qualifiers, etc.
   INVALID,
 };
 
@@ -111,7 +113,7 @@ protected:
   size_t _end_index = 0;
 };
 
-// dummy, all literal types inherit from this class
+/// dummy, all literal types inherit from this class
 class ASTLiteral : public ASTNode, public Valued, public Typed {
 public:
   ASTLiteral() = delete;

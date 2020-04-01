@@ -1,0 +1,7 @@
+fn assert(a: u32) : void;
+
+fn main(argc: int, argv: char**) : int {
+    assert(1);
+    assert(0);
+    return 0;
+}

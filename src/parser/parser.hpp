@@ -13,13 +13,14 @@ namespace tanlang {
     auto *token = this->at(index);                                                     \
     std::shared_ptr<ASTNode> node =                                                    \
         std::make_shared<ast>(token, index);                                           \
-    try {                                                                              \
+    if (strict) {                                                                      \
       index = node->parse(this);                                                       \
-    } catch (const std::runtime_error &e) {                                            \
-      if (strict) {                                                                    \
-        throw e;                                                                       \
+    } else {                                                                           \
+      try {                                                                            \
+        index = node->parse(this);                                                     \
+      } catch (const std::runtime_error &e) {                                          \
+        return nullptr;                                                                \
       }                                                                                \
-      return nullptr;                                                                  \
     }                                                                                  \
     return node;                                                                       \
   }

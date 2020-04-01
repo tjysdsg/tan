@@ -29,7 +29,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   }
   // FIXME: external linkage
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
-  // F->setCallingConv(llvm::CallingConv::C);
+  F->setCallingConv(llvm::CallingConv::C);
 
   /// set argument names
   auto args = F->args().begin();
@@ -58,6 +58,10 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     _children[_children.size() - 1]->codegen(compiler_session);
   }
 
+  if (ret_type->isVoidTy()) {
+    compiler_session->get_builder()->CreateRetVoid();
+  }
+
   /// validate the generated code, checking for consistency
   verifyFunction(*F);
   compiler_session->pop_scope(); // pop scope
@@ -84,7 +88,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
     args_value.push_back(_children[i]->codegen(compiler_session));
     if (!args_value.back()) { return nullptr; }
   }
-  return compiler_session->get_builder()->CreateCall(func, args_value, "call_tmp");
+  return compiler_session->get_builder()->CreateCall(func, args_value);
 }
 
 } // namespace tanlang
