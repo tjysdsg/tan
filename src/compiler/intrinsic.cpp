@@ -37,6 +37,9 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
     case IntrinsicType::NOOP:
       _underlying_ast = std::make_shared<ASTFunctionCall>(token, token_index);
       break;
+    case IntrinsicType::LINENO:
+      _underlying_ast = std::make_shared<ASTNumberLiteral>(token->l + 1, token_index); /// token->l starts at 0 XD
+      break;
       // TODO: other intrinsics
     default:
       report_code_error(token, "Unknown intrinsic");
@@ -46,8 +49,14 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
 }
 
 size_t Intrinsic::parse(Parser *parser) {
-  assert(_underlying_ast);
-  return _underlying_ast->parse(parser);
+  size_t ret = _start_index + 1;
+  switch (_intrinsic_type) {
+    default:
+      assert(_underlying_ast);
+      ret = _underlying_ast->parse(parser);
+      break;
+  }
+  return ret;
 }
 
 size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {

@@ -70,6 +70,9 @@ public:
   friend class ASTMemberAccess;
 
 public:
+  explicit ASTNumberLiteral(int value, size_t token_index);
+  explicit ASTNumberLiteral(size_t value, size_t token_index);
+  explicit ASTNumberLiteral(float value, size_t token_index);
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index);
 
   [[nodiscard]] bool is_float() const { return _is_float; }

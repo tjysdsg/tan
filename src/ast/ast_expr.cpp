@@ -246,6 +246,36 @@ std::string ASTNumberLiteral::to_string(bool print_prefix) const {
   return ret;
 }
 
+ASTNumberLiteral::ASTNumberLiteral(int value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
+                                                                               op_precedence[ASTType::NUM_LITERAL],
+                                                                               0,
+                                                                               nullptr,
+                                                                               token_index
+) {
+  _ivalue = value;
+  _is_float = false;
+}
+
+ASTNumberLiteral::ASTNumberLiteral(size_t value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
+                                                                                  op_precedence[ASTType::NUM_LITERAL],
+                                                                                  0,
+                                                                                  nullptr,
+                                                                                  token_index
+) {
+  _ivalue = static_cast<int>(value);
+  _is_float = false;
+}
+
+ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
+                                                                                 op_precedence[ASTType::NUM_LITERAL],
+                                                                                 0,
+                                                                                 nullptr,
+                                                                                 token_index
+) {
+  _fvalue = value;
+  _is_float = true;
+}
+
 ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
                                                                                   op_precedence[ASTType::STRING_LITERAL],
                                                                                   0,
