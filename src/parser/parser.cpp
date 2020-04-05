@@ -11,8 +11,8 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens) : _tokens(std::move(tokens)) {
-  _compiler_session = new CompilerSession("main"); // FIXME: module name
+Parser::Parser(std::vector<Token *> tokens, std::string filename) : _tokens(std::move(tokens)), _filename(filename) {
+  _compiler_session = new CompilerSession(filename);
 }
 
 Parser::~Parser() { delete _compiler_session; }
@@ -43,7 +43,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   }
   std::shared_ptr<ASTNode> node;
   if (Intrinsic::intrinsics.find(token->value) != Intrinsic::intrinsics.end()) { /// intrinsics
-    node = std::make_shared<Intrinsic>(token, index);
+    node = std::make_shared<Intrinsic>(_filename, token, index);
   } else if (token->value == "+" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::SUM, token, index);
   } else if (token->value == "-" && token->type == TokenType::BOP) {

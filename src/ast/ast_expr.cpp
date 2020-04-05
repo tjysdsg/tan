@@ -285,6 +285,15 @@ ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLitera
   _svalue = token->value;
 }
 
+ASTStringLiteral::ASTStringLiteral(std::string str, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
+                                                                                     op_precedence[ASTType::STRING_LITERAL],
+                                                                                     0,
+                                                                                     nullptr,
+                                                                                     token_index
+) {
+  _svalue = str;
+}
+
 ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   _type = ASTType::ASSIGN;
   _lbp = op_precedence[_type];

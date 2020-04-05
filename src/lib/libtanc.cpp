@@ -48,7 +48,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     tanlang::Reader reader;
     reader.open(files[i]);
     auto tokens = tanlang::tokenize(&reader);
-    tanlang::Parser parser(tokens);
+      tanlang::Parser parser(tokens, files[i]);
     parser.parse();
     if (print_ast) { parser._root->printTree(); }
     std::cout << "Compiling TAN file: " << files[i] << "\n";

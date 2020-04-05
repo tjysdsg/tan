@@ -1,8 +1,5 @@
-// TODO: __FILE__, bool data type
-// TODO: define this using meta-programming, or __LINE__ is always gonna be 6
-
 fn assert(a: u32) : void {
     if (!a) {
-        __assert("Assertion failed", "filename", __LINE__);
+        __assert("TODO: define this using meta-programming", __FILE__, __LINE__);
     }
 }

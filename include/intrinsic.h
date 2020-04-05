@@ -40,7 +40,7 @@ public:
 
 public:
   Intrinsic() = delete;
-  Intrinsic(Token *token, size_t token_index);
+  Intrinsic(std::string filename, Token *token, size_t token_index);
   virtual ~Intrinsic() = default;
   [[nodiscard]] virtual size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser);
   [[nodiscard]] virtual size_t parse(Parser *parser);

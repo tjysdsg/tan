@@ -18,6 +18,7 @@ std::unordered_map<std::string, IntrinsicType>
 static llvm::Value *init_noop(CompilerSession *compiler_session);
 static llvm::Value *init_assert(CompilerSession *compiler_session);
 
+/// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
   init_assert(compiler_session);
   init_noop(compiler_session);
@@ -27,7 +28,11 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
   return _underlying_ast->codegen(compiler_session);
 }
 
-Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index
+Intrinsic::Intrinsic(std::string filename, Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC,
+                                                                                       0,
+                                                                                       0,
+                                                                                       token,
+                                                                                       token_index
 ) {
   _intrinsic_type = Intrinsic::intrinsics[token->value];
   switch (_intrinsic_type) {
@@ -38,7 +43,10 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
       _underlying_ast = std::make_shared<ASTFunctionCall>(token, token_index);
       break;
     case IntrinsicType::LINENO:
-      _underlying_ast = std::make_shared<ASTNumberLiteral>(token->l + 1, token_index); /// token->l starts at 0 XD
+      _underlying_ast = std::make_shared<ASTNumberLiteral>(token->l + 1, token_index); /// token->l starts at 0
+      break;
+    case IntrinsicType::FILENAME:
+      _underlying_ast = std::make_shared<ASTStringLiteral>(filename, token_index);
       break;
       // TODO: other intrinsics
     default:
@@ -49,14 +57,7 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
 }
 
 size_t Intrinsic::parse(Parser *parser) {
-  size_t ret = _start_index + 1;
-  switch (_intrinsic_type) {
-    default:
-      assert(_underlying_ast);
-      ret = _underlying_ast->parse(parser);
-      break;
-  }
-  return ret;
+  return _underlying_ast->parse(parser);
 }
 
 size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {

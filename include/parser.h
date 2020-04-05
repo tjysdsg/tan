@@ -20,7 +20,7 @@ class Parser {
 public:
   Parser() = delete;
   virtual ~Parser();
-  explicit Parser(std::vector<Token *> tokens);
+  Parser(std::vector<Token *> tokens, std::string filename);
 
   std::shared_ptr<ASTNode> peek(size_t &index);
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
@@ -39,6 +39,7 @@ public:
 protected:
   std::vector<Token *> _tokens;
   CompilerSession *_compiler_session;
+  std::string _filename;
 
 public:
   [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
