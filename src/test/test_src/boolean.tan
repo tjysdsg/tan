@@ -6,6 +6,5 @@ fn main(argc: int, argv: char**) : int {
     var shit: i32 = !(a == b);
     // var shit: i32 = !(1 == 0); // TODO: implicit type conversion
     assert(shit);
-    assert(0);
     return 0;
 }

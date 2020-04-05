@@ -36,16 +36,6 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
 Ty ASTLiteral::get_ty() const { return Ty::INVALID; }
 
 // =================== cdtors =========================//
-ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  if (!is_ast_type_in(type,
-                      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR}
-  )) {
-    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
-  }
-  _type = type;
-  _lbp = op_precedence[type];
-}
-
 ASTReturn::ASTReturn(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   _type = ASTType::RET;
   _lbp = op_precedence[_type];
@@ -126,7 +116,8 @@ std::unordered_map<ASTType, std::string> ast_type_names
      MAKE_ASTTYPE_NAME_PAIR(GE), MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE), MAKE_ASTTYPE_NAME_PAIR(ID),
      MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS), MAKE_ASTTYPE_NAME_PAIR(FUNC_CALL), MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL),
      MAKE_ASTTYPE_NAME_PAIR(ARG_DECL), MAKE_ASTTYPE_NAME_PAIR(VAR_DECL), MAKE_ASTTYPE_NAME_PAIR(TY),
-     MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS), MAKE_ASTTYPE_NAME_PAIR(ARRAY_LITERAL),};
+     MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS), MAKE_ASTTYPE_NAME_PAIR(ARRAY_LITERAL), MAKE_ASTTYPE_NAME_PAIR(EQ),
+     MAKE_ASTTYPE_NAME_PAIR(INTRINSIC)};
 
 #undef MAKE_ASTTYPE_NAME_PAIR
 
@@ -136,10 +127,10 @@ std::unordered_map<ASTType, int> op_precedence
      {ASTType::SUM, PREC_TERM}, {ASTType::SUBTRACT, PREC_TERM}, {ASTType::BOR, PREC_TERM}, {ASTType::XOR, PREC_TERM},
      {ASTType::MULTIPLY, PREC_FACTOR}, {ASTType::DIVIDE, PREC_FACTOR}, {ASTType::MOD, PREC_FACTOR},
      {ASTType::BAND, PREC_FACTOR}, {ASTType::GT, PREC_COMPARISON}, {ASTType::GE, PREC_COMPARISON},
-     {ASTType::LT, PREC_COMPARISON}, {ASTType::LE, PREC_COMPARISON}, {ASTType::ASSIGN, PREC_ASSIGN},
-     {ASTType::PARENTHESIS, PREC_CALL}, {ASTType::MEMBER_ACCESS, PREC_HIGHEST}, {ASTType::RET, PREC_LOWEST},
-     {ASTType::IF, PREC_LOWEST}, {ASTType::ELSE, PREC_LOWEST}, {ASTType::BNOT, PREC_UNARY}, {ASTType::LNOT, PREC_UNARY},
-     {ASTType::LAND, PREC_LOGICAL_AND}, {ASTType::LOR, PREC_LOGICAL_OR}, {ASTType::NUM_LITERAL, PREC_LITERAL},
-     {ASTType::STRING_LITERAL, PREC_LITERAL}};
+     {ASTType::LT, PREC_COMPARISON}, {ASTType::LE, PREC_COMPARISON}, {ASTType::EQ, PREC_COMPARISON},
+     {ASTType::ASSIGN, PREC_ASSIGN}, {ASTType::PARENTHESIS, PREC_CALL}, {ASTType::MEMBER_ACCESS, PREC_HIGHEST},
+     {ASTType::RET, PREC_LOWEST}, {ASTType::IF, PREC_LOWEST}, {ASTType::ELSE, PREC_LOWEST}, {ASTType::BNOT, PREC_UNARY},
+     {ASTType::LNOT, PREC_UNARY}, {ASTType::LAND, PREC_LOGICAL_AND}, {ASTType::LOR, PREC_LOGICAL_OR},
+     {ASTType::NUM_LITERAL, PREC_LITERAL}, {ASTType::STRING_LITERAL, PREC_LITERAL}};
 
 } // namespace tanlang

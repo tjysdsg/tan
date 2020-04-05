@@ -77,7 +77,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   }
 
   size_t n_args = _children.size();
-  // If argument mismatch error.
+  // If argument mismatch error
   if (func->arg_size() != n_args) {
     throw std::runtime_error("Invalid number of arguments: " + std::to_string(n_args));
   }
@@ -85,7 +85,11 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   // push args
   std::vector<Value *> args_value;
   for (size_t i = 0; i < n_args; ++i) {
-    args_value.push_back(_children[i]->codegen(compiler_session));
+    auto *a = _children[i]->codegen(compiler_session);
+    if (a->getType()->isPointerTy()) {
+      a = compiler_session->get_builder()->CreateLoad(a);
+    }
+    args_value.push_back(a);
     if (!args_value.back()) { return nullptr; }
   }
   return compiler_session->get_builder()->CreateCall(func, args_value);

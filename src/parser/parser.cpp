@@ -78,7 +78,10 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
       node = std::make_shared<ASTCompare>(ASTType::LT, token, index);
     } else if (token->value == "<=") {
       node = std::make_shared<ASTCompare>(ASTType::LE, token, index);
+    } else if (token->value == "==") {
+      node = std::make_shared<ASTCompare>(ASTType::EQ, token, index);
     }
+    // TODO: !=
   } else if (token->type == TokenType::INT) {
     node = std::make_shared<ASTNumberLiteral>(token->value, false, token, index);
   } else if (token->type == TokenType::FLOAT) {

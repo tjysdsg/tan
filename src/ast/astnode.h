@@ -49,6 +49,7 @@ enum class ASTType {
   GE,        // >=
   LT,        // <
   LE,        // <=
+  EQ,        // ==
   XOR,       // ^
 
   ID, // identifiers

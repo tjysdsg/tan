@@ -65,13 +65,23 @@ Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
 
 Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
   auto *rhs = _children[0]->codegen(compiler_session);
-  if (!rhs) { assert(false); }
+  assert(rhs);
   // get value size in bits
   llvm::DataLayout data_layout(compiler_session->get_module().get());
   auto size_in_bits = data_layout.getTypeSizeInBits(rhs->getType());
-  auto mask = ConstantInt::get(*compiler_session->get_context(),
-                               APInt(static_cast<uint32_t>(size_in_bits), std::numeric_limits<uint64_t>::max(), false));
-  return compiler_session->get_builder()->CreateXor(mask, rhs);
+  Value *z = ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) size_in_bits), 0, false);
+  return compiler_session->get_builder()->CreateICmpNE(z, rhs);
+}
+
+ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
+  if (!is_ast_type_in(type,
+                      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR,
+                       ASTType::EQ}
+  )) {
+    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
+  }
+  _type = type;
+  _lbp = op_precedence[type];
 }
 
 Value *ASTCompare::codegen(CompilerSession *compiler_session) {
@@ -102,7 +112,9 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
       rhs = compiler_session->get_builder()->CreateSIToFP(rhs, float_type);
     }
 
-    if (_type == ASTType::GT) {
+    if (_type == ASTType::EQ) {
+      return compiler_session->get_builder()->CreateFCmpOEQ(lhs, rhs, "eq");
+    } else if (_type == ASTType::GT) {
       return compiler_session->get_builder()->CreateFCmpOGT(lhs, rhs, "gt");
     } else if (_type == ASTType::GE) {
       return compiler_session->get_builder()->CreateFCmpOGE(lhs, rhs, "ge");
@@ -112,7 +124,9 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
       return compiler_session->get_builder()->CreateFCmpOLE(lhs, rhs, "le");
     }
   }
-  if (_type == ASTType::GT) {
+  if (_type == ASTType::EQ) {
+    return compiler_session->get_builder()->CreateICmpEQ(lhs, rhs, "eq");
+  } else if (_type == ASTType::GT) {
     return compiler_session->get_builder()->CreateICmpUGT(lhs, rhs, "gt");
   } else if (_type == ASTType::GE) {
     return compiler_session->get_builder()->CreateICmpUGE(lhs, rhs, "ge");
@@ -127,7 +141,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
-  if (!lhs || !rhs) { assert(false); }
+  assert(lhs && rhs);
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
   Type *float_type = compiler_session->get_builder()->getFloatTy();
