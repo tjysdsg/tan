@@ -12,7 +12,7 @@ namespace tanlang {
  * subsequent children are ASTVarDecl, which are the member variables of the struct
  *
  * */
-class ASTStruct : public ASTNode, public std::enable_shared_from_this<ASTStruct>, public Typed {
+class ASTStruct : public ASTNode, public std::enable_shared_from_this<ASTStruct> {
 public:
   ASTStruct() = delete;
   ASTStruct(Token *token, size_t token_index);
@@ -20,6 +20,8 @@ public:
   size_t get_member_index(std::string name);
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
+
+  bool is_typed() const override { return true; }
 
 protected:
   size_t nud(Parser *parser) override;

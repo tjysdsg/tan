@@ -11,7 +11,7 @@ std::unordered_map<std::string, Ty> basic_tys =
      {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
      {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"i128", TY_OR(Ty::INT, Ty::BIT128)},
      {"u128", TY_OR3(Ty::INT, Ty::BIT128, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING},
-     {"char", TY_OR(Ty::INT, Ty::BIT8)},};
+     {"char", TY_OR(Ty::INT, Ty::BIT8)}, {"bool", Ty::BOOL},};
 
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
@@ -52,12 +52,12 @@ size_t ASTTy::nud(Parser *parser) {
   _end_index = _start_index;
   Token *token = nullptr;
   while (!parser->eof(_end_index)) {
-    token = (Token *) parser->at(_end_index);
+    token = parser->at(_end_index);
     if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
       _ty = TY_OR(_ty, basic_tys[token->value]);
       _type_name += token->value; /// just append the type name for basic types and qualifiers
-    } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { // qualifiers
-      if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { // pointer to pointer (to ...)
+    } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// qualifiers
+      if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { /// pointer to pointer (to ...)
         auto sub = std::make_shared<ASTTy>(token, _end_index);
         /// swap self and child, so this is a pointer with no basic type, and the child is a pointer to something
         sub->_ty = this->_ty;
@@ -65,11 +65,11 @@ size_t ASTTy::nud(Parser *parser) {
         /// remember to set the name of sub
         sub->_type_name = _type_name;
         _children.push_back(sub);
-      } else { // qualifiers other than pointer to pointers
+      } else { /// qualifiers other than pointer to pointers
         _ty = TY_OR(_ty, qualifier_tys[token->value]);
       }
       _type_name += token->value; /// just append the type name for basic types and qualifiers
-    } else if (token->type == TokenType::ID) { // struct or array
+    } else if (token->type == TokenType::ID) { /// struct or array
       // TODO: identify type aliases
       _type_name = token->value; /// _type_name is the name of the struct
       _ty = TY_OR(_ty, Ty::STRUCT);

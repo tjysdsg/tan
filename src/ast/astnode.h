@@ -78,8 +78,6 @@ extern std::unordered_map<ASTType, int> op_precedence;
 
 class ASTNode {
 public:
-  template<typename T> friend class ASTFactory;
-
   friend class Parser;
 
 public:
@@ -101,6 +99,20 @@ public:
   virtual Value *codegen(CompilerSession *compiler_session);
   virtual std::string to_string(bool print_prefix = true) const;
 
+  virtual bool is_typed() const { return false; }
+
+  virtual bool is_named() const { return false; }
+
+  virtual bool is_lvalue() const { return false; };
+
+  virtual std::string get_name() const { return ""; };
+
+  virtual std::string get_type_name() const { return ""; };
+
+  virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
+
+  virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
+
 protected:
   [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
   [[nodiscard]] virtual size_t nud(Parser *parser);
@@ -115,7 +127,7 @@ protected:
 };
 
 /// dummy, all literal types inherit from this class
-class ASTLiteral : public ASTNode, public Valued, public Typed {
+class ASTLiteral : public ASTNode {
 public:
   ASTLiteral() = delete;
 
@@ -123,10 +135,15 @@ public:
   ) {}
 
   virtual Ty get_ty() const;
+
+  /// literals are always rvalue
+  bool is_lvalue() const override { return false; }
+
 };
 
 class ASTInfixBinaryOp : public ASTNode {
 public:
+  ASTInfixBinaryOp() = delete;
   ASTInfixBinaryOp(Token *token, size_t token_index);
 protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
@@ -134,6 +151,7 @@ protected:
 
 class ASTPrefix : public ASTNode {
 public:
+  ASTPrefix() = delete;
   ASTPrefix(Token *token, size_t token_index);
 protected:
   size_t nud(Parser *parser) override;
@@ -141,18 +159,21 @@ protected:
 
 class ASTReturn final : public ASTPrefix {
 public:
+  ASTReturn() = delete;
   ASTReturn(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTBinaryNot final : public ASTPrefix {
 public:
+  ASTBinaryNot() = delete;
   ASTBinaryNot(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
 class ASTLogicalNot final : public ASTPrefix {
 public:
+  ASTLogicalNot() = delete;
   ASTLogicalNot(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 };
@@ -166,6 +187,7 @@ public:
 
 class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
+  ASTArithmetic() = delete;
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 protected:

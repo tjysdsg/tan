@@ -4,8 +4,9 @@ fn main(argc: int, argv: char**) : int {
     var a: i32 = 0;
     var b: i32 = 1;
     var shit: i32 = !(a == b);
-    // var shit: i32 = !(1 == 0); // TODO: implicit type conversion
     assert(shit);
-    assert(0);
+    assert(1);
+    assert(__FILE__);
+    assert(__LINE__);
     return 0;
 }

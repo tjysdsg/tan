@@ -14,14 +14,22 @@ public:
     _name = token->value;
   }
 
+  bool is_named() const override { return true; }
+
   Value *codegen(CompilerSession *compiler_session) override;
+
   std::string get_name() const;
   std::string to_string(bool print_prefix = true) const override;
+
+  llvm::Value *get_llvm_value(CompilerSession *) const override { return _llvm_value; };
+
+  bool is_lvalue() const override { return true; }
 
 protected:
   size_t nud(Parser *parser) override;
 private:
   std::string _name{};
+  llvm::Value *_llvm_value = nullptr;
 };
 
 }

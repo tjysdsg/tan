@@ -9,7 +9,10 @@ size_t ASTArgDecl::nud(Parser *parser) {
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// name
   parser->peek(_end_index, TokenType::PUNCTUATION, ":");
   ++_end_index;
-  _children.push_back(parser->parse<ASTType::TY>(_end_index, true)); /// type
+  /// type
+  auto ty = parser->parse<ASTType::TY>(_end_index, true);
+  ast_cast<ASTTy>(ty)->set_is_lvalue(true);
+  _children.push_back(ty);
   return _end_index;
 }
 
@@ -18,7 +21,10 @@ size_t ASTVarDecl::nud(Parser *parser) {
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// name
   parser->peek(_end_index, TokenType::PUNCTUATION, ":"); // TODO: type inference
   ++_end_index;
-  _children.push_back(parser->parse<ASTType::TY>(_end_index, true)); /// type
+  /// type
+  auto ty = parser->parse<ASTType::TY>(_end_index, true);
+  ast_cast<ASTTy>(ty)->set_is_lvalue(true);
+  _children.push_back(ty);
   return _end_index;
 }
 

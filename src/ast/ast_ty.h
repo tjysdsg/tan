@@ -22,6 +22,7 @@ enum class Ty : uint64_t {
   INT,
   FLOAT,
   DOUBLE,
+  BOOL,
   STRING,
   FUNC_PTR, // TODO: function ptr
   STRUCT,   // struct (or class)
@@ -45,13 +46,19 @@ enum class Ty : uint64_t {
  * - set _type_name in ASTTy::nud()
  * - set _llvm_type in ASTTy::codegen()
  */
-class ASTTy final : public ASTNode, public Typed {
+class ASTTy final : public ASTNode {
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
+
+  bool is_typed() const override { return true; }
+
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
+  llvm::Value *convert_to(CompilerSession *compiler_session, std::shared_ptr<ASTTy> dest_ty, llvm::Value *orig_val);
+
+  void set_is_lvalue(bool heaped) { _is_lvalue = heaped; }
 
 protected:
   size_t nud(Parser *parser) override;
@@ -62,6 +69,7 @@ private:
   std::string _type_name{};
   Ty _ty = Ty::INVALID;
   size_t _n_elements = 0;
+  bool _is_lvalue = false;
 };
 
 } // namespace tanlang

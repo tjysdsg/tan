@@ -83,7 +83,7 @@ size_t ASTStringLiteral::nud(Parser *parser) {
 
 size_t ASTPrefix::nud(Parser *parser) {
   _end_index = _start_index + 1; /// skip self
-  _children.emplace_back(parser->next_expression(_end_index, _lbp));
+  _children.push_back(parser->next_expression(_end_index, _lbp));
   return _end_index;
 }
 

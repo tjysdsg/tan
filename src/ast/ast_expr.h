@@ -27,13 +27,11 @@ public:
   ASTArgDecl() = delete;
 
   ASTArgDecl(Token *token, size_t token_index) : ASTNode(ASTType::ARG_DECL, 0, 0, token, token_index) {};
-  Value *codegen(CompilerSession *compiler_session) override;
 protected:
   size_t nud(Parser *parser) override;
 };
 
-class ASTVarDecl final
-    : public ASTNode, public std::enable_shared_from_this<ASTVarDecl>, public Named, public Typed, public Valued {
+class ASTVarDecl final : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
 public:
   friend class ASTAssignment;
 
@@ -43,16 +41,19 @@ public:
 
   ASTVarDecl(Token *token, size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, token, token_index) {};
 
-  /**
-   * \attention UNUSED
-   * \internal
-   * */
   Value *codegen(CompilerSession *compiler_session) override;
+
+  bool is_typed() const override { return true; }
+
+  bool is_named() const override { return true; }
 
   std::string get_name() const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
+
+  /// variables are always lvalue
+  bool is_lvalue() const override { return true; }
 
 protected:
   size_t nud(Parser *parser) override;

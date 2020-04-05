@@ -72,8 +72,8 @@ llvm::Type *ASTArrayLiteral::get_gep_base_type(CompilerSession *compiler_session
     auto sub = ast_cast<ASTArrayLiteral>(_children[0]);
     return llvm::ArrayType::get(sub->get_element_llvm_type(compiler_session), sub->get_n_elements());
   } else {
-    auto sub = ast_cast<Typed>(_children[0]);
-    return sub->to_llvm_type(compiler_session);
+    assert(_children[0]->is_typed());
+    return _children[0]->to_llvm_type(compiler_session);
   }
 }
 

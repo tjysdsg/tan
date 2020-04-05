@@ -10,23 +10,11 @@ class Value;
 
 namespace tanlang {
 
-class CompilerSession;
-
-class Named {
-public:
-  virtual std::string get_name() const = 0;
-};
-
-class Typed {
-public:
-  virtual std::string get_type_name() const = 0;
-  virtual llvm::Type *to_llvm_type(CompilerSession *) const = 0;
-};
-
-class Valued {
-public:
-  virtual llvm::Value *get_llvm_value(CompilerSession *) const = 0;
-};
+// virtual std::string get_name() const = 0;
+// virtual std::string get_type_name() const = 0;
+// virtual llvm::Type *to_llvm_type(CompilerSession *) const = 0;
+// virtual llvm::Value *get_llvm_value(CompilerSession *) const = 0;
+// virtual bool is_lvalue() const = 0;
 
 } // namespace tanlang
 

@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "src/llvm_include.h"
 #include "token.h"
+#include "src/ast/common.h"
 
 namespace tanlang {
 
@@ -18,15 +19,11 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   }
 
   /// get function name
-  std::shared_ptr<ASTIdentifier> fname = std::reinterpret_pointer_cast<ASTIdentifier>(_children[1]);
+  std::shared_ptr<ASTIdentifier> fname = ast_cast<ASTIdentifier>(_children[1]);
   std::string func_name = fname->get_name();
 
   /// create function
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-  // if main function and jit enabled, rename 'main' to '__tan_main' to avoid calling recursive main function of current process
-  if (func_name == "main" && compiler_session->is_jit_enabled()) {
-    func_name = "__tan_main";
-  }
   // FIXME: external linkage
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
   F->setCallingConv(llvm::CallingConv::C);
@@ -35,7 +32,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   auto args = F->args().begin();
   for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
     std::shared_ptr<ASTIdentifier> arg_name = ast_cast<ASTIdentifier>(_children[i]->_children[0]);
-    (args + j)->setName(arg_name->get_name());
+    /// rename this since the real function argument is stored as variables
+    (args + j)->setName("_" + arg_name->get_name());
   }
 
   /// function implementation
@@ -44,17 +42,20 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", F);
     compiler_session->get_builder()->SetInsertPoint(main_block);
     compiler_session->set_code_block(main_block); // set current scope's code block
-  }
 
-  /// add all function arguments to scope
-  for (auto &a : F->args()) {
-    auto arg = std::make_shared<ASTVarDecl>(nullptr, 0);
-    arg->_llvm_value = &a;
-    compiler_session->add(a.getName(), arg);
-  }
+    /// add all function arguments to scope
+    for (auto &a : F->args()) {
+      auto arg = std::make_shared<ASTVarDecl>(nullptr, 0);
+      std::string arg_real_name = a.getName();
+      arg_real_name = arg_real_name.substr(1); /// remove the beginning '_'
+      Value
+          *arg_val = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), a.getType(), arg_real_name);
+      compiler_session->get_builder()->CreateStore(&a, arg_val);
+      arg->_llvm_value = arg_val;
+      compiler_session->add(arg_real_name, arg);
+    }
 
-  /// generate function body
-  if (!_is_external) {
+    /// generate function body
     _children[_children.size() - 1]->codegen(compiler_session);
   }
 
@@ -64,29 +65,29 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   /// validate the generated code, checking for consistency
   verifyFunction(*F);
-  compiler_session->pop_scope(); // pop scope
+  compiler_session->pop_scope(); /// pop scope
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); // restore parent code block
   return nullptr;
 }
 
 Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
-  // Look up the name in the global module table.
+  /// look up the function name in the global module table
   Function *func = compiler_session->get_module()->getFunction(_name);
   if (!func) {
     throw std::runtime_error("Unknown function call: " + _name);
   }
 
   size_t n_args = _children.size();
-  // If argument mismatch error
+  /// argument mismatch
   if (func->arg_size() != n_args) {
     throw std::runtime_error("Invalid number of arguments: " + std::to_string(n_args));
   }
 
-  // push args
+  /// push args
   std::vector<Value *> args_value;
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(compiler_session);
-    if (a->getType()->isPointerTy()) {
+    if (_children[i]->is_lvalue()) {
       a = compiler_session->get_builder()->CreateLoad(a);
     }
     args_value.push_back(a);

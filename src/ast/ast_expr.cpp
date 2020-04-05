@@ -59,18 +59,21 @@ Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
 
 Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
   auto *rhs = _children[0]->codegen(compiler_session);
-  if (!rhs) { assert(false); }
+  if (_children[0]->is_lvalue()) {
+    rhs = compiler_session->get_builder()->CreateLoad(rhs);
+  }
   return compiler_session->get_builder()->CreateNot(rhs);
 }
 
 Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
   auto *rhs = _children[0]->codegen(compiler_session);
-  assert(rhs);
-  // get value size in bits
-  llvm::DataLayout data_layout(compiler_session->get_module().get());
-  auto size_in_bits = data_layout.getTypeSizeInBits(rhs->getType());
-  Value *z = ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) size_in_bits), 0, false);
-  return compiler_session->get_builder()->CreateICmpNE(z, rhs);
+  if (_children[0]->is_lvalue()) {
+    rhs = compiler_session->get_builder()->CreateLoad(rhs);
+  }
+  /// get value size in bits
+  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
+  Value *z = ConstantInt::get(compiler_session->get_builder()->getIntNTy(size_in_bits), 0, false);
+  return compiler_session->get_builder()->CreateICmpEQ(z, rhs);
 }
 
 ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
@@ -87,22 +90,16 @@ ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfi
 Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
-  if (!lhs || !rhs) {
-    assert(false);
-    return nullptr;
+  assert(lhs && rhs);
+  if (_children[0]->is_lvalue()) {
+    lhs = compiler_session->get_builder()->CreateLoad(lhs);
+  }
+  if (_children[1]->is_lvalue()) {
+    rhs = compiler_session->get_builder()->CreateLoad(rhs);
   }
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  if (ltype->isPointerTy()) {
-    lhs = compiler_session->get_builder()->CreateLoad(lhs);
-    ltype = lhs->getType();
-  }
-  if (rtype->isPointerTy()) {
-    rhs = compiler_session->get_builder()->CreateLoad(rhs);
-    rtype = rhs->getType();
-  }
-
   Type *float_type = compiler_session->get_builder()->getFloatTy();
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
@@ -144,14 +141,15 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   assert(lhs && rhs);
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = compiler_session->get_builder()->getFloatTy();
 
-  if (ltype->isPointerTy()) {
-    lhs = compiler_session->get_builder()->CreateLoad(float_type, lhs);
+  if (_children[0]->is_lvalue()) {
+    lhs = compiler_session->get_builder()->CreateLoad(lhs);
   }
-  if (rtype->isPointerTy()) {
-    rhs = compiler_session->get_builder()->CreateLoad(float_type, rhs);
+  if (_children[1]->is_lvalue()) {
+    rhs = compiler_session->get_builder()->CreateLoad(rhs);
   }
+
+  Type *float_type = compiler_session->get_builder()->getFloatTy();
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {
       lhs = compiler_session->get_builder()->CreateSIToFP(lhs, float_type);
@@ -171,7 +169,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
     }
   }
 
-  // integer arithmetic
+  /// integer arithmetic
   if (_type == ASTType::MULTIPLY) {
     return compiler_session->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
   } else if (_type == ASTType::DIVIDE) {
@@ -185,30 +183,29 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
-  // codegen the rhs
+  /// codegen the rhs
+  auto lhs = _children[0];
   auto rhs = _children[1];
   Value *from = rhs->codegen(compiler_session);
-  Value *to = _children[0]->codegen(compiler_session);
-  if (!to) {
-    report_code_error(_children[0]->_token, "Invalid left-hand operand of the assignment");
-  }
-  /// don't load if rhs is literal
-  if (from->getType()->isPointerTy()
-      && !is_ast_type_in(rhs->_type, {ASTType::NUM_LITERAL, ASTType::ARRAY_LITERAL, ASTType::STRING_LITERAL})) {
+  Value *to = lhs->codegen(compiler_session);
+
+  if (rhs->is_lvalue()) {
     from = compiler_session->get_builder()->CreateLoad(from);
+  }
+
+  if (!lhs->is_lvalue()) {
+    report_code_error(lhs->_token, "Value can only be assigned to lvalue");
+  }
+
+  if (!to) {
+    report_code_error(lhs->_token, "Invalid left-hand operand of the assignment");
   }
   if (!from) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
-  // TODO: check type
   // TODO: implicit type conversion
   compiler_session->get_builder()->CreateStore(from, to);
   return to;
-}
-
-Value *ASTArgDecl::codegen(CompilerSession *compiler_session) {
-  UNUSED(compiler_session);
-  assert(false);
 }
 
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)

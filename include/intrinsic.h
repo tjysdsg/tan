@@ -46,9 +46,15 @@ public:
   [[nodiscard]] virtual size_t parse(Parser *parser);
   virtual llvm::Value *codegen(CompilerSession *compiler_session);
 
+  llvm::Value *get_llvm_value(CompilerSession *) const override { return _llvm_value; }
+
+  /// intrinsics are always rvalue
+  bool is_lvalue() const override { return false; }
+
 protected:
   IntrinsicType _intrinsic_type;
   std::shared_ptr<ASTNode> _underlying_ast = nullptr;
+  llvm::Value *_llvm_value = nullptr;
 };
 
 } // namespace tanlang

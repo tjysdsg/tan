@@ -25,7 +25,8 @@ void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
 }
 
 llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
-  return _underlying_ast->codegen(compiler_session);
+  _llvm_value = _underlying_ast->codegen(compiler_session);
+  return _llvm_value;
 }
 
 Intrinsic::Intrinsic(std::string filename, Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC,
