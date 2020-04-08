@@ -33,6 +33,8 @@ public:
 
   [[nodiscard]] Token *at(const size_t idx) const;
 
+  [[nodiscard]] std::string get_filename() const { return _filename; }
+
 public:
   std::shared_ptr<ASTNode> _root{};
 

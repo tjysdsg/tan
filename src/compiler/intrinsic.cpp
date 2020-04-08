@@ -25,47 +25,66 @@ void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
 }
 
 llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
-  _llvm_value = _children[0]->codegen(compiler_session);
+  std::shared_ptr<ASTNode> tmp = nullptr;
+  switch (_intrinsic_type) {
+    case IntrinsicType::FILENAME:
+      tmp = std::make_shared<ASTStringLiteral>(_parser->get_filename(), _start_index);
+      _llvm_value = tmp->codegen(compiler_session);
+      break;
+    case IntrinsicType::LINENO:
+      tmp = std::make_shared<ASTNumberLiteral>(_token->l, _start_index);
+      _llvm_value = tmp->codegen(compiler_session);
+      break;
+    default:
+      assert(_children.size());
+      _llvm_value = _children[0]->codegen(compiler_session);
+      break;
+  }
   return _llvm_value;
 }
 
-Intrinsic::Intrinsic(std::string filename, Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC,
-                                                                                       0,
-                                                                                       0,
-                                                                                       token,
-                                                                                       token_index
+Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index
 ) {
   _intrinsic_type = Intrinsic::intrinsics[token->value];
   std::shared_ptr<ASTNode> underlying_ast = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::ASSERT:
-      underlying_ast = std::make_shared<ASTFunctionCall>(token, token_index);
-      break;
     case IntrinsicType::NOOP:
       underlying_ast = std::make_shared<ASTFunctionCall>(token, token_index);
       break;
     case IntrinsicType::LINENO:
-      underlying_ast = std::make_shared<ASTNumberLiteral>(token->l + 1, token_index); /// token->l starts at 0
       break;
     case IntrinsicType::FILENAME:
-      underlying_ast = std::make_shared<ASTStringLiteral>(filename, token_index);
       break;
       // TODO: other intrinsics
     default:
       report_code_error(token, "Unknown intrinsic");
   }
-  _lbp = underlying_ast->_lbp;
-  _rbp = underlying_ast->_rbp;
-  _children.push_back(underlying_ast);
+  if (underlying_ast) {
+    _lbp = underlying_ast->_lbp;
+    _rbp = underlying_ast->_rbp;
+    _children.push_back(underlying_ast);
+  }
 }
 
 size_t Intrinsic::parse(Parser *parser) {
-  return _children[0]->parse(parser);
+  _parser = parser;
+  if (_children.size() >= 1) {
+    _end_index = _children[0]->parse(parser);
+  } else {
+    _end_index = _start_index + 1;
+  }
+  return _end_index;
 }
 
 size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
-  assert(_children.size() >= 1);
-  return _children[0]->parse(left, parser);
+  _parser = parser;
+  if (_children.size() >= 1) {
+    _end_index = _children[0]->parse(left, parser);
+  } else {
+    _end_index = _start_index + 1;
+  }
+  return _end_index;
 }
 
 llvm::Function *Intrinsic::GetIntrinsic(IntrinsicType type, CompilerSession *compiler_session) {
@@ -90,7 +109,9 @@ std::string Intrinsic::to_string(bool print_prefix) const {
   if (print_prefix) {
     ret = ASTNode::to_string(print_prefix) + " ";
   }
-  ret += _children[0]->to_string(false);
+  if (_children.size() != 0) {
+    ret += _children[0]->to_string(false);
+  }
   return ret;
 }
 
