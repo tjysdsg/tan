@@ -94,11 +94,12 @@ size_t ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) 
   return _end_index;
 }
 
+/// special case for parsing negative number
 size_t ASTArithmetic::nud(Parser *parser) {
-  _end_index = _start_index + 1; /// skip "-"
-  auto lhs = std::make_shared<ASTNumberLiteral>("0", false, nullptr, _start_index);
-  _children.push_back(lhs);
-  _children.push_back(parser->next_expression(_end_index, 0));
+  _end_index = _start_index + 1; /// skip "-" or "+"
+  /// unary plus/minus has higher precedence than infix plus/minus
+  _rbp = PREC_UNARY;
+  _children.push_back(parser->next_expression(_end_index, PREC_UNARY));
   return _end_index;
 }
 

@@ -185,15 +185,6 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-class ASTArithmetic final : public ASTInfixBinaryOp {
-public:
-  ASTArithmetic() = delete;
-  ASTArithmetic(ASTType type, Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-protected:
-  size_t nud(Parser *parser) override; /// for parsing negative number
-};
-
 template<typename T>
 std::shared_ptr<T> ast_cast(std::shared_ptr<ASTNode> node) { return std::reinterpret_pointer_cast<T>(node); }
 

@@ -44,6 +44,7 @@ public:
   virtual ~Intrinsic() = default;
   [[nodiscard]] virtual size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser);
   [[nodiscard]] virtual size_t parse(Parser *parser);
+  std::string to_string(bool print_prefix = true) const override;
   virtual llvm::Value *codegen(CompilerSession *compiler_session);
 
   llvm::Value *get_llvm_value(CompilerSession *) const override { return _llvm_value; }
@@ -53,7 +54,6 @@ public:
 
 protected:
   IntrinsicType _intrinsic_type;
-  std::shared_ptr<ASTNode> _underlying_ast = nullptr;
   llvm::Value *_llvm_value = nullptr;
 };
 

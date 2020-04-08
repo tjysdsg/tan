@@ -122,6 +122,15 @@ protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
 };
 
+class ASTArithmetic final : public ASTInfixBinaryOp {
+public:
+  ASTArithmetic() = delete;
+  ASTArithmetic(ASTType type, Token *token, size_t token_index);
+  Value *codegen(CompilerSession *compiler_session) override;
+protected:
+  size_t nud(Parser *parser) override; ///< special case for parsing unary plus and minus
+};
+
 } // namespace tanlang
 
 #endif //TAN_SRC_AST_AST_EXPR_H_

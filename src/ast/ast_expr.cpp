@@ -136,6 +136,20 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
+  if (_children.size() == 1) { /// unary plus/minus
+    if (!is_ast_type_in(_type, {ASTType::SUM, ASTType::SUBTRACT})) {
+      report_code_error(_token, "Invalid unary operation");
+    }
+    if (_type == ASTType::SUM) {
+      return _children[0]->codegen(compiler_session);
+    } else {
+      auto *rhs = _children[0]->codegen(compiler_session);
+      if (rhs->getType()->isFloatingPointTy()) {
+        return compiler_session->get_builder()->CreateFNeg(rhs);
+      }
+      return compiler_session->get_builder()->CreateNeg(rhs);
+    }
+  }
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
   assert(lhs && rhs);
@@ -173,7 +187,8 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   if (_type == ASTType::MULTIPLY) {
     return compiler_session->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
   } else if (_type == ASTType::DIVIDE) {
-    return compiler_session->get_builder()->CreateUDiv(lhs, rhs, "div_tmp");
+    // TODO: check if value is unsigned
+    return compiler_session->get_builder()->CreateSDiv(lhs, rhs, "div_tmp");
   } else if (_type == ASTType::SUM) {
     return compiler_session->get_builder()->CreateAdd(lhs, rhs, "sum_tmp");
   } else if (_type == ASTType::SUBTRACT) {

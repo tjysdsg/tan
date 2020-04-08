@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_ty.h"
+#include "ast_expr.h"
 
 namespace tanlang {
 
