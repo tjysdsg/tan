@@ -1,23 +1,33 @@
+fn assert(a: u32) : void;
+
 fn sign(a: int) : int {
-    var ret: int;
     if (a > 0) {
-        ret = 1;
+        return 1;
     } else if (a < 0) {
-        ret = -1;
+        return -1;
     } else {
-        ret = 0;
+        return 0;
     }
-    return ret; // TODO: fix return inside if else
+    return 0; // TODO: add default return in at the end of the function definition
+}
+
+fn else_if(c: i32) : i32 {
+    if (c == 0) {
+        return 0;
+    } else if (c == 1) {
+        return 1;
+    } else {
+        return 2;
+    }
+    return -100;
 }
 
 fn main(argc: int, argv: char**) : int {
-    var a: int = 100;
-    var b: int = argc;
-    var ret: int;
-    if (b > 1) {
-        ret = sign(a);
+    if (argc > 0) {
+        assert(1);
     } else {
-        ret = 0;
+        assert(0);
     }
-    return ret;
+    assert(else_if(1) == 1);
+    return 0;
 }
