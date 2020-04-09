@@ -2,10 +2,11 @@
 mkdir -p build
 pushd build
 cmake .. || exit 1
-if make -j8;
-then
-    pushd ../src/test
-    ../../build/tan_tests
-    popd
-fi
+make -j8 || exit 1
+popd
+
+./scripts/tanc_test.sh || exit 1
+
+pushd src/test
+../../bin/tan_tests || exit 1
 popd
