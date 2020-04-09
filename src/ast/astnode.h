@@ -12,13 +12,12 @@ class CompilerSession;
 class Parser;
 
 enum PrecedenceLevel {
-  PREC_LOWEST = 0, //
+  PREC_LOWEST = 0,        //
   PREC_LITERAL = 10,      // "string" 1.0 2
   PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
   PREC_LOGICAL_OR = 110,  // ||
   PREC_LOGICAL_AND = 120, // &&
   PREC_COMPARISON = 130,  // < <= > >= == != === !== ~=
-  PREC_ISA = 132,         // isa
   PREC_RANGE = 135,       // ..< ...
   PREC_TERM = 140,        // + - | ^
   PREC_FACTOR = 150,      // * / % &
@@ -53,14 +52,14 @@ enum class ASTType {
 
   ID, // identifiers
 
-  /// types in tan
-
   TY, // type name
   PARENTHESIS, // ( )
 
   RET,  // return
   IF,   // if
   ELSE, // else
+
+  /// types in tan
 
   NUM_LITERAL,    // int or float literal
   STRING_LITERAL, // "xxx"
@@ -71,8 +70,9 @@ enum class ASTType {
   INVALID,
 };
 
+/// get string representation of ASTType
 extern std::unordered_map<ASTType, std::string> ast_type_names;
-// operator precedence for each token
+/// operator precedence for tokens
 extern std::unordered_map<ASTType, int> op_precedence;
 
 class ASTNode {
