@@ -30,6 +30,10 @@ enum class IntrinsicType {
 
   MIN_OF, MAX_OF, IS_SIGNED,
 
+  // others
+
+  GET_DECL,
+
 };
 
 class Intrinsic : public ASTNode {
@@ -54,10 +58,12 @@ public:
 
 protected:
   void determine_type();
+  void parse_get_decl();
 
 protected:
   IntrinsicType _intrinsic_type;
   llvm::Value *_llvm_value = nullptr;
+  std::string _str_data = "";
 };
 
 } // namespace tanlang

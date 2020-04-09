@@ -13,7 +13,7 @@ std::unordered_map<std::string, IntrinsicType>
      {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA},
      {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
      {"is_signed", IntrinsicType::IS_SIGNED}, {"unlikely", IntrinsicType::UNLIKELY}, {"likely", IntrinsicType::LIKELY},
-     {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP}};
+     {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP}, {"get_decl", IntrinsicType::GET_DECL}};
 
 static llvm::Value *init_noop(CompilerSession *compiler_session);
 static llvm::Value *init_assert(CompilerSession *compiler_session);
@@ -35,6 +35,10 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
       tmp = std::make_shared<ASTNumberLiteral>(_token->l, _start_index);
       _llvm_value = tmp->codegen(compiler_session);
       break;
+    case IntrinsicType::GET_DECL:
+      tmp = std::make_shared<ASTStringLiteral>(compiler_session->get(_str_data)->get_src(), _start_index);
+      _llvm_value = tmp->codegen(compiler_session);
+      break;
     default:
       assert(_children.size());
       _llvm_value = _children[0]->codegen(compiler_session);
@@ -46,6 +50,19 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
 Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index
 ) {
   _start_index = token_index + 1; /// skip "@"
+}
+
+void Intrinsic::parse_get_decl() {
+  ++_start_index; /// skip self
+  _parser->peek(_start_index, TokenType::PUNCTUATION, "(");
+  ++_start_index;
+  auto input = _parser->next_expression(_start_index);
+  if (input->_type != ASTType::ID) {
+    report_code_error(_token, "Invalid call of @get_decl");
+  }
+  _str_data = ast_cast<ASTIdentifier>(input)->get_name();
+  _parser->peek(_start_index, TokenType::PUNCTUATION, ")");
+  ++_start_index;
 }
 
 void Intrinsic::determine_type() {
@@ -62,6 +79,9 @@ void Intrinsic::determine_type() {
       break;
     case IntrinsicType::LINENO:
     case IntrinsicType::FILENAME:
+      break;
+    case IntrinsicType::GET_DECL:
+      parse_get_decl();
       break;
       // TODO: other intrinsics
     default:

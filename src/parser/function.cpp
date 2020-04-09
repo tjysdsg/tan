@@ -45,7 +45,7 @@ size_t ASTFunctionCall::nud(Parser *parser) {
   _end_index = _start_index + 1; /// skip function name
   auto *token = parser->at(_end_index);
   if (token->value != "(") {
-    report_code_error(const_cast<Token *>(token), "Invalid function call");
+    report_code_error(token, "Invalid function call");
   }
   ++_end_index;
   while (!parser->eof(_end_index)) {

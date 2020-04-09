@@ -31,9 +31,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// set argument names
   auto args = F->args().begin();
   for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
-    std::shared_ptr<ASTIdentifier> arg_name = ast_cast<ASTIdentifier>(_children[i]->_children[0]);
     /// rename this since the real function argument is stored as variables
-    (args + j)->setName("_" + arg_name->get_name());
+    (args + j)->setName("_" + _children[i]->get_name());
   }
 
   /// function implementation
@@ -44,15 +43,14 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     compiler_session->set_code_block(main_block); // set current scope's code block
 
     /// add all function arguments to scope
+    size_t i = 2;
     for (auto &a : F->args()) {
-      auto arg = std::make_shared<ASTVarDecl>(nullptr, 0);
-      std::string arg_real_name = a.getName();
-      arg_real_name = arg_real_name.substr(1); /// remove the beginning '_'
-      Value
-          *arg_val = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), a.getType(), arg_real_name);
+      auto arg_name = _children[i]->get_name();
+      Value *arg_val = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), a.getType(), arg_name);
       compiler_session->get_builder()->CreateStore(&a, arg_val);
-      arg->_llvm_value = arg_val;
-      compiler_session->add(arg_real_name, arg);
+      ast_cast<ASTVarDecl>(_children[i])->_llvm_value = arg_val;
+      compiler_session->add(arg_name, _children[i]);
+      ++i;
     }
 
     /// generate function body

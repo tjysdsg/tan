@@ -8,5 +8,6 @@ fn main(argc: int, argv: char**) : int {
     @assert(1);
     @assert(@file);
     @assert(@line);
+    var argc_decl: str = @get_decl(argc);
     return 0;
 }

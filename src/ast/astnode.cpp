@@ -36,6 +36,17 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
 
 Ty ASTLiteral::get_ty() const { return Ty::INVALID; }
 
+std::string ASTNode::get_src() const {
+  std::string ret = "";
+  for (size_t i = _start_index; i < _end_index; ++i) {
+    ret += _parser->at(i)->value;
+    if (i < _end_index - 1) {
+      ret += " ";
+    }
+  }
+  return ret;
+}
+
 // =================== cdtors =========================//
 ASTReturn::ASTReturn(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   _type = ASTType::RET;

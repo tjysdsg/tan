@@ -22,16 +22,7 @@ protected:
   size_t nud(Parser *parser) override;
 };
 
-class ASTArgDecl final : public ASTNode {
-public:
-  ASTArgDecl() = delete;
-
-  ASTArgDecl(Token *token, size_t token_index) : ASTNode(ASTType::ARG_DECL, 0, 0, token, token_index) {};
-protected:
-  size_t nud(Parser *parser) override;
-};
-
-class ASTVarDecl final : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
+class ASTVarDecl : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
 public:
   friend class ASTAssignment;
 
@@ -59,9 +50,20 @@ protected:
   size_t nud(Parser *parser) override;
 public:
   bool _has_initial_val = false;
-private:
+protected:
   Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
+};
+
+class ASTArgDecl final : public ASTVarDecl {
+public:
+  ASTArgDecl() = delete;
+
+  ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, token_index) {
+    _type = ASTType::ARG_DECL;
+  };
+protected:
+  size_t nud(Parser *parser) override;
 };
 
 class ASTNumberLiteral final : public ASTLiteral {

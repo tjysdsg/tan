@@ -113,6 +113,11 @@ public:
 
   virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
 
+  /**
+   * \brief Get original source for a AST node.
+   * */
+  std::string get_src() const;
+
 protected:
   [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
   [[nodiscard]] virtual size_t nud(Parser *parser);
