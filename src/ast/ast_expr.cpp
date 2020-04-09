@@ -153,9 +153,6 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
   assert(lhs && rhs);
-  Type *ltype = lhs->getType();
-  Type *rtype = rhs->getType();
-
   if (_children[0]->is_lvalue()) {
     lhs = compiler_session->get_builder()->CreateLoad(lhs);
   }
@@ -163,6 +160,8 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
     rhs = compiler_session->get_builder()->CreateLoad(rhs);
   }
 
+  Type *ltype = lhs->getType();
+  Type *rtype = rhs->getType();
   Type *float_type = compiler_session->get_builder()->getFloatTy();
   if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
     if (ltype->isIntegerTy()) {

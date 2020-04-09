@@ -15,6 +15,8 @@ public:
                                                               token_index
   ) {};
   Value *codegen(CompilerSession *compiler_session) override;
+
+  virtual bool is_lvalue() const { return true; };
 protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
 
