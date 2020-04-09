@@ -48,8 +48,8 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
   _start_index = token_index + 1; /// skip "@"
 }
 
-void Intrinsic::determine_type(Parser *parser) {
-  auto *token = parser->at(_start_index);
+void Intrinsic::determine_type() {
+  auto *token = _parser->at(_start_index);
   if (Intrinsic::intrinsics.find(token->value) == Intrinsic::intrinsics.end()) {
     report_code_error(_token, "Invalid intrinsic");
   }
@@ -75,8 +75,8 @@ void Intrinsic::determine_type(Parser *parser) {
 }
 
 size_t Intrinsic::parse(Parser *parser) {
-  determine_type(parser);
   _parser = parser;
+  determine_type();
   if (_children.size() >= 1) {
     assert(_children.size() == 1);
     _end_index = _children[0]->parse(parser);
@@ -87,8 +87,8 @@ size_t Intrinsic::parse(Parser *parser) {
 }
 
 size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
-  determine_type(parser);
   _parser = parser;
+  determine_type();
   if (_children.size() >= 1) {
     _end_index = _children[0]->parse(left, parser);
   } else {

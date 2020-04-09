@@ -124,6 +124,7 @@ protected:
   bool _parsed = false;
   size_t _start_index = 0;
   size_t _end_index = 0;
+  Parser *_parser = nullptr;
 };
 
 /// dummy, all literal types inherit from this class

@@ -74,11 +74,17 @@ ASTArithmetic::ASTArithmetic(ASTType type, Token *token, size_t token_index) : A
 }
 
 size_t ASTNode::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
-  return this->led(left, parser);
+  _parser = parser;
+  auto ret = this->led(left, parser);
+  _parsed = true;
+  return ret;
 }
 
 size_t ASTNode::parse(Parser *parser) {
-  return this->nud(parser);
+  _parser = parser;
+  auto ret = this->nud(parser);
+  _parsed = true;
+  return ret;
 }
 
 size_t ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
