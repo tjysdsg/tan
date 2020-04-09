@@ -1,6 +1,5 @@
 #include "src/ast/ast_control_flow.h"
 #include "parser.h"
-#include "token.h"
 #include "intrinsic.h"
 
 namespace tanlang {
@@ -52,6 +51,8 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   /// emit merge block
   func->getBasicBlockList().push_back(merge_bb);
   compiler_session->get_builder()->SetInsertPoint(merge_bb);
+  /// insert noop in case empty statement
+  compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
   return nullptr;
 }
 

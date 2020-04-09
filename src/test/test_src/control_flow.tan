@@ -8,7 +8,6 @@ fn sign(a: int) : int {
     } else {
         return 0;
     }
-    return 0; // TODO: add default return in at the end of the function definition
 }
 
 fn else_if(c: i32) : i32 {

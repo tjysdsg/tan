@@ -40,7 +40,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   if (!_is_external) {
     BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", F);
     compiler_session->get_builder()->SetInsertPoint(main_block);
-    compiler_session->set_code_block(main_block); // set current scope's code block
+    compiler_session->set_code_block(main_block); /// set current scope's code block
 
     /// add all function arguments to scope
     size_t i = 2;
@@ -55,16 +55,17 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
     /// generate function body
     _children[_children.size() - 1]->codegen(compiler_session);
-  }
 
-  if (ret_type->isVoidTy()) {
-    compiler_session->get_builder()->CreateRetVoid();
+    /// create a return instruction if there is none
+    if (!(main_block->back().getOpcode() & llvm::Instruction::Ret)) {
+      compiler_session->get_builder()->CreateRetVoid();
+    }
   }
 
   /// validate the generated code, checking for consistency
   verifyFunction(*F);
+  compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); /// restore parent code block
   compiler_session->pop_scope(); /// pop scope
-  compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); // restore parent code block
   return nullptr;
 }
 
