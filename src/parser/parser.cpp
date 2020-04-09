@@ -42,7 +42,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
     token = _tokens[index];
   }
   std::shared_ptr<ASTNode> node;
-  if (Intrinsic::intrinsics.find(token->value) != Intrinsic::intrinsics.end()) { /// intrinsics
+  if (token->value == "@") { /// intrinsics
     node = std::make_shared<Intrinsic>(token, index);
   } else if (token->value == "+" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTArithmetic>(ASTType::SUM, token, index);

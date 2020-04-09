@@ -4,9 +4,9 @@ fn main(argc: int, argv: char**) : int {
     var a: i32 = 0;
     var b: i32 = 1;
     var shit: i32 = !(a == b);
-    assert(shit);
-    assert(1);
-    assert(__FILE__);
-    assert(__LINE__);
+    @assert(shit);
+    @assert(1);
+    @assert(@file);
+    @assert(@line);
     return 0;
 }

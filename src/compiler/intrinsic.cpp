@@ -9,11 +9,11 @@ std::unordered_map<std::string, IntrinsicType>
     {{"assert", IntrinsicType::ASSERT}, {"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM},
      {"swap", IntrinsicType::SWAP}, {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY},
      {"range", IntrinsicType::RANGE}, {"cast", IntrinsicType::CAST}, {"compile_print", IntrinsicType::COMP_PRINT},
-     {"__FILE__", IntrinsicType::FILENAME}, {"__LINE__", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE},
+     {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE},
      {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA},
      {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
-     {"is_signed", IntrinsicType::IS_SIGNED}, {"__UNLIKELY__", IntrinsicType::UNLIKELY},
-     {"__LIKELY__", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT}, {"__noop__", IntrinsicType::NOOP}};
+     {"is_signed", IntrinsicType::IS_SIGNED}, {"unlikely", IntrinsicType::UNLIKELY}, {"likely", IntrinsicType::LIKELY},
+     {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP}};
 
 static llvm::Value *init_noop(CompilerSession *compiler_session);
 static llvm::Value *init_assert(CompilerSession *compiler_session);
@@ -45,15 +45,22 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
 
 Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index
 ) {
+  _start_index = token_index + 1; /// skip "@"
+}
+
+void Intrinsic::determine_type(Parser *parser) {
+  auto *token = parser->at(_start_index);
+  if (Intrinsic::intrinsics.find(token->value) == Intrinsic::intrinsics.end()) {
+    report_code_error(_token, "Invalid intrinsic");
+  }
   _intrinsic_type = Intrinsic::intrinsics[token->value];
   std::shared_ptr<ASTNode> underlying_ast = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::ASSERT:
     case IntrinsicType::NOOP:
-      underlying_ast = std::make_shared<ASTFunctionCall>(token, token_index);
+      underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
-      break;
     case IntrinsicType::FILENAME:
       break;
       // TODO: other intrinsics
@@ -68,8 +75,10 @@ Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRIN
 }
 
 size_t Intrinsic::parse(Parser *parser) {
+  determine_type(parser);
   _parser = parser;
   if (_children.size() >= 1) {
+    assert(_children.size() == 1);
     _end_index = _children[0]->parse(parser);
   } else {
     _end_index = _start_index + 1;
@@ -78,6 +87,7 @@ size_t Intrinsic::parse(Parser *parser) {
 }
 
 size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+  determine_type(parser);
   _parser = parser;
   if (_children.size() >= 1) {
     _end_index = _children[0]->parse(left, parser);

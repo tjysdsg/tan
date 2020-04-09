@@ -61,7 +61,7 @@ Token *tokenize_keyword(Reader *reader, code_ptr &start) {
   code_ptr forward = start;
   auto *t = tokenize_id(reader, forward);
   if (t) {
-    if (std::find(std::begin(KEYWORDS), std::end(KEYWORDS), t->value) != std::end(KEYWORDS)) {
+    if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->value) != KEYWORDS.end()) {
       t->type = TokenType::KEYWORD;
       start = forward;
     } else {
@@ -247,7 +247,6 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
 }
 
 std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
-  // TODO: DO NOT exit the program when errors occurred
   std::vector<Token *> tokens;
   const auto end = reader->back_ptr();
   while (start < end) {
@@ -263,7 +262,6 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
                             static_cast<size_t>(start.c),
                             "Invalid identifier"
           );
-          exit(1);
         }
       }
       tokens.emplace_back(new_token);
@@ -276,7 +274,6 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
                           static_cast<size_t>(start.c),
                           "Invalid identifier"
         );
-        exit(1);
       }
       tokens.emplace_back(new_token);
     } else if (std::isdigit((*reader)[start])) {
@@ -288,11 +285,9 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
                           static_cast<size_t>(start.c),
                           "Invalid number literal"
         );
-        exit(1);
       }
       tokens.emplace_back(new_token);
-    } else if (std::find(std::begin(PUNCTUATIONS), std::end(PUNCTUATIONS), (*reader)[start])
-        != std::end(PUNCTUATIONS)) {
+    } else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
       /// punctuations
       auto *new_token = tokenize_punctuation(reader, start);
       if (!new_token) {
@@ -301,11 +296,15 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
                           static_cast<size_t>(start.c),
                           "Invalid symbol(s)"
         );
-        exit(1);
       }
       tokens.emplace_back(new_token);
     } else {
-      start = reader->forward_ptr(start);
+      // start = reader->forward_ptr(start);
+      report_code_error((*reader)[static_cast<size_t>(start.l)].code,
+                        static_cast<size_t>(start.l),
+                        static_cast<size_t>(start.c),
+                        "Invalid symbol"
+      );
     }
     start = skip_whitespace(reader, start);
   }

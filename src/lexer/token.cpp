@@ -16,7 +16,7 @@ const std::vector<std::string> KEYWORDS
 
 const std::vector<char> PUNCTUATIONS
     {'~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"',
-     ',', '.', '<', '>', '/', '?',};
+     ',', '.', '<', '>', '/', '?', '@'};
 
 /// any symbol in OP can both be an operator itself or the first character of an operator
 const std::vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};

@@ -53,6 +53,9 @@ public:
   bool is_lvalue() const override { return false; }
 
 protected:
+  void determine_type(Parser *parser);
+
+protected:
   IntrinsicType _intrinsic_type;
   llvm::Value *_llvm_value = nullptr;
   Parser *_parser = nullptr;

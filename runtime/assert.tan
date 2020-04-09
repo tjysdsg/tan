@@ -1,5 +1,5 @@
 fn assert(a: u32) : void {
     if (!a) {
-        __assert("TODO: define this using meta-programming", __FILE__, __LINE__);
+        __assert("TODO: define this using meta-programming", @file, @line);
     }
 }
