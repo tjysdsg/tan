@@ -1,7 +1,5 @@
 #include "src/ast/ast_func.h"
 #include "parser.h"
-#include "src/llvm_include.h"
-#include "token.h"
 #include "src/ast/common.h"
 
 namespace tanlang {

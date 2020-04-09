@@ -44,20 +44,19 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     files.push_back(std::string(input_paths[i]));
   }
   for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY;
-    tanlang::Reader reader;
-    reader.open(files[i]);
-    auto tokens = tanlang::tokenize(&reader);
+    BEGIN_TRY ;
+      tanlang::Reader reader;
+      reader.open(files[i]);
+      auto tokens = tanlang::tokenize(&reader);
       tanlang::Parser parser(tokens, files[i]);
-    parser.parse();
-    if (print_ast) { parser._root->printTree(); }
-    std::cout << "Compiling TAN file: " << files[i] << "\n";
-    parser.codegen();
-    if (print_ir_code) { parser.dump(); }
-    tanlang::Compiler compiler(parser.get_compiler_session()->get_module().release(), config);
-    files[i] += ".o"; /// prepare the filename for linking
-    compiler.emit_object(files[i]);
-    END_TRY;
+      parser.parse();
+      if (print_ast) { parser._root->printTree(); }
+      std::cout << "Compiling TAN file: " << files[i] << "\n";
+      parser.codegen();
+      if (print_ir_code) { parser.dump(); }
+      tanlang::Compiler compiler(parser.get_compiler_session()->get_module().release(), config);
+      files[i] += ".o"; /// prepare the filename for linking
+      compiler.emit_object(files[i]); END_TRY;
   }
 
   _link(files, config);
