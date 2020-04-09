@@ -1,7 +1,6 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
 #include "src/ast/astnode.h"
-#include "src/ast/interface.h"
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))

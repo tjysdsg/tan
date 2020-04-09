@@ -2,7 +2,6 @@
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
 #include "src/llvm_include.h"
-#include "src/ast/interface.h"
 
 namespace tanlang {
 struct Token;
