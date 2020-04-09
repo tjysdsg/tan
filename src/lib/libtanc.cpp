@@ -3,8 +3,7 @@
 #include "lexer.h"
 #include "linker.h"
 #include "parser.h"
-#include "reader.h"
-#include <string>
+#include <filesystem>
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -44,7 +43,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     files.push_back(std::string(input_paths[i]));
   }
   for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY ;
+    BEGIN_TRY
+
       tanlang::Reader reader;
       reader.open(files[i]);
       auto tokens = tanlang::tokenize(&reader);
@@ -55,8 +55,13 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
       parser.codegen();
       if (print_ir_code) { parser.dump(); }
       tanlang::Compiler compiler(parser.get_compiler_session()->get_module().release(), config);
-      files[i] += ".o"; /// prepare the filename for linking
-      compiler.emit_object(files[i]); END_TRY;
+      /// prepare the filename for linking
+      files[i] += ".o";
+      files[i] = std::filesystem::path(files[i]).filename().string();
+
+      compiler.emit_object(files[i]);
+
+    END_TRY
   }
 
   _link(files, config);
