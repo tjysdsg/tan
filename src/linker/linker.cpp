@@ -33,6 +33,7 @@ bool Linker::link() {
   for (auto *ca : cargs) {
     std::cout << ca << " ";
   }
+  std::cout << '\n';
   clang_main(static_cast<int>(cargs.size()), const_cast<const char **>(cargs.data()));
   return true;
 }
