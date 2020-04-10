@@ -1,7 +1,5 @@
 #include "compiler_session.h"
 
-#include <utility>
-
 namespace tanlang {
 
 void CompilerSession::initialize_scope() {
@@ -10,39 +8,10 @@ void CompilerSession::initialize_scope() {
   _scope.back()->_code_block = _builder->GetInsertBlock();
 }
 
-CompilerSession::CompilerSession() {
-  _context = std::make_unique<LLVMContext>();
-  _builder = std::make_unique<IRBuilder<>>(*_context);
-  _module = std::make_unique<Module>("main", *_context);
-  initialize_scope();
-}
-
 CompilerSession::CompilerSession(const std::string &module_name) {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
-  initialize_scope();
-}
-
-CompilerSession::CompilerSession(std::unique_ptr<IRBuilder<>> builder,
-                                 std::unique_ptr<Module> module,
-                                 std::unique_ptr<ExecutionSession> execution_session,
-                                 std::unique_ptr<RTDyldObjectLinkingLayer> object_layer,
-                                 std::unique_ptr<IRCompileLayer> compile_layer,
-                                 std::unique_ptr<DataLayout> data_layout,
-                                 std::unique_ptr<MangleAndInterner> mangle,
-                                 std::unique_ptr<ThreadSafeContext> ctx) {
-  _context = nullptr;
-  _builder = std::move(builder);
-  _module = std::move(module);
-  // jit related
-  _is_jit_enabled = true;
-  _execution_session = std::move(execution_session);
-  _object_layer = std::move(object_layer);
-  _compile_layer = std::move(compile_layer);
-  _data_layout = std::move(data_layout);
-  _mangle = std::move(mangle);
-  _ctx = std::move(ctx);
   initialize_scope();
 }
 
@@ -101,9 +70,6 @@ std::shared_ptr<ASTNode> CompilerSession::get(const std::string &name) {
 }
 
 LLVMContext *CompilerSession::get_context() {
-  if (_is_jit_enabled) {
-    return _ctx->getContext();
-  }
   return _context.get();
 }
 
