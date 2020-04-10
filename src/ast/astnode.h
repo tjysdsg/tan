@@ -51,6 +51,7 @@ enum class ASTType {
   XOR,       // ^
 
   ID, // identifiers
+  LOOP, // for, while, ...
 
   TY, // type name
   PARENTHESIS, // ( )

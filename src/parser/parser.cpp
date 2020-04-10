@@ -4,6 +4,7 @@
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_statement.h"
+#include "src/ast/ast_loop.h"
 #include "src/parser/token_check.h"
 #include "src/parser/parser.hpp"
 #include "intrinsic.h"
@@ -29,6 +30,26 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::
     );
   }
   return peek(index);
+}
+
+static std::shared_ptr<ASTNode> peek_keyword(Token *token, size_t &index) {
+  if (token->value == "var") {
+    return std::make_shared<ASTVarDecl>(token, index);
+  } else if (token->value == "fn") {
+    return std::make_shared<ASTFunction>(token, index);
+  } else if (token->value == "if") {
+    return std::make_shared<ASTIf>(token, index);
+  } else if (token->value == "else") {
+    return std::make_shared<ASTElse>(token, index);
+  } else if (token->value == "return") {
+    return std::make_shared<ASTReturn>(token, index);
+  } else if (token->value == "while" || token->value == "for") {
+    return std::make_shared<ASTLoop>(token, index);
+  } else if (token->value == "struct") {
+    return std::make_shared<ASTStruct>(token, index);
+  } else {
+    report_code_error(token, "Keyword not implemented" + token->to_string());
+  }
 }
 
 std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
@@ -67,8 +88,6 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
       /// otherwise bracket access
       node = std::make_shared<ASTMemberAccess>(token, index);
     }
-  } else if (token->value == "struct" && token->type == TokenType::KEYWORD) {
-    node = std::make_shared<ASTStruct>(token, index);
   } else if (token->type == TokenType::RELOP) {
     if (token->value == ">") {
       node = std::make_shared<ASTCompare>(ASTType::GT, token, index);
@@ -94,19 +113,11 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
     node = parse<ASTType::FUNC_CALL, ASTType::ID>(token_index, false);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token, index);
-  } else if (token->type == TokenType::KEYWORD && token->value == "var") {
-    node = std::make_shared<ASTVarDecl>(token, index);
-  } else if (token->type == TokenType::KEYWORD && token->value == "fn") {
-    node = std::make_shared<ASTFunction>(token, index);
-  } else if (token->type == TokenType::KEYWORD && token->value == "if") {
-    node = std::make_shared<ASTIf>(token, index);
-  } else if (token->type == TokenType::KEYWORD && token->value == "else") {
-    node = std::make_shared<ASTElse>(token, index);
-  } else if (token->type == TokenType::KEYWORD && token->value == "return") {
-    node = std::make_shared<ASTReturn>(token, index);
-  } else if (token->type == TokenType::BOP && token->value == ".") { // member access
+  } else if (token->type == TokenType::KEYWORD) { /// keywords
+    node = peek_keyword(token, index);
+  } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = std::make_shared<ASTMemberAccess>(token, index);
-  } else if (check_typename_token(token)) { // types
+  } else if (check_typename_token(token)) { /// types
     node = std::make_shared<ASTTy>(token, index);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token, index);

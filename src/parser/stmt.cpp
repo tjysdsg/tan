@@ -1,9 +1,8 @@
-#include <src/ast/ast_control_flow.h>
-
+#include "src/ast/ast_control_flow.h"
+#include "src/ast/ast_loop.h"
 #include "src/ast/ast_expr.h"
-#include "token.h"
-#include "parser.h"
 #include "src/parser/token_check.h"
+#include "parser.h"
 
 namespace tanlang {
 
@@ -37,10 +36,6 @@ size_t ASTElse::nud(tanlang::Parser *parser) {
   return _end_index;
 }
 
-/**
- * \brief: parse a statement if _is_compound is false, otherwise parse a list of (compound) statements and add them
- *          to _children.
- * */
 size_t ASTStatement::nud(Parser *parser) {
   _end_index = _start_index;
   if (_is_compound) { /// compound statement
@@ -69,4 +64,30 @@ size_t ASTStatement::nud(Parser *parser) {
   return _end_index;
 }
 
+size_t ASTLoop::nud(tanlang::Parser *parser) {
+  if (parser->at(_start_index)->value == "for") {
+    _loop_type = ASTLoopType::FOR;
+    assert(false);
+  } else if (parser->at(_start_index)->value == "while") {
+    _loop_type = ASTLoopType::WHILE;
+  } else {
+    assert(false);
+  }
+  _end_index = _start_index + 1; /// skip 'while'/'for'/...
+  switch (_loop_type) {
+    case ASTLoopType::WHILE:
+      parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+      _children.push_back(parser->next_expression(_end_index)); /// condition
+      parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+      _children.push_back(parser->next_expression(_end_index)); /// loop body
+      break;
+    case ASTLoopType::FOR:
+      assert(false);
+      break;
+    default:
+      break;
+  }
+  return _end_index;
 }
+
+} // namespace tanlang

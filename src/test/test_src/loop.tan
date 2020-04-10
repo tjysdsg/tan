@@ -1,0 +1,10 @@
+fn assert(a: u32) : void;
+
+fn main(argc: int, argv: char**) : int {
+    var i: u32 = 0;
+    while (i < 100) {
+        i = i + 1;
+    }
+    @assert(i == 100);
+    return 0;
+}
