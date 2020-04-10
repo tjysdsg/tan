@@ -1,4 +1,5 @@
 #include "src/ast/ast_control_flow.h"
+#include "src/ast/type_system.h"
 #include "parser.h"
 #include "intrinsic.h"
 
@@ -11,16 +12,9 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
     report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
   }
 
-  /// convert to i32 if not
-  // TODO: use ASTTy::convert_to
-  unsigned condition_bits = condition->getType()->getPrimitiveSizeInBits();
-  if (condition_bits != 1) {
-    auto *op_type = compiler_session->get_builder()->getIntNTy(condition_bits);
-    if (!condition->getType()->isIntegerTy()) { // bitcase to int if not
-      condition = compiler_session->get_builder()->CreateBitCast(condition, op_type);
-    }
-    condition = compiler_session->get_builder()->CreateICmpNE(condition, ConstantInt::get(op_type, 0, true));
-  }
+  /// convert to bool if not
+  condition = convert_to(compiler_session, compiler_session->get_builder()->getInt1Ty(), condition, false
+  );
 
   Function *func = compiler_session->get_builder()->GetInsertBlock()->getParent();
   /// Create blocks for the then (and else) clause. Insert the 'then' block at the end of the function.
@@ -33,11 +27,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   compiler_session->get_builder()->SetInsertPoint(then_bb);
   /// insert noop in case empty statement
   compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
-  Value *then = _children[1]->codegen(compiler_session);
-  if (!then) {
-    auto *condition_token = _children[1]->_token;
-    report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
-  }
+  _children[1]->codegen(compiler_session);
   compiler_session->get_builder()->CreateBr(merge_bb);
 
   /// emit else block

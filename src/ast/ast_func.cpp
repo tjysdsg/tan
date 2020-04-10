@@ -1,6 +1,7 @@
 #include "src/ast/ast_func.h"
 #include "parser.h"
 #include "src/ast/common.h"
+#include "src/ast/type_system.h"
 
 namespace tanlang {
 
@@ -82,11 +83,10 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
 
   /// push args
   std::vector<Value *> args_value;
+  auto func_arg = func->args().begin();
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(compiler_session);
-    if (_children[i]->is_lvalue()) {
-      a = compiler_session->get_builder()->CreateLoad(a);
-    }
+    a = convert_to(compiler_session, (func_arg + i)->getType(), a, _children[i]->is_lvalue()); // FIXME: is_signed
     args_value.push_back(a);
     if (!args_value.back()) { return nullptr; }
   }

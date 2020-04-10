@@ -55,7 +55,6 @@ public:
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
-  llvm::Value *convert_to(CompilerSession *compiler_session, std::shared_ptr<ASTTy> dest_ty, llvm::Value *orig_val);
 
   void set_is_lvalue(bool heaped) { _is_lvalue = heaped; }
 

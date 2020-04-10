@@ -1,4 +1,5 @@
 #include "src/ast/ast_loop.h"
+#include "src/ast/type_system.h"
 #include "compiler_session.h"
 #include "intrinsic.h"
 
@@ -27,16 +28,10 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
     /// to make sure that the last code block is after_bb, after_bb is created after loop body is generated
     /// since the call to CreateCondBr should depends on after_bb, this is generated last
     compiler_session->get_builder()->SetInsertPoint(loop_bb);
-    // TODO: use ASTTy::convert_to
     auto *cond = _children[0]->codegen(compiler_session);
-    unsigned condition_bits = cond->getType()->getPrimitiveSizeInBits();
-    if (condition_bits != 1) {
-      auto *op_type = compiler_session->get_builder()->getIntNTy(condition_bits);
-      if (!cond->getType()->isIntegerTy()) {
-        cond = compiler_session->get_builder()->CreateBitCast(cond, op_type);
-      }
-      cond = compiler_session->get_builder()->CreateICmpNE(cond, ConstantInt::get(op_type, 0, true));
-    }
+    /// convert to bool if not
+    cond = convert_to(compiler_session, compiler_session->get_builder()->getInt1Ty(), cond, false);
+
     compiler_session->get_builder()->CreateCondBr(cond, body_bb, after_bb);
 
     /// done

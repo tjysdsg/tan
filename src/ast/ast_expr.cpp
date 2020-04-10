@@ -1,8 +1,7 @@
 #include "src/ast/ast_expr.h"
 #include "token.h"
 #include "common.h"
-#include "parser.h"
-#include "astnode.h"
+#include "src/ast/type_system.h"
 
 namespace tanlang {
 
@@ -100,15 +99,18 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = compiler_session->get_builder()->getFloatTy();
-  if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
-    if (ltype->isIntegerTy()) {
-      lhs = compiler_session->get_builder()->CreateSIToFP(lhs, float_type);
-    }
-    if (rtype->isIntegerTy()) {
-      rhs = compiler_session->get_builder()->CreateSIToFP(rhs, float_type);
-    }
 
+  int type_i = should_cast_to_which(compiler_session, ltype, rtype);
+  if (type_i == -1) {
+    report_code_error(_token,
+                      "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
+  } else if (type_i == 0) {
+    rhs = convert_to(compiler_session, ltype, rhs, false); // FIXME: is_signed
+  } else {
+    lhs = convert_to(compiler_session, rtype, lhs, false); // FIXME: is_signed
+  }
+
+  if (ltype->isFloatingPointTy()) {
     if (_type == ASTType::EQ) {
       return compiler_session->get_builder()->CreateFCmpOEQ(lhs, rhs, "eq");
     } else if (_type == ASTType::GT) {
@@ -132,7 +134,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   } else if (_type == ASTType::LE) {
     return compiler_session->get_builder()->CreateICmpULE(lhs, rhs, "le");
   }
-  return nullptr;
+  assert(false);
 }
 
 Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
@@ -162,15 +164,19 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
-  Type *float_type = compiler_session->get_builder()->getFloatTy();
-  if (!ltype->isIntegerTy() || !rtype->isIntegerTy()) {
-    if (ltype->isIntegerTy()) {
-      lhs = compiler_session->get_builder()->CreateSIToFP(lhs, float_type);
-    }
-    if (rtype->isIntegerTy()) {
-      rhs = compiler_session->get_builder()->CreateSIToFP(rhs, float_type);
-    }
-    // float arithmetic
+
+  int type_i = should_cast_to_which(compiler_session, ltype, rtype);
+  if (type_i == -1) {
+    report_code_error(_token,
+                      "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
+  } else if (type_i == 0) {
+    rhs = convert_to(compiler_session, ltype, rhs, false); // FIXME: is_signed
+  } else {
+    lhs = convert_to(compiler_session, rtype, lhs, false); // FIXME: is_signed
+  }
+
+  if (ltype->isFloatingPointTy()) {
+    /// float arithmetic
     if (_type == ASTType::MULTIPLY) {
       return compiler_session->get_builder()->CreateFMul(lhs, rhs);
     } else if (_type == ASTType::DIVIDE) {
@@ -181,7 +187,6 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
       return compiler_session->get_builder()->CreateFSub(lhs, rhs);
     }
   }
-
   /// integer arithmetic
   if (_type == ASTType::MULTIPLY) {
     return compiler_session->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
@@ -193,7 +198,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   } else if (_type == ASTType::SUBTRACT) {
     return compiler_session->get_builder()->CreateSub(lhs, rhs, "sub_tmp");
   }
-  return nullptr;
+  assert(false);
 }
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
@@ -217,7 +222,12 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   if (!from) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
-  // TODO: implicit type conversion
+  /// to is lvalue
+  int type_i = should_cast_to_which(compiler_session, from->getType(), to->getType()->getContainedType(0));
+  if (type_i == -1) {
+    report_code_error(_token, "Cannot convert " + rhs->get_type_name() + " to " + lhs->get_type_name());
+  }
+  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false); // FIXME: is_signed
   compiler_session->get_builder()->CreateStore(from, to);
   return to;
 }
