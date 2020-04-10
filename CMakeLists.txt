@@ -86,7 +86,7 @@ endif ()
 # ===== target libtan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread ${DEP_LIBS})
+target_link_libraries(tan pthread ${DEP_LIBS} stdc++fs)
 set_other_options(tan)
 
 # ===== target CLI compiler =====
