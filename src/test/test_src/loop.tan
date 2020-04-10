@@ -2,9 +2,18 @@ fn assert(a: u32) : void;
 
 fn main() : int {
     var i: u32 = 0;
+    var gt_50: u32 = 0;
+    var lt_50: u32 = 0;
     while (i < 100) {
+        if (i > 50) {
+            gt_50 = gt_50 + 1;
+        } else {
+            lt_50 = lt_50 + 1;
+        }
         i = i + 1;
     }
     @assert(i == 100);
+    @assert(gt_50 == 49);
+    @assert(lt_50 == 51);
     return 0;
 }
