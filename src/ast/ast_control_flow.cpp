@@ -12,6 +12,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   }
 
   /// convert to i32 if not
+  // TODO: use ASTTy::convert_to
   unsigned condition_bits = condition->getType()->getPrimitiveSizeInBits();
   if (condition_bits != 1) {
     auto *op_type = compiler_session->get_builder()->getIntNTy(condition_bits);
