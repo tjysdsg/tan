@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include "src/ast/astnode.h"
+#include "stack_trace.h"
 
 namespace llvm {
 class Value;
@@ -32,8 +33,7 @@ enum class IntrinsicType {
 
   // others
 
-  GET_DECL,
-
+  GET_DECL, STACK_TRACE,
 };
 
 class Intrinsic : public ASTNode {

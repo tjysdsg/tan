@@ -1,5 +1,13 @@
+struct StackTrace {
+  var filename: str;
+  var src: str;
+  var lineno: u32;
+  // var caller: StackTrace*;
+};
+
 fn assert(a: u32) : void {
     if (!a) {
-        __assert("TODO: define this using meta-programming", @file, @line);
+        var st: StackTrace = @stack_trace;
+        __assert(st._src, st._filename, st._lineno);
     }
 }

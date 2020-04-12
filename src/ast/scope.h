@@ -6,11 +6,14 @@
 
 namespace tanlang {
 
+struct StackTrace;
+
 struct Scope {
-  std::unordered_map<std::string, std::shared_ptr<ASTNode>> _named{};
-  BasicBlock *_code_block = nullptr;
+  std::unordered_map<std::string, std::shared_ptr<ASTNode>> _named{}; ///< named identifiers in this scope
+  BasicBlock *_code_block = nullptr; ///< parent code block
+  StackTrace *_stack_trace = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //TAN_SRC_AST_SCOPE_H_

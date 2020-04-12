@@ -2,12 +2,16 @@
 #include "parser.h"
 #include "src/ast/common.h"
 #include "src/ast/type_system.h"
+#include "stack_trace.h"
 
 namespace tanlang {
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// new scope
-  compiler_session->push_scope();
+  auto scope = compiler_session->push_scope();
+  scope->_stack_trace->_filename = _parser->get_filename();
+  scope->_stack_trace->_lineno = _token->l;
+  scope->_stack_trace->_src = _token->line->code;
   /// make function prototype
   Type *ret_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
   std::vector<Type *> arg_types;

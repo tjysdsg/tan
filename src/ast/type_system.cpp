@@ -1,5 +1,6 @@
 #include "type_system.h"
 #include "compiler_session.h"
+#include "src/ast/common.h"
 
 namespace tanlang {
 
@@ -20,7 +21,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   unsigned s1 = orig->getPrimitiveSizeInBits();
   unsigned s2 = dest->getPrimitiveSizeInBits();
   /// early return if types are the same
-  if (orig == dest) { return loaded; };
+  if (is_llvm_type_same(orig, dest)) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return compiler_session->get_builder()->CreateBitCast(loaded, dest);
@@ -61,6 +62,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
 }
 
 int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2) {
+  if (is_llvm_type_same(t1, t2)) { return 0; }
   unsigned s1 = t1->getPrimitiveSizeInBits();
   unsigned s2 = t2->getPrimitiveSizeInBits();
   if (t1->isPointerTy() && t2->isPointerTy()) { /// both pointer, yes

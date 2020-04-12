@@ -15,6 +15,8 @@ AllocaInst *create_block_alloca(BasicBlock *block, Type *type, const std::string
 
 bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list);
 
+bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2);
+
 }
 
 #endif /* TAN_SRC_AST_COMMON_H_ */
