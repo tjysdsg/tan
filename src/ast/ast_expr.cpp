@@ -105,9 +105,9 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
     report_code_error(_token,
                       "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
-    rhs = convert_to(compiler_session, ltype, rhs, false); // FIXME: is_signed
+    rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
   } else {
-    lhs = convert_to(compiler_session, rtype, lhs, false); // FIXME: is_signed
+    lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
   }
 
   if (ltype->isFloatingPointTy()) {
@@ -170,9 +170,9 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
     report_code_error(_token,
                       "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
-    rhs = convert_to(compiler_session, ltype, rhs, false); // FIXME: is_signed
+    rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
   } else {
-    lhs = convert_to(compiler_session, rtype, lhs, false); // FIXME: is_signed
+    lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
   }
 
   if (ltype->isFloatingPointTy()) {
@@ -227,7 +227,7 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   if (type_i == -1) {
     report_code_error(_token, "Cannot convert " + rhs->get_type_name() + " to " + lhs->get_type_name());
   }
-  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false); // FIXME: is_signed
+  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false, true); // FIXME: is_signed
   compiler_session->get_builder()->CreateStore(from, to);
   return to;
 }

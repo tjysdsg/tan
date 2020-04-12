@@ -8,9 +8,8 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
                         llvm::Value *orig_val,
                         bool is_lvalue,
                         bool is_signed) {
- auto *orig = orig_val->getType();
+  auto *orig = orig_val->getType();
   auto *loaded = orig_val;
-  // TODO: early return if types are the same
   if (is_lvalue) { /// IMPORTANT
     loaded = compiler_session->get_builder()->CreateLoad(orig_val);
     assert(orig->getNumContainedTypes() == 1);
@@ -20,12 +19,14 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   bool is_pointer2 = dest->isPointerTy();
   unsigned s1 = orig->getPrimitiveSizeInBits();
   unsigned s2 = dest->getPrimitiveSizeInBits();
+  /// early return if types are the same
+  if (orig == dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return compiler_session->get_builder()->CreateBitCast(loaded, dest);
   } else if (is_pointer1) { /// pointers to primitive types
     return loaded;
-  } else if (is_pointer2 && is_lvalue) { /// primitive types to pointers, only possible for heap allocated
+  } else if (is_pointer2 && is_lvalue) { /// primitive types to pointers
     return orig_val;
   } else if (orig->isIntegerTy() && dest->isIntegerTy() && s2 != 1) {
     /// different int types except dest is bool (1-bit int)
@@ -34,7 +35,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
     } else {
       return compiler_session->get_builder()->CreateZExtOrTrunc(loaded, dest);
     }
-  } else if (!orig->isIntegerTy() && dest->isFloatingPointTy()) { /// int to float/double
+  } else if (orig->isIntegerTy() && dest->isFloatingPointTy()) { /// int to float/double
     if (is_signed) {
       return compiler_session->get_builder()->CreateUIToFP(loaded, dest);
     } else {
@@ -46,14 +47,17 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
     } else {
       return compiler_session->get_builder()->CreateFPToSI(loaded, dest);
     }
+  } else if (orig->isFloatingPointTy() && dest->isFloatingPointTy()) { /// float <-> double
+    return compiler_session->get_builder()->CreateFPCast(loaded, dest);
   } else if (dest->isIntegerTy(1)) { /// all types to bool, equivalent to val != 0
     // FIXME? floating point
     return compiler_session->get_builder()
                            ->CreateICmpNE(loaded,
                                           ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
+  } else {
+    // TODO: complex type
+    throw std::runtime_error("Invalid type conversion");
   }
-  // TODO: complex type
-  return nullptr;
 }
 
 int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2) {
