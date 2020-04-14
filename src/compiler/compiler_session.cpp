@@ -22,7 +22,6 @@ std::shared_ptr<Scope> CompilerSession::get_current_scope() {
 
 std::shared_ptr<Scope> CompilerSession::push_scope() {
   auto r = std::make_shared<Scope>();
-  r->_stack_trace = new StackTrace;
   _scope.push_back(r);
   return r;
 }
@@ -89,10 +88,6 @@ void CompilerSession::set_code_block(BasicBlock *block) {
 
 BasicBlock *CompilerSession::get_code_block() const {
   return _scope.back()->_code_block;
-}
-
-StackTrace *CompilerSession::get_stack_trace() const {
-  return _scope.back()->_stack_trace;
 }
 
 } // namespace tanlang

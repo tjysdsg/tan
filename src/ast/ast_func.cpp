@@ -3,15 +3,13 @@
 #include "src/ast/common.h"
 #include "src/ast/type_system.h"
 #include "stack_trace.h"
+#include "intrinsic.h"
 
 namespace tanlang {
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// new scope
-  auto scope = compiler_session->push_scope();
-  scope->_stack_trace->_filename = _parser->get_filename();
-  scope->_stack_trace->_lineno = _token->l;
-  scope->_stack_trace->_src = _token->line->code;
+  compiler_session->push_scope();
   /// make function prototype
   Type *ret_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
   std::vector<Type *> arg_types;
@@ -45,6 +43,16 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->SetInsertPoint(main_block);
     compiler_session->set_code_block(main_block); /// set current scope's code block
 
+    /// set initial stack trace for the main function
+    if (func_name == "main") {
+      Intrinsic::RuntimeInit(compiler_session);
+      auto stack_trace = std::make_shared<StackTrace>();
+      stack_trace->_filename = _parser->get_filename();
+      stack_trace->_src = _token->line->code;
+      stack_trace->_lineno = _token->l + 1;
+      codegen_push_stack_trace(compiler_session, stack_trace);
+    }
+
     /// add all function arguments to scope
     size_t i = 2;
     for (auto &a : F->args()) {
@@ -55,7 +63,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       compiler_session->add(arg_name, _children[i]);
       ++i;
     }
-
     /// generate function body
     _children[_children.size() - 1]->codegen(compiler_session);
 
@@ -75,9 +82,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   /// look up the function name in the global module table
   Function *func = compiler_session->get_module()->getFunction(_name);
-  if (!func) {
-    throw std::runtime_error("Unknown function call: " + _name);
-  }
+  if (!func) { throw std::runtime_error("Unknown function call: " + _name); }
 
   size_t n_args = _children.size();
   /// argument mismatch
@@ -94,7 +99,14 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
     args_value.push_back(a);
     if (!args_value.back()) { return nullptr; }
   }
-  return compiler_session->get_builder()->CreateCall(func, args_value);
+  auto stack_trace = std::make_shared<StackTrace>();
+  stack_trace->_filename = _parser->get_filename();
+  stack_trace->_src = _token->line->code;
+  stack_trace->_lineno = _children[0]->_token->l + 1;
+  codegen_push_stack_trace(compiler_session, stack_trace);
+  auto *ret = compiler_session->get_builder()->CreateCall(func, args_value);
+  codegen_pop_stack_trace(compiler_session);
+  return ret;
 }
 
 } // namespace tanlang

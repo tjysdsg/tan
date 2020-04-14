@@ -72,6 +72,8 @@ public:
 
   friend class ASTMemberAccess;
 
+  friend class Intrinsic;
+
 public:
   explicit ASTNumberLiteral(int value, size_t token_index);
   explicit ASTNumberLiteral(size_t value, size_t token_index);

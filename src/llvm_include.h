@@ -23,6 +23,8 @@
 #include <llvm/IR/DataLayout.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/Support/InitLLVM.h>
+#include <llvm/IR/GlobalVariable.h>
+#include <llvm/IR/GlobalValue.h>
 
 namespace tanlang {
 
@@ -46,6 +48,13 @@ using llvm::BasicBlock;
 using llvm::Module;
 using llvm::DataLayout;
 using llvm::LLVMContext;
+using llvm::GlobalVariable;
+using llvm::GlobalValue;
+using llvm::ConstantPointerNull;
+using llvm::ConstantStruct;
+using llvm::ConstantArray;
+using llvm::StructType;
+using llvm::PointerType;
 
 using llvm::SectionMemoryManager;
 }

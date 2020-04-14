@@ -4,6 +4,9 @@
 
 namespace tanlang {
 
+llvm::Value *Intrinsic::stack_trace = nullptr;
+llvm::Type *Intrinsic::stack_trace_t = nullptr;
+
 std::unordered_map<std::string, IntrinsicType>
     Intrinsic::intrinsics
     {{"assert", IntrinsicType::ASSERT}, {"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM},
@@ -18,31 +21,14 @@ std::unordered_map<std::string, IntrinsicType>
 
 static void init_noop(CompilerSession *compiler_session);
 static void init_assert(CompilerSession *compiler_session);
-static llvm::Type *get_stack_trace_type(CompilerSession *compiler_session);
+static void init_stack_trace(CompilerSession *compiler_session);
+static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session);
 
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
   init_assert(compiler_session);
   init_noop(compiler_session);
-}
-
-Value *get_stack_trace(CompilerSession *compiler_session) {
-  // TODO: show full stacktrace by settings _caller
-  // struct StackTrace {
-  //   var filename: str;
-  //   var src: str;
-  //   var lineno: u32;
-  //   var caller: StackTrace*;
-  // };
-  auto *st_t = get_stack_trace_type(compiler_session);
-  auto *filename =
-      compiler_session->get_builder()->CreateGlobalStringPtr(compiler_session->get_stack_trace()->_filename);
-  auto *src = compiler_session->get_builder()->CreateGlobalStringPtr(compiler_session->get_stack_trace()->_src);
-  auto *lineno = llvm::ConstantInt::get(compiler_session->get_builder()->getInt32Ty(),
-                                        compiler_session->get_stack_trace()->_lineno,
-                                        false
-  );
-  return llvm::ConstantStruct::get((llvm::StructType *) st_t, {filename, src, lineno});
+  init_stack_trace(compiler_session);
 }
 
 llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
@@ -60,9 +46,14 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
       tmp = std::make_shared<ASTStringLiteral>(compiler_session->get(_str_data)->get_src(), _start_index);
       _llvm_value = tmp->codegen(compiler_session);
       break;
-    case IntrinsicType::STACK_TRACE:
-      _llvm_value = get_stack_trace(compiler_session);
+    case IntrinsicType::STACK_TRACE: {
+      assert(_children[0]->_type == ASTType::FUNC_CALL);
+      assert(_children[0]->_children[0]->_type == ASTType::NUM_LITERAL);
+      auto arg = ast_cast<ASTNumberLiteral>(_children[0]->_children[0]);
+      assert(!arg->is_float());
+      _llvm_value = codegen_get_stack_trace(compiler_session, (size_t) (arg->_ivalue));
       break;
+    }
     default:
       assert(_children.size());
       _llvm_value = _children[0]->codegen(compiler_session);
@@ -102,6 +93,9 @@ void Intrinsic::determine_type() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::STACK_TRACE:
+      _is_lvalue = true;
+      underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
+      break;
     case IntrinsicType::LINENO:
     case IntrinsicType::FILENAME:
       break;
@@ -151,6 +145,9 @@ llvm::Function *Intrinsic::GetIntrinsic(IntrinsicType type, CompilerSession *com
     case IntrinsicType::ASSERT:
       f = compiler_session->get_module()->getFunction("assert");
       break;
+    case IntrinsicType::STACK_TRACE:
+      f = compiler_session->get_module()->getFunction("stack_trace");
+      break;
     default:
       assert(false);
       break;
@@ -188,26 +185,56 @@ static void init_assert(CompilerSession *compiler_session) {
 static void init_noop(CompilerSession *compiler_session) {
   Function *func = compiler_session->get_module()->getFunction("llvm.donothing");
   if (!func) {
-    {
-      /// extern void llvm.donothing();
-      /// extern void __noop__();
-      Type *ret_type = compiler_session->get_builder()->getVoidTy();
-      std::vector<Type *> arg_types{};
-      FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-      Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", compiler_session->get_module().get());
-      Function::Create(FT, Function::ExternalLinkage, "__noop__", compiler_session->get_module().get());
-    }
+    /// fn llvm.donothing() : void;
+    Type *ret_type = compiler_session->get_builder()->getVoidTy();
+    std::vector<Type *> arg_types{};
+    FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
+    Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", compiler_session->get_module().get());
   }
 }
 
-static llvm::Type *get_stack_trace_type(CompilerSession *compiler_session) {
-  // TODO: optimize this
+static void init_stack_trace(CompilerSession *compiler_session) {
+  StructType *st_t = get_stack_trace_type(compiler_session);
+  auto *int_t = compiler_session->get_builder()->getInt32Ty();
+  /// a global pointer to an array of StackTrace
+  GlobalVariable *st = new GlobalVariable(*compiler_session->get_module(),
+                                          st_t->getPointerTo(),
+                                          false,
+                                          GlobalValue::ExternalLinkage,
+                                          nullptr,
+                                          "st"
+  );
+  st->setExternallyInitialized(true);
+  Intrinsic::stack_trace = st;
+}
+
+static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session) {
+  // TODO: avoid repeating work
+
   /// define StackTrace type
   llvm::StructType *struct_type = llvm::StructType::create(*compiler_session->get_context(), "StackTrace");
-  struct_type->setBody({compiler_session->get_builder()->getInt8PtrTy(),
-                        compiler_session->get_builder()->getInt8PtrTy(), compiler_session->get_builder()->getInt32Ty()}
-  );
+  struct_type->setBody(compiler_session->get_builder()->getInt8PtrTy(),
+                       compiler_session->get_builder()->getInt8PtrTy(),
+                       compiler_session->get_builder()->getInt32Ty());
+  Intrinsic::stack_trace_t = struct_type;
   return struct_type;
+}
+
+void Intrinsic::RuntimeInit(CompilerSession *compiler_session) {
+  /// stack trace in main function
+  auto *st_t = Intrinsic::stack_trace_t;
+  auto *init = ConstantPointerNull::get(st_t->getPointerTo());
+  {
+    GlobalVariable *tmp = compiler_session->get_module()->getNamedGlobal("st");
+    assert(tmp);
+    tmp->setExternallyInitialized(false);
+    tmp->setInitializer(init);
+    Intrinsic::stack_trace = tmp;
+  }
+  auto *int_t = compiler_session->get_builder()->getInt32Ty();
+  Value *st = compiler_session->get_builder()->CreateAlloca(st_t, ConstantInt::get(int_t, MAX_N_FUNCTION_CALLS, false));
+  // st = compiler_session->get_builder()->CreateGEP(st, ConstantInt::get(int_t, 0, false));
+  compiler_session->get_builder()->CreateStore(st, Intrinsic::stack_trace);
 }
 
 } // namespace tanlang

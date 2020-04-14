@@ -2,12 +2,11 @@ struct StackTrace {
   var filename: str;
   var src: str;
   var lineno: u32;
-  // var caller: StackTrace*;
 };
 
 fn assert(a: u32) : void {
     if (!a) {
-        var st: StackTrace = @stack_trace;
-        __assert(st._src, st._filename, st._lineno);
+        var st: StackTrace = @stack_trace(1);
+        __assert(st.src, st.filename, st.lineno);
     }
 }
