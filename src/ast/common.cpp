@@ -31,6 +31,7 @@ bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2) {
   } else {
     return t1->getPrimitiveSizeInBits() == t2->getPrimitiveSizeInBits();
   }
+  return true;
 }
 
 } // namespace tanlang

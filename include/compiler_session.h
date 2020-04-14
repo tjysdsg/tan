@@ -25,7 +25,6 @@ public:
   LLVMContext *get_context();
   std::unique_ptr<IRBuilder<>> &get_builder();
   std::unique_ptr<Module> &get_module();
-
   StackTrace *get_stack_trace() const;
 
 private:

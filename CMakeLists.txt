@@ -46,6 +46,12 @@ macro(set_other_options target_name)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 endmacro()
 
+# Use ccache to compile if possible
+find_program(CCACHE_FOUND ccache)
+if (CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif (CCACHE_FOUND)
+
 # ================================ thirdparty dependencies ========================== #
 # ===== Google test ======
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
