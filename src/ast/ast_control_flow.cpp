@@ -13,8 +13,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
   }
 
   /// convert to bool if not
-  condition = convert_to(compiler_session, compiler_session->get_builder()->getInt1Ty(), condition, false
-  );
+  condition = convert_to(compiler_session, compiler_session->get_builder()->getInt1Ty(), condition, false);
 
   Function *func = compiler_session->get_builder()->GetInsertBlock()->getParent();
   /// Create blocks for the then (and else) clause. Insert the 'then' block at the end of the function.

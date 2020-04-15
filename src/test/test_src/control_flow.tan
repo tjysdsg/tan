@@ -1,5 +1,3 @@
-fn assert(a: u32) : void;
-
 fn sign(a: int) : int {
     if (a > 0) {
         return 1;

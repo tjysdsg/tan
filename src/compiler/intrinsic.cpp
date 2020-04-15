@@ -26,14 +26,26 @@ static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session)
 
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
-  init_assert(compiler_session);
   init_noop(compiler_session);
   init_stack_trace(compiler_session);
+  init_assert(compiler_session);
 }
 
 llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
   std::shared_ptr<ASTNode> tmp = nullptr;
   switch (_intrinsic_type) {
+    case IntrinsicType::ASSERT: {
+      auto stack_trace = std::make_shared<StackTrace>();
+      stack_trace->_filename = _parser->get_filename();
+      stack_trace->_src = _token->line->code;
+      stack_trace->_lineno = _children[0]->_token->l + 1;
+      codegen_push_stack_trace(compiler_session, stack_trace);
+      std::vector<Value *> args = {_children[0]->_children[0]->codegen(compiler_session)};
+      _llvm_value =
+          compiler_session->get_builder()->CreateCall(compiler_session->get_module()->getFunction("assert"), args);
+      codegen_pop_stack_trace(compiler_session);
+      break;
+    }
     case IntrinsicType::FILENAME:
       tmp = std::make_shared<ASTStringLiteral>(_parser->get_filename(), _start_index);
       _llvm_value = tmp->codegen(compiler_session);
@@ -168,16 +180,50 @@ std::string Intrinsic::to_string(bool print_prefix) const {
 }
 
 static void init_assert(CompilerSession *compiler_session) {
-  Function *func = compiler_session->get_module()->getFunction("__assert");
-  if (!func) {
-    {
-      /// extern void __assert(const char *msg, const char *file, int line);
+  Function *assert_func = compiler_session->get_module()->getFunction("__assert");
+  { /// fn __assert(msg: char*, file: char*, line: int) : void;
+    if (!assert_func) {
       Type *ret_type = compiler_session->get_builder()->getVoidTy();
       std::vector<Type *> arg_types
           {compiler_session->get_builder()->getInt8PtrTy(), compiler_session->get_builder()->getInt8PtrTy(),
            compiler_session->get_builder()->getInt32Ty(),};
       FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-      Function::Create(FT, Function::ExternalLinkage, "__assert", compiler_session->get_module().get());
+      assert_func = Function::Create(FT, Function::ExternalLinkage, "__assert", compiler_session->get_module().get());
+    }
+  }
+  { /// fn assert(a: u32) : void;
+    Function *func = compiler_session->get_module()->getFunction("assert");
+    if (!func) {
+      Type *ret_type = compiler_session->get_builder()->getVoidTy();
+      std::vector<Type *> arg_types{compiler_session->get_builder()->getInt32Ty()};
+      FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
+      func = Function::Create(func_t, Function::ExternalLinkage, "assert", compiler_session->get_module().get());
+      /// body
+      BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", func);
+      compiler_session->get_builder()->SetInsertPoint(main_block);
+      Value *arg = &(*func->args().begin());
+      Value *z = ConstantInt::get(compiler_session->get_builder()->getIntNTy(32), 0, false);
+      Value *condition = compiler_session->get_builder()->CreateICmpEQ(z, arg);
+
+      BasicBlock *then_bb = BasicBlock::Create(*compiler_session->get_context(), "then", func);
+      BasicBlock *merge_bb = BasicBlock::Create(*compiler_session->get_context(), "fi");
+
+      compiler_session->get_builder()->CreateCondBr(condition, then_bb, merge_bb);
+      compiler_session->get_builder()->SetInsertPoint(then_bb);
+      auto *st = codegen_get_stack_trace(compiler_session, 1);
+      auto *int_t = compiler_session->get_builder()->getInt32Ty();
+      auto *zero = ConstantInt::get(int_t, 0);
+      auto *one = ConstantInt::get(int_t, 1);
+      auto *two = ConstantInt::get(int_t, 2);
+      std::vector<Value *> args =
+          {compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, one})),
+           compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, zero})),
+           compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, two}))};
+      compiler_session->get_builder()->CreateCall(assert_func, args);
+      compiler_session->get_builder()->CreateBr(merge_bb);
+      func->getBasicBlockList().push_back(merge_bb);
+      compiler_session->get_builder()->SetInsertPoint(merge_bb);
+      compiler_session->get_builder()->CreateRetVoid();
     }
   }
 }
@@ -195,7 +241,6 @@ static void init_noop(CompilerSession *compiler_session) {
 
 static void init_stack_trace(CompilerSession *compiler_session) {
   StructType *st_t = get_stack_trace_type(compiler_session);
-  auto *int_t = compiler_session->get_builder()->getInt32Ty();
   /// a global pointer to an array of StackTrace
   GlobalVariable *st = new GlobalVariable(*compiler_session->get_module(),
                                           st_t->getPointerTo(),
