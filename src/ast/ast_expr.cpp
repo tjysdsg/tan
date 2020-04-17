@@ -228,6 +228,15 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   return to;
 }
 
+Value *ASTReturn::codegen(CompilerSession *compiler_session) {
+  auto *result = _children[0]->codegen(compiler_session);
+  if (_children[0]->is_lvalue()) {
+    result = compiler_session->get_builder()->CreateLoad(result, "ret");
+  }
+  compiler_session->get_builder()->CreateRet(result);
+  return nullptr;
+}
+
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)
     : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index
 ) {

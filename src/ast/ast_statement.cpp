@@ -28,13 +28,4 @@ Value *ASTProgram::codegen(CompilerSession *compiler_session) {
   return nullptr;
 }
 
-Value *ASTReturn::codegen(CompilerSession *compiler_session) {
-  auto *result = _children[0]->codegen(compiler_session);
-  /// create load if children is a pointer (because created by alloca)
-  if (result->getType()->isPointerTy()) {
-    result = compiler_session->get_builder()->CreateLoad(result, "load");
-  }
-  return compiler_session->get_builder()->CreateRet(result);
-}
-
 } // namespace tanlang

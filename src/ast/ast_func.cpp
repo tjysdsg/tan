@@ -9,7 +9,7 @@ namespace tanlang {
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// new scope
-  compiler_session->push_scope();
+  auto scope = compiler_session->push_scope();
   /// make function prototype
   Type *ret_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
   std::vector<Type *> arg_types;
@@ -71,8 +71,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       compiler_session->get_builder()->CreateRetVoid();
     }
   }
-
-  /// validate the generated code, checking for consistency
   verifyFunction(*F);
   /// function pass
   compiler_session->get_function_pass_manager()->run(*F);

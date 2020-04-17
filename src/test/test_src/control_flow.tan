@@ -1,22 +1,24 @@
+// TODO: fix return inside if statement
 fn sign(a: int) : int {
+    var ret: int = 0;
     if (a > 0) {
-        return 1;
+        ret = 1;
     } else if (a < 0) {
-        return -1;
-    } else {
-        return 0;
+        ret = -1;
     }
+    return ret;
 }
 
 fn else_if(c: i32) : i32 {
+    var ret: i32 = -100;
     if (c == 0) {
-        return 0;
+        ret = 0;
     } else if (c == 1) {
-        return 1;
+        ret = 1;
     } else {
-        return 2;
+        ret = 2;
     }
-    return -100;
+    return ret;
 }
 
 fn main(argc: int, argv: char**) : int {
