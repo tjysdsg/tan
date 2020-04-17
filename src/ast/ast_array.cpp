@@ -8,21 +8,18 @@ Value *ASTArrayLiteral::codegen(CompilerSession *compiler_session) {
   auto sub = ast_cast<ASTLiteral>(_children[0]);
   sub->codegen(compiler_session);
   _e_llvm_type = sub->to_llvm_type(compiler_session);
-  std::vector<Constant *> constants;
+  Type *int_t = compiler_session->get_builder()->getInt32Ty();
   size_t n = _children.size();
-  constants.reserve(n);
+  auto *size = ConstantInt::get(int_t, n);
+  _llvm_value = compiler_session->get_builder()->CreateAlloca(_e_llvm_type, 0, size);
   for (size_t i = 0; i < n; ++i) {
-    constants.push_back((Constant *) _children[i]->codegen(compiler_session));
+    auto *idx = ConstantInt::get(int_t, i);
+    auto *e_val = _children[i]->codegen(compiler_session);
+    auto *e_ptr = compiler_session->get_builder()->CreateGEP(_llvm_value, idx);
+    compiler_session->get_builder()->CreateStore(e_val, e_ptr);
   }
-  Value *val = llvm::ConstantArray::get((llvm::ArrayType *) _e_llvm_type, constants);
-  Value *ret = compiler_session->get_builder()
-                               ->CreateAlloca(_e_llvm_type,
-                                              ConstantInt::get(compiler_session->get_builder()->getInt32Ty(),
-                                                               _children.size()));
-  compiler_session->get_builder()->CreateStore(val, ret);
-  _llvm_value = ret;
-  _llvm_type = ret->getType();
-  return ret;
+  _llvm_type = _llvm_value->getType();
+  return _llvm_value;
 }
 
 llvm::Value *ASTArrayLiteral::get_llvm_value(CompilerSession *) const {

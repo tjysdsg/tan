@@ -223,10 +223,6 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
   /// to is lvalue
-  int type_i = should_cast_to_which(compiler_session, from->getType(), to->getType()->getContainedType(0));
-  if (type_i == -1) {
-    report_code_error(_token, "Cannot convert " + rhs->get_type_name() + " to " + lhs->get_type_name());
-  }
   from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false, true); // FIXME: is_signed
   compiler_session->get_builder()->CreateStore(from, to);
   return to;

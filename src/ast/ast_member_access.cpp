@@ -41,10 +41,11 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
   } else if (_is_bracket) { /// bracket access
     Value *from = nullptr;
     from = _children[0]->codegen(compiler_session);
-    from = compiler_session->get_builder()->CreateLoad(from);
+    if (_children[0]->is_lvalue()) {
+      from = compiler_session->get_builder()->CreateLoad(from);
+    }
     auto rhs = _children[1];
-    std::vector<Value *> indices{rhs->codegen(compiler_session),};
-    ret = compiler_session->get_builder()->CreateGEP(from, indices, "member_ptr");
+    ret = compiler_session->get_builder()->CreateGEP(from, rhs->codegen(compiler_session), "member_ptr");
   } else {
     report_code_error(_token, "Invalid member access");
   }
