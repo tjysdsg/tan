@@ -13,6 +13,14 @@ CompilerSession::CompilerSession(const std::string &module_name) {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
+  _di_builder = std::make_unique<DIBuilder>(*_module.get());
+  _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C,
+                                          _di_builder->createFile(module_name, "."),
+                                          "tan compiler",
+                                          false,
+                                          "",
+                                          0
+  );
   initialize_scope();
   init_llvm_pass();
 }
@@ -102,6 +110,10 @@ void CompilerSession::init_llvm_pass() {
   _fpm->add(llvm::createGVNPass());
   _fpm->add(llvm::createCFGSimplificationPass());
   _fpm->doInitialization();
+}
+
+void CompilerSession::finalize_codegen() {
+  _di_builder->finalize();
 }
 
 } // namespace tanlang

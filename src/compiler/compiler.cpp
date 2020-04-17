@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include "libtanc.h"
+#include "compiler_session.h"
 
 namespace tanlang {
 
@@ -8,7 +9,8 @@ Compiler::~Compiler() {
   delete _target_machine;
 }
 
-Compiler::Compiler(Module *module, TanCompilation *config) : _llvm_module(module) {
+Compiler::Compiler(CompilerSession *compiler_session, TanCompilation *config) {
+  _llvm_module = compiler_session->get_module().release();
   auto target_triple = llvm::sys::getDefaultTargetTriple();
 
   llvm::InitializeAllTargetInfos();
@@ -37,8 +39,9 @@ Compiler::Compiler(Module *module, TanCompilation *config) : _llvm_module(module
     RM = llvm::Reloc::Model::Static;
   }
   _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
-  module->setDataLayout(_target_machine->createDataLayout());
-  module->setTargetTriple(target_triple);
+  _llvm_module->setDataLayout(_target_machine->createDataLayout());
+  _llvm_module->setTargetTriple(target_triple);
+  compiler_session->finalize_codegen();
 }
 
 void Compiler::emit_object(const std::string &filename) {

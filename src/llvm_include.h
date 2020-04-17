@@ -28,6 +28,8 @@
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DebugInfo.h>
 
 namespace tanlang {
 
@@ -61,6 +63,10 @@ using llvm::PointerType;
 
 using llvm::SectionMemoryManager;
 using llvm::legacy::FunctionPassManager;
+
+using llvm::DIBuilder;
+using llvm::DICompileUnit;
+using llvm::DIType;
 
 }
 

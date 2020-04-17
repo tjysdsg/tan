@@ -26,6 +26,7 @@ public:
   std::unique_ptr<IRBuilder<>> &get_builder();
   std::unique_ptr<Module> &get_module();
   std::unique_ptr<FunctionPassManager> &get_function_pass_manager();
+  void finalize_codegen();
 
 private:
   std::unique_ptr<LLVMContext> _context;
@@ -33,6 +34,10 @@ private:
   std::unique_ptr<Module> _module;
   std::vector<std::shared_ptr<Scope>> _scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
+
+  /// debug information
+  std::unique_ptr<DIBuilder> _di_builder;
+  DICompileUnit *_di_cu;
 
 private:
   void initialize_scope();

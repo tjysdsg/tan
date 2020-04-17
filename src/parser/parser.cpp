@@ -166,10 +166,6 @@ Value *Parser::codegen() {
   return _root->codegen(_compiler_session);
 }
 
-void Parser::dump() const {
-  get_compiler_session()->get_module()->print(llvm::outs(), nullptr);
-}
-
 Token *Parser::at(const size_t idx) const {
   if (this->eof(idx)) {
     throw std::runtime_error("Unexpected EOF"); // TODO: better error

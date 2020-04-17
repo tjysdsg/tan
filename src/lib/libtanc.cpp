@@ -45,21 +45,20 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
 
-      tanlang::Reader reader;
-      reader.open(files[i]);
-      auto tokens = tanlang::tokenize(&reader);
-      tanlang::Parser parser(tokens, files[i]);
-      parser.parse();
-      if (print_ast) { parser._root->printTree(); }
-      std::cout << "Compiling TAN file: " << files[i] << "\n";
-      parser.codegen();
-      if (print_ir_code) { parser.dump(); }
-      tanlang::Compiler compiler(parser.get_compiler_session()->get_module().release(), config);
-      /// prepare the filename for linking
-      files[i] += ".o";
-      files[i] = std::filesystem::path(files[i]).filename().string();
-
-      compiler.emit_object(files[i]);
+    tanlang::Reader reader;
+    reader.open(files[i]);
+    auto tokens = tanlang::tokenize(&reader);
+    tanlang::Parser parser(tokens, files[i]);
+    parser.parse();
+    if (print_ast) { parser._root->printTree(); }
+    std::cout << "Compiling TAN file: " << files[i] << "\n";
+    parser.codegen();
+    tanlang::Compiler compiler(parser.get_compiler_session(), config);
+    if (print_ir_code) { compiler.dump(); }
+    /// prepare the filename for linking
+    files[i] += ".o";
+    files[i] = std::filesystem::path(files[i]).filename().string();
+    compiler.emit_object(files[i]);
 
     END_TRY
   }
