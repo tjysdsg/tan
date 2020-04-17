@@ -74,8 +74,12 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   /// validate the generated code, checking for consistency
   verifyFunction(*F);
-  compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block()); /// restore parent code block
-  compiler_session->pop_scope(); /// pop scope
+  /// function pass
+  compiler_session->get_function_pass_manager()->run(*F);
+  /// restore parent code block
+  compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block());
+  /// pop scope
+  compiler_session->pop_scope();
   return nullptr;
 }
 

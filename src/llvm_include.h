@@ -18,13 +18,16 @@
 #include <llvm/MC/MCTargetOptions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/FileSystem.h>
-#include <llvm/Pass.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/Support/InitLLVM.h>
 #include <llvm/IR/GlobalVariable.h>
 #include <llvm/IR/GlobalValue.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
 
 namespace tanlang {
 
@@ -57,6 +60,8 @@ using llvm::StructType;
 using llvm::PointerType;
 
 using llvm::SectionMemoryManager;
+using llvm::legacy::FunctionPassManager;
+
 }
 
 #endif /* TAN_SRC_LLVM_INCLUDE_H_ */

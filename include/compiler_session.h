@@ -25,15 +25,18 @@ public:
   LLVMContext *get_context();
   std::unique_ptr<IRBuilder<>> &get_builder();
   std::unique_ptr<Module> &get_module();
+  std::unique_ptr<FunctionPassManager> &get_function_pass_manager();
 
 private:
   std::unique_ptr<LLVMContext> _context;
   std::unique_ptr<IRBuilder<>> _builder;
   std::unique_ptr<Module> _module;
   std::vector<std::shared_ptr<Scope>> _scope{};
+  std::unique_ptr<FunctionPassManager> _fpm{};
 
 private:
   void initialize_scope();
+  void init_llvm_pass();
 };
 
 } // namespace tanlang

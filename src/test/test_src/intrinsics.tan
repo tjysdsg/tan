@@ -1,5 +1,3 @@
-fn assert(a: u32) : void;
-
 fn main(argc: int, argv: char**) : int {
     var a: i32 = 0;
     var b: i32 = 1;

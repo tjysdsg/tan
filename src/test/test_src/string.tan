@@ -1,5 +1,3 @@
-fn assert(a: u32) : void;
-
 fn main(argc: int, argv: char**) : int {
     var s: str = "shit";
     @assert(s[0] == 115);

@@ -14,6 +14,7 @@ CompilerSession::CompilerSession(const std::string &module_name) {
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
   initialize_scope();
+  init_llvm_pass();
 }
 
 std::shared_ptr<Scope> CompilerSession::get_current_scope() {
@@ -82,12 +83,25 @@ std::unique_ptr<Module> &CompilerSession::get_module() {
   return _module;
 }
 
+std::unique_ptr<FunctionPassManager> &CompilerSession::get_function_pass_manager() {
+  return _fpm;
+}
+
 void CompilerSession::set_code_block(BasicBlock *block) {
   _scope.back()->_code_block = block;
 }
 
 BasicBlock *CompilerSession::get_code_block() const {
   return _scope.back()->_code_block;
+}
+
+void CompilerSession::init_llvm_pass() {
+  _fpm = std::make_unique<FunctionPassManager>(_module.get());
+  _fpm->add(llvm::createInstructionCombiningPass());
+  _fpm->add(llvm::createReassociatePass());
+  _fpm->add(llvm::createGVNPass());
+  _fpm->add(llvm::createCFGSimplificationPass());
+  _fpm->doInitialization();
 }
 
 } // namespace tanlang
