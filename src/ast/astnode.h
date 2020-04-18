@@ -139,8 +139,11 @@ class ASTLiteral : public ASTNode {
 public:
   ASTLiteral() = delete;
 
-  ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op, lbp, rbp, token, token_index
-  ) {}
+  ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op,
+      lbp,
+      rbp,
+      token,
+      token_index) {}
 
   virtual Ty get_ty() const;
 

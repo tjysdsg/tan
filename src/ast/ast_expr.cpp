@@ -76,9 +76,7 @@ Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
 
 ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   if (!is_ast_type_in(type,
-                      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR,
-                       ASTType::EQ}
-  )) {
+      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR, ASTType::EQ})) {
     report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
   }
   _type = type;
@@ -102,7 +100,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   int type_i = should_cast_to_which(compiler_session, ltype, rtype);
   if (type_i == -1) {
     report_code_error(_token,
-                      "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
+        "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
     rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
   } else {
@@ -167,7 +165,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   int type_i = should_cast_to_which(compiler_session, ltype, rtype);
   if (type_i == -1) {
     report_code_error(_token,
-                      "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
+        "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
     rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
   } else {
@@ -237,8 +235,7 @@ Value *ASTReturn::codegen(CompilerSession *compiler_session) {
 }
 
 ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)
-    : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index
-) {
+    : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index) {
   _is_float = is_float;
   if (is_float) {
     _fvalue = std::stof(str);
@@ -286,50 +283,45 @@ std::string ASTNumberLiteral::to_string(bool print_prefix) const {
 }
 
 ASTNumberLiteral::ASTNumberLiteral(int value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
-                                                                               op_precedence[ASTType::NUM_LITERAL],
-                                                                               0,
-                                                                               nullptr,
-                                                                               token_index
-) {
+    op_precedence[ASTType::NUM_LITERAL],
+    0,
+    nullptr,
+    token_index) {
   _ivalue = value;
   _is_float = false;
 }
 
 ASTNumberLiteral::ASTNumberLiteral(size_t value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
-                                                                                  op_precedence[ASTType::NUM_LITERAL],
-                                                                                  0,
-                                                                                  nullptr,
-                                                                                  token_index
-) {
+    op_precedence[ASTType::NUM_LITERAL],
+    0,
+    nullptr,
+    token_index) {
   _ivalue = static_cast<int>(value);
   _is_float = false;
 }
 
 ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral(ASTType::NUM_LITERAL,
-                                                                                 op_precedence[ASTType::NUM_LITERAL],
-                                                                                 0,
-                                                                                 nullptr,
-                                                                                 token_index
-) {
+    op_precedence[ASTType::NUM_LITERAL],
+    0,
+    nullptr,
+    token_index) {
   _fvalue = value;
   _is_float = true;
 }
 
 ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
-                                                                                  op_precedence[ASTType::STRING_LITERAL],
-                                                                                  0,
-                                                                                  token,
-                                                                                  token_index
-) {
+    op_precedence[ASTType::STRING_LITERAL],
+    0,
+    token,
+    token_index) {
   _svalue = token->value;
 }
 
 ASTStringLiteral::ASTStringLiteral(std::string str, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
-                                                                                     op_precedence[ASTType::STRING_LITERAL],
-                                                                                     0,
-                                                                                     nullptr,
-                                                                                     token_index
-) {
+    op_precedence[ASTType::STRING_LITERAL],
+    0,
+    nullptr,
+    token_index) {
   _svalue = str;
 }
 

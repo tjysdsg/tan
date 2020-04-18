@@ -12,11 +12,10 @@ public:
   ASTParenthesis() = delete;
 
   ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,
-                                                             op_precedence[ASTType::PARENTHESIS],
-                                                             0,
-                                                             token,
-                                                             token_index
-  ) {};
+      op_precedence[ASTType::PARENTHESIS],
+      0,
+      token,
+      token_index) {};
   Value *codegen(CompilerSession *compiler_session) override;
 protected:
   size_t nud(Parser *parser) override;

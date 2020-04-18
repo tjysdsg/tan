@@ -9,11 +9,10 @@ public:
   ASTMemberAccess() = delete;
 
   ASTMemberAccess(Token *token, size_t token_index) : ASTNode(ASTType::MEMBER_ACCESS,
-                                                              op_precedence[ASTType::MEMBER_ACCESS],
-                                                              0,
-                                                              token,
-                                                              token_index
-  ) {};
+      op_precedence[ASTType::MEMBER_ACCESS],
+      0,
+      token,
+      token_index) {};
   Value *codegen(CompilerSession *compiler_session) override;
 
   virtual bool is_lvalue() const { return true; };

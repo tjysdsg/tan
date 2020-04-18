@@ -51,16 +51,15 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     auto *di_file = compiler_session->get_di_file();
     auto *di_func_t = create_function_type(compiler_session, ret_meta, arg_metas);
     DISubprogram *subprogram = compiler_session->get_di_builder()
-                                               ->createFunction(di_scope,
-                                                                func_name,
-                                                                func_name,
-                                                                di_file,
-                                                                (unsigned) _token->l + 1,
-                                                                di_func_t,
-                                                                (unsigned) _token->l + 1,
-                                                                DINode::FlagPrototyped,
-                                                                DISubprogram::SPFlagDefinition
-                                               );
+        ->createFunction(di_scope,
+            func_name,
+            func_name,
+            di_file,
+            (unsigned) _token->l + 1,
+            di_func_t,
+            (unsigned) _token->l + 1,
+            DINode::FlagPrototyped,
+            DISubprogram::SPFlagDefinition);
     F->setSubprogram(subprogram);
     compiler_session->push_di_scope(subprogram);
     /// reset debug emit location
@@ -88,31 +87,28 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       /// create a debug descriptor for the arguments
       auto *arg_meta = ast_cast<ASTTy>(_children[i]->_children[1])->to_llvm_meta(compiler_session);
       llvm::DILocalVariable *di_arg = compiler_session->get_di_builder()
-                                                      ->createParameterVariable(subprogram,
-                                                                                arg_name,
-                                                                                (unsigned) i + 1,
-                                                                                di_file,
-                                                                                (unsigned) _token->l + 1,
-                                                                                arg_meta,
-                                                                                true
-                                                      );
+          ->createParameterVariable(subprogram,
+              arg_name,
+              (unsigned) i + 1,
+              di_file,
+              (unsigned) _token->l + 1,
+              arg_meta,
+              true);
       compiler_session->get_di_builder()
-                      ->insertDeclare(arg_val,
-                                      di_arg,
-                                      compiler_session->get_di_builder()->createExpression(),
-                                      llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, subprogram
-                                      ),
-                                      compiler_session->get_builder()->GetInsertBlock());
+          ->insertDeclare(arg_val,
+              di_arg,
+              compiler_session->get_di_builder()->createExpression(),
+              llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, subprogram),
+              compiler_session->get_builder()->GetInsertBlock());
 
       ++i;
     }
 
     /// set debug emit location to function body
     compiler_session->get_builder()
-                    ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
-                                                            (unsigned) _children[_children.size() - 1]->_token->c + 1,
-                                                            di_scope
-                    ));
+        ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
+            (unsigned) _children[_children.size() - 1]->_token->c + 1,
+            di_scope));
     /// generate function body
     _children[_children.size() - 1]->codegen(compiler_session);
 

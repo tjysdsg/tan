@@ -93,9 +93,9 @@ static const char *GetStableCStr(std::set<std::string> &SavedStrings, StringRef 
 /// \param Edit - The override command to perform.
 /// \param SavedStrings - Set to use for storing string representations.
 static void ApplyOneQAOverride(raw_ostream &OS,
-                               SmallVectorImpl<const char *> &Args,
-                               StringRef Edit,
-                               std::set<std::string> &SavedStrings) {
+    SmallVectorImpl<const char *> &Args,
+    StringRef Edit,
+    std::set<std::string> &SavedStrings) {
   // This does not need to be efficient.
   if (Edit[0] == '^') {
     const char *Str = GetStableCStr(SavedStrings, Edit.substr(1));
@@ -166,8 +166,8 @@ static void ApplyOneQAOverride(raw_ostream &OS,
 /// ApplyQAOverride - Apply a comma separate list of edits to the
 /// input argument lists. See ApplyOneQAOverride.
 static void ApplyQAOverride(SmallVectorImpl<const char *> &Args,
-                            const char *OverrideStr,
-                            std::set<std::string> &SavedStrings) {
+    const char *OverrideStr,
+    std::set<std::string> &SavedStrings) {
   raw_ostream *OS = &llvm::errs();
 
   if (OverrideStr[0] == '#') {
@@ -199,8 +199,8 @@ extern int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAd
 extern int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr);
 
 static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
-                                    SmallVectorImpl<const char *> &ArgVector,
-                                    std::set<std::string> &SavedStrings) {
+    SmallVectorImpl<const char *> &ArgVector,
+    std::set<std::string> &SavedStrings) {
   // Put target and mode arguments at the start of argument list so that
   // arguments specified in command line could override them. Avoid putting
   // them at index 0, as an option like '-cc1' must remain the first.
@@ -336,9 +336,8 @@ extern int clang_main(int argc_, const char **argv_) {
   // response files written by clang will tokenize the same way in either mode.
   bool ClangCLMode = false;
   if (StringRef(TargetAndMode.DriverMode).equals("--driver-mode=cl") || llvm::find_if(argv, [](const char *F) {
-                                                                                        return F && strcmp(F, "--driver-mode=cl") == 0;
-                                                                                      }
-  ) != argv.end()) {
+    return F && strcmp(F, "--driver-mode=cl") == 0;
+  }) != argv.end()) {
     ClangCLMode = true;
   }
   enum { Default, POSIX, Windows } RSPQuoting = Default;

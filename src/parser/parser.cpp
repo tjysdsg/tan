@@ -25,9 +25,8 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
     report_code_error(token,
-                      "Expect token " + value + " with type " + token_type_names[type] + ", but got "
-                          + token->to_string() + " instead"
-    );
+        "Expect token " + value + " with type " + token_type_names[type] + ", but got " + token->to_string()
+            + " instead");
   }
   return peek(index);
 }

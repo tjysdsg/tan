@@ -22,8 +22,9 @@ class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
 
-  ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0, 0, token, token_index
-  ) { _name = token->value; }
+  ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0, 0, token, token_index) {
+    _name = token->value;
+  }
 
   Value *codegen(CompilerSession *compiler_session) override;
 protected:

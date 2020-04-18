@@ -17,7 +17,7 @@ llvm::Value *codegen_push_stack_trace(CompilerSession *compiler_session, std::sh
   compiler_session->get_builder()->CreateStore(val, st);
 
   compiler_session->get_builder()
-                  ->CreateStore(compiler_session->get_builder()->CreateGEP(st, one), Intrinsic::stack_trace);
+      ->CreateStore(compiler_session->get_builder()->CreateGEP(st, one), Intrinsic::stack_trace);
   return st;
 }
 

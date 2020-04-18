@@ -99,17 +99,15 @@ Token *tokenize_comments(Reader *reader, code_ptr &start) {
     }
     if (!t) {
       report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                        static_cast<size_t>(start.l),
-                        static_cast<size_t>(start.c),
-                        "Invalid comments"
-      );
+          static_cast<size_t>(start.l),
+          static_cast<size_t>(start.c),
+          "Invalid comments");
     }
   } else {
     report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                      static_cast<size_t>(start.l),
-                      static_cast<size_t>(start.c),
-                      "Invalid comments"
-    );
+        static_cast<size_t>(start.l),
+        static_cast<size_t>(start.c),
+        "Invalid comments");
   }
   return t;
 }
@@ -130,10 +128,9 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
       break;
     } else {
       report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-                        static_cast<size_t>(forward.l),
-                        static_cast<size_t>(forward.c),
-                        "Unexpected character within a number literal"
-      );
+          static_cast<size_t>(forward.l),
+          static_cast<size_t>(forward.c),
+          "Unexpected character within a number literal");
       delete t;
       return nullptr;
     }
@@ -156,10 +153,9 @@ Token *tokenize_char(Reader *reader, code_ptr &start) {
   forward = skip_until(reader, forward, '\'');
   if (forward > end) {
     report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-                      static_cast<size_t>(forward.l),
-                      static_cast<size_t>(forward.c),
-                      "Incomplete character literal"
-    );
+        static_cast<size_t>(forward.l),
+        static_cast<size_t>(forward.c),
+        "Incomplete character literal");
     exit(1);
   } else {
     std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the single quotes
@@ -178,10 +174,9 @@ Token *tokenize_string(Reader *reader, code_ptr &start) {
   const auto end = reader->back_ptr();
   if (forward > end) {
     report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-                      static_cast<size_t>(forward.l),
-                      static_cast<size_t>(forward.c),
-                      "Incomplete string literal"
-    );
+        static_cast<size_t>(forward.l),
+        static_cast<size_t>(forward.c),
+        "Incomplete string literal");
     exit(1);
   } else {
     std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the double quotes
@@ -235,10 +230,9 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
     t = new Token(TokenType::PUNCTUATION,
-                  std::string(1, (*reader)[start]),
-                  start,
-                  &(*reader)[static_cast<size_t>(start.l)]
-    );
+        std::string(1, (*reader)[start]),
+        start,
+        &(*reader)[static_cast<size_t>(start.l)]);
     start = next;
   } else {
     t = nullptr;
@@ -258,10 +252,9 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
         new_token = tokenize_id(reader, start);
         if (!new_token) {
           report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                            static_cast<size_t>(start.l),
-                            static_cast<size_t>(start.c),
-                            "Invalid identifier"
-          );
+              static_cast<size_t>(start.l),
+              static_cast<size_t>(start.c),
+              "Invalid identifier");
         }
       }
       tokens.emplace_back(new_token);
@@ -270,10 +263,9 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       auto *new_token = tokenize_id(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                          static_cast<size_t>(start.l),
-                          static_cast<size_t>(start.c),
-                          "Invalid identifier"
-        );
+            static_cast<size_t>(start.l),
+            static_cast<size_t>(start.c),
+            "Invalid identifier");
       }
       tokens.emplace_back(new_token);
     } else if (std::isdigit((*reader)[start])) {
@@ -281,10 +273,9 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       auto *new_token = tokenize_number(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                          static_cast<size_t>(start.l),
-                          static_cast<size_t>(start.c),
-                          "Invalid number literal"
-        );
+            static_cast<size_t>(start.l),
+            static_cast<size_t>(start.c),
+            "Invalid number literal");
       }
       tokens.emplace_back(new_token);
     } else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
@@ -292,19 +283,17 @@ std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
       auto *new_token = tokenize_punctuation(reader, start);
       if (!new_token) {
         report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                          static_cast<size_t>(start.l),
-                          static_cast<size_t>(start.c),
-                          "Invalid symbol(s)"
-        );
+            static_cast<size_t>(start.l),
+            static_cast<size_t>(start.c),
+            "Invalid symbol(s)");
       }
       tokens.emplace_back(new_token);
     } else {
       // start = reader->forward_ptr(start);
       report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-                        static_cast<size_t>(start.l),
-                        static_cast<size_t>(start.c),
-                        "Invalid symbol"
-      );
+          static_cast<size_t>(start.l),
+          static_cast<size_t>(start.c),
+          "Invalid symbol");
     }
     start = skip_whitespace(reader, start);
   }

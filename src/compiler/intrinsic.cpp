@@ -10,14 +10,14 @@ llvm::Type *Intrinsic::stack_trace_t = nullptr;
 std::unordered_map<std::string, IntrinsicType>
     Intrinsic::intrinsics
     {{"assert", IntrinsicType::ASSERT}, {"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM},
-     {"swap", IntrinsicType::SWAP}, {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY},
-     {"range", IntrinsicType::RANGE}, {"cast", IntrinsicType::CAST}, {"compile_print", IntrinsicType::COMP_PRINT},
-     {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE},
-     {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA},
-     {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
-     {"is_signed", IntrinsicType::IS_SIGNED}, {"unlikely", IntrinsicType::UNLIKELY}, {"likely", IntrinsicType::LIKELY},
-     {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP}, {"get_decl", IntrinsicType::GET_DECL},
-     {"stack_trace", IntrinsicType::STACK_TRACE}};
+        {"swap", IntrinsicType::SWAP}, {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY},
+        {"range", IntrinsicType::RANGE}, {"cast", IntrinsicType::CAST}, {"compile_print", IntrinsicType::COMP_PRINT},
+        {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE},
+        {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA},
+        {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
+        {"is_signed", IntrinsicType::IS_SIGNED}, {"unlikely", IntrinsicType::UNLIKELY},
+        {"likely", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP},
+        {"get_decl", IntrinsicType::GET_DECL}, {"stack_trace", IntrinsicType::STACK_TRACE}};
 
 static void init_noop(CompilerSession *compiler_session);
 static void init_assert(CompilerSession *compiler_session);
@@ -74,8 +74,7 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
   return _llvm_value;
 }
 
-Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index
-) {
+Intrinsic::Intrinsic(Token *token, size_t token_index) : ASTNode(ASTType::INTRINSIC, 0, 0, token, token_index) {
   _start_index = token_index + 1; /// skip "@"
 }
 
@@ -186,7 +185,7 @@ static void init_assert(CompilerSession *compiler_session) {
       Type *ret_type = compiler_session->get_builder()->getVoidTy();
       std::vector<Type *> arg_types
           {compiler_session->get_builder()->getInt8PtrTy(), compiler_session->get_builder()->getInt8PtrTy(),
-           compiler_session->get_builder()->getInt32Ty(),};
+              compiler_session->get_builder()->getInt32Ty(),};
       FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
       assert_func = Function::Create(FT, Function::ExternalLinkage, "__assert", compiler_session->get_module().get());
     }
@@ -217,8 +216,8 @@ static void init_assert(CompilerSession *compiler_session) {
       auto *two = ConstantInt::get(int_t, 2);
       std::vector<Value *> args =
           {compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, one})),
-           compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, zero})),
-           compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, two}))};
+              compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, zero})),
+              compiler_session->get_builder()->CreateLoad(compiler_session->get_builder()->CreateGEP(st, {zero, two}))};
       compiler_session->get_builder()->CreateCall(assert_func, args);
       compiler_session->get_builder()->CreateBr(merge_bb);
       func->getBasicBlockList().push_back(merge_bb);
@@ -243,12 +242,11 @@ static void init_stack_trace(CompilerSession *compiler_session) {
   StructType *st_t = get_stack_trace_type(compiler_session);
   /// a global pointer to an array of StackTrace
   GlobalVariable *st = new GlobalVariable(*compiler_session->get_module(),
-                                          st_t->getPointerTo(),
-                                          false,
-                                          GlobalValue::ExternalLinkage,
-                                          nullptr,
-                                          "st"
-  );
+      st_t->getPointerTo(),
+      false,
+      GlobalValue::ExternalLinkage,
+      nullptr,
+      "st");
   st->setExternallyInitialized(true);
   Intrinsic::stack_trace = st;
 }
@@ -259,8 +257,8 @@ static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session)
   /// define StackTrace type
   llvm::StructType *struct_type = llvm::StructType::create(*compiler_session->get_context(), "StackTrace");
   struct_type->setBody(compiler_session->get_builder()->getInt8PtrTy(),
-                       compiler_session->get_builder()->getInt8PtrTy(),
-                       compiler_session->get_builder()->getInt32Ty());
+      compiler_session->get_builder()->getInt8PtrTy(),
+      compiler_session->get_builder()->getInt32Ty());
   Intrinsic::stack_trace_t = struct_type;
   return struct_type;
 }

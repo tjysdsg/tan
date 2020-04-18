@@ -5,10 +5,10 @@
 namespace tanlang {
 
 llvm::Value *convert_to(CompilerSession *compiler_session,
-                        llvm::Type *dest,
-                        llvm::Value *orig_val,
-                        bool is_lvalue,
-                        bool is_signed) {
+    llvm::Type *dest,
+    llvm::Value *orig_val,
+    bool is_lvalue,
+    bool is_signed) {
   auto *orig = orig_val->getType();
   auto *loaded = orig_val;
   if (is_lvalue) { /// IMPORTANT
@@ -53,8 +53,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   } else if (dest->isIntegerTy(1)) { /// all types to bool, equivalent to val != 0
     // FIXME? floating point
     return compiler_session->get_builder()
-                           ->CreateICmpNE(loaded,
-                                          ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
+        ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
   } else {
     // TODO: complex type
     throw std::runtime_error("Invalid type conversion");
@@ -85,10 +84,9 @@ DISubroutineType *create_function_type(CompilerSession *compiler_session, Metada
   types.reserve(args.size());
   types.insert(types.begin() + 1, args.begin(), args.end());
   return compiler_session->get_di_builder()
-                         ->createSubroutineType(compiler_session->get_di_builder()->getOrCreateTypeArray(types),
-                                                DINode::FlagZero,
-                                                llvm::dwarf::DW_CC_normal
-                         );
+      ->createSubroutineType(compiler_session->get_di_builder()->getOrCreateTypeArray(types),
+          DINode::FlagZero,
+          llvm::dwarf::DW_CC_normal);
 }
 
 } // namespace

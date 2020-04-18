@@ -88,8 +88,7 @@ static size_t getCurrentStackAllocation() {
     if (fscanf(StatFile, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*lu %*lu %*lu %*lu %*lu "
                          "%*lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*lu %*ld %*lu %*lu "
                          "%*lu %*lu %lu %*lu %*lu %*lu %*lu %*lu %*llu %*lu %*lu %*d %*d "
-                         "%*u %*u %*llu %*lu %*ld %*lu %*lu %*lu %*lu %*lu %*lu %lu %*d", &StackPtr, &EnvEnd
-    ) == 2) {
+                         "%*u %*u %*llu %*lu %*ld %*lu %*lu %*lu %*lu %*lu %*lu %lu %*d", &StackPtr, &EnvEnd) == 2) {
       #if defined(__GNUC__) && !defined(__clang__)
       #pragma GCC diagnostic pop
       #endif
@@ -243,8 +242,7 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
         /*Binary=*/false,
         /*RemoveFileOnSignal=*/false, "",
         /*Extension=*/"json",
-        /*useTemporary=*/false
-    );
+        /*useTemporary=*/false);
 
     llvm::timeTraceProfilerWrite(*profilerOutput);
     // FIXME(ibiryukov): make profilerOutput flush in destructor instead.

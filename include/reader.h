@@ -112,8 +112,7 @@ public:
     if (s_row == e_row) {
       assert(start.c != end.c);
       ret = _lines[static_cast<size_t>(s_row)]->code
-                                              .substr(static_cast<unsigned long>(start.c),
-                                                      static_cast<unsigned long>(end.c - start.c));
+          .substr(static_cast<unsigned long>(start.c), static_cast<unsigned long>(end.c - start.c));
     } else {
       ret += _lines[static_cast<size_t>(s_row)]->code.substr(static_cast<unsigned long>(start.c));
       for (auto r = s_row; r < e_row - 1; ++r) {

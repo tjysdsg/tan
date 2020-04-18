@@ -145,7 +145,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       size_bits = 64;
       unsigned align_bits = (unsigned) e_di_type->getSizeInBits();
       ret = compiler_session->get_di_builder()
-                            ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
+          ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
       break;
     }
     case Ty::VOID: {
@@ -167,19 +167,18 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
         elements.push_back(ast_cast<ASTTy>(e->_children[1])->to_llvm_meta(compiler_session));
       }
       ret = compiler_session->get_di_builder()
-                            ->createStructType(compiler_session->get_current_di_scope(),
-                                               _type_name,
-                                               di_file,
-                                               (unsigned) st->_token->l,
-                                               size_bits,
-                                               align_bits,
-                                               DINode::DIFlags::FlagZero,
-                                               nullptr,
-                                               compiler_session->get_di_builder()->getOrCreateArray(elements),
-                                               0,
-                                               nullptr,
-                                               _type_name
-                            );
+          ->createStructType(compiler_session->get_current_di_scope(),
+              _type_name,
+              di_file,
+              (unsigned) st->_token->l,
+              size_bits,
+              align_bits,
+              DINode::DIFlags::FlagZero,
+              nullptr,
+              compiler_session->get_di_builder()->getOrCreateArray(elements),
+              0,
+              nullptr,
+              _type_name);
       break;
     }
     case Ty::ARRAY: {
@@ -190,7 +189,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       size_bits = 64;
       unsigned align_bits = e_di_type->getAlignInBits();
       ret = compiler_session->get_di_builder()
-                            ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
+          ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
       break;
     }
     default: {
@@ -267,7 +266,7 @@ std::string ASTTy::get_type_name() const {
 }
 
 std::string ASTTy::to_string(bool print_prefix) const {
-  return ASTNode::to_string(print_prefix) + " " + _type_name;
+  return ASTNode::to_string(print_prefix) + " " + get_type_name();
 }
 
 } // namespace tanlang

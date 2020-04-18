@@ -161,8 +161,8 @@ public:
 }
 
 bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
-                                         ArrayRef<const char *> Argv,
-                                         DiagnosticsEngine &Diags) {
+    ArrayRef<const char *> Argv,
+    DiagnosticsEngine &Diags) {
   bool Success = true;
 
   // Parse the arguments.
@@ -216,10 +216,9 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
     } else {
       Opts.CompressDebugSections =
           llvm::StringSwitch<llvm::DebugCompressionType>(A->getValue()).Case("none", llvm::DebugCompressionType::None)
-                                                                       .Case("zlib", llvm::DebugCompressionType::Z)
-                                                                       .Case("zlib-gnu", llvm::DebugCompressionType::GNU
-                                                                       )
-                                                                       .Default(llvm::DebugCompressionType::None);
+              .Case("zlib", llvm::DebugCompressionType::Z)
+              .Case("zlib-gnu", llvm::DebugCompressionType::GNU)
+              .Default(llvm::DebugCompressionType::None);
     }
   }
 
@@ -438,8 +437,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
 
     auto FOut = llvm::make_unique<formatted_raw_ostream>(*Out);
     Str.reset(TheTarget->createAsmStreamer(Ctx, std::move(FOut), /*asmverbose*/ true,
-        /*useDwarfDirectory*/ true, IP, std::move(CE), std::move(MAB), (bool) Opts.ShowInst
-    ));
+        /*useDwarfDirectory*/ true, IP, std::move(CE), std::move(MAB), (bool) Opts.ShowInst));
   } else if (Opts.OutputType == AssemblerInvocation::FT_Null) {
     Str.reset(createNullStreamer(Ctx));
   } else {
@@ -456,16 +454,15 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
 
     Triple T(Opts.Triple);
     Str.reset(TheTarget->createMCObjectStreamer(T,
-                                                Ctx,
-                                                std::move(MAB),
-                                                std::move(OW),
-                                                std::move(CE),
-                                                *STI,
-                                                (bool) Opts.RelaxAll,
-                                                (bool) Opts.IncrementalLinkerCompatible,
+        Ctx,
+        std::move(MAB),
+        std::move(OW),
+        std::move(CE),
+        *STI,
+        (bool) Opts.RelaxAll,
+        (bool) Opts.IncrementalLinkerCompatible,
         /*DWARFMustBeAtTheEnd*/
-                                                true
-    ));
+        true));
     Str.get()->InitSections((bool) Opts.NoExecStack);
   }
 
@@ -526,16 +523,13 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   return Failed;
 }
 
-static void LLVMErrorHandler(void *UserData, const std::string &Message, bool GenCrashDiag) {
+static void LLVMErrorHandler(void *UserData, const std::string &Message, bool) {
   DiagnosticsEngine &Diags = *static_cast<DiagnosticsEngine *>(UserData);
-
   Diags.Report(diag::err_fe_error_backend) << Message;
-
-  // We cannot recover from llvm errors.
   exit(1);
 }
 
-int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
+int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *) {
   // Initialize targets and assembly printers/parsers.
   InitializeAllTargetInfos();
   InitializeAllTargetMCs();
@@ -562,22 +556,13 @@ int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
     std::unique_ptr<OptTable> Opts(driver::createDriverOptTable());
     Opts->PrintHelp(llvm::outs(), "clang -cc1as [options] file...", "Clang Integrated Assembler",
         /*Include=*/driver::options::CC1AsOption, /*Exclude=*/0,
-        /*ShowAllAliases=*/false
-    );
+        /*ShowAllAliases=*/false);
     return 0;
   }
-
-  // Honor -version.
-  //
-  // FIXME: Use a better -version message?
   if (Asm.ShowVersion) {
     llvm::cl::PrintVersionMessage();
     return 0;
   }
-
-  // Honor -mllvm.
-  //
-  // FIXME: Remove this, one day.
   if (!Asm.LLVMArgs.empty()) {
     unsigned NumArgs = (unsigned) Asm.LLVMArgs.size();
     auto Args = llvm::make_unique<const char *[]>(NumArgs + 2);

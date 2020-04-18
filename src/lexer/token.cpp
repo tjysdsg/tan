@@ -5,25 +5,25 @@ namespace tanlang {
 /// map TokenType to string
 std::unordered_map<TokenType, std::string> token_type_names
     {{TokenType::COMMENTS, "COMMENTS"}, {TokenType::KEYWORD, "KEYWORD"}, {TokenType::INT, "INT"},
-     {TokenType::FLOAT, "FLOAT"}, {TokenType::ID, "ID"}, {TokenType::CHAR, "CHAR"}, {TokenType::STRING, "STRING"},
-     {TokenType::PUNCTUATION, "PUNCTUATION"}, {TokenType::RELOP, "RELOP"}, {TokenType::UOP, "UOP"},
-     {TokenType::BOP, "BOP"},};
+        {TokenType::FLOAT, "FLOAT"}, {TokenType::ID, "ID"}, {TokenType::CHAR, "CHAR"}, {TokenType::STRING, "STRING"},
+        {TokenType::PUNCTUATION, "PUNCTUATION"}, {TokenType::RELOP, "RELOP"}, {TokenType::UOP, "UOP"},
+        {TokenType::BOP, "BOP"},};
 
 /// keywords/reserved words, including primitive types
 const std::vector<std::string> KEYWORDS
     {"for", "while", "do", "if", "else", "fn", "var", "int", "float", "continue", "break", "let", "struct", "enum",
-     "union", "switch", "case", "u32", "return", "str", "char"};
+        "union", "switch", "case", "u32", "return", "str", "char"};
 
 const std::vector<char> PUNCTUATIONS
     {'~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"',
-     ',', '.', '<', '>', '/', '?', '@'};
+        ',', '.', '<', '>', '/', '?', '@'};
 
 /// any symbol in OP can both be an operator itself or the first character of an operator
 const std::vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
 
 const std::vector<std::string> OP_ALL
     {"==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=",
-     "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
+        "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 
 std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP{
     // RELOP

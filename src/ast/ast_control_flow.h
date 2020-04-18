@@ -12,8 +12,7 @@ class ASTIf final : public ASTNode {
 public:
   ASTIf() = delete;
 
-  ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token, token_index
-  ) {}
+  ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, token, token_index) {}
 
   Value *codegen(CompilerSession *compiler_session) override;
 protected:
@@ -28,8 +27,10 @@ public:
   ASTElse() = delete;
 
   explicit ASTElse(Token *token, size_t token_index) : ASTNode(ASTType::ELSE,
-                                                               op_precedence[ASTType::ELSE], 0, token, token_index
-  ) {}
+      op_precedence[ASTType::ELSE],
+      0,
+      token,
+      token_index) {}
 
   Value *codegen(CompilerSession *compiler_session) override;
 
