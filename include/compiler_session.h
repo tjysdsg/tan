@@ -37,6 +37,8 @@ public:
 
   DICompileUnit *get_di_cu() const { return _di_cu; }
 
+  void set_current_debug_location(size_t l, size_t c);
+
 private:
   std::unique_ptr<LLVMContext> _context;
   std::unique_ptr<IRBuilder<>> _builder;

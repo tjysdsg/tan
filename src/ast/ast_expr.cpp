@@ -199,6 +199,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   /// codegen the rhs
   auto lhs = _children[0];
   auto rhs = _children[1];
@@ -226,6 +227,7 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTReturn::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *result = _children[0]->codegen(compiler_session);
   if (_children[0]->is_lvalue()) {
     result = compiler_session->get_builder()->CreateLoad(result, "ret");
