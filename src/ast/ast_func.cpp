@@ -55,9 +55,9 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
                                                                 func_name,
                                                                 func_name,
                                                                 di_file,
-                                                                (unsigned) _token->l,
+                                                                (unsigned) _token->l + 1,
                                                                 di_func_t,
-                                                                (unsigned) _token->l,
+                                                                (unsigned) _token->l + 1,
                                                                 DINode::FlagPrototyped,
                                                                 DISubprogram::SPFlagDefinition
                                                );
@@ -90,9 +90,9 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       llvm::DILocalVariable *di_arg = compiler_session->get_di_builder()
                                                       ->createParameterVariable(subprogram,
                                                                                 arg_name,
-                                                                                (unsigned) i,
+                                                                                (unsigned) i + 1,
                                                                                 di_file,
-                                                                                (unsigned) _token->l,
+                                                                                (unsigned) _token->l + 1,
                                                                                 arg_meta,
                                                                                 true
                                                       );
@@ -100,7 +100,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
                       ->insertDeclare(arg_val,
                                       di_arg,
                                       compiler_session->get_di_builder()->createExpression(),
-                                      llvm::DebugLoc::get((unsigned) _token->l, (unsigned) _token->c, subprogram),
+                                      llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, subprogram
+                                      ),
                                       compiler_session->get_builder()->GetInsertBlock());
 
       ++i;
@@ -108,8 +109,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
     /// set debug emit location to function body
     compiler_session->get_builder()
-                    ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l,
-                                                            (unsigned) _children[_children.size() - 1]->_token->c,
+                    ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
+                                                            (unsigned) _children[_children.size() - 1]->_token->c + 1,
                                                             di_scope
                     ));
     /// generate function body
