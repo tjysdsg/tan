@@ -42,6 +42,7 @@ Compiler::Compiler(CompilerSession *compiler_session, TanCompilation *config) {
   _llvm_module->setDataLayout(_target_machine->createDataLayout());
   _llvm_module->setTargetTriple(target_triple);
   compiler_session->finalize_codegen();
+  llvm::verifyModule(*_llvm_module);
 }
 
 void Compiler::emit_object(const std::string &filename) {

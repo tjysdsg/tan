@@ -14,6 +14,7 @@ CompilerSession::CompilerSession(const std::string &module_name) {
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
   // add the current debug info version into the module.
+  _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
   _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
   _di_builder = std::make_unique<DIBuilder>(*_module.get());
   _di_file = _di_builder->createFile(module_name, ".");
