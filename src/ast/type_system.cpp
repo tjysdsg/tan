@@ -80,4 +80,15 @@ int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm
   return -1;
 }
 
+DISubroutineType *create_function_type(CompilerSession *compiler_session, Metadata *ret, std::vector<Metadata *> args) {
+  std::vector<Metadata *> types{ret};
+  types.reserve(args.size());
+  types.insert(types.begin() + 1, args.begin(), args.end());
+  return compiler_session->get_di_builder()
+                         ->createSubroutineType(compiler_session->get_di_builder()->getOrCreateTypeArray(types),
+                                                DINode::FlagZero,
+                                                llvm::dwarf::DW_CC_normal
+                         );
+}
+
 } // namespace

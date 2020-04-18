@@ -13,14 +13,12 @@ CompilerSession::CompilerSession(const std::string &module_name) {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
+  // add the current debug info version into the module.
+  _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
   _di_builder = std::make_unique<DIBuilder>(*_module.get());
-  _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C,
-                                          _di_builder->createFile(module_name, "."),
-                                          "tan compiler",
-                                          false,
-                                          "",
-                                          0
-  );
+  _di_file = _di_builder->createFile(module_name, ".");
+  _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
+  _di_scope = {_di_file};
   initialize_scope();
   init_llvm_pass();
 }
@@ -114,6 +112,22 @@ void CompilerSession::init_llvm_pass() {
 
 void CompilerSession::finalize_codegen() {
   _di_builder->finalize();
+}
+
+std::unique_ptr<DIBuilder> &CompilerSession::get_di_builder() {
+  return _di_builder;
+}
+
+DIScope *CompilerSession::get_current_di_scope() const {
+  return _di_scope.back();
+}
+
+void CompilerSession::push_di_scope(DIScope *scope) {
+  _di_scope.push_back(scope);
+}
+
+void CompilerSession::pop_di_scope() {
+  _di_scope.pop_back();
 }
 
 } // namespace tanlang

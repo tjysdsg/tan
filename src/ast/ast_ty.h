@@ -54,6 +54,7 @@ public:
 
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
+  llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
 
   void set_is_lvalue(bool heaped) { _is_lvalue = heaped; }
@@ -64,7 +65,7 @@ private:
   size_t nud_array(Parser *parser);
 
 private:
-  std::string _type_name{};
+  mutable std::string _type_name{};
   Ty _ty = Ty::INVALID;
   size_t _n_elements = 0;
   bool _is_lvalue = false;

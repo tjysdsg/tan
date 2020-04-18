@@ -39,7 +39,7 @@ size_t ASTStruct::get_member_index(std::string name) {
 }
 
 std::string ASTStruct::get_type_name() const {
-  return ast_cast<ASTTy>(_children[0])->get_type_name();
+  return _children[0]->get_type_name();
 }
 
 llvm::Type *ASTStruct::to_llvm_type(CompilerSession *) const {

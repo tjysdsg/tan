@@ -17,16 +17,15 @@ class CompilerSession;
  * \return Converted value if convertible, otherwise `nullptr`.
  * */
 llvm::Value *convert_to(CompilerSession *compiler_session,
-                        llvm::Type *dest,
-                        llvm::Value *orig_val,
-                        bool is_lvalue,
-                        bool is_signed = false);
+                        llvm::Type *dest, llvm::Value *orig_val, bool is_lvalue, bool is_signed = false);
 
 /**
  * \brief Find out which type should a value be implicitly cast to.
  * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
  * */
 int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2);
+
+DISubroutineType *create_function_type(CompilerSession *compiler_session, Metadata *ret, std::vector<Metadata *> args);
 
 } // namespace
 

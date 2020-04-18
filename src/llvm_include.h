@@ -67,6 +67,14 @@ using llvm::legacy::FunctionPassManager;
 using llvm::DIBuilder;
 using llvm::DICompileUnit;
 using llvm::DIType;
+using llvm::DIFile;
+using llvm::DIType;
+using llvm::DIScope;
+using llvm::DISubprogram;
+using llvm::DISubroutineType;
+using llvm::Metadata;
+using llvm::DINode;
+using llvm::DebugLoc;
 
 }
 

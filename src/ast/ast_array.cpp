@@ -31,7 +31,7 @@ std::string ASTArrayLiteral::get_type_name() const {
   size_t i = 0;
   size_t n = _children.size();
   for (auto c : _children) {
-    ret += ast_cast<ASTLiteral>(c)->get_type_name();
+    ret += c->get_type_name();
     if (i < n - 1) { ret += ", "; }
     ++i;
   }

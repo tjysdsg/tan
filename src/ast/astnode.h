@@ -111,6 +111,8 @@ public:
 
   virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
 
+  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const { return nullptr; };
+
   virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
 
   /**

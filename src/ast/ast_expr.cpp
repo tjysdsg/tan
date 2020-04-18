@@ -34,8 +34,7 @@ std::string ASTVarDecl::get_name() const {
 }
 
 std::string ASTVarDecl::get_type_name() const {
-  auto t = ast_cast<ASTTy>(_children[1]);
-  return t->get_type_name();
+  return _children[1]->get_type_name();
 }
 
 llvm::Type *ASTVarDecl::to_llvm_type(CompilerSession *compiler_session) const {

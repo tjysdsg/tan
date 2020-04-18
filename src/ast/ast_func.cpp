@@ -10,20 +10,23 @@ namespace tanlang {
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// new scope
   auto scope = compiler_session->push_scope();
-  /// make function prototype
-  Type *ret_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
+
+  Metadata *ret_meta = _children[0]->to_llvm_meta(compiler_session);
+  Type *ret_type = _children[0]->to_llvm_type(compiler_session);
   std::vector<Type *> arg_types;
+  std::vector<Metadata *> arg_metas;
   /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_types.push_back(type_name->to_llvm_type(compiler_session));
+    arg_metas.push_back(type_name->to_llvm_meta(compiler_session));
   }
 
   /// get function name
   std::shared_ptr<ASTIdentifier> fname = ast_cast<ASTIdentifier>(_children[1]);
   std::string func_name = fname->get_name();
 
-  /// create function
+  /// create function prototype
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
   // FIXME: external linkage
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
@@ -43,6 +46,26 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->SetInsertPoint(main_block);
     compiler_session->set_code_block(main_block); /// set current scope's code block
 
+    /// debug information
+    DIScope *di_scope = compiler_session->get_current_di_scope();
+    auto *di_file = compiler_session->get_di_file();
+    auto *di_func_t = create_function_type(compiler_session, ret_meta, arg_metas);
+    DISubprogram *subprogram = compiler_session->get_di_builder()
+                                               ->createFunction(di_scope,
+                                                                func_name,
+                                                                func_name,
+                                                                di_file,
+                                                                (unsigned) _token->l,
+                                                                di_func_t,
+                                                                (unsigned) _token->l,
+                                                                DINode::FlagPrototyped,
+                                                                DISubprogram::SPFlagDefinition
+                                               );
+    F->setSubprogram(subprogram);
+    compiler_session->push_di_scope(subprogram);
+    /// reset debug emit location
+    compiler_session->get_builder()->SetCurrentDebugLocation(DebugLoc());
+
     /// set initial stack trace for the main function
     if (func_name == "main") {
       Intrinsic::RuntimeInit(compiler_session);
@@ -61,13 +84,39 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       compiler_session->get_builder()->CreateStore(&a, arg_val);
       ast_cast<ASTVarDecl>(_children[i])->_llvm_value = arg_val;
       compiler_session->add(arg_name, _children[i]);
+
+      /// create a debug descriptor for the arguments
+      auto *arg_meta = ast_cast<ASTTy>(_children[i]->_children[1])->to_llvm_meta(compiler_session);
+      llvm::DILocalVariable *di_arg = compiler_session->get_di_builder()
+                                                      ->createParameterVariable(subprogram,
+                                                                                arg_name,
+                                                                                (unsigned) i,
+                                                                                di_file,
+                                                                                (unsigned) _token->l,
+                                                                                arg_meta,
+                                                                                true
+                                                      );
+      compiler_session->get_di_builder()
+                      ->insertDeclare(arg_val,
+                                      di_arg,
+                                      compiler_session->get_di_builder()->createExpression(),
+                                      llvm::DebugLoc::get((unsigned) _token->l, (unsigned) _token->c, subprogram),
+                                      compiler_session->get_builder()->GetInsertBlock());
+
       ++i;
     }
+
+    /// set debug emit location to function body
+    compiler_session->get_builder()
+                    ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l,
+                                                            (unsigned) _children[_children.size() - 1]->_token->c,
+                                                            di_scope
+                    ));
     /// generate function body
     _children[_children.size() - 1]->codegen(compiler_session);
 
     /// create a return instruction if there is none
-    if (!(main_block->back().getOpcode() & llvm::Instruction::Ret)) {
+    if (!(compiler_session->get_builder()->GetInsertBlock()->back().getOpcode() & llvm::Instruction::Ret)) {
       compiler_session->get_builder()->CreateRetVoid();
     }
   }
@@ -78,6 +127,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block());
   /// pop scope
   compiler_session->pop_scope();
+  compiler_session->pop_di_scope();
   return nullptr;
 }
 
