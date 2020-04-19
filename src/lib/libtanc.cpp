@@ -63,16 +63,27 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     END_TRY
   }
 
-  _link(files, config);
+  for (size_t i = 0; i < config->n_link_files; ++i) {
+    files.push_back(std::string(config->link_files[i]));
+  }
+  if (config->type == EXE) {
+    _link(files, config);
+  } else if (config->type == OBJ) {
+  } else {
+    // TODO
+    assert(false);
+  }
   return true;
 }
 
 bool tan_link(unsigned n_files, char **input_paths, TanCompilation *config) {
-  if (config->type == OBJ) { return true; }
   std::vector<std::string> files;
-  files.reserve(n_files);
+  files.reserve(n_files + config->n_link_files);
   for (size_t i = 0; i < n_files; ++i) {
     files.push_back(std::string(input_paths[i]));
+  }
+  for (size_t i = 0; i < config->n_link_files; ++i) {
+    files.push_back(std::string(config->link_files[i]));
   }
   return _link(files, config);
 }

@@ -245,7 +245,7 @@ static void init_stack_trace(CompilerSession *compiler_session) {
   GlobalVariable *st = new GlobalVariable(*compiler_session->get_module(),
       st_t->getPointerTo(),
       false,
-      GlobalValue::ExternalLinkage,
+      GlobalValue::ExternalWeakLinkage,
       nullptr,
       "st");
   st->setExternallyInitialized(true);
@@ -277,7 +277,6 @@ void Intrinsic::RuntimeInit(CompilerSession *compiler_session) {
   }
   auto *int_t = compiler_session->get_builder()->getInt32Ty();
   Value *st = compiler_session->get_builder()->CreateAlloca(st_t, ConstantInt::get(int_t, MAX_N_FUNCTION_CALLS, false));
-  // st = compiler_session->get_builder()->CreateGEP(st, ConstantInt::get(int_t, 0, false));
   compiler_session->get_builder()->CreateStore(st, Intrinsic::stack_trace);
 }
 

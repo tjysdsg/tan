@@ -1,0 +1,3 @@
+set(RUNTIME_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/print.tan)
+add_custom_target(runtime DEPENDS tanc SOURCES ${RUNTIME_SRCS})
+add_custom_command(TARGET runtime COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc --type=obj ${RUNTIME_SRCS} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

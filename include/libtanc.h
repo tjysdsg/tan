@@ -1,5 +1,6 @@
 #ifndef TAN_SRC_LIB_LIBTANC_H_
 #define TAN_SRC_LIB_LIBTANC_H_
+#include <cstddef>
 
 /**
  * \file libtanc.h
@@ -20,6 +21,8 @@ struct TanCompilation {
   TanCompileType type = OBJ; ///< Type of compilation, \see TanCompileType
   unsigned verbose = 0; ///< Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree
   const char *out_file = "a.out"; ///< output filename, invalid if TanCompilation::type is set to OBJ
+  size_t n_link_files = 0;
+  const char *const *link_files = nullptr;
   // TODO: output platform, architecture, ...
 };
 

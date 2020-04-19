@@ -110,4 +110,4 @@ add_executable(tan-ld ${LINKER_SRCS})
 target_link_libraries(tan-ld tan gflags::gflags ${DEP_LIBS})
 set_other_options(tan-ld)
 
-# add_subdirectory(${PROJECT_SOURCE_DIR}/src/test/)
+add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
