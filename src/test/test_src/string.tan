@@ -1,8 +1,11 @@
+fn print(s: str) : int;
+
 fn main(argc: int, argv: char**) : int {
     var s: str = "shit";
     @assert(s[0] == 115);
     @assert(s[1] == 104);
     @assert(s[2] == 105);
     @assert(s[3] == 116);
+    print("SUCCESS");
     return 0;
 }

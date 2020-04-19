@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 fn main() : int {
     var i: u32 = 0;
     var gt_50: u32 = 0;
@@ -13,5 +15,6 @@ fn main() : int {
     @assert(i == 100);
     @assert(gt_50 == 49);
     @assert(lt_50 == 51);
+    print("SUCCESS");
     return 0;
 }

@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 fn main(argc: int, argv: char**) : int {
     var a: i32 = 0;
     var b: i32 = 1;
@@ -7,5 +9,6 @@ fn main(argc: int, argv: char**) : int {
     @assert(@file);
     @assert(@line);
     var argc_decl: str = @get_decl(argc);
+    print("SUCCESS");
     return 0;
 }

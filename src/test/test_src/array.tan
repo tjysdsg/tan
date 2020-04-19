@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 fn main() : i32 {
     var flat: [i32, 3] = [1, 2, 3];
     var e1: i32 = flat[1];
@@ -7,5 +9,6 @@ fn main() : i32 {
     @assert(e2 == 2);
     @assert(nested[0][0] == 1);
     @assert(nested[2][0] == 3);
+    print("SUCCESS");
     return 0;
 }

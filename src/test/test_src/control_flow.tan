@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 // TODO: fix return inside if statement
 fn sign(a: int) : int {
     var ret: int = 0;
@@ -28,5 +30,6 @@ fn main(argc: int, argv: char**) : int {
         @assert(0);
     }
     @assert(else_if(1) == 1);
+    print("SUCCESS");
     return 0;
 }

@@ -5,8 +5,7 @@ fail() {
 }
 
 for f in src/test/test_src/*.tan; do
-  echo "=========================="
-  ./bin/tanc $f || fail $f
+  ./bin/tanc runtime/print.tan $f || fail $f
   ./a.out || fail $f
   echo "=========================="
 done

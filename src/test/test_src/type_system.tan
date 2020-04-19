@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 fn main() : int {
     var a1: i32 = 100;
     @assert(a1 == 100);
@@ -17,5 +19,6 @@ fn main() : int {
     @assert(a7 == 100.0);
     a7 = a5;
     @assert(a7 == 100);
+    print("SUCCESS");
     return 0;
 }

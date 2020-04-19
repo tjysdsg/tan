@@ -1,3 +1,5 @@
+fn print(s: str) : int;
+
 struct Useless {
     var shit: i8;
     var fuck: i8 = 0;
@@ -14,5 +16,6 @@ fn main(argc: int, argv: u8**) : i32 {
     @assert(s.fuck == 10);
     @assert(shit == 100);
     @assert(s.f == 1.0);
+    print("SUCCESS");
     return 0;
 }
