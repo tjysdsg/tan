@@ -2,10 +2,12 @@
 #include "src/ast/type_system.h"
 #include "compiler_session.h"
 #include "intrinsic.h"
+#include "token.h"
 
 namespace tanlang {
 
 llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   if (_loop_type == ASTLoopType::WHILE) {
     Function *func = compiler_session->get_builder()->GetInsertBlock()->getParent();
     BasicBlock *loop_bb = BasicBlock::Create(*compiler_session->get_context(), "loop", func);

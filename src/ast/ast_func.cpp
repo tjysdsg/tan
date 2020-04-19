@@ -8,6 +8,7 @@
 namespace tanlang {
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   /// new scope
   auto scope = compiler_session->push_scope();
 

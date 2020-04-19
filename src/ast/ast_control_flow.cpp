@@ -6,6 +6,7 @@
 namespace tanlang {
 
 Value *ASTIf::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   Value *condition = _children[0]->codegen(compiler_session);
   if (!condition) {
     auto *condition_token = _children[0]->_token;
@@ -47,6 +48,7 @@ Value *ASTIf::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTElse::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   return _children[0]->codegen(compiler_session);
 }
 

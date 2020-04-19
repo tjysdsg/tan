@@ -10,6 +10,7 @@
 namespace tanlang {
 
 Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   Value *ret = nullptr;
   if (_children[1]->_type == ASTType::ID) { /// dot access
     std::shared_ptr<ASTNode> lhs = nullptr;

@@ -6,6 +6,7 @@
 namespace tanlang {
 
 Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *result = _children[0]->codegen(compiler_session);
   size_t n = _children.size();
   for (size_t i = 1; i < n; ++i) {
@@ -15,6 +16,7 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   std::string name = ast_cast<ASTIdentifier>(_children[0])->get_name();
   Type *type = ast_cast<ASTTy>(_children[1])->to_llvm_type(compiler_session);
   Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
@@ -56,6 +58,7 @@ Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(compiler_session);
   if (_children[0]->is_lvalue()) {
     rhs = compiler_session->get_builder()->CreateLoad(rhs);
@@ -64,6 +67,7 @@ Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(compiler_session);
   if (_children[0]->is_lvalue()) {
     rhs = compiler_session->get_builder()->CreateLoad(rhs);
@@ -84,6 +88,7 @@ ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfi
 }
 
 Value *ASTCompare::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
   assert(lhs && rhs);
@@ -135,6 +140,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
 }
 
 Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   if (_children.size() == 1) { /// unary plus/minus
     if (!is_ast_type_in(_type, {ASTType::SUM, ASTType::SUBTRACT})) {
       report_code_error(_token, "Invalid unary operation");
