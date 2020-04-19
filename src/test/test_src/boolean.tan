@@ -1,4 +1,5 @@
 fn main(argc: int, argv: char**) : int {
+    @assert(1 != 0);
     @assert(!(1 == 0));
     return 0;
 }
