@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
+fail() {
+  echo "$1 failed"
+  exit 1
+}
+
 for f in src/test/test_src/*.tan; do
   echo "=========================="
-  ./bin/tanc $f || exit 1
-  ./a.out || exit 1
+  ./bin/tanc $f || fail $f
+  ./a.out || fail $f
   echo "=========================="
 done
