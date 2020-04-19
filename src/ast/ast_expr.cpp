@@ -72,10 +72,15 @@ Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
   if (_children[0]->is_lvalue()) {
     rhs = compiler_session->get_builder()->CreateLoad(rhs);
   }
-  /// get value size in bits
   auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
-  Value *z = ConstantInt::get(compiler_session->get_builder()->getIntNTy(size_in_bits), 0, false);
-  return compiler_session->get_builder()->CreateICmpEQ(z, rhs);
+  /// get value size in bits
+  if (rhs->getType()->isFloatingPointTy()) {
+    return compiler_session->get_builder()
+        ->CreateFCmpOEQ(rhs, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
+  } else {
+    return compiler_session->get_builder()
+        ->CreateICmpEQ(rhs, ConstantInt::get(compiler_session->get_builder()->getIntNTy(size_in_bits), 0, false));
+  }
 }
 
 ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
@@ -108,9 +113,9 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
     report_code_error(_token,
         "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
-    rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
+    rhs = convert_to(compiler_session, ltype, rhs, false, true);
   } else {
-    lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
+    lhs = convert_to(compiler_session, rtype, lhs, false, true);
   }
 
   if (lhs->getType()->isFloatingPointTy()) {
@@ -178,9 +183,9 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
     report_code_error(_token,
         "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
   } else if (type_i == 0) {
-    rhs = convert_to(compiler_session, ltype, rhs, false, true); // FIXME: is_signed
+    rhs = convert_to(compiler_session, ltype, rhs, false, true);
   } else {
-    lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
+    lhs = convert_to(compiler_session, rtype, lhs, false, true);
   }
 
   if (lhs->getType()->isFloatingPointTy()) {
@@ -232,7 +237,7 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
   /// to is lvalue
-  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false, true); // FIXME: is_signed
+  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false, true);
   compiler_session->get_builder()->CreateStore(from, to);
   return to;
 }

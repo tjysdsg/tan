@@ -51,9 +51,13 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   } else if (orig->isFloatingPointTy() && dest->isFloatingPointTy()) { /// float <-> double
     return compiler_session->get_builder()->CreateFPCast(loaded, dest);
   } else if (dest->isIntegerTy(1)) { /// all types to bool, equivalent to val != 0
-    // FIXME? floating point
-    return compiler_session->get_builder()
-        ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
+    if (orig->isFloatingPointTy()) {
+      return compiler_session->get_builder()
+          ->CreateFCmpONE(loaded, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
+    } else {
+      return compiler_session->get_builder()
+          ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
+    }
   } else {
     // TODO: complex type
     throw std::runtime_error("Invalid type conversion");

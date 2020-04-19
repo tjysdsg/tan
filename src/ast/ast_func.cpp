@@ -29,7 +29,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   /// create function prototype
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-  // FIXME: external linkage
+  // FIXME: not always external linkage
   Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
   F->setCallingConv(llvm::CallingConv::C);
 
@@ -145,7 +145,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   auto func_arg = func->args().begin();
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(compiler_session);
-    a = convert_to(compiler_session, (func_arg + i)->getType(), a, _children[i]->is_lvalue()); // FIXME: is_signed
+    a = convert_to(compiler_session, (func_arg + i)->getType(), a, _children[i]->is_lvalue());
     args_value.push_back(a);
     if (!args_value.back()) { return nullptr; }
   }
