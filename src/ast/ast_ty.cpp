@@ -141,8 +141,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
     case Ty::STRING: {
       auto *e_di_type = compiler_session->get_di_builder()->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
       type_name = "u8*";
-      // TODO: pointer size
-      size_bits = 64;
+      size_bits = TAN_PTR_SIZE_BITS;
       unsigned align_bits = (unsigned) e_di_type->getSizeInBits();
       ret = compiler_session->get_di_builder()
           ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
@@ -185,8 +184,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       auto e = ast_cast<ASTTy>(_children[0]);
       auto *e_di_type = e->to_llvm_meta(compiler_session);
       type_name = e->get_type_name() + "*";
-      // TODO: pointer size
-      size_bits = 64;
+      size_bits = TAN_PTR_SIZE_BITS;
       unsigned align_bits = e_di_type->getAlignInBits();
       ret = compiler_session->get_di_builder()
           ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
@@ -204,8 +202,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       ret = child->to_llvm_meta(compiler_session);
     }
     type_name += "*";
-    // TODO: pointer size
-    size_bits = 64;
+    size_bits = TAN_PTR_SIZE_BITS;
     unsigned align_bits = (unsigned) ret->getSizeInBits();
     ret = compiler_session->get_di_builder()->createPointerType(ret, size_bits, align_bits, llvm::None, type_name);
   }
