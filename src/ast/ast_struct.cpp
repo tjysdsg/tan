@@ -12,18 +12,18 @@ Value *ASTStruct::codegen(CompilerSession *compiler_session) {
   using llvm::StructType;
   auto ty_name = ast_cast<ASTIdentifier>(_children[0])->get_name(); // name of this struct
   std::vector<Type *> members;
+  std::shared_ptr<ASTNode> var = nullptr;
   for (size_t i = 1; i < _children.size(); ++i) {
     if (_children[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
-      auto var = ast_cast<ASTVarDecl>(_children[i]);
-      members.push_back(var->to_llvm_type(compiler_session));
-      _member_indices[var->get_name()] = i - 1;
+      var = _children[i];
     } else if (_children[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
-      auto var = ast_cast<ASTVarDecl>(_children[i]->_children[0]);
-      members.push_back(var->to_llvm_type(compiler_session));
-      _member_indices[var->get_name()] = i - 1;
+      // TODO: remember initial value
+      var = _children[i]->_children[0];
     } else {
       report_code_error(_token, "Invalid struct member");
     }
+    members.push_back(var->to_llvm_type(compiler_session));
+    _member_indices[var->get_name()] = i - 1;
   }
 
   StructType *struct_type = StructType::create(*compiler_session->get_context(), ty_name);
@@ -35,6 +35,9 @@ Value *ASTStruct::codegen(CompilerSession *compiler_session) {
 }
 
 size_t ASTStruct::get_member_index(std::string name) {
+  if (_member_indices.find(name) == _member_indices.end()) {
+    throw std::runtime_error("Unknown member of struct '" + get_type_name() + "'");
+  }
   return _member_indices[name];
 }
 

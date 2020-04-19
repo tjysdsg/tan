@@ -1,12 +1,18 @@
 struct Useless {
     var shit: i8;
     var fuck: i8 = 0;
+    var f: float;
 }
 
 fn main(argc: int, argv: u8**) : i32 {
-    var useless_shit: Useless; // = Useless.new(1, 2);
-    useless_shit.shit = 100;
-    useless_shit.fuck = 10;
-    var shit: i8 = useless_shit.shit;
+    var s: Useless; // = Useless.new(1, 2);
+    s.shit = 100;
+    s.fuck = 10;
+    s.f = 1.0;
+    var shit: i8 = s.shit;
+    @assert(s.shit == 100);
+    @assert(s.fuck == 10);
+    @assert(shit == 100);
+    @assert(s.f == 1.0);
     return 0;
 }
