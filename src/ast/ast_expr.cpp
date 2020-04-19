@@ -113,7 +113,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
     lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
   }
 
-  if (ltype->isFloatingPointTy()) {
+  if (lhs->getType()->isFloatingPointTy()) {
     if (_type == ASTType::EQ) {
       return compiler_session->get_builder()->CreateFCmpOEQ(lhs, rhs, "eq");
     } else if (_type == ASTType::NE) {
@@ -183,7 +183,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
     lhs = convert_to(compiler_session, rtype, lhs, false, true); // FIXME: is_signed
   }
 
-  if (ltype->isFloatingPointTy()) {
+  if (lhs->getType()->isFloatingPointTy()) {
     /// float arithmetic
     if (_type == ASTType::MULTIPLY) {
       return compiler_session->get_builder()->CreateFMul(lhs, rhs);
