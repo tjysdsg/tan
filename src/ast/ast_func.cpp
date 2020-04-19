@@ -117,6 +117,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     if (!(compiler_session->get_builder()->GetInsertBlock()->back().getOpcode() & llvm::Instruction::Ret)) {
       compiler_session->get_builder()->CreateRetVoid();
     }
+    compiler_session->pop_di_scope();
   }
   verifyFunction(*F);
   /// function pass
@@ -125,7 +126,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block());
   /// pop scope
   compiler_session->pop_scope();
-  compiler_session->pop_di_scope();
   return nullptr;
 }
 

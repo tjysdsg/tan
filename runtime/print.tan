@@ -1,0 +1,5 @@
+fn puts(s: str) : int;
+
+fn print(s: str) : int {
+    return puts(s);
+}
