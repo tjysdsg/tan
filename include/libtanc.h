@@ -40,19 +40,6 @@ struct TanCompilation {
  * */
 bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config);
 
-/**
- * \brief Links files into specified output.
- * \details If current build is release, all exceptions are captured and e.what() is printed out to stderr.
- *          If current build is debug, all exceptions are not captured, making debugging easier.
- * \param n_files the number of input files.
- * \param input_paths the path of the files, can be relative or absolute path.
- * \param config Compilation configuration, \see TanCompilation. Will do nothing if TanCompilation::type is OBJ.
- * \return If current build is release, returns true if no error occurred, and vice versa.
- *  If current build is debug, either returns true or doesn't return, because all errors are captured by
- *         a try-catch clause.
- * */
-bool tan_link(unsigned n_files, char **input_paths, TanCompilation *config);
-
 }
 
 #endif /* TAN_SRC_LIB_LIBTANC_H_ */

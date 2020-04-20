@@ -104,10 +104,4 @@ add_executable(tanc ${CLI_SRCS})
 target_link_libraries(tanc tan pthread gflags::gflags ${DEP_LIBS})
 set_other_options(tanc)
 
-# ===== target CLI linker =====
-set(LINKER_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tan-ld.cpp)
-add_executable(tan-ld ${LINKER_SRCS})
-target_link_libraries(tan-ld tan gflags::gflags ${DEP_LIBS})
-set_other_options(tan-ld)
-
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)

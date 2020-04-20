@@ -27,10 +27,18 @@
 static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
   using tanlang::Linker;
   Linker linker;
-  linker.add_flag("-o" + std::string(config->out_file));
   linker.add_files(input_paths);
-  /// default flags
-  linker.add_flags({"-fPIE"});
+  linker.add_flag("-o" + std::string(config->out_file));
+  if (config->type == EXE) {
+    /// default flags
+    linker.add_flags({"-fPIE"});
+  } else if (config->type == SLIB) {
+    // TODO: implement output type static lib
+    assert(false);
+    // linker.add_flags({"-static-pie"});
+  } else if (config->type == DLIB) {
+    linker.add_flags({"-shared"});
+  }
   return linker.link();
 }
 
@@ -44,7 +52,6 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
-
     tanlang::Reader reader;
     reader.open(files[i]);
     auto tokens = tanlang::tokenize(&reader);
@@ -59,31 +66,19 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     files[i] += ".o";
     files[i] = std::filesystem::path(files[i]).filename().string();
     compiler.emit_object(files[i]);
-
     END_TRY
   }
 
   for (size_t i = 0; i < config->n_link_files; ++i) {
     files.push_back(std::string(config->link_files[i]));
   }
-  if (config->type == EXE) {
-    _link(files, config);
-  } else if (config->type == OBJ) {
-  } else {
-    // TODO
-    assert(false);
+  BEGIN_TRY
+  if (config->type != OBJ) {
+    bool ret = _link(files, config);
+    if (!ret) {
+      throw std::runtime_error("Failed linking");
+    }
   }
+  END_TRY
   return true;
-}
-
-bool tan_link(unsigned n_files, char **input_paths, TanCompilation *config) {
-  std::vector<std::string> files;
-  files.reserve(n_files + config->n_link_files);
-  for (size_t i = 0; i < n_files; ++i) {
-    files.push_back(std::string(input_paths[i]));
-  }
-  for (size_t i = 0; i < config->n_link_files; ++i) {
-    files.push_back(std::string(config->link_files[i]));
-  }
-  return _link(files, config);
 }
