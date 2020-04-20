@@ -107,6 +107,9 @@ public:
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
+
+  std::string get_string() const { return _svalue; }
+
   Ty get_ty() const override;
 
 protected:

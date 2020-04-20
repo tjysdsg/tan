@@ -1,6 +1,7 @@
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_loop.h"
 #include "src/ast/ast_expr.h"
+#include "src/ast/ast_import.h"
 #include "src/parser/token_check.h"
 #include "parser.h"
 
@@ -87,6 +88,17 @@ size_t ASTLoop::nud(tanlang::Parser *parser) {
     default:
       break;
   }
+  return _end_index;
+}
+
+size_t ASTImport::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip "import"
+  auto rhs = parser->peek(_end_index);
+  if (rhs->_type != ASTType::STRING_LITERAL) {
+    report_code_error(_token, "Invalid import statement");
+  }
+  _end_index = rhs->parse(parser);
+  _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
   return _end_index;
 }
 

@@ -60,6 +60,7 @@ enum class ASTType {
   RET,  // return
   IF,   // if
   ELSE, // else
+  IMPORT, // import
 
   /// types in tan
 

@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "src/ast/ast_array.h"
+#include "src/ast/ast_import.h"
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_func.h"
@@ -36,6 +37,8 @@ static std::shared_ptr<ASTNode> peek_keyword(Token *token, size_t &index) {
     return std::make_shared<ASTVarDecl>(token, index);
   } else if (token->value == "fn" || token->value == "pub" || token->value == "extern") {
     return std::make_shared<ASTFunction>(token, index);
+  } else if (token->value == "import") {
+    return std::make_shared<ASTImport>(token, index);
   } else if (token->value == "if") {
     return std::make_shared<ASTIf>(token, index);
   } else if (token->value == "else") {
