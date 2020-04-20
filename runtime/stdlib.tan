@@ -1,0 +1,6 @@
+extern fn abort() : void;
+
+extern fn malloc(size: u32) : u8*;
+extern fn free(ptr: u8*) : void;
+extern fn calloc(n_elements: u32, size: u32) : u8*;
+extern fn realloc(ptr: u8*, size: u32) : u8*;
