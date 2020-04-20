@@ -12,7 +12,7 @@ std::unordered_map<TokenType, std::string> token_type_names
 /// keywords/reserved words, including primitive types
 const std::vector<std::string> KEYWORDS
     {"for", "while", "do", "if", "else", "fn", "var", "int", "float", "continue", "break", "let", "struct", "enum",
-        "union", "switch", "case", "u32", "return", "str", "char"};
+        "union", "switch", "case", "u32", "return", "str", "char", "pub", "extern"};
 
 const std::vector<char> PUNCTUATIONS
     {'~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"',

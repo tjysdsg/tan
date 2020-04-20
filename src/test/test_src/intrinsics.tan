@@ -1,6 +1,6 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
-fn main(argc: int, argv: char**) : int {
+pub fn main(argc: int, argv: char**) : int {
     var a: i32 = 0;
     var b: i32 = 1;
     var shit: i32 = !(a == b);

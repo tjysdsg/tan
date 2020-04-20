@@ -5,7 +5,19 @@
 namespace tanlang {
 
 size_t ASTFunction::nud(Parser *parser) {
-  _end_index = _start_index + 1; /// skip "fn"
+  if (parser->at(_start_index)->value == "fn") {
+    /// skip "fn"
+    _end_index = _start_index + 1;
+  } else if (parser->at(_start_index)->value == "pub") {
+    _is_public = true;
+    /// skip "pub fn"
+    _end_index = _start_index + 2;
+  } else if (parser->at(_start_index)->value == "extern") {
+    _is_external = true;
+    /// skip "pub fn"
+    _end_index = _start_index + 2;
+  } else { assert(false); }
+
   _children.push_back(nullptr); /// function return type, set later
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// function name
   parser->peek(_end_index, TokenType::PUNCTUATION, "(");
@@ -27,6 +39,8 @@ size_t ASTFunction::nud(Parser *parser) {
   ++_end_index;
   _children[0] = parser->parse<ASTType::TY>(_end_index, true); /// return type
 
+  /// an external function doesn't have definition
+  if (_is_external) { return _end_index; }
   /// get function body if exists, otherwise it's a external function
   auto *token = parser->at(_end_index);
   if (token->value == "{") {

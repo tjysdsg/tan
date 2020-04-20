@@ -16,6 +16,7 @@ protected:
   size_t nud(Parser *parser) override;
 private:
   bool _is_external = false;
+  bool _is_public = false;
 };
 
 class ASTFunctionCall final : public ASTNode {

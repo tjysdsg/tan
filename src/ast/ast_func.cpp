@@ -29,8 +29,10 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
 
   /// create function prototype
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-  // FIXME: not always external linkage
-  Function *F = Function::Create(FT, Function::ExternalLinkage, func_name, compiler_session->get_module().get());
+  auto linkage = Function::InternalLinkage;
+  if (_is_external) { linkage = Function::ExternalWeakLinkage; }
+  if (_is_public) { linkage = Function::ExternalLinkage; }
+  Function *F = Function::Create(FT, linkage, func_name, compiler_session->get_module().get());
   F->setCallingConv(llvm::CallingConv::C);
 
   /// set argument names

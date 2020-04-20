@@ -1,5 +1,5 @@
-fn puts(s: str) : int;
+extern fn puts(s: str) : int;
 
-fn print(s: str) : int {
+pub fn print(s: str) : int {
     return puts(s);
 }

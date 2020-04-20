@@ -1,6 +1,6 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
-fn main() : int {
+pub fn main() : int {
     var a1: i32 = 100;
     @assert(a1 == 100);
     var a2: u32 = a1;

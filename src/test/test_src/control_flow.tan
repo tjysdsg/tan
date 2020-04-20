@@ -1,4 +1,4 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
 // TODO: fix return inside if statement
 fn sign(a: int) : int {
@@ -23,7 +23,7 @@ fn else_if(c: i32) : i32 {
     return ret;
 }
 
-fn main(argc: int, argv: char**) : int {
+pub fn main(argc: int, argv: char**) : int {
     if (argc > 0) {
         @assert(1);
     } else {

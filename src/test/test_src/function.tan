@@ -1,10 +1,10 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
 fn work(a: int, b: int) : int {
     return a * b / 2;
 }
 
-fn main(argc: int, argv: char**) : int {
+pub fn main(argc: int, argv: char**) : int {
     var a: int = 1;
     var a: int = work(a, 2); // area of an 1 by 2 rectangle
     @assert(a == 1);

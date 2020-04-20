@@ -34,7 +34,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::
 static std::shared_ptr<ASTNode> peek_keyword(Token *token, size_t &index) {
   if (token->value == "var") {
     return std::make_shared<ASTVarDecl>(token, index);
-  } else if (token->value == "fn") {
+  } else if (token->value == "fn" || token->value == "pub" || token->value == "extern") {
     return std::make_shared<ASTFunction>(token, index);
   } else if (token->value == "if") {
     return std::make_shared<ASTIf>(token, index);

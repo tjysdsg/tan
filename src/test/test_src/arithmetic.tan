@@ -1,6 +1,6 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
-fn main(argc: int, argv: char**) : int {
+pub fn main(argc: int, argv: char**) : int {
     @assert(13 / 3 == 4);
     @assert(1.0 / 2.0 == 0.5);
     @assert(55 / 11 == 5);

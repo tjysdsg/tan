@@ -1,6 +1,6 @@
-fn print(s: str) : int;
+extern fn print(s: str) : int;
 
-fn main() : int {
+pub fn main() : int {
     var i: u32 = 0;
     var gt_50: u32 = 0;
     var lt_50: u32 = 0;
