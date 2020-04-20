@@ -144,43 +144,112 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
   return t;
 }
 
-// TODO: support escape sequences inside char literals
+char escape_char(char c) {
+  /// https://en.cppreference.com/w/cpp/language/escape
+  switch (c) {
+    case '\'':
+      return '\'';
+    case '\"':
+      return '\"';
+    case '\\':
+      return '\\';
+    case '?':
+      return '\?';
+    case 'a':
+      return '\a';
+    case 'b':
+      return '\b';
+    case 'f':
+      return '\f';
+    case 'n':
+      return '\n';
+    case 'r':
+      return '\r';
+    case 't':
+      return '\t';
+    case 'v':
+      return '\v';
+    default:
+      return -1;
+  }
+}
+
 // TODO: check line breaks inside two quotation marks
 Token *tokenize_char(Reader *reader, code_ptr &start) {
   Token *t = nullptr;
   auto forward = reader->forward_ptr(start);
   const auto end = reader->back_ptr();
-  forward = skip_until(reader, forward, '\'');
+
+  while (forward < end && (*reader)[forward] != '\'') {
+    if ((*reader)[forward] == '\\') {
+      forward = reader->forward_ptr(forward);
+    }
+    forward = reader->forward_ptr(forward);
+  }
+
   if (forward > end) {
     report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
         static_cast<size_t>(forward.l),
         static_cast<size_t>(forward.c),
         "Incomplete character literal");
-    exit(1);
   } else {
     std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the single quotes
+    if (value[0] == '\\') {
+      if (value.length() != 2) {
+        report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
+            static_cast<size_t>(forward.l),
+            static_cast<size_t>(forward.c),
+            "Invalid character literal");
+      }
+      value = std::string(1, escape_char(value[1]));
+    } else if (value.length() != 1) {
+      report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
+          static_cast<size_t>(forward.l),
+          static_cast<size_t>(forward.c),
+          "Invalid character literal");
+    }
     t = new Token(TokenType::CHAR, value, start, &(*reader)[static_cast<size_t>(start.l)]);
     start = (*reader).forward_ptr(forward);
   }
   return t;
 }
 
-// TODO: support escape sequences inside string literals
 // TODO: check line breaks inside two quotation marks
 Token *tokenize_string(Reader *reader, code_ptr &start) {
   Token *t = nullptr;
   auto forward = reader->forward_ptr(start);
-  forward = skip_until(reader, forward, '"');
   const auto end = reader->back_ptr();
+
+  while (forward < end && (*reader)[forward] != '"') {
+    if ((*reader)[forward] == '\\') { // escape
+      forward = reader->forward_ptr(forward);
+    }
+    forward = reader->forward_ptr(forward);
+  }
+
   if (forward > end) {
     report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
         static_cast<size_t>(forward.l),
         static_cast<size_t>(forward.c),
         "Incomplete string literal");
-    exit(1);
   } else {
     std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the double quotes
-    t = new Token(TokenType::STRING, value, start, &(*reader)[static_cast<size_t>(start.l)]);
+    std::string escaped = "";
+    size_t l = value.length();
+    size_t start_i = 0;
+    size_t i = 0;
+    while (i < l) {
+      char c = value[i];
+      if (c == '\\') {
+        escaped += value.substr(start_i, i - start_i);
+        escaped += escape_char(value[i + 1]);
+        start_i = i + 2;
+        ++i;
+      }
+      ++i;
+    }
+    escaped += value.substr(start_i, l - start_i);
+    t = new Token(TokenType::STRING, escaped, start, &(*reader)[static_cast<size_t>(start.l)]);
     start = (*reader).forward_ptr(forward);
   }
   return t;
