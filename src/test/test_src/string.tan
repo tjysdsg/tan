@@ -6,6 +6,6 @@ pub fn main(argc: int, argv: char**) : int {
     @assert(s[1] == 104);
     @assert(s[2] == 105);
     @assert(s[3] == 116);
-    print("SUCCESS");
+    print("SUCCESS\n");
     return 0;
 }

@@ -16,6 +16,6 @@ pub fn main(argc: int, argv: u8**) : i32 {
     @assert(s.fuck == 10);
     @assert(shit == 100);
     @assert(s.f == 1.0);
-    print("SUCCESS");
+    print("SUCCESS\n");
     return 0;
 }

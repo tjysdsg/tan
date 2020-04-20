@@ -19,6 +19,6 @@ pub fn main() : int {
     @assert(a7 == 100.0);
     a7 = a5;
     @assert(a7 == 100);
-    print("SUCCESS");
+    print("SUCCESS\n");
     return 0;
 }

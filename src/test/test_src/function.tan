@@ -8,6 +8,6 @@ pub fn main(argc: int, argv: char**) : int {
     var a: int = 1;
     var a: int = work(a, 2); // area of an 1 by 2 rectangle
     @assert(a == 1);
-    print("SUCCESS");
+    print("SUCCESS\n");
     return 0;
 }

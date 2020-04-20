@@ -9,6 +9,6 @@ pub fn main() : i32 {
     @assert(e2 == 2);
     @assert(nested[0][0] == 1);
     @assert(nested[2][0] == 3);
-    print("SUCCESS");
+    print("SUCCESS\n");
     return 0;
 }
