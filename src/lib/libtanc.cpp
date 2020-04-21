@@ -49,8 +49,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   for (size_t i = 0; i < n_files; ++i) {
     files.push_back(std::string(input_paths[i]));
   }
-  BEGIN_TRY
   for (size_t i = 0; i < n_files; ++i) {
+    BEGIN_TRY
     tanlang::Reader reader;
     reader.open(files[i]);
     auto tokens = tanlang::tokenize(&reader);
@@ -65,6 +65,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     files[i] += ".o";
     files[i] = std::filesystem::path(files[i]).filename().string();
     compiler.emit_object(files[i]);
+    END_TRY
   }
 
   for (size_t i = 0; i < config->n_link_files; ++i) {
@@ -73,9 +74,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) {
-      throw std::runtime_error("Failed linking");
+      std::cerr << "Error linking files\n";
     }
   }
-  END_TRY
   return true;
 }
