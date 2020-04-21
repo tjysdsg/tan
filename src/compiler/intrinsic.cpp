@@ -197,7 +197,7 @@ static void init_assert(CompilerSession *compiler_session) {
       Type *ret_type = compiler_session->get_builder()->getVoidTy();
       std::vector<Type *> arg_types{compiler_session->get_builder()->getInt32Ty()};
       FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
-      func = Function::Create(func_t, Function::ExternalLinkage, "assert", compiler_session->get_module().get());
+      func = Function::Create(func_t, Function::ExternalWeakLinkage, "assert", compiler_session->get_module().get());
       /// body
       BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", func);
       compiler_session->get_builder()->SetInsertPoint(main_block);

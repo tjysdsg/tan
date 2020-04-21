@@ -1,4 +1,4 @@
-extern fn print(s: str) : int;
+import "runtime/print.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     var s: str = "shit";

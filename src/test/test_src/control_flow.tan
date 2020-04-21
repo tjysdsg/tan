@@ -1,4 +1,4 @@
-extern fn print(s: str) : int;
+import "runtime/print.tan";
 
 // TODO: fix return inside if statement
 fn sign(a: int) : int {

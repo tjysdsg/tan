@@ -7,6 +7,12 @@ namespace tanlang {
 
 class CompilerSession final {
 public:
+  static void add_public_function(const std::string &filename, const std::string &name, std::shared_ptr<ASTNode> func);
+  static std::vector<std::shared_ptr<ASTNode>> get_public_functions(const std::string &filename);
+private:
+  /// filename -> (function name -> ASTFunction)
+  static std::unordered_map<std::string, std::unordered_map<std::string, std::shared_ptr<ASTNode>>> public_func;
+public:
   CompilerSession &operator=(const CompilerSession &) = delete;
   CompilerSession(const CompilerSession &) = delete;
   CompilerSession() = delete;

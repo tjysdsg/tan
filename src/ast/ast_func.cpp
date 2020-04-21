@@ -13,41 +13,22 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   auto scope = compiler_session->push_scope();
 
   Metadata *ret_meta = _children[0]->to_llvm_meta(compiler_session);
-  Type *ret_type = _children[0]->to_llvm_type(compiler_session);
-  std::vector<Type *> arg_types;
   std::vector<Metadata *> arg_metas;
   /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
-    arg_types.push_back(type_name->to_llvm_type(compiler_session));
     arg_metas.push_back(type_name->to_llvm_meta(compiler_session));
   }
-
+  /// generate prototype
+  Function *F = (Function *) codegen_prototype(compiler_session);
   /// get function name
-  std::shared_ptr<ASTIdentifier> fname = ast_cast<ASTIdentifier>(_children[1]);
-  std::string func_name = fname->get_name();
-
-  /// create function prototype
-  FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-  auto linkage = Function::InternalLinkage;
-  if (_is_external) { linkage = Function::ExternalWeakLinkage; }
-  if (_is_public) { linkage = Function::ExternalLinkage; }
-  Function *F = Function::Create(FT, linkage, func_name, compiler_session->get_module().get());
-  F->setCallingConv(llvm::CallingConv::C);
-
-  /// set argument names
-  auto args = F->args().begin();
-  for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
-    /// rename this since the real function argument is stored as variables
-    (args + j)->setName("_" + _children[i]->get_name());
-  }
-
+  std::string func_name = _children[1]->get_name();
   /// function implementation
-  /// create a new basic block to start insertion into
   if (!_is_external) {
+    /// create a new basic block to start insertion into
     BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", F);
     compiler_session->get_builder()->SetInsertPoint(main_block);
-    compiler_session->set_code_block(main_block); /// set current scope's code block
+    compiler_session->set_code_block(main_block);
 
     /// debug information
     DIScope *di_scope = compiler_session->get_current_di_scope();
@@ -103,7 +84,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
               compiler_session->get_di_builder()->createExpression(),
               llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, subprogram),
               compiler_session->get_builder()->GetInsertBlock());
-
       ++i;
     }
 
@@ -129,6 +109,42 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   /// pop scope
   compiler_session->pop_scope();
   return nullptr;
+}
+
+Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool import) {
+  Type *ret_type = _children[0]->to_llvm_type(compiler_session);
+  std::vector<Type *> arg_types;
+  /// set function arg types
+  for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
+    std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
+    arg_types.push_back(type_name->to_llvm_type(compiler_session));
+  }
+
+  /// get function name
+  std::shared_ptr<ASTIdentifier> fname = ast_cast<ASTIdentifier>(_children[1]);
+  std::string func_name = fname->get_name();
+
+  /// create function prototype
+  FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
+  auto linkage = Function::InternalLinkage;
+  if (_is_external) { linkage = Function::ExternalWeakLinkage; }
+  if (_is_public) {
+    if (import) {
+      linkage = Function::ExternalWeakLinkage;
+    } else {
+      linkage = Function::ExternalLinkage;
+    }
+  }
+  Function *F = Function::Create(FT, linkage, func_name, compiler_session->get_module().get());
+  F->setCallingConv(llvm::CallingConv::C);
+
+  /// set argument names
+  auto args = F->args().begin();
+  for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
+    /// rename this since the real function argument is stored as variables
+    (args + j)->setName("_" + _children[i]->get_name());
+  }
+  return F;
 }
 
 Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {

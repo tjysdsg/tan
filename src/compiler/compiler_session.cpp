@@ -3,6 +3,9 @@
 
 namespace tanlang {
 
+std::unordered_map<std::string, std::unordered_map<std::string, std::shared_ptr<ASTNode>>>
+    CompilerSession::public_func{};
+
 void CompilerSession::initialize_scope() {
   _scope = std::vector<std::shared_ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
@@ -135,6 +138,29 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
   _builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) (l + 1),
       (unsigned) (c + 1),
       this->get_current_di_scope()));
+}
+
+void CompilerSession::add_public_function(const std::string &filename,
+    const std::string &name,
+    std::shared_ptr<ASTNode> func) {
+  auto &pf = CompilerSession::public_func;
+  if (pf.find(filename) == pf.end()) {
+    pf[filename] = std::unordered_map<std::string, std::shared_ptr<ASTNode>>{};
+  }
+  pf[filename][name] = func;
+}
+
+std::vector<std::shared_ptr<ASTNode>> CompilerSession::get_public_functions(const std::string &filename) {
+  std::vector<std::shared_ptr<ASTNode>> ret{};
+  auto &pf = CompilerSession::public_func;
+  auto funcs = pf.find(filename);
+  if (funcs != pf.end()) {
+    auto fuck = funcs->second;
+    for (auto pair: fuck) {
+      ret.push_back(pair.second);
+    }
+  }
+  return ret;
 }
 
 } // namespace tanlang
