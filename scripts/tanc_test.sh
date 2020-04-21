@@ -5,6 +5,6 @@ fail() {
 }
 
 for f in src/test/test_src/*.tan; do
-  ./bin/tanc $f -l runtime/runtime.so || fail $f
+  ./bin/tanc --print-ast=true --print-ir-code=true $f -l runtime/runtime.so || fail $f
   ./a.out || fail $f
 done
