@@ -19,14 +19,12 @@ struct Token;
 class Parser {
 public:
   Parser() = delete;
-  virtual ~Parser();
   Parser(std::vector<Token *> tokens, std::string filename);
 
   std::shared_ptr<ASTNode> peek(size_t &index);
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
   std::shared_ptr<ASTNode> parse();
-  Value *codegen();
 
   bool eof(size_t index) const { return index >= _tokens.size(); }
 
@@ -34,16 +32,14 @@ public:
 
   [[nodiscard]] std::string get_filename() const { return _filename; }
 
+  [[nodiscard]] std::shared_ptr<ASTNode> get_ast() const { return _root; }
+
 public:
   std::shared_ptr<ASTNode> _root{};
 
 protected:
   std::vector<Token *> _tokens;
-  CompilerSession *_compiler_session;
   std::string _filename;
-
-public:
-  [[nodiscard]] CompilerSession *get_compiler_session() const { return _compiler_session; };
 
 public:
   template<ASTType first_type, ASTType... types> std::shared_ptr<ASTNode> parse(size_t &index, bool strict) {

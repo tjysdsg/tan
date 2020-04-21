@@ -6,13 +6,16 @@ struct TanCompilation;
 
 namespace tanlang {
 
+class ASTNode;
+
 class CompilerSession;
 
 class Compiler {
 public:
   Compiler() = delete;
-  Compiler(CompilerSession *compiler_session, TanCompilation *config);
+  Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompilation *config);
   ~Compiler();
+  Value *codegen();
 
   void emit_object(const std::string &filename);
 
@@ -21,6 +24,8 @@ public:
 private:
   Module *_llvm_module = nullptr;
   llvm::TargetMachine *_target_machine = nullptr;
+  CompilerSession *_compiler_session = nullptr;
+  std::shared_ptr<ASTNode> _ast = nullptr;
 };
 
 } // namespace tanlang

@@ -7,7 +7,6 @@
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
-
 #else
 #define BEGIN_TRY
 #endif
@@ -50,8 +49,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   for (size_t i = 0; i < n_files; ++i) {
     files.push_back(std::string(input_paths[i]));
   }
+  BEGIN_TRY
   for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY
     tanlang::Reader reader;
     reader.open(files[i]);
     auto tokens = tanlang::tokenize(&reader);
@@ -59,20 +58,18 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     parser.parse();
     if (print_ast) { parser._root->printTree(); }
     std::cout << "Compiling TAN file: " << files[i] << "\n";
-    parser.codegen();
-    tanlang::Compiler compiler(parser.get_compiler_session(), config);
+    tanlang::Compiler compiler(parser.get_filename(), parser.get_ast(), config);
+    compiler.codegen();
     if (print_ir_code) { compiler.dump(); }
     /// prepare the filename for linking
     files[i] += ".o";
     files[i] = std::filesystem::path(files[i]).filename().string();
     compiler.emit_object(files[i]);
-    END_TRY
   }
 
   for (size_t i = 0; i < config->n_link_files; ++i) {
     files.push_back(std::string(config->link_files[i]));
   }
-  BEGIN_TRY
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) {

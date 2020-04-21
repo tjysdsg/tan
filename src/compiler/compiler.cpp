@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "libtanc.h"
 #include "compiler_session.h"
+#include "intrinsic.h"
 
 namespace tanlang {
 
@@ -9,8 +10,9 @@ Compiler::~Compiler() {
   delete _target_machine;
 }
 
-Compiler::Compiler(CompilerSession *compiler_session, TanCompilation *config) {
-  _llvm_module = compiler_session->get_module().release();
+Compiler::Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompilation *config) : _ast(ast) {
+  _compiler_session = new CompilerSession(filename);
+  _llvm_module = _compiler_session->get_module().get();
   auto target_triple = llvm::sys::getDefaultTargetTriple();
 
   llvm::InitializeAllTargetInfos();
@@ -31,7 +33,7 @@ Compiler::Compiler(CompilerSession *compiler_session, TanCompilation *config) {
   _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   _llvm_module->setDataLayout(_target_machine->createDataLayout());
   _llvm_module->setTargetTriple(target_triple);
-  compiler_session->finalize_codegen();
+  _compiler_session->finalize_codegen();
   llvm::verifyModule(*_llvm_module);
 }
 
@@ -51,6 +53,11 @@ void Compiler::emit_object(const std::string &filename) {
 
   pass.run(*_llvm_module);
   dest.flush();
+}
+
+Value *Compiler::codegen() {
+  Intrinsic::InitCodegen(_compiler_session);
+  return _ast->codegen(_compiler_session);
 }
 
 } // namespace tanlang

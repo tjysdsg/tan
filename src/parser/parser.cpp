@@ -13,11 +13,7 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens, std::string filename) : _tokens(std::move(tokens)), _filename(filename) {
-  _compiler_session = new CompilerSession(filename);
-}
-
-Parser::~Parser() { delete _compiler_session; }
+Parser::Parser(std::vector<Token *> tokens, std::string filename) : _tokens(std::move(tokens)), _filename(filename) {}
 
 std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::string &value) {
   if (index >= _tokens.size()) {
@@ -162,11 +158,6 @@ std::shared_ptr<ASTNode> Parser::parse() {
   _root = std::make_shared<ASTProgram>();
   (void) _root->parse(this); /// fix the [[nodiscard]] warning
   return _root;
-}
-
-Value *Parser::codegen() {
-  Intrinsic::InitCodegen(_compiler_session);
-  return _root->codegen(_compiler_session);
 }
 
 Token *Parser::at(const size_t idx) const {
