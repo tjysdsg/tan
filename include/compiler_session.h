@@ -38,6 +38,8 @@ public:
   std::unique_ptr<FunctionPassManager> &get_function_pass_manager();
   void finalize_codegen();
 
+  unsigned get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
+
 public:
   DIFile *get_di_file() const { return _di_file; }
 
