@@ -14,6 +14,19 @@ set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 
+# check compiler version
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+        message(FATAL_ERROR "GCC version must be at least 9!")
+    endif ()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+        message(FATAL_ERROR "Clang version must be at least 9!")
+    endif ()
+else ()
+    message(WARNING "Using an untested compiler")
+endif ()
+
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # generate include/config.h using include/config.h.in
