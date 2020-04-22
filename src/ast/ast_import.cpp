@@ -20,6 +20,7 @@ std::string ASTImport::to_string(bool print_prefix) const {
 }
 
 Value *ASTImport::codegen(CompilerSession *compiler_session) {
+  compiler_session->set_current_debug_location(_token->l, _token->c);
   // TODO: import path resolve system
   // TODO: path containing non-ASCII characters?
   auto import_path = fs::path(_file);
