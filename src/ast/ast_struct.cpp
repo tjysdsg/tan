@@ -49,4 +49,8 @@ llvm::Type *ASTStruct::to_llvm_type(CompilerSession *) const {
   return _llvm_type;
 }
 
+std::shared_ptr<ASTNode> ASTStruct::get_member(size_t i) {
+  return _children[i + 1];
+}
+
 } // namespace tanlang

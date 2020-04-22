@@ -1,21 +1,26 @@
 import "runtime/print.tan";
 
+struct Fuck {
+    var val: i32;
+}
+
 struct Useless {
     var shit: i8;
-    var fuck: i8 = 0;
     var f: float;
+    var fuck: Fuck;
 }
 
 pub fn main(argc: int, argv: u8**) : i32 {
-    var s: Useless; // = Useless.new(1, 2);
+    var s: Useless;
     s.shit = 100;
-    s.fuck = 10;
     s.f = 1.0;
+    s.fuck.val = 11;
+    @assert(s.fuck.val == 11);
     var shit: i8 = s.shit;
     @assert(s.shit == 100);
-    @assert(s.fuck == 10);
     @assert(shit == 100);
     @assert(s.f == 1.0);
+
     print("SUCCESS\n");
     return 0;
 }

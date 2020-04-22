@@ -18,7 +18,7 @@ public:
 
   Value *codegen(CompilerSession *compiler_session) override;
 
-  std::string get_name() const;
+  std::string get_name() const override;
   std::string to_string(bool print_prefix = true) const override;
 
   llvm::Value *get_llvm_value(CompilerSession *) const override { return _llvm_value; };

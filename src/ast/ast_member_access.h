@@ -20,16 +20,19 @@ public:
   bool is_typed() const override { return true; }
 
   llvm::Type *to_llvm_type(CompilerSession *) const override;
-
   std::string get_type_name() const override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
 
 protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
-  Value *codegen_dot_member_variable(CompilerSession *compiler_session);
+  Value *codegen_dot_member_variable(CompilerSession *compiler_session,
+      std::shared_ptr<ASTNode> lhs,
+      std::shared_ptr<ASTNode> rhs);
 
 private:
   bool _is_bracket = false;
   Type *_llvm_type = nullptr;
+  Value *_llvm_value = nullptr;
   std::string _type_name = "";
 };
 
