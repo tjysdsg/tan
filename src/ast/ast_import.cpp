@@ -1,6 +1,7 @@
 #include "ast_import.h"
 #include "compiler_session.h"
 #include "src/ast/ast_func.h"
+#include "libtanc.h"
 #include "parser.h"
 #include <filesystem>
 
@@ -28,12 +29,8 @@ Value *ASTImport::codegen(CompilerSession *compiler_session) {
   auto path = import_path.string();
   auto funcs = CompilerSession::get_public_functions(import_path.string());
   if (funcs.empty()) {
-    if (!fs::exists(path)) { report_code_error(_token, "Cannot find import file " + _file); }
-    Reader reader;
-    reader.open(path);
-    auto tokens = tanlang::tokenize(&reader);
-    tanlang::Parser parser(tokens, path);
-    parser.parse();
+    auto *parser = parse_file(path.c_str());
+    if (!parser) { report_code_error(_token, "Cannot find import file " + _file); }
   }
   funcs = CompilerSession::get_public_functions(import_path.string());
   for (auto &n: funcs) {

@@ -67,7 +67,6 @@ struct line_info {
 class Reader final {
 public:
   Reader() = default;
-  ~Reader();
   void open(const std::string &filename);
   void from_string(const std::string &code);
   [[nodiscard]] std::string get_filename() const;

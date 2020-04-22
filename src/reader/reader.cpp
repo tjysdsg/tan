@@ -6,15 +6,6 @@
 
 namespace tanlang {
 
-Reader::~Reader() {
-  for (auto &_line : _lines) {
-    if (_line) {
-      delete _line;
-      _line = nullptr;
-    }
-  }
-}
-
 // TODO: optimise Reader for speed
 void Reader::open(const std::string &filename) {
   _filename = filename;

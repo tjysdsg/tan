@@ -7,6 +7,18 @@
  * \brief Defines tools for compiling tan source files.
  * */
 
+namespace tanlang {
+class Parser;
+
+class Reader;
+
+class Compiler;
+}
+
+using tanlang::Parser;
+using tanlang::Reader;
+using tanlang::Compiler;
+
 extern "C" {
 
 enum TanCompileType {
@@ -39,6 +51,8 @@ struct TanCompilation {
  *         a try-catch clause.
  * */
 bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config);
+
+Parser *parse_file(const char *path);
 
 }
 
