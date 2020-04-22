@@ -44,7 +44,6 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
 }
 
 Parser *parse_file(const char *path) {
-  if (!fs::exists(path)) { return nullptr; }
   Reader reader;
   reader.open(path);
   auto tokens = tanlang::tokenize(&reader);

@@ -71,6 +71,8 @@ public:
   void from_string(const std::string &code);
   [[nodiscard]] std::string get_filename() const;
 
+  [[nodiscard]] size_t get_n_lines() const { return _lines.size(); }
+
   /// \brief Return the number of lines of code of the current file
   [[nodiscard]] size_t size() const { return _lines.size(); }
 

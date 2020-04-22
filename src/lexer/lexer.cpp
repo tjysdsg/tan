@@ -23,14 +23,6 @@ code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
   return ptr;
 }
 
-code_ptr skip_until(Reader *reader, code_ptr ptr, const char delim) {
-  const auto end = reader->back_ptr();
-  while (ptr != end && (*reader)[ptr] != delim) {
-    ptr = reader->forward_ptr(ptr);
-  }
-  return ptr;
-}
-
 /**
  * \note: For all tokenize_xx functions
  *      @start is at least one token before the end
@@ -267,7 +259,7 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
     t = tokenize_string(reader, start);
   } else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) { /// operators
     std::string value;
-    do {
+    {
       code_ptr nnext = reader->forward_ptr(next);
       code_ptr nnnext = reader->forward_ptr(nnext);
       code_ptr back_ptr = reader->back_ptr();
@@ -278,21 +270,18 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
           && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
         value = (*reader)(start, nnnext);
         start = nnnext;
-        break;
-      }
-
-      if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
+      } else if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
         value = (*reader)(start, nnext);
         if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) { /// operator containing two chars
           start = nnext;
-          break;
         }
+      } else {
+        /// operator containing one chars
+        value = std::string{(*reader)[start]};
+        assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
+        start = next;
       }
-      /// operator containing one chars
-      value = std::string{(*reader)[start]};
-      assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
-      start = next;
-    } while (false);
+    }
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
     t = new Token(type, value, start, &(*reader)[static_cast<size_t>(start.l)]);
@@ -309,7 +298,9 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
   return t;
 }
 
-std::vector<Token *> tokenize(Reader *reader, code_ptr start) {
+std::vector<Token *> tokenize(Reader *reader) {
+  code_ptr start = code_ptr(0, 0);
+  if (reader->get_n_lines() == 0) { return {}; }
   std::vector<Token *> tokens;
   const auto end = reader->back_ptr();
   while (start < end) {

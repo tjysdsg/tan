@@ -1,13 +1,16 @@
-#include "base.h"
 #include "reader.h"
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace tanlang {
 
 // TODO: optimise Reader for speed
 void Reader::open(const std::string &filename) {
+  if (!fs::exists(filename)) { throw std::runtime_error("Source file " + filename + " doesn't exist"); }
   _filename = filename;
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);

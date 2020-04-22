@@ -11,6 +11,14 @@ using tanlang::Reader;
 using tanlang::tokenize;
 using tanlang::TokenType;
 
+TEST(tokenize, empty) {
+  std::string code = "";
+  Reader r;
+  r.from_string(code);
+  auto result = tokenize(&r);
+  EXPECT_EQ(result.size(), 0);
+}
+
 TEST(tokenize, line_comment) {
   std::string code = "// this is a comment";
   Reader r;
