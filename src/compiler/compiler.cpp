@@ -11,28 +11,25 @@ Compiler::~Compiler() {
 }
 
 Compiler::Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompilation *config) : _ast(ast) {
-  _compiler_session = new CompilerSession(filename);
+  { /// target machine and data layout
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
+    auto target_triple = llvm::sys::getDefaultTargetTriple();
+    std::string error;
+    auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
+    if (!target) { throw std::runtime_error(error); }
+    auto CPU = "generic";
+    auto features = "";
+    llvm::TargetOptions opt;
+    /// relocation model
+    auto RM = llvm::Reloc::Model::PIC_;
+    _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+  }
+  _compiler_session = new CompilerSession(filename, _target_machine);
   _llvm_module = _compiler_session->get_module().get();
-  auto target_triple = llvm::sys::getDefaultTargetTriple();
-
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
-  llvm::InitializeAllAsmPrinters();
-
-  std::string error;
-  auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
-  if (!target) { throw std::runtime_error(error); }
-
-  auto CPU = "generic";
-  auto features = "";
-  llvm::TargetOptions opt;
-  /// relocation model
-  auto RM = llvm::Reloc::Model::PIC_;
-  _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
-  _llvm_module->setDataLayout(_target_machine->createDataLayout());
-  _llvm_module->setTargetTriple(target_triple);
   _compiler_session->finalize_codegen();
   llvm::verifyModule(*_llvm_module);
 }

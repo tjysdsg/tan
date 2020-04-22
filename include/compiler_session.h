@@ -17,7 +17,7 @@ public:
   CompilerSession(const CompilerSession &) = delete;
   CompilerSession() = delete;
 
-  CompilerSession(const std::string &module_name);
+  CompilerSession(const std::string &module_name, TargetMachine *target_machine);
   ~CompilerSession() = default;
 
   std::shared_ptr<Scope> get_current_scope();
@@ -52,6 +52,7 @@ private:
   std::vector<std::shared_ptr<Scope>> _scope{};
   std::vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
+  TargetMachine *_target_machine = nullptr;
 
   /// debug information
   std::unique_ptr<DIBuilder> _di_builder{};
@@ -60,7 +61,7 @@ private:
 
 private:
   void initialize_scope();
-  void init_llvm_pass();
+  void init_llvm();
 };
 
 } // namespace tanlang

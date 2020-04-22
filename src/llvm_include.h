@@ -61,6 +61,7 @@ using llvm::ConstantArray;
 using llvm::StructType;
 using llvm::PointerType;
 
+using llvm::TargetMachine;
 using llvm::SectionMemoryManager;
 using llvm::legacy::FunctionPassManager;
 

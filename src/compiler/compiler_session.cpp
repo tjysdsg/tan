@@ -12,11 +12,13 @@ void CompilerSession::initialize_scope() {
   _scope.back()->_code_block = _builder->GetInsertBlock();
 }
 
-CompilerSession::CompilerSession(const std::string &module_name) {
+CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *target_machine) : _target_machine(
+    target_machine) {
   _context = std::make_unique<LLVMContext>();
   _builder = std::make_unique<IRBuilder<>>(*_context);
   _module = std::make_unique<Module>(module_name, *_context);
-  // add the current debug info version into the module.
+  init_llvm();
+  // add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
   _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
   _di_builder = std::make_unique<DIBuilder>(*_module.get());
@@ -24,7 +26,6 @@ CompilerSession::CompilerSession(const std::string &module_name) {
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
   initialize_scope();
-  init_llvm_pass();
 }
 
 std::shared_ptr<Scope> CompilerSession::get_current_scope() {
@@ -105,7 +106,10 @@ BasicBlock *CompilerSession::get_code_block() const {
   return _scope.back()->_code_block;
 }
 
-void CompilerSession::init_llvm_pass() {
+void CompilerSession::init_llvm() {
+  _module->setDataLayout(_target_machine->createDataLayout());
+  _module->setTargetTriple(_target_machine->getTargetTriple().str());
+  // init function pass
   _fpm = std::make_unique<FunctionPassManager>(_module.get());
   _fpm->add(llvm::createInstructionCombiningPass());
   _fpm->add(llvm::createReassociatePass());
