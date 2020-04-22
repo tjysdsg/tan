@@ -30,8 +30,6 @@ Compiler::Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompil
   }
   _compiler_session = new CompilerSession(filename, _target_machine);
   _llvm_module = _compiler_session->get_module().get();
-  _compiler_session->finalize_codegen();
-  llvm::verifyModule(*_llvm_module);
 }
 
 void Compiler::emit_object(const std::string &filename) {
@@ -54,7 +52,10 @@ void Compiler::emit_object(const std::string &filename) {
 
 Value *Compiler::codegen() {
   Intrinsic::InitCodegen(_compiler_session);
-  return _ast->codegen(_compiler_session);
+  auto *ret = _ast->codegen(_compiler_session);
+  _compiler_session->finalize_codegen();
+  llvm::verifyModule(*_llvm_module);
+  return ret;
 }
 
 } // namespace tanlang

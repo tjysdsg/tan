@@ -43,7 +43,11 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
             di_func_t,
             (unsigned) _token->l + 1,
             DINode::FlagPrototyped,
-            DISubprogram::SPFlagDefinition);
+            DISubprogram::SPFlagDefinition,
+            nullptr,
+            nullptr,
+            nullptr);
+    llvm::DINodeArray retained = subprogram->getRetainedNodes();
     F->setSubprogram(subprogram);
     compiler_session->push_di_scope(subprogram);
     /// reset debug emit location
