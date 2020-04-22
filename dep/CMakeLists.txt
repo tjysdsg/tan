@@ -183,3 +183,6 @@ set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
         z dl rt tinfo pthread m xml2
         PARENT_SCOPE)
 set(DEP_LIB_DIRS ${LLVM_LIBRARY_DIR} PARENT_SCOPE)
+
+message(LLVM libraries found in: ${LLVM_LIBRARY_DIR})
+message(LLVM headers found in: ${LLVM_INCLUDE_DIRS})
