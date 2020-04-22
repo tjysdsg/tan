@@ -13,6 +13,7 @@ sudo apt-get -y install lldb-9
 sudo apt-get -y install lld-9
 sudo apt-get -y install libc++-9-dev libc++abi-9-dev
 sudo apt-get -y install libomp-9-dev
+sudo apt-get -y install libxml2 libxml2-dev
 
 git submodule init
 git submodule update --recursive
