@@ -15,12 +15,22 @@ public:
       token_index) {};
   Value *codegen(CompilerSession *compiler_session) override;
 
-  virtual bool is_lvalue() const { return true; };
+  bool is_lvalue() const override { return true; };
+
+  bool is_typed() const override { return true; }
+
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+
+  std::string get_type_name() const override;
+
 protected:
   size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  Value *codegen_dot_member_variable(CompilerSession *compiler_session);
 
 private:
   bool _is_bracket = false;
+  Type *_llvm_type = nullptr;
+  std::string _type_name = "";
 };
 
 }
