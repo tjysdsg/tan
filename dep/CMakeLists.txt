@@ -1,4 +1,4 @@
-set(DEP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
 find_package(LLVM 9 REQUIRED)
 
 set(LLVM_LIBS
@@ -178,7 +178,7 @@ set(CLANG_LIBS
         clangIndex
         )
 
-set(DEP_INCLUDES ${LLVM_INCLUDE_DIRS} PARENT_SCOPE)
+set(DEP_INCLUDES ${LLVM_INCLUDE_DIRS} ${DEP_DIR}/filesystem/include PARENT_SCOPE)
 set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
         z dl rt tinfo pthread m xml2
         PARENT_SCOPE)

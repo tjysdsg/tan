@@ -6,6 +6,7 @@
       <file path="$PROJECT_DIR$/dep/llvm-project" />
     </libraryRoots>
     <excludeRoots>
+      <file path="$PROJECT_DIR$/dep/filesystem" />
       <file path="$PROJECT_DIR$/dep/gflags" />
       <file path="$PROJECT_DIR$/dep/googletest" />
     </excludeRoots>

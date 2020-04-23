@@ -1,8 +1,17 @@
 dist: bionic
 language: cpp
+sudo: required
+services:
+  - docker
+
+env: SH="docker exec -t container bash -c"
 
 before_install:
-  - ./scripts/install-dep.sh
+  - docker run -d --name container -v $(pwd):/travis -w /travis tjysdsg/tanlang:latest tail -f /dev/null
+  - docker ps
+
+install:
+  - $SH "./scripts/install-dep.sh"
 
 script:
-  - ./scripts/compile-and-test.sh
+  - $SH "./scripts/compile-and-test.sh"

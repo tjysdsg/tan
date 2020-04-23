@@ -4,3 +4,6 @@
 [submodule "dep/gflags"]
 	path = dep/gflags
 	url = https://github.com/gflags/gflags
+[submodule "dep/filesystem"]
+	path = dep/filesystem
+	url = https://github.com/gulrak/filesystem

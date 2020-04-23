@@ -3,9 +3,7 @@
 #include "src/ast/ast_func.h"
 #include "libtanc.h"
 #include "parser.h"
-#include <filesystem>
-
-namespace fs = std::filesystem;
+#include "base.h"
 
 namespace tanlang {
 

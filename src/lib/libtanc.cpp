@@ -3,7 +3,7 @@
 #include "lexer.h"
 #include "linker.h"
 #include "parser.h"
-#include <filesystem>
+#include "base.h"
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -22,8 +22,6 @@
 #else
 #define END_TRY
 #endif
-
-namespace fs = std::filesystem;
 
 static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
   using tanlang::Linker;

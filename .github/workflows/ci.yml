@@ -7,13 +7,16 @@ on:
 
 jobs:
   CI_master:
+    strategy:
+      matrix:
+        container: ["tjysdsg/tanlang:latest"]
+
     runs-on: ubuntu-18.04
     container:
-      image: tjysdsg/tanlang:latest
+      image: ${{ matrix.container }}
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
+      - name: Checkout
+        run: git clone https://github.com/tjysdsg/tan --recursive
       - name: compile and test
-        run: ./scripts/install-dep.sh; ./scripts/compile-and-test.sh
+        run: cd tan; ./scripts/compile-and-test.sh

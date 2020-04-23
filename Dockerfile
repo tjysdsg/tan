@@ -1,7 +1,8 @@
 FROM ubuntu:latest
 
 RUN apt-get update
-RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common
+RUN apt-get dist-upgrade -y
+RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common git
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
 RUN ./llvm.sh 9
