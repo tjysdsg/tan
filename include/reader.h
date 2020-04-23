@@ -9,24 +9,77 @@
 
 namespace tanlang {
 
-struct code_ptr {
-  long l = 0;
-  long c = 0;
+struct cursor;
 
-  code_ptr() = default;
+struct line_info {
+  size_t lineno;
+  std::string code;
+  line_info() = delete;
+  ~line_info() = default;
 
-  code_ptr(long r, long c) : l(r), c(c) {}
+  line_info(const size_t lineno, const std::string code) : lineno(lineno), code(code) {}
+};
 
-  code_ptr(const code_ptr &other) {
-    l = other.l;
-    c = other.c;
+// TODO: support unicode
+class Reader final {
+public:
+  Reader() = default;
+  void open(const std::string &filename);
+  void from_string(const std::string &code);
+
+  /// \brief Return the number of lines of code of the current file
+  [[nodiscard]] size_t size() const { return _lines.size(); }
+
+  /** \brief Return line_info at the (\index + 1) line
+   *  \param index line of code starting from 0
+   */
+  const line_info &get_line(const size_t index) const {
+    assert(index < _lines.size());
+    return *(_lines[index]);
   }
 
-  ~code_ptr() = default;
+  char at(const cursor &ptr) const;
 
-  bool operator==(const code_ptr &other) { return l == other.l && c == other.c; }
+  /**
+   * \param start start of the string, inclusive
+   * */
+  std::string substr(const cursor &start) const;
 
-  bool operator<(const code_ptr &other) {
+  /**
+   * \param start start of the string, inclusive
+   * \param end end of the string, exclusive
+   * */
+  std::string substr(const cursor &start, cursor end) const;
+
+  [[nodiscard]] cursor begin() const;
+  [[nodiscard]] cursor end() const;
+
+  /// \brief Return a copy of code_ptr that points to the next character
+  [[nodiscard]] cursor forward(cursor ptr);
+
+private:
+  std::vector<line_info *> _lines{};
+};
+
+struct cursor {
+public:
+  friend class Reader;
+
+  size_t l = 0;
+  size_t c = 0;
+
+private:
+  cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *) reader) {}
+
+public:
+  cursor() = delete;
+  cursor &operator=(const cursor &other) = default;
+  cursor(const cursor &other) = default;
+  ~cursor() = default;
+
+  bool operator==(const cursor &other) { return l == other.l && c == other.c; }
+
+  bool operator<(const cursor &other) {
     if (l < other.l) {
       return true;
     } else if (l > other.l) {
@@ -36,7 +89,7 @@ struct code_ptr {
     }
   }
 
-  bool operator>(const code_ptr &other) {
+  bool operator>(const cursor &other) {
     if (l > other.l) {
       return true;
     } else if (l < other.l) {
@@ -46,115 +99,30 @@ struct code_ptr {
     }
   }
 
-  code_ptr &operator=(const code_ptr &other) = default;
+  bool operator!=(const cursor &other) { return !(*this == other); }
 
-  static code_ptr npos() { return code_ptr(-1, -1); }
-
-  bool operator!=(const code_ptr &other) { return !(*this == other); }
-};
-
-struct line_info {
-  unsigned lineno;   // line number
-  std::string code; // actual code
-  line_info() = delete;
-
-  line_info(const unsigned lineno, const std::string code) : lineno(lineno), code(code) {}
-
-  ~line_info() = default;
-};
-
-// TODO: support unicode
-class Reader final {
-public:
-  Reader() = default;
-  void open(const std::string &filename);
-  void from_string(const std::string &code);
-  [[nodiscard]] std::string get_filename() const;
-
-  [[nodiscard]] size_t get_n_lines() const { return _lines.size(); }
-
-  /// \brief Return the number of lines of code of the current file
-  [[nodiscard]] size_t size() const { return _lines.size(); }
-
-  /** \brief Return line_info at the (@index + 1) line
-   *  \param index line of code starting from 0
-   */
-  line_info &operator[](const size_t index) const {
-    assert(index < _lines.size());
-    return *(_lines[index]);
+  // prefix increment
+  cursor &operator++() {
+    *this = _reader->forward(*this);
+    return *this;
   }
 
-  char operator[](const code_ptr &ptr) const {
-    assert(ptr.l >= 0 && ptr.c >= 0);
-    if (static_cast<size_t>(ptr.l) >= this->size()) { return '\0'; }
-    if (static_cast<size_t>(ptr.c) >= this->_lines[static_cast<size_t >(ptr.l)]->code.length()) { return '\0'; }
-    return _lines[static_cast<size_t>(ptr.l)]->code[static_cast<size_t>(ptr.c)];
-  }
-
-  /**
-   * \brief Get a string by specifying a range of code
-   * \param start start of the string, inclusive
-   * \param end end of the string, exclusive
-   * \note Without specifying @end, this function defaults to return the string starting from
-   *       @start and and to the end of the line
-   * */
-  std::string operator()(const code_ptr &start, code_ptr end = code_ptr::npos()) const {
-    assert(start.l >= 0 && start.c >= 0);
-    assert(end.l >= -1 && end.c >= -1);
-    // if end can contain -1 only if l and c are both -1
-    assert(!((end.l == -1) ^ (end.c == -1)));
-    if (end.l == -1 && end.c == -1) {
-      end.l = static_cast<long>(start.l);
-      end.c = static_cast<long>(_lines[static_cast<size_t>(end.l)]->code.length());
-    }
-    auto s_row = start.l;
-    auto e_row = end.l;
-    std::string ret;
-    if (s_row == e_row) {
-      assert(start.c != end.c);
-      ret = _lines[static_cast<size_t>(s_row)]->code
-          .substr(static_cast<unsigned long>(start.c), static_cast<unsigned long>(end.c - start.c));
-    } else {
-      ret += _lines[static_cast<size_t>(s_row)]->code.substr(static_cast<unsigned long>(start.c));
-      for (auto r = s_row; r < e_row - 1; ++r) {
-        ret += _lines[static_cast<size_t>(r)]->code + "\n";
-      }
-      if (end.c > 0) {
-        ret += _lines[static_cast<size_t>(e_row)]->code.substr(0, static_cast<size_t>(end.c));
-      }
-    }
+  // postfix increment
+  cursor operator++(int) {
+    auto ret = *this;
+    *this = _reader->forward(*this);
     return ret;
   }
 
-  /**
-   * \brief Return a code pointer pointing one character after the final character in the code
-   * */
-  [[nodiscard]] code_ptr back_ptr() const {
-    if (_lines.empty()) { return code_ptr(0, 1); }
-    return code_ptr(static_cast<long>(_lines.size() - 1), static_cast<long>(_lines.back()->code.length()));
-  }
-
-  /// \brief Return a copy of code_ptr that points to the next position of ptr
-  [[nodiscard]] code_ptr forward_ptr(code_ptr ptr) {
-    if (static_cast<size_t >(ptr.l) >= _lines.size()) {
-      return ptr;
-    }
-    long n_cols = static_cast<long>(_lines[static_cast<size_t>(ptr.l)]->code.length());
-    if (ptr.c >= n_cols - 1) {
-      if (ptr.l < static_cast<long>(_lines.size())) {
-        ++ptr.l;
-      }
-      ptr.c = 0;
-    } else {
-      ++ptr.c;
-    }
-    return ptr;
+  char operator*() {
+    assert(_reader);
+    return _reader->at(*this);
   }
 
 private:
-  std::string _filename = "";
-  std::vector<line_info *> _lines{};
+  Reader *_reader = nullptr;
 };
+
 } // namespace tanlang
 
 #endif // TAN_READER_READER_H

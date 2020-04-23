@@ -20,7 +20,7 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->SetInsertPoint(body_bb);
     _children[1]->codegen(compiler_session);
 
-    /// back to loop start
+    /// end to loop start
     compiler_session->get_builder()->CreateBr(loop_bb);
 
     /// after loop

@@ -15,10 +15,10 @@ namespace tanlang {
    x == '|' || x == '{' || x == '}' || x == '[' || x == ']' || x == '\'' ||    \
    x == '"' || x == ':')
 
-code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
-  const auto end = reader->back_ptr();
-  while (ptr < end && (std::isspace((*reader)[ptr]) || (*reader)[ptr] == '\0')) {
-    ptr = reader->forward_ptr(ptr);
+cursor skip_whitespace(Reader *reader, cursor ptr) {
+  const auto end = reader->end();
+  while (ptr < end && (std::isspace(*ptr) || *ptr == '\0')) {
+    ptr = reader->forward(ptr);
   }
   return ptr;
 }
@@ -29,17 +29,17 @@ code_ptr skip_whitespace(Reader *reader, code_ptr ptr) {
  * \note: Call of tokenize_keyword must before that of
  *      tokenize_id
  */
-Token *tokenize_id(Reader *reader, code_ptr &start) {
+Token *tokenize_id(Reader *reader, cursor &start) {
   Token *ret = nullptr;
   auto forward = start;
-  const auto end = reader->back_ptr();
+  const auto end = reader->end();
   while (forward != end) {
-    if (std::isalnum((*reader)[forward]) || (*reader)[forward] == '_') {
-      forward = reader->forward_ptr(forward);
+    if (std::isalnum(*forward) || *forward == '_') {
+      ++forward;
     } else if (start == forward) {
       return nullptr;
     } else {
-      ret = new Token(TokenType::ID, (*reader)(start, forward), start, &(*reader)[static_cast<size_t>(start.l)]);
+      ret = new Token(TokenType::ID, reader->substr(start, forward), start, &reader->get_line(start.l));
       break;
     }
   }
@@ -47,10 +47,10 @@ Token *tokenize_id(Reader *reader, code_ptr &start) {
   return ret;
 }
 
-Token *tokenize_keyword(Reader *reader, code_ptr &start) {
+Token *tokenize_keyword(Reader *reader, cursor &start) {
   // find whether the value is in KEYWORDS (in token.h/token.cpp) based on
   // returned value of tokenize_id()
-  code_ptr forward = start;
+  cursor forward = start;
   auto *t = tokenize_id(reader, forward);
   if (t) {
     if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->value) != KEYWORDS.end()) {
@@ -64,59 +64,53 @@ Token *tokenize_keyword(Reader *reader, code_ptr &start) {
   return t;
 }
 
-Token *tokenize_comments(Reader *reader, code_ptr &start) {
+Token *tokenize_comments(Reader *reader, cursor &start) {
   Token *t = nullptr;
-  auto next = reader->forward_ptr(start);
-  if ((*reader)[next] == '/') {
+  auto next = reader->forward(start);
+  if (*next == '/') {
     // line comments
-    auto value = (*reader)(reader->forward_ptr(next));
-    t = new Token(TokenType::COMMENTS, value, start, &(*reader)[static_cast<size_t>(start.l)]);
-    start.c = static_cast<long>((*reader)[static_cast<size_t>(start.l)].code.length());
-    start = (*reader).forward_ptr(start);
-  } else if ((*reader)[next] == '*') {
+    auto value = reader->substr(reader->forward(next));
+    t = new Token(TokenType::COMMENTS, value, start, &reader->get_line(start.l));
+    start.c = reader->get_line(start.l).code.length();
+    start = (*reader).forward(start);
+  } else if (*next == '*') {
     /* block comments */
     auto forward = start;
     // loop for each line
     while (static_cast<size_t>(forward.l) < reader->size()) {
       auto re = std::regex(R"(.*\*\/)");
-      auto str = (*reader)(forward);
+      auto str = reader->substr(forward);
       std::smatch result;
       if (std::regex_match(str, result, re)) {
         std::string value = str.substr(2, static_cast<size_t>(result.length(0) - 4));
-        t = new Token(TokenType::COMMENTS, value, start, &(*reader)[static_cast<size_t>(start.l)]);
-        forward.c = result.length(0);
+        t = new Token(TokenType::COMMENTS, value, start, &reader->get_line(start.l));
+        forward.c = static_cast<size_t>(result.length(0));
         start = forward;
       }
       ++forward.l;
     }
     if (!t) {
-      report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-          static_cast<size_t>(start.l),
-          static_cast<size_t>(start.c),
-          "Invalid comments");
+      report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid comments");
     }
   } else {
-    report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-        static_cast<size_t>(start.l),
-        static_cast<size_t>(start.c),
-        "Invalid comments");
+    report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid comments");
   }
   return t;
 }
 
-Token *tokenize_number(Reader *reader, code_ptr &start) {
+Token *tokenize_number(Reader *reader, cursor &start) {
   auto forward = start;
-  const auto end = reader->back_ptr();
+  const auto end = reader->end();
   bool is_float = false;
   bool is_unsigned = false;
   auto *t = new Token;
   bool contains_digit = false;
   auto start_digit_i = start;
   while (forward < end) {
-    const char ch = (*reader)[forward];
+    const char ch = *forward;
     if (std::isdigit(ch)) {
       contains_digit = true;
-    } else if ((*reader)[start_digit_i] == '0' && contains_digit
+    } else if (*start_digit_i == '0' && contains_digit
         && ((ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X')) {
     } else if (contains_digit && !is_float && ch == 'u') { /// explicitly unsigned
       is_unsigned = true;
@@ -125,19 +119,19 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
     } else if (IS_DELIMITER(ch)) {
       break;
     } else {
-      report_code_error((*reader)[(size_t) forward.l].code,
-          static_cast<size_t>(forward.l),
-          static_cast<size_t>(forward.c),
+      report_code_error(reader->get_line(forward.l).code,
+          forward.l,
+          forward.c,
           "Unexpected character within a number literal");
       delete t;
       return nullptr;
     }
-    forward = (*reader).forward_ptr(forward);
+    forward = (*reader).forward(forward);
   }
   t->type = is_float ? TokenType::FLOAT : TokenType::INT;
-  t->value = (*reader)(start, forward);
-  t->l = static_cast<size_t>(start.l);
-  t->c = static_cast<size_t>(start.c);
+  t->value = reader->substr(start, forward);
+  t->l = start.l;
+  t->c = start.c;
   t->is_unsigned = is_unsigned;
   start = forward;
   return t;
@@ -173,66 +167,52 @@ char escape_char(char c) {
   }
 }
 
-// TODO: check line breaks inside two quotation marks
-Token *tokenize_char(Reader *reader, code_ptr &start) {
+Token *tokenize_char(Reader *reader, cursor &start) {
   Token *t = nullptr;
-  auto forward = reader->forward_ptr(start);
-  const auto end = reader->back_ptr();
+  auto forward = reader->forward(start);
+  const auto end = reader->end();
 
-  while (forward < end && (*reader)[forward] != '\'') {
-    if ((*reader)[forward] == '\\') {
-      forward = reader->forward_ptr(forward);
+  while (forward < end && *forward != '\'') {
+    if (*forward == '\\') {
+      forward = reader->forward(forward);
     }
-    forward = reader->forward_ptr(forward);
+    forward = reader->forward(forward);
   }
 
   if (forward > end) {
-    report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-        static_cast<size_t>(forward.l),
-        static_cast<size_t>(forward.c),
-        "Incomplete character literal");
+    report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete character literal");
   } else {
-    std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the single quotes
+    std::string value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
       if (value.length() != 2) {
-        report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-            static_cast<size_t>(forward.l),
-            static_cast<size_t>(forward.c),
-            "Invalid character literal");
+        report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
       }
       value = std::string(1, escape_char(value[1]));
     } else if (value.length() != 1) {
-      report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-          static_cast<size_t>(forward.l),
-          static_cast<size_t>(forward.c),
-          "Invalid character literal");
+      report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete character literal");
     }
-    t = new Token(TokenType::CHAR, value, start, &(*reader)[static_cast<size_t>(start.l)]);
-    start = (*reader).forward_ptr(forward);
+    t = new Token(TokenType::CHAR, value, start, &reader->get_line(start.l));
+    start = (*reader).forward(forward);
   }
   return t;
 }
 
-// TODO: check line breaks inside two quotation marks
-Token *tokenize_string(Reader *reader, code_ptr &start) {
+Token *tokenize_string(Reader *reader, cursor &start) {
   Token *t = nullptr;
-  auto forward = reader->forward_ptr(start);
-  const auto end = reader->back_ptr();
+  auto forward = reader->forward(start);
+  const auto end = reader->end();
 
-  while (forward < end && (*reader)[forward] != '"') {
-    if ((*reader)[forward] == '\\') { // escape
-      forward = reader->forward_ptr(forward);
+  while (forward < end && *forward != '"') {
+    if (*forward == '\\') { // escape
+      ++forward;
     }
-    forward = reader->forward_ptr(forward);
+    ++forward;
   }
 
   if (forward > end) {
-    report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
-        static_cast<size_t>(forward.l),
-        static_cast<size_t>(forward.c),
-        "Incomplete string literal");
+    report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete string literal");
   } else {
-    std::string value = (*reader)(reader->forward_ptr(start), forward); // not including the double quotes
+    std::string value = reader->substr(reader->forward(start), forward); // not including the double quotes
     std::string escaped = "";
     size_t l = value.length();
     size_t start_i = 0;
@@ -248,54 +228,54 @@ Token *tokenize_string(Reader *reader, code_ptr &start) {
       ++i;
     }
     escaped += value.substr(start_i, l - start_i);
-    t = new Token(TokenType::STRING, escaped, start, &(*reader)[static_cast<size_t>(start.l)]);
-    start = (*reader).forward_ptr(forward);
+    t = new Token(TokenType::STRING, escaped, start, &reader->get_line(start.l));
+    start = (*reader).forward(forward);
   }
   return t;
 }
 
-Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
+Token *tokenize_punctuation(Reader *reader, cursor &start) {
   Token *t = nullptr;
-  auto next = reader->forward_ptr(start);
-  size_t lineno = static_cast<size_t>(start.l);
+  auto next = reader->forward(start);
+  size_t lineno = start.l;
 
-  if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) { /// line comment or block comment
+  if (*start == '/' && (*next == '/' || *next == '*')) { /// line comment or block comment
     t = tokenize_comments(reader, start);
-  } else if ((*reader)[start] == '\'') { /// char literal
+  } else if (*start == '\'') { /// char literal
     t = tokenize_char(reader, start);
-  } else if ((*reader)[start] == '"') { /// string literal
+  } else if (*start == '"') { /// string literal
     t = tokenize_string(reader, start);
-  } else if (std::find(OP.begin(), OP.end(), (*reader)[start]) != OP.end()) { /// operators
+  } else if (std::find(OP.begin(), OP.end(), *start) != OP.end()) { /// operators
     std::string value;
     {
-      code_ptr nnext = reader->forward_ptr(next);
-      code_ptr nnnext = reader->forward_ptr(nnext);
-      code_ptr back_ptr = reader->back_ptr();
-      std::string two = (*reader)(start, nnext);
-      std::string three = (*reader)(start, reader->forward_ptr(nnext));
+      cursor nnext = reader->forward(next);
+      cursor nnnext = reader->forward(nnext);
+      cursor back_ptr = reader->end();
+      std::string two = reader->substr(start, nnext);
+      std::string three = reader->substr(start, reader->forward(nnext));
 
       if (next < back_ptr && nnext < back_ptr
           && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
-        value = (*reader)(start, nnnext);
+        value = reader->substr(start, nnnext);
         start = nnnext;
       } else if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
-        value = (*reader)(start, nnext);
+        value = reader->substr(start, nnext);
         if (OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end()) { /// operator containing two chars
           start = nnext;
         }
       } else {
         /// operator containing one chars
-        value = std::string{(*reader)[start]};
+        value = std::string{*start};
         assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
         start = next;
       }
     }
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, value, start, &(*reader)[lineno]);
+    t = new Token(type, value, start, &reader->get_line(lineno));
   } /// other punctuations
-  else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]), start, &(*reader)[lineno]);
+  else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
+    t = new Token(TokenType::PUNCTUATION, std::string(1, *start), start, &reader->get_line(lineno));
     start = next;
   } else {
     t = nullptr;
@@ -304,61 +284,45 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
 }
 
 std::vector<Token *> tokenize(Reader *reader) {
-  code_ptr start = code_ptr(0, 0);
-  if (reader->get_n_lines() == 0) { return {}; }
+  cursor start = reader->begin();
+  if (reader->size() == 0) { return {}; }
   std::vector<Token *> tokens;
-  const auto end = reader->back_ptr();
+  const auto end = reader->end();
   while (start < end) {
     /// if start with a letter
-    if (std::isalpha((*reader)[start])) {
+    if (std::isalpha(*start)) {
       auto *new_token = tokenize_keyword(reader, start);
       if (!new_token) {
         /// if this is not a keyword, probably an identifier
         new_token = tokenize_id(reader, start);
         if (!new_token) {
-          report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-              static_cast<size_t>(start.l),
-              static_cast<size_t>(start.c),
-              "Invalid identifier");
+          report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid identifier");
         }
       }
       tokens.emplace_back(new_token);
-    } else if ((*reader)[start] == '_') {
+    } else if (*start == '_') {
       /// start with an underscore, must be an identifier
       auto *new_token = tokenize_id(reader, start);
       if (!new_token) {
-        report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-            static_cast<size_t>(start.l),
-            static_cast<size_t>(start.c),
-            "Invalid identifier");
+        report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid identifier");
       }
       tokens.emplace_back(new_token);
-    } else if (std::isdigit((*reader)[start])) {
+    } else if (std::isdigit(*start)) {
       /// number literal
       auto *new_token = tokenize_number(reader, start);
       if (!new_token) {
-        report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-            static_cast<size_t>(start.l),
-            static_cast<size_t>(start.c),
-            "Invalid number literal");
+        report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid number literal");
       }
       tokens.emplace_back(new_token);
-    } else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
+    } else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
       /// punctuations
       auto *new_token = tokenize_punctuation(reader, start);
       if (!new_token) {
-        report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-            static_cast<size_t>(start.l),
-            static_cast<size_t>(start.c),
-            "Invalid symbol(s)");
+        report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid symbol(s)");
       }
       tokens.emplace_back(new_token);
     } else {
-      // start = reader->forward_ptr(start);
-      report_code_error((*reader)[static_cast<size_t>(start.l)].code,
-          static_cast<size_t>(start.l),
-          static_cast<size_t>(start.c),
-          "Invalid symbol");
+      report_code_error(reader->get_line(start.l).code, start.l, start.c, "Invalid symbol(s)");
     }
     start = skip_whitespace(reader, start);
   }

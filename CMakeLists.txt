@@ -70,7 +70,6 @@ link_directories(${DEP_LIB_DIRS})
 
 # common source files shared by multiple targets
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/reader COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
