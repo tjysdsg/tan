@@ -40,7 +40,7 @@ void Compiler::emit_object(const std::string &filename) {
     throw std::runtime_error("Could not open file: " + ec.message());
   }
   llvm::legacy::PassManager pass;
-  auto file_type = llvm::LLVMTargetMachine::CGFT_ObjectFile;
+  auto file_type = llvm::CGFT_ObjectFile;
 
   if (_target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)) {
     throw std::runtime_error("Target machine can't emit a file of this type");

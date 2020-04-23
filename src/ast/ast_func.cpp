@@ -47,7 +47,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
             nullptr,
             nullptr,
             nullptr);
-    llvm::DINodeArray retained = subprogram->getRetainedNodes();
     F->setSubprogram(subprogram);
     compiler_session->push_di_scope(subprogram);
     /// reset debug emit location

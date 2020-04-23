@@ -2,10 +2,13 @@
 #define TAN_SRC_LLVM_INCLUDE_H_
 
 /// ignore tons of warnings in LLVM headers
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Winit-list-lifetime"
+#ifdef __GNUC__
+#pragma GCC system_header
+#endif
+
+#ifdef __clang__
+#pragma clang system_header
+#endif
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/LLVMContext.h>
@@ -37,6 +40,112 @@
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfo.h>
+#include <llvm/Support/Program.h>
+#include <llvm/Support/CodeGen.h>
+#include <clang/Basic/Stack.h>
+#include <clang/Basic/TargetOptions.h>
+#include <clang/CodeGen/ObjectFilePCHContainerOperations.h>
+#include <clang/Config/config.h>
+#include <clang/Driver/DriverDiagnostic.h>
+#include <clang/Driver/Options.h>
+#include <clang/Frontend/CompilerInstance.h>
+#include <clang/Frontend/CompilerInvocation.h>
+#include <clang/Frontend/FrontendDiagnostic.h>
+#include <clang/Frontend/TextDiagnosticBuffer.h>
+#include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Frontend/Utils.h>
+#include <clang/FrontendTool/Utils.h>
+#include <llvm/ADT/Statistic.h>
+#include <llvm/Config/llvm-config.h>
+#include <llvm/LinkAllPasses.h>
+#include <llvm/Option/Arg.h>
+#include <llvm/Option/ArgList.h>
+#include <llvm/Option/OptTable.h>
+#include <llvm/Support/BuryPointer.h>
+#include <llvm/Support/Compiler.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Signals.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TimeProfiler.h>
+#include <llvm/Support/Timer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Target/TargetMachine.h>
+#include <clang/Basic/Diagnostic.h>
+#include <clang/Basic/DiagnosticOptions.h>
+#include <clang/Driver/DriverDiagnostic.h>
+#include <clang/Driver/Options.h>
+#include <clang/Frontend/FrontendDiagnostic.h>
+#include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Frontend/Utils.h>
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/ADT/StringSwitch.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/IR/DataLayout.h>
+#include <llvm/MC/MCAsmBackend.h>
+#include <llvm/MC/MCAsmInfo.h>
+#include <llvm/MC/MCCodeEmitter.h>
+#include <llvm/MC/MCContext.h>
+#include <llvm/MC/MCInstrInfo.h>
+#include <llvm/MC/MCObjectFileInfo.h>
+#include <llvm/MC/MCObjectWriter.h>
+#include <llvm/MC/MCParser/MCAsmParser.h>
+#include <llvm/MC/MCParser/MCTargetAsmParser.h>
+#include <llvm/MC/MCRegisterInfo.h>
+#include <llvm/MC/MCSectionMachO.h>
+#include <llvm/MC/MCStreamer.h>
+#include <llvm/MC/MCSubtargetInfo.h>
+#include <llvm/MC/MCTargetOptions.h>
+#include <llvm/Option/Arg.h>
+#include <llvm/Option/ArgList.h>
+#include <llvm/Option/OptTable.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/FormattedStream.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Signals.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/Timer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <clang/Basic/DiagnosticOptions.h>
+#include <clang/Driver/Compilation.h>
+#include <clang/Driver/Driver.h>
+#include <clang/Driver/DriverDiagnostic.h>
+#include <clang/Driver/Options.h>
+#include <clang/Driver/ToolChain.h>
+#include <clang/Frontend/ChainedDiagnosticConsumer.h>
+#include <clang/Frontend/CompilerInvocation.h>
+#include <clang/Frontend/SerializedDiagnosticPrinter.h>
+#include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Frontend/Utils.h>
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/SmallString.h>
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/Option/ArgList.h>
+#include <llvm/Option/OptTable.h>
+#include <llvm/Option/Option.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/InitLLVM.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Process.h>
+#include <llvm/Support/Program.h>
+#include <llvm/Support/Regex.h>
+#include <llvm/Support/Signals.h>
+#include <llvm/Support/StringSaver.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/Timer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/CrashRecoveryContext.h>
 
 namespace tanlang {
 
@@ -85,7 +194,5 @@ using llvm::DINode;
 using llvm::DebugLoc;
 
 } // namespace tanlang
-
-#pragma GCC diagnostic pop
 
 #endif /* TAN_SRC_LLVM_INCLUDE_H_ */

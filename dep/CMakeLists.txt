@@ -1,8 +1,8 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
-find_package(LLVM 9 REQUIRED)
+find_package(LLVM 10 REQUIRED)
 
 set(LLVM_LIBS
-        LLVM-9
+        LLVM
         LLVMXRay
         LLVMWindowsManifest
         LLVMTextAPI
@@ -184,5 +184,5 @@ set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
         PARENT_SCOPE)
 set(DEP_LIB_DIRS ${LLVM_LIBRARY_DIR} PARENT_SCOPE)
 
-message(LLVM libraries found in: ${LLVM_LIBRARY_DIR})
-message(LLVM headers found in: ${LLVM_INCLUDE_DIRS})
+message("LLVM libraries found in: ${LLVM_LIBRARY_DIR}")
+message("LLVM headers found in: ${LLVM_INCLUDE_DIRS}")

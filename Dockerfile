@@ -5,12 +5,13 @@ RUN apt-get dist-upgrade -y
 RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common git
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
-RUN ./llvm.sh 9
-RUN apt-get -y install libllvm-9-ocaml-dev libllvm9 llvm-9 llvm-9-dev llvm-9-doc llvm-9-examples llvm-9-runtime
-RUN apt-get -y install clang-9 clang-tools-9 clang-9-doc libclang-common-9-dev libclang-9-dev libclang1-9 clang-format-9 python-clang-9 clangd-9
-RUN apt-get -y install libfuzzer-9-dev
-RUN apt-get -y install lldb-9
-RUN apt-get -y install lld-9
-RUN apt-get -y install libc++-9-dev libc++abi-9-dev
-RUN apt-get -y install libomp-9-dev
-RUN apt-get -y install libxml2 libxml2-dev
+
+RUN ./llvm.sh 10
+
+RUN apt-get -y install libllvm-10-ocaml-dev libllvm10 llvm-10 llvm-10-dev llvm-10-doc llvm-10-examples llvm-10-runtime
+RUN apt-get -y install clang-10 clang-tools-10 clang-10-doc libclang-common-10-dev libclang-10-dev libclang1-10 clang-format-10 clangd-10
+RUN apt-get -y install libfuzzer-10-dev
+RUN apt-get -y install lldb-10
+RUN apt-get -y install lld-10
+RUN apt-get -y install libc++-10-dev libc++abi-10-dev
+RUN apt-get -y install libomp-10-dev
