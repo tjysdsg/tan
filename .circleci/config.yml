@@ -3,6 +3,7 @@ executors:
   exectr:
     docker:
       - image: tjysdsg/tanlang:latest
+    resource_class: large
 
 jobs:
   build:
