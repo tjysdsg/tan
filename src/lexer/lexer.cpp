@@ -108,18 +108,24 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
   auto forward = start;
   const auto end = reader->back_ptr();
   bool is_float = false;
+  bool is_unsigned = false;
   auto *t = new Token;
+  bool contains_digit = false;
+  auto start_digit_i = start;
   while (forward < end) {
     const char ch = (*reader)[forward];
-    if (std::isdigit(ch) || (ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X') {
-    } else if (ch == '-') { /// negative number
-    } else if (ch == '.') {
-      // TODO: '.' can only be followed by digits
+    if (std::isdigit(ch)) {
+      contains_digit = true;
+    } else if ((*reader)[start_digit_i] == '0' && contains_digit
+        && ((ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X')) {
+    } else if (contains_digit && !is_float && ch == 'u') { /// explicitly unsigned
+      is_unsigned = true;
+    } else if (contains_digit && ch == '.') {
       is_float = true;
     } else if (IS_DELIMITER(ch)) {
       break;
     } else {
-      report_code_error((*reader)[static_cast<size_t>(forward.l)].code,
+      report_code_error((*reader)[(size_t) forward.l].code,
           static_cast<size_t>(forward.l),
           static_cast<size_t>(forward.c),
           "Unexpected character within a number literal");
@@ -132,6 +138,7 @@ Token *tokenize_number(Reader *reader, code_ptr &start) {
   t->value = (*reader)(start, forward);
   t->l = static_cast<size_t>(start.l);
   t->c = static_cast<size_t>(start.c);
+  t->is_unsigned = is_unsigned;
   start = forward;
   return t;
 }
@@ -250,6 +257,7 @@ Token *tokenize_string(Reader *reader, code_ptr &start) {
 Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
   Token *t = nullptr;
   auto next = reader->forward_ptr(start);
+  size_t lineno = static_cast<size_t>(start.l);
 
   if ((*reader)[start] == '/' && ((*reader)[next] == '/' || (*reader)[next] == '*')) { /// line comment or block comment
     t = tokenize_comments(reader, start);
@@ -284,13 +292,10 @@ Token *tokenize_punctuation(Reader *reader, code_ptr &start) {
     }
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, value, start, &(*reader)[static_cast<size_t>(start.l)]);
+    t = new Token(type, value, start, &(*reader)[lineno]);
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), (*reader)[start]) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION,
-        std::string(1, (*reader)[start]),
-        start,
-        &(*reader)[static_cast<size_t>(start.l)]);
+    t = new Token(TokenType::PUNCTUATION, std::string(1, (*reader)[start]), start, &(*reader)[lineno]);
     start = next;
   } else {
     t = nullptr;

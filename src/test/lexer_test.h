@@ -99,15 +99,36 @@ TEST(tokenize, block_comment) {
 }
 
 TEST(tokenize, number_literal) {
-  std::string code = "fuck;0b10010111+0xaBFd,";
+  std::string code = "0b10010111 + 0xaBFd,-,-10,4.2";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
-  EXPECT_EQ(result.size(), 6);
+  EXPECT_EQ((int) result[0]->type, (int) TokenType::INT);
+  EXPECT_EQ(result[0]->value, "0b10010111");
   EXPECT_EQ((int) result[2]->type, (int) TokenType::INT);
-  EXPECT_EQ(result[2]->value, "0b10010111");
-  EXPECT_EQ((int) result[4]->type, (int) TokenType::INT);
-  EXPECT_EQ(result[4]->value, "0xaBFd");
+  EXPECT_EQ(result[2]->value, "0xaBFd");
+  EXPECT_EQ((int) result[7]->type, (int) TokenType::INT);
+  EXPECT_EQ(result[7]->value, "10");
+  EXPECT_EQ((int) result[9]->type, (int) TokenType::FLOAT);
+  EXPECT_EQ(result[9]->value, "4.2");
+  for (auto *&t : result) {
+    delete t;
+    t = nullptr;
+  }
+}
+
+TEST(tokenize, number_literal1) {
+  std::string code = "1u + 2. - 3.0";
+  Reader r;
+  r.from_string(code);
+  auto result = tokenize(&r);
+  EXPECT_EQ((int) result[0]->type, (int) TokenType::INT);
+  EXPECT_EQ(result[0]->value, "1u");
+  EXPECT_EQ(result[0]->is_unsigned, true);
+  EXPECT_EQ((int) result[2]->type, (int) TokenType::FLOAT);
+  EXPECT_EQ(result[2]->value, "2.");
+  EXPECT_EQ((int) result[4]->type, (int) TokenType::FLOAT);
+  EXPECT_EQ(result[4]->value, "3.0");
   for (auto *&t : result) {
     delete t;
     t = nullptr;

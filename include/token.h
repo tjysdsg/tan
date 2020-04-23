@@ -30,6 +30,7 @@ struct Token {
   std::string value = "";
   size_t l = 0, c = 0;
   line_info *line;
+  bool is_unsigned = false;
 
   Token() = default;
 

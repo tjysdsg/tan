@@ -145,38 +145,7 @@ set(LLVM_LIBS
         LLVMDemangle
         )
 
-set(CLANG_LIBS
-        clang
-        clangBasic
-        clangCodeGen
-        clangDriver
-        clangTooling
-        clangFrontend
-        clangFrontendTool
-        clangSerialization
-        clangFrontendTool
-        clangCodeGen
-        clangFrontend
-        clangDriver
-        clangSerialization
-        clangSema
-        clangStaticAnalyzerFrontend
-        clangStaticAnalyzerCheckers
-        clangStaticAnalyzerCore
-        clangAnalysis
-        clangASTMatchers
-        clangAST
-        clangParse
-        clangSema
-        clangBasic
-        clangEdit
-        clangLex
-        clangARCMigrate
-        clangRewriteFrontend
-        clangRewrite
-        clangCrossTU
-        clangIndex
-        )
+set(CLANG_LIBS clang-cpp)
 
 set(DEP_INCLUDES ${LLVM_INCLUDE_DIRS} ${DEP_DIR}/filesystem/include PARENT_SCOPE)
 set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
