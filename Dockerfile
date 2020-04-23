@@ -2,7 +2,8 @@ FROM ubuntu:latest
 
 RUN apt-get update
 RUN apt-get dist-upgrade -y
-RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common git
+RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common git zlib1g zlib1g-dev
+RUN apt-get install -y libtinfo5 libtinfo-dev libxml2 libxml2-dev
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
 

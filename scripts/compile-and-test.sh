@@ -2,7 +2,7 @@
 mkdir -p build
 pushd build
 cmake -DCMAKE_PREFIX_PATH=${llvm_prefix} .. || exit 1
-make -j8 || exit 1
+make || exit 1
 popd
 
 ./scripts/tanc_test.sh || exit 1

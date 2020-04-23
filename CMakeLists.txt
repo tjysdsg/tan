@@ -14,7 +14,7 @@ set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)

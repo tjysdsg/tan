@@ -4,7 +4,9 @@ sudo: required
 services:
   - docker
 
-env: SH="docker exec -t container bash -c"
+env:
+  global:
+    - SH="docker exec -t container bash -c"
 
 before_install:
   - docker run -d --name container -v $(pwd):/travis -w /travis tjysdsg/tanlang:latest tail -f /dev/null

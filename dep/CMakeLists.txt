@@ -145,13 +145,96 @@ set(LLVM_LIBS
         LLVMDemangle
         )
 
-set(CLANG_LIBS clang-cpp)
+find_package(Clang REQUIRED)
 
-set(DEP_INCLUDES ${LLVM_INCLUDE_DIRS} ${DEP_DIR}/filesystem/include PARENT_SCOPE)
-set(DEP_LIBS ${LLVM_LIBS} ${CLANG_LIBS}
+if (NOT DEFINED CLANG_INCLUDE_DIRS)
+    message(FATAL_ERROR "Cannot find clang")
+else ()
+    message("Clang headers found in: ${CLANG_INCLUDE_DIRS}")
+endif ()
+
+find_library(CLANG_LIBRARIES
+        NAMES
+        clang-cpp-10.0
+        clang-cpp100
+        clang-cpp
+        PATHS
+        ${CLANG_LIBDIRS}
+        /usr/lib/llvm-10/lib
+        /usr/local/llvm100/lib
+        /usr/local/llvm10/lib
+        )
+
+if (NOT CLANG_LIBRARIES)
+    set(CLANG_LIBRARIES "")
+    macro(FIND_AND_ADD_CLANG_LIB _libname_)
+        string(TOUPPER ${_libname_} _prettylibname_)
+        find_library(CLANG_${_prettylibname_}_LIB NAMES ${_libname_}
+                PATHS
+                ${CLANG_LIBDIRS}
+                /usr/lib/llvm/10/lib
+                /usr/lib/llvm-10/lib
+                /usr/lib/llvm-10.0/lib
+                /usr/local/llvm100/lib
+                /usr/local/llvm10/lib
+                /mingw64/lib
+                /c/msys64/mingw64/lib
+                c:\\msys64\\mingw64\\lib
+                )
+        if (CLANG_${_prettylibname_}_LIB)
+            set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
+        endif ()
+    endmacro(FIND_AND_ADD_CLANG_LIB)
+
+    FIND_AND_ADD_CLANG_LIB(clang)
+    FIND_AND_ADD_CLANG_LIB(clangBasic)
+    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
+    FIND_AND_ADD_CLANG_LIB(clangDriver)
+    FIND_AND_ADD_CLANG_LIB(clangTooling)
+    FIND_AND_ADD_CLANG_LIB(clangFrontend)
+    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
+    FIND_AND_ADD_CLANG_LIB(clangSerialization)
+    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
+    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
+    FIND_AND_ADD_CLANG_LIB(clangFrontend)
+    FIND_AND_ADD_CLANG_LIB(clangDriver)
+    FIND_AND_ADD_CLANG_LIB(clangSerialization)
+    FIND_AND_ADD_CLANG_LIB(clangSema)
+    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
+    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
+    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
+    FIND_AND_ADD_CLANG_LIB(clangAnalysis)
+    FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
+    FIND_AND_ADD_CLANG_LIB(clangAST)
+    FIND_AND_ADD_CLANG_LIB(clangParse)
+    FIND_AND_ADD_CLANG_LIB(clangSema)
+    FIND_AND_ADD_CLANG_LIB(clangBasic)
+    FIND_AND_ADD_CLANG_LIB(clangEdit)
+    FIND_AND_ADD_CLANG_LIB(clangLex)
+    FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
+    FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
+    FIND_AND_ADD_CLANG_LIB(clangRewrite)
+    FIND_AND_ADD_CLANG_LIB(clangCrossTU)
+    FIND_AND_ADD_CLANG_LIB(clangIndex)
+    FIND_AND_ADD_CLANG_LIB(Polly)
+    FIND_AND_ADD_CLANG_LIB(PollyISL)
+    FIND_AND_ADD_CLANG_LIB(PollyPPCG)
+endif ()
+
+message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
+
+set(DEP_INCLUDES
+        ${LLVM_INCLUDE_DIRS}
+        ${CLANG_INCLUDE_DIRS}
+        ${DEP_DIR}/filesystem/include
+        PARENT_SCOPE)
+
+set(DEP_LIBS ${LLVM_LIBS}
+        ${CLANG_LIBRARIES}
         z dl rt tinfo pthread m xml2
         PARENT_SCOPE)
-set(DEP_LIB_DIRS ${LLVM_LIBRARY_DIR} PARENT_SCOPE)
 
-message("LLVM libraries found in: ${LLVM_LIBRARY_DIR}")
-message("LLVM headers found in: ${LLVM_INCLUDE_DIRS}")
+set(DEP_LIB_DIRS
+        ${LLVM_LIBRARY_DIR}
+        ${CLANG_LIBDIRS}
+        PARENT_SCOPE)
