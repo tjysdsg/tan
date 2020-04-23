@@ -1,4 +1,4 @@
-name: Continuous Build
+name: CI
 
 on:
   push:
@@ -8,6 +8,8 @@ on:
 jobs:
   CI_master:
     runs-on: ubuntu-18.04
+    container:
+      image: tjysdsg/tanlang:latest
 
     steps:
       - uses: actions/checkout@v2

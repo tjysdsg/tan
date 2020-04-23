@@ -1,6 +1,4 @@
 #!/bin/bash
-export CC=$(which clang)
-export CXX=$(which clang++)
 mkdir -p build
 pushd build
 cmake .. || exit 1

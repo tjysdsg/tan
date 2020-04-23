@@ -1,0 +1,23 @@
+version: 2.1
+executors:
+  exectr:
+    docker:
+      - image: tjysdsg/tanlang:latest
+
+jobs:
+  build:
+    executor: exectr
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: ./scripts/install-dep.sh
+      - run:
+          name: Compile and test
+          command: ./scripts/compile-and-test.sh
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
