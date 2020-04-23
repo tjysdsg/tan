@@ -1,5 +1,12 @@
 #ifndef TAN_SRC_LLVM_INCLUDE_H_
 #define TAN_SRC_LLVM_INCLUDE_H_
+
+/// ignore tons of warnings in LLVM headers
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Winit-list-lifetime"
+
 #include <llvm/IR/Value.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/IRBuilder.h>
@@ -77,6 +84,8 @@ using llvm::Metadata;
 using llvm::DINode;
 using llvm::DebugLoc;
 
-}
+} // namespace tanlang
+
+#pragma GCC diagnostic pop
 
 #endif /* TAN_SRC_LLVM_INCLUDE_H_ */

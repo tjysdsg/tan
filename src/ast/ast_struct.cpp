@@ -12,7 +12,7 @@ Value *ASTStruct::codegen(CompilerSession *compiler_session) {
   using llvm::StructType;
   auto ty_name = ast_cast<ASTIdentifier>(_children[0])->get_name(); // name of this struct
   std::vector<Type *> members;
-  std::shared_ptr<ASTNode> var = nullptr;
+  ASTNodePtr var = nullptr;
   for (size_t i = 1; i < _children.size(); ++i) {
     if (_children[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
       var = _children[i];
@@ -49,7 +49,7 @@ llvm::Type *ASTStruct::to_llvm_type(CompilerSession *) const {
   return _llvm_type;
 }
 
-std::shared_ptr<ASTNode> ASTStruct::get_member(size_t i) {
+ASTNodePtr ASTStruct::get_member(size_t i) {
   return _children[i + 1];
 }
 

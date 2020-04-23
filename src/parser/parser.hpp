@@ -9,9 +9,9 @@ namespace tanlang {
 
 #define PARSE_TEMPLATE_SPECIALIZATION(ast, t)                                          \
   template <>                                                                          \
-  std::shared_ptr<ASTNode> Parser::parse<ASTType::t>(size_t & index, bool strict) {    \
+  ASTNodePtr Parser::parse<ASTType::t>(size_t & index, bool strict) {                  \
     auto *token = this->at(index);                                                     \
-    std::shared_ptr<ASTNode> node =                                                    \
+    ASTNodePtr node =                                                                  \
         std::make_shared<ast>(token, index);                                           \
     if (strict) {                                                                      \
       index = node->parse(this);                                                       \

@@ -3,7 +3,7 @@
 
 namespace tanlang {
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::shared_ptr<ASTNode>>>
+std::unordered_map<std::string, std::unordered_map<std::string, ASTNodePtr>>
     CompilerSession::public_func{};
 
 void CompilerSession::initialize_scope() {
@@ -47,11 +47,11 @@ std::shared_ptr<Scope> CompilerSession::pop_scope() {
   return r;
 }
 
-void CompilerSession::add(const std::string &name, std::shared_ptr<ASTNode> value) {
+void CompilerSession::add(const std::string &name, ASTNodePtr value) {
   get_current_scope()->_named.insert(std::make_pair(name, value));
 }
 
-void CompilerSession::set(const std::string &name, std::shared_ptr<ASTNode> value) {
+void CompilerSession::set(const std::string &name, ASTNodePtr value) {
   // search from the outer-est scope to the inner-est scope
   auto scope = _scope.end(); // scope is an iterator
   --scope;
@@ -65,10 +65,10 @@ void CompilerSession::set(const std::string &name, std::shared_ptr<ASTNode> valu
   (*scope)->_named[name] = value;
 }
 
-std::shared_ptr<ASTNode> CompilerSession::get(const std::string &name) {
+ASTNodePtr CompilerSession::get(const std::string &name) {
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  std::shared_ptr<ASTNode> result = nullptr;
+  ASTNodePtr result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {
@@ -144,18 +144,16 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::add_public_function(const std::string &filename,
-    const std::string &name,
-    std::shared_ptr<ASTNode> func) {
+void CompilerSession::add_public_function(const std::string &filename, const std::string &name, ASTNodePtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
-    pf[filename] = std::unordered_map<std::string, std::shared_ptr<ASTNode>>{};
+    pf[filename] = std::unordered_map<std::string, ASTNodePtr>{};
   }
   pf[filename][name] = func;
 }
 
-std::vector<std::shared_ptr<ASTNode>> CompilerSession::get_public_functions(const std::string &filename) {
-  std::vector<std::shared_ptr<ASTNode>> ret{};
+std::vector<ASTNodePtr> CompilerSession::get_public_functions(const std::string &filename) {
+  std::vector<ASTNodePtr> ret{};
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {

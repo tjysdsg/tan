@@ -32,7 +32,7 @@ void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
 }
 
 llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
-  std::shared_ptr<ASTNode> tmp = nullptr;
+  ASTNodePtr tmp = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::ASSERT: {
       auto stack_trace = std::make_shared<StackTrace>();
@@ -97,7 +97,7 @@ void Intrinsic::determine_type() {
     report_code_error(_token, "Invalid intrinsic");
   }
   _intrinsic_type = Intrinsic::intrinsics[token->value];
-  std::shared_ptr<ASTNode> underlying_ast = nullptr;
+  ASTNodePtr underlying_ast = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::ASSERT:
     case IntrinsicType::NOOP:
@@ -136,7 +136,7 @@ size_t Intrinsic::parse(Parser *parser) {
   return _end_index;
 }
 
-size_t Intrinsic::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t Intrinsic::parse(const ASTNodePtr &left, Parser *parser) {
   _parser = parser;
   determine_type();
   if (_children.size() >= 1) {

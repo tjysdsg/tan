@@ -125,7 +125,7 @@ public:
   ASTAssignment(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
 protected:
-  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left, Parser *parser) override;
 };
 
 class ASTArithmetic final : public ASTInfixBinaryOp {

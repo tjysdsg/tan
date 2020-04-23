@@ -26,7 +26,7 @@ size_t ASTParenthesis::nud(Parser *parser) {
   return _end_index;
 }
 
-size_t ASTInfixBinaryOp::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTInfixBinaryOp::led(const ASTNodePtr &left, Parser *parser) {
   _end_index = _start_index + 1; /// skip operator
   _children.emplace_back(left); /// lhs
   auto n = parser->next_expression(_end_index, _lbp);
@@ -87,7 +87,7 @@ size_t ASTPrefix::nud(Parser *parser) {
   return _end_index;
 }
 
-size_t ASTAssignment::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTAssignment::led(const ASTNodePtr &left, Parser *parser) {
   _end_index = _start_index + 1; /// skip "="
   _children.push_back(left);
   _children.push_back(parser->next_expression(_end_index, 0));

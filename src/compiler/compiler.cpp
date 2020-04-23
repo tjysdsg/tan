@@ -10,7 +10,7 @@ Compiler::~Compiler() {
   delete _target_machine;
 }
 
-Compiler::Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompilation *config) : _ast(ast) {
+Compiler::Compiler(std::string filename, ASTNodePtr ast, TanCompilation *config) : _ast(ast) {
   { /// target machine and data layout
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();

@@ -78,13 +78,17 @@ extern std::unordered_map<ASTType, std::string> ast_type_names;
 /// operator precedence for tokens
 extern std::unordered_map<ASTType, int> op_precedence;
 
+class ASTNode;
+
+using ASTNodePtr = std::shared_ptr<ASTNode>;
+
 class ASTNode {
 public:
   friend class Parser;
 
 public:
   ASTType _type = ASTType::INVALID;
-  std::vector<std::shared_ptr<ASTNode>> _children{};
+  std::vector<ASTNodePtr> _children{};
   int _lbp = 0;
   int _rbp = 0;
   Token *_token = nullptr;
@@ -95,7 +99,7 @@ public:
 
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
-  [[nodiscard]] virtual size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser);
   [[nodiscard]] virtual size_t parse(Parser *parser);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
@@ -123,7 +127,7 @@ public:
   std::string get_src() const;
 
 protected:
-  [[nodiscard]] virtual size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser);
+  [[nodiscard]] virtual size_t led(const ASTNodePtr &left, Parser *parser);
   [[nodiscard]] virtual size_t nud(Parser *parser);
 
 private:
@@ -159,7 +163,7 @@ public:
   ASTInfixBinaryOp() = delete;
   ASTInfixBinaryOp(Token *token, size_t token_index);
 protected:
-  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left, Parser *parser) override;
 };
 
 class ASTPrefix : public ASTNode {
@@ -198,8 +202,7 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 };
 
-template<typename T>
-std::shared_ptr<T> ast_cast(std::shared_ptr<ASTNode> node) { return std::reinterpret_pointer_cast<T>(node); }
+template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
 
 } // namespace tanlang
 

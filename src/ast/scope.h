@@ -10,7 +10,7 @@ struct StackTrace;
 
 struct Scope {
   // TODO: separate types with named
-  std::unordered_map<std::string, std::shared_ptr<ASTNode>> _named{}; ///< named identifiers in this scope
+  std::unordered_map<std::string, ASTNodePtr> _named{}; ///< named identifiers in this scope
   BasicBlock *_code_block = nullptr; ///< parent code block
 };
 

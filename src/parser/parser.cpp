@@ -15,7 +15,7 @@ namespace tanlang {
 
 Parser::Parser(std::vector<Token *> tokens, std::string filename) : _tokens(std::move(tokens)), _filename(filename) {}
 
-std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::string &value) {
+ASTNodePtr Parser::peek(size_t &index, TokenType type, const std::string &value) {
   if (index >= _tokens.size()) {
     throw std::runtime_error("Unexpected EOF");
   }
@@ -28,7 +28,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index, TokenType type, const std::
   return peek(index);
 }
 
-static std::shared_ptr<ASTNode> peek_keyword(Token *token, size_t &index) {
+static ASTNodePtr peek_keyword(Token *token, size_t &index) {
   if (token->value == "var") {
     return std::make_shared<ASTVarDecl>(token, index);
   } else if (token->value == "fn" || token->value == "pub" || token->value == "extern") {
@@ -50,7 +50,7 @@ static std::shared_ptr<ASTNode> peek_keyword(Token *token, size_t &index) {
   }
 }
 
-std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
+ASTNodePtr Parser::peek(size_t &index) {
   if (index >= _tokens.size()) {
     return nullptr;
   }
@@ -60,7 +60,7 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
     ++index;
     token = _tokens[index];
   }
-  std::shared_ptr<ASTNode> node;
+  ASTNodePtr node;
   if (token->value == "@") { /// intrinsics
     node = std::make_shared<Intrinsic>(token, index);
   } else if (token->value == "+" && token->type == TokenType::BOP) {
@@ -128,8 +128,8 @@ std::shared_ptr<ASTNode> Parser::peek(size_t &index) {
   return node;
 }
 
-std::shared_ptr<ASTNode> Parser::next_expression(size_t &index, int rbp) {
-  std::shared_ptr<ASTNode> node = peek(index);
+ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
+  ASTNodePtr node = peek(index);
   ++index;
   if (!node) {
     return nullptr;
@@ -154,7 +154,7 @@ std::shared_ptr<ASTNode> Parser::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-std::shared_ptr<ASTNode> Parser::parse() {
+ASTNodePtr Parser::parse() {
   _root = std::make_shared<ASTProgram>();
   (void) _root->parse(this); /// fix the [[nodiscard]] warning
   return _root;

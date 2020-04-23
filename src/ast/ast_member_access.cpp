@@ -1,5 +1,4 @@
 #include "src/ast/ast_member_access.h"
-#include "src/ast/ast_identifier.h"
 #include "src/ast/ast_struct.h"
 #include "src/ast/astnode.h"
 #include "src/ast/common.h"
@@ -7,9 +6,7 @@
 
 namespace tanlang {
 
-Value *ASTMemberAccess::codegen_dot_member_variable(CompilerSession *compiler_session,
-    std::shared_ptr<ASTNode> lhs,
-    std::shared_ptr<ASTNode> rhs) {
+Value *ASTMemberAccess::codegen_dot_member_variable(CompilerSession *compiler_session, ASTNodePtr lhs, ASTNodePtr rhs) {
   assert(lhs->is_typed());
   assert(lhs->is_lvalue());
   assert(rhs->_type == ASTType::ID);

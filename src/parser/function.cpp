@@ -25,7 +25,7 @@ size_t ASTFunction::nud(Parser *parser) {
   /// if the argument list isn't empty
   if (parser->at(_end_index)->value != ")") {
     while (!parser->eof(_end_index)) {
-      std::shared_ptr<ASTNode> arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
+      ASTNodePtr arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
       _end_index = arg->parse(parser);
       _children.push_back(arg);
       if (parser->at(_end_index)->value == ",") {

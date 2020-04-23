@@ -3,7 +3,7 @@
 
 namespace tanlang {
 
-size_t ASTMemberAccess::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTMemberAccess::led(const ASTNodePtr &left, Parser *parser) {
   _end_index = _start_index + 1; /// skip "." or "["
   _is_bracket = parser->at(_start_index)->value == "[";
   _children.push_back(left); /// lhs

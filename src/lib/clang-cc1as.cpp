@@ -81,10 +81,10 @@ struct AssemblerInvocation {
   /// @{
 
   std::vector<std::string> IncludePaths;
-  unsigned NoInitialTextSection : 1;
-  unsigned SaveTemporaryLabels : 1;
-  unsigned GenDwarfForAssembly : 1;
-  unsigned RelaxELFRelocations : 1;
+  unsigned NoInitialTextSection: 1;
+  unsigned SaveTemporaryLabels: 1;
+  unsigned GenDwarfForAssembly: 1;
+  unsigned RelaxELFRelocations: 1;
   unsigned DwarfVersion;
   std::string DwarfDebugFlags;
   std::string DwarfDebugProducer;
@@ -107,26 +107,26 @@ struct AssemblerInvocation {
     FT_Obj   ///< Object file output.
   };
   FileType OutputType;
-  unsigned ShowHelp : 1;
-  unsigned ShowVersion : 1;
+  unsigned ShowHelp: 1;
+  unsigned ShowVersion: 1;
 
   /// @}
   /// @name Transliterate Options
   /// @{
 
   unsigned OutputAsmVariant;
-  unsigned ShowEncoding : 1;
-  unsigned ShowInst : 1;
+  unsigned ShowEncoding: 1;
+  unsigned ShowInst: 1;
 
   /// @}
   /// @name Assembler Options
   /// @{
 
-  unsigned RelaxAll : 1;
-  unsigned NoExecStack : 1;
-  unsigned FatalWarnings : 1;
-  unsigned IncrementalLinkerCompatible : 1;
-  unsigned EmbedBitcode : 1;
+  unsigned RelaxAll: 1;
+  unsigned NoExecStack: 1;
+  unsigned FatalWarnings: 1;
+  unsigned IncrementalLinkerCompatible: 1;
+  unsigned EmbedBitcode: 1;
 
   /// The name of the relocation model to use.
   std::string RelocationModel;

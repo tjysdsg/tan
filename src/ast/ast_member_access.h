@@ -24,10 +24,8 @@ public:
   llvm::Value *get_llvm_value(CompilerSession *) const override;
 
 protected:
-  size_t led(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
-  Value *codegen_dot_member_variable(CompilerSession *compiler_session,
-      std::shared_ptr<ASTNode> lhs,
-      std::shared_ptr<ASTNode> rhs);
+  size_t led(const ASTNodePtr &left, Parser *parser) override;
+  Value *codegen_dot_member_variable(CompilerSession *compiler_session, ASTNodePtr lhs, ASTNodePtr rhs);
 
 private:
   bool _is_bracket = false;

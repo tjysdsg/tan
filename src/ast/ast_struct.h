@@ -17,7 +17,7 @@ public:
   ASTStruct(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
   size_t get_member_index(std::string name);
-  std::shared_ptr<ASTNode> get_member(size_t i);
+  ASTNodePtr get_member(size_t i);
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
 
