@@ -16,7 +16,15 @@ jobs:
       image: ${{ matrix.container }}
 
     steps:
-      - name: Checkout
+      - name: checkout
         run: git clone https://github.com/tjysdsg/tan --recursive
-      - name: compile and test
-        run: cd tan; ./scripts/compile-and-test.sh
+      - name: compile
+        run: cd tan; ./scripts/compile.sh
+      - name: prepare artifact
+        run: zip -r bin.zip bin
+      - uses: actions/upload-artifact@v1
+        with:
+          name: bin
+          path: bin.zip
+      - name: test
+        run: ./scripts/test.sh

@@ -15,7 +15,7 @@ jobs:
           command: ./scripts/install-dep.sh
       - run:
           name: Compile and test
-          command: ./scripts/compile-and-test.sh
+          command: ./scripts/compile.sh
 
 workflows:
   version: 2

@@ -16,4 +16,4 @@ install:
   - $SH "./scripts/install-dep.sh"
 
 script:
-  - $SH "./scripts/compile-and-test.sh"
+  - $SH "./scripts/compile.sh"
