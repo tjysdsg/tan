@@ -99,16 +99,6 @@ set_other_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16")
     message(STATUS "CMake>=3.16 detected, precompiled headers are enabled")
     target_precompile_headers(tan PRIVATE src/llvm_include.h)
-    message(STATUS "CMake>=3.16 detected, unity build is enabled")
-    set_target_properties(tan PROPERTIES UNITY_BUILD ON)
-    set_source_files_properties(
-            src/lib/clang-cc1.cpp
-            src/lib/clang-cc1as.cpp
-            src/lib/clang-frontend.cpp
-            PROPERTIES
-            SKIP_UNITY_BUILD_INCLUSION
-            ON
-    )
 endif ()
 
 # ===== target CLI compiler =====

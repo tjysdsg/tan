@@ -12,10 +12,9 @@ namespace tanlang {
 class ASTArrayLiteral : public ASTLiteral {
 public:
   ASTArrayLiteral() = delete;
+  ASTArrayLiteral(Token *token, size_t token_index);
 
-  ASTArrayLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, token, token_index) {}
-
-  // TODO: get_ty() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
@@ -26,6 +25,7 @@ public:
 
 protected:
   size_t nud(Parser *parser) override;
+
 private:
   llvm::Value *_llvm_value = nullptr;
   llvm::Type *_llvm_type = nullptr;

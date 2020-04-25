@@ -23,6 +23,7 @@ enum class Ty : uint64_t {
   FLOAT,
   DOUBLE,
   BOOL,
+  POINTER,
   STRING,
   FUNC_PTR, // TODO: function ptr
   STRUCT,   // struct (or class)
@@ -33,12 +34,11 @@ enum class Ty : uint64_t {
 
   UNSIGNED = 1u << 13u,
   CONST = 1u << 14u,
-  POINTER = 1u << 15u,
-  BIT8 = 1u << 16u,
-  BIT16 = 1u << 17u,
-  BIT32 = 1u << 18u,
-  BIT64 = 1u << 19u,
-  BIT128 = 1u << 20u,
+  BIT8 = 1u << 15u,
+  BIT16 = 1u << 16u,
+  BIT32 = 1u << 17u,
+  BIT64 = 1u << 18u,
+  BIT128 = 1u << 19u,
 };
 
 class ASTTy;

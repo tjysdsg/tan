@@ -64,4 +64,19 @@ size_t ASTArrayLiteral::get_n_elements() const {
   return _children.size();
 }
 
+ASTArrayLiteral::ASTArrayLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::ARRAY_LITERAL,
+    0,
+    0,
+    token,
+    token_index) {}
+
+std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
+  // TODO: optimize this
+  auto ret = ASTTy::Create(Ty::ARRAY);
+  for (const auto &c : _children) {
+    ret->_children.push_back(c->get_ty());
+  }
+  return ret;
+}
+
 } // namespace tanlang

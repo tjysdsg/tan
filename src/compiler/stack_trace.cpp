@@ -35,4 +35,4 @@ llvm::Value *codegen_get_stack_trace(CompilerSession *compiler_session, size_t l
   return st;
 }
 
-}
+} // namespace tanlang

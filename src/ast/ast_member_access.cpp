@@ -32,6 +32,9 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
       lhs_val = compiler_session->get_builder()->CreateLoad(lhs_val);
     }
     auto *rhs_val = rhs->codegen(compiler_session);
+    if (rhs->is_lvalue()) {
+      rhs_val = compiler_session->get_builder()->CreateLoad(rhs_val);
+    }
     ret = compiler_session->get_builder()->CreateGEP(lhs_val, rhs_val, "member_ptr");
     // TODO: set _type_name
   } else if (rhs->_type == ASTType::ID) { /// dot access

@@ -57,18 +57,18 @@ size_t ASTTy::nud(Parser *parser) {
       _ty = TY_OR(_ty, basic_tys[token->value]);
       _type_name += token->value; /// just append the type name for basic types and qualifiers
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// qualifiers
-      if (TY_IS(_ty, Ty::POINTER) && token->value == "*") { /// pointer to pointer (to ...)
-        auto sub = std::make_shared<ASTTy>(token, _end_index);
-        /// swap self and child, so this is a pointer with no basic type, and the child is a pointer to something
-        sub->_ty = this->_ty;
-        this->_ty = Ty::POINTER;
-        /// remember to set the name of sub
-        sub->_type_name = _type_name;
-        _children.push_back(sub);
-      } else { /// qualifiers other than pointer to pointers
-        _ty = TY_OR(_ty, qualifier_tys[token->value]);
+      if (token->value == "*") {
+        if (_ty == Ty::INVALID) { /// pointer to basic types
+          _ty = Ty::POINTER;
+        } else { /// pointer to pointer (to ...)
+          auto sub = std::make_shared<ASTTy>(token, _end_index);
+          // swap self and child, so this is a pointer with no basic type, and the child is a pointer to something
+          sub->_ty = this->_ty;
+          this->_ty = Ty::POINTER;
+          sub->_type_name = _type_name;
+          _children.push_back(sub);
+        }
       }
-      _type_name += token->value; /// just append the type name for basic types and qualifiers
     } else if (token->type == TokenType::ID) { /// struct or array
       // TODO: identify type aliases
       _type_name = token->value; /// _type_name is the name of the struct

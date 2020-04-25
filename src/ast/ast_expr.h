@@ -76,6 +76,11 @@ public:
   bool is_lvalue() const override { return false; }
 
   bool is_typed() const override { return true; }
+
+  llvm::Value *get_llvm_value(CompilerSession *) const override = 0;
+  std::string get_type_name() const override = 0;
+  llvm::Type *to_llvm_type(CompilerSession *) const override = 0;
+  std::shared_ptr<ASTTy> get_ty() const override = 0;
 };
 
 class ASTNumberLiteral final : public ASTLiteral {

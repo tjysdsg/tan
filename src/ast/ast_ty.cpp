@@ -9,7 +9,7 @@ ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, toke
 
 llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   Ty base = TY_GET_BASE(_ty);
-  Ty qual = TY_GET_QUALIFIER(_ty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_ty);
   llvm::Type *type = nullptr;
   /// primitive types
   switch (base) {
@@ -22,7 +22,6 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
     case Ty::FLOAT:
       type = compiler_session->get_builder()->getFloatTy();
       break;
-
     case Ty::DOUBLE:
       type = compiler_session->get_builder()->getDoubleTy();
       break;
@@ -37,30 +36,21 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       type = st->to_llvm_type(compiler_session);
       break;
     }
+    case Ty::POINTER:
     case Ty::ARRAY: {
       auto e_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(compiler_session);
       type = e_type->getPointerTo();
       break;
     }
-    default: {
-      break;
-    }
-  }
-  /// pointer
-  if (TY_IS(qual, Ty::POINTER)) {
-    if (!_children.empty()) { /// pointer to pointer (to ...)
-      auto child = ast_cast<ASTTy>(_children[0]);
-      type = child->to_llvm_type(compiler_session);
-    }
-    type = llvm::PointerType::get(type, 0);
+    default:
+      assert(false);
   }
   return type;
 }
 
 llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
-  // TODO: debug info for qualifiers
   Ty base = TY_GET_BASE(_ty);
-  Ty qual = TY_GET_QUALIFIER(_ty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_ty);
   DIType *ret = nullptr;
   /// primitive types
   switch (base) {
@@ -101,6 +91,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
               _type_name);
       break;
     }
+    case Ty::POINTER:
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
       auto *e_di_type = e->to_llvm_meta(compiler_session);
@@ -108,18 +99,8 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
           ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
-    default: {
-      break;
-    }
-  }
-  /// pointer
-  if (TY_IS(qual, Ty::POINTER)) {
-    if (!_children.empty()) { /// pointer to pointer (to ...)
-      auto child = ast_cast<ASTTy>(_children[0]);
-      ret = child->to_llvm_meta(compiler_session);
-    }
-    ret = compiler_session->get_di_builder()
-        ->createPointerType(ret, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
+    default:
+      assert(false);
   }
   return ret;
 }
@@ -237,34 +218,19 @@ void ASTTy::resolve() {
       _is_struct = true;
       break;
     }
+    case Ty::POINTER:
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
+      e->resolve();
       _type_name = e->get_type_name() + "*";
       _size_bits = 64; // TODO: compiler_session->get_ptr_size();
       _align_bits = e->get_size_bits();
       _is_ptr = true;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
-    default: {
-      break;
-    }
-  }
-  /// pointer
-  if (TY_IS(qual, Ty::POINTER)) {
-    _is_ptr = true;
-    if (!_children.empty()) { /// pointer to pointer (to ...)
-      auto child = ast_cast<ASTTy>(_children[0]);
-      child->resolve();
-      _type_name = child->_type_name + "*";
-      _align_bits = child->_size_bits;
-      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
-      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
-    } else {
-      _type_name += "*";
-      _align_bits = _size_bits;
-      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
-      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
-    }
+    default:
+      assert(false);
   }
   _resolved = true;
 }
