@@ -4,7 +4,7 @@ set(RUNTIME_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/debug.tan)
 
 find_library(LIB_CXX_LOCATION c++)
-message("libc++ location: ${LIB_CXX_LOCATION}")
+message(STATUS "libc++ location: ${LIB_CXX_LOCATION}")
 
 add_custom_target(runtime ALL DEPENDS tanc SOURCES ${RUNTIME_SRCS})
 add_custom_command(TARGET runtime

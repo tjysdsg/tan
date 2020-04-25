@@ -150,7 +150,7 @@ find_package(Clang REQUIRED)
 if (NOT DEFINED CLANG_INCLUDE_DIRS)
     message(FATAL_ERROR "Cannot find clang")
 else ()
-    message("Clang headers found in: ${CLANG_INCLUDE_DIRS}")
+    message(STATUS "Clang headers found in: ${CLANG_INCLUDE_DIRS}")
 endif ()
 
 find_library(CLANG_LIBRARIES

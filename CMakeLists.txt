@@ -10,6 +10,7 @@ set(CMAKE_PROJECT_TAN_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CMAKE_PROJECT_TAN_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CMAKE_PROJECT_TAN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 
+# see include/config.h.in
 set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
@@ -26,7 +27,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 macro(set_other_options target_name)
-    message(${target_name})
+    message(STATUS "Generating target: ${target_name}")
     target_compile_features(${target_name} PRIVATE cxx_std_17)
     target_compile_options(${target_name}
             PRIVATE -Wall
@@ -95,6 +96,20 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
 target_link_libraries(tan pthread ${DEP_LIBS} stdc++fs)
 set_other_options(tan)
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16")
+    message(STATUS "CMake>=3.16 detected, precompiled headers are enabled")
+    target_precompile_headers(tan PRIVATE src/llvm_include.h)
+    message(STATUS "CMake>=3.16 detected, unity build is enabled")
+    set_target_properties(tan PROPERTIES UNITY_BUILD ON)
+    set_source_files_properties(
+            src/lib/clang-cc1.cpp
+            src/lib/clang-cc1as.cpp
+            src/lib/clang-frontend.cpp
+            PROPERTIES
+            SKIP_UNITY_BUILD_INCLUSION
+            ON
+    )
+endif ()
 
 # ===== target CLI compiler =====
 set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
