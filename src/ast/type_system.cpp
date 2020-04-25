@@ -60,7 +60,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   }
 }
 
-int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2) {
+int should_cast_to_which(llvm::Type *t1, llvm::Type *t2) {
   if (is_llvm_type_same(t1, t2)) { return 0; }
   size_t s1 = t1->getPrimitiveSizeInBits();
   size_t s2 = t2->getPrimitiveSizeInBits();

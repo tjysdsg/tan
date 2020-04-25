@@ -179,7 +179,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
 
-  int type_i = should_cast_to_which(compiler_session, ltype, rtype);
+  int type_i = should_cast_to_which(ltype, rtype);
   if (type_i == -1) {
     report_code_error(_token,
         "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
@@ -249,7 +249,7 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
 
-  int type_i = should_cast_to_which(compiler_session, ltype, rtype);
+  int type_i = should_cast_to_which(ltype, rtype);
   if (type_i == -1) {
     report_code_error(_token,
         "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());

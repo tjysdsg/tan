@@ -26,7 +26,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
  * \brief Find out which type should a value be implicitly cast to.
  * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
  * */
-int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2);
+int should_cast_to_which(llvm::Type *t1, llvm::Type *t2);
 
 DISubroutineType *create_function_type(CompilerSession *compiler_session, Metadata *ret, std::vector<Metadata *> args);
 
