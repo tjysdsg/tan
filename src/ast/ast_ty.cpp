@@ -322,9 +322,9 @@ int ASTTy::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   } else if (t1->is_int() && t2->is_int()) { /// between integers
     return s1 >= s2 ? 0 : 1;
   } else if (t1->is_floating() && t2->is_int()) { /// float/double and int
-    return 0;
+    return -1;
   } else if (t1->is_int() && t2->is_floating()) { /// int and float/double
-    return 1;
+    return -1;
   } else if (t1->is_floating() && t2->is_floating()) { /// float/double and float/double
     return s1 >= s2 ? 0 : 1;
   }

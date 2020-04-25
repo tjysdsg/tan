@@ -26,6 +26,7 @@ public:
   std::string get_name() const override;
   ASTNodePtr get_arg(size_t i) const;
   size_t get_n_args() const;
+  Function *get_func() const;
 
 protected:
   size_t nud(Parser *parser) override;
@@ -33,6 +34,7 @@ protected:
 private:
   bool _is_external = false;
   bool _is_public = false;
+  Function *_func = nullptr;
 };
 
 /**

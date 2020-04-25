@@ -28,7 +28,7 @@ bool ASTParenthesis::is_typed() const {
 
 bool ASTParenthesis::is_lvalue() const {
   assert(_children.size() > 0);
-  return _children[0]->is_typed();
+  return _children[0]->is_lvalue();
 }
 
 std::string ASTParenthesis::get_type_name() const {
@@ -50,6 +50,12 @@ llvm::Metadata *ASTParenthesis::to_llvm_meta(CompilerSession *compiler_session) 
   assert(_children.size() > 0);
   return _children[0]->to_llvm_meta(compiler_session);
 }
+
+ASTParenthesis::ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,
+    op_precedence[ASTType::PARENTHESIS],
+    0,
+    token,
+    token_index) {}
 
 ASTArgDecl::ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, token_index) {
   _type = ASTType::ARG_DECL;

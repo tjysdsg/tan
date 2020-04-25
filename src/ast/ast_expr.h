@@ -10,14 +10,8 @@ struct Token;
 class ASTParenthesis final : public ASTNode {
 public:
   ASTParenthesis() = delete;
-
-  ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,
-      op_precedence[ASTType::PARENTHESIS],
-      0,
-      token,
-      token_index) {};
+  ASTParenthesis(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
-
   bool is_typed() const override;
   bool is_lvalue() const override;
   std::string get_type_name() const override;

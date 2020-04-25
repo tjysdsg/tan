@@ -78,6 +78,12 @@ llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *compiler_session
   return _children[_dominant_idx]->to_llvm_meta(compiler_session);
 }
 
+bool ASTInfixBinaryOp::is_lvalue() const {
+  return false;
+}
+
+bool ASTInfixBinaryOp::is_typed() const { return true; }
+
 ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
     PREC_LOWEST,
     0,

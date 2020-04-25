@@ -143,16 +143,16 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
   } else {
     compiler_session->add_function(this->shared_from_this());
   }
-  Function *F = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module().get());
-  F->setCallingConv(llvm::CallingConv::C);
+  _func = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module().get());
+  _func->setCallingConv(llvm::CallingConv::C);
 
   /// set argument names
-  auto args = F->args().begin();
+  auto args = _func->args().begin();
   for (size_t i = 2, j = 0; i < _children.size() - !_is_external; ++i, ++j) {
     /// rename this since the real function argument is stored as variables
     (args + j)->setName("_" + _children[i]->get_name());
   }
-  return F;
+  return _func;
 }
 
 Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
@@ -165,47 +165,52 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
     if (!a) {
       report_code_error(_children[i]->_token, "Invalid function call argument");
     }
+    Type *a_type = a->getType();
+    if (_children[i]->is_lvalue()) {
+      a = compiler_session->get_builder()->CreateLoad(a);
+      assert(a_type->getNumContainedTypes());
+      a_type = a_type->getContainedType(0);
+    }
     arg_vals.push_back(a);
-    arg_types.push_back(a->getType());
+    arg_types.push_back(a_type);
   }
-  /// search for the function
-  auto func_candidates = compiler_session->get_functions(_name);
-  Type *ret_type = nullptr;
-  for (const auto &f : func_candidates) {
-    size_t n = f->get_n_args();
-    if (n != n_args) { continue; }
-    bool good = true;
-    for (size_t i = 0; i < n; ++i) {
-      auto arg = f->get_arg(i);
-      assert(arg->is_typed());
-      auto actual_arg = _children[i];
-      if (!actual_arg->is_typed()) {
-        assert(actual_arg->_type == ASTType::ID);
-        actual_arg = compiler_session->get(actual_arg->get_name());
+  ASTFunctionPtr callee = nullptr;
+  {
+    /// search for the function
+    auto func_candidates = compiler_session->get_functions(_name);
+    for (const auto &f : func_candidates) {
+      size_t n = f->get_n_args();
+      if (n != n_args) { continue; }
+      bool good = true;
+      for (size_t i = 0; i < n; ++i) {
+        auto arg = f->get_arg(i);
+        assert(arg->is_typed());
+        auto actual_arg = _children[i];
+        if (!actual_arg->is_typed()) {
+          assert(actual_arg->_type == ASTType::ID);
+          actual_arg = compiler_session->get(actual_arg->get_name());
+        }
+        /// allow implicit cast from actual_arg to arg
+        if (0 != ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
+          good = false;
+          break;
+        }
       }
-      /// allow implicit cast
-      if (-1 == ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
-        good = false;
+      if (good) {
+        callee = f;
         break;
       }
     }
-    if (good) {
-      assert(f->get_ret()->is_typed());
-      ret_type = f->get_ret()->to_llvm_type(compiler_session);
-    }
   }
-  if (!ret_type) {
+  if (!callee) {
     throw std::runtime_error("Unknown function call: " + _name);
   }
-  auto *func_type = FunctionType::get(ret_type, arg_types, false);
-  auto func = compiler_session->get_module()->getOrInsertFunction(_name, func_type);
-
   auto stack_trace = std::make_shared<StackTrace>();
   stack_trace->_filename = _parser->get_filename();
   stack_trace->_src = _token->line->code;
   stack_trace->_lineno = _children[0]->_token->l + 1;
   codegen_push_stack_trace(compiler_session, stack_trace);
-  auto *ret = compiler_session->get_builder()->CreateCall(func, arg_vals);
+  auto *ret = compiler_session->get_builder()->CreateCall(callee->get_func(), arg_vals);
   codegen_pop_stack_trace(compiler_session);
   return ret;
 }
@@ -232,5 +237,7 @@ size_t ASTFunction::get_n_args() const {
 }
 
 ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
+
+Function *ASTFunction::get_func() const { return _func; }
 
 } // namespace tanlang
