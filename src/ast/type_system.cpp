@@ -25,10 +25,6 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return compiler_session->get_builder()->CreateBitCast(loaded, dest);
-  } else if (is_pointer1) { /// pointers to primitive types
-    return loaded;
-  } else if (is_pointer2 && is_lvalue) { /// primitive types to pointers
-    return orig_val;
   } else if (orig->isIntegerTy() && dest->isIntegerTy() && s2 != 1) {
     /// different int types except dest is bool (1-bit int)
     if (s1 == s2) {
