@@ -11,6 +11,7 @@
 #define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
 
 namespace tanlang {
+
 class Parser;
 
 enum class Ty : uint64_t {
@@ -40,33 +41,56 @@ enum class Ty : uint64_t {
   BIT128 = 1u << 20u,
 };
 
-/**
- * Things to remember when adding a new type
- * - set _type_name in ASTTy::nud()
- * - set _llvm_type in ASTTy::codegen()
- */
+class ASTTy;
+
+using ASTTyPtr = std::shared_ptr<ASTTy>;
+
 class ASTTy final : public ASTNode {
+public:
+  static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<std::shared_ptr<ASTTy>> sub_tys = {});
+  static int CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2);
+
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
-
-  bool is_typed() const override { return true; }
 
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
+  bool operator==(const ASTTy &other) const;
+  void set_is_lvalue(bool is_lvalue);
+  bool is_lvalue() const override;
+  bool is_typed() const override;
+  size_t get_size_bits() const;
+  bool is_ptr() const;
+  bool is_float() const;
+  bool is_floating() const;
+  bool is_double() const;
+  bool is_int() const;
+  bool is_unsigned() const;
+  bool is_struct() const;
 
-  void set_is_lvalue(bool heaped) { _is_lvalue = heaped; }
+public:
+  Ty _ty = Ty::INVALID;
 
-protected:
-  size_t nud(Parser *parser) override;
 private:
   size_t nud_array(Parser *parser);
+  size_t nud(Parser *parser) override;
+  void resolve();
 
 private:
   mutable std::string _type_name{};
-  Ty _ty = Ty::INVALID;
+  size_t _size_bits = 0;
+  size_t _align_bits = 0;
+  unsigned _dwarf_encoding = 0;
+  bool _is_ptr = false;
+  bool _is_float = false;
+  bool _is_double = false;
+  bool _is_int = false;
+  bool _is_unsigned = false;
+  bool _is_struct = false;
+  bool _resolved = false;
   size_t _n_elements = 0;
   bool _is_lvalue = false;
 };

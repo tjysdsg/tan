@@ -2,7 +2,6 @@
 #include "src/ast/astnode.h"
 #include "src/ast/ast_ty.h"
 #include "src/ast/common.h"
-#include "src/ast/ast_expr.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -34,8 +33,6 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
   }
 }
 
-Ty ASTLiteral::get_ty() const { return Ty::INVALID; }
-
 std::string ASTNode::get_src() const {
   std::string ret = "";
   for (size_t i = _start_index; i < _end_index; ++i) {
@@ -60,6 +57,26 @@ ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token, size_t token_index) : ASTNode(A
     0,
     token,
     token_index) {}
+
+std::string ASTInfixBinaryOp::get_type_name() const {
+  assert(_children.size() > _dominant_idx);
+  return _children[_dominant_idx]->get_type_name();
+}
+
+std::shared_ptr<ASTTy> ASTInfixBinaryOp::get_ty() const {
+  assert(_children.size() > _dominant_idx);
+  return _children[_dominant_idx]->get_ty();
+}
+
+llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *compiler_session) const {
+  assert(_children.size() > _dominant_idx);
+  return _children[_dominant_idx]->to_llvm_type(compiler_session);
+}
+
+llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *compiler_session) const {
+  assert(_children.size() > _dominant_idx);
+  return _children[_dominant_idx]->to_llvm_meta(compiler_session);
+}
 
 ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
     PREC_LOWEST,

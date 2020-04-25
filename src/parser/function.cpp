@@ -1,5 +1,4 @@
 #include "src/ast/ast_expr.h"
-#include "token.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -52,7 +51,7 @@ size_t ASTFunction::nud(Parser *parser) {
     _is_external = true;
   }
   if (_is_public) {
-    CompilerSession::add_public_function(_parser->get_filename(), _children[0]->get_name(), this->shared_from_this());
+    CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this());
   }
   return _end_index;
 }

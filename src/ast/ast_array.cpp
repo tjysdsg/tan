@@ -64,14 +64,4 @@ size_t ASTArrayLiteral::get_n_elements() const {
   return _children.size();
 }
 
-llvm::Type *ASTArrayLiteral::get_gep_base_type(CompilerSession *compiler_session) const {
-  if (_children[0]->_type == ASTType::ARRAY_LITERAL) {
-    auto sub = ast_cast<ASTArrayLiteral>(_children[0]);
-    return llvm::ArrayType::get(sub->get_element_llvm_type(compiler_session), sub->get_n_elements());
-  } else {
-    assert(_children[0]->is_typed());
-    return _children[0]->to_llvm_type(compiler_session);
-  }
-}
-
 } // namespace tanlang

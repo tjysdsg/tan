@@ -19,4 +19,14 @@ std::string ASTIdentifier::to_string(bool print_prefix) const {
   else { return _name; }
 }
 
+llvm::Value *ASTIdentifier::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+
+ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType::ID, 0, 0, token, token_index) {
+  _name = token->value;
+}
+
+bool ASTIdentifier::is_lvalue() const { return true; }
+
+bool ASTIdentifier::is_named() const { return true; }
+
 } // namespace tanlang

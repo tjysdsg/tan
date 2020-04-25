@@ -2,7 +2,6 @@
 #include "ast_ty.h"
 #include "compiler_session.h"
 #include "src/ast/ast_struct.h"
-#include "src/ast/ast_expr.h"
 
 namespace tanlang {
 
@@ -14,44 +13,27 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   llvm::Type *type = nullptr;
   /// primitive types
   switch (base) {
-    case Ty::INT: {
-      unsigned bits = 32;
-      if (TY_IS(qual, Ty::BIT8)) {
-        bits = 8;
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        bits = 16;
-      } else if (TY_IS(qual, Ty::BIT32)) {
-        bits = 32;
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        bits = 64;
-      } else if (TY_IS(qual, Ty::BIT128)) {
-        bits = 128;
-      }
-      type = compiler_session->get_builder()->getIntNTy(bits);
+    case Ty::INT:
+      type = compiler_session->get_builder()->getIntNTy((unsigned) _size_bits);
       break;
-    }
-    case Ty::BOOL: {
+    case Ty::BOOL:
       type = compiler_session->get_builder()->getInt1Ty();
       break;
-    }
-    case Ty::FLOAT: {
+    case Ty::FLOAT:
       type = compiler_session->get_builder()->getFloatTy();
       break;
-    }
-    case Ty::DOUBLE: {
+
+    case Ty::DOUBLE:
       type = compiler_session->get_builder()->getDoubleTy();
       break;
-    }
-    case Ty::STRING: {
+    case Ty::STRING:
       type = compiler_session->get_builder()->getInt8PtrTy(); /// str as char*
       break;
-    }
-    case Ty::VOID: {
+    case Ty::VOID:
       type = compiler_session->get_builder()->getVoidTy();
       break;
-    }
     case Ty::STRUCT: {
-      auto st = std::reinterpret_pointer_cast<ASTStruct>(compiler_session->get(_type_name));
+      auto st = ast_cast<ASTStruct>(compiler_session->get(_type_name));
       type = st->to_llvm_type(compiler_session);
       break;
     }
@@ -67,7 +49,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   /// pointer
   if (TY_IS(qual, Ty::POINTER)) {
     if (!_children.empty()) { /// pointer to pointer (to ...)
-      auto child = std::reinterpret_pointer_cast<ASTTy>(_children[0]);
+      auto child = ast_cast<ASTTy>(_children[0]);
       type = child->to_llvm_type(compiler_session);
     }
     type = llvm::PointerType::get(type, 0);
@@ -80,84 +62,23 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
   Ty base = TY_GET_BASE(_ty);
   Ty qual = TY_GET_QUALIFIER(_ty);
   DIType *ret = nullptr;
-  std::string type_name = "";
-  unsigned size_bits = 0;
-  unsigned encoding = 0;
   /// primitive types
   switch (base) {
-    case Ty::INT: {
-      size_bits = 32;
-      type_name = "i32";
-      if (TY_IS(qual, Ty::BIT8)) {
-        size_bits = 8;
-        type_name = "i8";
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        size_bits = 16;
-        type_name = "i16";
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        size_bits = 64;
-        type_name = "i64";
-      } else if (TY_IS(qual, Ty::BIT128)) {
-        size_bits = 128;
-        type_name = "i128";
-      }
-      if (TY_IS(qual, Ty::UNSIGNED)) {
-        if (size_bits == 8) {
-          encoding = llvm::dwarf::DW_ATE_unsigned_char;
-        } else {
-          encoding = llvm::dwarf::DW_ATE_unsigned;
-        }
-      } else {
-        if (size_bits == 8) {
-          encoding = llvm::dwarf::DW_ATE_signed_char;
-        } else {
-          encoding = llvm::dwarf::DW_ATE_signed;
-        }
-      }
-      ret = compiler_session->get_di_builder()->createBasicType(type_name, size_bits, encoding);
+    case Ty::INT:
+    case Ty::BOOL:
+    case Ty::FLOAT:
+    case Ty::VOID:
+    case Ty::DOUBLE:
+      ret = compiler_session->get_di_builder()->createBasicType(_type_name, _size_bits, _dwarf_encoding);
       break;
-    }
-    case Ty::BOOL: {
-      type_name = "bool";
-      size_bits = 8;
-      encoding = llvm::dwarf::DW_ATE_boolean;
-      ret = compiler_session->get_di_builder()->createBasicType(type_name, size_bits, encoding);
-      break;
-    }
-    case Ty::FLOAT: {
-      type_name = "float";
-      size_bits = 32;
-      encoding = llvm::dwarf::DW_ATE_float;
-      ret = compiler_session->get_di_builder()->createBasicType(type_name, size_bits, encoding);
-      break;
-    }
-    case Ty::DOUBLE: {
-      type_name = "double";
-      size_bits = 64;
-      encoding = llvm::dwarf::DW_ATE_float;
-      ret = compiler_session->get_di_builder()->createBasicType(type_name, size_bits, encoding);
-      break;
-    }
     case Ty::STRING: {
       auto *e_di_type = compiler_session->get_di_builder()->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
-      type_name = "u8*";
-      size_bits = compiler_session->get_ptr_size();
-      unsigned align_bits = (unsigned) e_di_type->getSizeInBits();
       ret = compiler_session->get_di_builder()
-          ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
-      break;
-    }
-    case Ty::VOID: {
-      type_name = "void";
-      size_bits = 0;
-      encoding = llvm::dwarf::DW_ATE_signed;
-      compiler_session->get_di_builder()->createBasicType(type_name, size_bits, encoding);
+          ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
     case Ty::STRUCT: {
       DIFile *di_file = compiler_session->get_di_file();
-      // TODO: align size in bits
-      unsigned align_bits = 64;
       auto st = compiler_session->get(_type_name);
       size_t n = st->_children.size();
       std::vector<Metadata *> elements(n);
@@ -170,8 +91,8 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
               _type_name,
               di_file,
               (unsigned) st->_token->l,
-              size_bits,
-              align_bits,
+              _size_bits,
+              (unsigned) _align_bits,
               DINode::DIFlags::FlagZero,
               nullptr,
               compiler_session->get_di_builder()->getOrCreateArray(elements),
@@ -183,11 +104,8 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
       auto *e_di_type = e->to_llvm_meta(compiler_session);
-      type_name = e->get_type_name() + "*";
-      size_bits = compiler_session->get_ptr_size();
-      unsigned align_bits = e_di_type->getAlignInBits();
       ret = compiler_session->get_di_builder()
-          ->createPointerType(e_di_type, size_bits, align_bits, llvm::None, type_name);
+          ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
     default: {
@@ -198,72 +116,220 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
   if (TY_IS(qual, Ty::POINTER)) {
     if (!_children.empty()) { /// pointer to pointer (to ...)
       auto child = ast_cast<ASTTy>(_children[0]);
-      type_name = child->get_type_name();
       ret = child->to_llvm_meta(compiler_session);
     }
-    type_name += "*";
-    size_bits = compiler_session->get_ptr_size();
-    unsigned align_bits = (unsigned) ret->getSizeInBits();
-    ret = compiler_session->get_di_builder()->createPointerType(ret, size_bits, align_bits, llvm::None, type_name);
+    ret = compiler_session->get_di_builder()
+        ->createPointerType(ret, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
   }
   return ret;
 }
 
 std::string ASTTy::get_type_name() const {
-  if (!_type_name.empty()) { return _type_name; }
-  Ty base = TY_GET_BASE(_ty);
-  Ty qual = TY_GET_QUALIFIER(_ty);
-  /// primitive types
-  switch (base) {
-    case Ty::INT: {
-      _type_name = "i32";
-      if (TY_IS(qual, Ty::BIT8)) {
-        _type_name = "i8";
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        _type_name = "i16";
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        _type_name = "i64";
-      } else if (TY_IS(qual, Ty::BIT128)) {
-        _type_name = "i128";
-      }
-      break;
-    }
-    case Ty::BOOL: {
-      _type_name = "boolean";
-      break;
-    }
-    case Ty::FLOAT: {
-      _type_name = "float";
-      break;
-    }
-    case Ty::DOUBLE: {
-      _type_name = "double";
-      break;
-    }
-    case Ty::STRING: {
-      _type_name = "u8*";
-      break;
-    }
-    case Ty::VOID: {
-      _type_name = "void";
-      break;
-    }
-    default: {
-      assert(false);
-    }
-  }
-  /// pointer
-  if (TY_IS(qual, Ty::POINTER)) {
-    if (!_children.empty()) { /// pointer to pointer (to ...)
-      _type_name = _children[0]->get_type_name();
-    }
-    _type_name += "*";
-  }
+  assert (!_type_name.empty());
   return _type_name;
 }
 
 std::string ASTTy::to_string(bool print_prefix) const {
   return ASTNode::to_string(print_prefix) + " " + get_type_name();
+}
+
+std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
+  auto ret = std::make_shared<ASTTy>(nullptr, 0);
+  ret->_ty = t;
+  ret->_is_lvalue = is_lvalue;
+  ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
+  ret->_n_elements = sub_tys.size();
+  ret->resolve();
+  return ret;
+}
+
+bool ASTTy::operator==(const ASTTy &other) const {
+  if (_ty != other._ty) {
+    return false;
+  }
+
+  if (!_children.empty()) {
+    size_t n = _children.size();
+    if (n != other._children.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < n; ++i) {
+      return ast_cast<ASTTy>(_children[i])->operator==(*ast_cast<ASTTy>(other._children[i]));
+    }
+  }
+  return true;
+}
+
+void ASTTy::resolve() {
+  Ty base = TY_GET_BASE(_ty);
+  Ty qual = TY_GET_QUALIFIER(_ty);
+  /// primitive types
+  switch (base) {
+    case Ty::INT: {
+      _size_bits = 32;
+      _type_name = "i32";
+      _is_int = true;
+      if (TY_IS(qual, Ty::BIT8)) {
+        _size_bits = 8;
+        _type_name = "i8";
+      } else if (TY_IS(qual, Ty::BIT16)) {
+        _size_bits = 16;
+        _type_name = "i16";
+      } else if (TY_IS(qual, Ty::BIT64)) {
+        _size_bits = 64;
+        _type_name = "i64";
+      } else if (TY_IS(qual, Ty::BIT128)) {
+        _size_bits = 128;
+        _type_name = "i128";
+      }
+      if (TY_IS(qual, Ty::UNSIGNED)) {
+        _is_unsigned = true;
+        if (_size_bits == 8) {
+          _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
+        } else {
+          _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned;
+        }
+      } else {
+        if (_size_bits == 8) {
+          _dwarf_encoding = llvm::dwarf::DW_ATE_signed_char;
+        } else {
+          _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
+        }
+      }
+      break;
+    }
+    case Ty::BOOL: {
+      _type_name = "bool";
+      _size_bits = 8;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
+      break;
+    }
+    case Ty::FLOAT: {
+      _type_name = "float";
+      _size_bits = 32;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      _is_float = true;
+      break;
+    }
+    case Ty::DOUBLE: {
+      _type_name = "double";
+      _size_bits = 64;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      _is_double = true;
+      break;
+    }
+    case Ty::STRING: {
+      _type_name = "u8*";
+      _size_bits = 64;// TODO: compiler_session->get_ptr_size();
+      _align_bits = 8;
+      _is_ptr = true;
+      break;
+    }
+    case Ty::VOID: {
+      _type_name = "void";
+      _size_bits = 0;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
+      break;
+    }
+    case Ty::STRUCT: {
+      // TODO: align size in bits
+      _align_bits = 64;
+      _is_struct = true;
+      break;
+    }
+    case Ty::ARRAY: {
+      auto e = ast_cast<ASTTy>(_children[0]);
+      _type_name = e->get_type_name() + "*";
+      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
+      _align_bits = e->get_size_bits();
+      _is_ptr = true;
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+  /// pointer
+  if (TY_IS(qual, Ty::POINTER)) {
+    _is_ptr = true;
+    if (!_children.empty()) { /// pointer to pointer (to ...)
+      auto child = ast_cast<ASTTy>(_children[0]);
+      child->resolve();
+      _type_name = child->_type_name + "*";
+      _align_bits = child->_size_bits;
+      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
+      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
+    } else {
+      _type_name += "*";
+      _align_bits = _size_bits;
+      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
+      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
+    }
+  }
+  _resolved = true;
+}
+
+bool ASTTy::is_ptr() const {
+  assert(_resolved);
+  return _is_ptr;
+}
+
+bool ASTTy::is_float() const {
+  assert(_resolved);
+  return _is_float;
+}
+
+bool ASTTy::is_double() const {
+  assert(_resolved);
+  return _is_double;
+}
+
+bool ASTTy::is_int() const {
+  assert(_resolved);
+  return _is_int;
+}
+
+bool ASTTy::is_unsigned() const {
+  assert(_resolved);
+  return _is_unsigned;
+}
+
+bool ASTTy::is_struct() const {
+  assert(_resolved);
+  return _is_struct;
+}
+
+bool ASTTy::is_floating() const {
+  assert(_resolved);
+  return _is_float || _is_double;
+}
+
+bool ASTTy::is_lvalue() const { return _is_lvalue; }
+
+bool ASTTy::is_typed() const { return true; }
+
+size_t ASTTy::get_size_bits() const { return _size_bits; }
+
+void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
+
+int ASTTy::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
+  if (*t1 == *t2) { return 0; }
+  size_t s1 = t1->get_size_bits();
+  size_t s2 = t2->get_size_bits();
+  if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
+    // TODO: check if safe to cast
+    return 0;
+  } else if (t1->is_int() && t2->is_int()) { /// between integers
+    return s1 >= s2 ? 0 : 1;
+  } else if (t1->is_floating() && t2->is_int()) { /// float/double and int
+    return 0;
+  } else if (t1->is_int() && t2->is_floating()) { /// int and float/double
+    return 1;
+  } else if (t1->is_floating() && t2->is_floating()) { /// float/double and float/double
+    return s1 >= s2 ? 0 : 1;
+  }
+  // TODO: complex type
+  return -1;
 }
 
 } // namespace tanlang

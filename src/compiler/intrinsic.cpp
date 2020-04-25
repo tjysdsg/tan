@@ -35,11 +35,11 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
   ASTNodePtr tmp = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::ASSERT: {
-      auto stack_trace = std::make_shared<StackTrace>();
-      stack_trace->_filename = _parser->get_filename();
-      stack_trace->_src = _token->line->code;
-      stack_trace->_lineno = _children[0]->_token->l + 1;
-      codegen_push_stack_trace(compiler_session, stack_trace);
+      auto st = std::make_shared<StackTrace>();
+      st->_filename = _parser->get_filename();
+      st->_src = _token->line->code;
+      st->_lineno = _children[0]->_token->l + 1;
+      codegen_push_stack_trace(compiler_session, st);
       std::vector<Value *> args = {_children[0]->_children[0]->codegen(compiler_session)};
       _llvm_value =
           compiler_session->get_builder()->CreateCall(compiler_session->get_module()->getFunction("assert"), args);

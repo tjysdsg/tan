@@ -5,6 +5,12 @@
 
 namespace tanlang {
 
+ASTLiteral::ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op,
+    lbp,
+    rbp,
+    token,
+    token_index) {}
+
 Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *result = _children[0]->codegen(compiler_session);
@@ -13,6 +19,60 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
     _children[i]->codegen(compiler_session);
   }
   return result;
+}
+
+bool ASTParenthesis::is_typed() const {
+  assert(_children.size() > 0);
+  return _children[0]->is_typed();
+}
+
+bool ASTParenthesis::is_lvalue() const {
+  assert(_children.size() > 0);
+  return _children[0]->is_typed();
+}
+
+std::string ASTParenthesis::get_type_name() const {
+  assert(_children.size() > 0);
+  return _children[0]->get_type_name();
+}
+
+std::shared_ptr<ASTTy> ASTParenthesis::get_ty() const {
+  assert(_children.size() > 0);
+  return _children[0]->get_ty();
+}
+
+llvm::Type *ASTParenthesis::to_llvm_type(CompilerSession *compiler_session) const {
+  assert(_children.size() > 0);
+  return _children[0]->to_llvm_type(compiler_session);
+}
+
+llvm::Metadata *ASTParenthesis::to_llvm_meta(CompilerSession *compiler_session) const {
+  assert(_children.size() > 0);
+  return _children[0]->to_llvm_meta(compiler_session);
+}
+
+ASTArgDecl::ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, token_index) {
+  _type = ASTType::ARG_DECL;
+}
+
+std::string ASTPrefix::get_type_name() const {
+  assert(_children.size() > 0);
+  return _children[0]->get_type_name();
+}
+
+std::shared_ptr<ASTTy> ASTPrefix::get_ty() const {
+  assert(_children.size() > 0);
+  return _children[0]->get_ty();
+}
+
+llvm::Type *ASTPrefix::to_llvm_type(CompilerSession *compiler_session) const {
+  assert(_children.size() > 0);
+  return _children[0]->to_llvm_type(compiler_session);
+}
+
+llvm::Metadata *ASTPrefix::to_llvm_meta(CompilerSession *compiler_session) const {
+  assert(_children.size() > 0);
+  return _children[0]->to_llvm_meta(compiler_session);
 }
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
@@ -37,6 +97,10 @@ std::string ASTVarDecl::get_name() const {
 
 std::string ASTVarDecl::get_type_name() const {
   return _children[1]->get_type_name();
+}
+
+std::shared_ptr<ASTTy> tanlang::ASTVarDecl::get_ty() const {
+  return _ty;
 }
 
 llvm::Type *ASTVarDecl::to_llvm_type(CompilerSession *compiler_session) const {
@@ -79,7 +143,8 @@ Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
         ->CreateFCmpOEQ(rhs, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
   } else {
     return compiler_session->get_builder()
-        ->CreateICmpEQ(rhs, ConstantInt::get(compiler_session->get_builder()->getIntNTy(size_in_bits), 0, false));
+        ->CreateICmpEQ(rhs,
+            ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) size_in_bits), 0, false));
   }
 }
 
@@ -265,29 +330,20 @@ ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token 
 llvm::Value *ASTNumberLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 std::string ASTNumberLiteral::get_type_name() const {
-  // TODO: other type names
   if (_is_float) {
     return "float";
+  } else if (_token->is_unsigned) {
+    return "u32";
   } else {
-    return "int";
+    return "i32";
   }
 }
 
 llvm::Type *ASTNumberLiteral::to_llvm_type(CompilerSession *compiler_session) const {
-  // TODO: other types
   if (_is_float) {
     return compiler_session->get_builder()->getFloatTy();
   } else {
     return compiler_session->get_builder()->getInt32Ty();
-  }
-}
-
-Ty ASTNumberLiteral::get_ty() const {
-  // TODO: other types
-  if (_is_float) {
-    return Ty::FLOAT;
-  } else {
-    return TY_OR(Ty::INT, Ty::BIT32);
   }
 }
 
@@ -364,6 +420,23 @@ std::string ASTStringLiteral::get_type_name() const {
 
 llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
 
-Ty ASTStringLiteral::get_ty() const { return Ty::STRING; }
+std::shared_ptr<ASTTy> ASTStringLiteral::get_ty() const {
+  // TODO: optimize this
+  return ASTTy::Create(TY_OR(Ty::STRING, Ty::POINTER));
+}
+
+std::shared_ptr<ASTTy> tanlang::ASTNumberLiteral::get_ty() const {
+  // TODO: optimize this
+  Ty t = Ty::INVALID;
+  if (_is_float) {
+    t = Ty::FLOAT;
+  } else if (_token->is_unsigned) {
+    t = TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED);
+  } else {
+    t = TY_OR(Ty::INT, Ty::BIT32);
+  }
+  auto ret = ASTTy::Create(t);
+  return ret;
+}
 
 } // namespace tanlang

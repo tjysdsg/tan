@@ -4,15 +4,17 @@
 
 namespace tanlang {
 
+// TODO: merge ASTArgDecl::nud with ASTVarDecl::nud
+
 size_t ASTArgDecl::nud(Parser *parser) {
   _end_index = _start_index;
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// name
-  parser->peek(_end_index, TokenType::PUNCTUATION, ":");
+  parser->peek(_end_index, TokenType::PUNCTUATION, ":"); // TODO: type inference
   ++_end_index;
   /// type
-  auto ty = parser->parse<ASTType::TY>(_end_index, true);
-  ast_cast<ASTTy>(ty)->set_is_lvalue(true);
-  _children.push_back(ty);
+  _ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
+  _ty->set_is_lvalue(true);
+  _children.push_back(_ty);
   return _end_index;
 }
 
@@ -22,9 +24,9 @@ size_t ASTVarDecl::nud(Parser *parser) {
   parser->peek(_end_index, TokenType::PUNCTUATION, ":"); // TODO: type inference
   ++_end_index;
   /// type
-  auto ty = parser->parse<ASTType::TY>(_end_index, true);
-  ast_cast<ASTTy>(ty)->set_is_lvalue(true);
-  _children.push_back(ty);
+  _ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
+  _ty->set_is_lvalue(true);
+  _children.push_back(_ty);
   return _end_index;
 }
 

@@ -18,8 +18,8 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
   }
   bool is_pointer1 = orig->isPointerTy();
   bool is_pointer2 = dest->isPointerTy();
-  unsigned s1 = orig->getPrimitiveSizeInBits();
-  unsigned s2 = dest->getPrimitiveSizeInBits();
+  size_t s1 = orig->getPrimitiveSizeInBits();
+  size_t s2 = dest->getPrimitiveSizeInBits();
   /// early return if types are the same
   if (is_llvm_type_same(orig, dest)) { return loaded; };
   if (is_pointer1 && is_pointer2) {
@@ -56,7 +56,7 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
           ->CreateFCmpONE(loaded, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
     } else {
       return compiler_session->get_builder()
-          ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy(s1), 0, false));
+          ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) s1), 0, false));
     }
   } else {
     // TODO: complex type
@@ -66,8 +66,8 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
 
 int should_cast_to_which(CompilerSession *compiler_session, llvm::Type *t1, llvm::Type *t2) {
   if (is_llvm_type_same(t1, t2)) { return 0; }
-  unsigned s1 = t1->getPrimitiveSizeInBits();
-  unsigned s2 = t2->getPrimitiveSizeInBits();
+  size_t s1 = t1->getPrimitiveSizeInBits();
+  size_t s2 = t2->getPrimitiveSizeInBits();
   if (t1->isPointerTy() && t2->isPointerTy()) { /// both pointer, yes
     return 0;
   } else if (t1->isIntegerTy() && t2->isIntegerTy()) { /// between integers

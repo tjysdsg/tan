@@ -79,6 +79,7 @@ size_t ASTTy::nud(Parser *parser) {
     } else { break; }
     ++_end_index;
   }
+  resolve(); /// fill in relevant member variables
   return _end_index;
 }
 

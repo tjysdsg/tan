@@ -7,6 +7,14 @@
 
 namespace tanlang {
 
+ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
+    0,
+    0,
+    token,
+    token_index) {
+  _name = token->value;
+}
+
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   /// new scope
@@ -16,13 +24,13 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   std::vector<Metadata *> arg_metas;
   /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
-    std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
+    auto type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_metas.push_back(type_name->to_llvm_meta(compiler_session));
   }
   /// generate prototype
   Function *F = (Function *) codegen_prototype(compiler_session);
   /// get function name
-  std::string func_name = _children[1]->get_name();
+  std::string func_name = this->get_name();
   /// function implementation
   if (!_is_external) {
     /// create a new basic block to start insertion into
@@ -119,14 +127,9 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
   std::vector<Type *> arg_types;
   /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
-    std::shared_ptr<ASTTy> type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
+    auto type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_types.push_back(type_name->to_llvm_type(compiler_session));
   }
-
-  /// get function name
-  std::shared_ptr<ASTIdentifier> fname = ast_cast<ASTIdentifier>(_children[1]);
-  std::string func_name = fname->get_name();
-
   /// create function prototype
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
   auto linkage = Function::InternalLinkage;
@@ -137,8 +140,10 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
     } else {
       linkage = Function::ExternalLinkage;
     }
+  } else {
+    compiler_session->add_function(this->shared_from_this());
   }
-  Function *F = Function::Create(FT, linkage, func_name, compiler_session->get_module().get());
+  Function *F = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module().get());
   F->setCallingConv(llvm::CallingConv::C);
 
   /// set argument names
@@ -151,33 +156,81 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
 }
 
 Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
-  /// look up the function name in the global module table
-  Function *func = compiler_session->get_module()->getFunction(_name);
-  if (!func) { throw std::runtime_error("Unknown function call: " + _name); }
-
+  /// args
   size_t n_args = _children.size();
-  /// argument mismatch
-  if (func->arg_size() != n_args) {
-    throw std::runtime_error("Invalid number of arguments: " + std::to_string(n_args));
-  }
-
-  /// push args
-  std::vector<Value *> args_value;
-  auto func_arg = func->args().begin();
+  std::vector<Value *> arg_vals;
+  std::vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(compiler_session);
-    a = convert_to(compiler_session, (func_arg + i)->getType(), a, _children[i]->is_lvalue());
-    args_value.push_back(a);
-    if (!args_value.back()) { return nullptr; }
+    if (!a) {
+      report_code_error(_children[i]->_token, "Invalid function call argument");
+    }
+    arg_vals.push_back(a);
+    arg_types.push_back(a->getType());
   }
+  /// search for the function
+  auto func_candidates = compiler_session->get_functions(_name);
+  Type *ret_type = nullptr;
+  for (const auto &f : func_candidates) {
+    size_t n = f->get_n_args();
+    if (n != n_args) { continue; }
+    bool good = true;
+    for (size_t i = 0; i < n; ++i) {
+      auto arg = f->get_arg(i);
+      assert(arg->is_typed());
+      auto actual_arg = _children[i];
+      if (!actual_arg->is_typed()) {
+        assert(actual_arg->_type == ASTType::ID);
+        actual_arg = compiler_session->get(actual_arg->get_name());
+      }
+      /// allow implicit cast
+      if (-1 == ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
+        good = false;
+        break;
+      }
+    }
+    if (good) {
+      assert(f->get_ret()->is_typed());
+      ret_type = f->get_ret()->to_llvm_type(compiler_session);
+    }
+  }
+  if (!ret_type) {
+    throw std::runtime_error("Unknown function call: " + _name);
+  }
+  auto *func_type = FunctionType::get(ret_type, arg_types, false);
+  auto func = compiler_session->get_module()->getOrInsertFunction(_name, func_type);
+
   auto stack_trace = std::make_shared<StackTrace>();
   stack_trace->_filename = _parser->get_filename();
   stack_trace->_src = _token->line->code;
   stack_trace->_lineno = _children[0]->_token->l + 1;
   codegen_push_stack_trace(compiler_session, stack_trace);
-  auto *ret = compiler_session->get_builder()->CreateCall(func, args_value);
+  auto *ret = compiler_session->get_builder()->CreateCall(func, arg_vals);
   codegen_pop_stack_trace(compiler_session);
   return ret;
 }
+
+ASTNodePtr ASTFunction::get_ret() const {
+  assert(_children.size());
+  return _children[0];
+}
+
+std::string ASTFunction::get_name() const {
+  assert(_children.size() >= 1);
+  assert(_children[1]->is_named());
+  return _children[1]->get_name();
+}
+
+ASTNodePtr ASTFunction::get_arg(size_t i) const {
+  assert(i + 2 < _children.size());
+  return _children[i + 2];
+}
+
+size_t ASTFunction::get_n_args() const {
+  assert(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
+  return _children.size() - (_is_external ? 2 : 3);
+}
+
+ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
 } // namespace tanlang

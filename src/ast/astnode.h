@@ -9,6 +9,8 @@ enum class Ty : uint64_t;
 
 class CompilerSession;
 
+class ASTTy;
+
 class Parser;
 
 enum PrecedenceLevel {
@@ -111,9 +113,11 @@ public:
 
   virtual bool is_lvalue() const { return false; };
 
-  virtual std::string get_name() const { return ""; };
+  virtual std::string get_name() const { return {}; };
 
-  virtual std::string get_type_name() const { return ""; };
+  virtual std::string get_type_name() const { return {}; };
+
+  virtual std::shared_ptr<ASTTy> get_ty() const { return nullptr; };
 
   virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
 
@@ -140,36 +144,39 @@ protected:
   Parser *_parser = nullptr;
 };
 
-/// dummy, all literal types inherit from this class
-class ASTLiteral : public ASTNode {
-public:
-  ASTLiteral() = delete;
-
-  ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op,
-      lbp,
-      rbp,
-      token,
-      token_index) {}
-
-  virtual Ty get_ty() const;
-
-  /// literals are always rvalue
-  bool is_lvalue() const override { return false; }
-
-};
-
 class ASTInfixBinaryOp : public ASTNode {
 public:
   ASTInfixBinaryOp() = delete;
   ASTInfixBinaryOp(Token *token, size_t token_index);
+
+  bool is_typed() const override { return true; }
+
+  bool is_lvalue() const override { return false; }
+
+  std::string get_type_name() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
+
 protected:
   size_t led(const ASTNodePtr &left, Parser *parser) override;
+  size_t _dominant_idx = 0;
 };
 
 class ASTPrefix : public ASTNode {
 public:
   ASTPrefix() = delete;
   ASTPrefix(Token *token, size_t token_index);
+
+  bool is_typed() const override { return true; }
+
+  bool is_lvalue() const override { return false; }
+
+  std::string get_type_name() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
+
 protected:
   size_t nud(Parser *parser) override;
 };
@@ -179,27 +186,14 @@ public:
   ASTReturn() = delete;
   ASTReturn(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
-};
 
-class ASTBinaryNot final : public ASTPrefix {
-public:
-  ASTBinaryNot() = delete;
-  ASTBinaryNot(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-};
+  std::string get_type_name() const override { return {}; }
 
-class ASTLogicalNot final : public ASTPrefix {
-public:
-  ASTLogicalNot() = delete;
-  ASTLogicalNot(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-};
+  std::shared_ptr<ASTTy> get_ty() const override { return nullptr; }
 
-class ASTCompare final : public ASTInfixBinaryOp {
-public:
-  ASTCompare() = delete;
-  ASTCompare(ASTType type, Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override { return nullptr; }
+
+  llvm::Metadata *to_llvm_meta(CompilerSession *) const override { return nullptr; }
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }

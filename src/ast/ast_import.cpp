@@ -32,7 +32,10 @@ Value *ASTImport::codegen(CompilerSession *compiler_session) {
   }
   funcs = CompilerSession::get_public_functions(import_path.string());
   for (auto &n: funcs) {
-    ast_cast<ASTFunction>(n)->codegen_prototype(compiler_session);
+    auto f = ast_cast<ASTFunction>(n);
+    assert(f);
+    f->codegen_prototype(compiler_session);
+    compiler_session->add_function(f);
   }
   return nullptr;
 }

@@ -1,6 +1,7 @@
 #ifndef __TAN_SRC_AST_AST_MEMBER_ACCESS_H__
 #define __TAN_SRC_AST_AST_MEMBER_ACCESS_H__
 #include "src/ast/astnode.h"
+#include "ast_expr.h"
 
 namespace tanlang {
 

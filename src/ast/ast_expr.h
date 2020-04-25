@@ -1,10 +1,10 @@
 #ifndef TAN_SRC_AST_AST_EXPR_H_
 #define TAN_SRC_AST_AST_EXPR_H_
 #include "src/ast/astnode.h"
-#include "astnode.h"
 #include "src/ast/ast_ty.h"
 
 namespace tanlang {
+
 struct Token;
 
 class ASTParenthesis final : public ASTNode {
@@ -17,6 +17,14 @@ public:
       token,
       token_index) {};
   Value *codegen(CompilerSession *compiler_session) override;
+
+  bool is_typed() const override;
+  bool is_lvalue() const override;
+  std::string get_type_name() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
+
 protected:
   size_t nud(Parser *parser) override;
 };
@@ -38,17 +46,19 @@ public:
   bool is_named() const override { return true; }
 
   std::string get_name() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
 
-  /// variables are always lvalue
   bool is_lvalue() const override { return true; }
 
 protected:
   size_t nud(Parser *parser) override;
+
 public:
   bool _has_initial_val = false;
+
 protected:
   Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
@@ -57,12 +67,21 @@ protected:
 class ASTArgDecl final : public ASTVarDecl {
 public:
   ASTArgDecl() = delete;
+  ASTArgDecl(Token *token, size_t token_index);
 
-  ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, token_index) {
-    _type = ASTType::ARG_DECL;
-  };
 protected:
   size_t nud(Parser *parser) override;
+};
+
+/// dummy, all literal types inherit from this class
+class ASTLiteral : public ASTNode {
+public:
+  ASTLiteral() = delete;
+  ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
+
+  bool is_lvalue() const override { return false; }
+
+  bool is_typed() const override { return true; }
 };
 
 class ASTNumberLiteral final : public ASTLiteral {
@@ -85,10 +104,12 @@ public:
   llvm::Value *get_llvm_value(CompilerSession *compiler_session) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
-  Ty get_ty() const override;
   std::string to_string(bool print_prefix = true) const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
+
 protected:
   size_t nud(Parser *parser) override;
+
 private:
   bool _is_float = false;
   union {
@@ -107,23 +128,25 @@ public:
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
 
   std::string get_string() const { return _svalue; }
 
-  Ty get_ty() const override;
-
 protected:
   size_t nud(Parser *parser) override;
+
 private:
   std::string _svalue;
   llvm::Value *_llvm_value = nullptr;
   llvm::Type *_llvm_type = nullptr;
 };
 
+// TODO: set _dominant_idx for infix operators
 class ASTAssignment final : public ASTInfixBinaryOp {
 public:
   ASTAssignment(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
+
 protected:
   size_t led(const ASTNodePtr &left, Parser *parser) override;
 };
@@ -133,8 +156,30 @@ public:
   ASTArithmetic() = delete;
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
+
 protected:
   size_t nud(Parser *parser) override; ///< special case for parsing unary plus and minus
+};
+
+class ASTCompare final : public ASTInfixBinaryOp {
+public:
+  ASTCompare() = delete;
+  ASTCompare(ASTType type, Token *token, size_t token_index);
+  Value *codegen(CompilerSession *compiler_session) override;
+};
+
+class ASTBinaryNot final : public ASTPrefix {
+public:
+  ASTBinaryNot() = delete;
+  ASTBinaryNot(Token *token, size_t token_index);
+  Value *codegen(CompilerSession *compiler_session) override;
+};
+
+class ASTLogicalNot final : public ASTPrefix {
+public:
+  ASTLogicalNot() = delete;
+  ASTLogicalNot(Token *token, size_t token_index);
+  Value *codegen(CompilerSession *compiler_session) override;
 };
 
 } // namespace tanlang

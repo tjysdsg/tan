@@ -1,3 +1,5 @@
+#include <src/ast/astnode.h>
+
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_array.h"
