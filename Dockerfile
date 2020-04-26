@@ -1,7 +1,13 @@
 FROM ubuntu:latest
 
 RUN apt-get update
-RUN apt-get dist-upgrade -y
+
+# Fucking tzdata asking for input
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+RUN apt-get install -y tzdata
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
 RUN apt-get install -y lsb-release build-essential cmake wget software-properties-common git zlib1g zlib1g-dev
 RUN apt-get install -y libtinfo5 libtinfo-dev libxml2 libxml2-dev zip unzip
 RUN wget https://apt.llvm.org/llvm.sh
