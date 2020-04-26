@@ -3,14 +3,8 @@ set(RUNTIME_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/stdlib.tan
         ${CMAKE_CURRENT_LIST_DIR}/debug.tan)
 
-find_library(LIB_CXX_LOCATION c++)
-if (NOT LIB_CXX_LOCATION)
-    message(FATAL_ERROR "Cannot find libc++")
-endif ()
-message(STATUS "libc++ location: ${LIB_CXX_LOCATION}")
-
 add_custom_target(runtime ALL DEPENDS tanc SOURCES ${RUNTIME_SRCS})
 add_custom_command(TARGET runtime
-        COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -o ${CMAKE_CURRENT_LIST_DIR}/runtime.so -l ${LIB_CXX_LOCATION}
+        COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -o ${CMAKE_CURRENT_LIST_DIR}/runtime.so
         --print-ir-code=true --type=dlib ${RUNTIME_SRCS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})

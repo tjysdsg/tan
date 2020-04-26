@@ -16,8 +16,9 @@ void Linker::add_files(std::vector<std::string> filenames) {
 
 bool Linker::link() {
   std::vector<std::string> args{};
-  args.insert(args.begin(), _exe);
-  args.insert(args.begin() + 1, "-cc");
+  args.insert(args.end(), _exe);
+  args.insert(args.end(), "-cc");
+  args.insert(args.end(), "-stdlib=libc++"); /// link to libc++ by default
   args.insert(args.end(), _input_files.begin(), _input_files.end());
   args.insert(args.end(), _flags.begin(), _flags.end());
   std::vector<const char *> cargs{};
