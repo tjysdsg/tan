@@ -1,6 +1,7 @@
 #include "src/ast/ast_loop.h"
 #include "src/ast/type_system.h"
 #include "compiler_session.h"
+#include "parser.h"
 #include "intrinsic.h"
 #include "token.h"
 
@@ -43,6 +44,32 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
     assert(false);
   }
   return nullptr;
+}
+
+size_t ASTLoop::nud(tanlang::Parser *parser) {
+  if (parser->at(_start_index)->value == "for") {
+    _loop_type = ASTLoopType::FOR;
+    assert(false);
+  } else if (parser->at(_start_index)->value == "while") {
+    _loop_type = ASTLoopType::WHILE;
+  } else {
+    assert(false);
+  }
+  _end_index = _start_index + 1; /// skip 'while'/'for'/...
+  switch (_loop_type) {
+    case ASTLoopType::WHILE:
+      parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+      _children.push_back(parser->next_expression(_end_index)); /// condition
+      parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+      _children.push_back(parser->next_expression(_end_index)); /// loop body
+      break;
+    case ASTLoopType::FOR:
+      assert(false);
+      break;
+    default:
+      break;
+  }
+  return _end_index;
 }
 
 } // namespace tanlang

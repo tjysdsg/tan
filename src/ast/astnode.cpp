@@ -1,7 +1,5 @@
 #include "src/llvm_include.h"
 #include "src/ast/astnode.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/common.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -44,69 +42,8 @@ std::string ASTNode::get_src() const {
   return ret;
 }
 
-ASTReturn::ASTReturn(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  _type = ASTType::RET;
-  _lbp = op_precedence[_type];
-}
-
 ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
     : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
-
-ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
-    PREC_LOWEST,
-    0,
-    token,
-    token_index) {}
-
-std::string ASTInfixBinaryOp::get_type_name() const {
-  assert(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTInfixBinaryOp::get_ty() const {
-  assert(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->get_ty();
-}
-
-llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *compiler_session) const {
-  assert(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->to_llvm_type(compiler_session);
-}
-
-llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *compiler_session) const {
-  assert(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->to_llvm_meta(compiler_session);
-}
-
-bool ASTInfixBinaryOp::is_lvalue() const {
-  return false;
-}
-
-bool ASTInfixBinaryOp::is_typed() const { return true; }
-
-ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
-    PREC_LOWEST,
-    0,
-    token,
-    token_index) {}
-
-ASTLogicalNot::ASTLogicalNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  _type = ASTType::LNOT;
-  _lbp = op_precedence[_type];
-}
-
-ASTBinaryNot::ASTBinaryNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  _type = ASTType::BNOT;
-  _lbp = op_precedence[_type];
-}
-
-ASTArithmetic::ASTArithmetic(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  if (!is_ast_type_in(type, {ASTType::SUM, ASTType::SUBTRACT, ASTType::MULTIPLY, ASTType::DIVIDE, ASTType::MOD})) {
-    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
-  }
-  _type = type;
-  _lbp = op_precedence[type];
-}
 
 size_t ASTNode::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _parser = parser;

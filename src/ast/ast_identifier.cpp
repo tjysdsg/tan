@@ -1,4 +1,5 @@
 #include "src/ast/ast_identifier.h"
+#include "src/ast/ast_var_decl.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -28,5 +29,11 @@ ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType
 bool ASTIdentifier::is_lvalue() const { return true; }
 
 bool ASTIdentifier::is_named() const { return true; }
+
+size_t ASTIdentifier::nud(Parser *parser) {
+  _end_index = _start_index + 1;
+  UNUSED(parser);
+  return _end_index;
+}
 
 } // namespace tanlang

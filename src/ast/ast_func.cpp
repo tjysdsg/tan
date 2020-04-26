@@ -1,7 +1,9 @@
 #include "src/ast/ast_func.h"
-#include "parser.h"
 #include "src/ast/common.h"
 #include "src/ast/type_system.h"
+#include "src/ast/ast_var_decl.h"
+#include "src/ast/ast_arg_decl.h"
+#include "parser.h"
 #include "stack_trace.h"
 #include "intrinsic.h"
 
@@ -239,5 +241,78 @@ size_t ASTFunction::get_n_args() const {
 ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
 Function *ASTFunction::get_func() const { return _func; }
+
+size_t ASTFunction::nud(Parser *parser) {
+  if (parser->at(_start_index)->value == "fn") {
+    /// skip "fn"
+    _end_index = _start_index + 1;
+  } else if (parser->at(_start_index)->value == "pub") {
+    _is_public = true;
+    /// skip "pub fn"
+    _end_index = _start_index + 2;
+  } else if (parser->at(_start_index)->value == "extern") {
+    _is_external = true;
+    /// skip "pub fn"
+    _end_index = _start_index + 2;
+  } else { assert(false); }
+
+  _children.push_back(nullptr); /// function return type, set later
+  _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// function name
+  parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+  ++_end_index;
+  /// if the argument list isn't empty
+  if (parser->at(_end_index)->value != ")") {
+    while (!parser->eof(_end_index)) {
+      ASTNodePtr arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
+      _end_index = arg->parse(parser);
+      _children.push_back(arg);
+      if (parser->at(_end_index)->value == ",") {
+        ++_end_index;
+      } else { break; }
+    }
+  }
+  parser->peek(_end_index, TokenType::PUNCTUATION, ")");
+  ++_end_index;
+  parser->peek(_end_index, TokenType::PUNCTUATION, ":");
+  ++_end_index;
+  _children[0] = parser->parse<ASTType::TY>(_end_index, true); /// return type
+
+  /// an external function doesn't have definition
+  if (_is_external) { return _end_index; }
+  /// get function body if exists, otherwise it's a external function
+  auto *token = parser->at(_end_index);
+  if (token->value == "{") {
+    auto code = parser->peek(_end_index);
+    _end_index = code->parse(parser);
+    _children.push_back(code);
+    _is_external = false;
+  } else {
+    _is_external = true;
+  }
+  if (_is_public) {
+    CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this());
+  }
+  return _end_index;
+}
+
+size_t ASTFunctionCall::nud(Parser *parser) {
+  if (_parsed) { return _end_index; }
+  _end_index = _start_index + 1; /// skip function name
+  auto *token = parser->at(_end_index);
+  if (token->value != "(") {
+    report_code_error(token, "Invalid function call");
+  }
+  ++_end_index;
+  while (!parser->eof(_end_index)) {
+    _children.push_back(parser->next_expression(_end_index));
+    if (parser->at(_end_index)->value == ",") { /// skip ,
+      ++_end_index;
+    } else { break; }
+  }
+  parser->peek(_end_index, TokenType::PUNCTUATION, ")");
+  ++_end_index;
+  _parsed = true;
+  return _end_index;
+}
 
 } // namespace tanlang

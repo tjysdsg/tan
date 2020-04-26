@@ -1,6 +1,7 @@
-#include "ast_import.h"
-#include "compiler_session.h"
+#include "src/ast/ast_import.h"
+#include "src/ast/ast_string_literal.h"
 #include "src/ast/ast_func.h"
+#include "compiler_session.h"
 #include "libtanc.h"
 #include "parser.h"
 #include "base.h"
@@ -38,6 +39,17 @@ Value *ASTImport::codegen(CompilerSession *compiler_session) {
     compiler_session->add_function(f);
   }
   return nullptr;
+}
+
+size_t ASTImport::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip "import"
+  auto rhs = parser->peek(_end_index);
+  if (rhs->_type != ASTType::STRING_LITERAL) {
+    report_code_error(_token, "Invalid import statement");
+  }
+  _end_index = rhs->parse(parser);
+  _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
+  return _end_index;
 }
 
 } // namespace tanlang

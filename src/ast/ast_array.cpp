@@ -1,5 +1,6 @@
 #include "src/ast/ast_array.h"
 #include "src/ast/common.h"
+#include "src/ast/type_system.h"
 
 namespace tanlang {
 
@@ -77,6 +78,42 @@ std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
     ret->_children.push_back(c->get_ty());
   }
   return ret;
+}
+
+size_t ASTArrayLiteral::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip '['
+  if (parser->at(_end_index)->value == "]") { /// empty array
+    ++_end_index;
+    return _end_index;
+  }
+  ASTType element_type = ASTType::INVALID;
+  while (!parser->eof(_end_index)) {
+    if (parser->at(_end_index)->value == ",") {
+      ++_end_index;
+      continue;
+    } else if (parser->at(_end_index)->value == "]") {
+      ++_end_index;
+      break;
+    }
+    auto node = parser->peek(_end_index);
+    if (!node) { report_code_error(_token, "Unexpected token"); }
+    /// check whether element types are the same
+    if (element_type == ASTType::INVALID) {
+      element_type = node->_type;
+    } else {
+      if (element_type != node->_type) {
+        report_code_error(_token, "All elements in an array must have the same type");
+      }
+    }
+    if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
+      if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
+      _end_index = node->parse(parser);
+      _children.push_back(node);
+    } else {
+      report_code_error(_token, "Expect literals");
+    }
+  }
+  return _end_index;
 }
 
 } // namespace tanlang

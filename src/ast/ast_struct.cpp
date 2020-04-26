@@ -1,9 +1,19 @@
-#include "ast_struct.h"
+#include "src/ast/ast_struct.h"
 #include "compiler_session.h"
+#include "parser.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_identifier.h"
 
 namespace tanlang {
+
+size_t ASTStruct::nud(Parser *parser) {
+  _end_index = _start_index + 1; /// skip "struct"
+  _children.push_back(parser->next_expression(_end_index)); // name
+  auto comp_statements = parser->peek(_end_index);
+  _end_index = comp_statements->parse(parser); // TODO: parse forward declaration
+  _children.insert(_children.begin() + 1, comp_statements->_children.begin(), comp_statements->_children.end());
+  return _end_index;
+}
 
 ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTNode(ASTType::STRUCT_DECL, 0, 0, token, token_index) {}
 

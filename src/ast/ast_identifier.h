@@ -1,6 +1,5 @@
 #ifndef TAN_SRC_AST_AST_IDENTIFIER_H_
 #define TAN_SRC_AST_AST_IDENTIFIER_H_
-#include <utility>
 #include "src/ast/astnode.h"
 
 namespace tanlang {

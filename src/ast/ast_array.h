@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_AST_ARRAY_H__
 #define __TAN_SRC_AST_AST_ARRAY_H__
 #include "src/ast/astnode.h"
-#include "src/ast/ast_expr.h"
+#include "src/ast/ast_literal.h"
 
 namespace tanlang {
 

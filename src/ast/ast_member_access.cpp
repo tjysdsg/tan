@@ -65,4 +65,32 @@ llvm::Value *ASTMemberAccess::get_llvm_value(CompilerSession *) const {
   return _llvm_value;
 }
 
+size_t ASTMemberAccess::led(const ASTNodePtr &left, Parser *parser) {
+  _end_index = _start_index + 1; /// skip "." or "["
+  _is_bracket = parser->at(_start_index)->value == "[";
+  _children.push_back(left); /// lhs
+  auto member_name = parser->peek(_end_index);
+  _end_index = member_name->parse(parser);
+  if (member_name->_type == ASTType::ID || member_name->_type == ASTType::FUNC_CALL
+      || member_name->_type == ASTType::NUM_LITERAL) {
+    // TODO: allow operator overloading?
+    _children.push_back(member_name);
+  } else {
+    report_code_error(_token, "Invalid member access");
+  }
+
+  if (_is_bracket) { ++_end_index; } /// skip "]" if this is a bracket access
+  return _end_index;
+}
+
+ASTMemberAccess::ASTMemberAccess(Token *token, size_t token_index) : ASTNode(ASTType::MEMBER_ACCESS,
+    op_precedence[ASTType::MEMBER_ACCESS],
+    0,
+    token,
+    token_index) {}
+
+bool ASTMemberAccess::is_lvalue() const { return true; }
+
+bool ASTMemberAccess::is_typed() const { return true; }
+
 } // namespace tanlang

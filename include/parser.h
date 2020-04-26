@@ -1,11 +1,9 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
-#include "ast.h"
+#include "src/llvm_include.h"
 #include "compiler_session.h"
+#include "token.h"
 #include "lexer.h"
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #include <memory>
 #include <stack>
 #include <vector>
@@ -20,7 +18,6 @@ class Parser {
 public:
   Parser() = delete;
   Parser(std::vector<Token *> tokens, std::string filename);
-
   std::shared_ptr<ASTNode> peek(size_t &index);
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);

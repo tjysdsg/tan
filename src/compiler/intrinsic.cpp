@@ -1,6 +1,9 @@
 #include "intrinsic.h"
 #include "compiler_session.h"
 #include "parser.h"
+#include "src/ast/ast_string_literal.h"
+#include "src/ast/ast_number_literal.h"
+#include "src/ast/ast_identifier.h"
 
 namespace tanlang {
 

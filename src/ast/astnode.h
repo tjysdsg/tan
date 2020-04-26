@@ -144,55 +144,6 @@ protected:
   Parser *_parser = nullptr;
 };
 
-class ASTInfixBinaryOp : public ASTNode {
-public:
-  ASTInfixBinaryOp() = delete;
-  ASTInfixBinaryOp(Token *token, size_t token_index);
-  bool is_typed() const override;
-  bool is_lvalue() const override;
-  std::string get_type_name() const override;
-  std::shared_ptr<ASTTy> get_ty() const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
-
-protected:
-  size_t led(const ASTNodePtr &left, Parser *parser) override;
-  size_t _dominant_idx = 0;
-};
-
-class ASTPrefix : public ASTNode {
-public:
-  ASTPrefix() = delete;
-  ASTPrefix(Token *token, size_t token_index);
-
-  bool is_typed() const override { return true; }
-
-  bool is_lvalue() const override { return false; }
-
-  std::string get_type_name() const override;
-  std::shared_ptr<ASTTy> get_ty() const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
-
-protected:
-  size_t nud(Parser *parser) override;
-};
-
-class ASTReturn final : public ASTPrefix {
-public:
-  ASTReturn() = delete;
-  ASTReturn(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-
-  std::string get_type_name() const override { return {}; }
-
-  std::shared_ptr<ASTTy> get_ty() const override { return nullptr; }
-
-  llvm::Type *to_llvm_type(CompilerSession *) const override { return nullptr; }
-
-  llvm::Metadata *to_llvm_meta(CompilerSession *) const override { return nullptr; }
-};
-
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
 
 } // namespace tanlang
