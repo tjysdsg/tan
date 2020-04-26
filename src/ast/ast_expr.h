@@ -49,6 +49,7 @@ public:
 
 protected:
   size_t nud(Parser *parser) override;
+  size_t _nud(Parser *parser);
 
 public:
   bool _has_initial_val = false;
