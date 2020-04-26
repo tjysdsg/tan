@@ -1,8 +1,14 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
 #include "src/llvm_include.h"
+#include "src/ast/astnode.h"
 
 namespace tanlang {
+
+class TypeSystem {
+public:
+  static constexpr std::array LiteralTypes = {ASTType::NUM_LITERAL, ASTType::STRING_LITERAL, ASTType::ARRAY_LITERAL,};
+};
 
 class CompilerSession;
 

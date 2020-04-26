@@ -2,6 +2,8 @@
 #include "src/ast/ast_expr.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_array.h"
+#include "src/ast/common.h"
+#include "src/ast/type_system.h"
 #include "token.h"
 #include "parser.h"
 
@@ -64,8 +66,7 @@ size_t ASTArrayLiteral::nud(Parser *parser) {
         report_code_error(_token, "All elements in an array must have the same type");
       }
     }
-    if (node->_type == ASTType::NUM_LITERAL || node->_type == ASTType::STRING_LITERAL
-        || node->_type == ASTType::ARRAY_LITERAL) { // FIXME: More literals?
+    if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
       _end_index = node->parse(parser);
       _children.push_back(node);
