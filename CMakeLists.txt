@@ -20,6 +20,13 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
+# use static linking whenever possible
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+# always use full RPATH
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # default build debug
 # use -DCMAKE_BUILD_TYPE=Release to build Release version
 if (NOT CMAKE_BUILD_TYPE)

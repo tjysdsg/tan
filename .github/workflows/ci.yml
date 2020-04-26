@@ -20,15 +20,13 @@ jobs:
         run: git clone https://github.com/tjysdsg/tan --recursive
       - name: compile tanc
         run: cd tan; ./scripts/compile.sh tanc
-      - name: prepare artifact
-        run: zip -r bin.zip bin
       - uses: actions/upload-artifact@v1
         with:
           name: bin
-          path: bin.zip
+          path: tan/bin
       - name: compile all
-        run: ./scripts/compile.sh all
+        run: cd tan; ./scripts/compile.sh all
       - name: compile runtime
-        run: ./scripts/compile.sh runtime
+        run: cd tan; ./scripts/compile.sh runtime
       - name: test
-        run: ./scripts/test.sh
+        run: cd tan; ./scripts/test.sh

@@ -226,7 +226,7 @@ bool AssemblerInvocation::CreateFromArgs(AssemblerInvocation &Opts,
   Opts.ShowVersion = Args.hasArg(OPT_version);
 
   // Transliterate Options
-  Opts.OutputAsmVariant = getLastArgIntValue(Args, OPT_output_asm_variant, 0, Diags);
+  Opts.OutputAsmVariant = (unsigned) getLastArgIntValue(Args, OPT_output_asm_variant, 0, Diags);
   Opts.ShowEncoding = Args.hasArg(OPT_show_encoding);
   Opts.ShowInst = Args.hasArg(OPT_show_inst);
 
@@ -363,7 +363,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   if (!Opts.MainFileName.empty()) {
     Ctx.setMainFileName(StringRef(Opts.MainFileName));
   }
-  Ctx.setDwarfVersion(Opts.DwarfVersion);
+  Ctx.setDwarfVersion((uint16_t) Opts.DwarfVersion);
   if (Opts.GenDwarfForAssembly) {
     Ctx.setGenDwarfRootFile(Opts.InputFile, SrcMgr.getMemoryBuffer(BufferIndex)->getBuffer());
   }
@@ -372,7 +372,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   std::string FS;
   if (!Opts.Features.empty()) {
     FS = Opts.Features[0];
-    for (unsigned i = 1, e = Opts.Features.size(); i != e; ++i) {
+    for (size_t i = 1, e = Opts.Features.size(); i != e; ++i) {
       FS += "," + Opts.Features[i];
     }
   }
@@ -488,7 +488,7 @@ static bool ExecuteAssembler(AssemblerInvocation &Opts, DiagnosticsEngine &Diags
   return Failed;
 }
 
-static void LLVMErrorHandler(void *UserData, const std::string &Message, bool GenCrashDiag) {
+static void LLVMErrorHandler(void *UserData, const std::string &Message, bool) {
   DiagnosticsEngine &Diags = *static_cast<DiagnosticsEngine *>(UserData);
 
   Diags.Report(diag::err_fe_error_backend) << Message;
@@ -497,7 +497,7 @@ static void LLVMErrorHandler(void *UserData, const std::string &Message, bool Ge
   sys::Process::Exit(1);
 }
 
-int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
+int cc1as_main(ArrayRef<const char *> Argv, const char *, void *) {
   // Initialize targets and assembly printers/parsers.
   InitializeAllTargetInfos();
   InitializeAllTargetMCs();
