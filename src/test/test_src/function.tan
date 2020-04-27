@@ -1,5 +1,6 @@
 import "runtime/print.tan";
 
+// overloading
 fn work(a: float, b: float): float {
     return a * b;
 }

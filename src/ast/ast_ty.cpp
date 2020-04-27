@@ -280,29 +280,6 @@ size_t ASTTy::get_size_bits() const { return _size_bits; }
 
 void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 
-// TODO: Move this to src/type_system.h
-int ASTTy::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
-  assert(t1);
-  assert(t2);
-  if (*t1 == *t2) { return 0; }
-  size_t s1 = t1->get_size_bits();
-  size_t s2 = t2->get_size_bits();
-  if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
-    // TODO: check if safe to cast
-    return 0;
-  } else if (t1->is_int() && t2->is_int()) { /// between integers
-    return s1 >= s2 ? 0 : 1;
-  } else if (t1->is_floating() && t2->is_int()) { /// float/double and int
-    return -1;
-  } else if (t1->is_int() && t2->is_floating()) { /// int and float/double
-    return -1;
-  } else if (t1->is_floating() && t2->is_floating()) { /// float/double and float/double
-    return s1 >= s2 ? 0 : 1;
-  }
-  // TODO: complex type
-  return -1;
-}
-
 std::unordered_map<std::string, Ty> basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},

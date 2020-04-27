@@ -309,11 +309,16 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) {
     auto *cm = Compiler::get_compiler_session(_parser->get_filename());
     auto func_candidates = cm->get_functions(_name);
+    /// always prefer the function with lowest cost if multiple candidates are callable
+    /// one implicit cast -> +1 cost
+    /// however, if two (or more) functions have the same score, an error is raise (ambiguous call)
+    size_t cost = (size_t) -1;
     for (const auto &f : func_candidates) {
       size_t n = f->get_n_args();
       if (n != _children.size()) { continue; }
       bool good = true;
-      for (size_t i = 0; i < n; ++i) {
+      size_t c = 0;
+      for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
         auto arg = f->get_arg(i);
         assert(arg->is_typed());
         auto actual_arg = _children[i];
@@ -322,14 +327,21 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
           actual_arg = cm->get(actual_arg->get_name());
         }
         /// allow implicit cast from actual_arg to arg, but not in reverse
-        if (0 != ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
-          good = false;
-          break;
+        auto t1 = arg->get_ty();
+        auto t2 = actual_arg->get_ty();
+        if (!(*t1 == *t2)) { // TODO: operator!=() for ASTTy
+          if (0 != TypeSystem::CanImplicitCast(t1, t2)) {
+            good = false;
+            break;
+          }
+          ++c;
         }
       }
       if (good) {
-        _callee = f;
-        break;
+        if (c < cost) {
+          _callee = f;
+          cost = c;
+        } else if (c == cost) { report_code_error(_token, "Ambiguous function call: " + _name); }
       }
     }
   }

@@ -5,9 +5,14 @@
 
 namespace tanlang {
 
+class ASTTy;
+
+using ASTTyPtr = std::shared_ptr<ASTTy>;
+
 class TypeSystem {
 public:
   static constexpr std::array LiteralTypes = {ASTType::NUM_LITERAL, ASTType::STRING_LITERAL, ASTType::ARRAY_LITERAL,};
+  static int CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2);
 };
 
 class CompilerSession;

@@ -89,4 +89,25 @@ DISubroutineType *create_function_type(CompilerSession *compiler_session, Metada
           llvm::dwarf::DW_CC_normal);
 }
 
+int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
+  assert(t1);
+  assert(t2);
+  if (*t1 == *t2) { return 0; }
+  size_t s1 = t1->get_size_bits();
+  size_t s2 = t2->get_size_bits();
+  if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
+    // TODO: check if safe to cast
+    return 0;
+  } else if (t1->is_int() && t2->is_int()) { /// between integers
+    return s1 >= s2 ? 0 : 1;
+  } else if (t1->is_floating() && t2->is_int()) { /// float/double and int
+    return 0;
+  } else if (t1->is_int() && t2->is_floating()) { /// int and float/double
+    return 1;
+  } else if (t1->is_floating() && t2->is_floating()) { /// float/double and float/double
+    return s1 >= s2 ? 0 : 1;
+  }
+  // TODO: complex type
+  return -1;
+}
 } // namespace

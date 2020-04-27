@@ -1,3 +1,4 @@
+#include "src/type_system.h"
 #include "src/ast/ast_infix_binary_op.h"
 #include "parser.h"
 
@@ -53,7 +54,7 @@ size_t ASTInfixBinaryOp::get_dominant_idx() const {
   auto rhs = _children[1];
   assert(lhs->is_typed());
   assert(rhs->is_typed());
-  int ret = ASTTy::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
+  int ret = TypeSystem::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
   if (-1 == ret) {
     report_code_error(_token, "Cannot perform implicit type conversion");
   }

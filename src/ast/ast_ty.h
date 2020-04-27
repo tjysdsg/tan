@@ -48,7 +48,6 @@ using ASTTyPtr = std::shared_ptr<ASTTy>;
 class ASTTy final : public ASTNode {
 public:
   static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<std::shared_ptr<ASTTy>> sub_tys = {});
-  static int CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2);
 
 public:
   ASTTy() = delete;
