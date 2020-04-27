@@ -83,6 +83,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ====== tests for debug build ======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")

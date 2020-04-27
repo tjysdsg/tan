@@ -1,5 +1,5 @@
 #include "src/ast/ast_loop.h"
-#include "src/ast/type_system.h"
+#include "src/type_system.h"
 #include "compiler_session.h"
 #include "parser.h"
 #include "intrinsic.h"

@@ -179,4 +179,8 @@ std::vector<ASTFunctionPtr> CompilerSession::get_functions(const std::string &na
   return _function_table->get(name);
 }
 
+DIFile *CompilerSession::get_di_file() const { return _di_file; }
+
+DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
+
 } // namespace tanlang

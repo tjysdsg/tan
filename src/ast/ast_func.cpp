@@ -1,6 +1,6 @@
 #include "src/ast/ast_func.h"
-#include "src/ast/common.h"
-#include "src/ast/type_system.h"
+#include "src/common.h"
+#include "src/type_system.h"
 #include "src/ast/ast_var_decl.h"
 #include "src/ast/ast_arg_decl.h"
 #include "parser.h"
@@ -9,8 +9,7 @@
 
 namespace tanlang {
 
-ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
-    0,
+ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0,
     0,
     token,
     token_index) {

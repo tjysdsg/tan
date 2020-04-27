@@ -1,7 +1,7 @@
 #ifndef TAN_INCLUDE_COMPILER_SESSION_H_
 #define TAN_INCLUDE_COMPILER_SESSION_H_
 #include "src/llvm_include.h"
-#include "src/ast/scope.h"
+#include "src/scope.h"
 #include "src/compiler/function_table.h"
 
 namespace tanlang {
@@ -22,6 +22,7 @@ public:
   CompilerSession(const std::string &module_name, TargetMachine *target_machine);
   ~CompilerSession() = default;
 
+public:
   std::shared_ptr<Scope> get_current_scope();
   std::shared_ptr<Scope> push_scope();
   std::shared_ptr<Scope> pop_scope();
@@ -44,10 +45,8 @@ public:
   std::vector<ASTFunctionPtr> get_functions(const std::string &name);
 
 public:
-  DIFile *get_di_file() const { return _di_file; }
-
-  DICompileUnit *get_di_cu() const { return _di_cu; }
-
+  DIFile *get_di_file() const;
+  DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
 
 private:

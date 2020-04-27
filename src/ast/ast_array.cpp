@@ -1,6 +1,6 @@
 #include "src/ast/ast_array.h"
-#include "src/ast/common.h"
-#include "src/ast/type_system.h"
+#include "src/common.h"
+#include "src/type_system.h"
 
 namespace tanlang {
 

@@ -1,7 +1,7 @@
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_struct.h"
 #include "src/ast/astnode.h"
-#include "src/ast/common.h"
+#include "src/common.h"
 #include "compiler_session.h"
 
 namespace tanlang {

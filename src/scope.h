@@ -2,9 +2,14 @@
 #define TAN_SRC_AST_SCOPE_H_
 #include <unordered_map>
 #include <string>
-#include "src/ast/astnode.h"
+#include <memory>
+#include "src/llvm_include.h"
 
 namespace tanlang {
+
+class ASTNode;
+
+using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 struct StackTrace;
 

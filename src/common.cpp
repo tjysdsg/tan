@@ -1,5 +1,4 @@
-#include "src/ast/common.h"
-#include <type_traits>
+#include "src/common.h"
 
 namespace tanlang {
 

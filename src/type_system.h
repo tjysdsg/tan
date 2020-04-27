@@ -12,6 +12,8 @@ public:
 
 class CompilerSession;
 
+// TODO: move these function inside TypeSystem
+
 /**
  * \brief Convert a value to from orig type to dest type.
  * \details Returns nullptr if failed to convert.
