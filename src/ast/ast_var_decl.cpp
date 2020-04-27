@@ -1,8 +1,8 @@
 #include "src/ast/ast_var_decl.h"
+#include "compiler.h"
 #include "token.h"
 #include "compiler_session.h"
 #include "src/common.h"
-#include "src/type_system.h"
 #include "src/ast/ast_identifier.h"
 
 namespace tanlang {
@@ -22,6 +22,8 @@ size_t tanlang::ASTVarDecl::_nud(Parser *parser) {
   _ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
   _ty->set_is_lvalue(true);
   _children.push_back(_ty);
+  auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+  cm->add(this->get_name(), this->shared_from_this());
   return _end_index;
 }
 
@@ -33,7 +35,7 @@ size_t ASTVarDecl::nud(Parser *parser) {
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   assert(_children[0]->is_named());
-  std::string name = _children[0]->get_name();
+  std::string name = this->get_name();
   Type *type = ast_cast<ASTTy>(_children[1])->to_llvm_type(compiler_session);
   Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
 
@@ -42,12 +44,12 @@ Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->CreateStore(_children[2]->codegen(compiler_session), var);
   }
   this->_llvm_value = var;
-  compiler_session->add(name, this->shared_from_this());
   return _llvm_value;
 }
 
 std::string ASTVarDecl::get_name() const {
   auto n = ast_cast<ASTIdentifier>(_children[0]);
+  assert(n);
   return n->get_name();
 }
 

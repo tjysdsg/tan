@@ -18,6 +18,7 @@ public:
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
 
 protected:
+  virtual size_t get_dominant_idx() const;
   size_t led(const ASTNodePtr &left, Parser *parser) override;
   size_t _dominant_idx = 0;
 };

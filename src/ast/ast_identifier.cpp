@@ -1,5 +1,6 @@
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_var_decl.h"
+#include "compiler.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -26,14 +27,31 @@ ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType
   _name = token->value;
 }
 
-bool ASTIdentifier::is_lvalue() const { return true; }
-
-bool ASTIdentifier::is_named() const { return true; }
-
 size_t ASTIdentifier::nud(Parser *parser) {
   _end_index = _start_index + 1;
   UNUSED(parser);
   return _end_index;
+}
+
+bool ASTIdentifier::is_lvalue() const { return get_referred()->is_lvalue(); }
+
+bool ASTIdentifier::is_named() const { return true; }
+
+bool ASTIdentifier::is_typed() const { return get_referred()->is_typed(); }
+
+std::string ASTIdentifier::get_type_name() const { return get_referred()->get_type_name(); }
+
+llvm::Type *ASTIdentifier::to_llvm_type(CompilerSession *cm) const { return get_referred()->to_llvm_type(cm); }
+
+std::shared_ptr<ASTTy> ASTIdentifier::get_ty() const { return get_referred()->get_ty(); }
+
+ASTNodePtr ASTIdentifier::get_referred() const {
+  if (!_referred) {
+    auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+    _referred = cm->get(_name);
+    assert(_referred);
+  }
+  return _referred;
 }
 
 } // namespace tanlang

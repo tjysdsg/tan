@@ -38,6 +38,8 @@ std::shared_ptr<Scope> CompilerSession::push_scope() {
   return r;
 }
 
+void CompilerSession::push_scope(std::shared_ptr<Scope> scope) { _scope.push_back(scope); }
+
 std::shared_ptr<Scope> CompilerSession::pop_scope() {
   if (_scope.size() == 1) {
     throw std::runtime_error("Cannot pop the outer-est scope");
@@ -156,14 +158,13 @@ void CompilerSession::add_public_function(const std::string &filename, ASTNodePt
 }
 
 std::vector<ASTFunctionPtr> CompilerSession::get_public_functions(const std::string &filename) {
-  std::vector<ASTFunctionPtr> ret{};
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
     auto fuck = funcs->second;
     return fuck->get_all();
   }
-  return ret;
+  return {};
 }
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }

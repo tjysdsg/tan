@@ -6,6 +6,7 @@
 namespace tanlang {
 
 struct Token;
+struct Scope;
 
 class ASTFunction;
 
@@ -19,11 +20,14 @@ public:
   ASTFunction(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
   Value *codegen_prototype(CompilerSession *compiler_session, bool import = false);
-
-  bool is_named() const override { return true; }
+  bool is_named() const override;
+  std::string get_name() const override;
+  bool is_typed() const override;
+  // TODO: std::string get_type_name() const override;
+  // TODO: llvm::Type *to_llvm_type(CompilerSession *) const override;
+  // TODO: std::shared_ptr<ASTTy> get_ty() const override;
 
   ASTNodePtr get_ret() const;
-  std::string get_name() const override;
   ASTNodePtr get_arg(size_t i) const;
   size_t get_n_args() const;
   Function *get_func() const;
@@ -35,6 +39,7 @@ private:
   bool _is_external = false;
   bool _is_public = false;
   Function *_func = nullptr;
+  std::shared_ptr<Scope> _scope = nullptr;
 };
 
 /**
@@ -45,12 +50,23 @@ public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
   Value *codegen(CompilerSession *compiler_session) override;
+  bool is_named() const override;
+  std::string get_name() const override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  bool is_lvalue() const override;
+  bool is_typed() const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
   size_t nud(Parser *parser) override;
+  ASTFunctionPtr get_callee() const;
 
 public:
   std::string _name{};
+  Value *_llvm_value = nullptr;
+  mutable ASTFunctionPtr _callee = nullptr;
 };
 
 } // namespace tanlang

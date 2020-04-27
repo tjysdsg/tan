@@ -12,20 +12,29 @@ class CompilerSession;
 
 class Compiler {
 public:
-  Compiler() = delete;
-  Compiler(std::string filename, std::shared_ptr<ASTNode> ast, TanCompilation *config);
-  ~Compiler();
-  Value *codegen();
-
-  void emit_object(const std::string &filename);
-
-  void dump() const { _llvm_module->print(llvm::outs(), nullptr); }
+  static CompilerSession *get_compiler_session(const std::string &filename);
+  static void set_compiler_session(const std::string &filename, CompilerSession *compiler_session);
+  static void ParseFile(const std::string filename);
 
 private:
-  Module *_llvm_module = nullptr;
+  static std::unordered_map<std::string, CompilerSession *> sessions;
+
+public:
+  Compiler() = delete;
+  Compiler(std::string filename);
+  ~Compiler();
+
+  void parse();
+  Value *codegen();
+  void emit_object(const std::string &filename);
+  void dump_ir() const;
+  void dump_ast() const;
+
+private:
   llvm::TargetMachine *_target_machine = nullptr;
   CompilerSession *_compiler_session = nullptr;
   std::shared_ptr<ASTNode> _ast = nullptr;
+  std::string _filename = "";
 };
 
 } // namespace tanlang

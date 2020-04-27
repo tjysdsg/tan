@@ -41,15 +41,6 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
   return linker.link();
 }
 
-Parser *parse_file(const char *path) {
-  Reader reader;
-  reader.open(path);
-  auto tokens = tanlang::tokenize(&reader);
-  auto *parser = new Parser(tokens, std::string(path));
-  parser->parse();
-  return parser;
-}
-
 bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config) {
   bool print_ir_code = config->verbose >= 1;
   bool print_ast = config->verbose >= 2;
@@ -58,21 +49,30 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   for (size_t i = 0; i < n_files; ++i) {
     files.push_back(std::string(input_paths[i]));
   }
+  std::vector<std::shared_ptr<Compiler>> compilers{};
+  compilers.reserve(n_files);
+  /// parse all files before generating IR code
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
-    auto *parser = parse_file(files[i].c_str());
-    if (print_ast) { parser->_root->printTree(); }
-    std::cout << "Compiling TAN file: " << files[i] << "\n";
-    Compiler compiler(parser->get_filename(), parser->get_ast(), config);
-    compiler.codegen();
-    if (print_ir_code) { compiler.dump(); }
+    auto compiler = std::make_shared<Compiler>(files[i]);
+    compilers.push_back(compiler);
+    compiler->parse();
+    if (print_ast) { compiler->dump_ast(); }
+    END_TRY
+  }
+  for (size_t i = 0; i < n_files; ++i) {
+    BEGIN_TRY
+    compilers[i]->codegen();
+    if (print_ir_code) { compilers[i]->dump_ir(); }
     /// prepare the filename for linking
     files[i] += ".o";
     files[i] = fs::path(files[i]).filename().string();
-    compiler.emit_object(files[i]);
+    std::cout << "Compiling TAN file: " << files[i] << "\n";
+    compilers[i]->emit_object(files[i]);
     END_TRY
   }
 
+  /// link
   for (size_t i = 0; i < config->n_link_files; ++i) {
     files.push_back(std::string(config->link_files[i]));
   }

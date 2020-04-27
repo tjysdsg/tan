@@ -65,7 +65,8 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       break;
     case Ty::STRING: {
       auto *e_di_type = compiler_session->get_di_builder()->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
-      ret = compiler_session->get_di_builder()->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
+      ret = compiler_session->get_di_builder()
+          ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
     case Ty::STRUCT: {
@@ -96,7 +97,8 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
       auto *e_di_type = e->to_llvm_meta(compiler_session);
-      ret = compiler_session->get_di_builder()->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
+      ret = compiler_session->get_di_builder()
+          ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
     default:
@@ -278,7 +280,10 @@ size_t ASTTy::get_size_bits() const { return _size_bits; }
 
 void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 
+// TODO: Move this to src/type_system.h
 int ASTTy::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
+  assert(t1);
+  assert(t2);
   if (*t1 == *t2) { return 0; }
   size_t s1 = t1->get_size_bits();
   size_t s2 = t2->get_size_bits();
@@ -375,6 +380,18 @@ size_t ASTTy::nud(Parser *parser) {
   }
   resolve(); /// fill in relevant member variables
   return _end_index;
+}
+
+ASTTyPtr ASTTy::get_contained_ty() const {
+  if (_ty == Ty::STRING) {
+    // TODO: optimize this
+    return ASTTy::Create(TY_OR(Ty::STRING, Ty::POINTER));
+  } else if (_is_ptr) {
+    assert(_children.size());
+    auto ret = ast_cast<ASTTy>(_children[0]);
+    assert(ret);
+    return ret;
+  } else { return nullptr; }
 }
 
 } // namespace tanlang

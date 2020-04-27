@@ -25,6 +25,7 @@ public:
 public:
   std::shared_ptr<Scope> get_current_scope();
   std::shared_ptr<Scope> push_scope();
+  void push_scope(std::shared_ptr<Scope>);
   std::shared_ptr<Scope> pop_scope();
   DIScope *get_current_di_scope() const;
   void push_di_scope(DIScope *scope);

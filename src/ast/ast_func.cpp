@@ -4,23 +4,21 @@
 #include "src/ast/ast_var_decl.h"
 #include "src/ast/ast_arg_decl.h"
 #include "parser.h"
+#include "compiler.h"
 #include "stack_trace.h"
 #include "intrinsic.h"
 
 namespace tanlang {
 
-ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0,
+ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
+    0,
     0,
     token,
-    token_index) {
-  _name = token->value;
-}
+    token_index) { _name = token->value; }
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
-  /// new scope
-  auto scope = compiler_session->push_scope();
-
+  compiler_session->push_scope(_scope); /// push scope
   Metadata *ret_meta = _children[0]->to_llvm_meta(compiler_session);
   std::vector<Metadata *> arg_metas;
   /// set function arg types
@@ -78,8 +76,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
       Value *arg_val = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), a.getType(), arg_name);
       compiler_session->get_builder()->CreateStore(&a, arg_val);
       ast_cast<ASTVarDecl>(_children[i])->_llvm_value = arg_val;
-      compiler_session->add(arg_name, _children[i]);
-
       /// create a debug descriptor for the arguments
       auto *arg_meta = ast_cast<ASTTy>(_children[i]->_children[1])->to_llvm_meta(compiler_session);
       llvm::DILocalVariable *di_arg = compiler_session->get_di_builder()
@@ -118,8 +114,7 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->get_function_pass_manager()->run(*F);
   /// restore parent code block
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block());
-  /// pop scope
-  compiler_session->pop_scope();
+  compiler_session->pop_scope(); /// pop scope
   return nullptr;
 }
 
@@ -141,8 +136,6 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
     } else {
       linkage = Function::ExternalLinkage;
     }
-  } else {
-    compiler_session->add_function(this->shared_from_this());
   }
   _func = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module().get());
   _func->setCallingConv(llvm::CallingConv::C);
@@ -163,9 +156,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   std::vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(compiler_session);
-    if (!a) {
-      report_code_error(_children[i]->_token, "Invalid function call argument");
-    }
+    if (!a) { report_code_error(_children[i]->_token, "Invalid function call argument"); }
     Type *a_type = a->getType();
     if (_children[i]->is_lvalue()) {
       a = compiler_session->get_builder()->CreateLoad(a);
@@ -175,45 +166,14 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
     arg_vals.push_back(a);
     arg_types.push_back(a_type);
   }
-  ASTFunctionPtr callee = nullptr;
-  {
-    /// search for the function
-    auto func_candidates = compiler_session->get_functions(_name);
-    for (const auto &f : func_candidates) {
-      size_t n = f->get_n_args();
-      if (n != n_args) { continue; }
-      bool good = true;
-      for (size_t i = 0; i < n; ++i) {
-        auto arg = f->get_arg(i);
-        assert(arg->is_typed());
-        auto actual_arg = _children[i];
-        if (!actual_arg->is_typed()) {
-          assert(actual_arg->_type == ASTType::ID);
-          actual_arg = compiler_session->get(actual_arg->get_name());
-        }
-        /// allow implicit cast from actual_arg to arg
-        if (0 != ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
-          good = false;
-          break;
-        }
-      }
-      if (good) {
-        callee = f;
-        break;
-      }
-    }
-  }
-  if (!callee) {
-    throw std::runtime_error("Unknown function call: " + _name);
-  }
   auto stack_trace = std::make_shared<StackTrace>();
   stack_trace->_filename = _parser->get_filename();
   stack_trace->_src = _token->line->code;
   stack_trace->_lineno = _children[0]->_token->l + 1;
   codegen_push_stack_trace(compiler_session, stack_trace);
-  auto *ret = compiler_session->get_builder()->CreateCall(callee->get_func(), arg_vals);
+  _llvm_value = compiler_session->get_builder()->CreateCall(get_callee()->get_func(), arg_vals);
   codegen_pop_stack_trace(compiler_session);
-  return ret;
+  return _llvm_value;
 }
 
 ASTNodePtr ASTFunction::get_ret() const {
@@ -242,6 +202,10 @@ ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FU
 Function *ASTFunction::get_func() const { return _func; }
 
 size_t ASTFunction::nud(Parser *parser) {
+  /// new scope
+  auto *compiler_session = Compiler::get_compiler_session(parser->get_filename());
+  _scope = compiler_session->push_scope();
+
   if (parser->at(_start_index)->value == "fn") {
     /// skip "fn"
     _end_index = _start_index + 1;
@@ -254,7 +218,6 @@ size_t ASTFunction::nud(Parser *parser) {
     /// skip "pub fn"
     _end_index = _start_index + 2;
   } else { assert(false); }
-
   _children.push_back(nullptr); /// function return type, set later
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// function name
   parser->peek(_end_index, TokenType::PUNCTUATION, "(");
@@ -263,7 +226,7 @@ size_t ASTFunction::nud(Parser *parser) {
   if (parser->at(_end_index)->value != ")") {
     while (!parser->eof(_end_index)) {
       ASTNodePtr arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
-      _end_index = arg->parse(parser);
+      _end_index = arg->parse(parser); /// this will add args to the current scope
       _children.push_back(arg);
       if (parser->at(_end_index)->value == ",") {
         ++_end_index;
@@ -288,11 +251,16 @@ size_t ASTFunction::nud(Parser *parser) {
   } else {
     _is_external = true;
   }
-  if (_is_public) {
-    CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this());
-  }
+  if (_is_public) { CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this()); }
+  compiler_session->add_function(this->shared_from_this());
+  /// pop scope
+  compiler_session->pop_scope();
   return _end_index;
 }
+
+bool ASTFunction::is_named() const { return true; }
+
+bool ASTFunction::is_typed() const { return true; }
 
 size_t ASTFunctionCall::nud(Parser *parser) {
   if (_parsed) { return _end_index; }
@@ -310,8 +278,63 @@ size_t ASTFunctionCall::nud(Parser *parser) {
   }
   parser->peek(_end_index, TokenType::PUNCTUATION, ")");
   ++_end_index;
-  _parsed = true;
   return _end_index;
+}
+
+std::string ASTFunctionCall::get_name() const { return _name; }
+
+bool ASTFunctionCall::is_named() const { return true; }
+
+llvm::Value *ASTFunctionCall::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+
+bool ASTFunctionCall::is_lvalue() const { return false; }
+
+bool ASTFunctionCall::is_typed() const { return true; }
+
+std::string ASTFunctionCall::get_type_name() const {
+  auto r = get_callee()->get_ret();
+  assert(r->is_typed());
+  return r->get_type_name();
+}
+
+llvm::Type *ASTFunctionCall::to_llvm_type(CompilerSession *cm) const {
+  auto r = get_callee()->get_ret();
+  assert(r->is_typed());
+  return r->to_llvm_type(cm);
+}
+
+std::shared_ptr<ASTTy> ASTFunctionCall::get_ty() const { return ast_cast<ASTTy>(get_callee()->get_ret()); }
+
+ASTFunctionPtr ASTFunctionCall::get_callee() const {
+  if (!_callee) {
+    auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+    auto func_candidates = cm->get_functions(_name);
+    for (const auto &f : func_candidates) {
+      size_t n = f->get_n_args();
+      if (n != _children.size()) { continue; }
+      bool good = true;
+      for (size_t i = 0; i < n; ++i) {
+        auto arg = f->get_arg(i);
+        assert(arg->is_typed());
+        auto actual_arg = _children[i];
+        if (!actual_arg->is_typed()) {
+          assert(actual_arg->_type == ASTType::ID);
+          actual_arg = cm->get(actual_arg->get_name());
+        }
+        /// allow implicit cast from actual_arg to arg, but not in reverse
+        if (0 != ASTTy::CanImplicitCast(arg->get_ty(), actual_arg->get_ty())) {
+          good = false;
+          break;
+        }
+      }
+      if (good) {
+        _callee = f;
+        break;
+      }
+    }
+  }
+  if (!_callee) { report_code_error(_token, "Unknown function call: " + _name); }
+  return _callee;
 }
 
 } // namespace tanlang

@@ -3,6 +3,7 @@
 #include "src/ast/ast_func.h"
 #include "compiler_session.h"
 #include "libtanc.h"
+#include "compiler.h"
 #include "parser.h"
 #include "base.h"
 
@@ -27,10 +28,7 @@ Value *ASTImport::codegen(CompilerSession *compiler_session) {
   import_path = fs::relative(import_path);
   auto path = import_path.string();
   auto funcs = CompilerSession::get_public_functions(import_path.string());
-  if (funcs.empty()) {
-    auto *parser = parse_file(path.c_str());
-    if (!parser) { report_code_error(_token, "Cannot find import file " + _file); }
-  }
+  if (funcs.empty()) { Compiler::ParseFile(path); }
   funcs = CompilerSession::get_public_functions(import_path.string());
   for (auto &n: funcs) {
     auto f = ast_cast<ASTFunction>(n);

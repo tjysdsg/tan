@@ -12,6 +12,7 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left, Parser *parser) {
   } else {
     _children.emplace_back(n);
   }
+  _dominant_idx = this->get_dominant_idx();
   return _end_index;
 }
 
@@ -46,5 +47,17 @@ bool ASTInfixBinaryOp::is_lvalue() const {
 }
 
 bool ASTInfixBinaryOp::is_typed() const { return true; }
+
+size_t ASTInfixBinaryOp::get_dominant_idx() const {
+  auto lhs = _children[0];
+  auto rhs = _children[1];
+  assert(lhs->is_typed());
+  assert(rhs->is_typed());
+  int ret = ASTTy::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
+  if (-1 == ret) {
+    report_code_error(_token, "Cannot perform implicit type conversion");
+  }
+  return (size_t) ret;
+}
 
 } // namespace tanlang

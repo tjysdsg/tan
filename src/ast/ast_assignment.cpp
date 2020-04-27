@@ -45,4 +45,7 @@ size_t ASTAssignment::led(const ASTNodePtr &left, Parser *parser) {
   return _end_index;
 }
 
+/// always convert to lhs
+size_t ASTAssignment::get_dominant_idx() const { return 0; }
+
 } // namespace tanlang

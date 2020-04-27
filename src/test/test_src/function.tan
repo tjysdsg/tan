@@ -1,6 +1,6 @@
 import "runtime/print.tan";
 
-fn work(a: float, b: int): int {
+fn work(a: float, b: float): float {
     return a * b;
 }
 
@@ -13,7 +13,7 @@ pub fn main(argc: int, argv: char**) : int {
     @assert(a == 1);
     a = work(a, 2);
     @assert(a == 1);
-    @assert(work(1.0, 2) == 2);
+    @assert(work(1.0, 2.) == 2.0);
     print("SUCCESS\n");
     return 0;
 }

@@ -14,15 +14,21 @@ public:
   std::string to_string(bool print_prefix = true) const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   bool is_lvalue() const override;
+  bool is_typed() const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
   size_t nud(Parser *parser) override;
+  ASTNodePtr get_referred() const;
 
 private:
   std::string _name{};
   llvm::Value *_llvm_value = nullptr;
+  mutable ASTNodePtr _referred = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //TAN_SRC_AST_AST_IDENTIFIER_H_

@@ -54,6 +54,7 @@ public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
 
+  ASTTyPtr get_contained_ty() const;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;

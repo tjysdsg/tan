@@ -52,8 +52,6 @@ struct TanCompilation {
  * */
 bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config);
 
-Parser *parse_file(const char *path);
-
 }
 
 #endif /* TAN_SRC_LIB_LIBTANC_H_ */
