@@ -6,9 +6,7 @@
 #include "src/ast/astnode.h"
 #include "stack_trace.h"
 
-namespace llvm {
-class Value;
-}
+namespace llvm { class Value; }
 
 namespace tanlang {
 
@@ -40,6 +38,7 @@ class Intrinsic : public ASTNode {
 public:
   static llvm::Value *stack_trace;
   static llvm::Type *stack_trace_t;
+
 public:
   static std::unordered_map<std::string, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *compiler_session);
@@ -49,16 +48,12 @@ public:
 public:
   Intrinsic() = delete;
   Intrinsic(Token *token, size_t token_index);
-  virtual ~Intrinsic() = default;
-  [[nodiscard]] virtual size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser);
-  [[nodiscard]] virtual size_t parse(Parser *parser);
+  size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
+  size_t parse(Parser *parser) override;
   std::string to_string(bool print_prefix = true) const override;
-  virtual llvm::Value *codegen(CompilerSession *compiler_session);
-
-  llvm::Value *get_llvm_value(CompilerSession *) const override { return _llvm_value; }
-
-  /// intrinsics are always rvalue
-  bool is_lvalue() const override { return _is_lvalue; }
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  bool is_lvalue() const override;
 
 protected:
   void determine_type();

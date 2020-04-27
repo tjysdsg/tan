@@ -283,4 +283,8 @@ void Intrinsic::RuntimeInit(CompilerSession *compiler_session) {
   compiler_session->get_builder()->CreateStore(st, Intrinsic::stack_trace);
 }
 
+llvm::Value *Intrinsic::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+
+bool Intrinsic::is_lvalue() const { return _is_lvalue; }
+
 } // namespace tanlang
