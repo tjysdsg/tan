@@ -59,6 +59,7 @@ public:
   llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;
   bool operator==(const ASTTy &other) const;
+  bool operator!=(const ASTTy &other) const;
   void set_is_lvalue(bool is_lvalue);
   bool is_lvalue() const override;
   bool is_typed() const override;

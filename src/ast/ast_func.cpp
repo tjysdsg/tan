@@ -329,7 +329,7 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
         /// allow implicit cast from actual_arg to arg, but not in reverse
         auto t1 = arg->get_ty();
         auto t2 = actual_arg->get_ty();
-        if (!(*t1 == *t2)) { // TODO: operator!=() for ASTTy
+        if (*t1 != *t2) {
           if (0 != TypeSystem::CanImplicitCast(t1, t2)) {
             good = false;
             break;

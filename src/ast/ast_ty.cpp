@@ -143,6 +143,8 @@ bool ASTTy::operator==(const ASTTy &other) const {
   return true;
 }
 
+bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
+
 void ASTTy::resolve() {
   Ty base = TY_GET_BASE(_ty);
   Ty qual = TY_GET_QUALIFIER(_ty);
