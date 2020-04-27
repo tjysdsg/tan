@@ -23,6 +23,7 @@ enum PrecedenceLevel {
   PREC_RANGE = 135,       // ..< ...
   PREC_TERM = 140,        // + - | ^
   PREC_FACTOR = 150,      // * / % &
+  PREC_CAST = 155,        // as
   PREC_SHIFT = 160,       // << >>
   PREC_UNARY = 170,       // + - ! ~
   PREC_CALL = 200,        // . ( [
@@ -52,6 +53,8 @@ enum class ASTType {
   EQ,        // ==
   NE,        // !=
   XOR,       // ^
+
+  CAST, // as
 
   ID, // identifiers
   LOOP, // for, while, ...
@@ -98,7 +101,6 @@ public:
   ASTNode() = delete;
   ASTNode(const ASTNode &) = default;
   ASTNode &operator=(const ASTNode &) = default;
-
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
   [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser);
@@ -106,23 +108,14 @@ public:
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
   virtual std::string to_string(bool print_prefix = true) const;
-
   virtual bool is_typed() const { return false; }
-
   virtual bool is_named() const { return false; }
-
   virtual bool is_lvalue() const { return false; };
-
   virtual std::string get_name() const { return {}; };
-
   virtual std::string get_type_name() const { return {}; };
-
   virtual std::shared_ptr<ASTTy> get_ty() const { return nullptr; };
-
   virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
-
   virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const { return nullptr; };
-
   virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
 
   /**

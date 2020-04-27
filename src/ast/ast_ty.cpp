@@ -373,4 +373,6 @@ ASTTyPtr ASTTy::get_contained_ty() const {
   } else { return nullptr; }
 }
 
+std::shared_ptr<ASTTy> ASTTy::get_ty() const { return std::const_pointer_cast<ASTTy>(this->shared_from_this()); }
+
 } // namespace tanlang

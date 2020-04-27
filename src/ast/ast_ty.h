@@ -45,7 +45,7 @@ class ASTTy;
 
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
-class ASTTy final : public ASTNode {
+class ASTTy final : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 public:
   static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<std::shared_ptr<ASTTy>> sub_tys = {});
 
@@ -55,6 +55,7 @@ public:
 
   ASTTyPtr get_contained_ty() const;
   std::string get_type_name() const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;
   std::string to_string(bool print_prefix = true) const override;

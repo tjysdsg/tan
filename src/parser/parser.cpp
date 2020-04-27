@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "src/ast/ast_array.h"
+#include "src/ast/ast_cast.h"
 #include "src/ast/ast_import.h"
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_string_literal.h"
@@ -10,7 +11,6 @@
 #include "src/parser/parser.hpp"
 #include "src/ast/ast_parenthesis.h"
 #include "src/ast/ast_var_decl.h"
-#include "src/ast/ast_arg_decl.h"
 #include "src/ast/ast_not.h"
 #include "src/ast/ast_arithmetic.h"
 #include "src/ast/ast_compare.h"
@@ -56,9 +56,9 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
     return std::make_shared<ASTLoop>(token, index);
   } else if (token->value == "struct") {
     return std::make_shared<ASTStruct>(token, index);
-  } else {
-    report_code_error(token, "Keyword not implemented" + token->to_string());
-  }
+  } else if (token->value == "as") {
+    return std::make_shared<ASTCast>(token, index);
+  } else { report_code_error(token, "Keyword not implemented: " + token->to_string()); }
 }
 
 ASTNodePtr Parser::peek(size_t &index) {
