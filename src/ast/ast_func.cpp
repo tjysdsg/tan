@@ -108,9 +108,6 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     }
     compiler_session->pop_di_scope();
   }
-  verifyFunction(*F);
-  /// function pass
-  compiler_session->get_function_pass_manager()->run(*F);
   /// restore parent code block
   compiler_session->get_builder()->SetInsertPoint(compiler_session->get_code_block());
   compiler_session->pop_scope(); /// pop scope
@@ -148,20 +145,19 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
   return _func;
 }
 
-Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
+Value *ASTFunctionCall::codegen(CompilerSession *cm) {
   /// args
   size_t n_args = _children.size();
   std::vector<Value *> arg_vals;
   std::vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
-    auto *a = _children[i]->codegen(compiler_session);
+    Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cm);
+    auto *a = _children[i]->codegen(cm);
     if (!a) { report_code_error(_children[i]->_token, "Invalid function call argument"); }
+
+    /// implicit cast
+    a = convert_to(cm, expected_type, a, _children[i]->is_lvalue());
     Type *a_type = a->getType();
-    if (_children[i]->is_lvalue()) {
-      a = compiler_session->get_builder()->CreateLoad(a);
-      assert(a_type->getNumContainedTypes());
-      a_type = a_type->getContainedType(0);
-    }
     arg_vals.push_back(a);
     arg_types.push_back(a_type);
   }
@@ -169,9 +165,9 @@ Value *ASTFunctionCall::codegen(CompilerSession *compiler_session) {
   stack_trace->_filename = _parser->get_filename();
   stack_trace->_src = _token->line->code;
   stack_trace->_lineno = _children[0]->_token->l + 1;
-  codegen_push_stack_trace(compiler_session, stack_trace);
-  _llvm_value = compiler_session->get_builder()->CreateCall(get_callee()->get_func(), arg_vals);
-  codegen_pop_stack_trace(compiler_session);
+  codegen_push_stack_trace(cm, stack_trace);
+  _llvm_value = cm->get_builder()->CreateCall(get_callee()->get_func(), arg_vals);
+  codegen_pop_stack_trace(cm);
   return _llvm_value;
 }
 
@@ -200,6 +196,8 @@ ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FU
 
 Function *ASTFunction::get_func() const { return _func; }
 
+void ASTFunction::set_func(Function *f) { _func = f; }
+
 size_t ASTFunction::nud(Parser *parser) {
   if (parser->at(_start_index)->value == "fn") {
     /// skip "fn"
@@ -221,7 +219,9 @@ size_t ASTFunction::nud(Parser *parser) {
 
   /// add self to function table
   auto *cm = Compiler::get_compiler_session(parser->get_filename());
-  if (_is_public) { CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this()); }
+  if (_is_public || _is_external) {
+    CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this());
+  }
   cm->add_function(this->shared_from_this());
 
   /// only push scope if not extern

@@ -20,8 +20,8 @@ std::string ASTImport::to_string(bool print_prefix) const {
   return ret;
 }
 
-Value *ASTImport::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
+Value *ASTImport::codegen(CompilerSession *cm) {
+  cm->set_current_debug_location(_token->l, _token->c);
   // TODO: import path resolve system
   // TODO: path containing non-ASCII characters?
   auto import_path = fs::path(_file);
@@ -33,8 +33,10 @@ Value *ASTImport::codegen(CompilerSession *compiler_session) {
   for (auto &n: funcs) {
     auto f = ast_cast<ASTFunction>(n);
     assert(f);
-    f->codegen_prototype(compiler_session);
-    compiler_session->add_function(f);
+    /// do nothing for already defined intrinsics
+    auto *func = cm->get_module()->getFunction(f->get_name());
+    if (!func) { f->codegen_prototype(cm); } else { f->set_func(func); }
+    cm->add_function(f);
   }
   return nullptr;
 }

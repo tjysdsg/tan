@@ -31,6 +31,7 @@ public:
   ASTNodePtr get_arg(size_t i) const;
   size_t get_n_args() const;
   Function *get_func() const;
+  void set_func(Function *f);
 
 protected:
   size_t nud(Parser *parser) override;
@@ -49,7 +50,7 @@ class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  Value *codegen(CompilerSession *cm) override;
   bool is_named() const override;
   std::string get_name() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;

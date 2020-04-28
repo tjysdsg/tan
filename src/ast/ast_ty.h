@@ -70,6 +70,7 @@ public:
   bool is_floating() const;
   bool is_double() const;
   bool is_int() const;
+  bool is_bool() const;
   bool is_unsigned() const;
   bool is_struct() const;
 
@@ -92,6 +93,7 @@ private:
   bool _is_int = false;
   bool _is_unsigned = false;
   bool _is_struct = false;
+  bool _is_bool = false;
   bool _resolved = false;
   size_t _n_elements = 0;
   bool _is_lvalue = false;

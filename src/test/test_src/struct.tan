@@ -1,4 +1,5 @@
 import "runtime/print.tan";
+import "runtime/debug.tan";
 
 struct Fuck {
     var val: i32;
@@ -15,11 +16,11 @@ pub fn main(argc: int, argv: u8**) : i32 {
     s.shit = 100;
     s.f = 1.0;
     s.fuck.val = 11;
-    @assert(s.fuck.val == 11);
+    assert(s.fuck.val == 11);
     var shit: i8 = s.shit;
-    @assert(s.shit == 100);
-    @assert(shit == 100);
-    @assert(s.f == 1.0);
+    assert(s.shit == 100);
+    assert(shit == 100);
+    assert(s.f == 1.0);
 
     print("SUCCESS\n");
     return 0;

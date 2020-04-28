@@ -8,7 +8,7 @@ class ASTImport : public ASTNode {
 public:
   ASTImport() = delete;
   ASTImport(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  Value *codegen(CompilerSession *cm) override;
   std::string to_string(bool print_prefix = true) const override;
 protected:
   size_t nud(Parser *parser) override;

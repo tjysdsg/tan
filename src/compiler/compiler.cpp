@@ -36,22 +36,7 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
   Compiler::set_compiler_session(filename, _compiler_session);
 }
 
-void Compiler::emit_object(const std::string &filename) {
-  std::error_code ec;
-  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
-
-  if (ec) {
-    throw std::runtime_error("Could not open file: " + ec.message());
-  }
-  llvm::legacy::PassManager pass;
-  auto file_type = llvm::CGFT_ObjectFile;
-
-  if (_target_machine->addPassesToEmitFile(pass, dest, nullptr, file_type)) {
-    throw std::runtime_error("Target machine can't emit a file of this type");
-  }
-  pass.run(*_compiler_session->get_module());
-  dest.flush();
-}
+void Compiler::emit_object(const std::string &filename) { _compiler_session->emit_object(filename); }
 
 Value *Compiler::codegen() {
   assert(_ast);
@@ -59,8 +44,6 @@ Value *Compiler::codegen() {
   assert(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
   auto *ret = _ast->codegen(_compiler_session);
-  _compiler_session->finalize_codegen();
-  llvm::verifyModule(*_compiler_session->get_module());
   return ret;
 }
 

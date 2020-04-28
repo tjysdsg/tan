@@ -185,8 +185,9 @@ void ASTTy::resolve() {
     }
     case Ty::BOOL: {
       _type_name = "bool";
-      _size_bits = 8;
+      _size_bits = 1;
       _dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
+      _is_bool = true;
       break;
     }
     case Ty::FLOAT: {
@@ -257,6 +258,11 @@ bool ASTTy::is_double() const {
 bool ASTTy::is_int() const {
   assert(_resolved);
   return _is_int;
+}
+
+bool ASTTy::is_bool() const {
+  assert(_resolved);
+  return _is_bool;
 }
 
 bool ASTTy::is_unsigned() const {

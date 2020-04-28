@@ -1,4 +1,5 @@
 import "runtime/print.tan";
+import "runtime/debug.tan";
 
 pub fn main() : int {
     var i: u32 = 0;
@@ -12,9 +13,9 @@ pub fn main() : int {
         }
         i = i + 1;
     }
-    @assert(i == 100);
-    @assert(gt_50 == 49);
-    @assert(lt_50 == 51);
+    assert(i == 100);
+    assert(gt_50 == 49);
+    assert(lt_50 == 51);
     print("SUCCESS\n");
     return 0;
 }

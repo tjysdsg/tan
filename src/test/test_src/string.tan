@@ -1,11 +1,12 @@
 import "runtime/print.tan";
+import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     var s: str = "shit";
-    // TODO: @assert(s[0] == 's');
-    // TODO: @assert(s[1] == 'h');
-    // TODO: @assert(s[2] == 'i');
-    // TODO: @assert(s[3] == 't');
+    // TODO: assert(s[0] == 's');
+    // TODO: assert(s[1] == 'h');
+    // TODO: assert(s[2] == 'i');
+    // TODO: assert(s[3] == 't');
     print("SUCCESS\n");
     return 0;
 }

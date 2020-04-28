@@ -39,8 +39,7 @@ public:
   std::unique_ptr<IRBuilder<>> &get_builder();
   std::unique_ptr<DIBuilder> &get_di_builder();
   std::unique_ptr<Module> &get_module();
-  std::unique_ptr<FunctionPassManager> &get_function_pass_manager();
-  void finalize_codegen();
+  void emit_object(const std::string &filename);
   unsigned get_ptr_size() const;
   void add_function(ASTNodePtr func);
   std::vector<ASTFunctionPtr> get_functions(const std::string &name);
@@ -57,6 +56,7 @@ private:
   std::vector<std::shared_ptr<Scope>> _scope{};
   std::vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
+  std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;
 
   /// debug information

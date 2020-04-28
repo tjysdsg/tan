@@ -13,7 +13,7 @@ namespace tanlang {
 class CompilerSession;
 
 enum class IntrinsicType {
-  ASSERT, ABORT, ASM, SWAP, MEMSET, MEMCPY, RANGE, CAST, COMP_PRINT, /// compile-time print
+  ABORT, ASM, SWAP, MEMSET, MEMCPY, RANGE, CAST, COMP_PRINT, /// compile-time print
   FILENAME, /// name of a source file
   LINENO, /// line number of certain code
   DEFINE, /// macro definition
@@ -38,6 +38,7 @@ class Intrinsic : public ASTNode {
 public:
   static llvm::Value *stack_trace;
   static llvm::Type *stack_trace_t;
+  static bool assert_initialized;
 
 public:
   static std::unordered_map<std::string, IntrinsicType> intrinsics;

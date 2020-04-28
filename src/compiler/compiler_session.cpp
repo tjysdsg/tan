@@ -99,10 +99,6 @@ std::unique_ptr<Module> &CompilerSession::get_module() {
   return _module;
 }
 
-std::unique_ptr<FunctionPassManager> &CompilerSession::get_function_pass_manager() {
-  return _fpm;
-}
-
 void CompilerSession::set_code_block(BasicBlock *block) {
   _scope.back()->_code_block = block;
 }
@@ -114,18 +110,60 @@ BasicBlock *CompilerSession::get_code_block() const {
 void CompilerSession::init_llvm() {
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
-  // init function pass
+
+  /// pass manager builder
+  auto *pm_builder = new PassManagerBuilder();
+  pm_builder->OptLevel = _target_machine->getOptLevel();
+  pm_builder->SizeLevel = 0; // TODO: optimize for size?
+  pm_builder->DisableTailCalls = true;
+  pm_builder->DisableUnrollLoops = true;
+  pm_builder->SLPVectorize = false;
+  pm_builder->LoopVectorize = false;
+  pm_builder->RerollLoops = false;
+  pm_builder->NewGVN = false;
+  pm_builder->DisableGVNLoadPRE = false;
+  pm_builder->VerifyInput = true;
+  pm_builder->VerifyOutput = true;
+  pm_builder->MergeFunctions = false;
+  pm_builder->PrepareForLTO = false;
+  pm_builder->PrepareForThinLTO = false;
+  pm_builder->PerformThinLTO = false;
+  llvm::TargetLibraryInfoImpl tlii(Triple(_module->getTargetTriple()));
+  pm_builder->LibraryInfo = &tlii;
+  pm_builder->Inliner = llvm::createAlwaysInlinerLegacyPass(false);
+
+  /// function pass
   _fpm = std::make_unique<FunctionPassManager>(_module.get());
-  _fpm->add(llvm::createInstructionCombiningPass());
-  _fpm->add(llvm::createReassociatePass());
-  _fpm->add(llvm::createGVNPass());
-  _fpm->add(llvm::createCFGSimplificationPass());
+  auto *tliwp = new llvm::TargetLibraryInfoWrapperPass(tlii);
+  _fpm->add(tliwp);
+  _fpm->add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
+  _fpm->add(llvm::createVerifierPass());
+  pm_builder->populateFunctionPassManager(*_fpm.get());
   _fpm->doInitialization();
+
+  /// module pass
+  _mpm = std::make_unique<PassManager>();
+  _mpm->add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
+  pm_builder->populateModulePassManager(*_mpm.get());
 }
 
-void CompilerSession::finalize_codegen() {
+void CompilerSession::emit_object(const std::string &filename) {
+  _di_builder->finalize(); /// important: do this before any pass
+
+  for (auto &f: *_module.get()) { _fpm->run(f); }
   _fpm->doFinalization();
-  _di_builder->finalize();
+
+  /// geneate object files
+  std::error_code ec;
+  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
+  if (ec) { throw std::runtime_error("Could not open file: " + ec.message()); }
+
+  auto file_type = llvm::CGFT_ObjectFile;
+  if (_target_machine->addPassesToEmitFile(*_mpm.get(), dest, nullptr, file_type)) {
+    throw std::runtime_error("Target machine can't emit a file of this type");
+  }
+  _mpm->run(*_module);
+  dest.flush();
 }
 
 std::unique_ptr<DIBuilder> &CompilerSession::get_di_builder() {

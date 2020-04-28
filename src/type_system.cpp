@@ -95,7 +95,12 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   if (*t1 == *t2) { return 0; }
   size_t s1 = t1->get_size_bits();
   size_t s2 = t2->get_size_bits();
-  if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
+
+  if (t1->is_bool()) {
+    return 0;
+  } else if (t1->is_bool()) {
+    return 1;
+  } else if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
     // TODO: check if safe to cast
     return 0;
   } else if (t1->is_int() && t2->is_int()) { /// between integers

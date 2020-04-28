@@ -36,6 +36,8 @@
 #include <llvm/IR/GlobalValue.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/IR/DIBuilder.h>
@@ -73,6 +75,7 @@
 #include <llvm/Support/Timer.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Analysis/TargetTransformInfo.h>
 #include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Driver/DriverDiagnostic.h>
@@ -180,6 +183,9 @@ using llvm::PointerType;
 using llvm::TargetMachine;
 using llvm::SectionMemoryManager;
 using llvm::legacy::FunctionPassManager;
+using llvm::legacy::PassManager;
+using llvm::PassManagerBuilder;
+using llvm::Triple;
 
 using llvm::DIBuilder;
 using llvm::DICompileUnit;

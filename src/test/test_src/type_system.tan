@@ -1,24 +1,25 @@
 import "runtime/print.tan";
+import "runtime/debug.tan";
 
 pub fn main() : int {
     var a1: i32 = 100;
-    @assert(a1 == 100);
+    assert(a1 == 100);
     var a2: u32 = a1;
-    @assert(a2 == 100);
+    assert(a2 == 100);
     var a3: u8 = a2;
-    @assert(a3 == 100);
-    @assert(a3 == 100u);
+    assert(a3 == 100);
+    assert(a3 == 100u);
     var a4: i8 = a3;
-    @assert(a4 == 100);
-    @assert(a4 == 100.0);
+    assert(a4 == 100);
+    assert(a4 == 100.0);
     var a5: i32 = a4;
-    @assert(a5 == 100);
+    assert(a5 == 100);
     var a6: float = a5;
-    @assert(a6 == 100.0);
+    assert(a6 == 100.0);
     var a7: double = a6;
-    @assert(a7 as float == 100.0);
+    assert(a7 as float == 100.0);
     a7 = a5;
-    @assert(a7 == 100 as double);
+    assert(a7 == 100 as double);
     print("SUCCESS\n");
     return 0;
 }

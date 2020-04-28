@@ -1,1 +1,1 @@
-
+extern fn assert(s: bool) : void;
