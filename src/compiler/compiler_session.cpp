@@ -28,6 +28,8 @@ CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *
   initialize_scope();
 }
 
+CompilerSession::~CompilerSession() {}
+
 std::shared_ptr<Scope> CompilerSession::get_current_scope() {
   return _scope.back();
 }
@@ -122,6 +124,7 @@ void CompilerSession::init_llvm() {
 }
 
 void CompilerSession::finalize_codegen() {
+  _fpm->doFinalization();
   _di_builder->finalize();
 }
 
@@ -175,10 +178,7 @@ void CompilerSession::add_function(ASTNodePtr func) {
   _function_table->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::get_functions(const std::string &name) {
-  std::vector<ASTFunctionPtr> ret{};
-  return _function_table->get(name);
-}
+std::vector<ASTFunctionPtr> CompilerSession::get_functions(const std::string &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 

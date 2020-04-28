@@ -18,6 +18,8 @@ public:
 
 private:
   static std::unordered_map<std::string, CompilerSession *> sessions;
+  /// created by import statement, used only for parsing
+  static std::vector<std::shared_ptr<Compiler>> sub_compilers;
 
 public:
   Compiler() = delete;

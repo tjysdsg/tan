@@ -66,9 +66,7 @@ llvm::Type *ASTVarDecl::to_llvm_type(CompilerSession *compiler_session) const {
   return t->to_llvm_type(compiler_session);
 }
 
-llvm::Value *ASTVarDecl::get_llvm_value(CompilerSession *) const {
-  return _llvm_value;
-}
+llvm::Value *ASTVarDecl::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 bool tanlang::ASTVarDecl::is_typed() const { return true; }
 

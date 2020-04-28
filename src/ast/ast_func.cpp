@@ -1,7 +1,5 @@
 #include "src/ast/ast_func.h"
-#include "src/common.h"
 #include "src/type_system.h"
-#include "src/ast/ast_var_decl.h"
 #include "src/ast/ast_arg_decl.h"
 #include "parser.h"
 #include "compiler.h"
@@ -18,16 +16,18 @@ ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(AST
 
 Value *ASTFunction::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
-  compiler_session->push_scope(_scope); /// push scope
   Metadata *ret_meta = _children[0]->to_llvm_meta(compiler_session);
-  std::vector<Metadata *> arg_metas;
+  /// generate prototype
+  Function *F = (Function *) codegen_prototype(compiler_session);
+
+  compiler_session->push_scope(_scope); /// push scope
   /// set function arg types
+  std::vector<Metadata *> arg_metas;
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     auto type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_metas.push_back(type_name->to_llvm_meta(compiler_session));
   }
-  /// generate prototype
-  Function *F = (Function *) codegen_prototype(compiler_session);
+
   /// get function name
   std::string func_name = this->get_name();
   /// function implementation
@@ -73,9 +73,8 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     size_t i = 2;
     for (auto &a : F->args()) {
       auto arg_name = _children[i]->get_name();
-      Value *arg_val = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), a.getType(), arg_name);
+      auto *arg_val = _children[i]->codegen(compiler_session);
       compiler_session->get_builder()->CreateStore(&a, arg_val);
-      ast_cast<ASTVarDecl>(_children[i])->_llvm_value = arg_val;
       /// create a debug descriptor for the arguments
       auto *arg_meta = ast_cast<ASTTy>(_children[i]->_children[1])->to_llvm_meta(compiler_session);
       llvm::DILocalVariable *di_arg = compiler_session->get_di_builder()
@@ -202,10 +201,6 @@ ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FU
 Function *ASTFunction::get_func() const { return _func; }
 
 size_t ASTFunction::nud(Parser *parser) {
-  /// new scope
-  auto *compiler_session = Compiler::get_compiler_session(parser->get_filename());
-  _scope = compiler_session->push_scope();
-
   if (parser->at(_start_index)->value == "fn") {
     /// skip "fn"
     _end_index = _start_index + 1;
@@ -218,11 +213,23 @@ size_t ASTFunction::nud(Parser *parser) {
     /// skip "pub fn"
     _end_index = _start_index + 2;
   } else { assert(false); }
-  _children.push_back(nullptr); /// function return type, set later
-  _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// function name
+
+  /// function return type, set later
+  _children.push_back(nullptr);
+  /// function name
+  _children.push_back(parser->parse<ASTType::ID>(_end_index, true));
+
+  /// add self to function table
+  auto *cm = Compiler::get_compiler_session(parser->get_filename());
+  if (_is_public) { CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this()); }
+  cm->add_function(this->shared_from_this());
+
+  /// only push scope if not extern
+  if (!_is_external) { _scope = cm->push_scope(); } else { _scope = cm->get_current_scope(); }
+
+  /// arguments
   parser->peek(_end_index, TokenType::PUNCTUATION, "(");
   ++_end_index;
-  /// if the argument list isn't empty
   if (parser->at(_end_index)->value != ")") {
     while (!parser->eof(_end_index)) {
       ASTNodePtr arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
@@ -239,22 +246,13 @@ size_t ASTFunction::nud(Parser *parser) {
   ++_end_index;
   _children[0] = parser->parse<ASTType::TY>(_end_index, true); /// return type
 
-  /// an external function doesn't have definition
-  if (_is_external) { return _end_index; }
-  /// get function body if exists, otherwise it's a external function
-  auto *token = parser->at(_end_index);
-  if (token->value == "{") {
-    auto code = parser->peek(_end_index);
-    _end_index = code->parse(parser);
-    _children.push_back(code);
-    _is_external = false;
-  } else {
-    _is_external = true;
+  /// body
+  if (!_is_external) {
+    auto body = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+    _end_index = body->parse(parser);
+    _children.push_back(body);
+    cm->pop_scope();
   }
-  if (_is_public) { CompilerSession::add_public_function(_parser->get_filename(), this->shared_from_this()); }
-  compiler_session->add_function(this->shared_from_this());
-  /// pop scope
-  compiler_session->pop_scope();
   return _end_index;
 }
 

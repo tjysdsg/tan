@@ -1,4 +1,5 @@
 #include "lexer_test.h"
+#include "compiler_test.h"
 #include <gtest/gtest.h>
 
 int main(int argc, char **argv) {

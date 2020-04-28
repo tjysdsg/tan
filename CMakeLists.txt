@@ -81,18 +81,6 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
-# ====== tests for debug build ======
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    aux_source_directory(${PROJECT_SOURCE_DIR}/src/test TEST_SRCS)
-    add_executable(tan_tests ${TEST_SRCS})
-    target_include_directories(tan_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(tan_tests tan gtest_main ${DEP_LIBS})
-    set_other_options(tan_tests)
-    add_test(NAME cmake_reader_test COMMAND tan_tests WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/src/test)
-    enable_testing()
-endif ()
-
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
@@ -104,10 +92,13 @@ if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16")
 endif ()
 
 # ===== target CLI compiler =====
-set(CLI_SRCS ${PROJECT_SOURCE_DIR}/src/cli/tanc.cpp)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${CLI_SRCS})
 target_link_libraries(tanc tan pthread gflags::gflags ${DEP_LIBS})
 set_other_options(tanc)
 
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
+
+# ===== target test =====
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)

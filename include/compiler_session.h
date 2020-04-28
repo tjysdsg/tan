@@ -20,7 +20,7 @@ public:
   CompilerSession(const CompilerSession &) = delete;
   CompilerSession() = delete;
   CompilerSession(const std::string &module_name, TargetMachine *target_machine);
-  ~CompilerSession() = default;
+  ~CompilerSession();
 
 public:
   std::shared_ptr<Scope> get_current_scope();

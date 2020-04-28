@@ -4,6 +4,7 @@
 #include "linker.h"
 #include "parser.h"
 #include "base.h"
+#include "src/llvm_include.h"
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -82,5 +83,6 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
       std::cerr << "Error linking files\n";
     }
   }
+  llvm::llvm_shutdown();
   return true;
 }
