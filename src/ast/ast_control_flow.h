@@ -16,7 +16,7 @@ public:
 
   Value *codegen(CompilerSession *compiler_session) override;
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 
 public:
   bool _has_else = false;
@@ -35,7 +35,7 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 };
 
 } // namespace tanlang

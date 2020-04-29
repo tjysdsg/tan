@@ -25,8 +25,8 @@ public:
   bool is_lvalue() const override;
 
 protected:
-  size_t nud(Parser *parser) override;
-  size_t _nud(Parser *parser);
+  size_t nud() override;
+  size_t _nud();
 
 public:
   bool _has_initial_val = false;

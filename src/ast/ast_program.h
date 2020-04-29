@@ -10,7 +10,7 @@ public:
   llvm::Value *codegen(tanlang::CompilerSession *compiler_session) override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 };
 
 } // namespace tanlang

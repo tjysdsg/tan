@@ -309,28 +309,28 @@ std::unordered_map<std::string, Ty>
 
 /// current token should be "[" when this is called
 /// this will set _type_name
-size_t ASTTy::nud_array(Parser *parser) {
+size_t ASTTy::nud_array() {
   _end_index = _start_index + 1; /// skip "["
   /// element type
-  if (parser->at(_end_index)->value == "]") { /// empty
-    report_code_error(parser->at(_end_index), "The array type and size must be specified");
+  if (_parser->at(_end_index)->value == "]") { /// empty
+    report_code_error(_parser->at(_end_index), "The array type and size must be specified");
   } else {
-    auto child = std::make_shared<ASTTy>(parser->at(_end_index), _end_index);
-    _end_index = child->parse(parser); /// this set the _type_name of child
+    auto child = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
+    _end_index = child->parse(_parser); /// this set the _type_name of child
     _children.push_back(child);
     _type_name = child->_type_name;
   }
-  parser->peek(_end_index, TokenType::PUNCTUATION, ",");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, ",");
   ++_end_index; /// skip ","
 
   /// size
-  auto size = parser->peek(_end_index);
+  auto size = _parser->peek(_end_index);
   if (size->_type != ASTType::NUM_LITERAL) {
-    report_code_error(parser->at(_end_index), "Expect an unsigned integer");
+    report_code_error(_parser->at(_end_index), "Expect an unsigned integer");
   }
   auto size1 = ast_cast<ASTNumberLiteral>(size);
   if (size1->is_float() || size1->_ivalue < 0) {
-    report_code_error(parser->at(_end_index), "Expect an unsigned integer");
+    report_code_error(_parser->at(_end_index), "Expect an unsigned integer");
   }
   _n_elements = static_cast<size_t>(size1->_ivalue);
   /// set _type_name to [<element type>, <n_elements>]
@@ -339,11 +339,11 @@ size_t ASTTy::nud_array(Parser *parser) {
   return _end_index;
 }
 
-size_t ASTTy::nud(Parser *parser) {
+size_t ASTTy::nud() {
   _end_index = _start_index;
   Token *token = nullptr;
-  while (!parser->eof(_end_index)) {
-    token = parser->at(_end_index);
+  while (!_parser->eof(_end_index)) {
+    token = _parser->at(_end_index);
     if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
       _ty = TY_OR(_ty, basic_tys[token->value]);
       _type_name += token->value; /// just append the type name for basic types and qualifiers
@@ -366,7 +366,7 @@ size_t ASTTy::nud(Parser *parser) {
       _ty = TY_OR(_ty, Ty::STRUCT);
     } else if (token->value == "[") {
       _ty = TY_OR(_ty, Ty::ARRAY);
-      _end_index = nud_array(parser); /// set _type_name in nud_array()
+      _end_index = nud_array(); /// set _type_name in nud_array()
     } else { break; }
     ++_end_index;
   }

@@ -52,32 +52,32 @@ Value *ASTElse::codegen(CompilerSession *compiler_session) {
   return _children[0]->codegen(compiler_session);
 }
 
-size_t ASTIf::nud(tanlang::Parser *parser) {
+size_t ASTIf::nud() {
   _end_index = _start_index + 1; /// skip "if"
   /// condition
-  auto condition = parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-  _end_index = condition->parse(parser);
+  auto condition = _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+  _end_index = condition->parse(_parser);
   _children.push_back(condition);
   /// if clause
-  auto if_clause = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-  _end_index = if_clause->parse(parser);
+  auto if_clause = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+  _end_index = if_clause->parse(_parser);
   _children.push_back(if_clause);
 
   /// else clause, if any
-  auto *token = parser->at(_end_index);
+  auto *token = _parser->at(_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
-    auto else_clause = parser->peek(_end_index);
-    _end_index = else_clause->parse(parser);
+    auto else_clause = _parser->peek(_end_index);
+    _end_index = else_clause->parse(_parser);
     _children.push_back(else_clause);
     _has_else = true;
   }
   return _end_index;
 }
 
-size_t ASTElse::nud(tanlang::Parser *parser) {
+size_t ASTElse::nud() {
   _end_index = _start_index + 1; /// skip "else"
-  auto else_clause = parser->peek(_end_index);
-  _end_index = else_clause->parse(parser);
+  auto else_clause = _parser->peek(_end_index);
+  _end_index = else_clause->parse(_parser);
   _children.push_back(else_clause);
   return _end_index;
 }

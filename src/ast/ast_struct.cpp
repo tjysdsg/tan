@@ -6,19 +6,19 @@
 
 namespace tanlang {
 
-size_t ASTStruct::nud(Parser *parser) {
-  auto *compiler_session = Compiler::GetCompilerSession(parser->get_filename());
+size_t ASTStruct::nud() {
+  auto *compiler_session = Compiler::GetCompilerSession(_parser->get_filename());
   _end_index = _start_index + 1; /// skip "struct"
   /// struct typename
-  auto id = parser->parse<ASTType::ID>(_end_index, true);
+  auto id = _parser->parse<ASTType::ID>(_end_index, true);
   assert(id->is_named());
   _type_name = id->get_name();
   _children.push_back(id);
   compiler_session->add(id->get_name(), this->shared_from_this()); /// add self to current scope
 
   /// struct body
-  auto comp_statements = parser->peek(_end_index);
-  _end_index = comp_statements->parse(parser); // TODO: parse forward declaration
+  auto comp_statements = _parser->peek(_end_index);
+  _end_index = comp_statements->parse(_parser); // TODO: parse forward declaration
   _children.insert(_children.begin() + 1, comp_statements->_children.begin(), comp_statements->_children.end());
 
   /// resolve members

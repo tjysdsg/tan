@@ -19,7 +19,7 @@ public:
   std::string get_string() const;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 
 private:
   std::string _svalue;

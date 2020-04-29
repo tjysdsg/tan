@@ -47,28 +47,24 @@ ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
 
 size_t ASTNode::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
   _parser = parser;
-  auto ret = this->led(left, parser);
+  auto ret = this->led(left);
   _parsed = true;
   return ret;
 }
 
 size_t ASTNode::parse(Parser *parser) {
   _parser = parser;
-  auto ret = this->nud(parser);
+  auto ret = this->nud();
   _parsed = true;
   return ret;
 }
 
-size_t ASTNode::led(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTNode::led(const ASTNodePtr &left) {
   UNUSED(left);
-  UNUSED(parser);
   throw std::runtime_error("Not implemented");
 }
 
-size_t ASTNode::nud(Parser *parser) {
-  UNUSED(parser);
-  throw std::runtime_error("Not implemented");
-}
+size_t ASTNode::nud() { throw std::runtime_error("Not implemented"); }
 
 Value *ASTNode::codegen(CompilerSession *compiler_session) {
   if (_children.empty()) { return nullptr; }

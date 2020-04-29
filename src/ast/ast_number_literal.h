@@ -28,7 +28,7 @@ public:
   std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 
 private:
   bool _is_float = false;

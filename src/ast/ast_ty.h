@@ -78,8 +78,8 @@ public:
   Ty _ty = Ty::INVALID;
 
 private:
-  size_t nud_array(Parser *parser);
-  size_t nud(Parser *parser) override;
+  size_t nud_array();
+  size_t nud() override;
   void resolve();
 
 private:

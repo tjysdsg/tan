@@ -11,7 +11,7 @@ public:
   Value *codegen(CompilerSession *compiler_session) override;
 
 protected:
-  size_t nud(Parser *parser) override; ///< special case for parsing unary plus and minus
+  size_t nud() override; ///< special case for parsing unary plus and minus
 };
 
 } // namespace tanlang

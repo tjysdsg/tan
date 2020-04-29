@@ -27,9 +27,8 @@ ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType
   _name = token->value;
 }
 
-size_t ASTIdentifier::nud(Parser *parser) {
+size_t ASTIdentifier::nud() {
   _end_index = _start_index + 1;
-  UNUSED(parser);
   return _end_index;
 }
 

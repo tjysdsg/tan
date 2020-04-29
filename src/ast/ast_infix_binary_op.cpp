@@ -4,15 +4,12 @@
 
 namespace tanlang {
 
-size_t ASTInfixBinaryOp::led(const ASTNodePtr &left, Parser *parser) {
+size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip operator
   _children.emplace_back(left); /// lhs
-  auto n = parser->next_expression(_end_index, _lbp);
-  if (!n) {
-    report_code_error(_token, "Unexpected token");
-  } else {
-    _children.emplace_back(n);
-  }
+  auto n = _parser->next_expression(_end_index, _lbp);
+  if (!n) { report_code_error(_token, "Unexpected token"); }
+  else { _children.emplace_back(n); }
   _dominant_idx = this->get_dominant_idx();
   return _end_index;
 }

@@ -124,8 +124,8 @@ public:
   std::string get_src() const;
 
 protected:
-  [[nodiscard]] virtual size_t led(const ASTNodePtr &left, Parser *parser);
-  [[nodiscard]] virtual size_t nud(Parser *parser);
+  [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
+  [[nodiscard]] virtual size_t nud();
 
 private:
   void printTree(const std::string &prefix, bool last_child) const;

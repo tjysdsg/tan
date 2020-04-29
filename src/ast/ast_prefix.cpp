@@ -33,9 +33,9 @@ bool ASTPrefix::is_lvalue() const { return false; }
 
 bool ASTPrefix::is_typed() const { return true; }
 
-size_t ASTPrefix::nud(Parser *parser) {
+size_t ASTPrefix::nud() {
   _end_index = _start_index + 1; /// skip self
-  _children.push_back(parser->next_expression(_end_index, _lbp));
+  _children.push_back(_parser->next_expression(_end_index, _lbp));
   return _end_index;
 }
 

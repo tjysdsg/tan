@@ -17,7 +17,7 @@ public:
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 };
 
 } // namespace tanlang

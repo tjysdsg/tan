@@ -38,10 +38,10 @@ ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryO
   _lbp = op_precedence[_type];
 }
 
-size_t ASTAssignment::led(const ASTNodePtr &left, Parser *parser) {
+size_t ASTAssignment::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip "="
   _children.push_back(left);
-  _children.push_back(parser->next_expression(_end_index, 0));
+  _children.push_back(_parser->next_expression(_end_index, 0));
   return _end_index;
 }
 

@@ -41,13 +41,13 @@ Value *ASTImport::codegen(CompilerSession *cm) {
   return nullptr;
 }
 
-size_t ASTImport::nud(Parser *parser) {
+size_t ASTImport::nud() {
   _end_index = _start_index + 1; /// skip "import"
-  auto rhs = parser->peek(_end_index);
+  auto rhs = _parser->peek(_end_index);
   if (rhs->_type != ASTType::STRING_LITERAL) {
     report_code_error(_token, "Invalid import statement");
   }
-  _end_index = rhs->parse(parser);
+  _end_index = rhs->parse(_parser);
   _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
   return _end_index;
 }

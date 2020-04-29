@@ -27,10 +27,10 @@ Value *ASTCast::codegen(CompilerSession *cm) {
   return ret;
 }
 
-size_t ASTCast::led(const ASTNodePtr &left, Parser *parser) {
+size_t ASTCast::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip operator
   _children.emplace_back(left); /// lhs
-  auto ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
+  auto ty = ast_cast<ASTTy>(_parser->parse<ASTType::TY>(_end_index, true));
   _children.push_back(ty);
   _dominant_idx = this->get_dominant_idx();
   return _end_index;

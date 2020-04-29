@@ -34,7 +34,7 @@ public:
   void set_func(Function *f);
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 
 private:
   bool _is_external = false;
@@ -61,7 +61,7 @@ public:
   std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
   ASTFunctionPtr get_callee() const;
 
 public:

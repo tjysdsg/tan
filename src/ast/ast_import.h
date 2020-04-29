@@ -11,7 +11,7 @@ public:
   Value *codegen(CompilerSession *cm) override;
   std::string to_string(bool print_prefix = true) const override;
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
   std::string _file = "";
 };
 

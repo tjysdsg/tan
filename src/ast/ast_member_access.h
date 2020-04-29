@@ -17,7 +17,7 @@ public:
   std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
-  size_t led(const ASTNodePtr &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left) override;
 
 private:
   enum MemberAccessType {

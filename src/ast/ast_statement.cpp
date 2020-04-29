@@ -17,27 +17,27 @@ ASTStatement::ASTStatement(Token *token, size_t token_index) : ASTNode(ASTType::
     token,
     token_index) {}
 
-size_t ASTStatement::nud(Parser *parser) {
+size_t ASTStatement::nud() {
   _end_index = _start_index;
   if (_is_compound) { /// compound statement
     ++_end_index; /// skip "{"
-    while (!parser->eof(_end_index)) {
-      auto node = parser->peek(_end_index);
+    while (!_parser->eof(_end_index)) {
+      auto node = _parser->peek(_end_index);
       while (node) { /// stops at a terminal token
-        _children.push_back(parser->next_expression(_end_index, 0));
-        node = parser->peek(_end_index);
+        _children.push_back(_parser->next_expression(_end_index, 0));
+        node = _parser->peek(_end_index);
       }
-      if (parser->at(_end_index)->value == "}") {
+      if (_parser->at(_end_index)->value == "}") {
         ++_end_index; /// skip "}"
         break;
       }
       ++_end_index;
     }
   } else { /// single statement
-    auto node = parser->peek(_end_index);
+    auto node = _parser->peek(_end_index);
     while (node) { /// stops at a terminal token
-      _children.push_back(parser->next_expression(_end_index, 0));
-      node = parser->peek(_end_index);
+      _children.push_back(_parser->next_expression(_end_index, 0));
+      node = _parser->peek(_end_index);
     }
     ++_end_index; /// skip terminal token
   }

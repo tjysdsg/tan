@@ -6,9 +6,9 @@ ASTArgDecl::ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, tok
   _type = ASTType::ARG_DECL;
 }
 
-size_t ASTArgDecl::nud(Parser *parser) {
+size_t ASTArgDecl::nud() {
   _end_index = _start_index;
-  return _nud(parser);
+  return _nud();
 }
 
 } // namespace tanlang

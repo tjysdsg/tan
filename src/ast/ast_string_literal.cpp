@@ -34,8 +34,7 @@ ASTStringLiteral::ASTStringLiteral(std::string str, size_t token_index) : ASTLit
     nullptr,
     token_index) { _svalue = str; }
 
-size_t ASTStringLiteral::nud(Parser *parser) {
-  UNUSED(parser);
+size_t ASTStringLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
   return _end_index;
 }

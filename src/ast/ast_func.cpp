@@ -198,15 +198,15 @@ Function *ASTFunction::get_func() const { return _func; }
 
 void ASTFunction::set_func(Function *f) { _func = f; }
 
-size_t ASTFunction::nud(Parser *parser) {
-  if (parser->at(_start_index)->value == "fn") {
+size_t ASTFunction::nud() {
+  if (_parser->at(_start_index)->value == "fn") {
     /// skip "fn"
     _end_index = _start_index + 1;
-  } else if (parser->at(_start_index)->value == "pub") {
+  } else if (_parser->at(_start_index)->value == "pub") {
     _is_public = true;
     /// skip "pub fn"
     _end_index = _start_index + 2;
-  } else if (parser->at(_start_index)->value == "extern") {
+  } else if (_parser->at(_start_index)->value == "extern") {
     _is_external = true;
     /// skip "pub fn"
     _end_index = _start_index + 2;
@@ -215,10 +215,10 @@ size_t ASTFunction::nud(Parser *parser) {
   /// function return type, set later
   _children.push_back(nullptr);
   /// function name
-  _children.push_back(parser->parse<ASTType::ID>(_end_index, true));
+  _children.push_back(_parser->parse<ASTType::ID>(_end_index, true));
 
   /// add self to function table
-  auto *cm = Compiler::GetCompilerSession(parser->get_filename());
+  auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
   if (_is_public || _is_external) {
     CompilerSession::AddPublicFunction(_parser->get_filename(), this->shared_from_this());
   }
@@ -228,28 +228,28 @@ size_t ASTFunction::nud(Parser *parser) {
   if (!_is_external) { _scope = cm->push_scope(); } else { _scope = cm->get_current_scope(); }
 
   /// arguments
-  parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
   ++_end_index;
-  if (parser->at(_end_index)->value != ")") {
-    while (!parser->eof(_end_index)) {
-      ASTNodePtr arg = std::make_shared<ASTArgDecl>(parser->at(_end_index), _end_index);
-      _end_index = arg->parse(parser); /// this will add args to the current scope
+  if (_parser->at(_end_index)->value != ")") {
+    while (!_parser->eof(_end_index)) {
+      ASTNodePtr arg = std::make_shared<ASTArgDecl>(_parser->at(_end_index), _end_index);
+      _end_index = arg->parse(_parser); /// this will add args to the current scope
       _children.push_back(arg);
-      if (parser->at(_end_index)->value == ",") {
+      if (_parser->at(_end_index)->value == ",") {
         ++_end_index;
       } else { break; }
     }
   }
-  parser->peek(_end_index, TokenType::PUNCTUATION, ")");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
   ++_end_index;
-  parser->peek(_end_index, TokenType::PUNCTUATION, ":");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, ":");
   ++_end_index;
-  _children[0] = parser->parse<ASTType::TY>(_end_index, true); /// return type
+  _children[0] = _parser->parse<ASTType::TY>(_end_index, true); /// return type
 
   /// body
   if (!_is_external) {
-    auto body = parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-    _end_index = body->parse(parser);
+    auto body = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+    _end_index = body->parse(_parser);
     _children.push_back(body);
     cm->pop_scope();
   }
@@ -260,21 +260,21 @@ bool ASTFunction::is_named() const { return true; }
 
 bool ASTFunction::is_typed() const { return true; }
 
-size_t ASTFunctionCall::nud(Parser *parser) {
+size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
   _end_index = _start_index + 1; /// skip function name
-  auto *token = parser->at(_end_index);
+  auto *token = _parser->at(_end_index);
   if (token->value != "(") {
     report_code_error(token, "Invalid function call");
   }
   ++_end_index;
-  while (!parser->eof(_end_index)) {
-    _children.push_back(parser->next_expression(_end_index));
-    if (parser->at(_end_index)->value == ",") { /// skip ,
+  while (!_parser->eof(_end_index)) {
+    _children.push_back(_parser->next_expression(_end_index));
+    if (_parser->at(_end_index)->value == ",") { /// skip ,
       ++_end_index;
     } else { break; }
   }
-  parser->peek(_end_index, TokenType::PUNCTUATION, ")");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
   ++_end_index;
   return _end_index;
 }

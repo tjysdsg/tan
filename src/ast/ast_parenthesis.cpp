@@ -14,17 +14,17 @@ Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
   return result;
 }
 
-size_t ASTParenthesis::nud(Parser *parser) {
+size_t ASTParenthesis::nud() {
   _end_index = _start_index + 1; /// skip (
   while (true) {
-    auto *t = parser->at(_end_index);
+    auto *t = _parser->at(_end_index);
     if (!t) {
       throw std::runtime_error("Unexpected EOF");
     } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
       ++_end_index;
       break;
     }
-    auto n = parser->next_expression(_end_index, PREC_LOWEST);
+    auto n = _parser->next_expression(_end_index, PREC_LOWEST);
     if (n) {
       _children.push_back(n);
     } else {

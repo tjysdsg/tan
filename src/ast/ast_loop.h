@@ -16,7 +16,7 @@ public:
 
   Value *codegen(CompilerSession *compiler_session) override;
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
   ASTLoopType _loop_type = ASTLoopType::WHILE;
 };
 

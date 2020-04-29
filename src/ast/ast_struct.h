@@ -23,7 +23,7 @@ public:
   bool is_typed() const override;
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
   llvm::Type *_llvm_type = nullptr;
   std::unordered_map<std::string, size_t> _member_indices{};
 

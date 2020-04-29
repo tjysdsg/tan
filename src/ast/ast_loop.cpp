@@ -46,11 +46,11 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
   return nullptr;
 }
 
-size_t ASTLoop::nud(tanlang::Parser *parser) {
-  if (parser->at(_start_index)->value == "for") {
+size_t ASTLoop::nud() {
+  if (_parser->at(_start_index)->value == "for") {
     _loop_type = ASTLoopType::FOR;
     assert(false);
-  } else if (parser->at(_start_index)->value == "while") {
+  } else if (_parser->at(_start_index)->value == "while") {
     _loop_type = ASTLoopType::WHILE;
   } else {
     assert(false);
@@ -58,10 +58,10 @@ size_t ASTLoop::nud(tanlang::Parser *parser) {
   _end_index = _start_index + 1; /// skip 'while'/'for'/...
   switch (_loop_type) {
     case ASTLoopType::WHILE:
-      parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-      _children.push_back(parser->next_expression(_end_index)); /// condition
-      parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-      _children.push_back(parser->next_expression(_end_index)); /// loop body
+      _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
+      _children.push_back(_parser->next_expression(_end_index)); /// condition
+      _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
+      _children.push_back(_parser->next_expression(_end_index)); /// loop body
       break;
     case ASTLoopType::FOR:
       assert(false);

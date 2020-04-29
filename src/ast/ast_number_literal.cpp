@@ -13,9 +13,8 @@ Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
   return _llvm_value;
 }
 
-size_t ASTNumberLiteral::nud(Parser *parser) {
+size_t ASTNumberLiteral::nud() {
   _end_index = _start_index + 1;
-  UNUSED(parser);
   return _end_index;
 }
 

@@ -13,13 +13,13 @@ tanlang::ASTVarDecl::ASTVarDecl(Token *token, size_t token_index) : ASTNode(ASTT
     token,
     token_index) {}
 
-size_t tanlang::ASTVarDecl::_nud(Parser *parser) {
-  _children.push_back(parser->parse<ASTType::ID>(_end_index, true)); /// name
+size_t tanlang::ASTVarDecl::_nud() {
+  _children.push_back(_parser->parse<ASTType::ID>(_end_index, true)); /// name
   // TODO: type inference for variable declarations
-  parser->peek(_end_index, TokenType::PUNCTUATION, ":");
+  _parser->peek(_end_index, TokenType::PUNCTUATION, ":");
   ++_end_index;
   /// type
-  _ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
+  _ty = ast_cast<ASTTy>(_parser->parse<ASTType::TY>(_end_index, true));
   _ty->set_is_lvalue(true);
   _children.push_back(_ty);
   auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
@@ -27,9 +27,9 @@ size_t tanlang::ASTVarDecl::_nud(Parser *parser) {
   return _end_index;
 }
 
-size_t ASTVarDecl::nud(Parser *parser) {
+size_t ASTVarDecl::nud() {
   _end_index = _start_index + 1; /// skip "var"
-  return _nud(parser);
+  return _nud();
 }
 
 Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {

@@ -11,7 +11,7 @@ public:
   ASTStatement(bool is_compound, Token *token, size_t token_index);
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 
 public:
   bool _is_compound = false;

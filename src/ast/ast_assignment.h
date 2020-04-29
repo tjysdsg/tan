@@ -11,7 +11,7 @@ public:
 
 protected:
   size_t get_dominant_idx() const override;
-  size_t led(const ASTNodePtr &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left) override;
 };
 
 } // namespace tanlang

@@ -79,22 +79,22 @@ std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
   return ret;
 }
 
-size_t ASTArrayLiteral::nud(Parser *parser) {
+size_t ASTArrayLiteral::nud() {
   _end_index = _start_index + 1; /// skip '['
-  if (parser->at(_end_index)->value == "]") { /// empty array
+  if (_parser->at(_end_index)->value == "]") { /// empty array
     ++_end_index;
     return _end_index;
   }
   ASTType element_type = ASTType::INVALID;
-  while (!parser->eof(_end_index)) {
-    if (parser->at(_end_index)->value == ",") {
+  while (!_parser->eof(_end_index)) {
+    if (_parser->at(_end_index)->value == ",") {
       ++_end_index;
       continue;
-    } else if (parser->at(_end_index)->value == "]") {
+    } else if (_parser->at(_end_index)->value == "]") {
       ++_end_index;
       break;
     }
-    auto node = parser->peek(_end_index);
+    auto node = _parser->peek(_end_index);
     if (!node) { report_code_error(_token, "Unexpected token"); }
     /// check whether element types are the same
     if (element_type == ASTType::INVALID) {
@@ -106,7 +106,7 @@ size_t ASTArrayLiteral::nud(Parser *parser) {
     }
     if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
-      _end_index = node->parse(parser);
+      _end_index = node->parse(_parser);
       _children.push_back(node);
     } else {
       report_code_error(_token, "Expect literals");

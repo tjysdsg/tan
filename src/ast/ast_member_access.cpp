@@ -41,13 +41,13 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
   return ret;
 }
 
-size_t ASTMemberAccess::led(const ASTNodePtr &left, Parser *parser) {
+size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip "." or "["
   _children.push_back(left); /// lhs
   assert(left->is_typed());
-  if (parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
-  auto member_name = parser->peek(_end_index);
-  _end_index = member_name->parse(parser);
+  if (_parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
+  auto member_name = _parser->peek(_end_index);
+  _end_index = member_name->parse(_parser);
   _children.push_back(member_name);
 
   ASTNodePtr lhs = left;

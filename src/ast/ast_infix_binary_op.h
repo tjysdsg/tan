@@ -19,7 +19,7 @@ public:
 
 protected:
   virtual size_t get_dominant_idx() const;
-  size_t led(const ASTNodePtr &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left) override;
   size_t _dominant_idx = 0;
 };
 

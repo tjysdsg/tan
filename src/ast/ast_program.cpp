@@ -17,10 +17,10 @@ llvm::Value *ASTProgram::codegen(tanlang::CompilerSession *compiler_session) {
   return nullptr;
 }
 
-size_t ASTProgram::nud(Parser *parser) {
+size_t ASTProgram::nud() {
   _end_index = _start_index;
-  while (!parser->eof(_end_index)) {
-    _children.push_back(parser->parse<tanlang::ASTType::STATEMENT>(_end_index, true));
+  while (!_parser->eof(_end_index)) {
+    _children.push_back(_parser->parse<tanlang::ASTType::STATEMENT>(_end_index, true));
   }
   return _end_index;
 }

@@ -67,11 +67,11 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
 }
 
 /// special case for parsing negative number
-size_t ASTArithmetic::nud(Parser *parser) {
+size_t ASTArithmetic::nud() {
   _end_index = _start_index + 1; /// skip "-" or "+"
   /// unary plus/minus has higher precedence than infix plus/minus
   _rbp = PREC_UNARY;
-  _children.push_back(parser->next_expression(_end_index, PREC_UNARY));
+  _children.push_back(_parser->next_expression(_end_index, PREC_UNARY));
   return _end_index;
 }
 

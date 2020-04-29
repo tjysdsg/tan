@@ -17,7 +17,7 @@ public:
   llvm::Type *to_llvm_type(CompilerSession *) const override;
 
 protected:
-  size_t led(const ASTNodePtr &left, Parser *parser) override;
+  size_t led(const ASTNodePtr &left) override;
   size_t get_dominant_idx() const override;
 };
 

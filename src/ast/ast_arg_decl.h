@@ -12,7 +12,7 @@ public:
   ASTArgDecl(Token *token, size_t token_index);
 
 protected:
-  size_t nud(Parser *parser) override;
+  size_t nud() override;
 };
 
 } // namespace tanlang
