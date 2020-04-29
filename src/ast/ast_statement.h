@@ -4,15 +4,6 @@
 
 namespace tanlang {
 
-class ASTProgram final : public ASTNode {
-public:
-  ASTProgram();
-  Value *codegen(CompilerSession *compiler_session) override;
-
-protected:
-  size_t nud(Parser *parser) override;
-};
-
 class ASTStatement final : public ASTNode {
 public:
   ASTStatement() = delete;

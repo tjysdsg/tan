@@ -19,6 +19,7 @@
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_return.h"
 #include "src/ast/ast_struct.h"
+#include "src/ast/ast_program.h"
 #include "intrinsic.h"
 #include <memory>
 
@@ -168,9 +169,7 @@ ASTNodePtr Parser::parse() {
 }
 
 Token *Parser::at(const size_t idx) const {
-  if (this->eof(idx)) {
-    throw std::runtime_error("Unexpected EOF"); // TODO: better error
-  }
+  if (this->eof(idx)) { throw std::runtime_error("Unexpected EOF"); }
   return _tokens[idx];
 }
 
