@@ -115,23 +115,21 @@ void Intrinsic::determine_type() {
   }
 }
 
-size_t Intrinsic::parse(Parser *parser) {
-  _parser = parser;
+size_t Intrinsic::nud() {
   determine_type();
   if (_children.size() >= 1) {
     assert(_children.size() == 1);
-    _end_index = _children[0]->parse(parser);
+    _end_index = _children[0]->parse(_parser);
   } else {
     _end_index = _start_index + 1;
   }
   return _end_index;
 }
 
-size_t Intrinsic::parse(const ASTNodePtr &left, Parser *parser) {
-  _parser = parser;
+size_t Intrinsic::led(const ASTNodePtr &left) {
   determine_type();
   if (_children.size() >= 1) {
-    _end_index = _children[0]->parse(left, parser);
+    _end_index = _children[0]->parse(left, _parser);
   } else {
     _end_index = _start_index + 1;
   }

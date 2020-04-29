@@ -46,8 +46,8 @@ public:
 public:
   Intrinsic() = delete;
   Intrinsic(Token *token, size_t token_index);
-  size_t parse(const std::shared_ptr<ASTNode> &left, Parser *parser) override;
-  size_t parse(Parser *parser) override;
+  size_t led(const ASTNodePtr &left) override;
+  size_t nud() override;
   std::string to_string(bool print_prefix = true) const override;
   llvm::Value *codegen(CompilerSession *compiler_session) override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
