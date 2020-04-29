@@ -4,11 +4,10 @@
 #include "src/ast/ast_string_literal.h"
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_identifier.h"
+#include "stack_trace.h"
 
 namespace tanlang {
 
-llvm::Value *Intrinsic::stack_trace = nullptr;
-llvm::Type *Intrinsic::stack_trace_t = nullptr;
 bool Intrinsic::assert_initialized = false;
 
 std::unordered_map<std::string, IntrinsicType>
@@ -23,13 +22,11 @@ std::unordered_map<std::string, IntrinsicType>
 
 static void init_noop(CompilerSession *compiler_session);
 static void init_assert(CompilerSession *compiler_session);
-static void init_stack_trace(CompilerSession *compiler_session);
-static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session);
 
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *compiler_session) {
   init_noop(compiler_session);
-  init_stack_trace(compiler_session);
+  init_stack_trace_intrinsic(compiler_session);
   init_assert(compiler_session);
 }
 
@@ -232,43 +229,9 @@ static void init_noop(CompilerSession *compiler_session) {
   }
 }
 
-static void init_stack_trace(CompilerSession *compiler_session) {
-  StructType *st_t = get_stack_trace_type(compiler_session);
-  /// a global pointer to an array of StackTrace
-  GlobalVariable *st = new GlobalVariable(*compiler_session->get_module(),
-      st_t->getPointerTo(),
-      false,
-      GlobalValue::ExternalWeakLinkage,
-      nullptr,
-      "st");
-  st->setExternallyInitialized(true);
-  Intrinsic::stack_trace = st;
-}
-
-static StructType *get_stack_trace_type(CompilerSession *compiler_session) {
-  if (Intrinsic::stack_trace_t) { return (StructType *) Intrinsic::stack_trace_t; }
-  llvm::StructType *struct_type = llvm::StructType::create(*compiler_session->get_context(), "StackTrace");
-  struct_type->setBody(compiler_session->get_builder()->getInt8PtrTy(),
-      compiler_session->get_builder()->getInt8PtrTy(),
-      compiler_session->get_builder()->getInt32Ty());
-  Intrinsic::stack_trace_t = struct_type;
-  return struct_type;
-}
-
-void Intrinsic::RuntimeInit(CompilerSession *compiler_session) {
-  /// stack trace in main function
-  auto *st_t = Intrinsic::stack_trace_t;
-  auto *init = ConstantPointerNull::get(st_t->getPointerTo());
-  {
-    GlobalVariable *tmp = compiler_session->get_module()->getNamedGlobal("st");
-    assert(tmp);
-    tmp->setExternallyInitialized(false);
-    tmp->setInitializer(init);
-    Intrinsic::stack_trace = tmp;
-  }
-  auto *int_t = compiler_session->get_builder()->getInt32Ty();
-  Value *st = compiler_session->get_builder()->CreateAlloca(st_t, ConstantInt::get(int_t, MAX_N_FUNCTION_CALLS, false));
-  compiler_session->get_builder()->CreateStore(st, Intrinsic::stack_trace);
+void Intrinsic::RuntimeInit(CompilerSession *cm) {
+  /// stack trace
+  runtime_init_stack_trace(cm);
 }
 
 llvm::Value *Intrinsic::get_llvm_value(CompilerSession *) const { return _llvm_value; }

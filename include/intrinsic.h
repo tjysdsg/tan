@@ -35,8 +35,6 @@ enum class IntrinsicType {
 
 class Intrinsic : public ASTNode {
 public:
-  static llvm::Value *stack_trace;
-  static llvm::Type *stack_trace_t;
   static bool assert_initialized;
 
 public:
