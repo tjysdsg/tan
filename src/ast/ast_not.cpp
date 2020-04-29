@@ -4,23 +4,25 @@
 
 namespace tanlang {
 
-Value *ASTBinaryNot::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
-  auto *rhs = _children[0]->codegen(compiler_session);
-  if (_children[0]->is_lvalue()) {
-    rhs = compiler_session->get_builder()->CreateLoad(rhs);
-  }
-  return compiler_session->get_builder()->CreateNot(rhs);
+ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
+  if (token->value == "!") { _type = ASTType::LNOT; }
+  else if (token->value == "~") { _type = ASTType::BNOT; }
+  else { assert(false); }
+  _lbp = op_precedence[_type];
 }
 
-Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
+Value *ASTNot::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(compiler_session);
   if (_children[0]->is_lvalue()) {
     rhs = compiler_session->get_builder()->CreateLoad(rhs);
   }
-  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
+  if (_type == ASTType::BNOT) {
+    return compiler_session->get_builder()->CreateNot(rhs);
+  }
+  assert(_type == ASTType::LNOT);
   /// get value size in bits
+  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
   if (rhs->getType()->isFloatingPointTy()) {
     return compiler_session->get_builder()
         ->CreateFCmpOEQ(rhs, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
@@ -29,16 +31,6 @@ Value *ASTLogicalNot::codegen(CompilerSession *compiler_session) {
         ->CreateICmpEQ(rhs,
             ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) size_in_bits), 0, false));
   }
-}
-
-ASTLogicalNot::ASTLogicalNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  _type = ASTType::LNOT;
-  _lbp = op_precedence[_type];
-}
-
-ASTBinaryNot::ASTBinaryNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  _type = ASTType::BNOT;
-  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang

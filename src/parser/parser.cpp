@@ -82,10 +82,8 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTArithmetic>(ASTType::DIVIDE, token, index);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTAssignment>(token, index);
-  } else if (token->value == "!" && token->type == TokenType::UOP) {
-    node = std::make_shared<ASTLogicalNot>(token, index);
-  } else if (token->value == "~" && token->type == TokenType::UOP) {
-    node = std::make_shared<ASTBinaryNot>(token, index);
+  } else if (token->value == "!" || token->value == "~") {
+    node = std::make_shared<ASTNot>(token, index);
   } else if (token->value == "[") {
     auto prev = this->at(index - 1);
     if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
