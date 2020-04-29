@@ -12,25 +12,24 @@ namespace tanlang {
 
 class CompilerSession;
 
+class ASTTy;
+
+using ASTTyPtr = std::shared_ptr<ASTTy>;
+
 enum class IntrinsicType {
-  ABORT, ASM, SWAP, MEMSET, MEMCPY, RANGE, CAST, COMP_PRINT, /// compile-time print
+  ABORT, ASM, SWAP, MEMSET, MEMCPY, RANGE, COMP_PRINT, /// compile-time print
   FILENAME, /// name of a source file
   LINENO, /// line number of certain code
   DEFINE, /// macro definition
-  LIKELY, UNLIKELY, NOOP,
-
-  EXPECT,
+  LIKELY, UNLIKELY, NOOP, EXPECT,
 
   // type support
-
   SIZE_OF, OFFSET_OF, ALIGN_OF, ISA,
 
   // numeric support
-
   MIN_OF, MAX_OF, IS_SIGNED,
 
   // others
-
   GET_DECL, STACK_TRACE,
 };
 
@@ -55,6 +54,10 @@ public:
   llvm::Value *codegen(CompilerSession *compiler_session) override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   bool is_lvalue() const override;
+  bool is_typed() const override;
+  std::string get_type_name() const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
   void determine_type();
@@ -65,6 +68,8 @@ protected:
   llvm::Value *_llvm_value = nullptr;
   std::string _str_data = "";
   bool _is_lvalue = false;
+  ASTTyPtr _ty = nullptr;
+  bool _is_typed = true;
 };
 
 } // namespace tanlang

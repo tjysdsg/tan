@@ -14,12 +14,12 @@ bool Intrinsic::assert_initialized = false;
 std::unordered_map<std::string, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},
-    {"cast", IntrinsicType::CAST}, {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME},
-    {"line", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE}, {"sizeof", IntrinsicType::SIZE_OF},
-    {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA}, {"alignof", IntrinsicType::ALIGN_OF},
-    {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF}, {"is_signed", IntrinsicType::IS_SIGNED},
-    {"unlikely", IntrinsicType::UNLIKELY}, {"likely", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT},
-    {"noop", IntrinsicType::NOOP}, {"get_decl", IntrinsicType::GET_DECL}, {"stack_trace", IntrinsicType::STACK_TRACE}};
+    {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
+    {"define", IntrinsicType::DEFINE}, {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF},
+    {"isa", IntrinsicType::ISA}, {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF},
+    {"max_of", IntrinsicType::MAX_OF}, {"is_signed", IntrinsicType::IS_SIGNED}, {"unlikely", IntrinsicType::UNLIKELY},
+    {"likely", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP},
+    {"get_decl", IntrinsicType::GET_DECL}, {"stack_trace", IntrinsicType::STACK_TRACE}};
 
 static void init_noop(CompilerSession *compiler_session);
 static void init_assert(CompilerSession *compiler_session);
@@ -73,10 +73,9 @@ void Intrinsic::parse_get_decl() {
   _parser->peek(_start_index, TokenType::PUNCTUATION, "(");
   ++_start_index;
   auto input = _parser->next_expression(_start_index);
-  if (input->_type != ASTType::ID) {
-    report_code_error(_token, "Invalid call of @get_decl");
-  }
-  _str_data = ast_cast<ASTIdentifier>(input)->get_name();
+  if (input->_type != ASTType::ID) { report_code_error(_token, "Invalid call of @get_decl"); }
+  assert(input->is_named());
+  _str_data = input->get_name();
   _parser->peek(_start_index, TokenType::PUNCTUATION, ")");
   ++_start_index;
 }
@@ -90,19 +89,25 @@ void Intrinsic::determine_type() {
   ASTNodePtr underlying_ast = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::NOOP:
+      _is_typed = false;
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
+      _ty = nullptr;
       break;
     case IntrinsicType::STACK_TRACE:
+      // TODO: set _ty
       _is_lvalue = true;
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
+      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED));
+      break;
     case IntrinsicType::FILENAME:
+      _ty = ASTTy::Create(Ty::STRING);
       break;
     case IntrinsicType::GET_DECL:
+      _ty = ASTTy::Create(Ty::STRING);
       parse_get_decl();
       break;
-      // TODO: other intrinsics
     default:
       report_code_error(token, "Unknown intrinsic");
   }
@@ -184,7 +189,7 @@ static void init_assert(CompilerSession *compiler_session) {
       Type *ret_type = compiler_session->get_builder()->getVoidTy();
       std::vector<Type *> arg_types{compiler_session->get_builder()->getInt1Ty()};
       FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
-      func = Function::Create(func_t, Function::ExternalWeakLinkage, "assert", compiler_session->get_module().get());
+      func = Function::Create(func_t, Function::ExternalLinkage, "assert", compiler_session->get_module().get());
       /// body
       BasicBlock *main_block = BasicBlock::Create(*compiler_session->get_context(), "func_entry", func);
       compiler_session->get_builder()->SetInsertPoint(main_block);
@@ -240,10 +245,8 @@ static void init_stack_trace(CompilerSession *compiler_session) {
   Intrinsic::stack_trace = st;
 }
 
-static llvm::StructType *get_stack_trace_type(CompilerSession *compiler_session) {
-  // TODO: avoid repeating work
-
-  /// define StackTrace type
+static StructType *get_stack_trace_type(CompilerSession *compiler_session) {
+  if (Intrinsic::stack_trace_t) { return (StructType *) Intrinsic::stack_trace_t; }
   llvm::StructType *struct_type = llvm::StructType::create(*compiler_session->get_context(), "StackTrace");
   struct_type->setBody(compiler_session->get_builder()->getInt8PtrTy(),
       compiler_session->get_builder()->getInt8PtrTy(),
@@ -271,5 +274,25 @@ void Intrinsic::RuntimeInit(CompilerSession *compiler_session) {
 llvm::Value *Intrinsic::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 bool Intrinsic::is_lvalue() const { return _is_lvalue; }
+
+bool Intrinsic::is_typed() const { return _is_typed; }
+
+std::string Intrinsic::get_type_name() const {
+  assert(_is_typed);
+  assert(_ty);
+  return _ty->get_type_name();
+}
+
+llvm::Type *Intrinsic::to_llvm_type(CompilerSession *cm) const {
+  assert(_is_typed);
+  assert(_ty);
+  return _ty->to_llvm_type(cm);
+}
+
+std::shared_ptr<ASTTy> Intrinsic::get_ty() const {
+  assert(_is_typed);
+  assert(_ty);
+  return _ty;
+}
 
 } // namespace tanlang

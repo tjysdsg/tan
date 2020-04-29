@@ -5,9 +5,7 @@
 
 namespace tanlang {
 
-llvm::Value *ASTStringLiteral::get_llvm_value(CompilerSession *) const {
-  return _llvm_value;
-}
+llvm::Value *ASTStringLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 Value *ASTStringLiteral::codegen(CompilerSession *compiler_session) {
   _llvm_type = compiler_session->get_builder()->getInt8PtrTy(); /// str as char*
@@ -15,9 +13,7 @@ Value *ASTStringLiteral::codegen(CompilerSession *compiler_session) {
   return _llvm_value;
 }
 
-std::string ASTStringLiteral::get_type_name() const {
-  return "str";
-}
+std::string ASTStringLiteral::get_type_name() const { return "str"; }
 
 llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
 

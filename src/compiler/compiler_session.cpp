@@ -150,10 +150,11 @@ void CompilerSession::init_llvm() {
 void CompilerSession::emit_object(const std::string &filename) {
   _di_builder->finalize(); /// important: do this before any pass
 
+  /// run function pass on all functions in the current module
   for (auto &f: *_module.get()) { _fpm->run(f); }
   _fpm->doFinalization();
 
-  /// geneate object files
+  /// generate object files
   std::error_code ec;
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
   if (ec) { throw std::runtime_error("Could not open file: " + ec.message()); }

@@ -50,6 +50,12 @@ llvm::Value *convert_to(CompilerSession *compiler_session,
     if (orig->isFloatingPointTy()) {
       return compiler_session->get_builder()
           ->CreateFCmpONE(loaded, ConstantFP::get(compiler_session->get_builder()->getFloatTy(), 0.0f));
+    } else if (orig->isPointerTy()) {
+      s1 = compiler_session->get_ptr_size();
+      loaded = compiler_session->get_builder()
+          ->CreateIntToPtr(loaded, compiler_session->get_builder()->getIntNTy((unsigned) s1));
+      return compiler_session->get_builder()
+          ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) s1), 0, false));
     } else {
       return compiler_session->get_builder()
           ->CreateICmpNE(loaded, ConstantInt::get(compiler_session->get_builder()->getIntNTy((unsigned) s1), 0, false));

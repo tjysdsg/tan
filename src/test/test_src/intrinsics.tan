@@ -6,9 +6,8 @@ pub fn main(argc: int, argv: char**) : int {
     var b: i32 = 1;
     var shit: i32 = !(a == b);
     assert(shit);
-    assert(1);
-    // TODO: assert(@file);
-    // TODO: assert(@line);
+    assert(@file);
+    assert(@line);
     var argc_decl: str = @get_decl(argc);
     print("SUCCESS\n");
     return 0;
