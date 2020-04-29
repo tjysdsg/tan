@@ -7,7 +7,8 @@
 namespace tanlang {
 
 std::unordered_map<std::string, CompilerSession *> Compiler::sessions{};
-std::vector<std::shared_ptr<Compiler>> Compiler::sub_compilers;
+std::vector<std::shared_ptr<Compiler>> Compiler::sub_compilers{};
+TargetMachine *Compiler::default_target_machine = nullptr;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);
@@ -31,7 +32,9 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
   llvm::TargetOptions opt;
   /// relocation model
   auto RM = llvm::Reloc::Model::PIC_;
+  // FIXME: no need to have the same _target_machine for each instance of Compiler
   _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+  if (!Compiler::default_target_machine) { Compiler::default_target_machine = _target_machine; }
   _compiler_session = new CompilerSession(filename, _target_machine);
   Compiler::set_compiler_session(filename, _compiler_session);
 }
@@ -79,6 +82,11 @@ void Compiler::ParseFile(std::string filename) {
   auto compiler = std::make_shared<Compiler>(filename);
   compiler->parse();
   Compiler::sub_compilers.push_back(compiler);
+}
+
+TargetMachine *Compiler::GetDefaultTargetMachine() {
+  assert(Compiler::default_target_machine);
+  return Compiler::default_target_machine;
 }
 
 } // namespace tanlang

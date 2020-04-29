@@ -15,11 +15,13 @@ public:
   static CompilerSession *get_compiler_session(const std::string &filename);
   static void set_compiler_session(const std::string &filename, CompilerSession *compiler_session);
   static void ParseFile(const std::string filename);
+  static TargetMachine *GetDefaultTargetMachine();
 
 private:
   static std::unordered_map<std::string, CompilerSession *> sessions;
   /// created by import statement, used only for parsing
   static std::vector<std::shared_ptr<Compiler>> sub_compilers;
+  static TargetMachine *default_target_machine;
 
 public:
   Compiler() = delete;

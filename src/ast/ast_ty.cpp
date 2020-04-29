@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "token.h"
 #include "compiler_session.h"
+#include "compiler.h"
 
 namespace tanlang {
 
@@ -108,7 +109,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
 }
 
 std::string ASTTy::get_type_name() const {
-  assert (!_type_name.empty());
+  assert(!_type_name.empty());
   return _type_name;
 }
 
@@ -146,6 +147,7 @@ bool ASTTy::operator==(const ASTTy &other) const {
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 void ASTTy::resolve() {
+  auto *tm = Compiler::GetDefaultTargetMachine();
   Ty base = TY_GET_BASE(_ty);
   Ty qual = TY_GET_QUALIFIER(_ty);
   /// primitive types
@@ -206,29 +208,28 @@ void ASTTy::resolve() {
     }
     case Ty::STRING: {
       _type_name = "u8*";
-      _size_bits = 64;// TODO: compiler_session->get_ptr_size();
+      _size_bits = tm->getPointerSizeInBits(0);
       _align_bits = 8;
       _is_ptr = true;
       break;
     }
-    case Ty::VOID: {
+    case Ty::VOID:
       _type_name = "void";
       _size_bits = 0;
       _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
       break;
-    }
-    case Ty::STRUCT: {
+    case Ty::STRUCT:
       // TODO: align size in bits
       _align_bits = 64;
       _is_struct = true;
       break;
-    }
     case Ty::POINTER:
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
+      assert(e);
       e->resolve();
       _type_name = e->get_type_name() + "*";
-      _size_bits = 64; // TODO: compiler_session->get_ptr_size();
+      _size_bits = tm->getPointerSizeInBits(0);
       _align_bits = e->get_size_bits();
       _is_ptr = true;
       _dwarf_encoding = llvm::dwarf::DW_ATE_address;
