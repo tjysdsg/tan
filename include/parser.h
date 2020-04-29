@@ -1,7 +1,7 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
 #include "src/llvm_include.h"
-#include "compiler_session.h"
+#include "src/ast/astnode.h"
 #include "token.h"
 #include "lexer.h"
 #include <memory>
@@ -12,12 +12,14 @@ namespace tanlang {
 
 class ASTNode;
 
+class CompilerSession;
+
 struct Token;
 
 class Parser {
 public:
   Parser() = delete;
-  Parser(std::vector<Token *> tokens, std::string filename);
+  Parser(std::vector<Token *> tokens, std::string filename, CompilerSession *cs);
   std::shared_ptr<ASTNode> peek(size_t &index);
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
@@ -31,8 +33,9 @@ public:
   std::shared_ptr<ASTNode> _root{};
 
 protected:
-  std::vector<Token *> _tokens;
-  std::string _filename;
+  std::vector<Token *> _tokens{};
+  std::string _filename = "";
+  CompilerSession *_cs = nullptr;
 
 public:
   template<ASTType first_type> std::shared_ptr<ASTNode> parse(size_t &index, bool strict) {

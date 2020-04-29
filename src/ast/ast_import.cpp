@@ -44,10 +44,8 @@ Value *ASTImport::codegen(CompilerSession *cm) {
 size_t ASTImport::nud() {
   _end_index = _start_index + 1; /// skip "import"
   auto rhs = _parser->peek(_end_index);
-  if (rhs->_type != ASTType::STRING_LITERAL) {
-    report_code_error(_token, "Invalid import statement");
-  }
-  _end_index = rhs->parse(_parser);
+  if (rhs->_type != ASTType::STRING_LITERAL) { report_code_error(_token, "Invalid import statement"); }
+  _end_index = rhs->parse(_parser, _cs);
   _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
   return _end_index;
 }

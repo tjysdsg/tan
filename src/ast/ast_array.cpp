@@ -1,6 +1,7 @@
 #include "src/ast/ast_array.h"
 #include "src/common.h"
 #include "src/type_system.h"
+#include "compiler_session.h"
 
 namespace tanlang {
 
@@ -106,7 +107,7 @@ size_t ASTArrayLiteral::nud() {
     }
     if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
-      _end_index = node->parse(_parser);
+      _end_index = node->parse(_parser, _cs);
       _children.push_back(node);
     } else {
       report_code_error(_token, "Expect literals");

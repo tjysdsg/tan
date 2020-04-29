@@ -2,6 +2,7 @@
 #include "src/ast/ast_var_decl.h"
 #include "compiler.h"
 #include "parser.h"
+#include "compiler_session.h"
 
 namespace tanlang {
 
@@ -46,8 +47,7 @@ std::shared_ptr<ASTTy> ASTIdentifier::get_ty() const { return get_referred()->ge
 
 ASTNodePtr ASTIdentifier::get_referred() const {
   if (!_referred) {
-    auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
-    _referred = cm->get(_name);
+    _referred = _cs->get(_name);
     assert(_referred);
   }
   return _referred;

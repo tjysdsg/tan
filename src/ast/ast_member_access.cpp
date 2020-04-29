@@ -47,11 +47,10 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   assert(left->is_typed());
   if (_parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
   auto member_name = _parser->peek(_end_index);
-  _end_index = member_name->parse(_parser);
+  _end_index = member_name->parse(_parser, _cs);
   _children.push_back(member_name);
 
   ASTNodePtr lhs = left;
-  auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
   if (_access_type == MemberAccessBracket) {
     ++_end_index; /// skip "]" if this is a bracket access
     _ty = left->get_ty();
@@ -65,7 +64,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     if (!lhs->is_lvalue() && !lhs->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
     auto rhs = _children[1];
     std::string m_name = rhs->get_name();
-    auto struct_ast = ast_cast<ASTStruct>(cm->get(lhs->get_type_name()));
+    auto struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_type_name()));
     _access_idx = struct_ast->get_member_index(m_name);
     auto member = struct_ast->get_member(_access_idx);
     _type_name = member->get_type_name();

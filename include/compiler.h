@@ -12,8 +12,6 @@ class CompilerSession;
 
 class Compiler {
 public:
-  static CompilerSession *GetCompilerSession(const std::string &filename);
-  static void SetCompilerSession(const std::string &filename, CompilerSession *compiler_session);
   static void ParseFile(const std::string filename);
   static TargetMachine *GetDefaultTargetMachine();
 

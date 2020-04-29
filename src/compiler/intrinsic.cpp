@@ -119,7 +119,7 @@ size_t Intrinsic::nud() {
   determine_type();
   if (_children.size() >= 1) {
     assert(_children.size() == 1);
-    _end_index = _children[0]->parse(_parser);
+    _end_index = _children[0]->parse(_parser, _cs);
   } else {
     _end_index = _start_index + 1;
   }
@@ -129,7 +129,7 @@ size_t Intrinsic::nud() {
 size_t Intrinsic::led(const ASTNodePtr &left) {
   determine_type();
   if (_children.size() >= 1) {
-    _end_index = _children[0]->parse(left, _parser);
+    _end_index = _children[0]->parse(left, _parser, _cs);
   } else {
     _end_index = _start_index + 1;
   }

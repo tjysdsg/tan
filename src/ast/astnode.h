@@ -103,8 +103,8 @@ public:
   ASTNode &operator=(const ASTNode &) = default;
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
-  [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser);
-  [[nodiscard]] virtual size_t parse(Parser *parser);
+  [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs);
+  [[nodiscard]] virtual size_t parse(Parser *parser, CompilerSession *cs);
   void printTree() const;
   virtual Value *codegen(CompilerSession *compiler_session);
   virtual std::string to_string(bool print_prefix = true) const;
@@ -135,6 +135,7 @@ protected:
   size_t _start_index = 0;
   size_t _end_index = 0;
   Parser *_parser = nullptr;
+  CompilerSession *_cs = nullptr;
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }

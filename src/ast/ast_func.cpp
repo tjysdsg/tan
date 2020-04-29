@@ -5,6 +5,7 @@
 #include "compiler.h"
 #include "stack_trace.h"
 #include "intrinsic.h"
+#include "compiler_session.h"
 
 namespace tanlang {
 
@@ -218,14 +219,13 @@ size_t ASTFunction::nud() {
   _children.push_back(_parser->parse<ASTType::ID>(_end_index, true));
 
   /// add self to function table
-  auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
   if (_is_public || _is_external) {
     CompilerSession::AddPublicFunction(_parser->get_filename(), this->shared_from_this());
   }
-  cm->add_function(this->shared_from_this());
+  _cs->add_function(this->shared_from_this());
 
   /// only push scope if not extern
-  if (!_is_external) { _scope = cm->push_scope(); } else { _scope = cm->get_current_scope(); }
+  if (!_is_external) { _scope = _cs->push_scope(); } else { _scope = _cs->get_current_scope(); }
 
   /// arguments
   _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
@@ -233,7 +233,7 @@ size_t ASTFunction::nud() {
   if (_parser->at(_end_index)->value != ")") {
     while (!_parser->eof(_end_index)) {
       ASTNodePtr arg = std::make_shared<ASTArgDecl>(_parser->at(_end_index), _end_index);
-      _end_index = arg->parse(_parser); /// this will add args to the current scope
+      _end_index = arg->parse(_parser, _cs); /// this will add args to the current scope
       _children.push_back(arg);
       if (_parser->at(_end_index)->value == ",") {
         ++_end_index;
@@ -249,9 +249,9 @@ size_t ASTFunction::nud() {
   /// body
   if (!_is_external) {
     auto body = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-    _end_index = body->parse(_parser);
+    _end_index = body->parse(_parser, _cs);
     _children.push_back(body);
-    cm->pop_scope();
+    _cs->pop_scope();
   }
   return _end_index;
 }
@@ -305,8 +305,7 @@ std::shared_ptr<ASTTy> ASTFunctionCall::get_ty() const { return ast_cast<ASTTy>(
 
 ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) {
-    auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
-    auto func_candidates = cm->get_functions(_name);
+    auto func_candidates = _cs->get_functions(_name);
     /// always prefer the function with lowest cost if multiple candidates are callable
     /// one implicit cast -> +1 cost
     /// however, if two (or more) functions have the same score, an error is raise (ambiguous call)
@@ -322,7 +321,7 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
         auto actual_arg = _children[i];
         if (!actual_arg->is_typed()) {
           assert(actual_arg->_type == ASTType::ID);
-          actual_arg = cm->get(actual_arg->get_name());
+          actual_arg = _cs->get(actual_arg->get_name());
         }
         /// allow implicit cast from actual_arg to arg, but not in reverse
         auto t1 = arg->get_ty();

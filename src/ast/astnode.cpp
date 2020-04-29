@@ -45,15 +45,17 @@ std::string ASTNode::get_src() const {
 ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
     : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
 
-size_t ASTNode::parse(const std::shared_ptr<ASTNode> &left, Parser *parser) {
+size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
   _parser = parser;
+  _cs = cs;
   auto ret = this->led(left);
   _parsed = true;
   return ret;
 }
 
-size_t ASTNode::parse(Parser *parser) {
+size_t ASTNode::parse(Parser *parser, CompilerSession *cs) {
   _parser = parser;
+  _cs = cs;
   auto ret = this->nud();
   _parsed = true;
   return ret;

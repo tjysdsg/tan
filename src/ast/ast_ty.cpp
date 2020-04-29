@@ -316,7 +316,7 @@ size_t ASTTy::nud_array() {
     report_code_error(_parser->at(_end_index), "The array type and size must be specified");
   } else {
     auto child = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
-    _end_index = child->parse(_parser); /// this set the _type_name of child
+    _end_index = child->parse(_parser, _cs); /// this set the _type_name of child
     _children.push_back(child);
     _type_name = child->_type_name;
   }

@@ -2,6 +2,7 @@
 #include "src/type_system.h"
 #include "intrinsic.h"
 #include "parser.h"
+#include "compiler_session.h"
 
 namespace tanlang {
 
@@ -56,18 +57,18 @@ size_t ASTIf::nud() {
   _end_index = _start_index + 1; /// skip "if"
   /// condition
   auto condition = _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-  _end_index = condition->parse(_parser);
+  _end_index = condition->parse(_parser, _cs);
   _children.push_back(condition);
   /// if clause
   auto if_clause = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-  _end_index = if_clause->parse(_parser);
+  _end_index = if_clause->parse(_parser, _cs);
   _children.push_back(if_clause);
 
   /// else clause, if any
   auto *token = _parser->at(_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
     auto else_clause = _parser->peek(_end_index);
-    _end_index = else_clause->parse(_parser);
+    _end_index = else_clause->parse(_parser, _cs);
     _children.push_back(else_clause);
     _has_else = true;
   }
@@ -77,7 +78,7 @@ size_t ASTIf::nud() {
 size_t ASTElse::nud() {
   _end_index = _start_index + 1; /// skip "else"
   auto else_clause = _parser->peek(_end_index);
-  _end_index = else_clause->parse(_parser);
+  _end_index = else_clause->parse(_parser, _cs);
   _children.push_back(else_clause);
   return _end_index;
 }

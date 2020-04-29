@@ -35,7 +35,6 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
-  Compiler::SetCompilerSession(filename, _compiler_session);
 }
 
 void Compiler::emit_object(const std::string &filename) { _compiler_session->emit_object(filename); }
@@ -60,20 +59,11 @@ void Compiler::dump_ast() const {
   _ast->printTree();
 }
 
-CompilerSession *Compiler::GetCompilerSession(const std::string &filename) {
-  if (Compiler::sessions.find(filename) == Compiler::sessions.end()) { return nullptr; }
-  return Compiler::sessions[filename];
-}
-
-void Compiler::SetCompilerSession(const std::string &filename, CompilerSession *compiler_session) {
-  Compiler::sessions[filename] = compiler_session;
-}
-
 void Compiler::parse() {
   Reader reader;
   reader.open(_filename);
   auto tokens = tanlang::tokenize(&reader);
-  auto *parser = new Parser(tokens, std::string(_filename));
+  auto *parser = new Parser(tokens, std::string(_filename), _compiler_session);
   _ast = parser->parse();
 }
 

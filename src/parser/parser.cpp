@@ -25,7 +25,8 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens, std::string filename) : _tokens(std::move(tokens)), _filename(filename) {}
+Parser::Parser(std::vector<Token *> tokens, std::string filename, CompilerSession *cs)
+    : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
 
 ASTNodePtr Parser::peek(size_t &index, TokenType type, const std::string &value) {
   if (index >= _tokens.size()) {
@@ -139,32 +140,26 @@ ASTNodePtr Parser::peek(size_t &index) {
 ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
   ASTNodePtr node = peek(index);
   ++index;
-  if (!node) {
-    return nullptr;
-  }
+  if (!node) { return nullptr; }
   auto n = node;
-  index = n->parse(this);
+  index = n->parse(this, _cs);
   auto left = n;
   node = peek(index);
-  if (!node) {
-    return left;
-  }
+  if (!node) { return left; }
   while (rbp < node->_lbp) {
     node = peek(index);
     n = node;
-    index = n->parse(left, this);
+    index = n->parse(left, this, _cs);
     left = n;
     node = peek(index);
-    if (!node) {
-      break;
-    };
+    if (!node) { break; }
   }
   return left;
 }
 
 ASTNodePtr Parser::parse() {
   _root = std::make_shared<ASTProgram>();
-  (void) _root->parse(this); /// fix the [[nodiscard]] warning
+  (void) _root->parse(this, _cs); /// fix the [[nodiscard]] warning
   return _root;
 }
 
