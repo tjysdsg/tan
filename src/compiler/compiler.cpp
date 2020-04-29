@@ -8,12 +8,11 @@ namespace tanlang {
 
 std::unordered_map<std::string, CompilerSession *> Compiler::sessions{};
 std::vector<std::shared_ptr<Compiler>> Compiler::sub_compilers{};
-TargetMachine *Compiler::default_target_machine = nullptr;
+TargetMachine *Compiler::target_machine = nullptr;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);
   delete _compiler_session;
-  delete _target_machine;
 }
 
 Compiler::Compiler(std::string filename) : _filename(filename) {
@@ -32,11 +31,11 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
   llvm::TargetOptions opt;
   /// relocation model
   auto RM = llvm::Reloc::Model::PIC_;
-  // FIXME: no need to have the same _target_machine for each instance of Compiler
-  _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
-  if (!Compiler::default_target_machine) { Compiler::default_target_machine = _target_machine; }
-  _compiler_session = new CompilerSession(filename, _target_machine);
-  Compiler::set_compiler_session(filename, _compiler_session);
+  if (!Compiler::target_machine) {
+    Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+  }
+  _compiler_session = new CompilerSession(filename, Compiler::target_machine);
+  Compiler::SetCompilerSession(filename, _compiler_session);
 }
 
 void Compiler::emit_object(const std::string &filename) { _compiler_session->emit_object(filename); }
@@ -61,12 +60,12 @@ void Compiler::dump_ast() const {
   _ast->printTree();
 }
 
-CompilerSession *Compiler::get_compiler_session(const std::string &filename) {
+CompilerSession *Compiler::SetCompilerSession(const std::string &filename) {
   if (Compiler::sessions.find(filename) == Compiler::sessions.end()) { return nullptr; }
   return Compiler::sessions[filename];
 }
 
-void Compiler::set_compiler_session(const std::string &filename, CompilerSession *compiler_session) {
+void Compiler::SetCompilerSession(const std::string &filename, CompilerSession *compiler_session) {
   Compiler::sessions[filename] = compiler_session;
 }
 
@@ -85,8 +84,8 @@ void Compiler::ParseFile(std::string filename) {
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
-  assert(Compiler::default_target_machine);
-  return Compiler::default_target_machine;
+  assert(Compiler::target_machine);
+  return Compiler::target_machine;
 }
 
 } // namespace tanlang

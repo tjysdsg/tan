@@ -189,7 +189,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::add_public_function(const std::string &filename, ASTNodePtr func) {
+void CompilerSession::AddPublicFunction(const std::string &filename, ASTNodePtr func) {
   auto f = ast_cast<ASTFunction>(func);
   assert(f);
   auto &pf = CompilerSession::public_func;
@@ -199,7 +199,7 @@ void CompilerSession::add_public_function(const std::string &filename, ASTNodePt
   pf[filename]->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::get_public_functions(const std::string &filename) {
+std::vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const std::string &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {

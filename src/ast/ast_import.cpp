@@ -27,9 +27,9 @@ Value *ASTImport::codegen(CompilerSession *cm) {
   auto import_path = fs::path(_file);
   import_path = fs::relative(import_path);
   auto path = import_path.string();
-  auto funcs = CompilerSession::get_public_functions(import_path.string());
+  auto funcs = CompilerSession::GetPublicFunctions(import_path.string());
   if (funcs.empty()) { Compiler::ParseFile(path); }
-  funcs = CompilerSession::get_public_functions(import_path.string());
+  funcs = CompilerSession::GetPublicFunctions(import_path.string());
   for (auto &n: funcs) {
     auto f = ast_cast<ASTFunction>(n);
     assert(f);

@@ -8,8 +8,8 @@ namespace tanlang {
 
 class CompilerSession final {
 public:
-  static void add_public_function(const std::string &filename, ASTNodePtr func);
-  static std::vector<ASTFunctionPtr> get_public_functions(const std::string &filename);
+  static void AddPublicFunction(const std::string &filename, ASTNodePtr func);
+  static std::vector<ASTFunctionPtr> GetPublicFunctions(const std::string &filename);
 
 private:
   /// filename -> (function name -> FunctionTable)

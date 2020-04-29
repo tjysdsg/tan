@@ -12,8 +12,8 @@ class CompilerSession;
 
 class Compiler {
 public:
-  static CompilerSession *get_compiler_session(const std::string &filename);
-  static void set_compiler_session(const std::string &filename, CompilerSession *compiler_session);
+  static CompilerSession *SetCompilerSession(const std::string &filename);
+  static void SetCompilerSession(const std::string &filename, CompilerSession *compiler_session);
   static void ParseFile(const std::string filename);
   static TargetMachine *GetDefaultTargetMachine();
 
@@ -21,7 +21,7 @@ private:
   static std::unordered_map<std::string, CompilerSession *> sessions;
   /// created by import statement, used only for parsing
   static std::vector<std::shared_ptr<Compiler>> sub_compilers;
-  static TargetMachine *default_target_machine;
+  static TargetMachine *target_machine;
 
 public:
   Compiler() = delete;
@@ -35,7 +35,6 @@ public:
   void dump_ast() const;
 
 private:
-  llvm::TargetMachine *_target_machine = nullptr;
   CompilerSession *_compiler_session = nullptr;
   std::shared_ptr<ASTNode> _ast = nullptr;
   std::string _filename = "";

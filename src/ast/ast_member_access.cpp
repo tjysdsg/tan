@@ -79,7 +79,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left, Parser *parser) {
   }
 
   ASTNodePtr lhs = left;
-  auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+  auto *cm = Compiler::SetCompilerSession(_parser->get_filename());
   if (_is_bracket) {
     ++_end_index; /// skip "]" if this is a bracket access
     _ty = left->get_ty();

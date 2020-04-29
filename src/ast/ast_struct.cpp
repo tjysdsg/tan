@@ -7,7 +7,7 @@
 namespace tanlang {
 
 size_t ASTStruct::nud(Parser *parser) {
-  auto *compiler_session = Compiler::get_compiler_session(parser->get_filename());
+  auto *compiler_session = Compiler::SetCompilerSession(parser->get_filename());
   _end_index = _start_index + 1; /// skip "struct"
   /// struct typename
   auto id = parser->parse<ASTType::ID>(_end_index, true);

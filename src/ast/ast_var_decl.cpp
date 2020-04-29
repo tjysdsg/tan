@@ -22,7 +22,7 @@ size_t tanlang::ASTVarDecl::_nud(Parser *parser) {
   _ty = ast_cast<ASTTy>(parser->parse<ASTType::TY>(_end_index, true));
   _ty->set_is_lvalue(true);
   _children.push_back(_ty);
-  auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+  auto *cm = Compiler::SetCompilerSession(_parser->get_filename());
   cm->add(this->get_name(), this->shared_from_this());
   return _end_index;
 }

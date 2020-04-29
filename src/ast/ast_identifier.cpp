@@ -47,7 +47,7 @@ std::shared_ptr<ASTTy> ASTIdentifier::get_ty() const { return get_referred()->ge
 
 ASTNodePtr ASTIdentifier::get_referred() const {
   if (!_referred) {
-    auto *cm = Compiler::get_compiler_session(_parser->get_filename());
+    auto *cm = Compiler::SetCompilerSession(_parser->get_filename());
     _referred = cm->get(_name);
     assert(_referred);
   }
