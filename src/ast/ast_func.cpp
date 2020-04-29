@@ -218,7 +218,7 @@ size_t ASTFunction::nud(Parser *parser) {
   _children.push_back(parser->parse<ASTType::ID>(_end_index, true));
 
   /// add self to function table
-  auto *cm = Compiler::SetCompilerSession(parser->get_filename());
+  auto *cm = Compiler::GetCompilerSession(parser->get_filename());
   if (_is_public || _is_external) {
     CompilerSession::AddPublicFunction(_parser->get_filename(), this->shared_from_this());
   }
@@ -305,7 +305,7 @@ std::shared_ptr<ASTTy> ASTFunctionCall::get_ty() const { return ast_cast<ASTTy>(
 
 ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) {
-    auto *cm = Compiler::SetCompilerSession(_parser->get_filename());
+    auto *cm = Compiler::GetCompilerSession(_parser->get_filename());
     auto func_candidates = cm->get_functions(_name);
     /// always prefer the function with lowest cost if multiple candidates are callable
     /// one implicit cast -> +1 cost

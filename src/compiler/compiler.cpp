@@ -60,7 +60,7 @@ void Compiler::dump_ast() const {
   _ast->printTree();
 }
 
-CompilerSession *Compiler::SetCompilerSession(const std::string &filename) {
+CompilerSession *Compiler::GetCompilerSession(const std::string &filename) {
   if (Compiler::sessions.find(filename) == Compiler::sessions.end()) { return nullptr; }
   return Compiler::sessions[filename];
 }

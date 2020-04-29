@@ -18,14 +18,17 @@ public:
 
 protected:
   size_t led(const ASTNodePtr &left, Parser *parser) override;
-  Value *codegen_dot_member_variable(CompilerSession *compiler_session, ASTNodePtr lhs, ASTNodePtr rhs);
 
 private:
-  bool _is_bracket = false;
+  enum MemberAccessType {
+    MemberAccessInvalid = 0, MemberAccessBracket, MemberAccessMemberVariable, MemberAccessMemberFunction,
+  };
+  MemberAccessType _access_type = MemberAccessInvalid;
   Type *_llvm_type = nullptr;
   Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
   std::string _type_name = "";
+  size_t _access_idx = (size_t) -1;
 };
 
 }
