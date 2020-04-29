@@ -53,7 +53,10 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   if (_type == ASTType::MULTIPLY) {
     return compiler_session->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
   } else if (_type == ASTType::DIVIDE) {
-    // TODO: check if value is unsigned
+    auto ty = _children[0]->get_ty();
+    if (ty->is_unsigned()) {
+      return compiler_session->get_builder()->CreateUDiv(lhs, rhs, "div_tmp");
+    }
     return compiler_session->get_builder()->CreateSDiv(lhs, rhs, "div_tmp");
   } else if (_type == ASTType::SUM) {
     return compiler_session->get_builder()->CreateAdd(lhs, rhs, "sum_tmp");

@@ -15,8 +15,8 @@ public:
   friend class Intrinsic;
 
 public:
-  explicit ASTNumberLiteral(int value, size_t token_index);
-  explicit ASTNumberLiteral(size_t value, size_t token_index);
+  explicit ASTNumberLiteral(int value, size_t token_index, bool is_unsigned = false);
+  explicit ASTNumberLiteral(size_t value, size_t token_index, bool is_unsigned = true);
   explicit ASTNumberLiteral(float value, size_t token_index);
   ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index);
   [[nodiscard]] bool is_float() const;
@@ -32,6 +32,7 @@ protected:
 
 private:
   bool _is_float = false;
+  bool _is_unsigned = false;
   union {
     int _ivalue;
     float _fvalue;

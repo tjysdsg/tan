@@ -5,9 +5,9 @@ pub fn main() : int {
     var a1: i32 = 100;
     assert(a1 == 100);
     var a2: u32 = a1;
-    assert(a2 == 100);
+    assert(a2 == 100 as u32);
+    assert(a2 == 100u);
     var a3: u8 = a2;
-    assert(a3 == 100);
     assert(a3 == 100u);
     var a4: i8 = a3;
     assert(a4 == 100);

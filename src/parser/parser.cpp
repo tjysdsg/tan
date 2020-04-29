@@ -62,9 +62,7 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
 }
 
 ASTNodePtr Parser::peek(size_t &index) {
-  if (index >= _tokens.size()) {
-    return nullptr;
-  }
+  if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
   while (token->type == TokenType::COMMENTS) {
@@ -118,9 +116,9 @@ ASTNodePtr Parser::peek(size_t &index) {
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token, index);
   } else if (token->type == TokenType::ID) {
-    /// `parse` will modify the first argument, which we don't want
-    size_t token_index = index;
-    node = parse<ASTType::FUNC_CALL, ASTType::ID>(token_index, false);
+    Token *next = _tokens[index + 1];
+    if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }
+    else { node = std::make_shared<ASTIdentifier>(token, index); }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token, index);
   } else if (token->type == TokenType::KEYWORD) { /// keywords
@@ -177,5 +175,11 @@ Token *Parser::at(const size_t idx) const {
   }
   return _tokens[idx];
 }
+
+std::string Parser::get_filename() const { return _filename; }
+
+bool Parser::eof(size_t index) const { return index >= _tokens.size(); }
+
+std::shared_ptr<ASTNode> Parser::get_ast() const { return _root; }
 
 } // namespace tanlang

@@ -22,14 +22,10 @@ public:
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
   std::shared_ptr<ASTNode> parse();
-
-  bool eof(size_t index) const { return index >= _tokens.size(); }
-
+  bool eof(size_t index) const;
   [[nodiscard]] Token *at(const size_t idx) const;
-
-  [[nodiscard]] std::string get_filename() const { return _filename; }
-
-  [[nodiscard]] std::shared_ptr<ASTNode> get_ast() const { return _root; }
+  [[nodiscard]] std::string get_filename() const;
+  [[nodiscard]] std::shared_ptr<ASTNode> get_ast() const;
 
 public:
   std::shared_ptr<ASTNode> _root{};
@@ -39,22 +35,11 @@ protected:
   std::string _filename;
 
 public:
-  template<ASTType first_type, ASTType... types> std::shared_ptr<ASTNode> parse(size_t &index, bool strict) {
-    /// NOTE: strict is not used here, but used in specialized template functions defined in parser.cpp
-    size_t token_index = index;
-    std::shared_ptr<ASTNode> node;
-    node = parse<first_type>(index, sizeof...(types) == 0); // if no fallback parsing, strict is true
-    if (!node) { // if failed, go fallback
-      index = token_index;
-      if constexpr (sizeof...(types) > 0) { return parse<types...>(index, false); }
-      else { // no fallback
-        if (strict) {
-          throw std::runtime_error("All parsing failed");
-        }
-        return nullptr;
-      }
-    }
-    return node;
+  template<ASTType first_type> std::shared_ptr<ASTNode> parse(size_t &index, bool strict) {
+    UNUSED(index);
+    UNUSED(strict);
+    /// NOTE: nothing here, everything is defined in specialized template functions in parser.hpp
+    assert(false);
   }
 };
 

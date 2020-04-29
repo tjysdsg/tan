@@ -89,6 +89,8 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
     // TODO: check if safe to cast
     return 0;
   } else if (t1->is_int() && t2->is_int()) { /// between integers
+    /// should be both unsigned or both signed
+    if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
     return s1 >= s2 ? 0 : 1;
   } else if (t1->is_floating() && t2->is_int()) { /// float/double and int
     return 0;
