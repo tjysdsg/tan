@@ -33,7 +33,7 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->SetInsertPoint(loop_bb);
     auto *cond = _children[0]->codegen(compiler_session);
     /// convert to bool if not
-    cond = convert_to(compiler_session, compiler_session->get_builder()->getInt1Ty(), cond, false);
+    cond = TypeSystem::ConvertTo(compiler_session, compiler_session->get_builder()->getInt1Ty(), cond, false);
 
     compiler_session->get_builder()->CreateCondBr(cond, body_bb, after_bb);
 

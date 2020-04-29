@@ -24,24 +24,17 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
   assert(lhs && rhs);
-  if (_children[0]->is_lvalue()) {
-    lhs = compiler_session->get_builder()->CreateLoad(lhs);
-  }
-  if (_children[1]->is_lvalue()) {
-    rhs = compiler_session->get_builder()->CreateLoad(rhs);
-  }
+  if (_children[0]->is_lvalue()) { lhs = compiler_session->get_builder()->CreateLoad(lhs); }
+  if (_children[1]->is_lvalue()) { rhs = compiler_session->get_builder()->CreateLoad(rhs); }
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
 
-  int type_i = should_cast_to_which(ltype, rtype);
-  if (type_i == -1) {
-    report_code_error(_token,
-        "Cannot compare " + _children[0]->get_type_name() + " and " + _children[1]->get_type_name());
-  } else if (type_i == 0) {
-    rhs = convert_to(compiler_session, ltype, rhs, false, true);
+  assert(_children.size() > _dominant_idx);
+  if (_dominant_idx == 0) {
+    rhs = TypeSystem::ConvertTo(compiler_session, ltype, rhs, false, true);
   } else {
-    lhs = convert_to(compiler_session, rtype, lhs, false, true);
+    lhs = TypeSystem::ConvertTo(compiler_session, rtype, lhs, false, true);
   }
 
   if (lhs->getType()->isFloatingPointTy()) {

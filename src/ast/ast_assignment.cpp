@@ -28,7 +28,7 @@ Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
     report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment");
   }
   /// to is lvalue
-  from = convert_to(compiler_session, to->getType()->getContainedType(0), from, false, true);
+  from = TypeSystem::ConvertTo(compiler_session, to->getType()->getContainedType(0), from, false, true);
   compiler_session->get_builder()->CreateStore(from, to);
   return to;
 }

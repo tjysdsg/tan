@@ -156,7 +156,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *cm) {
     if (!a) { report_code_error(_children[i]->_token, "Invalid function call argument"); }
 
     /// implicit cast
-    a = convert_to(cm, expected_type, a, _children[i]->is_lvalue());
+    a = TypeSystem::ConvertTo(cm, expected_type, a, _children[i]->is_lvalue());
     Type *a_type = a->getType();
     arg_vals.push_back(a);
     arg_types.push_back(a_type);

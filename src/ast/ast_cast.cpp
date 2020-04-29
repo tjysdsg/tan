@@ -19,7 +19,7 @@ Value *ASTCast::codegen(CompilerSession *cm) {
   Value *val = lhs->codegen(cm);
   Value *ret = val;
   if (lhs->is_lvalue()) { val = cm->get_builder()->CreateLoad(val); }
-  val = convert_to(cm, dest_type, val, false);
+  val = TypeSystem::ConvertTo(cm, dest_type, val, false);
   if (lhs->is_lvalue()) {
     ret = create_block_alloca(cm->get_builder()->GetInsertBlock(), dest_type);
     cm->get_builder()->CreateStore(val, ret);
