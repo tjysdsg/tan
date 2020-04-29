@@ -85,9 +85,6 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
     return 0;
   } else if (t1->is_bool()) {
     return 1;
-  } else if (t1->is_ptr() && t2->is_ptr()) { /// both pointer
-    // TODO: check if safe to cast
-    return 0;
   } else if (t1->is_int() && t2->is_int()) { /// between integers
     /// should be both unsigned or both signed
     if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
@@ -103,4 +100,4 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   return -1;
 }
 
-} // namespace
+} // namespace tanlang

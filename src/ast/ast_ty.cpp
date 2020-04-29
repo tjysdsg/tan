@@ -122,21 +122,26 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shar
   ret->_ty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-  ret->_n_elements = sub_tys.size();
   ret->resolve();
   return ret;
 }
 
 bool ASTTy::operator==(const ASTTy &other) const {
-  if (_ty != other._ty) {
-    return false;
-  }
+  #define CHECK(val) if (this->val != other.val) { return false; }
+  CHECK(_size_bits)
+  CHECK(_align_bits)
+  CHECK(_is_ptr)
+  CHECK(_is_float)
+  CHECK(_is_double)
+  CHECK(_is_int)
+  CHECK(_is_unsigned)
+  CHECK(_is_struct)
+  CHECK(_is_bool)
+  #undef CHECK
 
   if (!_children.empty()) {
     size_t n = _children.size();
-    if (n != other._children.size()) {
-      return false;
-    }
+    if (n != other._children.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
       return ast_cast<ASTTy>(_children[i])->operator==(*ast_cast<ASTTy>(other._children[i]));
     }
@@ -238,6 +243,7 @@ void ASTTy::resolve() {
     default:
       assert(false);
   }
+  _n_elements = _children.size();
   _resolved = true;
 }
 
