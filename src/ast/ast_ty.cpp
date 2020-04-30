@@ -12,7 +12,9 @@ std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
 
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
   // TODO: since some Ty are aliases, maybe use some method to combine _is_int, _is_float, _is_... and use it as a key?
-  if (ASTTy::_cached.find(t) == ASTTy::_cached.end()) {
+  if (ASTTy::_cached.find(t) != ASTTy::_cached.end() && t != Ty::ARRAY && t != Ty::POINTER) {
+    return ASTTy::_cached[t];
+  } else {
     auto ret = std::make_shared<ASTTy>(nullptr, 0);
     ret->_ty = t;
     ret->_is_lvalue = is_lvalue;
@@ -20,7 +22,7 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shar
     ret->resolve();
     ASTTy::_cached[t] = ret;
     return ret;
-  } else { return ASTTy::_cached[t]; }
+  }
 }
 
 ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
@@ -162,6 +164,7 @@ bool ASTTy::operator==(const ASTTy &other) const {
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 void ASTTy::resolve() {
+  if (_resolved) { return; }
   auto *tm = Compiler::GetDefaultTargetMachine();
   Ty base = TY_GET_BASE(_ty);
   Ty qual = TY_GET_QUALIFIER(_ty);

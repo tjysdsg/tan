@@ -6,6 +6,9 @@ namespace tanlang {
 
 struct Token;
 
+/**
+ * Children: variable name, type
+ * */
 class ASTVarDecl : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
 public:
   friend class ASTAssignment;
@@ -23,17 +26,17 @@ public:
   llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   bool is_lvalue() const override;
+  void set_ty(std::shared_ptr<ASTTy> ty);
+  bool is_type_resolved() const;
 
 protected:
   size_t nud() override;
   size_t _nud();
 
-public:
-  bool _has_initial_val = false;
-
 protected:
   Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
+  bool _is_type_resolved = false;
 };
 
 } // namespace tanlang

@@ -1,9 +1,12 @@
 #include "src/ast/ast_assignment.h"
+#include "src/ast/ast_var_decl.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
 #include "parser.h"
 
 namespace tanlang {
+
+// TODO: allow chained assignment
 
 Value *ASTAssignment::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
@@ -42,10 +45,27 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip "="
   _children.push_back(left);
   _children.push_back(_parser->next_expression(_end_index, 0));
+
+  /// special case for variable declaration
+  auto lhs = left;
+  if (lhs->_type == ASTType::ID) {
+    assert(lhs->is_named());
+    lhs = _cs->get(left->get_name());
+    assert(lhs);
+  }
+  if (lhs->_type == ASTType::VAR_DECL) {
+    auto var = ast_cast<ASTVarDecl>(lhs);
+    assert(var);
+    if (!var->is_type_resolved()) { var->set_ty(_children[1]->get_ty()); }
+  }
+
   return _end_index;
 }
 
 /// always convert to lhs
-size_t ASTAssignment::get_dominant_idx() const { return 0; }
+size_t ASTAssignment::get_dominant_idx() const {
+  // TODO:check type
+  return 0;
+}
 
 } // namespace tanlang

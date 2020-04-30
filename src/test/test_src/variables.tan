@@ -1,0 +1,13 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+pub fn main(argc: int, argv: char**) : int {
+    var shit = 10; // int
+    var wat; // valid declaration as long as the initial value is specified __
+    var f = 1.0; // float                                                    |
+    wat = 600; // int  <------------------------------------------------------
+    assert(shit == 10);
+    assert(wat == 600);
+    assert(f == 1.0);
+    return 0;
+}

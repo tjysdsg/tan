@@ -319,10 +319,6 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
         auto arg = f->get_arg(i);
         assert(arg->is_typed());
         auto actual_arg = _children[i];
-        if (!actual_arg->is_typed()) {
-          assert(actual_arg->_type == ASTType::ID);
-          actual_arg = _cs->get(actual_arg->get_name());
-        }
         /// allow implicit cast from actual_arg to arg, but not in reverse
         auto t1 = arg->get_ty();
         auto t2 = actual_arg->get_ty();
