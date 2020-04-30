@@ -40,14 +40,12 @@ enum class Ty : uint64_t {
   BIT16 = 1u << 16u,
   BIT32 = 1u << 17u,
   BIT64 = 1u << 18u,
-  BIT128 = 1u << 19u,
 };
 
 class ASTTy;
 
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
-// TODO: remove i128 and u128
 class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 private:
   static std::unordered_map<Ty, ASTTyPtr> _cached;

@@ -230,11 +230,6 @@ void ASTTy::resolve() {
       } else if (TY_IS(qual, Ty::BIT64)) {
         _size_bits = 64;
         _type_name = "i64";
-      } else if (TY_IS(qual, Ty::BIT128)) {
-        // TODO: remove i128 and u128
-        assert(false);
-        _size_bits = 128;
-        _type_name = "i128";
       }
       if (TY_IS(qual, Ty::UNSIGNED)) {
         _is_unsigned = true;
@@ -369,9 +364,8 @@ std::unordered_map<std::string, Ty> basic_tys =
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
         {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
         {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
-        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"i128", TY_OR(Ty::INT, Ty::BIT128)},
-        {"u128", TY_OR3(Ty::INT, Ty::BIT128, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING},
-        {"char", Ty::CHAR}, {"bool", Ty::BOOL},};
+        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
+        {"bool", Ty::BOOL},};
 
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
