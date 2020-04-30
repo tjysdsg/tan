@@ -17,7 +17,7 @@ public:
 
   ASTVarDecl() = delete;
   ASTVarDecl(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  Value *codegen(CompilerSession *cs) override;
   bool is_typed() const override;
   bool is_named() const override;
   std::string get_name() const override;

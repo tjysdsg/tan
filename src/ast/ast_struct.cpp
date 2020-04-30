@@ -1,8 +1,9 @@
 #include "src/ast/ast_struct.h"
+#include "src/type_system.h"
+#include "src/common.h"
 #include "compiler_session.h"
 #include "parser.h"
 #include "src/llvm_include.h"
-#include "compiler.h"
 
 namespace tanlang {
 
@@ -16,36 +17,38 @@ size_t ASTStruct::nud() {
   _cs->add(id->get_name(), this->shared_from_this()); /// add self to current scope
 
   /// struct body
-  auto comp_statements = _parser->peek(_end_index);
-  _end_index = comp_statements->parse(_parser, _cs); // TODO: parse forward declaration
-  _children.insert(_children.begin() + 1, comp_statements->_children.begin(), comp_statements->_children.end());
+  auto comp_stmt = _parser->peek(_end_index);
+  _end_index = comp_stmt->parse(_parser, _cs); // TODO: parse forward declaration
+  auto members = comp_stmt->_children;
 
-  /// resolve members
+  /// resolve member names and types
   ASTNodePtr var_decl = nullptr;
-  for (size_t i = 1; i < _children.size(); ++i) {
-    if (_children[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
-      var_decl = _children[i];
-    } else if (_children[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
-      // TODO: remember initial value
-      var_decl = _children[i]->_children[0];
+  size_t n = comp_stmt->_children.size();
+  _member_names.reserve(n);
+  _children.reserve(n);
+  for (size_t i = 0; i < n; ++i) {
+    if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
+      var_decl = members[i];
+      _children.push_back(var_decl->get_ty());
+    } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
+      var_decl = members[i]->_children[0];
+      auto initial_value = members[i]->_children[1];
+      if (!is_ast_type_in(initial_value->_type, TypeSystem::LiteralTypes)) {
+        report_code_error(_token, "Invalid initial value of the member variable");
+      }
+      _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
     } else { report_code_error(_token, "Invalid struct member"); }
-    _members.push_back(var_decl);
-    _member_indices[var_decl->get_name()] = i - 1;
+    auto name = var_decl->get_name();
+    _member_names.push_back(name);
+    _member_indices[name] = i;
   }
+  this->resolve();
   return _end_index;
 }
 
-ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTNode(ASTType::STRUCT_DECL, 0, 0, token, token_index) {}
-
-Value *ASTStruct::codegen(CompilerSession *compiler_session) {
-  auto *struct_type = StructType::create(*compiler_session->get_context(), _type_name);
-  std::vector<Type *> body{};
-  size_t n = _members.size();
-  body.reserve(n);
-  for (const auto &m: _members) { body.push_back(m->to_llvm_type(compiler_session)); }
-  struct_type->setBody(body);
-  _llvm_type = struct_type;
-  return nullptr;
+ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTTy(token, token_index) {
+  _type = ASTType::STRUCT_DECL;
+  _ty = Ty::STRUCT;
 }
 
 size_t ASTStruct::get_member_index(std::string name) {
@@ -55,18 +58,29 @@ size_t ASTStruct::get_member_index(std::string name) {
   return _member_indices[name];
 }
 
-std::string ASTStruct::get_type_name() const {
-  return _type_name;
-}
+std::string ASTStruct::get_type_name() const { return _type_name; }
 
-llvm::Type *ASTStruct::to_llvm_type(CompilerSession *) const {
+// TODO: optimize this
+llvm::Type *ASTStruct::to_llvm_type(CompilerSession *compiler_session) const {
+  if (!_llvm_type) {
+    auto *struct_type = StructType::create(*compiler_session->get_context(), _type_name);
+    std::vector<Type *> body{};
+    size_t n = _children.size();
+    body.reserve(n);
+    for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(compiler_session)); }
+    struct_type->setBody(body);
+    _llvm_type = struct_type;
+  }
   return _llvm_type;
 }
 
-ASTNodePtr ASTStruct::get_member(size_t i) {
-  return _children[i + 1];
-}
+ASTNodePtr ASTStruct::get_member(size_t i) { return _children[i + 1]; }
 
-bool ASTStruct::is_typed() const { return true; }
+llvm::Value *ASTStruct::get_llvm_value(CompilerSession *cs) const {
+  std::vector<llvm::Constant *> values{};
+  size_t n = _children.size();
+  for (size_t i = 1; i < n; ++i) { values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs)); }
+  return ConstantStruct::get((StructType *) to_llvm_type(cs), values);
+}
 
 } // namespace tanlang

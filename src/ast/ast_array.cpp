@@ -73,6 +73,8 @@ ASTArrayLiteral::ASTArrayLiteral(Token *token, size_t token_index) : ASTLiteral(
     token_index) {}
 
 std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
+  // TODO: set default value of ASTTy
+  // TODO: distinguish bounded arrays from pointers
   std::vector<std::shared_ptr<ASTTy>> sub_tys{_children[0]->get_ty()};
   auto ret = ASTTy::Create(Ty::ARRAY, false, sub_tys);
   return ret;

@@ -37,13 +37,17 @@ size_t ASTVarDecl::nud() {
   return _nud();
 }
 
-Value *ASTVarDecl::codegen(CompilerSession *compiler_session) {
+Value *ASTVarDecl::codegen(CompilerSession *cs) {
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
-  compiler_session->set_current_debug_location(_token->l, _token->c);
+  cs->set_current_debug_location(_token->l, _token->c);
   assert(_children[0]->is_named());
   std::string name = this->get_name();
-  Type *type = ast_cast<ASTTy>(_children[1])->to_llvm_type(compiler_session);
-  Value *var = create_block_alloca(compiler_session->get_builder()->GetInsertBlock(), type, name);
+  Type *type = _children[1]->to_llvm_type(cs);
+  Value *var = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, name);
+  if (_type == ASTType::VAR_DECL) { /// don't do this for arguments
+    auto *default_value = _children[1]->get_llvm_value(cs);
+    if (default_value) { cs->get_builder()->CreateStore(default_value, var); }
+  }
   this->_llvm_value = var;
   return _llvm_value;
 }

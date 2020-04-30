@@ -24,7 +24,11 @@ std::string ASTCharLiteral::get_type_name() const { return "char"; }
 
 llvm::Type *ASTCharLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
 
-std::shared_ptr<ASTTy> ASTCharLiteral::get_ty() const { return ASTTy::Create(Ty::CHAR); }
+std::shared_ptr<ASTTy> ASTCharLiteral::get_ty() const {
+  auto ret = ASTTy::Create(Ty::CHAR);
+  ret->_default_value = static_cast<uint64_t>(_c);
+  return ret;
+}
 
 size_t ASTCharLiteral::nud() {
   _end_index = _start_index + 1; /// skip self

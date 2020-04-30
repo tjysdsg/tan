@@ -81,14 +81,20 @@ ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral
 
 std::shared_ptr<ASTTy> tanlang::ASTNumberLiteral::get_ty() const {
   Ty t = Ty::INVALID;
+  std::shared_ptr<ASTTy> ret = nullptr;
   if (_is_float) {
     t = Ty::FLOAT;
+    ret = ASTTy::Create(t);
+    ret->_default_value = _fvalue;
   } else if (_is_unsigned) {
     t = TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED);
+    ret = ASTTy::Create(t);
+    ret->_default_value = static_cast<uint64_t>(_ivalue);
   } else {
     t = TY_OR(Ty::INT, Ty::BIT32);
+    ret = ASTTy::Create(t);
+    ret->_default_value = static_cast<uint64_t>(_ivalue);
   }
-  auto ret = ASTTy::Create(t);
   return ret;
 }
 

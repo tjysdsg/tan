@@ -1,6 +1,7 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
 #include "src/ast/astnode.h"
+#include <variant>
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
@@ -46,7 +47,8 @@ class ASTTy;
 
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
-class ASTTy final : public ASTNode, public std::enable_shared_from_this<ASTTy> {
+// TODO: remove i128 and u128
+class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 private:
   static std::unordered_map<Ty, ASTTyPtr> _cached;
 
@@ -60,8 +62,10 @@ public:
   ASTTyPtr get_contained_ty() const;
   std::string get_type_name() const override;
   std::shared_ptr<ASTTy> get_ty() const override;
-  llvm::Type *to_llvm_type(CompilerSession *compiler_session) const override;
-  llvm::DIType *to_llvm_meta(CompilerSession *compiler_session) const override;
+  llvm::Type *to_llvm_type(CompilerSession *cs) const override;
+  llvm::DIType *to_llvm_meta(CompilerSession *cs) const override;
+  llvm::Value *get_llvm_value(CompilerSession *cs) const override;
+  Value *codegen(CompilerSession *) override { return nullptr; }
   std::string to_string(bool print_prefix = true) const override;
   bool operator==(const ASTTy &other) const;
   bool operator!=(const ASTTy &other) const;
@@ -81,10 +85,15 @@ public:
 public:
   Ty _ty = Ty::INVALID;
 
+  /// use variant to prevent non-trivial destructor problem
+  std::variant<std::string, uint64_t, float, double> _default_value;
+
+protected:
+  void resolve();
+
 private:
   size_t nud_array();
   size_t nud() override;
-  void resolve();
 
 private:
   mutable std::string _type_name{};

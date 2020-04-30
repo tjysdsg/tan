@@ -11,25 +11,70 @@ namespace tanlang {
 std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
 
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
-  // TODO: since some Ty are aliases, maybe use some method to combine _is_int, _is_float, _is_... and use it as a key?
+  // FIXME: do NOT use Ty as keys
+  /*
   if (ASTTy::_cached.find(t) != ASTTy::_cached.end() && t != Ty::ARRAY && t != Ty::POINTER) {
     return ASTTy::_cached[t];
   } else {
-    auto ret = std::make_shared<ASTTy>(nullptr, 0);
-    ret->_ty = t;
-    ret->_is_lvalue = is_lvalue;
-    ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-    ret->resolve();
-    ASTTy::_cached[t] = ret;
-    return ret;
+   */
+  auto ret = std::make_shared<ASTTy>(nullptr, 0);
+  ret->_ty = t;
+  ret->_is_lvalue = is_lvalue;
+  ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
+  ret->resolve();
+  // ASTTy::_cached[t] = ret;
+  return ret;
+  /*
   }
+   */
 }
 
 ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
+llvm::Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
+  Ty base = TY_GET_BASE(_ty);
+  Value *ret = nullptr;
+  Type *type = this->to_llvm_type(cs);
+  /// primitive types
+  switch (base) {
+    case Ty::INT:
+    case Ty::CHAR:
+    case Ty::BOOL:
+      ret = ConstantInt::get(type, std::get<uint64_t>(_default_value));
+      break;
+    case Ty::FLOAT:
+      ret = ConstantFP::get(type, std::get<float>(_default_value));
+      break;
+    case Ty::DOUBLE:
+      ret = ConstantFP::get(type, std::get<double>(_default_value));
+      break;
+    case Ty::STRING:
+      ret = cs->get_builder()->CreateGlobalStringPtr(std::get<std::string>(_default_value));
+      break;
+    case Ty::VOID:
+      assert(false);
+      break;
+    case Ty::STRUCT: {
+      auto st = ast_cast<ASTStruct>(cs->get(_type_name));
+      assert(st);
+      ret = st->get_llvm_value(cs);
+      break;
+    }
+    case Ty::POINTER:
+      ret = ConstantPointerNull::get((PointerType *) type);
+      break;
+    case Ty::ARRAY: {
+      // TODO: default value of arrays
+      break;
+    }
+    default:
+      assert(false);
+  }
+  return ret;
+}
+
 llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
   Ty base = TY_GET_BASE(_ty);
-  // TODO: Ty qual = TY_GET_QUALIFIER(_ty);
   llvm::Type *type = nullptr;
   /// primitive types
   switch (base) {
@@ -55,6 +100,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       type = compiler_session->get_builder()->getVoidTy();
       break;
     case Ty::STRUCT: {
+      /// ASTStruct must override this, otherwise ASTStruct must override this, otherwise ASTStruct must override ...
       auto st = ast_cast<ASTStruct>(compiler_session->get(_type_name));
       type = st->to_llvm_type(compiler_session);
       break;
@@ -174,6 +220,7 @@ void ASTTy::resolve() {
       _size_bits = 32;
       _type_name = "i32";
       _is_int = true;
+      _default_value.emplace<uint64_t>(0);
       if (TY_IS(qual, Ty::BIT8)) {
         _size_bits = 8;
         _type_name = "i8";
@@ -184,6 +231,8 @@ void ASTTy::resolve() {
         _size_bits = 64;
         _type_name = "i64";
       } else if (TY_IS(qual, Ty::BIT128)) {
+        // TODO: remove i128 and u128
+        assert(false);
         _size_bits = 128;
         _type_name = "i128";
       }
@@ -208,28 +257,33 @@ void ASTTy::resolve() {
       _size_bits = 8;
       _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
       _is_unsigned = true;
+      _default_value.emplace<uint64_t>(0);
       _is_int = true;
     case Ty::BOOL:
       _type_name = "bool";
       _size_bits = 1;
       _dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
+      _default_value.emplace<uint64_t>(0);
       _is_bool = true;
       break;
     case Ty::FLOAT:
       _type_name = "float";
       _size_bits = 32;
       _dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      _default_value.emplace<float>(0);
       _is_float = true;
       break;
     case Ty::DOUBLE:
       _type_name = "double";
       _size_bits = 64;
       _dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      _default_value.emplace<double>(0);
       _is_double = true;
       break;
     case Ty::STRING:
       _type_name = "u8*";
       _size_bits = tm->getPointerSizeInBits(0);
+      _default_value.emplace<std::string>("");
       _align_bits = 8;
       _is_ptr = true;
       break;
