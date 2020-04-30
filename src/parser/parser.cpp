@@ -20,6 +20,7 @@
 #include "src/ast/ast_return.h"
 #include "src/ast/ast_struct.h"
 #include "src/ast/ast_program.h"
+#include "src/ast/ast_char_literal.h"
 #include "intrinsic.h"
 #include <memory>
 
@@ -115,6 +116,8 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTNumberLiteral>(token->value, true, token, index);
   } else if (token->type == TokenType::STRING) {
     node = std::make_shared<ASTStringLiteral>(token, index);
+  } else if (token->type == TokenType::CHAR) {
+    node = std::make_shared<ASTCharLiteral>(token, index);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }

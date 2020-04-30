@@ -19,6 +19,9 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
     case Ty::INT:
       type = compiler_session->get_builder()->getIntNTy((unsigned) _size_bits);
       break;
+    case Ty::CHAR:
+      type = compiler_session->get_builder()->getInt8Ty();
+      break;
     case Ty::BOOL:
       type = compiler_session->get_builder()->getInt1Ty();
       break;
@@ -57,6 +60,7 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
   DIType *ret = nullptr;
   /// primitive types
   switch (base) {
+    case Ty::CHAR:
     case Ty::INT:
     case Ty::BOOL:
     case Ty::FLOAT:
@@ -190,34 +194,36 @@ void ASTTy::resolve() {
       }
       break;
     }
-    case Ty::BOOL: {
+    case Ty::CHAR:
+      _type_name = "char";
+      _size_bits = 8;
+      _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
+      _is_unsigned = true;
+      _is_int = true;
+    case Ty::BOOL:
       _type_name = "bool";
       _size_bits = 1;
       _dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
       _is_bool = true;
       break;
-    }
-    case Ty::FLOAT: {
+    case Ty::FLOAT:
       _type_name = "float";
       _size_bits = 32;
       _dwarf_encoding = llvm::dwarf::DW_ATE_float;
       _is_float = true;
       break;
-    }
-    case Ty::DOUBLE: {
+    case Ty::DOUBLE:
       _type_name = "double";
       _size_bits = 64;
       _dwarf_encoding = llvm::dwarf::DW_ATE_float;
       _is_double = true;
       break;
-    }
-    case Ty::STRING: {
+    case Ty::STRING:
       _type_name = "u8*";
       _size_bits = tm->getPointerSizeInBits(0);
       _align_bits = 8;
       _is_ptr = true;
       break;
-    }
     case Ty::VOID:
       _type_name = "void";
       _size_bits = 0;
@@ -302,7 +308,7 @@ std::unordered_map<std::string, Ty> basic_tys =
         {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
         {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"i128", TY_OR(Ty::INT, Ty::BIT128)},
         {"u128", TY_OR3(Ty::INT, Ty::BIT128, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING},
-        {"char", TY_OR(Ty::INT, Ty::BIT8)}, {"bool", Ty::BOOL},};
+        {"char", Ty::CHAR}, {"bool", Ty::BOOL},};
 
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
@@ -377,7 +383,7 @@ size_t ASTTy::nud() {
 ASTTyPtr ASTTy::get_contained_ty() const {
   if (_ty == Ty::STRING) {
     // TODO: optimize this
-    return ASTTy::Create(TY_OR(Ty::STRING, Ty::POINTER));
+    return ASTTy::Create(Ty::CHAR);
   } else if (_is_ptr) {
     assert(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);

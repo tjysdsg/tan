@@ -19,15 +19,16 @@ enum class Ty : uint64_t {
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
   VOID = 1u,
-  INT,
-  FLOAT,
-  DOUBLE,
-  BOOL,
-  POINTER,
-  STRING,
-  FUNC_PTR, // TODO: function ptr
-  STRUCT,   // struct (or class)
-  ARRAY,
+  INT = 2u,
+  FLOAT = 3u,
+  DOUBLE = 4u,
+  BOOL = 5u,
+  POINTER = 6u,
+  STRING = 7u,
+  CHAR = 8u,
+  FUNC_PTR = 9u, // TODO: function ptr
+  STRUCT = 10u,   // struct (or class)
+  ARRAY = 11u,
 
   /// qualifiers 13->32 bits
   #define TY_QUALIFIER_MASK 0xffffff000u

@@ -70,6 +70,7 @@ enum class ASTType {
   /// types in tan
 
   NUM_LITERAL,    // int or float literal
+  CHAR_LITERAL,   // 's'
   STRING_LITERAL, // "xxx"
   ARRAY_LITERAL,  // [1, 2, 3]
   MEMBER_ACCESS,  // struct.a
