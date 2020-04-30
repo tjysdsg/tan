@@ -60,7 +60,6 @@ size_t ASTStruct::get_member_index(std::string name) {
 
 std::string ASTStruct::get_type_name() const { return _type_name; }
 
-// TODO: optimize this
 llvm::Type *ASTStruct::to_llvm_type(CompilerSession *compiler_session) const {
   if (!_llvm_type) {
     auto *struct_type = StructType::create(*compiler_session->get_context(), _type_name);
@@ -77,10 +76,13 @@ llvm::Type *ASTStruct::to_llvm_type(CompilerSession *compiler_session) const {
 ASTNodePtr ASTStruct::get_member(size_t i) { return _children[i + 1]; }
 
 llvm::Value *ASTStruct::get_llvm_value(CompilerSession *cs) const {
-  std::vector<llvm::Constant *> values{};
-  size_t n = _children.size();
-  for (size_t i = 1; i < n; ++i) { values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs)); }
-  return ConstantStruct::get((StructType *) to_llvm_type(cs), values);
+  if (!_llvm_value) {
+    std::vector<llvm::Constant *> values{};
+    size_t n = _children.size();
+    for (size_t i = 1; i < n; ++i) { values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs)); }
+    _llvm_value = ConstantStruct::get((StructType *) to_llvm_type(cs), values);
+  }
+  return _llvm_value;
 }
 
 } // namespace tanlang
