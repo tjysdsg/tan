@@ -77,6 +77,7 @@ DISubroutineType *create_function_type(CompilerSession *compiler_session, Metada
 int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   assert(t1);
   assert(t2);
+  if (t1.get() == t2.get()) { return 0; } /// since some ASTTy are cached, compare pointer and early return
   if (*t1 == *t2) { return 0; }
   size_t s1 = t1->get_size_bits();
   size_t s2 = t2->get_size_bits();

@@ -80,7 +80,6 @@ ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral
 }
 
 std::shared_ptr<ASTTy> tanlang::ASTNumberLiteral::get_ty() const {
-  // TODO: optimize this
   Ty t = Ty::INVALID;
   if (_is_float) {
     t = Ty::FLOAT;

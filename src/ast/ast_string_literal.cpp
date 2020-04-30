@@ -17,10 +17,7 @@ std::string ASTStringLiteral::get_type_name() const { return "str"; }
 
 llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
 
-std::shared_ptr<ASTTy> ASTStringLiteral::get_ty() const {
-  // TODO: optimize this
-  return ASTTy::Create(TY_OR(Ty::STRING, Ty::POINTER));
-}
+std::shared_ptr<ASTTy> ASTStringLiteral::get_ty() const { return ASTTy::Create(TY_OR(Ty::STRING, Ty::POINTER)); }
 
 ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
     op_precedence[ASTType::STRING_LITERAL],

@@ -73,7 +73,6 @@ ASTArrayLiteral::ASTArrayLiteral(Token *token, size_t token_index) : ASTLiteral(
     token_index) {}
 
 std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
-  // TODO: optimize this
   std::vector<std::shared_ptr<ASTTy>> sub_tys{};
   for (const auto &c : _children) { sub_tys.push_back(c->get_ty()); }
   auto ret = ASTTy::Create(Ty::ARRAY, false, sub_tys);

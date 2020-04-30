@@ -47,6 +47,9 @@ class ASTTy;
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
 class ASTTy final : public ASTNode, public std::enable_shared_from_this<ASTTy> {
+private:
+  static std::unordered_map<Ty, ASTTyPtr> _cached;
+
 public:
   static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<std::shared_ptr<ASTTy>> sub_tys = {});
 

@@ -8,6 +8,21 @@
 
 namespace tanlang {
 
+std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
+
+std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
+  // TODO: since some Ty are aliases, maybe use some method to combine _is_int, _is_float, _is_... and use it as a key?
+  if (ASTTy::_cached.find(t) == ASTTy::_cached.end()) {
+    auto ret = std::make_shared<ASTTy>(nullptr, 0);
+    ret->_ty = t;
+    ret->_is_lvalue = is_lvalue;
+    ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
+    ret->resolve();
+    ASTTy::_cached[t] = ret;
+    return ret;
+  } else { return ASTTy::_cached[t]; }
+}
+
 ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
 llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
@@ -119,15 +134,6 @@ std::string ASTTy::get_type_name() const {
 
 std::string ASTTy::to_string(bool print_prefix) const {
   return ASTNode::to_string(print_prefix) + " " + get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
-  auto ret = std::make_shared<ASTTy>(nullptr, 0);
-  ret->_ty = t;
-  ret->_is_lvalue = is_lvalue;
-  ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-  ret->resolve();
-  return ret;
 }
 
 bool ASTTy::operator==(const ASTTy &other) const {
@@ -381,10 +387,8 @@ size_t ASTTy::nud() {
 }
 
 ASTTyPtr ASTTy::get_contained_ty() const {
-  if (_ty == Ty::STRING) {
-    // TODO: optimize this
-    return ASTTy::Create(Ty::CHAR);
-  } else if (_is_ptr) {
+  if (_ty == Ty::STRING) { return ASTTy::Create(Ty::CHAR); }
+  else if (_is_ptr) {
     assert(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);
     assert(ret);
