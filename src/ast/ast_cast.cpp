@@ -41,22 +41,22 @@ size_t ASTCast::get_dominant_idx() const { return 1; }
 bool ASTCast::is_typed() const { return true; }
 
 bool ASTCast::is_lvalue() const {
-  assert(_children.size() == 2);
+  TAN_ASSERT(_children.size() == 2);
   return _children[0]->is_lvalue();
 }
 
 std::string ASTCast::get_type_name() const {
-  assert(_children.size() == 2);
+  TAN_ASSERT(_children.size() == 2);
   return _children[1]->get_type_name();
 }
 
 std::shared_ptr<ASTTy> ASTCast::get_ty() const {
-  assert(_children.size() == 2);
+  TAN_ASSERT(_children.size() == 2);
   return _children[1]->get_ty();
 }
 
 llvm::Type *ASTCast::to_llvm_type(CompilerSession *cm) const {
-  assert(_children.size() == 2);
+  TAN_ASSERT(_children.size() == 2);
   return _children[1]->to_llvm_type(cm);
 }
 

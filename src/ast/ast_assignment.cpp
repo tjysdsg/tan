@@ -49,13 +49,13 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
   /// special case for variable declaration
   auto lhs = left;
   if (lhs->_type == ASTType::ID) {
-    assert(lhs->is_named());
+    TAN_ASSERT(lhs->is_named());
     lhs = _cs->get(left->get_name());
-    assert(lhs);
+    TAN_ASSERT(lhs);
   }
   if (lhs->_type == ASTType::VAR_DECL) {
     auto var = ast_cast<ASTVarDecl>(lhs);
-    assert(var);
+    TAN_ASSERT(var);
     if (!var->is_type_resolved()) { var->set_ty(_children[1]->get_ty()); }
   }
 

@@ -40,22 +40,22 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
 void Compiler::emit_object(const std::string &filename) { _compiler_session->emit_object(filename); }
 
 Value *Compiler::codegen() {
-  assert(_ast);
-  assert(_compiler_session);
-  assert(_compiler_session->get_module());
+  TAN_ASSERT(_ast);
+  TAN_ASSERT(_compiler_session);
+  TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
   auto *ret = _ast->codegen(_compiler_session);
   return ret;
 }
 
 void Compiler::dump_ir() const {
-  assert(_compiler_session);
-  assert(_compiler_session->get_module());
+  TAN_ASSERT(_compiler_session);
+  TAN_ASSERT(_compiler_session->get_module());
   _compiler_session->get_module()->print(llvm::outs(), nullptr);
 }
 
 void Compiler::dump_ast() const {
-  assert(_ast);
+  TAN_ASSERT(_ast);
   _ast->printTree();
 }
 
@@ -74,7 +74,7 @@ void Compiler::ParseFile(std::string filename) {
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
-  assert(Compiler::target_machine);
+  TAN_ASSERT(Compiler::target_machine);
   return Compiler::target_machine;
 }
 

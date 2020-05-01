@@ -38,12 +38,8 @@ protected:
   CompilerSession *_cs = nullptr;
 
 public:
-  template<ASTType first_type> std::shared_ptr<ASTNode> parse(size_t &index, bool strict) {
-    UNUSED(index);
-    UNUSED(strict);
-    /// NOTE: nothing here, everything is defined in specialized template functions in parser.hpp
-    assert(false);
-  }
+  /// NOTE: nothing here, everything is defined in specialized template functions in parser.hpp
+  template<ASTType type> std::shared_ptr<ASTNode> parse(size_t &index, bool strict);
 };
 
 } // namespace tanlang

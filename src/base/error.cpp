@@ -2,6 +2,12 @@
 #include "token.h"
 #include <iostream>
 
+[[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {
+  std::cerr << "ASSERTION FAILED: " << expr << "\n";
+  std::cerr << "at: " << file << ":" << std::to_string(lineno) << "\n";
+  abort();
+}
+
 namespace tanlang {
 
 void report_code_error(const std::string &source, size_t line, size_t col, const std::string &error_message) {

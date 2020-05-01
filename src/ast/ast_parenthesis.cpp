@@ -35,32 +35,32 @@ size_t ASTParenthesis::nud() {
 }
 
 bool ASTParenthesis::is_typed() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->is_typed();
 }
 
 bool ASTParenthesis::is_lvalue() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->is_lvalue();
 }
 
 std::string ASTParenthesis::get_type_name() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->get_type_name();
 }
 
 std::shared_ptr<ASTTy> ASTParenthesis::get_ty() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->get_ty();
 }
 
 llvm::Type *ASTParenthesis::to_llvm_type(CompilerSession *compiler_session) const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->to_llvm_type(compiler_session);
 }
 
 llvm::Metadata *ASTParenthesis::to_llvm_meta(CompilerSession *compiler_session) const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->to_llvm_meta(compiler_session);
 }
 

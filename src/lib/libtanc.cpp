@@ -34,7 +34,7 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
     linker.add_flags({"-fPIE"});
   } else if (config->type == SLIB) {
     // TODO: implement output type static lib
-    assert(false);
+    TAN_ASSERT(false);
     // linker.add_flags({"-static-pie"});
   } else if (config->type == DLIB) {
     linker.add_flags({"-shared"});

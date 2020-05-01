@@ -23,14 +23,14 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   }
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
-  assert(lhs && rhs);
+  TAN_ASSERT(lhs && rhs);
   if (_children[0]->is_lvalue()) { lhs = compiler_session->get_builder()->CreateLoad(lhs); }
   if (_children[1]->is_lvalue()) { rhs = compiler_session->get_builder()->CreateLoad(rhs); }
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
 
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   if (_dominant_idx == 0) {
     rhs = TypeSystem::ConvertTo(compiler_session, ltype, rhs, false, true);
   } else {
@@ -63,7 +63,8 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   } else if (_type == ASTType::SUBTRACT) {
     return compiler_session->get_builder()->CreateSub(lhs, rhs, "sub_tmp");
   }
-  assert(false);
+  TAN_ASSERT(false);
+  return nullptr;
 }
 
 /// special case for parsing negative number

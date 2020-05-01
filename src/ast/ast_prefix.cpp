@@ -10,22 +10,22 @@ ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALI
     token_index) {}
 
 std::string ASTPrefix::get_type_name() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->get_type_name();
 }
 
 llvm::Type *ASTPrefix::to_llvm_type(CompilerSession *compiler_session) const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->to_llvm_type(compiler_session);
 }
 
 llvm::Metadata *ASTPrefix::to_llvm_meta(CompilerSession *compiler_session) const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->to_llvm_meta(compiler_session);
 }
 
 std::shared_ptr<ASTTy> ASTPrefix::get_ty() const {
-  assert(_children.size() > 0);
+  TAN_ASSERT(_children.size() > 0);
   return _children[0]->get_ty();
 }
 

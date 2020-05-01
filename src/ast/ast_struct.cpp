@@ -11,7 +11,7 @@ size_t ASTStruct::nud() {
   _end_index = _start_index + 1; /// skip "struct"
   /// struct typename
   auto id = _parser->parse<ASTType::ID>(_end_index, true);
-  assert(id->is_named());
+  TAN_ASSERT(id->is_named());
   _type_name = id->get_name();
   _children.push_back(id);
   _cs->add(id->get_name(), this->shared_from_this()); /// add self to current scope

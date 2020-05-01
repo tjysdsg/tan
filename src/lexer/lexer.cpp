@@ -266,7 +266,7 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
       } else {
         /// operator containing one chars
         value = std::string{*start};
-        assert(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
+        TAN_ASSERT(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
         start = next;
       }
     }

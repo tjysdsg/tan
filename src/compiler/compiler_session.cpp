@@ -70,7 +70,7 @@ void CompilerSession::set(const std::string &name, ASTNodePtr value) {
 }
 
 ASTNodePtr CompilerSession::get(const std::string &name) {
-  assert(name != "");
+  TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
   ASTNodePtr result = nullptr;
@@ -151,7 +151,13 @@ void CompilerSession::emit_object(const std::string &filename) {
   _di_builder->finalize(); /// important: do this before any pass
 
   /// run function pass on all functions in the current module
-  for (auto &f: *_module.get()) { _fpm->run(f); }
+  for (auto &f: *_module.get()) {
+    if (f.getName() == "main") { /// special case for main function
+      // mark as used, prevent LLVM from deleting it
+      llvm::appendToUsed(*_module.get(), {(GlobalValue *) &f});
+    }
+    _fpm->run(f);
+  }
   _fpm->doFinalization();
 
   /// generate object files
@@ -191,7 +197,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
 
 void CompilerSession::AddPublicFunction(const std::string &filename, ASTNodePtr func) {
   auto f = ast_cast<ASTFunction>(func);
-  assert(f);
+  TAN_ASSERT(f);
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
     pf[filename] = std::make_shared<FunctionTable>();
@@ -213,7 +219,7 @@ unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPoin
 
 void CompilerSession::add_function(ASTNodePtr func) {
   auto f = ast_cast<ASTFunction>(func);
-  assert(f);
+  TAN_ASSERT(f);
   _function_table->set(f);
 }
 

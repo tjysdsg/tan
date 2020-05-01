@@ -13,7 +13,7 @@ void runtime_init_stack_trace(CompilerSession *compiler_session) {
   auto *init = ConstantPointerNull::get(st_t->getPointerTo());
   {
     GlobalVariable *tmp = compiler_session->get_module()->getNamedGlobal("st");
-    assert(tmp);
+    TAN_ASSERT(tmp);
     tmp->setExternallyInitialized(false);
     tmp->setInitializer(init);
     g_stack_trace = tmp;

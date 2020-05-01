@@ -41,7 +41,7 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
     compiler_session->get_builder()->SetInsertPoint(after_bb);
     compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
   } else {
-    assert(false);
+    TAN_ASSERT(false);
   }
   return nullptr;
 }
@@ -49,11 +49,11 @@ llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
 size_t ASTLoop::nud() {
   if (_parser->at(_start_index)->value == "for") {
     _loop_type = ASTLoopType::FOR;
-    assert(false);
+    TAN_ASSERT(false);
   } else if (_parser->at(_start_index)->value == "while") {
     _loop_type = ASTLoopType::WHILE;
   } else {
-    assert(false);
+    TAN_ASSERT(false);
   }
   _end_index = _start_index + 1; /// skip 'while'/'for'/...
   switch (_loop_type) {
@@ -64,7 +64,7 @@ size_t ASTLoop::nud() {
       _children.push_back(_parser->next_expression(_end_index)); /// loop body
       break;
     case ASTLoopType::FOR:
-      assert(false);
+      TAN_ASSERT(false);
       break;
     default:
       break;

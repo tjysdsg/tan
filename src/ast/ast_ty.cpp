@@ -52,11 +52,11 @@ llvm::Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       ret = cs->get_builder()->CreateGlobalStringPtr(std::get<std::string>(_default_value));
       break;
     case Ty::VOID:
-      assert(false);
+      TAN_ASSERT(false);
       break;
     case Ty::STRUCT: {
       auto st = ast_cast<ASTStruct>(cs->get(_type_name));
-      assert(st);
+      TAN_ASSERT(st);
       ret = st->get_llvm_value(cs);
       break;
     }
@@ -68,7 +68,7 @@ llvm::Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       break;
     }
     default:
-      assert(false);
+      TAN_ASSERT(false);
   }
   return ret;
 }
@@ -112,7 +112,7 @@ llvm::Type *ASTTy::to_llvm_type(CompilerSession *compiler_session) const {
       break;
     }
     default:
-      assert(false);
+      TAN_ASSERT(false);
   }
   return type;
 }
@@ -170,13 +170,13 @@ llvm::DIType *ASTTy::to_llvm_meta(CompilerSession *compiler_session) const {
       break;
     }
     default:
-      assert(false);
+      TAN_ASSERT(false);
   }
   return ret;
 }
 
 std::string ASTTy::get_type_name() const {
-  assert(!_type_name.empty());
+  TAN_ASSERT(!_type_name.empty());
   return _type_name;
 }
 
@@ -254,6 +254,7 @@ void ASTTy::resolve() {
       _is_unsigned = true;
       _default_value.emplace<uint64_t>(0);
       _is_int = true;
+      break;
     case Ty::BOOL:
       _type_name = "bool";
       _size_bits = 1;
@@ -295,7 +296,7 @@ void ASTTy::resolve() {
     case Ty::POINTER:
     case Ty::ARRAY: {
       auto e = ast_cast<ASTTy>(_children[0]);
-      assert(e);
+      TAN_ASSERT(e);
       e->resolve();
       _type_name = e->get_type_name() + "*";
       _size_bits = tm->getPointerSizeInBits(0);
@@ -305,49 +306,49 @@ void ASTTy::resolve() {
       break;
     }
     default:
-      assert(false);
+      TAN_ASSERT(false);
   }
   _n_elements = _children.size();
   _resolved = true;
 }
 
 bool ASTTy::is_ptr() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_ptr;
 }
 
 bool ASTTy::is_float() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_float;
 }
 
 bool ASTTy::is_double() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_double;
 }
 
 bool ASTTy::is_int() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_int;
 }
 
 bool ASTTy::is_bool() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_bool;
 }
 
 bool ASTTy::is_unsigned() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_unsigned;
 }
 
 bool ASTTy::is_struct() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_struct;
 }
 
 bool ASTTy::is_floating() const {
-  assert(_resolved);
+  TAN_ASSERT(_resolved);
   return _is_float || _is_double;
 }
 
@@ -440,9 +441,9 @@ size_t ASTTy::nud() {
 ASTTyPtr ASTTy::get_contained_ty() const {
   if (_ty == Ty::STRING) { return ASTTy::Create(Ty::CHAR); }
   else if (_is_ptr) {
-    assert(_children.size());
+    TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);
-    assert(ret);
+    TAN_ASSERT(ret);
     return ret;
   } else { return nullptr; }
 }

@@ -32,19 +32,19 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
       // TODO: codegen for member function call
       break;
     default:
-      assert(false);
+      TAN_ASSERT(false);
       break;
   }
   _llvm_type = ret->getType();
   _llvm_value = ret;
-  assert(ret);
+  TAN_ASSERT(ret);
   return ret;
 }
 
 size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip "." or "["
   _children.push_back(left); /// lhs
-  assert(left->is_typed());
+  TAN_ASSERT(left->is_typed());
   if (_parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
   auto member_name = _parser->peek(_end_index);
   _end_index = member_name->parse(_parser, _cs);
@@ -54,7 +54,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   if (_access_type == MemberAccessBracket) {
     ++_end_index; /// skip "]" if this is a bracket access
     _ty = left->get_ty();
-    assert(_ty->is_ptr());
+    TAN_ASSERT(_ty->is_ptr());
     _ty = _ty->get_contained_ty();
     _type_name = _ty->get_type_name();
     if (!_ty) { report_code_error(_token, "Unable to perform bracket access"); }
@@ -72,7 +72,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   } else if (_children[1]->_type == ASTType::FUNC_CALL) {
     // TODO: member function call
     _access_type = MemberAccessMemberFunction;
-    assert(false);
+    TAN_ASSERT(false);
   } else { report_code_error(_token, "Invalid right-hand operand"); }
   return _end_index;
 }
@@ -84,7 +84,7 @@ std::string ASTMemberAccess::get_type_name() const { return _type_name; }
 llvm::Value *ASTMemberAccess::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 std::shared_ptr<ASTTy> ASTMemberAccess::get_ty() const {
-  assert(_ty);
+  TAN_ASSERT(_ty);
   return _ty;
 }
 

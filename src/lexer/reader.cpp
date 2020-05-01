@@ -51,9 +51,9 @@ void Reader::from_string(const std::string &code) {
 }
 
 std::string Reader::substr(const cursor &start, cursor end) const {
-  assert(start.l != (size_t) -1 && start.c != (size_t) -1);
+  TAN_ASSERT(start.l != (size_t) -1 && start.c != (size_t) -1);
   // if end can contain -1 only if l and c are both -1
-  assert(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
+  TAN_ASSERT(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
   if (end.l == (size_t) -1 && end.c == (size_t) -1) {
     end.l = start.l;
     end.c = _lines[end.l]->code.length();
@@ -62,7 +62,7 @@ std::string Reader::substr(const cursor &start, cursor end) const {
   auto e_row = end.l;
   std::string ret;
   if (s_row == e_row) {
-    assert(start.c != end.c);
+    TAN_ASSERT(start.c != end.c);
     ret = _lines[s_row]->code.substr(start.c, end.c - start.c);
   } else {
     ret += _lines[s_row]->code.substr(start.c);
@@ -98,7 +98,7 @@ cursor Reader::end() const {
 }
 
 char Reader::at(const cursor &ptr) const {
-  assert(ptr.l != (size_t) -1 && ptr.c != (size_t) -1);
+  TAN_ASSERT(ptr.l != (size_t) -1 && ptr.c != (size_t) -1);
   if (ptr.l >= this->size()) { return '\0'; }
   if (ptr.c >= this->_lines[ptr.l]->code.length()) { return '\0'; }
   return _lines[ptr.l]->code[ptr.c];

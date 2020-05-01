@@ -32,7 +32,7 @@ Value *ASTImport::codegen(CompilerSession *cm) {
   funcs = CompilerSession::GetPublicFunctions(import_path.string());
   for (auto &n: funcs) {
     auto f = ast_cast<ASTFunction>(n);
-    assert(f);
+    TAN_ASSERT(f);
     /// do nothing for already defined intrinsics
     auto *func = cm->get_module()->getFunction(f->get_name());
     if (!func) { f->codegen_prototype(cm); } else { f->set_func(func); }

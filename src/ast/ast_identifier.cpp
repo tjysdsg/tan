@@ -48,7 +48,7 @@ std::shared_ptr<ASTTy> ASTIdentifier::get_ty() const { return get_referred()->ge
 ASTNodePtr ASTIdentifier::get_referred() const {
   if (!_referred) {
     _referred = _cs->get(_name);
-    assert(_referred);
+    TAN_ASSERT(_referred);
   }
   return _referred;
 }

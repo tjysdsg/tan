@@ -5,7 +5,6 @@
 #ifdef __GNUC__
 #pragma GCC system_header
 #endif
-
 #ifdef __clang__
 #pragma clang system_header
 #endif
@@ -40,6 +39,7 @@
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Transforms/Utils/ModuleUtils.h>
 #include <llvm/IR/DIBuilder.h>
 #include <llvm/IR/DebugInfo.h>
 #include <llvm/Support/Program.h>

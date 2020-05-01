@@ -7,7 +7,7 @@ namespace tanlang {
 ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
   if (token->value == "!") { _type = ASTType::LNOT; }
   else if (token->value == "~") { _type = ASTType::BNOT; }
-  else { assert(false); }
+  else { TAN_ASSERT(false); }
   _lbp = op_precedence[_type];
 }
 
@@ -20,7 +20,7 @@ Value *ASTNot::codegen(CompilerSession *compiler_session) {
   if (_type == ASTType::BNOT) {
     return compiler_session->get_builder()->CreateNot(rhs);
   }
-  assert(_type == ASTType::LNOT);
+  TAN_ASSERT(_type == ASTType::LNOT);
   /// get value size in bits
   auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
   if (rhs->getType()->isFloatingPointTy()) {

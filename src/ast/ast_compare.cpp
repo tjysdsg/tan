@@ -19,7 +19,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   Value *lhs = _children[0]->codegen(compiler_session);
   Value *rhs = _children[1]->codegen(compiler_session);
-  assert(lhs && rhs);
+  TAN_ASSERT(lhs && rhs);
   if (_children[0]->is_lvalue()) {
     lhs = compiler_session->get_builder()->CreateLoad(lhs);
   }
@@ -30,7 +30,7 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
 
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   if (_dominant_idx == 0) {
     rhs = TypeSystem::ConvertTo(compiler_session, ltype, rhs, false, true);
   } else {
@@ -65,7 +65,8 @@ Value *ASTCompare::codegen(CompilerSession *compiler_session) {
   } else if (_type == ASTType::LE) {
     return compiler_session->get_builder()->CreateICmpULE(lhs, rhs, "le");
   }
-  assert(false);
+  TAN_ASSERT(false);
+  return nullptr;
 }
 
 } // namespace tanlang

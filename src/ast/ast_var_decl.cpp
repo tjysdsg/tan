@@ -25,7 +25,7 @@ size_t ASTVarDecl::_nud() {
 
 void ASTVarDecl::set_ty(std::shared_ptr<ASTTy> ty) {
   _ty = ty;
-  assert(_children.size() >= 2);
+  TAN_ASSERT(_children.size() >= 2);
   _children[1] = _ty;
   _is_type_resolved = true;
 }
@@ -40,7 +40,7 @@ size_t ASTVarDecl::nud() {
 Value *ASTVarDecl::codegen(CompilerSession *cs) {
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
   cs->set_current_debug_location(_token->l, _token->c);
-  assert(_children[0]->is_named());
+  TAN_ASSERT(_children[0]->is_named());
   std::string name = this->get_name();
   Type *type = _children[1]->to_llvm_type(cs);
   Value *var = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, name);
@@ -54,7 +54,7 @@ Value *ASTVarDecl::codegen(CompilerSession *cs) {
 
 std::string ASTVarDecl::get_name() const {
   auto n = ast_cast<ASTIdentifier>(_children[0]);
-  assert(n);
+  TAN_ASSERT(n);
   return n->get_name();
 }
 

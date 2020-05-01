@@ -21,22 +21,22 @@ ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token, size_t token_index) : ASTNode(A
     token_index) {}
 
 std::string ASTInfixBinaryOp::get_type_name() const {
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->get_type_name();
 }
 
 std::shared_ptr<ASTTy> ASTInfixBinaryOp::get_ty() const {
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->get_ty();
 }
 
 llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *compiler_session) const {
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->to_llvm_type(compiler_session);
 }
 
 llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *compiler_session) const {
-  assert(_children.size() > _dominant_idx);
+  TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->to_llvm_meta(compiler_session);
 }
 
@@ -49,8 +49,8 @@ bool ASTInfixBinaryOp::is_typed() const { return true; }
 size_t ASTInfixBinaryOp::get_dominant_idx() const {
   auto lhs = _children[0];
   auto rhs = _children[1];
-  assert(lhs->is_typed());
-  assert(rhs->is_typed());
+  TAN_ASSERT(lhs->is_typed());
+  TAN_ASSERT(rhs->is_typed());
   int ret = TypeSystem::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
   if (-1 == ret) {
     report_code_error(_token, "Cannot perform implicit type conversion");

@@ -34,7 +34,7 @@ public:
    *  \param index line of code starting from 0
    */
   const line_info &get_line(const size_t index) const {
-    assert(index < _lines.size());
+    TAN_ASSERT(index < _lines.size());
     return *(_lines[index]);
   }
 
@@ -115,7 +115,7 @@ public:
   }
 
   char operator*() {
-    assert(_reader);
+    TAN_ASSERT(_reader);
     return _reader->at(*this);
   }
 

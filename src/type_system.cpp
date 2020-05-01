@@ -13,7 +13,7 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cm,
   auto *loaded = val;
   if (is_lvalue) { /// IMPORTANT
     loaded = cm->get_builder()->CreateLoad(val);
-    assert(orig->getNumContainedTypes() == 1);
+    TAN_ASSERT(orig->getNumContainedTypes() == 1);
     orig = orig->getContainedType(0); /// we only care the type of the rvalue of orig_val
   }
   bool is_pointer1 = orig->isPointerTy();
@@ -75,8 +75,8 @@ DISubroutineType *create_function_type(CompilerSession *compiler_session, Metada
 }
 
 int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
-  assert(t1);
-  assert(t2);
+  TAN_ASSERT(t1);
+  TAN_ASSERT(t2);
   if (t1.get() == t2.get()) { return 0; } /// since some ASTTy are cached, compare pointer and early return
   if (*t1 == *t2) { return 0; }
   size_t s1 = t1->get_size_bits();

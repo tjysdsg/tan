@@ -60,8 +60,10 @@ Value *ASTFunction::codegen(CompilerSession *compiler_session) {
     /// reset debug emit location
     compiler_session->get_builder()->SetCurrentDebugLocation(DebugLoc());
 
-    /// set initial stack trace for the main function
+    /// special cases for the main function
+    // TODO: move this to CompilerSession
     if (func_name == "main") {
+      /// initialize stack trace
       Intrinsic::RuntimeInit(compiler_session);
       auto stack_trace = std::make_shared<StackTrace>();
       stack_trace->_filename = _parser->get_filename();
@@ -173,23 +175,23 @@ Value *ASTFunctionCall::codegen(CompilerSession *cm) {
 }
 
 ASTNodePtr ASTFunction::get_ret() const {
-  assert(_children.size());
+  TAN_ASSERT(_children.size());
   return _children[0];
 }
 
 std::string ASTFunction::get_name() const {
-  assert(_children.size() >= 1);
-  assert(_children[1]->is_named());
+  TAN_ASSERT(_children.size() >= 1);
+  TAN_ASSERT(_children[1]->is_named());
   return _children[1]->get_name();
 }
 
 ASTNodePtr ASTFunction::get_arg(size_t i) const {
-  assert(i + 2 < _children.size());
+  TAN_ASSERT(i + 2 < _children.size());
   return _children[i + 2];
 }
 
 size_t ASTFunction::get_n_args() const {
-  assert(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
+  TAN_ASSERT(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
   return _children.size() - (_is_external ? 2 : 3);
 }
 
@@ -211,7 +213,7 @@ size_t ASTFunction::nud() {
     _is_external = true;
     /// skip "pub fn"
     _end_index = _start_index + 2;
-  } else { assert(false); }
+  } else { TAN_ASSERT(false); }
 
   /// function return type, set later
   _children.push_back(nullptr);
@@ -264,9 +266,7 @@ size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
   _end_index = _start_index + 1; /// skip function name
   auto *token = _parser->at(_end_index);
-  if (token->value != "(") {
-    report_code_error(token, "Invalid function call");
-  }
+  if (token->value != "(") { report_code_error(token, "Invalid function call"); }
   ++_end_index;
   while (!_parser->eof(_end_index)) {
     _children.push_back(_parser->next_expression(_end_index));
@@ -291,13 +291,13 @@ bool ASTFunctionCall::is_typed() const { return true; }
 
 std::string ASTFunctionCall::get_type_name() const {
   auto r = get_callee()->get_ret();
-  assert(r->is_typed());
+  TAN_ASSERT(r->is_typed());
   return r->get_type_name();
 }
 
 llvm::Type *ASTFunctionCall::to_llvm_type(CompilerSession *cm) const {
   auto r = get_callee()->get_ret();
-  assert(r->is_typed());
+  TAN_ASSERT(r->is_typed());
   return r->to_llvm_type(cm);
 }
 
@@ -317,7 +317,7 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
       size_t c = 0;
       for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
         auto arg = f->get_arg(i);
-        assert(arg->is_typed());
+        TAN_ASSERT(arg->is_typed());
         auto actual_arg = _children[i];
         /// allow implicit cast from actual_arg to arg, but not in reverse
         auto t1 = arg->get_ty();

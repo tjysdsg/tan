@@ -46,15 +46,15 @@ llvm::Value *Intrinsic::codegen(CompilerSession *compiler_session) {
       _llvm_value = tmp->codegen(compiler_session);
       break;
     case IntrinsicType::STACK_TRACE: {
-      assert(_children[0]->_type == ASTType::FUNC_CALL);
-      assert(_children[0]->_children[0]->_type == ASTType::NUM_LITERAL);
+      TAN_ASSERT(_children[0]->_type == ASTType::FUNC_CALL);
+      TAN_ASSERT(_children[0]->_children[0]->_type == ASTType::NUM_LITERAL);
       auto arg = ast_cast<ASTNumberLiteral>(_children[0]->_children[0]);
-      assert(!arg->is_float());
+      TAN_ASSERT(!arg->is_float());
       _llvm_value = codegen_get_stack_trace(compiler_session, (size_t) (arg->_ivalue));
       break;
     }
     default:
-      assert(_children.size());
+      TAN_ASSERT(_children.size());
       _llvm_value = _children[0]->codegen(compiler_session);
       break;
   }
@@ -71,7 +71,7 @@ void Intrinsic::parse_get_decl() {
   ++_start_index;
   auto input = _parser->next_expression(_start_index);
   if (input->_type != ASTType::ID) { report_code_error(_token, "Invalid call of @get_decl"); }
-  assert(input->is_named());
+  TAN_ASSERT(input->is_named());
   _str_data = input->get_name();
   _parser->peek(_start_index, TokenType::PUNCTUATION, ")");
   ++_start_index;
@@ -118,7 +118,7 @@ void Intrinsic::determine_type() {
 size_t Intrinsic::nud() {
   determine_type();
   if (_children.size() >= 1) {
-    assert(_children.size() == 1);
+    TAN_ASSERT(_children.size() == 1);
     _end_index = _children[0]->parse(_parser, _cs);
   } else {
     _end_index = _start_index + 1;
@@ -146,10 +146,10 @@ llvm::Function *Intrinsic::GetIntrinsic(IntrinsicType type, CompilerSession *com
       f = compiler_session->get_module()->getFunction("stack_trace");
       break;
     default:
-      assert(false);
+      TAN_ASSERT(false);
       break;
   }
-  assert(f);
+  TAN_ASSERT(f);
   return f;
 }
 
@@ -239,20 +239,20 @@ bool Intrinsic::is_lvalue() const { return _is_lvalue; }
 bool Intrinsic::is_typed() const { return _is_typed; }
 
 std::string Intrinsic::get_type_name() const {
-  assert(_is_typed);
-  assert(_ty);
+  TAN_ASSERT(_is_typed);
+  TAN_ASSERT(_ty);
   return _ty->get_type_name();
 }
 
 llvm::Type *Intrinsic::to_llvm_type(CompilerSession *cm) const {
-  assert(_is_typed);
-  assert(_ty);
+  TAN_ASSERT(_is_typed);
+  TAN_ASSERT(_ty);
   return _ty->to_llvm_type(cm);
 }
 
 std::shared_ptr<ASTTy> Intrinsic::get_ty() const {
-  assert(_is_typed);
-  assert(_ty);
+  TAN_ASSERT(_is_typed);
+  TAN_ASSERT(_ty);
   return _ty;
 }
 
