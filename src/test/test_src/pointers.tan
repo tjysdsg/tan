@@ -17,7 +17,7 @@ pub fn main() : int {
 
     var a: A;
     var shit = &a;
-    // TODO: assert(shit.a == 0);
+    assert(shit.a == 0);
 
     print("SUCCESS\n");
     return 0;

@@ -24,6 +24,7 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
     }
     case MemberAccessMemberVariable: {
       if (lhs->is_lvalue() && lhs->get_ty()->is_ptr() && lhs->get_ty()->get_contained_ty()) {
+        /// auto dereference pointers
         from = compiler_session->get_builder()->CreateLoad(from);
       }
       ret = compiler_session->get_builder()->CreateStructGEP(from, (unsigned) _access_idx, "member_variable");
@@ -78,7 +79,11 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     if (!lhs->is_lvalue() && !lhs->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
     auto rhs = _children[1];
     std::string m_name = rhs->get_name();
-    auto struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_type_name()));
+    std::shared_ptr<ASTStruct> struct_ast = nullptr;
+    /// auto dereference pointers
+    if (lhs->get_ty()->is_ptr()) {
+      struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_ty()->get_contained_ty()->get_type_name()));
+    } else { struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_type_name())); }
     _access_idx = struct_ast->get_member_index(m_name);
     auto member = struct_ast->get_member(_access_idx);
     _type_name = member->get_type_name();
