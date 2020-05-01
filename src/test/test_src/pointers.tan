@@ -3,7 +3,7 @@ import "runtime/print.tan";
 
 struct A {
     var a: i32;
-    var b: float;
+    var b: float = 2.5;
 }
 
 pub fn main() : int {
@@ -18,6 +18,15 @@ pub fn main() : int {
     var a: A;
     var shit = &a;
     assert(shit.a == 0);
+    assert(shit.*.a == 0);
+    shit.a = 21;
+    assert(shit.a == 21);
+    assert(shit.*.a == 21);
+
+    var p = &(shit.a);
+    p = &p[1];
+    var pf = p as float*;
+    assert(pf.* == 2.5);
 
     print("SUCCESS\n");
     return 0;
