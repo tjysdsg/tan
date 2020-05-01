@@ -4,6 +4,17 @@
 
 namespace tanlang {
 
+/**
+ * \brief Arithmetic operators, + - * /
+ *
+ * \details
+ * Children:
+ *  - Left-hand operand, ASTNode, typed, valued
+ *  - Right-hand operand, ASTNode, typed, valued
+ *
+ * lvalue: false
+ * typed: true
+ * */
 class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic() = delete;

@@ -6,6 +6,12 @@ namespace tanlang {
 
 struct Token;
 
+/**
+ * \brief Argument declaration
+ *
+ * \see ASTVarDecl, the only difference, except syntactical ones, is that an argument must have its type specified
+ * immediately. In contrast, the type of a variable can be omitted if it can be inferred.
+ * */
 class ASTArgDecl final : public ASTVarDecl {
 public:
   ASTArgDecl() = delete;

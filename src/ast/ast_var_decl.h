@@ -7,7 +7,16 @@ namespace tanlang {
 struct Token;
 
 /**
- * Children: variable name, type
+ * \brief Variable and its declaration
+ *
+ * \details
+ * Children:
+ *  - variable name, ASTIdentifier
+ *  - type, ASTTy
+ *
+ * lvalue: true
+ * typed: true
+ * named: true
  * */
 class ASTVarDecl : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
 public:

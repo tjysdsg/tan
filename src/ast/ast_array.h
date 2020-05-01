@@ -7,7 +7,14 @@ namespace tanlang {
 
 /**
  * \brief Array type
- * \details Children are ASTLiteral
+ * \details
+ * Children:
+ *  - element1, ASTLiteral
+ *  - element2, ASTLiteral
+ *  - ...
+ *
+ * lvalue: false
+ * typed: true
  * */
 class ASTArrayLiteral : public ASTLiteral {
 public:

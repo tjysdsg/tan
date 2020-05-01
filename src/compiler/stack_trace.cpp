@@ -8,6 +8,8 @@ static llvm::Value *g_stack_trace = nullptr;
 
 namespace tanlang {
 
+// TODO: construct stack trace in compile time instead of runtime
+
 void runtime_init_stack_trace(CompilerSession *compiler_session) {
   auto *st_t = g_stack_trace_t;
   auto *init = ConstantPointerNull::get(st_t->getPointerTo());

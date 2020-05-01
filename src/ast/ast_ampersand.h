@@ -5,9 +5,15 @@
 namespace tanlang {
 
 /**
- * Class that delegates two types of ASTNode
+ * Class that delegates two types of ASTNode:
  * - TODO: Binary and
  * - address_of
+ *
+ * \details
+ * Address of:
+ *  - Children: right-hand operand, ASTNode
+ *  - lvalue: false
+ *  - typed: true
  * */
 class ASTAmpersand final : public ASTNode {
 public:
