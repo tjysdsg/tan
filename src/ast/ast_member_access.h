@@ -21,7 +21,11 @@ protected:
 
 private:
   enum MemberAccessType {
-    MemberAccessInvalid = 0, MemberAccessBracket, MemberAccessMemberVariable, MemberAccessMemberFunction,
+    MemberAccessInvalid = 0,
+    MemberAccessBracket,
+    MemberAccessMemberVariable,
+    MemberAccessMemberFunction,
+    MemberAccessDeref,
   };
   MemberAccessType _access_type = MemberAccessInvalid;
   Type *_llvm_type = nullptr;

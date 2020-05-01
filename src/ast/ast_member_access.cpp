@@ -10,7 +10,8 @@ namespace tanlang {
 Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
   compiler_session->set_current_debug_location(_token->l, _token->c);
   auto lhs = _children[0];
-  auto rhs = _children[1];
+  ASTNodePtr rhs = nullptr;
+  if (_children.size() >= 2) { rhs = _children[1]; } // pointer access only have 1 child node
   auto *from = _children[0]->codegen(compiler_session);
   Value *ret = nullptr;
   switch (_access_type) {
@@ -28,6 +29,9 @@ Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {
       ret = compiler_session->get_builder()->CreateStructGEP(from, (unsigned) _access_idx, "member_variable");
       break;
     }
+    case MemberAccessDeref:
+      ret = compiler_session->get_builder()->CreateLoad(from);
+      break;
     case MemberAccessMemberFunction:
       // TODO: codegen for member function call
       break;
@@ -47,17 +51,27 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   TAN_ASSERT(left->is_typed());
   if (_parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
   auto member_name = _parser->peek(_end_index);
-  _end_index = member_name->parse(_parser, _cs);
-  _children.push_back(member_name);
+  if (_access_type != MemberAccessBracket && member_name->_token->value == "*") { /// pointer dereference
+    _access_type = MemberAccessDeref;
+    ++_end_index;
+  } else {
+    _end_index = member_name->parse(_parser, _cs);
+    _children.push_back(member_name);
+  }
 
   ASTNodePtr lhs = left;
   if (_access_type == MemberAccessBracket) {
-    ++_end_index; /// skip "]" if this is a bracket access
+    ++_end_index; // skip "]" if this is a bracket access
     _ty = left->get_ty();
     TAN_ASSERT(_ty->is_ptr());
     _ty = _ty->get_contained_ty();
     _type_name = _ty->get_type_name();
     if (!_ty) { report_code_error(_token, "Unable to perform bracket access"); }
+  } else if (_access_type == MemberAccessDeref) { /// pointer dereference
+    _ty = left->get_ty();
+    TAN_ASSERT(_ty->is_ptr());
+    _ty = _ty->get_contained_ty();
+    _type_name = _ty->get_type_name();
   } else if (_children[1]->_type == ASTType::ID) { /// member variable
     _access_type = MemberAccessMemberVariable;
     lhs = _children[0];

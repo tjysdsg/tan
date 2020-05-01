@@ -1,14 +1,24 @@
 import "runtime/debug.tan";
 import "runtime/print.tan";
 
+struct A {
+    var a: i32;
+    var b: float;
+}
+
 pub fn main() : int {
     var n = 1;
     var pn = &n;
     assert(n == 1);
-    // TODO: assert(pn.* == 1);
-    // TODO: pn.* = 2;
-    // assert(n == 2);
-    // TODO: assert(pn.* == 2);
+    assert(pn.* == 1);
+    pn.* = 2;
+    assert(n == 2);
+    assert(pn.* == 2);
+
+    var a: A;
+    var shit = &a;
+    // TODO: assert(shit.a == 0);
+
     print("SUCCESS\n");
     return 0;
 }
