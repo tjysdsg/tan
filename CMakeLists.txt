@@ -102,3 +102,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
 
 # ===== target test =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)
+
+# ===== docs =====
+add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
