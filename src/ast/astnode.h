@@ -53,6 +53,7 @@ enum class ASTType {
   EQ,        // ==
   NE,        // !=
   XOR,       // ^
+  ADDRESS_OF, // &
 
   CAST, // as
 

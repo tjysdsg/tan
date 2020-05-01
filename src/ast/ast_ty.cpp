@@ -8,6 +8,8 @@
 
 namespace tanlang {
 
+using ASTTyPtr = std::shared_ptr<ASTTy>;
+
 std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
 
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {
@@ -449,5 +451,11 @@ ASTTyPtr ASTTy::get_contained_ty() const {
 }
 
 std::shared_ptr<ASTTy> ASTTy::get_ty() const { return std::const_pointer_cast<ASTTy>(this->shared_from_this()); }
+
+ASTTyPtr ASTTy::get_ptr_to() const {
+  // FIXME: why this->shared_from_this() breaks stuff?
+  auto sub = std::make_shared<ASTTy>(*this);
+  return ASTTy::Create(Ty::POINTER, false, {sub});
+}
 
 } // namespace tanlang

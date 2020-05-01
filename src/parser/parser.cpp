@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "src/ast/ast_array.h"
+#include "src/ast/ast_ampersand.h"
 #include "src/ast/ast_cast.h"
 #include "src/ast/ast_import.h"
 #include "src/ast/ast_member_access.h"
@@ -130,6 +131,8 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTMemberAccess>(token, index);
   } else if (check_typename_token(token)) { /// types
     node = std::make_shared<ASTTy>(token, index);
+  } else if (token->value == "&") {
+    node = std::make_shared<ASTAmpersand>(token, index);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token, index);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
