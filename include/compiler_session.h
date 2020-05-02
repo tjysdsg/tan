@@ -11,6 +11,7 @@ class ASTFunction;
 using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
 class FunctionTable;
 using FunctionTablePtr = std::shared_ptr<FunctionTable>;
+class ASTLoop;
 
 class CompilerSession final {
 public:
@@ -49,6 +50,8 @@ public:
   unsigned get_ptr_size() const;
   void add_function(ASTNodePtr func);
   std::vector<ASTFunctionPtr> get_functions(const std::string &name);
+  std::shared_ptr<ASTLoop> get_current_loop() const;
+  void set_current_loop(std::shared_ptr<ASTLoop>);
 
 public:
   DIFile *get_di_file() const;
@@ -70,6 +73,9 @@ private:
   DICompileUnit *_di_cu = nullptr;
   DIFile *_di_file = nullptr;
   FunctionTablePtr _function_table = nullptr;
+
+  /// store information about current control flows
+  std::shared_ptr<ASTLoop> _current_loop = nullptr;
 
 private:
   void initialize_scope();

@@ -1,4 +1,5 @@
 #include "src/ast/ast_control_flow.h"
+#include "src/ast/ast_loop.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
 #include "parser.h"
@@ -48,6 +49,19 @@ Value *ASTElse::codegen(CompilerSession *compiler_session) {
   return _children[0]->codegen(compiler_session);
 }
 
+llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {
+  auto loop = cs->get_current_loop();
+  if (!loop) { report_code_error(_token, "Any break/continue statement must be inside loop"); }
+  auto s = loop->get_loop_start();
+  auto e = loop->get_loop_end();
+  if (_type == ASTType::BREAK) {
+    cs->get_builder()->CreateBr(e);
+  } else if (_type == ASTType::CONTINUE) {
+    cs->get_builder()->CreateBr(s);
+  } else { TAN_ASSERT(false); }
+  return nullptr;
+}
+
 size_t ASTIf::nud() {
   _end_index = _start_index + 1; /// skip "if"
   /// condition
@@ -80,13 +94,7 @@ size_t ASTElse::nud() {
 
 size_t ASTBreakContinue::nud() {
   _end_index = _start_index + 1;
-  // TODO
   return _end_index;
-}
-
-llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {
-  // TODO
-  return ASTNode::codegen(cs);
 }
 
 ASTIf::ASTIf(Token *t, size_t ti) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, t, ti) {}

@@ -233,4 +233,8 @@ DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
+std::shared_ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
+
+void CompilerSession::set_current_loop(std::shared_ptr<ASTLoop> loop) { _current_loop = loop; }
+
 } // namespace tanlang

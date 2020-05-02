@@ -2,52 +2,63 @@
 #include "src/type_system.h"
 #include "compiler_session.h"
 #include "parser.h"
-#include "intrinsic.h"
 #include "token.h"
 
 namespace tanlang {
 
-llvm::Value *ASTLoop::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
+llvm::Value *ASTLoop::codegen(CompilerSession *cs) {
+  cs->set_current_debug_location(_token->l, _token->c);
+  cs->set_current_loop(this->shared_from_this());
   if (_loop_type == ASTLoopType::WHILE) {
-    Function *func = compiler_session->get_builder()->GetInsertBlock()->getParent();
-    BasicBlock *loop_bb = BasicBlock::Create(*compiler_session->get_context(), "loop", func);
+    /*
+     * Results should like this:
+     *
+     * ...
+     * loop:
+     *    exit condition check, goto 'loop_body' or 'after_loop'
+     * loop_body:
+     *    ...
+     *    goto 'loop'
+     * after_loop:
+     *    ...
+     * */
 
-    /// enter loop_bb
-    compiler_session->get_builder()->CreateBr(loop_bb);
+    Function *func = cs->get_builder()->GetInsertBlock()->getParent();
+
+    /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
+    /// use these two (get_loop_start() and get_loop_end())
+    _loop_start = BasicBlock::Create(*cs->get_context(), "loop", func);
+    BasicBlock *loop_body = BasicBlock::Create(*cs->get_context(), "loop_body", func);
+    _loop_end = BasicBlock::Create(*cs->get_context(), "after_loop", func);
+
+    /// start loop
+    // create a br instruction if there is no terminator instruction at the end of this block
+    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(_loop_start); }
+
+    /// exit condition
+    cs->get_builder()->SetInsertPoint(_loop_start);
+    auto *cond = _children[0]->codegen(cs);
+    cond = TypeSystem::ConvertTo(cs, cs->get_builder()->getInt1Ty(), cond, false);
+    cs->get_builder()->CreateCondBr(cond, loop_body, _loop_end);
 
     /// loop body
-    BasicBlock *body_bb = BasicBlock::Create(*compiler_session->get_context(), "loop_body", func);
-    compiler_session->get_builder()->SetInsertPoint(body_bb);
-    _children[1]->codegen(compiler_session);
+    cs->get_builder()->SetInsertPoint(loop_body);
+    _children[1]->codegen(cs);
 
-    /// end to loop start
-    compiler_session->get_builder()->CreateBr(loop_bb);
+    /// go back to the start of the loop
+    // create a br instruction if there is no terminator instruction at the end of this block
+    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(_loop_start); }
 
-    /// after loop
-    BasicBlock *after_bb = BasicBlock::Create(*compiler_session->get_context(), "after_loop", func);
-
-    /// condition
-    /// to make sure that the last code block is after_bb, after_bb is created after loop body is generated
-    /// since the call to CreateCondBr should depends on after_bb, this is generated last
-    compiler_session->get_builder()->SetInsertPoint(loop_bb);
-    auto *cond = _children[0]->codegen(compiler_session);
-    /// convert to bool if not
-    cond = TypeSystem::ConvertTo(compiler_session, compiler_session->get_builder()->getInt1Ty(), cond, false);
-
-    compiler_session->get_builder()->CreateCondBr(cond, body_bb, after_bb);
-
-    /// done
-    compiler_session->get_builder()->SetInsertPoint(after_bb);
-    compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
-  } else {
-    TAN_ASSERT(false);
-  }
+    /// end loop
+    cs->get_builder()->SetInsertPoint(_loop_end);
+  } else { TAN_ASSERT(false); }
+  cs->set_current_loop(nullptr);
   return nullptr;
 }
 
 size_t ASTLoop::nud() {
   if (_parser->at(_start_index)->value == "for") {
+    // TODO: implement for loop
     _loop_type = ASTLoopType::FOR;
     TAN_ASSERT(false);
   } else if (_parser->at(_start_index)->value == "while") {
@@ -73,6 +84,10 @@ size_t ASTLoop::nud() {
 }
 
 ASTLoop::ASTLoop(Token *token, size_t token_index) : ASTNode(ASTType::LOOP, 0, 0, token, token_index) {}
+
+BasicBlock *ASTLoop::get_loop_end() const { return _loop_end; }
+
+BasicBlock *ASTLoop::get_loop_start() const { return _loop_start; }
 
 } // namespace tanlang
 
