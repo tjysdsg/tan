@@ -1,7 +1,6 @@
 #ifndef TAN_SRC_AST_AST_FUNC_H_
 #define TAN_SRC_AST_AST_FUNC_H_
 #include "src/ast/astnode.h"
-#include "src/llvm_include.h"
 
 namespace tanlang {
 
@@ -13,13 +12,21 @@ class ASTFunction;
 using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
 
 /**
- * return type, function name, arg1, arg2, ...
+ * \brief Function prototype or definition
+ *
+ * \details
+ * Children:
+ *  - Return type, ASTTy
+ *  - Function name, ASTIdentifier
+ *  - Arg1, ASTArgDecl
+ *  - Arg2, ASTArgDecl
+ *  - ...
  * */
 class ASTFunction final : public ASTNode, public std::enable_shared_from_this<ASTFunction> {
 public:
   ASTFunction(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-  Value *codegen_prototype(CompilerSession *compiler_session, bool import = false);
+  Value *codegen(CompilerSession *) override;
+  Value *codegen_prototype(CompilerSession *, bool import = false);
   bool is_named() const override;
   std::string get_name() const override;
   bool is_typed() const override;
@@ -44,13 +51,19 @@ private:
 };
 
 /**
- * arg1, arg2, ...
+ * \brief Call to a known function (or intrinsic function)
+ *
+ * \details
+ * Children:
+ *  - Arg1, ASTNode, typed, valued
+ *  - Arg2, ASTNode, typed, valued
+ *  - ...
  * */
 class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *cm) override;
+  Value *codegen(CompilerSession *) override;
   bool is_named() const override;
   std::string get_name() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;

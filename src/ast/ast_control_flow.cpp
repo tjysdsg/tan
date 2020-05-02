@@ -6,45 +6,40 @@
 
 namespace tanlang {
 
-Value *ASTIf::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
-  Value *condition = _children[0]->codegen(compiler_session);
+Value *ASTIf::codegen(CompilerSession *cs) {
+  cs->set_current_debug_location(_token->l, _token->c);
+  Value *condition = _children[0]->codegen(cs);
   if (!condition) {
     auto *condition_token = _children[0]->_token;
     report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
   }
 
   /// convert to bool if not
-  condition = TypeSystem::ConvertTo(compiler_session, compiler_session->get_builder()->getInt1Ty(), condition, false);
+  condition = TypeSystem::ConvertTo(cs, cs->get_builder()->getInt1Ty(), condition, false);
 
-  Function *func = compiler_session->get_builder()->GetInsertBlock()->getParent();
-  /// Create blocks for the then (and else) clause. Insert the 'then' block at the end of the function.
-  BasicBlock *then_bb = BasicBlock::Create(*compiler_session->get_context(), "then", func);
-  BasicBlock *else_bb = BasicBlock::Create(*compiler_session->get_context(), "else");
-  BasicBlock *merge_bb = BasicBlock::Create(*compiler_session->get_context(), "fi");
+  /// Create blocks for the then (and else) clause
+  Function *func = cs->get_builder()->GetInsertBlock()->getParent();
+  BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
+  BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
+  BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
 
-  compiler_session->get_builder()->CreateCondBr(condition, then_bb, else_bb);
+  cs->get_builder()->CreateCondBr(condition, then_bb, else_bb);
   /// emit then value
-  compiler_session->get_builder()->SetInsertPoint(then_bb);
-  /// insert noop in case empty statement
-  compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
-  _children[1]->codegen(compiler_session);
-  compiler_session->get_builder()->CreateBr(merge_bb);
+  cs->get_builder()->SetInsertPoint(then_bb);
+  _children[1]->codegen(cs);
+  /// create a br instruction if there is no terminator instruction at the end of this block
+  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
 
   /// emit else block
   func->getBasicBlockList().push_back(else_bb);
-  compiler_session->get_builder()->SetInsertPoint(else_bb);
-  /// insert noop in case empty statement
-  compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
-  if (_has_else) {
-    _children[2]->codegen(compiler_session);
-  }
-  compiler_session->get_builder()->CreateBr(merge_bb);
+  cs->get_builder()->SetInsertPoint(else_bb);
+  if (_has_else) { _children[2]->codegen(cs); }
+  /// create a br instruction if there is no terminator instruction at the end of this block
+  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+
   /// emit merge block
   func->getBasicBlockList().push_back(merge_bb);
-  compiler_session->get_builder()->SetInsertPoint(merge_bb);
-  /// insert noop in case empty statement
-  compiler_session->get_builder()->CreateCall(Intrinsic::GetIntrinsic(IntrinsicType::NOOP, compiler_session));
+  cs->get_builder()->SetInsertPoint(merge_bb);
   return nullptr;
 }
 
@@ -75,6 +70,12 @@ size_t ASTIf::nud() {
   return _end_index;
 }
 
+ASTIf::ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF,
+    op_precedence[ASTType::IF],
+    0,
+    token,
+    token_index) {}
+
 size_t ASTElse::nud() {
   _end_index = _start_index + 1; /// skip "else"
   auto else_clause = _parser->peek(_end_index);
@@ -82,6 +83,12 @@ size_t ASTElse::nud() {
   _children.push_back(else_clause);
   return _end_index;
 }
+
+ASTElse::ASTElse(Token *token, size_t token_index) : ASTNode(ASTType::ELSE,
+    op_precedence[ASTType::ELSE],
+    0,
+    token,
+    token_index) {}
 
 } // namespace tanlang
 
