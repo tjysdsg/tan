@@ -27,6 +27,16 @@ protected:
   size_t nud() override;
 };
 
+class ASTBreakContinue final : public ASTNode {
+public:
+  ASTBreakContinue() = delete;
+  ASTBreakContinue(Token *token, size_t token_index);
+  llvm::Value *codegen(CompilerSession *) override;
+
+protected:
+  size_t nud() override;
+};
+
 } // namespace tanlang
 
 #endif //TAN_SRC_AST_AST_CONTROL_FLOW_H_

@@ -70,12 +70,6 @@ size_t ASTIf::nud() {
   return _end_index;
 }
 
-ASTIf::ASTIf(Token *token, size_t token_index) : ASTNode(ASTType::IF,
-    op_precedence[ASTType::IF],
-    0,
-    token,
-    token_index) {}
-
 size_t ASTElse::nud() {
   _end_index = _start_index + 1; /// skip "else"
   auto else_clause = _parser->peek(_end_index);
@@ -84,11 +78,25 @@ size_t ASTElse::nud() {
   return _end_index;
 }
 
-ASTElse::ASTElse(Token *token, size_t token_index) : ASTNode(ASTType::ELSE,
-    op_precedence[ASTType::ELSE],
-    0,
-    token,
-    token_index) {}
+size_t ASTBreakContinue::nud() {
+  _end_index = _start_index + 1;
+  // TODO
+  return _end_index;
+}
+
+llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {
+  // TODO
+  return ASTNode::codegen(cs);
+}
+
+ASTIf::ASTIf(Token *t, size_t ti) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, t, ti) {}
+
+ASTElse::ASTElse(Token *t, size_t ti) : ASTNode(ASTType::ELSE, op_precedence[ASTType::ELSE], 0, t, ti) {}
+
+ASTBreakContinue::ASTBreakContinue(Token *t, size_t ti) : ASTNode(ASTType::INVALID, 0, 0, t, ti) {
+  if (t->value == "break") { _type = ASTType::BREAK; }
+  else if (t->value == "continue") { _type = ASTType::CONTINUE; }
+}
 
 } // namespace tanlang
 

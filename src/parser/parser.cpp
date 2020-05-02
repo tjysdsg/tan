@@ -61,6 +61,8 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
     return std::make_shared<ASTLoop>(token, index);
   } else if (token->value == "struct") {
     return std::make_shared<ASTStruct>(token, index);
+  } else if (token->value == "break" || token->value == "continue") {
+    return std::make_shared<ASTBreakContinue>(token, index);
   } else if (token->value == "as") {
     return std::make_shared<ASTCast>(token, index);
   } else { report_code_error(token, "Keyword not implemented: " + token->to_string()); }
