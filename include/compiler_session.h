@@ -1,10 +1,16 @@
 #ifndef TAN_INCLUDE_COMPILER_SESSION_H_
 #define TAN_INCLUDE_COMPILER_SESSION_H_
 #include "src/llvm_include.h"
-#include "src/scope.h"
-#include "src/compiler/function_table.h"
 
 namespace tanlang {
+
+struct Scope;
+class ASTNode;
+using ASTNodePtr = std::shared_ptr<ASTNode>;
+class ASTFunction;
+using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
+class FunctionTable;
+using FunctionTablePtr = std::shared_ptr<FunctionTable>;
 
 class CompilerSession final {
 public:

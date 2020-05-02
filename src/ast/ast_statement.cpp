@@ -1,5 +1,6 @@
 #include "src/ast/ast_statement.h"
 #include "parser.h"
+#include "token.h"
 
 namespace tanlang {
 

@@ -1,9 +1,10 @@
 #include "src/ast/ast_var_decl.h"
 #include "src/ast/ast_identifier.h"
+#include "src/ast/ast_ty.h"
+#include "src/common.h"
 #include "compiler.h"
 #include "token.h"
 #include "compiler_session.h"
-#include "src/common.h"
 
 namespace tanlang {
 

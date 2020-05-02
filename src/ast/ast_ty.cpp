@@ -8,8 +8,6 @@
 
 namespace tanlang {
 
-using ASTTyPtr = std::shared_ptr<ASTTy>;
-
 std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
 
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<std::shared_ptr<ASTTy>> sub_tys) {

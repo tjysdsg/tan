@@ -4,16 +4,16 @@
 #include <string>
 #include <memory>
 #include "src/ast/astnode.h"
-#include "stack_trace.h"
 
-namespace llvm { class Value; }
+namespace llvm {
+class Value;
+class Function;
+}
 
 namespace tanlang {
 
 class CompilerSession;
-
 class ASTTy;
-
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
 enum class IntrinsicType {

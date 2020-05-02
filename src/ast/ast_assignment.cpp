@@ -2,6 +2,7 @@
 #include "src/ast/ast_var_decl.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
+#include "token.h"
 #include "parser.h"
 
 namespace tanlang {

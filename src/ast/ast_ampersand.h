@@ -19,7 +19,7 @@ class ASTAmpersand final : public ASTNode {
 public:
   ASTAmpersand() = delete;
   ASTAmpersand(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
   bool is_typed() const override;
   bool is_lvalue() const override;
   std::string get_type_name() const override;
@@ -33,7 +33,7 @@ protected:
 
 private:
   std::shared_ptr<ASTTy> _ty = nullptr;
-  Value *_llvm_value = nullptr;
+  llvm::Value *_llvm_value = nullptr;
 };
 
 } // namespace tanlang

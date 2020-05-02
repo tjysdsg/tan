@@ -1,5 +1,9 @@
 #include "compiler_session.h"
+#include "src/scope.h"
 #include "stack_trace.h"
+#include "src/compiler/function_table.h"
+#include "base.h"
+#include "src/ast/astnode.h"
 
 namespace tanlang {
 

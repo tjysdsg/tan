@@ -2,13 +2,14 @@
 #define TAN_SRC_AST_AST_FUNC_H_
 #include "src/ast/astnode.h"
 
+namespace llvm {
+class Function;
+}
+
 namespace tanlang {
 
-struct Token;
 struct Scope;
-
 class ASTFunction;
-
 using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
 
 /**
@@ -25,8 +26,8 @@ using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
 class ASTFunction final : public ASTNode, public std::enable_shared_from_this<ASTFunction> {
 public:
   ASTFunction(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *) override;
-  Value *codegen_prototype(CompilerSession *, bool import = false);
+  llvm::Value *codegen(CompilerSession *) override;
+  llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
   bool is_named() const override;
   std::string get_name() const override;
   bool is_typed() const override;
@@ -37,8 +38,8 @@ public:
   ASTNodePtr get_ret() const;
   ASTNodePtr get_arg(size_t i) const;
   size_t get_n_args() const;
-  Function *get_func() const;
-  void set_func(Function *f);
+  llvm::Function *get_func() const;
+  void set_func(llvm::Function *f);
 
 protected:
   size_t nud() override;
@@ -46,7 +47,7 @@ protected:
 private:
   bool _is_external = false;
   bool _is_public = false;
-  Function *_func = nullptr;
+  llvm::Function *_func = nullptr;
   std::shared_ptr<Scope> _scope = nullptr;
 };
 
@@ -63,7 +64,7 @@ class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *) override;
+  llvm::Value *codegen(CompilerSession *) override;
   bool is_named() const override;
   std::string get_name() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
@@ -79,7 +80,7 @@ protected:
 
 public:
   std::string _name{};
-  Value *_llvm_value = nullptr;
+  llvm::Value *_llvm_value = nullptr;
   mutable ASTFunctionPtr _callee = nullptr;
 };
 

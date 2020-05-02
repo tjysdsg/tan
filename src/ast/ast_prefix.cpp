@@ -19,17 +19,10 @@ llvm::Type *ASTPrefix::to_llvm_type(CompilerSession *compiler_session) const {
   return _children[0]->to_llvm_type(compiler_session);
 }
 
-llvm::Metadata *ASTPrefix::to_llvm_meta(CompilerSession *compiler_session) const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->to_llvm_meta(compiler_session);
-}
-
 std::shared_ptr<ASTTy> ASTPrefix::get_ty() const {
   TAN_ASSERT(_children.size() > 0);
   return _children[0]->get_ty();
 }
-
-bool ASTPrefix::is_lvalue() const { return false; }
 
 bool ASTPrefix::is_typed() const { return true; }
 

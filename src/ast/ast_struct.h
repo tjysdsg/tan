@@ -32,7 +32,7 @@ protected:
 private:
   std::string _type_name = "";
   std::vector<std::string> _member_names{};
-  mutable Value *_llvm_value = nullptr;
+  mutable llvm::Value *_llvm_value = nullptr;
 };
 
 } // namespace tanlang

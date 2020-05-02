@@ -23,6 +23,7 @@
 #include "src/ast/ast_program.h"
 #include "src/ast/ast_char_literal.h"
 #include "intrinsic.h"
+#include "token.h"
 #include <memory>
 
 namespace tanlang {

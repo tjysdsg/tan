@@ -4,14 +4,11 @@
 
 namespace tanlang {
 
-struct Token;
-
 /// dummy, all literal types inherit from this class
 class ASTLiteral : public ASTNode {
 public:
   ASTLiteral() = delete;
   ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
-  bool is_lvalue() const override;
   bool is_typed() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override = 0;
   std::string get_type_name() const override = 0;

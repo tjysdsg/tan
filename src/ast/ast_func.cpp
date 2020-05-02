@@ -1,16 +1,18 @@
 #include "src/ast/ast_func.h"
-#include "src/type_system.h"
 #include "src/ast/ast_arg_decl.h"
+#include "src/ast/ast_ty.h"
 #include "parser.h"
+#include "reader.h"
+#include "token.h"
 #include "stack_trace.h"
 #include "intrinsic.h"
 #include "compiler_session.h"
+#include "src/type_system.h"
 #include "src/llvm_include.h"
 
 namespace tanlang {
 
-ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
-    0,
+ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0,
     0,
     token,
     token_index) { _name = token->value; }

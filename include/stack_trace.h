@@ -4,11 +4,8 @@
 #include <memory>
 
 namespace llvm {
-
 class Value;
-
 class StructType;
-
 }
 
 namespace tanlang {

@@ -26,7 +26,7 @@ public:
 
   ASTVarDecl() = delete;
   ASTVarDecl(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *cs) override;
+  llvm::Value *codegen(CompilerSession *cs) override;
   bool is_typed() const override;
   bool is_named() const override;
   std::string get_name() const override;
@@ -43,7 +43,7 @@ protected:
   size_t _nud();
 
 protected:
-  Value *_llvm_value = nullptr;
+  llvm::Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
   bool _is_type_resolved = false;
 };

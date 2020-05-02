@@ -8,7 +8,7 @@ class ASTIdentifier final : public ASTNode {
 public:
   ASTIdentifier() = delete;
   ASTIdentifier(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
   bool is_named() const override;
   std::string get_name() const override;
   std::string to_string(bool print_prefix = true) const override;

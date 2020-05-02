@@ -4,7 +4,10 @@
 #include "src/ast/ast_string_literal.h"
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_identifier.h"
+#include "src/ast/ast_func.h"
+#include "src/ast/ast_ty.h"
 #include "stack_trace.h"
+#include "token.h"
 
 namespace tanlang {
 

@@ -1,4 +1,5 @@
 #include "src/ast/ast_number_literal.h"
+#include "src/ast/ast_ty.h"
 #include "compiler_session.h"
 #include "token.h"
 

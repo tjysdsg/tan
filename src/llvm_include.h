@@ -1,7 +1,11 @@
 #ifndef TAN_SRC_LLVM_INCLUDE_H_
 #define TAN_SRC_LLVM_INCLUDE_H_
 
-/// ignore tons of warnings in LLVM headers
+/**
+ * \file Include all the necessary LLVM headers, precompile this to get a better rebuild speed
+ * */
+
+// ignore tons of warnings in LLVM headers
 #ifdef __GNUC__
 #pragma GCC system_header
 #endif

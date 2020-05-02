@@ -3,19 +3,16 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
-#include "src/llvm_include.h"
 
 namespace tanlang {
 
 class ASTNode;
-
 using ASTNodePtr = std::shared_ptr<ASTNode>;
-
 struct StackTrace;
 
 struct Scope {
-  std::unordered_map<std::string, ASTNodePtr> _named{}; ///< named identifiers in this scope
-  BasicBlock *_code_block = nullptr; ///< parent code block
+  std::unordered_map<std::string, ASTNodePtr> _named{}; /// named identifiers in this scope
+  BasicBlock *_code_block = nullptr; /// parent code block, TODO: remove this?
 };
 
 } // namespace tanlang

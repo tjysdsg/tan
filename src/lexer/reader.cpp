@@ -112,4 +112,9 @@ cursor Reader::begin() const {
   return cursor(0, 0, this);
 }
 
+const line_info &Reader::get_line(size_t index) const {
+  TAN_ASSERT(index < _lines.size());
+  return *(_lines[index]);
+}
+
 } // namespace tanlang

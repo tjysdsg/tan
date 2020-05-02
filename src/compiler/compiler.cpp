@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "lexer.h"
 #include "compiler_session.h"
 #include "intrinsic.h"
 #include "reader.h"
@@ -62,7 +63,7 @@ void Compiler::dump_ast() const {
 void Compiler::parse() {
   Reader reader;
   reader.open(_filename);
-  auto tokens = tanlang::tokenize(&reader);
+  auto tokens = tokenize(&reader);
   auto *parser = new Parser(tokens, std::string(_filename), _compiler_session);
   _ast = parser->parse();
 }

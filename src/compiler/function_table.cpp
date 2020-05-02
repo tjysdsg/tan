@@ -1,5 +1,6 @@
 #include "src/compiler/function_table.h"
 #include "src/ast/ast_func.h"
+#include "src/ast/ast_ty.h"
 
 namespace tanlang {
 

@@ -8,7 +8,6 @@ namespace tanlang {
 
 struct line_info;
 struct Token;
-
 class Reader;
 
 std::vector<Token *> tokenize(Reader *p_reader);

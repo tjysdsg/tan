@@ -9,7 +9,6 @@ class Linker final {
 public:
   Linker();
   ~Linker() = default;
-
   void add_files(std::vector<std::string> filenames);
   void add_flag(std::string flag);
   void add_flags(std::vector<std::string> flags);

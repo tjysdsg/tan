@@ -1,17 +1,21 @@
 #ifndef TAN_SRC_AST_ASTNODE_H_
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
-#include "src/llvm_include.h"
+
+namespace llvm {
+class Value;
+class Type;
+}
 
 namespace tanlang {
+
 struct Token;
 enum class Ty : uint64_t;
-
 class CompilerSession;
-
 class ASTTy;
-
 class Parser;
+class ASTNode;
+using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 enum PrecedenceLevel {
   PREC_LOWEST = 0,        //
@@ -82,12 +86,9 @@ enum class ASTType {
 
 /// get string representation of ASTType
 extern std::unordered_map<ASTType, std::string> ast_type_names;
+
 /// operator precedence for tokens
 extern std::unordered_map<ASTType, int> op_precedence;
-
-class ASTNode;
-
-using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 class ASTNode {
 public:
@@ -117,7 +118,7 @@ public:
   virtual std::string get_type_name() const { return {}; };
   virtual std::shared_ptr<ASTTy> get_ty() const { return nullptr; };
   virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
-  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const { return nullptr; };
+  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
   virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
 
   /**

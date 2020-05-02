@@ -16,7 +16,6 @@ struct line_info {
   std::string code;
   line_info() = delete;
   ~line_info() = default;
-
   line_info(const size_t lineno, const std::string code) : lineno(lineno), code(code) {}
 };
 
@@ -33,19 +32,17 @@ public:
   /** \brief Return line_info at the (\index + 1) line
    *  \param index line of code starting from 0
    */
-  const line_info &get_line(const size_t index) const {
-    TAN_ASSERT(index < _lines.size());
-    return *(_lines[index]);
-  }
-
+  const line_info &get_line(const size_t index) const;
   char at(const cursor &ptr) const;
 
   /**
+   * \brief Get a substring from start to the end of the current line
    * \param start start of the string, inclusive
    * */
   std::string substr(const cursor &start) const;
 
   /**
+   * \brief Get a substring from the source code
    * \param start start of the string, inclusive
    * \param end end of the string, exclusive
    * */
@@ -62,9 +59,7 @@ private:
 };
 
 struct cursor {
-public:
   friend class Reader;
-
   size_t l = 0;
   size_t c = 0;
 
@@ -76,8 +71,8 @@ public:
   cursor &operator=(const cursor &other) = default;
   cursor(const cursor &other) = default;
   ~cursor() = default;
-
   bool operator==(const cursor &other) { return l == other.l && c == other.c; }
+  bool operator!=(const cursor &other) { return !(*this == other); }
 
   bool operator<(const cursor &other) {
     if (l < other.l) {
@@ -99,15 +94,13 @@ public:
     }
   }
 
-  bool operator!=(const cursor &other) { return !(*this == other); }
-
-  // prefix increment
+  /// prefix increment
   cursor &operator++() {
     *this = _reader->forward(*this);
     return *this;
   }
 
-  // postfix increment
+  /// postfix increment
   cursor operator++(int) {
     auto ret = *this;
     *this = _reader->forward(*this);

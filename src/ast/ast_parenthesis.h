@@ -14,7 +14,6 @@ public:
   std::string get_type_name() const override;
   std::shared_ptr<ASTTy> get_ty() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
-  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
 
 protected:
   size_t nud() override;

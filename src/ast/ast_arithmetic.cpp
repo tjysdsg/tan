@@ -1,7 +1,9 @@
 #include "src/ast/ast_arithmetic.h"
+#include "src/ast/ast_ty.h"
 #include "src/type_system.h"
 #include "src/common.h"
 #include "compiler_session.h"
+#include "token.h"
 
 namespace tanlang {
 
@@ -67,7 +69,6 @@ Value *ASTArithmetic::codegen(CompilerSession *compiler_session) {
   return nullptr;
 }
 
-/// special case for parsing negative number
 size_t ASTArithmetic::nud() {
   _end_index = _start_index + 1; /// skip "-" or "+"
   /// unary plus/minus has higher precedence than infix plus/minus

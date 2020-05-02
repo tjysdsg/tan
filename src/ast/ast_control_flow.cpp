@@ -1,8 +1,8 @@
 #include "src/ast/ast_control_flow.h"
 #include "src/type_system.h"
-#include "intrinsic.h"
-#include "parser.h"
 #include "compiler_session.h"
+#include "parser.h"
+#include "token.h"
 
 namespace tanlang {
 

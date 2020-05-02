@@ -1,6 +1,7 @@
 #include "src/ast/ast_parenthesis.h"
 #include "compiler_session.h"
 #include "parser.h"
+#include "token.h"
 
 namespace tanlang {
 
@@ -57,11 +58,6 @@ std::shared_ptr<ASTTy> ASTParenthesis::get_ty() const {
 llvm::Type *ASTParenthesis::to_llvm_type(CompilerSession *compiler_session) const {
   TAN_ASSERT(_children.size() > 0);
   return _children[0]->to_llvm_type(compiler_session);
-}
-
-llvm::Metadata *ASTParenthesis::to_llvm_meta(CompilerSession *compiler_session) const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->to_llvm_meta(compiler_session);
 }
 
 ASTParenthesis::ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,

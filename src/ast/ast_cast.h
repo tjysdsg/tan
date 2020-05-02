@@ -8,8 +8,7 @@ class ASTCast final : public ASTInfixBinaryOp {
 public:
   ASTCast() = delete;
   ASTCast(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
-
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
   bool is_typed() const override;
   bool is_lvalue() const override;
   std::string get_type_name() const override;

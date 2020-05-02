@@ -3,7 +3,7 @@
 #include "src/ast/astnode.h"
 #include "src/common.h"
 #include "compiler_session.h"
-#include "compiler.h"
+#include "token.h"
 
 namespace tanlang {
 

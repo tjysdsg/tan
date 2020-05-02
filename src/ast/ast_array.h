@@ -1,6 +1,5 @@
 #ifndef __TAN_SRC_AST_AST_ARRAY_H__
 #define __TAN_SRC_AST_AST_ARRAY_H__
-#include "src/ast/astnode.h"
 #include "src/ast/ast_literal.h"
 
 namespace tanlang {
@@ -20,14 +19,13 @@ class ASTArrayLiteral : public ASTLiteral {
 public:
   ASTArrayLiteral() = delete;
   ASTArrayLiteral(Token *token, size_t token_index);
-
   std::shared_ptr<ASTTy> get_ty() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   std::string get_type_name() const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
   llvm::Type *get_element_llvm_type(CompilerSession *) const;
   size_t get_n_elements() const;
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
   std::string to_string(bool print_prefix = true) const override;
 
 protected:

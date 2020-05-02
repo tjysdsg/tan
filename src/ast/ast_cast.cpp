@@ -1,8 +1,9 @@
 #include "src/ast/ast_cast.h"
+#include "src/ast/ast_ty.h"
 #include "src/type_system.h"
+#include "src/common.h"
 #include "compiler_session.h"
 #include "parser.h"
-#include "src/common.h"
 #include "token.h"
 
 namespace tanlang {

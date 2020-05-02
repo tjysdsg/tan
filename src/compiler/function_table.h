@@ -2,10 +2,12 @@
 #define __TAN_SRC_COMPILER_FUNCTION_TABLE_H__
 #include <memory>
 #include <unordered_map>
-#include "src/ast/ast_ty.h"
-#include "src/ast/ast_func.h"
+#include <vector>
 
 namespace tanlang {
+
+class ASTFunction;
+using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
 
 class FunctionTable final {
 public:

@@ -5,6 +5,7 @@
 #include "libtanc.h"
 #include "compiler.h"
 #include "parser.h"
+#include "token.h"
 #include "base.h"
 
 namespace tanlang {

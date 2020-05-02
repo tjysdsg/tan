@@ -5,25 +5,25 @@
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
-
 #define TY_IS(t1, t2) ((bool)((uint64_t)(t1) & (uint64_t)(t2)))
-
 #define TY_OR(a, b) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b))
 #define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
+
+namespace llvm {
+class DIType;
+}
 
 namespace tanlang {
 
 class Parser;
+class ASTTy;
+using ASTTyPtr = std::shared_ptr<ASTTy>;
 
 enum class Ty : uint64_t {
   INVALID = 0,
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
-  VOID = 1u,
-  INT = 2u,
-  FLOAT = 3u,
-  DOUBLE = 4u,
-  BOOL = 5u,
+  VOID = 1u, INT = 2u, FLOAT = 3u, DOUBLE = 4u, BOOL = 5u,
   POINTER = 6u,
   STRING = 7u,
   CHAR = 8u,
@@ -41,10 +41,6 @@ enum class Ty : uint64_t {
   BIT32 = 1u << 17u,
   BIT64 = 1u << 18u,
 };
-
-class ASTTy;
-
-using ASTTyPtr = std::shared_ptr<ASTTy>;
 
 class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 private:
@@ -65,7 +61,7 @@ public:
   llvm::Type *to_llvm_type(CompilerSession *cs) const override;
   llvm::DIType *to_llvm_meta(CompilerSession *cs) const override;
   llvm::Value *get_llvm_value(CompilerSession *cs) const override;
-  Value *codegen(CompilerSession *) override { return nullptr; }
+  llvm::Value *codegen(CompilerSession *) override { return nullptr; }
   std::string to_string(bool print_prefix = true) const override;
   bool operator==(const ASTTy &other) const;
   bool operator!=(const ASTTy &other) const;
@@ -85,7 +81,7 @@ public:
 public:
   Ty _ty = Ty::INVALID;
 
-  /// use variant to prevent non-trivial destructor problem
+  // use variant to prevent non-trivial destructor problem
   std::variant<std::string, uint64_t, float, double> _default_value;
 
 protected:

@@ -19,10 +19,10 @@ class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic() = delete;
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
 
 protected:
-  size_t nud() override; ///< special case for parsing unary plus and minus
+  size_t nud() override; /// special case for parsing unary plus and minus
 };
 
 } // namespace tanlang

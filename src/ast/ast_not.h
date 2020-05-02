@@ -4,13 +4,11 @@
 
 namespace tanlang {
 
-struct Token;
-
 class ASTNot final : public ASTPrefix {
 public:
   ASTNot() = delete;
   ASTNot(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *) override;
 };
 
 } // namespace tanlang

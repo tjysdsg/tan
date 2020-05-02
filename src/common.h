@@ -2,7 +2,6 @@
 #define TAN_SRC_AST_COMMON_H_
 #include "parser.h"
 #include "src/ast/astnode.h"
-#include "src/llvm_include.h"
 
 namespace tanlang {
 
@@ -22,6 +21,6 @@ template<size_t N> bool is_ast_type_in(ASTType t, std::array<ASTType, N> list) {
 
 bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2);
 
-}
+} // namespace tanlang
 
 #endif /* TAN_SRC_AST_COMMON_H_ */

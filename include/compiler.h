@@ -7,7 +7,6 @@ struct TanCompilation;
 namespace tanlang {
 
 class ASTNode;
-
 class CompilerSession;
 
 class Compiler {
@@ -25,7 +24,6 @@ public:
   Compiler() = delete;
   Compiler(std::string filename);
   ~Compiler();
-
   void parse();
   Value *codegen();
   void emit_object(const std::string &filename);

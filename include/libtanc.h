@@ -9,9 +9,7 @@
 
 namespace tanlang {
 class Parser;
-
 class Reader;
-
 class Compiler;
 }
 

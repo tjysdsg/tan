@@ -1,6 +1,8 @@
 #include "src/llvm_include.h"
 #include "src/ast/astnode.h"
 #include "parser.h"
+#include "token.h"
+#include <iostream>
 
 namespace tanlang {
 
@@ -77,6 +79,11 @@ Value *ASTNode::codegen(CompilerSession *compiler_session) {
   }
   result = _children[n - 1]->codegen(compiler_session);
   return result;
+}
+
+llvm::Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
+  if (_children.size() > 0) { return _children[0]->to_llvm_meta(cs); }
+  else { return nullptr; }
 }
 
 /// other definitions

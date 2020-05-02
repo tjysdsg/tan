@@ -4,8 +4,6 @@
 
 namespace tanlang {
 
-struct Token;
-
 /**
  * \brief Argument declaration
  *

@@ -6,7 +6,6 @@
 namespace tanlang {
 
 class ASTTy;
-
 using ASTTyPtr = std::shared_ptr<ASTTy>;
 
 class TypeSystem {
@@ -29,14 +28,14 @@ public:
    *                  Only used if converting from int to float, otherwise ignored.
    * \return Converted value if convertible, otherwise `nullptr`.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *cm,
+  static llvm::Value *ConvertTo(CompilerSession *,
       llvm::Type *dest,
       llvm::Value *val,
       bool is_lvalue,
       bool is_signed = false);
 };
 
-DISubroutineType *create_function_type(CompilerSession *compiler_session, Metadata *ret, std::vector<Metadata *> args);
+DISubroutineType *create_function_type(CompilerSession *, Metadata *ret, std::vector<Metadata *> args);
 
 } // namespace
 

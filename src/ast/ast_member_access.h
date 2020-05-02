@@ -8,7 +8,7 @@ class ASTMemberAccess final : public ASTNode {
 public:
   ASTMemberAccess() = delete;
   ASTMemberAccess(Token *token, size_t token_index);
-  Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
   bool is_lvalue() const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
   bool is_typed() const override;
@@ -28,13 +28,13 @@ private:
     MemberAccessDeref,
   };
   MemberAccessType _access_type = MemberAccessInvalid;
-  Type *_llvm_type = nullptr;
-  Value *_llvm_value = nullptr;
+  llvm::Type *_llvm_type = nullptr;
+  llvm::Value *_llvm_value = nullptr;
   std::shared_ptr<ASTTy> _ty = nullptr;
   std::string _type_name = "";
   size_t _access_idx = (size_t) -1;
 };
 
-}
+} // namespace tanlang
 
 #endif /*__TAN_SRC_AST_AST_MEMBER_ACCESS_H__*/

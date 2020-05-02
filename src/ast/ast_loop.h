@@ -4,19 +4,17 @@
 
 namespace tanlang {
 
-enum class ASTLoopType {
-  FOR, WHILE,
-};
-
 class ASTLoop final : public ASTNode {
 public:
   ASTLoop() = delete;
+  ASTLoop(Token *token, size_t token_index);
+  llvm::Value *codegen(CompilerSession *compiler_session) override;
 
-  ASTLoop(Token *token, size_t token_index) : ASTNode(ASTType::LOOP, 0, 0, token, token_index) {}
-
-  Value *codegen(CompilerSession *compiler_session) override;
 protected:
   size_t nud() override;
+
+private:
+  enum class ASTLoopType { FOR, WHILE };
   ASTLoopType _loop_type = ASTLoopType::WHILE;
 };
 

@@ -17,6 +17,6 @@ public:
   bool _is_compound = false;
 };
 
-}
+} // namespace tanlang
 
 #endif /* TAN_SRC_AST_AST_STATEMENT_H_ */

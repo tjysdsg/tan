@@ -1,7 +1,8 @@
 #include "src/ast/ast_compare.h"
+#include "compiler_session.h"
 #include "src/type_system.h"
 #include "src/common.h"
-#include "compiler_session.h"
+#include "token.h"
 
 namespace tanlang {
 

@@ -4,8 +4,6 @@
 
 namespace tanlang {
 
-struct Token;
-
 class ASTInfixBinaryOp : public ASTNode {
 public:
   ASTInfixBinaryOp() = delete;

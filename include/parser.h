@@ -1,9 +1,5 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
-#include "src/llvm_include.h"
-#include "src/ast/astnode.h"
-#include "token.h"
-#include "lexer.h"
 #include <memory>
 #include <stack>
 #include <vector>
@@ -11,10 +7,10 @@
 namespace tanlang {
 
 class ASTNode;
-
 class CompilerSession;
-
 struct Token;
+enum class TokenType;
+enum class ASTType;
 
 class Parser {
 public:
@@ -30,7 +26,7 @@ public:
   [[nodiscard]] std::shared_ptr<ASTNode> get_ast() const;
 
 public:
-  std::shared_ptr<ASTNode> _root{};
+  std::shared_ptr<ASTNode> _root = nullptr;
 
 protected:
   std::vector<Token *> _tokens{};
