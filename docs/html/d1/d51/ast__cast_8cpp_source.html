@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -52,17 +51,17 @@
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_cast.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;src/type_system.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;parser.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;src/common.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_ty.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/type_system.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/common.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;token.h&quot;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;ASTCast::ASTCast(Token *token, <span class="keywordtype">size_t</span> token_index) : ASTInfixBinaryOp(token, token_index) {</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  _type = ASTType::CAST;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  _lbp = <a class="code" href="../../d9/dcc/namespacetanlang.html#a357fea70b774ca400fcf39134646eb50">op_precedence</a>[_type];</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  _lbp = op_precedence[_type];</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;}</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;Value *ASTCast::codegen(CompilerSession *cm) {</div>
@@ -72,9 +71,9 @@
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  Value *val = lhs-&gt;codegen(cm);</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  Value *ret = val;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordflow">if</span> (lhs-&gt;is_lvalue()) { val = cm-&gt;get_builder()-&gt;CreateLoad(val); }</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  val = <a class="code" href="../../de/df9/classtanlang_1_1TypeSystem.html#afabb5f3ef1a8bc68175ab68f2247712e">TypeSystem::ConvertTo</a>(cm, dest_type, val, <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  val = <a class="code" href="../../de/df9/classtanlang_1_1TypeSystem.html#a78304f9d96e84eebe616dc4ce68442ef">TypeSystem::ConvertTo</a>(cm, dest_type, val, <span class="keyword">false</span>);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordflow">if</span> (lhs-&gt;is_lvalue()) {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    ret = <a class="code" href="../../d9/dcc/namespacetanlang.html#a4e768e0ac9404ac5a26e63729ab0b2ab">create_block_alloca</a>(cm-&gt;get_builder()-&gt;GetInsertBlock(), dest_type);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    ret = create_block_alloca(cm-&gt;get_builder()-&gt;GetInsertBlock(), dest_type);</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    cm-&gt;get_builder()-&gt;CreateStore(val, ret);</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  } <span class="keywordflow">else</span> { ret = val; }</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keywordflow">return</span> ret;</div>
@@ -115,10 +114,7 @@
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="anamespacetanlang_html_a357fea70b774ca400fcf39134646eb50"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html#a357fea70b774ca400fcf39134646eb50">tanlang::op_precedence</a></div><div class="ttdeci">std::unordered_map&lt; ASTType, int &gt; op_precedence</div><div class="ttdoc">operator precedence</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d33/astnode_8cpp_source.html#l00105">astnode.cpp:105</a></div></div>
-<div class="ttc" id="anamespacetanlang_html_a4e768e0ac9404ac5a26e63729ab0b2ab"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html#a4e768e0ac9404ac5a26e63729ab0b2ab">tanlang::create_block_alloca</a></div><div class="ttdeci">AllocaInst * create_block_alloca(BasicBlock *block, Type *type, const std::string &amp;name)</div><div class="ttdoc">Create an alloca instruction in the beginning of a block.</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/df9/common_8cpp_source.html#l00005">common.cpp:5</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1TypeSystem_html_afabb5f3ef1a8bc68175ab68f2247712e"><div class="ttname"><a href="../../de/df9/classtanlang_1_1TypeSystem.html#afabb5f3ef1a8bc68175ab68f2247712e">tanlang::TypeSystem::ConvertTo</a></div><div class="ttdeci">static llvm::Value * ConvertTo(CompilerSession *cm, llvm::Type *dest, llvm::Value *val, bool is_lvalue, bool is_signed=false)</div><div class="ttdoc">Convert a value to from orig type to dest type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3f/type__system_8cpp_source.html#l00007">type_system.cpp:7</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1TypeSystem_html_a78304f9d96e84eebe616dc4ce68442ef"><div class="ttname"><a href="../../de/df9/classtanlang_1_1TypeSystem.html#a78304f9d96e84eebe616dc4ce68442ef">tanlang::TypeSystem::ConvertTo</a></div><div class="ttdeci">static llvm::Value * ConvertTo(CompilerSession *, llvm::Type *dest, llvm::Value *val, bool is_lvalue, bool is_signed=false)</div><div class="ttdoc">Convert a value to from orig type to dest type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3f/type__system_8cpp_source.html#l00008">type_system.cpp:8</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

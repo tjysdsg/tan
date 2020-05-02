@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -55,7 +54,7 @@
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_AST_AST_AMPERSAND_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/astnode.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">/**</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment"> * Class that delegates two types of ASTNode:</span></div>
@@ -72,7 +71,7 @@
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <a class="code" href="../../da/d40/classtanlang_1_1ASTAmpersand.html">ASTAmpersand</a>() = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <a class="code" href="../../da/d40/classtanlang_1_1ASTAmpersand.html">ASTAmpersand</a>(Token *token, <span class="keywordtype">size_t</span> token_index);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  Value *codegen(CompilerSession *compiler_session) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  llvm::Value *codegen(CompilerSession *compiler_session) <span class="keyword">override</span>;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordtype">bool</span> is_typed() <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordtype">bool</span> is_lvalue() <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  std::string get_type_name() <span class="keyword">const override</span>;</div>
@@ -86,16 +85,15 @@
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  std::shared_ptr&lt;ASTTy&gt; _ty = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  Value *_llvm_value = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  llvm::Value *_llvm_value = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;};</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_SRC_AST_AST_AMPERSAND_H__ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1ASTNode_html"><div class="ttname"><a href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00092">astnode.h:92</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTNode_html"><div class="ttname"><a href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00093">astnode.h:93</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1ASTAmpersand_html"><div class="ttname"><a href="../../da/d40/classtanlang_1_1ASTAmpersand.html">tanlang::ASTAmpersand</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d7/d5f/ast__ampersand_8h_source.html#l00018">ast_ampersand.h:18</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -56,9 +55,9 @@
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/astnode.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/common.h&quot;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;compiler.h&quot;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;token.h&quot;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;Value *ASTMemberAccess::codegen(CompilerSession *compiler_session) {</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  compiler_session-&gt;set_current_debug_location(_token-&gt;l, _token-&gt;c);</div>
@@ -160,8 +159,8 @@
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keywordflow">return</span> _ty;</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;}</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160; </div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;ASTMemberAccess::ASTMemberAccess(Token *token, <span class="keywordtype">size_t</span> token_index) : ASTNode(<a class="code" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">ASTType</a>::MEMBER_ACCESS,</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <a class="code" href="../../d9/dcc/namespacetanlang.html#a357fea70b774ca400fcf39134646eb50">op_precedence</a>[<a class="code" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">ASTType</a>::MEMBER_ACCESS],</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;ASTMemberAccess::ASTMemberAccess(Token *token, <span class="keywordtype">size_t</span> token_index) : ASTNode(ASTType::MEMBER_ACCESS,</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    op_precedence[ASTType::MEMBER_ACCESS],</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    0,</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    token,</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    token_index) {}</div>
@@ -172,9 +171,6 @@
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="anamespacetanlang_html_a357fea70b774ca400fcf39134646eb50"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html#a357fea70b774ca400fcf39134646eb50">tanlang::op_precedence</a></div><div class="ttdeci">std::unordered_map&lt; ASTType, int &gt; op_precedence</div><div class="ttdoc">operator precedence</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d33/astnode_8cpp_source.html#l00105">astnode.cpp:105</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
-<div class="ttc" id="anamespacetanlang_html_a3e5f763d382b974766d4640f6f2af6c2"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">tanlang::ASTType</a></div><div class="ttdeci">ASTType</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00033">astnode.h:33</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

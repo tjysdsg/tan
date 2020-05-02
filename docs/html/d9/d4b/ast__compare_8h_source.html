@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -55,13 +54,13 @@
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_AST_AST_COMPARE_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_infix_binary_op.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="../../d5/df0/classtanlang_1_1ASTCompare.html">    7</a></span>&#160;<span class="keyword">class </span><a class="code" href="../../d5/df0/classtanlang_1_1ASTCompare.html">ASTCompare</a> final : <span class="keyword">public</span> <a class="code" href="../../dd/d63/classtanlang_1_1ASTInfixBinaryOp.html">ASTInfixBinaryOp</a> {</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  <a class="code" href="../../d5/df0/classtanlang_1_1ASTCompare.html">ASTCompare</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  <a class="code" href="../../d5/df0/classtanlang_1_1ASTCompare.html">ASTCompare</a>(<a class="code" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">ASTType</a> type, Token *token, <span class="keywordtype">size_t</span> token_index);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  Value *codegen(CompilerSession *compiler_session) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  <a class="code" href="../../d5/df0/classtanlang_1_1ASTCompare.html">ASTCompare</a>(ASTType type, Token *token, <span class="keywordtype">size_t</span> token_index);</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  llvm::Value *codegen(CompilerSession *) <span class="keyword">override</span>;</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;};</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;} <span class="comment">// namespace tanlang</span></div>
@@ -69,9 +68,7 @@
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_SRC_AST_AST_COMPARE_H__ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasstanlang_1_1ASTCompare_html"><div class="ttname"><a href="../../d5/df0/classtanlang_1_1ASTCompare.html">tanlang::ASTCompare</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d9/d4b/ast__compare_8h_source.html#l00007">ast_compare.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTInfixBinaryOp_html"><div class="ttname"><a href="../../dd/d63/classtanlang_1_1ASTInfixBinaryOp.html">tanlang::ASTInfixBinaryOp</a></div><div class="ttdef"><b>Definition:</b> <a href="../../da/df3/ast__infix__binary__op_8h_source.html#l00009">ast_infix_binary_op.h:9</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
-<div class="ttc" id="anamespacetanlang_html_a3e5f763d382b974766d4640f6f2af6c2"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">tanlang::ASTType</a></div><div class="ttdeci">ASTType</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00033">astnode.h:33</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTInfixBinaryOp_html"><div class="ttname"><a href="../../dd/d63/classtanlang_1_1ASTInfixBinaryOp.html">tanlang::ASTInfixBinaryOp</a></div><div class="ttdef"><b>Definition:</b> <a href="../../da/df3/ast__infix__binary__op_8h_source.html#l00007">ast_infix_binary_op.h:7</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

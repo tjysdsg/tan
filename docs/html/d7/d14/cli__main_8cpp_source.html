@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -63,40 +62,40 @@
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keywordtype">int</span> cli_main(<span class="keywordtype">int</span> *pargc, <span class="keywordtype">char</span> ***pargv) {</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  gflags::SetUsageMessage(<span class="stringliteral">&quot;tan compiler&quot;</span>);</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  gflags::ParseCommandLineFlags(pargc, pargv, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  std::vector&lt;char *&gt; files;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  files.reserve((<span class="keywordtype">size_t</span>) *pargc);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; *pargc; ++i) {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    files.push_back((*pargv)[i]);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  }</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  std::vector&lt;std::string&gt; link_files = flag_to_list(FLAGS_l);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  std::vector&lt;const char *&gt; link_files_c;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;lf : link_files) {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    link_files_c.push_back(lf.c_str());</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  }</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  TanCompilation config;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  config.type = EXE;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  config.out_file = FLAGS_o.c_str();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  config.verbose = 0;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keywordflow">if</span> (link_files_c.empty()) {</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    config.link_files = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    config.n_link_files = 0;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    config.n_link_files = link_files_c.size();</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    config.link_files = link_files_c.data();</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  }</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;obj&quot;</span>) {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    config.type = OBJ;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;slib&quot;</span>) {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    config.type = SLIB;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;dlib&quot;</span>) {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    config.type = DLIB;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordflow">if</span> (FLAGS_print_ast) {</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    config.verbose = 2;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_print_ir_code) {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    config.verbose = 1;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  }</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  gflags::SetVersionString(std::to_string(TAN_VERSION_MAJOR) + <span class="stringliteral">&quot;.&quot;</span> + std::to_string(TAN_VERSION_MINOR) + <span class="stringliteral">&quot;.&quot;</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;      + std::to_string(TAN_VERSION_PATCH));</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  gflags::ParseCommandLineFlags(pargc, pargv, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">  /// source files</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span>  std::vector&lt;char *&gt; files;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  files.reserve((<span class="keywordtype">size_t</span>) *pargc);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; *pargc; ++i) { files.push_back((*pargv)[i]); }<span class="comment"></span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  /// files to link to</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span>  std::vector&lt;std::string&gt; link_files = flag_to_list(FLAGS_l);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  std::vector&lt;const char *&gt; link_files_c;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;lf : link_files) { link_files_c.push_back(lf.c_str()); }</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">  /// build config</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span>  TanCompilation config;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  config.type = EXE;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  config.out_file = FLAGS_o.c_str();</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  config.verbose = 0;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordflow">if</span> (link_files_c.empty()) {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    config.link_files = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    config.n_link_files = 0;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    config.n_link_files = link_files_c.size();</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    config.link_files = link_files_c.data();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  }</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  /// output type</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;obj&quot;</span>) { config.type = OBJ; }</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;slib&quot;</span>) { config.type = SLIB; }</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_type == <span class="stringliteral">&quot;dlib&quot;</span>) { config.type = DLIB; }</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">  /// verbosity</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (FLAGS_print_ast) { config.verbose = 2; }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (FLAGS_print_ir_code) { config.verbose = 1; }</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  compile_files((<span class="keywordtype">unsigned</span>) files.size(), files.data(), &amp;config);</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordflow">return</span> 0;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;}</div>

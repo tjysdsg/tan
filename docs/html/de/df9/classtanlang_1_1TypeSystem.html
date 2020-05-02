@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="../../annotated.html"><span>Classes</span></a></li>
       <li><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +45,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../d9/dcc/namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="../../de/df9/classtanlang_1_1TypeSystem.html">TypeSystem</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="../../de/df9/classtanlang_1_1TypeSystem.html">TypeSystem</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -64,19 +63,19 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ac9a78f438110f562644e02bee26415c1"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df9/classtanlang_1_1TypeSystem.html#ac9a78f438110f562644e02bee26415c1">CanImplicitCast</a> (ASTTyPtr t1, ASTTyPtr t2)</td></tr>
 <tr class="memdesc:ac9a78f438110f562644e02bee26415c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find out which type should a value be implicitly cast to.  <a href="../../de/df9/classtanlang_1_1TypeSystem.html#ac9a78f438110f562644e02bee26415c1">More...</a><br /></td></tr>
 <tr class="separator:ac9a78f438110f562644e02bee26415c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afabb5f3ef1a8bc68175ab68f2247712e"><td class="memItemLeft" align="right" valign="top">static llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df9/classtanlang_1_1TypeSystem.html#afabb5f3ef1a8bc68175ab68f2247712e">ConvertTo</a> (CompilerSession *cm, llvm::Type *dest, llvm::Value *val, bool is_lvalue, bool is_signed=false)</td></tr>
-<tr class="memdesc:afabb5f3ef1a8bc68175ab68f2247712e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a value to from orig type to dest type.  <a href="../../de/df9/classtanlang_1_1TypeSystem.html#afabb5f3ef1a8bc68175ab68f2247712e">More...</a><br /></td></tr>
-<tr class="separator:afabb5f3ef1a8bc68175ab68f2247712e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78304f9d96e84eebe616dc4ce68442ef"><td class="memItemLeft" align="right" valign="top">static llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df9/classtanlang_1_1TypeSystem.html#a78304f9d96e84eebe616dc4ce68442ef">ConvertTo</a> (CompilerSession *, llvm::Type *dest, llvm::Value *val, bool is_lvalue, bool is_signed=false)</td></tr>
+<tr class="memdesc:a78304f9d96e84eebe616dc4ce68442ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a value to from orig type to dest type.  <a href="../../de/df9/classtanlang_1_1TypeSystem.html#a78304f9d96e84eebe616dc4ce68442ef">More...</a><br /></td></tr>
+<tr class="separator:a78304f9d96e84eebe616dc4ce68442ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:aa38f9eaef0fa4b94f5f12b0f5e4b1d47"><td class="memItemLeft" align="right" valign="top"><a id="aa38f9eaef0fa4b94f5f12b0f5e4b1d47"></a>
-static constexpr std::array&#160;</td><td class="memItemRight" valign="bottom"><b>LiteralTypes</b> = {<a class="el" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2a78c5153fa5127b623cc1a487708f3fb2">ASTType::NUM_LITERAL</a>, ASTType::STRING_LITERAL, ASTType::ARRAY_LITERAL,}</td></tr>
+static constexpr std::array&#160;</td><td class="memItemRight" valign="bottom"><b>LiteralTypes</b> = {ASTType::NUM_LITERAL, ASTType::STRING_LITERAL, ASTType::ARRAY_LITERAL,}</td></tr>
 <tr class="separator:aa38f9eaef0fa4b94f5f12b0f5e4b1d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d9/d78/type__system_8h_source.html#l00012">12</a> of file <a class="el" href="../../d9/d78/type__system_8h_source.html">type_system.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d78/type__system_8h_source.html#l00011">11</a> of file <a class="el" href="../../d9/d78/type__system_8h_source.html">type_system.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac9a78f438110f562644e02bee26415c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9a78f438110f562644e02bee26415c1">&#9670;&nbsp;</a></span>CanImplicitCast()</h2>
@@ -115,12 +114,12 @@ static constexpr std::array&#160;</td><td class="memItemRight" valign="bottom"><
 <p>Find out which type should a value be implicitly cast to. </p>
 <p>Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3f/type__system_8cpp_source.html#l00077">77</a> of file <a class="el" href="../../d2/d3f/type__system_8cpp_source.html">type_system.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3f/type__system_8cpp_source.html#l00074">74</a> of file <a class="el" href="../../d2/d3f/type__system_8cpp_source.html">type_system.cpp</a>.</p>
 
 </div>
 </div>
-<a id="afabb5f3ef1a8bc68175ab68f2247712e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afabb5f3ef1a8bc68175ab68f2247712e">&#9670;&nbsp;</a></span>ConvertTo()</h2>
+<a id="a78304f9d96e84eebe616dc4ce68442ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78304f9d96e84eebe616dc4ce68442ef">&#9670;&nbsp;</a></span>ConvertTo()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -129,10 +128,10 @@ static constexpr std::array&#160;</td><td class="memItemRight" valign="bottom"><
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Value * tanlang::TypeSystem::ConvertTo </td>
+          <td class="memname">Value * tanlang::TypeSystem::ConvertTo </td>
           <td>(</td>
           <td class="paramtype">CompilerSession *&#160;</td>
-          <td class="paramname"><em>cm</em>, </td>
+          <td class="paramname">, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -183,7 +182,7 @@ static constexpr std::array&#160;</td><td class="memItemRight" valign="bottom"><
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Converted value if convertible, otherwise <code>nullptr</code>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3f/type__system_8cpp_source.html#l00007">7</a> of file <a class="el" href="../../d2/d3f/type__system_8cpp_source.html">type_system.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3f/type__system_8cpp_source.html#l00008">8</a> of file <a class="el" href="../../d2/d3f/type__system_8cpp_source.html">type_system.cpp</a>.</p>
 
 </div>
 </div>

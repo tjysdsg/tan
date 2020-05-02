@@ -8,7 +8,6 @@
 #include "intrinsic.h"
 #include "compiler_session.h"
 #include "src/type_system.h"
-#include "src/llvm_include.h"
 
 namespace tanlang {
 

@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -55,26 +54,26 @@
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_AST_AST_IMPORT_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/astnode.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
 <div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="../../dc/d06/classtanlang_1_1ASTImport.html">    7</a></span>&#160;<span class="keyword">class </span><a class="code" href="../../dc/d06/classtanlang_1_1ASTImport.html">ASTImport</a> : <span class="keyword">public</span> <a class="code" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> {</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  <a class="code" href="../../dc/d06/classtanlang_1_1ASTImport.html">ASTImport</a>() = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  <a class="code" href="../../dc/d06/classtanlang_1_1ASTImport.html">ASTImport</a>(Token *token, <span class="keywordtype">size_t</span> token_index);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  Value *codegen(CompilerSession *cm) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  llvm::Value *codegen(CompilerSession *cm) <span class="keyword">override</span>;</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  std::string to_string(<span class="keywordtype">bool</span> print_prefix = <span class="keyword">true</span>) <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">size_t</span> nud() <span class="keyword">override</span>;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  std::string _file = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;};</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#endif // __TAN_SRC_AST_AST_IMPORT_H__</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keywordtype">size_t</span> nud() <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  std::string _file = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;};</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#endif // __TAN_SRC_AST_AST_IMPORT_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasstanlang_1_1ASTImport_html"><div class="ttname"><a href="../../dc/d06/classtanlang_1_1ASTImport.html">tanlang::ASTImport</a></div><div class="ttdef"><b>Definition:</b> <a href="../../db/dd0/ast__import_8h_source.html#l00007">ast_import.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTNode_html"><div class="ttname"><a href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00092">astnode.h:92</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTNode_html"><div class="ttname"><a href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/db3/astnode_8h_source.html#l00093">astnode.h:93</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

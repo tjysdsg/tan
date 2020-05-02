@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="../../annotated.html"><span>Classes</span></a></li>
       <li><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +45,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="../../d9/dcc/namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -100,9 +99,9 @@ llvm::DIType *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_met
 <tr class="memitem:a72335504adba66c0812a465a9c25d46d"><td class="memItemLeft" align="right" valign="top"><a id="a72335504adba66c0812a465a9c25d46d"></a>
 llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>get_llvm_value</b> (CompilerSession *cs) const override</td></tr>
 <tr class="separator:a72335504adba66c0812a465a9c25d46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5e0db54b52608c58e58c15fd48662e55"><td class="memItemLeft" align="right" valign="top"><a id="a5e0db54b52608c58e58c15fd48662e55"></a>
-Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (CompilerSession *) override</td></tr>
-<tr class="separator:a5e0db54b52608c58e58c15fd48662e55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8b6d5047dfeeaf9daf214b1716b536a"><td class="memItemLeft" align="right" valign="top"><a id="ac8b6d5047dfeeaf9daf214b1716b536a"></a>
+llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (CompilerSession *) override</td></tr>
+<tr class="separator:ac8b6d5047dfeeaf9daf214b1716b536a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4819cd76a69da634823863b98b92d10f"><td class="memItemLeft" align="right" valign="top"><a id="a4819cd76a69da634823863b98b92d10f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> (bool print_prefix=true) const override</td></tr>
 <tr class="separator:a4819cd76a69da634823863b98b92d10f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,7 +155,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_struct</b> () cons
 <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;)=default</td></tr>
 <tr class="separator:a9d2deecde9a272462e37f4c6f40386ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cc124a4f9da4c471837fe3b314a89ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a2cc124a4f9da4c471837fe3b314a89ea"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (<a class="el" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">ASTType</a> op, int lbp, int rbp, Token *token, size_t token_index)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (ASTType op, int lbp, int rbp, Token *token, size_t token_index)</td></tr>
 <tr class="separator:a2cc124a4f9da4c471837fe3b314a89ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc170b465b7f709089fc61becd228722 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="abc170b465b7f709089fc61becd228722"></a>
 virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>parse</b> (const ASTNodePtr &amp;left, Parser *parser, CompilerSession *cs)</td></tr>
@@ -180,20 +179,20 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_na
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a5e4a0bc175d828a96b04075e7f94f445"><td class="memItemLeft" align="right" valign="top"><a id="a5e4a0bc175d828a96b04075e7f94f445"></a>
-static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (<a class="el" href="../../d9/dcc/namespacetanlang.html#a2c2ada783658241def51dc60a50fb55a">Ty</a> t, bool is_lvalue=false, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&gt; sub_tys={})</td></tr>
+static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (Ty t, bool is_lvalue=false, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&gt; sub_tys={})</td></tr>
 <tr class="separator:a5e4a0bc175d828a96b04075e7f94f445"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a8766068c923267e7463751903245db1b"><td class="memItemLeft" align="right" valign="top"><a id="a8766068c923267e7463751903245db1b"></a>
-<a class="el" href="../../d9/dcc/namespacetanlang.html#a2c2ada783658241def51dc60a50fb55a">Ty</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_ty</b> = Ty::INVALID</td></tr>
+Ty&#160;</td><td class="memItemRight" valign="bottom"><b>_ty</b> = Ty::INVALID</td></tr>
 <tr class="separator:a8766068c923267e7463751903245db1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8c15fd0f12e81d08c2e7a6c057c826f"><td class="memItemLeft" align="right" valign="top">std::variant&lt; std::string, uint64_t, float, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html#aa8c15fd0f12e81d08c2e7a6c057c826f">_default_value</a></td></tr>
-<tr class="memdesc:aa8c15fd0f12e81d08c2e7a6c057c826f"><td class="mdescLeft">&#160;</td><td class="mdescRight">use variant to prevent non-trivial destructor problem  <a href="../../da/d7c/classtanlang_1_1ASTTy.html#aa8c15fd0f12e81d08c2e7a6c057c826f">More...</a><br /></td></tr>
+<tr class="memitem:aa8c15fd0f12e81d08c2e7a6c057c826f"><td class="memItemLeft" align="right" valign="top"><a id="aa8c15fd0f12e81d08c2e7a6c057c826f"></a>
+std::variant&lt; std::string, uint64_t, float, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_default_value</b></td></tr>
 <tr class="separator:aa8c15fd0f12e81d08c2e7a6c057c826f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
 <tr class="memitem:a5e9ec3a995e684515941fe964351af84 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a5e9ec3a995e684515941fe964351af84"></a>
-<a class="el" href="../../d9/dcc/namespacetanlang.html#a3e5f763d382b974766d4640f6f2af6c2">ASTType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_type</b> = ASTType::INVALID</td></tr>
+ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>_type</b> = ASTType::INVALID</td></tr>
 <tr class="separator:a5e9ec3a995e684515941fe964351af84 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5086725e51b3eb64ab2359f5eebd792b inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a5086725e51b3eb64ab2359f5eebd792b"></a>
 std::vector&lt; ASTNodePtr &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_children</b> {}</td></tr>
@@ -239,27 +238,8 @@ CompilerSession *&#160;</td><td class="memItemRight" valign="bottom"><b>_cs</b> 
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d2/d75/ast__ty_8h_source.html#l00049">49</a> of file <a class="el" href="../../d2/d75/ast__ty_8h_source.html">ast_ty.h</a>.</p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="aa8c15fd0f12e81d08c2e7a6c057c826f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8c15fd0f12e81d08c2e7a6c057c826f">&#9670;&nbsp;</a></span>_default_value</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::variant&lt;std::string, uint64_t, float, double&gt; tanlang::ASTTy::_default_value</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>use variant to prevent non-trivial destructor problem </p>
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d75/ast__ty_8h_source.html#l00089">89</a> of file <a class="el" href="../../d2/d75/ast__ty_8h_source.html">ast_ty.h</a>.</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<p class="definition">Definition at line <a class="el" href="../../d2/d75/ast__ty_8h_source.html#l00045">45</a> of file <a class="el" href="../../d2/d75/ast__ty_8h_source.html">ast_ty.h</a>.</p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/tjy/repos/tan/src/ast/<a class="el" href="../../d2/d75/ast__ty_8h_source.html">ast_ty.h</a></li>
 <li>/home/tjy/repos/tan/src/ast/<a class="el" href="../../d4/d20/ast__ty_8cpp_source.html">ast_ty.cpp</a></li>
 </ul>

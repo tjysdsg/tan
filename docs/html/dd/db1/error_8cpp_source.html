@@ -31,7 +31,6 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="../../index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="../../namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="../../annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="../../files.html"><span>Files</span></a></li>
     </ul>
@@ -51,32 +50,32 @@
 <div class="title">error.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;src/base/error.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;token.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;[[noreturn]] <span class="keywordtype">void</span> __tan_assert_fail(<span class="keyword">const</span> <span class="keywordtype">char</span> *expr, <span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">size_t</span> lineno) {</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;  std::cerr &lt;&lt; <span class="stringliteral">&quot;ASSERTION FAILED: &quot;</span> &lt;&lt; expr &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;  std::cerr &lt;&lt; <span class="stringliteral">&quot;at: &quot;</span> &lt;&lt; file &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; std::to_string(lineno) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  abort();</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;}</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="../../d9/dcc/namespacetanlang.html">tanlang</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keywordtype">void</span> report_code_error(<span class="keyword">const</span> std::string &amp;source, <span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col, <span class="keyword">const</span> std::string &amp;error_message) {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  std::string error_output =</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;      <span class="stringliteral">&quot;[ERROR] at LINE&quot;</span> + std::to_string(line) + <span class="stringliteral">&quot;: &quot;</span> + error_message + <span class="stringliteral">&quot;\n&quot;</span> + source + <span class="stringliteral">&quot;\n&quot;</span> + std::string(col, <span class="charliteral">&#39; &#39;</span>)</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;          + <span class="stringliteral">&quot;^&quot;</span>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keywordflow">throw</span> std::runtime_error(error_output);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keywordtype">void</span> report_code_error(Token *token, <span class="keyword">const</span> std::string &amp;error_message) {</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  report_code_error(token-&gt;line-&gt;code, token-&gt;l, token-&gt;c, error_message);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;}</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;reader.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;token.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;[[noreturn]] <span class="keywordtype">void</span> __tan_assert_fail(<span class="keyword">const</span> <span class="keywordtype">char</span> *expr, <span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">size_t</span> lineno) {</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;  std::cerr &lt;&lt; <span class="stringliteral">&quot;ASSERTION FAILED: &quot;</span> &lt;&lt; expr &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  std::cerr &lt;&lt; <span class="stringliteral">&quot;at: &quot;</span> &lt;&lt; file &lt;&lt; <span class="stringliteral">&quot;:&quot;</span> &lt;&lt; std::to_string(lineno) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  abort();</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;}</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keywordtype">void</span> report_code_error(<span class="keyword">const</span> std::string &amp;source, <span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col, <span class="keyword">const</span> std::string &amp;error_message) {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  std::string error_output =</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;      <span class="stringliteral">&quot;[ERROR] at LINE&quot;</span> + std::to_string(line) + <span class="stringliteral">&quot;: &quot;</span> + error_message + <span class="stringliteral">&quot;\n&quot;</span> + source + <span class="stringliteral">&quot;\n&quot;</span> + std::string(col, <span class="charliteral">&#39; &#39;</span>)</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;          + <span class="stringliteral">&quot;^&quot;</span>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <span class="keywordflow">throw</span> std::runtime_error(error_output);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;}</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keywordtype">void</span> report_code_error(Token *token, <span class="keyword">const</span> std::string &amp;error_message) {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  report_code_error(token-&gt;line-&gt;code, token-&gt;l, token-&gt;c, error_message);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;}</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="../../d9/dcc/namespacetanlang.html">tanlang</a></div><div class="ttdoc">ignore tons of warnings in LLVM headers</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d3e/ast__ampersand_8cpp_source.html#l00007">ast_ampersand.cpp:7</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
