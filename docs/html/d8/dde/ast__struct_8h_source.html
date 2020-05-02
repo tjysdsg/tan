@@ -38,6 +38,7 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="../../files.html"><span>File&#160;List</span></a></li>
+      <li><a href="../../globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -69,12 +70,12 @@
 <div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="../../d6/d8d/classtanlang_1_1ASTStruct.html">   17</a></span>&#160;<span class="keyword">class </span><a class="code" href="../../d6/d8d/classtanlang_1_1ASTStruct.html">ASTStruct</a> final : <span class="keyword">public</span> <a class="code" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> {</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  <a class="code" href="../../d6/d8d/classtanlang_1_1ASTStruct.html">ASTStruct</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <a class="code" href="../../d6/d8d/classtanlang_1_1ASTStruct.html">ASTStruct</a>(Token *token, <span class="keywordtype">size_t</span> token_index);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <a class="code" href="../../d6/d8d/classtanlang_1_1ASTStruct.html">ASTStruct</a>(<a class="code" href="../../d1/dba/structtanlang_1_1Token.html">Token</a> *token, <span class="keywordtype">size_t</span> token_index);</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordtype">size_t</span> get_member_index(std::string name);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  ASTNodePtr get_member(<span class="keywordtype">size_t</span> i);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  std::string get_type_name() <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  llvm::Type *to_llvm_type(CompilerSession *) <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  llvm::Value *get_llvm_value(CompilerSession *cs) <span class="keyword">const override</span>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  llvm::Type *to_llvm_type(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) <span class="keyword">const override</span>;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  llvm::Value *get_llvm_value(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">protected</span>:</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keywordtype">size_t</span> nud() <span class="keyword">override</span>;</div>
@@ -91,6 +92,8 @@
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_SRC_AST_AST_STRUCT_H__ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="../../d1/d89/classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d2e/compiler__session_8h_source.html#l00016">compiler_session.h:16</a></div></div>
+<div class="ttc" id="astructtanlang_1_1Token_html"><div class="ttname"><a href="../../d1/dba/structtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d1/d07/token_8h_source.html#l00031">token.h:31</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1ASTStruct_html"><div class="ttname"><a href="../../d6/d8d/classtanlang_1_1ASTStruct.html">tanlang::ASTStruct</a></div><div class="ttdoc">Struct type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dde/ast__struct_8h_source.html#l00017">ast_struct.h:17</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1ASTTy_html"><div class="ttname"><a href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d75/ast__ty_8h_source.html#l00045">ast_ty.h:45</a></div></div>
 <!-- start footer part -->

@@ -38,6 +38,7 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="../../files.html"><span>File&#160;List</span></a></li>
+      <li><a href="../../globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -50,7 +51,7 @@
 <div class="title">libtanc.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;libtanc.h&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="../../da/db4/libtanc_8h.html">libtanc.h</a>&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;compiler.h&quot;</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;lexer.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;linker.h&quot;</span></div>
@@ -76,27 +77,27 @@
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="preprocessor">#define END_TRY</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> _link(std::vector&lt;std::string&gt; input_paths, TanCompilation *config) {</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keyword">using</span> tanlang::Linker;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">static</span> <span class="keywordtype">bool</span> _link(std::vector&lt;std::string&gt; input_paths, <a class="code" href="../../d6/da2/structTanCompilation.html">TanCompilation</a> *config) {</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keyword">using</span> <a class="code" href="../../de/dfa/classtanlang_1_1Linker.html">tanlang::Linker</a>;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  Linker linker;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  linker.add_files(input_paths);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  linker.add_flag(<span class="stringliteral">&quot;-o&quot;</span> + std::string(config-&gt;out_file));</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordflow">if</span> (config-&gt;type == EXE) {<span class="comment"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  linker.add_flag(<span class="stringliteral">&quot;-o&quot;</span> + std::string(config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#a36fe245f58882ea876538a52631d5a03">out_file</a>));</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordflow">if</span> (config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#a7210a3bc1072a18216009b4c02238f16">type</a> == EXE) {<span class="comment"></span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">    /// default flags</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span>    linker.add_flags({<span class="stringliteral">&quot;-fPIE&quot;</span>});</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (config-&gt;type == SLIB) {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#a7210a3bc1072a18216009b4c02238f16">type</a> == SLIB) {</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="comment">// TODO: implement output type static lib</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    TAN_ASSERT(<span class="keyword">false</span>);</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="comment">// linker.add_flags({&quot;-static-pie&quot;});</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (config-&gt;type == DLIB) {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#a7210a3bc1072a18216009b4c02238f16">type</a> == DLIB) {</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    linker.add_flags({<span class="stringliteral">&quot;-shared&quot;</span>});</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  }</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordflow">return</span> linker.link();</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;}</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keywordtype">bool</span> compile_files(<span class="keywordtype">unsigned</span> n_files, <span class="keywordtype">char</span> **input_paths, TanCompilation *config) {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">bool</span> print_ir_code = config-&gt;verbose &gt;= 1;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">bool</span> print_ast = config-&gt;verbose &gt;= 2;</div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="../../da/db4/libtanc_8h.html#a4768a2a3ba4e003b173d00c431df98b6">   45</a></span>&#160;<span class="keywordtype">bool</span> <a class="code" href="../../da/db4/libtanc_8h.html#a4768a2a3ba4e003b173d00c431df98b6">compile_files</a>(<span class="keywordtype">unsigned</span> n_files, <span class="keywordtype">char</span> **input_paths, <a class="code" href="../../d6/da2/structTanCompilation.html">TanCompilation</a> *config) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keywordtype">bool</span> print_ir_code = config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#aff0683c5c734a967af143701143aaa33">verbose</a> &gt;= 1;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keywordtype">bool</span> print_ast = config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#aff0683c5c734a967af143701143aaa33">verbose</a> &gt;= 2;</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  std::vector&lt;std::string&gt; files;</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  files.reserve(n_files);</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n_files; ++i) {</div>
@@ -129,7 +130,7 @@
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment"></span>  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; config-&gt;n_link_files; ++i) {</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    files.push_back(std::string(config-&gt;link_files[i]));</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordflow">if</span> (config-&gt;type != OBJ) {</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordflow">if</span> (config-&gt;<a class="code" href="../../d6/da2/structTanCompilation.html#a7210a3bc1072a18216009b4c02238f16">type</a> != OBJ) {</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">bool</span> ret = _link(files, config);</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">if</span> (!ret) {</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      std::cerr &lt;&lt; <span class="stringliteral">&quot;Error linking files\n&quot;</span>;</div>
@@ -139,6 +140,13 @@
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="alibtanc_8h_html_a4768a2a3ba4e003b173d00c431df98b6"><div class="ttname"><a href="../../da/db4/libtanc_8h.html#a4768a2a3ba4e003b173d00c431df98b6">compile_files</a></div><div class="ttdeci">bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)</div><div class="ttdoc">Compile multiple source files.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/df9/libtanc_8cpp_source.html#l00045">libtanc.cpp:45</a></div></div>
+<div class="ttc" id="alibtanc_8h_html"><div class="ttname"><a href="../../da/db4/libtanc_8h.html">libtanc.h</a></div><div class="ttdoc">Defines tools for compiling tan source files.</div></div>
+<div class="ttc" id="aclasstanlang_1_1Linker_html"><div class="ttname"><a href="../../de/dfa/classtanlang_1_1Linker.html">tanlang::Linker</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd8/linker_8h_source.html#l00008">linker.h:8</a></div></div>
+<div class="ttc" id="astructTanCompilation_html_a36fe245f58882ea876538a52631d5a03"><div class="ttname"><a href="../../d6/da2/structTanCompilation.html#a36fe245f58882ea876538a52631d5a03">TanCompilation::out_file</a></div><div class="ttdeci">const char * out_file</div><div class="ttdoc">output filename, invalid if TanCompilation::type is set to OBJ</div><div class="ttdef"><b>Definition:</b> <a href="../../da/db4/libtanc_8h_source.html#l00033">libtanc.h:33</a></div></div>
+<div class="ttc" id="astructTanCompilation_html_aff0683c5c734a967af143701143aaa33"><div class="ttname"><a href="../../d6/da2/structTanCompilation.html#aff0683c5c734a967af143701143aaa33">TanCompilation::verbose</a></div><div class="ttdeci">unsigned verbose</div><div class="ttdoc">Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/db4/libtanc_8h_source.html#l00032">libtanc.h:32</a></div></div>
+<div class="ttc" id="astructTanCompilation_html"><div class="ttname"><a href="../../d6/da2/structTanCompilation.html">TanCompilation</a></div><div class="ttdoc">Compilation configuration.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/db4/libtanc_8h_source.html#l00030">libtanc.h:30</a></div></div>
+<div class="ttc" id="astructTanCompilation_html_a7210a3bc1072a18216009b4c02238f16"><div class="ttname"><a href="../../d6/da2/structTanCompilation.html#a7210a3bc1072a18216009b4c02238f16">TanCompilation::type</a></div><div class="ttdeci">TanCompileType type</div><div class="ttdoc">Type of compilation,.</div><div class="ttdef"><b>Definition:</b> <a href="../../da/db4/libtanc_8h_source.html#l00031">libtanc.h:31</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

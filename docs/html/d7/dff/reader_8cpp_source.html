@@ -38,6 +38,7 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="../../files.html"><span>File&#160;List</span></a></li>
+      <li><a href="../../globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -102,7 +103,7 @@
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  }</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;}</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;std::string Reader::substr(<span class="keyword">const</span> cursor &amp;start, cursor end)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="../../df/d10/classtanlang_1_1Reader.html#ae868d57dfc6f4f6dbb561f78865d3c12">   53</a></span>&#160;std::string <a class="code" href="../../df/d10/classtanlang_1_1Reader.html#ad3d1c9fdb19b6a00f0eceeaa451d5327">Reader::substr</a>(<span class="keyword">const</span> <a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> &amp;start, <a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> end)<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  TAN_ASSERT(start.l != (<span class="keywordtype">size_t</span>) -1 &amp;&amp; start.c != (<span class="keywordtype">size_t</span>) -1);</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">// if end can contain -1 only if l and c are both -1</span></div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  TAN_ASSERT(!((end.l == (<span class="keywordtype">size_t</span>) -1) ^ (end.c == (<span class="keywordtype">size_t</span>) -1)));</div>
@@ -128,7 +129,7 @@
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="keywordflow">return</span> ret;</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;}</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;cursor Reader::forward(cursor ptr) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="../../df/d10/classtanlang_1_1Reader.html#a55427de4fee29bfc2e6b78b2b9454c0a">   79</a></span>&#160;<a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> <a class="code" href="../../df/d10/classtanlang_1_1Reader.html#a55427de4fee29bfc2e6b78b2b9454c0a">Reader::forward</a>(<a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> ptr) {</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordflow">if</span> (ptr.l &gt;= _lines.size()) {</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">return</span> ptr;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  }</div>
@@ -144,8 +145,8 @@
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="keywordflow">return</span> ptr;</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;cursor Reader::end()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keywordflow">if</span> (_lines.empty()) { <span class="keywordflow">return</span> cursor(0, 1, <span class="keyword">this</span>); }</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> Reader::end()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keywordflow">if</span> (_lines.empty()) { <span class="keywordflow">return</span> <a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a>(0, 1, <span class="keyword">this</span>); }</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keywordflow">return</span> cursor(_lines.size() - 1, _lines.back()-&gt;code.length(), <span class="keyword">this</span>);</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;}</div>
 <div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
@@ -156,21 +157,26 @@
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordflow">return</span> _lines[ptr.l]-&gt;code[ptr.c];</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;std::string Reader::substr(<span class="keyword">const</span> cursor &amp;start)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keywordflow">return</span> substr(start, this-&gt;end());</div>
+<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="../../df/d10/classtanlang_1_1Reader.html#ad3d1c9fdb19b6a00f0eceeaa451d5327">  107</a></span>&#160;std::string <a class="code" href="../../df/d10/classtanlang_1_1Reader.html#ad3d1c9fdb19b6a00f0eceeaa451d5327">Reader::substr</a>(<span class="keyword">const</span> <a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> &amp;start)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="../../df/d10/classtanlang_1_1Reader.html#ad3d1c9fdb19b6a00f0eceeaa451d5327">substr</a>(start, this-&gt;end());</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;}</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;cursor Reader::begin()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordflow">return</span> cursor(0, 0, <span class="keyword">this</span>);</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a> Reader::begin()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="../../d8/db6/structtanlang_1_1cursor.html">cursor</a>(0, 0, <span class="keyword">this</span>);</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}</div>
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="keyword">const</span> line_info &amp;Reader::get_line(<span class="keywordtype">size_t</span> index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="../../df/d10/classtanlang_1_1Reader.html#acee4e47dd04203d5b2090933b190212e">  115</a></span>&#160;<span class="keyword">const</span> <a class="code" href="../../df/d37/structtanlang_1_1line__info.html">line_info</a> &amp;<a class="code" href="../../df/d10/classtanlang_1_1Reader.html#acee4e47dd04203d5b2090933b190212e">Reader::get_line</a>(<span class="keywordtype">size_t</span> index)<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  TAN_ASSERT(index &lt; _lines.size());</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="keywordflow">return</span> *(_lines[index]);</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="astructtanlang_1_1line__info_html"><div class="ttname"><a href="../../df/d37/structtanlang_1_1line__info.html">tanlang::line_info</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dda/reader_8h_source.html#l00014">reader.h:14</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_acee4e47dd04203d5b2090933b190212e"><div class="ttname"><a href="../../df/d10/classtanlang_1_1Reader.html#acee4e47dd04203d5b2090933b190212e">tanlang::Reader::get_line</a></div><div class="ttdeci">const line_info &amp; get_line(const size_t index) const</div><div class="ttdoc">Return line_info at the (\index + 1) line.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/dff/reader_8cpp_source.html#l00115">reader.cpp:115</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_a55427de4fee29bfc2e6b78b2b9454c0a"><div class="ttname"><a href="../../df/d10/classtanlang_1_1Reader.html#a55427de4fee29bfc2e6b78b2b9454c0a">tanlang::Reader::forward</a></div><div class="ttdeci">cursor forward(cursor ptr)</div><div class="ttdoc">Return a copy of code_ptr that points to the next character.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/dff/reader_8cpp_source.html#l00079">reader.cpp:79</a></div></div>
+<div class="ttc" id="astructtanlang_1_1cursor_html"><div class="ttname"><a href="../../d8/db6/structtanlang_1_1cursor.html">tanlang::cursor</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/dda/reader_8h_source.html#l00061">reader.h:61</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_ad3d1c9fdb19b6a00f0eceeaa451d5327"><div class="ttname"><a href="../../df/d10/classtanlang_1_1Reader.html#ad3d1c9fdb19b6a00f0eceeaa451d5327">tanlang::Reader::substr</a></div><div class="ttdeci">std::string substr(const cursor &amp;start) const</div><div class="ttdoc">Get a substring from start to the end of the current line.</div><div class="ttdef"><b>Definition:</b> <a href="../../d7/dff/reader_8cpp_source.html#l00107">reader.cpp:107</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

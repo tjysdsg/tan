@@ -38,6 +38,7 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="../../files.html"><span>File&#160;List</span></a></li>
+      <li><a href="../../globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -70,14 +71,14 @@
 <div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">   18</a></span>&#160;<span class="keyword">class </span><a class="code" href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">ASTArrayLiteral</a> : <span class="keyword">public</span> <a class="code" href="../../d9/dc8/classtanlang_1_1ASTLiteral.html">ASTLiteral</a> {</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <a class="code" href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">ASTArrayLiteral</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <a class="code" href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">ASTArrayLiteral</a>(Token *token, <span class="keywordtype">size_t</span> token_index);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <a class="code" href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">ASTArrayLiteral</a>(<a class="code" href="../../d1/dba/structtanlang_1_1Token.html">Token</a> *token, <span class="keywordtype">size_t</span> token_index);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  std::shared_ptr&lt;ASTTy&gt; get_ty() <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  llvm::Value *get_llvm_value(CompilerSession *) <span class="keyword">const override</span>;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  llvm::Value *get_llvm_value(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  std::string get_type_name() <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  llvm::Type *to_llvm_type(CompilerSession *) <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  llvm::Type *get_element_llvm_type(CompilerSession *) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  llvm::Type *to_llvm_type(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) <span class="keyword">const override</span>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  llvm::Type *get_element_llvm_type(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keywordtype">size_t</span> get_n_elements() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  llvm::Value *codegen(CompilerSession *compiler_session) <span class="keyword">override</span>;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  llvm::Value *codegen(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *compiler_session) <span class="keyword">override</span>;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  std::string to_string(<span class="keywordtype">bool</span> print_prefix = <span class="keyword">true</span>) <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">protected</span>:</div>
@@ -93,6 +94,8 @@
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#endif // __TAN_SRC_AST_AST_ARRAY_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="../../d1/d89/classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d2e/compiler__session_8h_source.html#l00016">compiler_session.h:16</a></div></div>
+<div class="ttc" id="astructtanlang_1_1Token_html"><div class="ttname"><a href="../../d1/dba/structtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d1/d07/token_8h_source.html#l00031">token.h:31</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1ASTLiteral_html"><div class="ttname"><a href="../../d9/dc8/classtanlang_1_1ASTLiteral.html">tanlang::ASTLiteral</a></div><div class="ttdoc">dummy, all literal types inherit from this class</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/dfe/ast__literal_8h_source.html#l00008">ast_literal.h:8</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1ASTArrayLiteral_html"><div class="ttname"><a href="../../d9/d1e/classtanlang_1_1ASTArrayLiteral.html">tanlang::ASTArrayLiteral</a></div><div class="ttdoc">Array type.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/db3/ast__array_8h_source.html#l00018">ast_array.h:18</a></div></div>
 <!-- start footer part -->

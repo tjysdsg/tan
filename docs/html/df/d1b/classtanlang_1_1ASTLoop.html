@@ -63,18 +63,24 @@ Inheritance diagram for tanlang::ASTLoop:</div>
  <div class="center">
   <img src="../../df/d1b/classtanlang_1_1ASTLoop.png" usemap="#tanlang::ASTLoop_map" alt=""/>
   <map id="tanlang::ASTLoop_map" name="tanlang::ASTLoop_map">
-<area href="../../d5/d43/classtanlang_1_1ASTNode.html" alt="tanlang::ASTNode" shape="rect" coords="0,0,113,24"/>
+<area href="../../d5/d43/classtanlang_1_1ASTNode.html" alt="tanlang::ASTNode" shape="rect" coords="0,0,252,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a1708343af6351faac60dc130ab0d12d8"><td class="memItemLeft" align="right" valign="top"><a id="a1708343af6351faac60dc130ab0d12d8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTLoop</b> (Token *token, size_t token_index)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTLoop</b> (<a class="el" href="../../d1/dba/structtanlang_1_1Token.html">Token</a> *token, size_t token_index)</td></tr>
 <tr class="separator:a1708343af6351faac60dc130ab0d12d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa897f15307926fddf03a492b7f8237e"><td class="memItemLeft" align="right" valign="top"><a id="afa897f15307926fddf03a492b7f8237e"></a>
-llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (CompilerSession *compiler_session) override</td></tr>
-<tr class="separator:afa897f15307926fddf03a492b7f8237e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8a86b5ec3919f63e02b63f8918b12f1"><td class="memItemLeft" align="right" valign="top"><a id="af8a86b5ec3919f63e02b63f8918b12f1"></a>
+llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) override</td></tr>
+<tr class="separator:af8a86b5ec3919f63e02b63f8918b12f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a6cc505d4b8d30ed09c455f1e846dc6"><td class="memItemLeft" align="right" valign="top"><a id="a6a6cc505d4b8d30ed09c455f1e846dc6"></a>
+llvm::BasicBlock *&#160;</td><td class="memItemRight" valign="bottom"><b>get_loop_end</b> () const</td></tr>
+<tr class="separator:a6a6cc505d4b8d30ed09c455f1e846dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80399c8edfb9a3b25d66a6a51d8e19c0"><td class="memItemLeft" align="right" valign="top"><a id="a80399c8edfb9a3b25d66a6a51d8e19c0"></a>
+llvm::BasicBlock *&#160;</td><td class="memItemRight" valign="bottom"><b>get_loop_start</b> () const</td></tr>
+<tr class="separator:a80399c8edfb9a3b25d66a6a51d8e19c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
 <tr class="memitem:a672aac710e3ba044c840d2f46ac4b76b inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a672aac710e3ba044c840d2f46ac4b76b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (const <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;)=default</td></tr>
@@ -83,13 +89,13 @@ llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> 
 <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;)=default</td></tr>
 <tr class="separator:a9d2deecde9a272462e37f4c6f40386ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cc124a4f9da4c471837fe3b314a89ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a2cc124a4f9da4c471837fe3b314a89ea"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (ASTType op, int lbp, int rbp, Token *token, size_t token_index)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (ASTType op, int lbp, int rbp, <a class="el" href="../../d1/dba/structtanlang_1_1Token.html">Token</a> *token, size_t token_index)</td></tr>
 <tr class="separator:a2cc124a4f9da4c471837fe3b314a89ea inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc170b465b7f709089fc61becd228722 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="abc170b465b7f709089fc61becd228722"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>parse</b> (const ASTNodePtr &amp;left, Parser *parser, CompilerSession *cs)</td></tr>
+virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>parse</b> (const ASTNodePtr &amp;left, <a class="el" href="../../d3/d64/classtanlang_1_1Parser.html">Parser</a> *parser, <a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs)</td></tr>
 <tr class="separator:abc170b465b7f709089fc61becd228722 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88296ee2fa151c26c517062f1eb04946 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a88296ee2fa151c26c517062f1eb04946"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>parse</b> (Parser *parser, CompilerSession *cs)</td></tr>
+virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>parse</b> (<a class="el" href="../../d3/d64/classtanlang_1_1Parser.html">Parser</a> *parser, <a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs)</td></tr>
 <tr class="separator:a88296ee2fa151c26c517062f1eb04946 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a83981e27c6ba06655a895923d570f423 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a83981e27c6ba06655a895923d570f423"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>printTree</b> () const</td></tr>
@@ -116,13 +122,13 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_ty
 virtual std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_ty</b> () const</td></tr>
 <tr class="separator:a0b49d4cbbcf1ada921b7a8edefbff258 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4420b64a6073b0f2ada90066874a6bdf inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a4420b64a6073b0f2ada90066874a6bdf"></a>
-virtual llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_type</b> (CompilerSession *) const</td></tr>
+virtual llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_type</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) const</td></tr>
 <tr class="separator:a4420b64a6073b0f2ada90066874a6bdf inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1cca6eda6c564797665bed4cfdec3e07 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a1cca6eda6c564797665bed4cfdec3e07"></a>
-virtual llvm::Metadata *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_meta</b> (CompilerSession *) const</td></tr>
+virtual llvm::Metadata *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_meta</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) const</td></tr>
 <tr class="separator:a1cca6eda6c564797665bed4cfdec3e07 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b4a04babcc4bcabee47040cc12dd279 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a0b4a04babcc4bcabee47040cc12dd279"></a>
-virtual llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>get_llvm_value</b> (CompilerSession *) const</td></tr>
+virtual llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>get_llvm_value</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) const</td></tr>
 <tr class="separator:a0b4a04babcc4bcabee47040cc12dd279 inherit pub_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a643484ca9e805c5f6e977733edd34fbc inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html#a643484ca9e805c5f6e977733edd34fbc">get_src</a> () const</td></tr>
 <tr class="memdesc:a643484ca9e805c5f6e977733edd34fbc inherit pub_methods_classtanlang_1_1ASTNode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get original source for a AST node.  <a href="../../d5/d43/classtanlang_1_1ASTNode.html#a643484ca9e805c5f6e977733edd34fbc">More...</a><br /></td></tr>
@@ -154,7 +160,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>_lbp</b> = 0</td></tr>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>_rbp</b> = 0</td></tr>
 <tr class="separator:a7da0327e3c07809075b28e804704a81e inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaa247ba7edb3a4c073e4c2903b3a2c8 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="adaa247ba7edb3a4c073e4c2903b3a2c8"></a>
-Token *&#160;</td><td class="memItemRight" valign="bottom"><b>_token</b> = nullptr</td></tr>
+<a class="el" href="../../d1/dba/structtanlang_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_token</b> = nullptr</td></tr>
 <tr class="separator:adaa247ba7edb3a4c073e4c2903b3a2c8 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
 <tr class="memitem:ac55023109ac7f78877e733a6c612032b inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="ac55023109ac7f78877e733a6c612032b"></a>
@@ -167,15 +173,15 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>_start_index</b> = 
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>_end_index</b> = 0</td></tr>
 <tr class="separator:a628133af46e843d3452e9f86439fddb9 inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb47bcb9a64187cf9bdbabb36246b895 inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="aeb47bcb9a64187cf9bdbabb36246b895"></a>
-Parser *&#160;</td><td class="memItemRight" valign="bottom"><b>_parser</b> = nullptr</td></tr>
+<a class="el" href="../../d3/d64/classtanlang_1_1Parser.html">Parser</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_parser</b> = nullptr</td></tr>
 <tr class="separator:aeb47bcb9a64187cf9bdbabb36246b895 inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ff4e46d97d4622bf6b0f1da26537991 inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a5ff4e46d97d4622bf6b0f1da26537991"></a>
-CompilerSession *&#160;</td><td class="memItemRight" valign="bottom"><b>_cs</b> = nullptr</td></tr>
+<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_cs</b> = nullptr</td></tr>
 <tr class="separator:a5ff4e46d97d4622bf6b0f1da26537991 inherit pro_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../db/db6/ast__loop_8h_source.html#l00007">7</a> of file <a class="el" href="../../db/db6/ast__loop_8h_source.html">ast_loop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/db6/ast__loop_8h_source.html#l00011">11</a> of file <a class="el" href="../../db/db6/ast__loop_8h_source.html">ast_loop.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/tjy/repos/tan/src/ast/<a class="el" href="../../db/db6/ast__loop_8h_source.html">ast_loop.h</a></li>
 <li>/home/tjy/repos/tan/src/ast/<a class="el" href="../../df/daf/ast__loop_8cpp_source.html">ast_loop.cpp</a></li>
