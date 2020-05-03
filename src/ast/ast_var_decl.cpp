@@ -44,12 +44,28 @@ Value *ASTVarDecl::codegen(CompilerSession *cs) {
   TAN_ASSERT(_children[0]->is_named());
   std::string name = this->get_name();
   Type *type = _children[1]->to_llvm_type(cs);
-  Value *var = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, name);
+  _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, name);
   if (_type == ASTType::VAR_DECL) { /// don't do this for arguments
     auto *default_value = _children[1]->get_llvm_value(cs);
-    if (default_value) { cs->get_builder()->CreateStore(default_value, var); }
+    if (default_value) { cs->get_builder()->CreateStore(default_value, _llvm_value); }
   }
-  this->_llvm_value = var;
+  /// debug info
+  {
+    auto *current_di_scope = cs->get_current_di_scope();
+    auto *arg_meta = get_ty()->to_llvm_meta(cs);
+    llvm::DILocalVariable *di_arg = cs->get_di_builder()
+        ->createAutoVariable(current_di_scope,
+            get_name(),
+            cs->get_di_file(),
+            (unsigned) _token->l + 1,
+            (DIType *) arg_meta);
+    cs->get_di_builder()
+        ->insertDeclare(_llvm_value,
+            di_arg,
+            cs->get_di_builder()->createExpression(),
+            llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, current_di_scope),
+            cs->get_builder()->GetInsertBlock());
+  }
   return _llvm_value;
 }
 

@@ -153,7 +153,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
       std::vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = st->_children[i]; // ASTVarDecl
-        elements.push_back(ast_cast<ASTTy>(e->_children[1])->to_llvm_meta(cs));
+        elements.push_back(e->get_ty()->to_llvm_meta(cs));
       }
       ret = cs->get_di_builder()
           ->createStructType(cs->get_current_di_scope(),
