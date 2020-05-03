@@ -1,8 +1,10 @@
 #ifndef __TAN_SRC_AST_AST_IMPORT_H__
 #define __TAN_SRC_AST_AST_IMPORT_H__
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace tanlang {
+
+class ASTFunction;
 
 class ASTImport : public ASTNode {
 public:
@@ -14,6 +16,7 @@ public:
 protected:
   size_t nud() override;
   std::string _file = "";
+  std::vector<std::shared_ptr<ASTFunction>> _imported_functions{};
 };
 
 } // namespace tanlang

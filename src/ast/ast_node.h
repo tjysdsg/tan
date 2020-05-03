@@ -14,6 +14,7 @@ struct Token;
 enum class Ty : uint64_t;
 class CompilerSession;
 class ASTTy;
+using ASTTyPtr = std::shared_ptr<ASTTy>;
 class Parser;
 class ASTNode;
 using ASTNodePtr = std::shared_ptr<ASTNode>;
@@ -103,25 +104,37 @@ public:
   ASTNode &operator=(const ASTNode &) = default;
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
+
+public:
   [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs);
   [[nodiscard]] virtual size_t parse(Parser *parser, CompilerSession *cs);
+
+  /**
+   * \brief Pretty-print the AST
+   * \details This requires the source code to be saved in unicode, otherwise the output will be strange. It also
+   * requires the terminal to be able to print characters like '└──' and '├──'
+   * */
   void printTree() const;
-  virtual Value *codegen(CompilerSession *compiler_session);
-  virtual std::string to_string(bool print_prefix = true) const;
-  virtual bool is_typed() const { return false; }
-  virtual bool is_named() const { return false; }
-  virtual bool is_lvalue() const { return false; };
-  virtual std::string get_name() const { return {}; };
-  virtual std::string get_type_name() const { return {}; };
-  virtual std::shared_ptr<ASTTy> get_ty() const { return nullptr; };
-  virtual llvm::Type *to_llvm_type(CompilerSession *) const { return nullptr; };
-  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
-  virtual llvm::Value *get_llvm_value(CompilerSession *) const { return nullptr; };
 
   /**
    * \brief Get original source for a AST node.
    * */
   std::string get_src() const;
+
+public:
+  std::string get_name() const;
+  std::string get_type_name() const;
+  std::shared_ptr<ASTTy> get_ty() const;
+
+public:
+  virtual llvm::Type *to_llvm_type(CompilerSession *) const;
+  virtual llvm::Value *get_llvm_value(CompilerSession *) const;
+  virtual llvm::Value *codegen(CompilerSession *compiler_session);
+  virtual std::string to_string(bool print_prefix = true) const;
+  virtual bool is_typed() const { return false; }
+  virtual bool is_named() const { return false; }
+  virtual bool is_lvalue() const { return false; }
+  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
 
 protected:
   [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
@@ -131,6 +144,9 @@ private:
   void printTree(const std::string &prefix, bool last_child) const;
 
 protected:
+  mutable llvm::Value *_llvm_value = nullptr;
+  ASTTyPtr _ty = nullptr;
+  std::string _name = "";
   bool _parsed = false;
   size_t _start_index = 0;
   size_t _end_index = 0;

@@ -19,7 +19,7 @@ class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic() = delete;
   ASTArithmetic(ASTType type, Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *cs) override;
 
 protected:
   size_t nud() override; /// special case for parsing unary plus and minus

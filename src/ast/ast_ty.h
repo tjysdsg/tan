@@ -1,6 +1,6 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 #include <variant>
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
@@ -54,20 +54,22 @@ public:
   ASTTy(Token *token, size_t token_index);
   ASTTy(const ASTTy &) = default;
 
-  ASTTyPtr get_contained_ty() const;
-  std::string get_type_name() const override;
-  ASTTyPtr get_ty() const override;
-  ASTTyPtr get_ptr_to() const;
-  llvm::Type *to_llvm_type(CompilerSession *cs) const override;
-  llvm::Metadata *to_llvm_meta(CompilerSession *cs) const override;
-  llvm::Value *get_llvm_value(CompilerSession *cs) const override;
+public:
   llvm::Value *codegen(CompilerSession *) override { return nullptr; }
+  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
   std::string to_string(bool print_prefix = true) const override;
+  llvm::Type *to_llvm_type(CompilerSession *) const override;
+  llvm::Value *get_llvm_value(CompilerSession *) const override;
+
+public:
+  std::string get_type_name() const;
+  bool is_lvalue() const override;
+  bool is_typed() const override;
+  ASTTyPtr get_contained_ty() const;
+  ASTTyPtr get_ptr_to() const;
   bool operator==(const ASTTy &other) const;
   bool operator!=(const ASTTy &other) const;
   void set_is_lvalue(bool is_lvalue);
-  bool is_lvalue() const override;
-  bool is_typed() const override;
   size_t get_size_bits() const;
   bool is_ptr() const;
   bool is_float() const;
@@ -81,20 +83,20 @@ public:
   size_t get_n_elements() const;
 
 public:
-  Ty _ty = Ty::INVALID;
-
+  // avoid name collisions
+  Ty _tyty = Ty::INVALID;
   // use variant to prevent non-trivial destructor problem
   std::variant<std::string, uint64_t, float, double> _default_value;
 
 protected:
   void resolve();
+  mutable std::string _type_name = "";
+  mutable llvm::Type *_llvm_type = nullptr;
 
 private:
   size_t nud_array();
   size_t nud() override;
 
-private:
-  mutable std::string _type_name{};
   size_t _size_bits = 0;
   size_t _align_bits = 0;
   unsigned _dwarf_encoding = 0;

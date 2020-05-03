@@ -2,11 +2,7 @@
 
 namespace tanlang {
 
-ASTLiteral::ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : ASTNode(op,
-    lbp,
-    rbp,
-    token,
-    token_index) {}
+ASTLiteral::ASTLiteral(ASTType op, int lbp, int rbp, Token *t, size_t ti) : ASTNode(op, lbp, rbp, t, ti) {}
 
 bool ASTLiteral::is_typed() const { return true; }
 

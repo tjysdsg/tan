@@ -4,16 +4,20 @@
 
 namespace tanlang {
 
+/**
+ * \brief Explicit cast
+ * \details
+ * Children:
+ *  - Left-hand operand, ASTNode, valued, typed
+ *  - Destination type, ASTTy
+ * */
 class ASTCast final : public ASTInfixBinaryOp {
 public:
   ASTCast() = delete;
   ASTCast(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *) override;
   bool is_typed() const override;
   bool is_lvalue() const override;
-  std::string get_type_name() const override;
-  std::shared_ptr<ASTTy> get_ty() const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
 
 protected:
   size_t led(const ASTNodePtr &left) override;

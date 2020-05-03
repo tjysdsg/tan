@@ -10,7 +10,6 @@ public:
   llvm::Value *codegen(CompilerSession *) override;
 
 protected:
-  size_t get_dominant_idx() const override;
   size_t led(const ASTNodePtr &left) override;
 };
 

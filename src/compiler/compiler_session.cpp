@@ -3,7 +3,7 @@
 #include "stack_trace.h"
 #include "src/compiler/function_table.h"
 #include "base.h"
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace tanlang {
 

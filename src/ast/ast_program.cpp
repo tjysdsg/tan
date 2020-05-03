@@ -4,16 +4,10 @@
 
 namespace tanlang {
 
-ASTProgram::ASTProgram() : ASTNode(tanlang::ASTType::PROGRAM,
-    tanlang::op_precedence[tanlang::ASTType::PROGRAM],
-    0,
-    nullptr,
-    0) {}
+ASTProgram::ASTProgram() : ASTNode(ASTType::PROGRAM, op_precedence[tanlang::ASTType::PROGRAM], 0, nullptr, 0) {}
 
-llvm::Value *ASTProgram::codegen(tanlang::CompilerSession *compiler_session) {
-  for (const auto &e : _children) {
-    e->codegen(compiler_session);
-  }
+llvm::Value *ASTProgram::codegen(CompilerSession *cs) {
+  for (const auto &e : _children) { e->codegen(cs); }
   return nullptr;
 }
 

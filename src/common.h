@@ -1,7 +1,8 @@
 #ifndef TAN_SRC_AST_COMMON_H_
 #define TAN_SRC_AST_COMMON_H_
 #include "parser.h"
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
+#include "src/llvm_include.h"
 
 namespace tanlang {
 

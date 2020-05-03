@@ -5,38 +5,26 @@
 
 namespace tanlang {
 
-llvm::Value *ASTStringLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
-
-Value *ASTStringLiteral::codegen(CompilerSession *compiler_session) {
-  _llvm_type = compiler_session->get_builder()->getInt8PtrTy(); /// str as char*
-  _llvm_value = compiler_session->get_builder()->CreateGlobalStringPtr(_svalue);
+Value *ASTStringLiteral::codegen(CompilerSession *cs) {
+  _llvm_value = cs->get_builder()->CreateGlobalStringPtr(_svalue);
   return _llvm_value;
 }
 
-std::string ASTStringLiteral::get_type_name() const { return "str"; }
-
-llvm::Type *ASTStringLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
-
-std::shared_ptr<ASTTy> ASTStringLiteral::get_ty() const {
-  auto ret = ASTTy::Create(Ty::STRING);
-  ret->_default_value = _svalue;
-  return ret;
-}
-
-ASTStringLiteral::ASTStringLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
+ASTStringLiteral::ASTStringLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
     op_precedence[ASTType::STRING_LITERAL],
     0,
-    token,
-    token_index) { _svalue = token->value; }
+    t,
+    ti) { _svalue = t->value; }
 
-ASTStringLiteral::ASTStringLiteral(std::string str, size_t token_index) : ASTLiteral(ASTType::STRING_LITERAL,
+ASTStringLiteral::ASTStringLiteral(std::string str, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
     op_precedence[ASTType::STRING_LITERAL],
     0,
     nullptr,
-    token_index) { _svalue = str; }
+    ti) { _svalue = str; }
 
 size_t ASTStringLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
+  _ty = ASTTy::Create(Ty::STRING);
   return _end_index;
 }
 

@@ -46,7 +46,7 @@ size_t ASTStruct::nud() {
 
 ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTTy(token, token_index) {
   _type = ASTType::STRUCT_DECL;
-  _ty = Ty::STRUCT;
+  _tyty = Ty::STRUCT;
 }
 
 size_t ASTStruct::get_member_index(std::string name) {
@@ -56,15 +56,13 @@ size_t ASTStruct::get_member_index(std::string name) {
   return _member_indices[name];
 }
 
-std::string ASTStruct::get_type_name() const { return _type_name; }
-
-llvm::Type *ASTStruct::to_llvm_type(CompilerSession *compiler_session) const {
+Type *ASTStruct::to_llvm_type(CompilerSession *cs) const {
   if (!_llvm_type) {
-    auto *struct_type = StructType::create(*compiler_session->get_context(), _type_name);
+    auto *struct_type = StructType::create(*cs->get_context(), _type_name);
     std::vector<Type *> body{};
     size_t n = _children.size();
     body.reserve(n);
-    for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(compiler_session)); }
+    for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(cs)); }
     struct_type->setBody(body);
     _llvm_type = struct_type;
   }
@@ -73,7 +71,7 @@ llvm::Type *ASTStruct::to_llvm_type(CompilerSession *compiler_session) const {
 
 ASTNodePtr ASTStruct::get_member(size_t i) { return _children[i + 1]; }
 
-llvm::Value *ASTStruct::get_llvm_value(CompilerSession *cs) const {
+Value *ASTStruct::get_llvm_value(CompilerSession *cs) const {
   if (!_llvm_value) {
     std::vector<llvm::Constant *> values{};
     size_t n = _children.size();

@@ -1,6 +1,6 @@
 #ifndef TAN_SRC_AST_AST_FUNC_H_
 #define TAN_SRC_AST_AST_FUNC_H_
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace llvm {
 class Function;
@@ -29,7 +29,6 @@ public:
   llvm::Value *codegen(CompilerSession *) override;
   llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
   bool is_named() const override;
-  std::string get_name() const override;
   bool is_typed() const override;
   // TODO: std::string get_type_name() const override;
   // TODO: llvm::Type *to_llvm_type(CompilerSession *) const override;
@@ -66,21 +65,14 @@ public:
   ASTFunctionCall(Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *) override;
   bool is_named() const override;
-  std::string get_name() const override;
-  llvm::Value *get_llvm_value(CompilerSession *) const override;
   bool is_lvalue() const override;
   bool is_typed() const override;
-  std::string get_type_name() const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
   size_t nud() override;
   ASTFunctionPtr get_callee() const;
 
-public:
-  std::string _name{};
-  llvm::Value *_llvm_value = nullptr;
+private:
   mutable ASTFunctionPtr _callee = nullptr;
 };
 

@@ -11,25 +11,11 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   if (!n) { report_code_error(_token, "Unexpected token"); }
   else { _children.emplace_back(n); }
   _dominant_idx = this->get_dominant_idx();
+  _ty = _children[_dominant_idx]->get_ty();
   return _end_index;
 }
 
 ASTInfixBinaryOp::ASTInfixBinaryOp(Token *t, size_t ti) : ASTNode(ASTType::INVALID, PREC_LOWEST, 0, t, ti) {}
-
-std::string ASTInfixBinaryOp::get_type_name() const {
-  TAN_ASSERT(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTInfixBinaryOp::get_ty() const {
-  TAN_ASSERT(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->get_ty();
-}
-
-llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *cs) const {
-  TAN_ASSERT(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->to_llvm_type(cs);
-}
 
 llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *cs) const {
   TAN_ASSERT(_children.size() > _dominant_idx);

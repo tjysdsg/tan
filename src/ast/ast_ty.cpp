@@ -29,7 +29,7 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<ASTNodePt
   } else {
    */
   auto ret = std::make_shared<ASTTy>(nullptr, 0);
-  ret->_ty = t;
+  ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
   ret->resolve();
@@ -42,7 +42,7 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<ASTNodePt
 
 Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
   TAN_ASSERT(_resolved);
-  Ty base = TY_GET_BASE(_ty);
+  Ty base = TY_GET_BASE(_tyty);
   Value *ret = nullptr;
   Type *type = this->to_llvm_type(cs);
   switch (base) {
@@ -84,7 +84,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
 
 Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
   TAN_ASSERT(_resolved);
-  Ty base = TY_GET_BASE(_ty);
+  Ty base = TY_GET_BASE(_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
     case Ty::INT:
@@ -128,8 +128,8 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
 
 Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
   TAN_ASSERT(_resolved);
-  Ty base = TY_GET_BASE(_ty);
-  // TODO: Ty qual = TY_GET_QUALIFIER(_ty);
+  Ty base = TY_GET_BASE(_tyty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;
   switch (base) {
     case Ty::CHAR:
@@ -209,14 +209,15 @@ bool ASTTy::operator==(const ASTTy &other) const {
 
 void ASTTy::resolve() {
   if (_resolved) { return; }
+  _ty = this->shared_from_this();
   /// resolve children if they are ASTTy
   for (auto c: _children) {
     auto t = ast_cast<ASTTy>(c);
     if (t && t->_type == ASTType::TY && !t->_resolved) { t->resolve(); }
   }
   auto *tm = Compiler::GetDefaultTargetMachine(); /// can't use _cs here, cuz some ty are created by ASTTy::Create()
-  Ty base = TY_GET_BASE(_ty);
-  Ty qual = TY_GET_QUALIFIER(_ty);
+  Ty base = TY_GET_BASE(_tyty);
+  Ty qual = TY_GET_QUALIFIER(_tyty);
   switch (base) {
     case Ty::INT: {
       _size_bits = 32;
@@ -366,13 +367,13 @@ size_t ASTTy::nud() {
   while (!_parser->eof(_end_index)) {
     token = _parser->at(_end_index);
     if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
-      _ty = TY_OR(_ty, basic_tys[token->value]);
+      _tyty = TY_OR(_tyty, basic_tys[token->value]);
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
         auto sub = std::make_shared<ASTTy>(token, _end_index + 1);
         /// swap self and child
-        sub->_ty = this->_ty;
-        _ty = Ty::POINTER;
+        sub->_tyty = this->_tyty;
+        _tyty = Ty::POINTER;
         _children.push_back(sub);
         auto ei = sub->parse(_parser, _cs);
         if (_end_index + 1 != ei) { _end_index = ei - 1; }
@@ -380,9 +381,9 @@ size_t ASTTy::nud() {
     } else if (token->type == TokenType::ID) { /// struct or array
       // TODO: identify type aliases
       _type_name = token->value; /// _type_name is the name of the struct
-      _ty = TY_OR(_ty, Ty::STRUCT);
+      _tyty = TY_OR(_tyty, Ty::STRUCT);
     } else if (token->value == "[") {
-      _ty = TY_OR(_ty, Ty::ARRAY);
+      _tyty = TY_OR(_tyty, Ty::ARRAY);
       _end_index = nud_array(); /// set _type_name in nud_array()
     } else { break; }
     ++_end_index;
@@ -466,7 +467,7 @@ void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 ASTTyPtr ASTTy::get_contained_ty() const {
-  if (_ty == Ty::STRING) { return ASTTy::Create(Ty::CHAR); }
+  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR); }
   else if (_is_ptr) {
     TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);
@@ -474,8 +475,6 @@ ASTTyPtr ASTTy::get_contained_ty() const {
     return ret;
   } else { return nullptr; }
 }
-
-std::shared_ptr<ASTTy> ASTTy::get_ty() const { return std::const_pointer_cast<ASTTy>(this->shared_from_this()); }
 
 size_t ASTTy::get_n_elements() const { return _n_elements; }
 

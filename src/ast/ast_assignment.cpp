@@ -51,13 +51,8 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
     if (!var->is_type_resolved()) { var->set_ty(_children[1]->get_ty()); }
   }
 
+  _ty = _children[0]->get_ty();
   return _end_index;
-}
-
-/// always convert to lhs
-size_t ASTAssignment::get_dominant_idx() const {
-  // TODO:check type
-  return 0;
 }
 
 } // namespace tanlang

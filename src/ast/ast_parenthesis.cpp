@@ -5,14 +5,12 @@
 
 namespace tanlang {
 
-Value *ASTParenthesis::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
-  auto *result = _children[0]->codegen(compiler_session);
+Value *ASTParenthesis::codegen(CompilerSession *cs) {
+  cs->set_current_debug_location(_token->l, _token->c);
+  _llvm_value = _children[0]->codegen(cs);
   size_t n = _children.size();
-  for (size_t i = 1; i < n; ++i) {
-    _children[i]->codegen(compiler_session);
-  }
-  return result;
+  for (size_t i = 1; i < n; ++i) { _children[i]->codegen(cs); }
+  return _llvm_value;
 }
 
 size_t ASTParenthesis::nud() {
@@ -32,6 +30,7 @@ size_t ASTParenthesis::nud() {
       throw std::runtime_error("Unexpected " + t->to_string());
     }
   }
+  _ty = _children[0]->get_ty();
   return _end_index;
 }
 
@@ -43,21 +42,6 @@ bool ASTParenthesis::is_typed() const {
 bool ASTParenthesis::is_lvalue() const {
   TAN_ASSERT(_children.size() > 0);
   return _children[0]->is_lvalue();
-}
-
-std::string ASTParenthesis::get_type_name() const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTParenthesis::get_ty() const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->get_ty();
-}
-
-llvm::Type *ASTParenthesis::to_llvm_type(CompilerSession *compiler_session) const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->to_llvm_type(compiler_session);
 }
 
 ASTParenthesis::ASTParenthesis(Token *token, size_t token_index) : ASTNode(ASTType::PARENTHESIS,

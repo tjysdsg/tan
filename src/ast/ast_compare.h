@@ -9,6 +9,9 @@ public:
   ASTCompare() = delete;
   ASTCompare(ASTType type, Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *) override;
+
+protected:
+  size_t led(const ASTNodePtr &left) override;
 };
 
 } // namespace tanlang

@@ -35,26 +35,6 @@ Value *ASTAmpersand::codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-std::string ASTAmpersand::get_type_name() const {
-  TAN_ASSERT(_ty);
-  return _ty->get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTAmpersand::get_ty() const {
-  TAN_ASSERT(_ty);
-  return _ty;
-}
-
-llvm::Type *ASTAmpersand::to_llvm_type(CompilerSession *cs) const {
-  TAN_ASSERT(_ty);
-  return _ty->to_llvm_type(cs);
-}
-
-llvm::Value *ASTAmpersand::get_llvm_value(CompilerSession *) const {
-  TAN_ASSERT(_llvm_value);
-  return _llvm_value;
-}
-
 // TODO
 size_t ASTAmpersand::led(const ASTNodePtr &) { TAN_ASSERT(false); }
 

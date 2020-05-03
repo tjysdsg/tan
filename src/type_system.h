@@ -1,6 +1,6 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace llvm {
 class DISubroutineType;

@@ -1,5 +1,6 @@
+#include "src/ast/ast_node.h"
 #include "src/llvm_include.h"
-#include "src/ast/astnode.h"
+#include "src/ast/ast_ty.h"
 #include "parser.h"
 #include "token.h"
 #include <iostream>
@@ -44,8 +45,7 @@ std::string ASTNode::get_src() const {
   return ret;
 }
 
-ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
-    : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
+ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index) : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
 
 size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
   _parser = parser;
@@ -86,6 +86,12 @@ Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
   else { return nullptr; }
 }
 
+std::string ASTNode::get_name() const { return _name; }
+std::string ASTNode::get_type_name() const { return _ty->get_type_name(); }
+std::shared_ptr<ASTTy> ASTNode::get_ty() const { return _ty; }
+llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) const { return _ty->to_llvm_type(cs); }
+llvm::Value *ASTNode::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
@@ -94,16 +100,13 @@ std::unordered_map<ASTType, std::string> ast_type_names
         MAKE_ASTTYPE_NAME_PAIR(SUBTRACT), MAKE_ASTTYPE_NAME_PAIR(MULTIPLY), MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
         MAKE_ASTTYPE_NAME_PAIR(MOD), MAKE_ASTTYPE_NAME_PAIR(ASSIGN), MAKE_ASTTYPE_NAME_PAIR(STRUCT_DECL),
         MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL), MAKE_ASTTYPE_NAME_PAIR(STRING_LITERAL), MAKE_ASTTYPE_NAME_PAIR(BAND),
-        MAKE_ASTTYPE_NAME_PAIR(LAND), MAKE_ASTTYPE_NAME_PAIR(BOR), MAKE_ASTTYPE_NAME_PAIR(LOR),
-        MAKE_ASTTYPE_NAME_PAIR(BNOT), MAKE_ASTTYPE_NAME_PAIR(LNOT), MAKE_ASTTYPE_NAME_PAIR(XOR),
-        MAKE_ASTTYPE_NAME_PAIR(RET), MAKE_ASTTYPE_NAME_PAIR(IF), MAKE_ASTTYPE_NAME_PAIR(ELSE),
-        MAKE_ASTTYPE_NAME_PAIR(GT), MAKE_ASTTYPE_NAME_PAIR(GE), MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE),
+        MAKE_ASTTYPE_NAME_PAIR(LAND), MAKE_ASTTYPE_NAME_PAIR(BOR), MAKE_ASTTYPE_NAME_PAIR(LOR), MAKE_ASTTYPE_NAME_PAIR(BNOT), MAKE_ASTTYPE_NAME_PAIR(LNOT), MAKE_ASTTYPE_NAME_PAIR(XOR),
+        MAKE_ASTTYPE_NAME_PAIR(RET), MAKE_ASTTYPE_NAME_PAIR(IF), MAKE_ASTTYPE_NAME_PAIR(ELSE), MAKE_ASTTYPE_NAME_PAIR(GT), MAKE_ASTTYPE_NAME_PAIR(GE), MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE),
         MAKE_ASTTYPE_NAME_PAIR(ID), MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS), MAKE_ASTTYPE_NAME_PAIR(FUNC_CALL),
         MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL), MAKE_ASTTYPE_NAME_PAIR(ARG_DECL), MAKE_ASTTYPE_NAME_PAIR(VAR_DECL),
         MAKE_ASTTYPE_NAME_PAIR(TY), MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS), MAKE_ASTTYPE_NAME_PAIR(ARRAY_LITERAL),
         MAKE_ASTTYPE_NAME_PAIR(EQ), MAKE_ASTTYPE_NAME_PAIR(INTRINSIC), MAKE_ASTTYPE_NAME_PAIR(LOOP),
-        MAKE_ASTTYPE_NAME_PAIR(NE), MAKE_ASTTYPE_NAME_PAIR(IMPORT), MAKE_ASTTYPE_NAME_PAIR(CAST),
-        MAKE_ASTTYPE_NAME_PAIR(CHAR_LITERAL), MAKE_ASTTYPE_NAME_PAIR(ADDRESS_OF), MAKE_ASTTYPE_NAME_PAIR(BREAK),
+        MAKE_ASTTYPE_NAME_PAIR(NE), MAKE_ASTTYPE_NAME_PAIR(IMPORT), MAKE_ASTTYPE_NAME_PAIR(CAST), MAKE_ASTTYPE_NAME_PAIR(CHAR_LITERAL), MAKE_ASTTYPE_NAME_PAIR(ADDRESS_OF), MAKE_ASTTYPE_NAME_PAIR(BREAK),
         MAKE_ASTTYPE_NAME_PAIR(CONTINUE)};
 
 #undef MAKE_ASTTYPE_NAME_PAIR

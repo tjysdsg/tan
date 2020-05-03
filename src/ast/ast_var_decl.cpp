@@ -11,7 +11,10 @@ namespace tanlang {
 ASTVarDecl::ASTVarDecl(Token *token, size_t token_index) : ASTNode(ASTType::VAR_DECL, 0, 0, token, token_index) {}
 
 size_t ASTVarDecl::_nud() {
-  _children.push_back(_parser->parse<ASTType::ID>(_end_index, true)); /// name
+  /// var name
+  auto name = _parser->parse<ASTType::ID>(_end_index, true);
+  _name = ast_cast<ASTIdentifier>(name)->get_name();
+  _children.push_back(name);
   if (_parser->at(_end_index)->value == ":") {
     ++_end_index;
     /// type
@@ -68,30 +71,6 @@ Value *ASTVarDecl::codegen(CompilerSession *cs) {
   }
   return _llvm_value;
 }
-
-std::string ASTVarDecl::get_name() const {
-  auto n = ast_cast<ASTIdentifier>(_children[0]);
-  TAN_ASSERT(n);
-  return n->get_name();
-}
-
-std::string ASTVarDecl::get_type_name() const {
-  if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
-  return _children[1]->get_type_name();
-}
-
-std::shared_ptr<ASTTy> ASTVarDecl::get_ty() const {
-  if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
-  return _ty;
-}
-
-llvm::Type *ASTVarDecl::to_llvm_type(CompilerSession *compiler_session) const {
-  if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
-  auto t = ast_cast<ASTTy>(_children[1]);
-  return t->to_llvm_type(compiler_session);
-}
-
-llvm::Value *ASTVarDecl::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
 bool ASTVarDecl::is_typed() const {
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }

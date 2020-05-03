@@ -3,32 +3,15 @@
 
 namespace tanlang {
 
-ASTPrefix::ASTPrefix(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
-    PREC_LOWEST,
-    0,
-    token,
-    token_index) {}
-
-std::string ASTPrefix::get_type_name() const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->get_type_name();
-}
-
-llvm::Type *ASTPrefix::to_llvm_type(CompilerSession *compiler_session) const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->to_llvm_type(compiler_session);
-}
-
-std::shared_ptr<ASTTy> ASTPrefix::get_ty() const {
-  TAN_ASSERT(_children.size() > 0);
-  return _children[0]->get_ty();
-}
+ASTPrefix::ASTPrefix(Token *t, size_t ti) : ASTNode(ASTType::INVALID, 0, 0, t, ti) {}
 
 bool ASTPrefix::is_typed() const { return true; }
 
 size_t ASTPrefix::nud() {
   _end_index = _start_index + 1; /// skip self
-  _children.push_back(_parser->next_expression(_end_index, _lbp));
+  auto rhs = _parser->next_expression(_end_index, _lbp);
+  _ty = rhs->get_ty();
+  _children.push_back(rhs);
   return _end_index;
 }
 

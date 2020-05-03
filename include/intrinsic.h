@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace llvm {
 class Value;
@@ -39,9 +39,9 @@ public:
 
 public:
   static std::unordered_map<std::string, IntrinsicType> intrinsics;
-  static void InitCodegen(CompilerSession *compiler_session);
-  static void RuntimeInit(CompilerSession *compiler_session);
-  static llvm::Function *GetIntrinsic(IntrinsicType type, CompilerSession *compiler_session);
+  static void InitCodegen(CompilerSession *);
+  static void RuntimeInit(CompilerSession *);
+  static llvm::Function *GetIntrinsic(IntrinsicType type, CompilerSession *);
 
 public:
   Intrinsic() = delete;
@@ -49,13 +49,9 @@ public:
   size_t led(const ASTNodePtr &left) override;
   size_t nud() override;
   std::string to_string(bool print_prefix = true) const override;
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
-  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  llvm::Value *codegen(CompilerSession *) override;
   bool is_lvalue() const override;
   bool is_typed() const override;
-  std::string get_type_name() const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  std::shared_ptr<ASTTy> get_ty() const override;
 
 protected:
   void determine_type();
@@ -63,10 +59,8 @@ protected:
 
 protected:
   IntrinsicType _intrinsic_type;
-  llvm::Value *_llvm_value = nullptr;
   std::string _str_data = "";
   bool _is_lvalue = false;
-  ASTTyPtr _ty = nullptr;
   bool _is_typed = true;
 };
 

@@ -6,32 +6,21 @@
 
 namespace tanlang {
 
-ASTCharLiteral::ASTCharLiteral(Token *token, size_t token_index) : ASTLiteral(ASTType::CHAR_LITERAL,
+ASTCharLiteral::ASTCharLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::CHAR_LITERAL,
     op_precedence[ASTType::CHAR_LITERAL],
     0,
-    token,
-    token_index) { _c = token->value[0]; }
-
-llvm::Value *ASTCharLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+    t,
+    ti) { _c = t->value[0]; }
 
 Value *ASTCharLiteral::codegen(CompilerSession *cs) {
-  _llvm_type = cs->get_builder()->getInt8Ty(); /// char = u8
   _llvm_value = ConstantInt::get(cs->get_builder()->getInt8Ty(), (uint64_t) _c);
   return _llvm_value;
 }
 
-std::string ASTCharLiteral::get_type_name() const { return "char"; }
-
-llvm::Type *ASTCharLiteral::to_llvm_type(CompilerSession *) const { return _llvm_type; }
-
-std::shared_ptr<ASTTy> ASTCharLiteral::get_ty() const {
-  auto ret = ASTTy::Create(Ty::CHAR);
-  ret->_default_value = static_cast<uint64_t>(_c);
-  return ret;
-}
-
 size_t ASTCharLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
+  _ty = ASTTy::Create(Ty::CHAR);
+  _ty->_default_value = static_cast<uint64_t>(_c);
   return _end_index;
 }
 

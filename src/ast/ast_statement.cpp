@@ -4,19 +4,17 @@
 
 namespace tanlang {
 
-ASTStatement::ASTStatement(bool is_compound, Token *token, size_t token_index) : ASTNode(ASTType::STATEMENT,
+ASTStatement::ASTStatement(bool is_compound, Token *t, size_t ti) : ASTNode(ASTType::STATEMENT,
     op_precedence[ASTType::STATEMENT],
     0,
-    token,
-    token_index) {
-  _is_compound = is_compound;
-}
+    t,
+    ti) { _is_compound = is_compound; }
 
-ASTStatement::ASTStatement(Token *token, size_t token_index) : ASTNode(ASTType::STATEMENT,
+ASTStatement::ASTStatement(Token *t, size_t ti) : ASTNode(ASTType::STATEMENT,
     op_precedence[ASTType::STATEMENT],
     0,
-    token,
-    token_index) {}
+    t,
+    ti) {}
 
 size_t ASTStatement::nud() {
   _end_index = _start_index;

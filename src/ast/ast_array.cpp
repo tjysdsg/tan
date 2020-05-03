@@ -41,6 +41,11 @@ size_t ASTArrayLiteral::nud() {
       report_code_error(_token, "Expect literals");
     }
   }
+
+  // TODO: set default value of ASTTy
+  auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);
+  std::vector<ASTNodePtr> sub_tys{_children[0]->get_ty(), size};
+  _ty = ASTTy::Create(Ty::ARRAY, false, sub_tys);
   return _end_index;
 }
 
@@ -60,12 +65,6 @@ Value *ASTArrayLiteral::codegen(CompilerSession *cs) {
   }
   return _llvm_value;
 }
-
-Value *ASTArrayLiteral::get_llvm_value(CompilerSession *) const { return _llvm_value; }
-
-std::string ASTArrayLiteral::get_type_name() const { return get_ty()->get_type_name(); }
-
-Type *ASTArrayLiteral::to_llvm_type(CompilerSession *cs) const { return get_ty()->to_llvm_type(cs); }
 
 std::string ASTArrayLiteral::to_string(bool print_prefix) const {
   std::string ret;
@@ -90,15 +89,5 @@ size_t ASTArrayLiteral::get_n_elements() const {
 }
 
 ASTArrayLiteral::ASTArrayLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, t, ti) {}
-
-std::shared_ptr<ASTTy> ASTArrayLiteral::get_ty() const {
-  // TODO: set default value of ASTTy
-  if (!_ty) {
-    auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);
-    std::vector<ASTNodePtr> sub_tys{_children[0]->get_ty(), size};
-    _ty = ASTTy::Create(Ty::ARRAY, false, sub_tys);
-  }
-  return _ty;
-}
 
 } // namespace tanlang

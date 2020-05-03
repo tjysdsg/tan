@@ -1,6 +1,6 @@
 #ifndef TAN_SRC_AST_AST_STATEMENT_H_
 #define TAN_SRC_AST_AST_STATEMENT_H_
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace tanlang {
 

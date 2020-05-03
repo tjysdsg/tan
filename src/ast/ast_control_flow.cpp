@@ -44,9 +44,9 @@ Value *ASTIf::codegen(CompilerSession *cs) {
   return nullptr;
 }
 
-Value *ASTElse::codegen(CompilerSession *compiler_session) {
-  compiler_session->set_current_debug_location(_token->l, _token->c);
-  return _children[0]->codegen(compiler_session);
+Value *ASTElse::codegen(CompilerSession *cs) {
+  cs->set_current_debug_location(_token->l, _token->c);
+  return _children[0]->codegen(cs);
 }
 
 llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {

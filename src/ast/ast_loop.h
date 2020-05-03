@@ -1,6 +1,6 @@
 #ifndef __TAN_SRC_AST_AST_LOOP_H__
 #define __TAN_SRC_AST_AST_LOOP_H__
-#include "src/ast/astnode.h"
+#include "src/ast/ast_node.h"
 
 namespace llvm {
 class BasicBlock;

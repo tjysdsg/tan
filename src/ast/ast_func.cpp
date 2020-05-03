@@ -1,5 +1,6 @@
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_arg_decl.h"
+#include "src/ast/ast_identifier.h"
 #include "src/ast/ast_ty.h"
 #include "parser.h"
 #include "reader.h"
@@ -10,12 +11,6 @@
 #include "src/type_system.h"
 
 namespace tanlang {
-
-ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
-    0,
-    0,
-    token,
-    token_index) { _name = token->value; }
 
 Value *ASTFunction::codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
@@ -183,12 +178,6 @@ ASTNodePtr ASTFunction::get_ret() const {
   return _children[0];
 }
 
-std::string ASTFunction::get_name() const {
-  TAN_ASSERT(_children.size() >= 1);
-  TAN_ASSERT(_children[1]->is_named());
-  return _children[1]->get_name();
-}
-
 ASTNodePtr ASTFunction::get_arg(size_t i) const {
   TAN_ASSERT(i + 2 < _children.size());
   return _children[i + 2];
@@ -198,8 +187,6 @@ size_t ASTFunction::get_n_args() const {
   TAN_ASSERT(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
   return _children.size() - (_is_external ? 2 : 3);
 }
-
-ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
 Function *ASTFunction::get_func() const { return _func; }
 
@@ -221,16 +208,20 @@ size_t ASTFunction::nud() {
 
   /// function return type, set later
   _children.push_back(nullptr);
+
   /// function name
-  _children.push_back(_parser->parse<ASTType::ID>(_end_index, true));
+  auto name = ast_cast<ASTIdentifier>(_parser->parse<ASTType::ID>(_end_index, true));
+  _name = name->get_name();
+  _children.push_back(name);
 
   /// add self to function table
   if (_is_public || _is_external) {
     CompilerSession::AddPublicFunction(_parser->get_filename(), this->shared_from_this());
   }
+  /// ... and internal function table
   _cs->add_function(this->shared_from_this());
 
-  /// only push scope if not extern
+  /// only push scope if having function body
   if (!_is_external) { _scope = _cs->push_scope(); } else { _scope = _cs->get_current_scope(); }
 
   /// arguments
@@ -251,6 +242,7 @@ size_t ASTFunction::nud() {
   _parser->peek(_end_index, TokenType::PUNCTUATION, ":");
   ++_end_index;
   _children[0] = _parser->parse<ASTType::TY>(_end_index, true); /// return type
+  // TODO: set _tyty
 
   /// body
   if (!_is_external) {
@@ -280,32 +272,9 @@ size_t ASTFunctionCall::nud() {
   }
   _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
   ++_end_index;
+  _ty = ast_cast<ASTTy>(get_callee()->get_ret());
   return _end_index;
 }
-
-std::string ASTFunctionCall::get_name() const { return _name; }
-
-bool ASTFunctionCall::is_named() const { return true; }
-
-llvm::Value *ASTFunctionCall::get_llvm_value(CompilerSession *) const { return _llvm_value; }
-
-bool ASTFunctionCall::is_lvalue() const { return false; }
-
-bool ASTFunctionCall::is_typed() const { return true; }
-
-std::string ASTFunctionCall::get_type_name() const {
-  auto r = get_callee()->get_ret();
-  TAN_ASSERT(r->is_typed());
-  return r->get_type_name();
-}
-
-llvm::Type *ASTFunctionCall::to_llvm_type(CompilerSession *cm) const {
-  auto r = get_callee()->get_ret();
-  TAN_ASSERT(r->is_typed());
-  return r->to_llvm_type(cm);
-}
-
-std::shared_ptr<ASTTy> ASTFunctionCall::get_ty() const { return ast_cast<ASTTy>(get_callee()->get_ret()); }
 
 ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) {
@@ -345,5 +314,17 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) { report_code_error(_token, "Unknown function call: " + _name); }
   return _callee;
 }
+
+bool ASTFunctionCall::is_named() const { return true; }
+
+bool ASTFunctionCall::is_lvalue() const { return false; }
+
+bool ASTFunctionCall::is_typed() const { return true; }
+
+ASTFunctionCall::ASTFunctionCall(Token *t, size_t ti) : ASTNode(ASTType::FUNC_CALL, 0, 0, t, ti) {
+  _name = t->value;
+}
+
+ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
 } // namespace tanlang
