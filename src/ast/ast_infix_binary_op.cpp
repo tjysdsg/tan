@@ -14,11 +14,7 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-ASTInfixBinaryOp::ASTInfixBinaryOp(Token *token, size_t token_index) : ASTNode(ASTType::INVALID,
-    PREC_LOWEST,
-    0,
-    token,
-    token_index) {}
+ASTInfixBinaryOp::ASTInfixBinaryOp(Token *t, size_t ti) : ASTNode(ASTType::INVALID, PREC_LOWEST, 0, t, ti) {}
 
 std::string ASTInfixBinaryOp::get_type_name() const {
   TAN_ASSERT(_children.size() > _dominant_idx);
@@ -30,14 +26,14 @@ std::shared_ptr<ASTTy> ASTInfixBinaryOp::get_ty() const {
   return _children[_dominant_idx]->get_ty();
 }
 
-llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *compiler_session) const {
+llvm::Type *ASTInfixBinaryOp::to_llvm_type(CompilerSession *cs) const {
   TAN_ASSERT(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->to_llvm_type(compiler_session);
+  return _children[_dominant_idx]->to_llvm_type(cs);
 }
 
-llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *compiler_session) const {
+llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *cs) const {
   TAN_ASSERT(_children.size() > _dominant_idx);
-  return _children[_dominant_idx]->to_llvm_meta(compiler_session);
+  return _children[_dominant_idx]->to_llvm_meta(cs);
 }
 
 bool ASTInfixBinaryOp::is_lvalue() const {

@@ -7,7 +7,7 @@ namespace tanlang {
 class ASTAssignment final : public ASTInfixBinaryOp {
 public:
   ASTAssignment(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
+  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
   size_t get_dominant_idx() const override;
