@@ -1,7 +1,10 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
-#include "src/llvm_include.h"
 #include "src/ast/astnode.h"
+
+namespace llvm {
+class DISubroutineType;
+}
 
 namespace tanlang {
 
@@ -35,7 +38,9 @@ public:
       bool is_signed = false);
 };
 
-DISubroutineType *create_function_type(CompilerSession *, Metadata *ret, std::vector<Metadata *> args);
+llvm::DISubroutineType *create_function_type(CompilerSession *,
+    llvm::Metadata *ret,
+    std::vector<llvm::Metadata *> args);
 
 } // namespace
 

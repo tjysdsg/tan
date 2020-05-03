@@ -134,7 +134,7 @@
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordflow">return</span> result;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;llvm::Metadata *ASTNode::to_llvm_meta(CompilerSession *cs)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;Metadata *ASTNode::to_llvm_meta(CompilerSession *cs)<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keywordflow">if</span> (_children.size() &gt; 0) { <span class="keywordflow">return</span> _children[0]-&gt;to_llvm_meta(cs); }</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordflow">else</span> { <span class="keywordflow">return</span> <span class="keyword">nullptr</span>; }</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;}</div>

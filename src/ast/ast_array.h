@@ -33,8 +33,7 @@ protected:
 
 private:
   llvm::Value *_llvm_value = nullptr;
-  llvm::Type *_llvm_type = nullptr;
-  llvm::Type *_e_llvm_type = nullptr;
+  mutable std::shared_ptr<ASTTy> _ty = nullptr;
 };
 
 } // namespace tanlang

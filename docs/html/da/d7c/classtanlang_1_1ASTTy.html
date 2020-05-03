@@ -90,15 +90,15 @@ ASTTyPtr&#160;</td><td class="memItemRight" valign="bottom"><b>get_ty</b> () con
 <tr class="memitem:a8193675459862d506e5492a0f2a8beef"><td class="memItemLeft" align="right" valign="top"><a id="a8193675459862d506e5492a0f2a8beef"></a>
 ASTTyPtr&#160;</td><td class="memItemRight" valign="bottom"><b>get_ptr_to</b> () const</td></tr>
 <tr class="separator:a8193675459862d506e5492a0f2a8beef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7bd84177e7043d8cbbbef7bfdf2196d"><td class="memItemLeft" align="right" valign="top"><a id="aa7bd84177e7043d8cbbbef7bfdf2196d"></a>
+<tr class="memitem:aa89b8251cfc71d7123d3fad58b28f0fa"><td class="memItemLeft" align="right" valign="top"><a id="aa89b8251cfc71d7123d3fad58b28f0fa"></a>
 llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_type</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) const override</td></tr>
-<tr class="separator:aa7bd84177e7043d8cbbbef7bfdf2196d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a998ab4672943180a32dac25a4865e305"><td class="memItemLeft" align="right" valign="top"><a id="a998ab4672943180a32dac25a4865e305"></a>
-llvm::DIType *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_meta</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) const override</td></tr>
-<tr class="separator:a998ab4672943180a32dac25a4865e305"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72335504adba66c0812a465a9c25d46d"><td class="memItemLeft" align="right" valign="top"><a id="a72335504adba66c0812a465a9c25d46d"></a>
+<tr class="separator:aa89b8251cfc71d7123d3fad58b28f0fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03ddd7b2c532ade2288ee5eed3456e52"><td class="memItemLeft" align="right" valign="top"><a id="a03ddd7b2c532ade2288ee5eed3456e52"></a>
+llvm::Metadata *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_meta</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) const override</td></tr>
+<tr class="separator:a03ddd7b2c532ade2288ee5eed3456e52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27127685bd5d3bde3ea22154b1cb9eb3"><td class="memItemLeft" align="right" valign="top"><a id="a27127685bd5d3bde3ea22154b1cb9eb3"></a>
 llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>get_llvm_value</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) const override</td></tr>
-<tr class="separator:a72335504adba66c0812a465a9c25d46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a27127685bd5d3bde3ea22154b1cb9eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8b6d5047dfeeaf9daf214b1716b536a"><td class="memItemLeft" align="right" valign="top"><a id="ac8b6d5047dfeeaf9daf214b1716b536a"></a>
 llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (<a class="el" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *) override</td></tr>
 <tr class="separator:ac8b6d5047dfeeaf9daf214b1716b536a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,6 +147,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_unsigned</b> () co
 <tr class="memitem:ae899efcad65942b5d267eecfcaf66552"><td class="memItemLeft" align="right" valign="top"><a id="ae899efcad65942b5d267eecfcaf66552"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_struct</b> () const</td></tr>
 <tr class="separator:ae899efcad65942b5d267eecfcaf66552"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7cceddffa5a614c61222e89bf8b70ee"><td class="memItemLeft" align="right" valign="top"><a id="ac7cceddffa5a614c61222e89bf8b70ee"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_array</b> () const</td></tr>
+<tr class="separator:ac7cceddffa5a614c61222e89bf8b70ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc90c377c18ad46fe04154f72cb99335"><td class="memItemLeft" align="right" valign="top"><a id="acc90c377c18ad46fe04154f72cb99335"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_n_elements</b> () const</td></tr>
+<tr class="separator:acc90c377c18ad46fe04154f72cb99335"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
 <tr class="memitem:a672aac710e3ba044c840d2f46ac4b76b inherit pub_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a672aac710e3ba044c840d2f46ac4b76b"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ASTNode</b> (const <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">ASTNode</a> &amp;)=default</td></tr>
@@ -178,9 +184,9 @@ virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>get_na
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a5e4a0bc175d828a96b04075e7f94f445"><td class="memItemLeft" align="right" valign="top"><a id="a5e4a0bc175d828a96b04075e7f94f445"></a>
-static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (Ty t, bool is_lvalue=false, std::vector&lt; std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&gt; sub_tys={})</td></tr>
-<tr class="separator:a5e4a0bc175d828a96b04075e7f94f445"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef5ad51b33a95eaa123518446ddd7d83"><td class="memItemLeft" align="right" valign="top"><a id="aef5ad51b33a95eaa123518446ddd7d83"></a>
+static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (Ty t, bool is_lvalue=false, std::vector&lt; ASTNodePtr &gt; sub_tys={})</td></tr>
+<tr class="separator:aef5ad51b33a95eaa123518446ddd7d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

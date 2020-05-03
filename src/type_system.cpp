@@ -2,6 +2,7 @@
 #include "src/common.h"
 #include "compiler_session.h"
 #include "src/ast/ast_ty.h"
+#include "src/llvm_include.h"
 
 namespace tanlang {
 
@@ -55,10 +56,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
       return cs->get_builder()
           ->CreateICmpNE(loaded, ConstantInt::get(cs->get_builder()->getIntNTy((unsigned) s1), 0, false));
     }
-  } else {
-    // TODO: complex type
-    throw std::runtime_error("Invalid type conversion");
-  }
+  } else { throw std::runtime_error("Invalid type conversion"); }
 }
 
 DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, std::vector<Metadata *> args) {
@@ -79,11 +77,9 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   size_t s1 = t1->get_size_bits();
   size_t s2 = t2->get_size_bits();
 
-  if (t1->is_bool()) {
-    return 0;
-  } else if (t1->is_bool()) {
-    return 1;
-  } else if (t1->is_int() && t2->is_int()) { /// between integers
+  if (t1->is_bool()) { return 0; }
+  else if (t2->is_bool()) { return 1; }
+  else if (t1->is_int() && t2->is_int()) { /// between integers
     /// should be both unsigned or both signed
     if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
     return s1 >= s2 ? 0 : 1;
@@ -93,8 +89,13 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
     return 1;
   } else if (t1->is_floating() && t2->is_floating()) { /// float/double and float/double
     return s1 >= s2 ? 0 : 1;
+  } else if (t1->is_array() && t2->is_array()) { /// arrays
+    /// array size must be the same
+    if (t1->get_n_elements() != t2->get_n_elements()) { return -1; }
+    /// the element type can be implicitly casted as long as the elements have the same size
+    if (t1->get_contained_ty()->get_size_bits() != t2->get_contained_ty()->get_size_bits()) { return -1; }
+    return CanImplicitCast(t1->get_contained_ty(), t2->get_contained_ty());
   }
-  // TODO: complex type
   return -1;
 }
 

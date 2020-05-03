@@ -81,7 +81,7 @@ Value *ASTNode::codegen(CompilerSession *compiler_session) {
   return result;
 }
 
-llvm::Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
+Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
   if (_children.size() > 0) { return _children[0]->to_llvm_meta(cs); }
   else { return nullptr; }
 }

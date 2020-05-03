@@ -9,10 +9,6 @@
 #define TY_OR(a, b) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b))
 #define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
 
-namespace llvm {
-class DIType;
-}
-
 namespace tanlang {
 
 class Parser;
@@ -23,7 +19,11 @@ enum class Ty : uint64_t {
   INVALID = 0,
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
-  VOID = 1u, INT = 2u, FLOAT = 3u, DOUBLE = 4u, BOOL = 5u,
+  VOID = 1u,
+  INT = 2u,
+  FLOAT = 3u,
+  DOUBLE = 4u,
+  BOOL = 5u,
   POINTER = 6u,
   STRING = 7u,
   CHAR = 8u,
@@ -47,7 +47,7 @@ private:
   static std::unordered_map<Ty, ASTTyPtr> _cached;
 
 public:
-  static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<std::shared_ptr<ASTTy>> sub_tys = {});
+  static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<ASTNodePtr> sub_tys = {});
 
 public:
   ASTTy() = delete;
@@ -59,7 +59,7 @@ public:
   ASTTyPtr get_ty() const override;
   ASTTyPtr get_ptr_to() const;
   llvm::Type *to_llvm_type(CompilerSession *cs) const override;
-  llvm::DIType *to_llvm_meta(CompilerSession *cs) const override;
+  llvm::Metadata *to_llvm_meta(CompilerSession *cs) const override;
   llvm::Value *get_llvm_value(CompilerSession *cs) const override;
   llvm::Value *codegen(CompilerSession *) override { return nullptr; }
   std::string to_string(bool print_prefix = true) const override;
@@ -77,6 +77,8 @@ public:
   bool is_bool() const;
   bool is_unsigned() const;
   bool is_struct() const;
+  bool is_array() const;
+  size_t get_n_elements() const;
 
 public:
   Ty _ty = Ty::INVALID;
@@ -98,6 +100,7 @@ private:
   unsigned _dwarf_encoding = 0;
   bool _is_ptr = false;
   bool _is_float = false;
+  bool _is_array = false;
   bool _is_double = false;
   bool _is_int = false;
   bool _is_unsigned = false;

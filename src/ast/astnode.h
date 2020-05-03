@@ -5,6 +5,7 @@
 namespace llvm {
 class Value;
 class Type;
+class Metadata;
 }
 
 namespace tanlang {

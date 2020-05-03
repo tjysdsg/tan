@@ -11,7 +11,8 @@
 
 namespace tanlang {
 
-ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL, 0,
+ASTFunctionCall::ASTFunctionCall(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_CALL,
+    0,
     0,
     token,
     token_index) { _name = token->value; }
@@ -87,7 +88,7 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
               (unsigned) i + 1,
               di_file,
               (unsigned) _token->l + 1,
-              arg_meta,
+              (DIType *) arg_meta,
               true);
       cs->get_di_builder()
           ->insertDeclare(arg_val,
