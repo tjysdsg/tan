@@ -2,6 +2,7 @@
 #include "src/llvm_include.h"
 #include "intrinsic.h"
 #include "compiler_session.h"
+#include "src/common.h"
 
 static llvm::Type *g_stack_trace_t = nullptr;
 static llvm::Value *g_stack_trace = nullptr;
@@ -10,19 +11,18 @@ namespace tanlang {
 
 // TODO: construct stack trace in compile time instead of runtime
 
-void runtime_init_stack_trace(CompilerSession *compiler_session) {
+void runtime_init_stack_trace(CompilerSession *cs) {
   auto *st_t = g_stack_trace_t;
   auto *init = ConstantPointerNull::get(st_t->getPointerTo());
   {
-    GlobalVariable *tmp = compiler_session->get_module()->getNamedGlobal("st");
+    GlobalVariable *tmp = cs->get_module()->getNamedGlobal("st");
     TAN_ASSERT(tmp);
     tmp->setExternallyInitialized(false);
     tmp->setInitializer(init);
     g_stack_trace = tmp;
   }
-  auto *int_t = compiler_session->get_builder()->getInt32Ty();
-  Value *st = compiler_session->get_builder()->CreateAlloca(st_t, ConstantInt::get(int_t, MAX_N_FUNCTION_CALLS, false));
-  compiler_session->get_builder()->CreateStore(st, g_stack_trace);
+  Value *st = create_block_alloca(cs->get_builder()->GetInsertBlock(), st_t, MAX_N_FUNCTION_CALLS, "st_list");
+  cs->get_builder()->CreateStore(st, g_stack_trace);
 }
 
 void init_stack_trace_intrinsic(CompilerSession *compiler_session) {

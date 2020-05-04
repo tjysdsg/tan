@@ -4,6 +4,7 @@
 namespace tanlang {
 
 AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, const std::string &name) {
+  block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
   if (size <= 1) {
     return tmp_builder.CreateAlloca(type, nullptr, name);
