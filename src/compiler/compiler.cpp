@@ -5,11 +5,7 @@
 #include "reader.h"
 #include "parser.h"
 
-namespace tanlang {
-
-std::unordered_map<std::string, CompilerSession *> Compiler::sessions{};
-std::vector<std::shared_ptr<Compiler>> Compiler::sub_compilers{};
-TargetMachine *Compiler::target_machine = nullptr;
+using namespace tanlang;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);
@@ -78,5 +74,3 @@ TargetMachine *Compiler::GetDefaultTargetMachine() {
   TAN_ASSERT(Compiler::target_machine);
   return Compiler::target_machine;
 }
-
-} // namespace tanlang

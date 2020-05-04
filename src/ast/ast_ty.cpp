@@ -6,7 +6,7 @@
 #include "compiler_session.h"
 #include "compiler.h"
 
-namespace tanlang {
+using namespace tanlang;
 
 std::unordered_map<std::string, Ty> basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
@@ -19,25 +19,14 @@ std::unordered_map<std::string, Ty> basic_tys =
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-std::unordered_map<Ty, ASTTyPtr> ASTTy::_cached{};
-
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<ASTNodePtr> sub_tys) {
-  // FIXME: do NOT use Ty as keys
-  /*
-  if (ASTTy::_cached.find(t) != ASTTy::_cached.end() && t != Ty::ARRAY && t != Ty::POINTER) {
-    return ASTTy::_cached[t];
-  } else {
-   */
+  // TODO: cache types
   auto ret = std::make_shared<ASTTy>(nullptr, 0);
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
   ret->resolve();
-  // ASTTy::_cached[t] = ret;
   return ret;
-  /*
-  }
-   */
 }
 
 Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
@@ -477,5 +466,3 @@ ASTTyPtr ASTTy::get_contained_ty() const {
 }
 
 size_t ASTTy::get_n_elements() const { return _n_elements; }
-
-} // namespace tanlang

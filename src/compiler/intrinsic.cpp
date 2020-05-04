@@ -11,8 +11,6 @@
 
 namespace tanlang {
 
-bool Intrinsic::assert_initialized = false;
-
 std::unordered_map<std::string, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},

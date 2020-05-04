@@ -43,9 +43,6 @@ enum class Ty : uint64_t {
 };
 
 class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
-private:
-  static std::unordered_map<Ty, ASTTyPtr> _cached;
-
 public:
   static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<ASTNodePtr> sub_tys = {});
 

@@ -20,7 +20,7 @@ public:
 
 private:
   /// filename -> (function name -> FunctionTable)
-  static std::unordered_map<std::string, FunctionTablePtr> public_func;
+  static inline std::unordered_map<std::string, FunctionTablePtr> public_func{};
 
 public:
   CompilerSession &operator=(const CompilerSession &) = delete;

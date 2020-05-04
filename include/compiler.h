@@ -15,10 +15,10 @@ public:
   static TargetMachine *GetDefaultTargetMachine();
 
 private:
-  static std::unordered_map<std::string, CompilerSession *> sessions;
+  static inline std::unordered_map<std::string, CompilerSession *> sessions{};
   /// created by import statement, used only for parsing
-  static std::vector<std::shared_ptr<Compiler>> sub_compilers;
-  static TargetMachine *target_machine;
+  static inline std::vector<std::shared_ptr<Compiler>> sub_compilers{};
+  static inline TargetMachine *target_machine = nullptr;
 
 public:
   Compiler() = delete;

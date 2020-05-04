@@ -35,7 +35,7 @@ enum class IntrinsicType {
 
 class Intrinsic : public ASTNode {
 public:
-  static bool assert_initialized;
+  static inline bool assert_initialized = false;
 
 public:
   static std::unordered_map<std::string, IntrinsicType> intrinsics;

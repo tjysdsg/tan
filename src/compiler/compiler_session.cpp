@@ -5,9 +5,7 @@
 #include "base.h"
 #include "src/ast/ast_node.h"
 
-namespace tanlang {
-
-std::unordered_map<std::string, FunctionTablePtr> CompilerSession::public_func{};
+using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
   _scope = std::vector<std::shared_ptr<Scope>>();
@@ -236,5 +234,3 @@ DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 std::shared_ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
 
 void CompilerSession::set_current_loop(std::shared_ptr<ASTLoop> loop) { _current_loop = loop; }
-
-} // namespace tanlang
