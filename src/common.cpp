@@ -17,6 +17,10 @@ bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list) {
   return std::any_of(list.begin(), list.end(), [t](ASTType i) { return i == t; });
 }
 
+bool is_string_in(std::string_view s, std::initializer_list<std::string_view> list) {
+  return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
+}
+
 bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2) {
   if (t1->getTypeID() != t2->getTypeID()) { return false; }
   auto n = t1->getNumContainedTypes();

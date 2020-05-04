@@ -22,6 +22,7 @@
 #include "src/ast/ast_struct.h"
 #include "src/ast/ast_program.h"
 #include "src/ast/ast_char_literal.h"
+#include "src/common.h"
 #include "intrinsic.h"
 #include "token.h"
 #include <memory>
@@ -45,27 +46,19 @@ ASTNodePtr Parser::peek(size_t &index, TokenType type, const std::string &value)
 }
 
 static ASTNodePtr peek_keyword(Token *token, size_t &index) {
-  if (token->value == "var") {
-    return std::make_shared<ASTVarDecl>(token, index);
-  } else if (token->value == "fn" || token->value == "pub" || token->value == "extern") {
-    return std::make_shared<ASTFunction>(token, index);
-  } else if (token->value == "import") {
-    return std::make_shared<ASTImport>(token, index);
-  } else if (token->value == "if") {
-    return std::make_shared<ASTIf>(token, index);
-  } else if (token->value == "else") {
-    return std::make_shared<ASTElse>(token, index);
-  } else if (token->value == "return") {
-    return std::make_shared<ASTReturn>(token, index);
-  } else if (token->value == "while" || token->value == "for") {
-    return std::make_shared<ASTLoop>(token, index);
-  } else if (token->value == "struct") {
-    return std::make_shared<ASTStruct>(token, index);
-  } else if (token->value == "break" || token->value == "continue") {
-    return std::make_shared<ASTBreakContinue>(token, index);
-  } else if (token->value == "as") {
-    return std::make_shared<ASTCast>(token, index);
-  } else { report_code_error(token, "Keyword not implemented: " + token->to_string()); }
+  switch_str(token->value)
+  case_str0("var") return std::make_shared<ASTVarDecl>(token, index); //
+  case_str_or3("fn", "pub", "extern") return std::make_shared<ASTFunction>(token, index); //
+  case_str("import") return std::make_shared<ASTImport>(token, index); //
+  case_str("if") return std::make_shared<ASTIf>(token, index); //
+  case_str("else") return std::make_shared<ASTElse>(token, index); //
+  case_str("return") return std::make_shared<ASTReturn>(token, index); //
+  case_str_or2("while", "for") return std::make_shared<ASTLoop>(token, index); //
+  case_str("struct") return std::make_shared<ASTStruct>(token, index); //
+  case_str_or2("break", "continue") return std::make_shared<ASTBreakContinue>(token, index); //
+  case_str("as") return std::make_shared<ASTCast>(token, index); //
+  case_default report_code_error(token, "Keyword not implemented: " + token->to_string()); //
+  end_switch
 }
 
 ASTNodePtr Parser::peek(size_t &index) {
@@ -79,14 +72,6 @@ ASTNodePtr Parser::peek(size_t &index) {
   ASTNodePtr node;
   if (token->value == "@") { /// intrinsics
     node = std::make_shared<Intrinsic>(token, index);
-  } else if (token->value == "+" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTArithmetic>(ASTType::SUM, token, index);
-  } else if (token->value == "-" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTArithmetic>(ASTType::SUBTRACT, token, index);
-  } else if (token->value == "*" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTArithmetic>(ASTType::MULTIPLY, token, index);
-  } else if (token->value == "/" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTArithmetic>(ASTType::DIVIDE, token, index);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
     node = std::make_shared<ASTAssignment>(token, index);
   } else if (token->value == "!" || token->value == "~") {
@@ -138,6 +123,8 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTAmpersand>(token, index);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
     node = std::make_shared<ASTStatement>(true, token, index);
+  } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) {
+    node = std::make_shared<ASTArithmetic>(token, index);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {

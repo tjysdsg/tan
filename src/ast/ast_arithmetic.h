@@ -18,7 +18,7 @@ namespace tanlang {
 class ASTArithmetic final : public ASTInfixBinaryOp {
 public:
   ASTArithmetic() = delete;
-  ASTArithmetic(ASTType type, Token *token, size_t token_index);
+  ASTArithmetic(Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *cs) override;
 
 protected:

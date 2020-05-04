@@ -77,12 +77,16 @@ Value *ASTArithmetic::codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-ASTArithmetic::ASTArithmetic(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  if (!is_ast_type_in(type, {ASTType::SUM, ASTType::SUBTRACT, ASTType::MULTIPLY, ASTType::DIVIDE, ASTType::MOD})) {
-    report_code_error(token, "Invalid ASTType for comparisons " + token->to_string());
-  }
-  _type = type;
-  _lbp = op_precedence[type];
+ASTArithmetic::ASTArithmetic(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
+  switch_str(token->value)
+  case_str0("+") _type = ASTType::SUM;     //
+  case_str("-") _type = ASTType::SUBTRACT; //
+  case_str("*") _type = ASTType::MULTIPLY; //
+  case_str("/") _type = ASTType::DIVIDE;   //
+  case_str("%") _type = ASTType::MOD;      //
+  case_default report_code_error(token, "Invalid ASTType for comparisons " + token->to_string()); //
+  end_switch
+  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang

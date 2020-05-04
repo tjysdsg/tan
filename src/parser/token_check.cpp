@@ -1,19 +1,19 @@
 #include "token.h"
-#include "src/parser/token_check.h"
+#include "src/common.h"
 
 namespace tanlang {
 
 bool check_typename_token(Token *token) {
   return token->type == TokenType::KEYWORD
-      && (token->value == "int" || token->value == "float" || token->value == "double" || token->value == "i16"
-          || token->value == "u16" || token->value == "i32" || token->value == "u32" || token->value == "i64"
-          || token->value == "u64");
+      && is_string_in(token->value, {"int", "float", "double", "i16", "u16", "i32", "u32", "i64", "u64"});
 }
 
 bool check_terminal_token(Token *token) {
-  return token->type == TokenType::PUNCTUATION
-      && (token->value == ";" || token->value == "}" || token->value == ")" || token->value == ":"
-          || token->value == "," || token->value == "]");
+  return token->type == TokenType::PUNCTUATION && is_string_in(token->value, {";", "}", ")", ":", ",", "]"});
 }
 
+bool check_arithmetic_token(Token *token) {
+  return token->type == TokenType::BOP && is_string_in(token->value, {"+", "-", "*", "/", "%"});
 }
+
+} // namespace tanlang
