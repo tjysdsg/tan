@@ -5,14 +5,7 @@
 
 namespace tanlang {
 
-Value *ASTNumberLiteral::codegen(CompilerSession *compiler_session) {
-  if (_is_float) {
-    _llvm_value = ConstantFP::get(*compiler_session->get_context(), APFloat(_fvalue));
-  } else {
-    _llvm_value = ConstantInt::get(*compiler_session->get_context(), APInt(32, static_cast<uint64_t>(_ivalue), true));
-  }
-  return _llvm_value;
-}
+Value *ASTNumberLiteral::codegen(CompilerSession *cs) { return _ty->get_llvm_value(cs); }
 
 size_t ASTNumberLiteral::nud() {
   _end_index = _start_index + 1;

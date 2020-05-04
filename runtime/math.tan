@@ -1,0 +1,1 @@
+extern fn fabs(a: float): float;

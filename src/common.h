@@ -25,13 +25,14 @@ template<size_t N> bool is_ast_type_in(ASTType t, std::array<ASTType, N> list) {
 
 bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2);
 
-#define switch_str(s) auto& jldskajfdsjkahjhkjxhkjhckhvcx = s;
-#define case_str0(s) if (jldskajfdsjkahjhkjxhkjhckhvcx == (s)) {
-#define case_str(s) } else if (jldskajfdsjkahjhkjxhkjhckhvcx == (s)) {
-#define case_str_or2(s1, s2) } else if (jldskajfdsjkahjhkjxhkjhckhvcx == (s1) || jldskajfdsjkahjhkjxhkjhckhvcx == (s2)) {
-#define case_str_or3(s1, s2, s3) } else if (jldskajfdsjkahjhkjxhkjhckhvcx == (s1) \
-                                            || jldskajfdsjkahjhkjxhkjhckhvcx == (s2) \
-                                            || jldskajfdsjkahjhkjxhkjhckhvcx == (s3)) {
+#define switch_str(s) auto& this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts = s;
+#define case_str0(s) if (this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s)) {
+#define case_str(s) } else if (this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s)) {
+#define case_str_or2(s1, s2) } else if (this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s1) \
+                                  || this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s2)) {
+#define case_str_or3(s1, s2, s3) } else if (this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s1) \
+                                      || this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s2) \
+                                      || this_variable_name_is_intended_to_be_long_to_avoid_name_conflicts == (s3)) {
 #define case_default } else {
 #define end_switch }
 } // namespace tanlang
