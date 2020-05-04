@@ -21,7 +21,7 @@ Value *ASTCast::codegen(CompilerSession *cs) {
   auto lhs = _children[0];
   auto *dest_type = _children[1]->to_llvm_type(cs);
   Value *val = lhs->codegen(cs);
-  Value *ret = val;
+  Value *ret = nullptr;
   if (lhs->is_lvalue()) { val = cs->get_builder()->CreateLoad(val); }
   val = TypeSystem::ConvertTo(cs, dest_type, val, false);
   if (lhs->is_lvalue()) {

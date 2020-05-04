@@ -12,7 +12,7 @@ Compiler::~Compiler() {
   delete _compiler_session;
 }
 
-Compiler::Compiler(std::string filename) : _filename(filename) {
+Compiler::Compiler(const std::string &filename) : _filename(filename) {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -23,12 +23,12 @@ Compiler::Compiler(std::string filename) : _filename(filename) {
   std::string error;
   auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
   if (!target) { throw std::runtime_error(error); }
-  auto CPU = "generic";
-  auto features = "";
-  llvm::TargetOptions opt;
-  /// relocation model
-  auto RM = llvm::Reloc::Model::PIC_;
   if (!Compiler::target_machine) {
+    auto CPU = "generic";
+    auto features = "";
+    llvm::TargetOptions opt;
+    /// relocation model
+    auto RM = llvm::Reloc::Model::PIC_;
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
@@ -64,7 +64,7 @@ void Compiler::parse() {
   _ast = parser->parse();
 }
 
-void Compiler::ParseFile(std::string filename) {
+void Compiler::ParseFile(const std::string &filename) {
   auto compiler = std::make_shared<Compiler>(filename);
   compiler->parse();
   Compiler::sub_compilers.push_back(compiler);

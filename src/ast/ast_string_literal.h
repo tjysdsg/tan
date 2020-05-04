@@ -8,7 +8,7 @@ class ASTStringLiteral final : public ASTLiteral {
 public:
   ASTStringLiteral() = delete;
   ASTStringLiteral(Token *token, size_t token_index);
-  ASTStringLiteral(std::string str, size_t token_index);
+  ASTStringLiteral(const std::string &str, size_t token_index);
   llvm::Value *codegen(CompilerSession *) override;
   std::string get_string() const;
 

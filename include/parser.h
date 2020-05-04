@@ -15,7 +15,7 @@ enum class ASTType;
 class Parser {
 public:
   Parser() = delete;
-  Parser(std::vector<Token *> tokens, std::string filename, CompilerSession *cs);
+  Parser(std::vector<Token *> tokens, const std::string &filename, CompilerSession *cs);
   std::shared_ptr<ASTNode> peek(size_t &index);
   std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const std::string &value);
   std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);

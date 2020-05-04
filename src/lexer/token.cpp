@@ -53,6 +53,6 @@ std::ostream &Token::operator<<(std::ostream &os) const {
 }
 
 Token::Token(TokenType tokenType, std::string value, const cursor &cursor, const line_info *line)
-    : type(tokenType), value(std::move(value)), l(cursor.l), c(cursor.c), line((line_info *) line) {}
+    : type(tokenType), value(std::move(value)), l(cursor.l), c(cursor.c), line(c_cast(line_info*, line)) {}
 
 } // namespace tanlang

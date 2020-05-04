@@ -59,7 +59,6 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     _children.push_back(member_name);
   }
 
-  ASTNodePtr lhs = left;
   if (_access_type == MemberAccessBracket) {
     ++_end_index; // skip "]" if this is a bracket access
     _ty = left->get_ty();
@@ -72,15 +71,14 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     _ty = _ty->get_contained_ty();
   } else if (_children[1]->_type == ASTType::ID) { /// member variable
     _access_type = MemberAccessMemberVariable;
-    lhs = _children[0];
-    if (!lhs->is_lvalue() && !lhs->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
+    if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
     auto rhs = _children[1];
     std::string m_name = rhs->get_name();
     std::shared_ptr<ASTStruct> struct_ast = nullptr;
     /// auto dereference pointers
-    if (lhs->get_ty()->is_ptr()) {
-      struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_ty()->get_contained_ty()->get_type_name()));
-    } else { struct_ast = ast_cast<ASTStruct>(_cs->get(lhs->get_type_name())); }
+    if (left->get_ty()->is_ptr()) {
+      struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_ty()->get_contained_ty()->get_type_name()));
+    } else { struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_type_name())); }
     _access_idx = struct_ast->get_member_index(m_name);
     auto member = struct_ast->get_member(_access_idx);
     _ty = member->get_ty();

@@ -6,9 +6,7 @@
 
 namespace tanlang {
 
-Linker::Linker() {
-  _exe = "clang";
-}
+Linker::Linker() : _exe("clang") {}
 
 void Linker::add_files(std::vector<std::string> filenames) {
   _input_files.insert(_input_files.end(), filenames.begin(), filenames.end());

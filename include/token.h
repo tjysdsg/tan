@@ -11,13 +11,18 @@ struct cursor;
 struct line_info;
 
 enum class TokenType {
-  END = -1, COMMENTS, KEYWORD, INT, FLOAT, ID,          // identifier
-  CHAR,        // character
-  STRING,      // string literal
-  PUNCTUATION, // , ; . ( ) { } etc.
-  RELOP,       // relational operator
-  UOP,         // unary operator
-  BOP,         // binary operator
+  END = -1,    /// EOF
+  COMMENTS,    ///
+  KEYWORD,     ///
+  INT,         ///
+  FLOAT,       ///
+  ID,          /// identifier
+  CHAR,        /// character
+  STRING,      /// string literal
+  PUNCTUATION, /// , ; . ( ) { } etc.
+  RELOP,       /// relational operator
+  UOP,         /// unary operator
+  BOP,         /// binary operator
 };
 
 extern std::unordered_map<TokenType, std::string> token_type_names;

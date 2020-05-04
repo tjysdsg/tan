@@ -11,7 +11,7 @@ class CompilerSession;
 
 class Compiler {
 public:
-  static void ParseFile(const std::string filename);
+  static void ParseFile(const std::string &filename);
   static TargetMachine *GetDefaultTargetMachine();
 
 private:
@@ -22,7 +22,7 @@ private:
 
 public:
   Compiler() = delete;
-  Compiler(std::string filename);
+  explicit Compiler(const std::string &filename);
   ~Compiler();
   void parse();
   Value *codegen();

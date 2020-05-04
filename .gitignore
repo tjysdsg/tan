@@ -13,3 +13,4 @@ Testing/
 *.out
 *.pch
 *.gch
+*.log

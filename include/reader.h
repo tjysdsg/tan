@@ -16,7 +16,7 @@ struct line_info {
   std::string code;
   line_info() = delete;
   ~line_info() = default;
-  line_info(const size_t lineno, const std::string code) : lineno(lineno), code(code) {}
+  line_info(const size_t lineno, const std::string &code) : lineno(lineno), code(code) {}
 };
 
 // TODO: support unicode
@@ -64,7 +64,7 @@ struct cursor {
   size_t c = 0;
 
 private:
-  cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *) reader) {}
+  cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader(c_cast(Reader *, reader)) {}
 
 public:
   cursor() = delete;

@@ -124,8 +124,6 @@ Token *tokenize_number(Reader *reader, cursor &start) {
           forward.l,
           forward.c,
           "Unexpected character within a number literal");
-      delete t;
-      return nullptr;
     }
     forward = (*reader).forward(forward);
   }

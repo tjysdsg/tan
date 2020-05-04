@@ -1,3 +1,3 @@
 #!/bin/bash
-cppcheck --enable=all -I./ -Iinclude/ -i cmake-build-debug . 2> cppcheck.txt
-
+cppcheck --enable=all -I./ -Iinclude/ include/ src/ --force 2>cppcheck.log
+cat cppcheck.log

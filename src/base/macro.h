@@ -21,4 +21,7 @@
 #   define TAN_UNLIKELY(x) (x)
 #endif
 
+#define p_cast(T, val) reinterpret_cast<T>(val)
+#define c_cast(T, val) const_cast<T>(val)
+
 #endif // __TAN_SRC_BASE_MACRO_H__
