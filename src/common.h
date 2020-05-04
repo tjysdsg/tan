@@ -11,8 +11,9 @@ namespace tanlang {
  * \param block BasicBlock to insert to.
  * \param type Intended type to store.
  * \param name Name of the `alloca` instruction.
+ * \param size size of the array if greater than 1
  */
-AllocaInst *create_block_alloca(BasicBlock *block, Type *type, const std::string &name = "");
+AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size = 1, const std::string &name = "");
 
 bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list);
 

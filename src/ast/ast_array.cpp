@@ -10,10 +10,7 @@ namespace tanlang {
 
 size_t ASTArrayLiteral::nud() {
   _end_index = _start_index + 1; /// skip '['
-  if (_parser->at(_end_index)->value == "]") { /// empty array
-    ++_end_index;
-    return _end_index;
-  }
+  if (_parser->at(_end_index)->value == "]") { report_code_error(_token, "Empty array"); }
   ASTType element_type = ASTType::INVALID;
   while (!_parser->eof(_end_index)) {
     if (_parser->at(_end_index)->value == ",") {
@@ -26,9 +23,8 @@ size_t ASTArrayLiteral::nud() {
     auto node = _parser->peek(_end_index);
     if (!node) { report_code_error(_token, "Unexpected token"); }
     /// check whether element types are the same
-    if (element_type == ASTType::INVALID) {
-      element_type = node->_type;
-    } else {
+    if (element_type == ASTType::INVALID) { element_type = node->_type; }
+    else {
       if (element_type != node->_type) {
         report_code_error(_token, "All elements in an array must have the same type");
       }
@@ -37,32 +33,19 @@ size_t ASTArrayLiteral::nud() {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
       _end_index = node->parse(_parser, _cs);
       _children.push_back(node);
-    } else {
-      report_code_error(_token, "Expect literals");
-    }
+    } else { report_code_error(_token, "Expect literals"); }
   }
 
-  // TODO: set default value of ASTTy
   auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);
-  std::vector<ASTNodePtr> sub_tys{_children[0]->get_ty(), size};
+  std::vector<ASTNodePtr> sub_tys{};
+  sub_tys.reserve(get_n_elements());
+  std::for_each(_children.begin(), _children.end(), [&sub_tys](ASTNodePtr &e) { sub_tys.push_back(e->get_ty()); });
   _ty = ASTTy::Create(Ty::ARRAY, false, sub_tys);
   return _end_index;
 }
 
 Value *ASTArrayLiteral::codegen(CompilerSession *cs) {
-  using llvm::Constant;
-  auto sub = ast_cast<ASTLiteral>(_children[0]);
-  sub->codegen(cs);
-  Type *int_t = cs->get_builder()->getInt32Ty();
-  size_t n = _children.size();
-  auto *size = ConstantInt::get(int_t, n);
-  _llvm_value = cs->get_builder()->CreateAlloca(get_element_llvm_type(cs), 0, size);
-  for (size_t i = 0; i < n; ++i) {
-    auto *idx = ConstantInt::get(int_t, i);
-    auto *e_val = _children[i]->codegen(cs);
-    auto *e_ptr = cs->get_builder()->CreateGEP(_llvm_value, idx);
-    cs->get_builder()->CreateStore(e_val, e_ptr);
-  }
+  _llvm_value = _ty->get_llvm_value(cs);
   return _llvm_value;
 }
 
@@ -84,9 +67,7 @@ Type *ASTArrayLiteral::get_element_llvm_type(CompilerSession *cs) const {
   return get_ty()->get_contained_ty()->to_llvm_type(cs);
 }
 
-size_t ASTArrayLiteral::get_n_elements() const {
-  return _children.size();
-}
+size_t ASTArrayLiteral::get_n_elements() const { return _children.size(); }
 
 ASTArrayLiteral::ASTArrayLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, t, ti) {}
 

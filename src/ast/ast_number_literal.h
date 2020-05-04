@@ -23,6 +23,7 @@ protected:
   size_t nud() override;
 
 private:
+  void resolve();
   bool _is_float = false;
   bool _is_unsigned = false;
   union {

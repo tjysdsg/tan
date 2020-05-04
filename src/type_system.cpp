@@ -56,6 +56,9 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
       return cs->get_builder()
           ->CreateICmpNE(loaded, ConstantInt::get(cs->get_builder()->getIntNTy((unsigned) s1), 0, false));
     }
+  } else if (orig->isArrayTy() && dest->isArrayTy()) { // between arrays
+    // TODO: cast between arrays
+    TAN_ASSERT(false);
   } else { throw std::runtime_error("Invalid type conversion"); }
 }
 

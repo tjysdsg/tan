@@ -3,9 +3,13 @@
 
 namespace tanlang {
 
-AllocaInst *create_block_alloca(BasicBlock *block, Type *type, const std::string &name) {
+AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, const std::string &name) {
   IRBuilder<> tmp_builder(block, block->begin());
-  return tmp_builder.CreateAlloca(type, nullptr, name);
+  if (size <= 1) {
+    return tmp_builder.CreateAlloca(type, nullptr, name);
+  } else {
+    return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned) size), name);
+  };
 }
 
 bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list) {

@@ -47,7 +47,7 @@ Value *ASTVarDecl::codegen(CompilerSession *cs) {
   TAN_ASSERT(_children[0]->is_named());
   std::string name = this->get_name();
   Type *type = _children[1]->to_llvm_type(cs);
-  _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, name);
+  _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, 1, name);
   if (_type == ASTType::VAR_DECL) { /// don't do this for arguments
     auto *default_value = _children[1]->get_llvm_value(cs);
     if (default_value) { cs->get_builder()->CreateStore(default_value, _llvm_value); }

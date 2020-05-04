@@ -1,4 +1,5 @@
 #include "src/ast/ast_member_access.h"
+#include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_struct.h"
 #include "src/ast/ast_node.h"
 #include "src/common.h"
@@ -60,11 +61,23 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   }
 
   if (_access_type == MemberAccessBracket) {
-    ++_end_index; // skip "]" if this is a bracket access
+    auto rhs = _children[1];
+    ++_end_index; /// skip "]" if this is a bracket access
     _ty = left->get_ty();
     TAN_ASSERT(_ty->is_ptr());
     _ty = _ty->get_contained_ty();
     if (!_ty) { report_code_error(_token, "Unable to perform bracket access"); }
+    // TODO: check bound if rhs is compile-time known
+    if (rhs->_type == ASTType::NUM_LITERAL) {
+      if (!rhs->get_ty()->is_int()) { report_code_error(_token, "Expect an integer specifying array size"); }
+      auto size = ast_cast<ASTNumberLiteral>(rhs);
+      if (left->get_ty()->is_array()
+          && (size_t) /** underflow helps us here */ size->_ivalue >= left->get_ty()->get_n_elements()) {
+        report_code_error(_token,
+            "Index " + std::to_string(size->_ivalue) + " out of bound, the array size is "
+                + std::to_string(left->get_ty()->get_n_elements()));
+      }
+    }
   } else if (_access_type == MemberAccessDeref) { /// pointer dereference
     _ty = left->get_ty();
     TAN_ASSERT(_ty->is_ptr());

@@ -25,7 +25,7 @@ Value *ASTAmpersand::codegen(CompilerSession *cs) {
     if (_children[0]->is_lvalue()) { /// lvalue, the val itself is a pointer to real value
       _llvm_value = val;
     } else { /// rvalue, create an anonymous variable, and get address of it
-      _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), val->getType(), "anonymous");
+      _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), val->getType(), 1, "anonymous");
       cs->get_builder()->CreateStore(val, _llvm_value);
     }
   } else if (_type == ASTType::BAND) {

@@ -5,6 +5,7 @@
 #include "token.h"
 #include "compiler_session.h"
 #include "compiler.h"
+#include "src/common.h"
 
 using namespace tanlang;
 
@@ -62,7 +63,14 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       ret = ConstantPointerNull::get((PointerType *) type);
       break;
     case Ty::ARRAY: {
-      // TODO: default value of arrays
+      auto *e_type = _children[0]->to_llvm_type(cs);
+      ret = create_block_alloca(cs->get_builder()->GetInsertBlock(), e_type, _n_elements, "const_array");
+      for (size_t i = 0; i < _n_elements; ++i) {
+        auto *idx = cs->get_builder()->getInt32((unsigned) i);
+        auto *e_val = _children[i]->get_llvm_value(cs);
+        auto *e_ptr = cs->get_builder()->CreateGEP(ret, idx);
+        cs->get_builder()->CreateStore(e_val, e_ptr);
+      }
       break;
     }
     default:
@@ -103,7 +111,7 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
       type = st->to_llvm_type(cs);
       break;
     }
-    case Ty::ARRAY:
+    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during codegen, they are the same
     case Ty::POINTER: {
       auto e_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(cs);
       type = e_type->getPointerTo();
@@ -290,7 +298,7 @@ void ASTTy::resolve() {
       auto s = ast_cast<ASTNumberLiteral>(_children[1]);
       TAN_ASSERT(et);
       TAN_ASSERT(s);
-      _n_elements = static_cast<size_t>(s->_ivalue);
+      _n_elements = _children.size();
       _type_name = "[" + et->get_type_name() + ", " + std::to_string(_n_elements) + "]";
       _is_ptr = true;
       _is_array = true;
@@ -313,7 +321,6 @@ void ASTTy::resolve() {
     default:
       TAN_ASSERT(false);
   }
-  _n_elements = _children.size();
   _resolved = true;
 }
 
@@ -321,14 +328,13 @@ void ASTTy::resolve() {
 /// this will set _type_name
 size_t ASTTy::nud_array() {
   _end_index = _start_index + 1; /// skip "["
+  ASTNodePtr element = nullptr;
   /// element type
   if (_parser->at(_end_index)->value == "]") { /// empty
     report_code_error(_parser->at(_end_index), "The array type and size must be specified");
   } else {
-    auto child = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
-    _end_index = child->parse(_parser, _cs); /// this set the _type_name of child
-    _children.push_back(child);
-    _type_name = child->_type_name;
+    element = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
+    _end_index = element->parse(_parser, _cs); /// this set the _type_name of child
   }
   _parser->peek(_end_index, TokenType::PUNCTUATION, ",");
   ++_end_index; /// skip ","
@@ -342,8 +348,8 @@ size_t ASTTy::nud_array() {
   if (size1->is_float() || size1->_ivalue < 0) {
     report_code_error(_parser->at(_end_index), "Expect an unsigned integer");
   }
-  _children.push_back(size1);
   _n_elements = static_cast<size_t>(size1->_ivalue);
+  for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(element->get_ty()); }
   /// set _type_name to [<element type>, <n_elements>]
   _type_name = "[" + _type_name + ", " + std::to_string(_n_elements) + "]";
   ++_end_index; /// skip "]"
