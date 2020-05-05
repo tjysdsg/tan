@@ -232,6 +232,7 @@ set(DEP_INCLUDES
 set(DEP_LIBS ${LLVM_LIBS}
         ${CLANG_LIBRARIES}
         z dl rt tinfo pthread m xml2
+        gcov
         PARENT_SCOPE)
 
 set(DEP_LIB_DIRS

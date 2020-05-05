@@ -27,6 +27,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # default build debug
 if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "CMAKE_BUILD_TYPE not specified, using Debug as default")
     set(CMAKE_BUILD_TYPE Debug)
 endif ()
 
@@ -99,6 +100,9 @@ set_other_options(tanc)
 
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
+
+# add all srcs to TAN_ALL_SRCS before enabling tests (for gcov)
+set(TAN_ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
 
 # ===== target test =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)

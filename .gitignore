@@ -9,6 +9,8 @@ cmake-build*/
 # made by ctest
 Testing/
 
+coverage/
+
 *.o
 *.out
 *.pch

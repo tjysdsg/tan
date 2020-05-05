@@ -6,6 +6,9 @@
 /// \brief for suppressing unused parameters warning in a function
 #define UNUSED(x) (void)(x)
 
+#define __s__(x) #x
+#define __STR__(x) __s__(x)
+
 #ifdef __has_builtin
 #    define TAN_HAVE_BUILTIN(x) __has_builtin(x)
 #else
