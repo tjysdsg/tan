@@ -1,27 +1,9 @@
 # ====== tests for debug build ======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    include(CTest)
-    set(CMAKE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage" PARENT_SCOPE)
-    file(GLOB_RECURSE OBJECT_FILES ${CMAKE_BINARY_DIR}/CMakeFiles/*.dir/*.o)
-    file(GLOB_RECURSE GCOV_FILES ${CMAKE_BINARY_DIR}/CMakeFiles/*.dir/*.gcda)
-
-    if (GCOV_FILES)
-        set(COVERAGE_CLEAN_COMMAND "COMMAND rm ${GCOV_FILES}")
-    endif ()
-
-    add_custom_target(coverage ALL
-            COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
-            ${PROJECT_SOURCE_DIR}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
-    add_custom_command(TARGET coverage POST_BUILD
-            COMMAND ${CMAKE_MAKE_PROGRAM} tests
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            )
-    add_custom_command(TARGET coverage POST_BUILD
-            COMMAND gcov -o ${OBJECT_FILES}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/coverage
-            )
+    set(CMAKE_CXX_FLAGS
+            "-g -O0 -Wall -fprofile-arcs -ftest-coverage"
+            PARENT_SCOPE)
+    set(ENV{GCOV_PREFIX} ${PROJECT_SOURCE_DIR}/coverage)
 
     # lexer tests
     add_executable(lexer_tests lexer_test.cpp)
@@ -46,12 +28,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     endforeach ()
 
     # tests target
-    add_custom_target(tests
-            COMMAND export GCOV_PREFIX=${PROJECT_SOURCE_DIR}/coverage
-            COMMAND export GCOV_PREFIX_STRIP=${PROJECT_SOURCE_DIR}
-            DEPENDS ${TANC_ALL_TESTS}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
+    add_custom_target(tests DEPENDS ${TANC_ALL_TESTS})
     foreach (tt ${TANC_ALL_TESTS})
         add_custom_command(TARGET tests POST_BUILD
                 COMMAND ${PROJECT_SOURCE_DIR}/bin/${tt}
@@ -59,5 +36,17 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
                 )
     endforeach ()
 
-    add_dependencies(coverage lexer_tests)
+    add_custom_target(coverage
+            COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
+            DEPENDS tests
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            )
+
+    add_custom_command(TARGET coverage POST_BUILD
+            COMMAND gcovr --html --html-details
+            -r ${PROJECT_SOURCE_DIR}
+            --object-directory=${CMAKE_BINARY_DIR}
+            -o ${PROJECT_SOURCE_DIR}/coverage/index.html
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            )
 endif ()
