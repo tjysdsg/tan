@@ -22,3 +22,7 @@ RUN apt-get -y install lldb-10
 RUN apt-get -y install lld-10
 RUN apt-get -y install libc++-10-dev libc++abi-10-dev
 RUN apt-get -y install libomp-10-dev
+
+# Python for cpp-coveralls
+RUN apt-get -y install python3 python3-pip
+RUN pip3 install cpp-coveralls

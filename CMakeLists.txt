@@ -101,11 +101,14 @@ set_other_options(tanc)
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
 
-# add all srcs to TAN_ALL_SRCS before enabling tests (for gcov)
-set(TAN_ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
+# add all srcs before enabling tests (for gcov)
+set(ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
 
-# ===== target test =====
-add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)
+# ===== tests and coverage =====
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)
+    enable_tests()
+endif ()
 
 # ===== docs =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/docs)

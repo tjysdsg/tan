@@ -24,9 +24,5 @@ jobs:
         with:
           name: bin
           path: tan/bin
-      - name: compile all
+      - name: compile all and test all
         run: cd tan; ./scripts/compile.sh all
-      - name: compile runtime
-        run: cd tan; ./scripts/compile.sh runtime
-      - name: test
-        run: cd tan; ./scripts/test.sh

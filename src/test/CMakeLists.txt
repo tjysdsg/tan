@@ -1,25 +1,23 @@
-# ====== tests for debug build ======
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS
-            "-g -O0 -Wall -fprofile-arcs -ftest-coverage"
-            PARENT_SCOPE)
-    set(ENV{GCOV_PREFIX} ${PROJECT_SOURCE_DIR}/coverage)
+macro(enable_tests)
+    set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
+    set(TEST_DIR ${PROJECT_SOURCE_DIR}/src/test)
 
     # lexer tests
-    add_executable(lexer_tests lexer_test.cpp)
+    add_executable(lexer_tests ${TEST_DIR}/lexer_test.cpp)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${CMAKE_CURRENT_LIST_DIR})
+            ${PROJECT_SOURCE_DIR}/src/test)
     target_link_libraries(lexer_tests tan gtest_main ${DEP_LIBS})
     set_other_options(lexer_tests)
 
     # tanc tests
     set(TANC_ALL_TESTS "lexer_tests")
-    file(GLOB TAN_TEST_SRCS ${CMAKE_CURRENT_LIST_DIR}/test_src/*.tan)
+    file(GLOB TAN_TEST_SRCS ${TEST_DIR}/test_src/*.tan)
+    set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
     foreach (tts ${TAN_TEST_SRCS})
         get_filename_component(test_name ${tts} NAME_WLE)
         set(test_target_name "test_tanc_${test_name}")
         add_executable(${test_target_name}
-                ${CMAKE_CURRENT_LIST_DIR}/tanc_tests.cpp
+                ${TEST_DIR}/tanc_tests.cpp
                 ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
         set_other_options(${test_target_name})
         target_link_libraries(${test_target_name} tan gtest_main gflags::gflags ${DEP_LIBS})
@@ -28,7 +26,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     endforeach ()
 
     # tests target
-    add_custom_target(tests DEPENDS ${TANC_ALL_TESTS})
+    add_custom_target(tests ALL DEPENDS ${TANC_ALL_TESTS})
     foreach (tt ${TANC_ALL_TESTS})
         add_custom_command(TARGET tests POST_BUILD
                 COMMAND ${PROJECT_SOURCE_DIR}/bin/${tt}
@@ -36,7 +34,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
                 )
     endforeach ()
 
-    add_custom_target(coverage
+    add_custom_target(coverage ALL
             COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
             DEPENDS tests
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -49,4 +47,4 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
             -o ${PROJECT_SOURCE_DIR}/coverage/index.html
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             )
-endif ()
+endmacro()

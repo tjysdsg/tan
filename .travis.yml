@@ -16,4 +16,4 @@ install:
   - $SH "./scripts/install-dep.sh"
 
 script:
-  - $SH "./scripts/compile.sh"; $SH "./scripts/test.sh"
+  - $SH "./scripts/compile.sh"; $SH "./scripts/upload-coverage.sh"

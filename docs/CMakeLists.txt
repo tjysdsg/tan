@@ -12,11 +12,11 @@ if (DOXYGEN_FOUND)
     # generate Doxyfile
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-    add_custom_target(doxygen ALL
+    add_custom_target(doxygen
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen"
-            VERBATIM)
-else (DOXYGEN_FOUND)
-    message(STATUS "Not generating documentation because Doxygen is not installed")
-endif (DOXYGEN_FOUND)
+            )
+else ()
+    message(WARNING "Not generating documentation because Doxygen is not installed")
+endif ()
