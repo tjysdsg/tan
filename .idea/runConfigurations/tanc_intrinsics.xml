@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tanc intrinsics" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="src/test/test_src/intrinsics.tan --print-ir-code -l runtime/runtime.so" REDIRECT_INPUT="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc">
+  <configuration default="false" name="tanc intrinsics" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="src/test/test_src/intrinsics.tan --print-ir-code -l runtime/runtime.so" REDIRECT_INPUT="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc" CONFIG_NAME="Debug-LLVM" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>

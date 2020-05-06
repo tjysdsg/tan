@@ -30,9 +30,7 @@ public:
   llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
   bool is_named() const override;
   bool is_typed() const override;
-  // TODO: std::string get_type_name() const override;
-  // TODO: llvm::Type *to_llvm_type(CompilerSession *) const override;
-  // TODO: std::shared_ptr<ASTTy> get_ty() const override;
+  // TODO: implement function type
 
   ASTNodePtr get_ret() const;
   ASTNodePtr get_arg(size_t i) const;

@@ -1,5 +1,9 @@
 macro(enable_tests)
-    set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
+    if (DEFINED ENABLE_COVERAGE)
+        set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
+    else ()
+        set(COVERAGE_CXX_FLAGS "-g -O0 -Wall")
+    endif ()
     set(TEST_DIR ${PROJECT_SOURCE_DIR}/src/test)
 
     # lexer tests
@@ -34,17 +38,19 @@ macro(enable_tests)
                 )
     endforeach ()
 
-    add_custom_target(coverage ALL
-            COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
-            DEPENDS tests
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
+    if (DEFINED ENABLE_COVERAGE)
+        add_custom_target(coverage ALL
+                COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
+                DEPENDS tests
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                )
 
-    add_custom_command(TARGET coverage POST_BUILD
-            COMMAND gcovr --html --html-details
-            -r ${PROJECT_SOURCE_DIR}
-            --object-directory=${CMAKE_BINARY_DIR}
-            -o ${PROJECT_SOURCE_DIR}/coverage/index.html
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            )
+        add_custom_command(TARGET coverage POST_BUILD
+                COMMAND gcovr --html --html-details
+                -r ${PROJECT_SOURCE_DIR}
+                --object-directory=${CMAKE_BINARY_DIR}
+                -o ${PROJECT_SOURCE_DIR}/coverage/index.html
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                )
+    endif ()
 endmacro()
