@@ -7,8 +7,6 @@
 
 namespace tanlang {
 
-// TODO: allow chained assignment
-
 Value *ASTAssignment::codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   /// codegen the rhs
@@ -25,12 +23,8 @@ Value *ASTAssignment::codegen(CompilerSession *cs) {
   /// to is lvalue
   from = TypeSystem::ConvertTo(cs, to->getType()->getContainedType(0), from, false, true);
   cs->get_builder()->CreateStore(from, to);
+  _llvm_value = to;
   return to;
-}
-
-ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  _type = ASTType::ASSIGN;
-  _lbp = op_precedence[_type];
 }
 
 size_t ASTAssignment::led(const ASTNodePtr &left) {
@@ -53,6 +47,13 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
 
   _ty = _children[0]->get_ty();
   return _end_index;
+}
+
+bool ASTAssignment::is_lvalue() const { return true; }
+
+ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
+  _type = ASTType::ASSIGN;
+  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang
