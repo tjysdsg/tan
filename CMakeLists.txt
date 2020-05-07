@@ -95,7 +95,7 @@ endif ()
 # ===== target CLI compiler =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${CLI_SRCS})
-target_link_libraries(tanc tan pthread gflags::gflags ${DEP_LIBS})
+target_link_libraries(tanc tan)
 set_other_options(tanc)
 
 # ===== target runtime =====

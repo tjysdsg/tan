@@ -7,8 +7,7 @@
 #endif
 
 TEST(tanc, general) {
-  std::vector<const char *>
-      cmd{"tanc", "--print-ast=true", "--print-ir-code=true", __STR__(TAN_SOURCE), "-l", "runtime/runtime.so"};
+  std::vector<const char *> cmd{"tanc", "--print-ast", "--print-ir", __STR__(TAN_SOURCE), "-lruntime/runtime.so"};
   int argc = static_cast<int>(cmd.size());
   auto *argv = c_cast(char**, cmd.data());
   EXPECT_EQ(0, cli_main(&argc, &argv));
