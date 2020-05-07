@@ -1,6 +1,8 @@
 `tan` programming language
 ===
 
+[![Coverage Status](https://coveralls.io/repos/github/tjysdsg/tan/badge.svg?branch=master)](https://coveralls.io/github/tjysdsg/tan?branch=master)
+
 *Work In Progress*
 
 # Design Objectives
@@ -9,5 +11,4 @@
 - Parallel programming
 - Memory safety (but not as rigid as rust)
 - Easy-to-use but powerful meta-programming
-- Builtin build system and cross-compiling support
-- OOP but No inheritance
+- Improved OOP model
