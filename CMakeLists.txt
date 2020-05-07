@@ -64,9 +64,6 @@ endmacro()
 # ================================ thirdparty dependencies ========================== #
 # googletest
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
-# gflags
-add_subdirectory(${PROJECT_SOURCE_DIR}/dep/gflags)
-include_directories(${GFLAGS_INCLUDE_DIR})
 # others in dep/
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
 include_directories(${DEP_INCLUDES})
