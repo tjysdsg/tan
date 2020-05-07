@@ -5,31 +5,50 @@
 #include <llvm/Support/CommandLine.h>
 
 namespace cl = llvm::cl;
-static cl::opt<std::string>
-    opt_output_file("o", cl::desc("Output filename"), cl::value_desc("output"), cl::init("a.out"));
-static cl::list<std::string>
-    opt_link_libraries("l", cl::desc("Libraries to link against"), cl::value_desc("libraries"), cl::Prefix);
-static cl::list<std::string> opt_source_files
-    (cl::Positional, cl::Required, cl::desc("Files to compile"), cl::value_desc("<source files>"), cl::OneOrMore);
-static cl::opt<bool> opt_print_ir_code("print-ir", cl::desc("Print LLVM IR code"));
-static cl::opt<bool> opt_print_ast("print-ast", cl::desc("Print abstract syntax tree"));
-// static cl::opt<bool> opt_version("version", cl::desc("Print tanc version and exit"));
+static cl::OptionCategory cl_category("tanc");
+static cl::opt<std::string> opt_output_file
+    ("o", cl::desc("Output filename"), cl::value_desc("output"), cl::init("a.out"), cl::cat(cl_category));
+static cl::list<std::string> opt_link_libraries
+    ("l", cl::desc("Libraries to link against"), cl::value_desc("libraries"), cl::Prefix, cl::cat(cl_category));
+static cl::list<std::string> opt_source_files(cl::Positional,
+    cl::Required,
+    cl::desc("Files to compile"),
+    cl::value_desc("<source files>"),
+    cl::OneOrMore,
+    cl::cat(cl_category));
+static cl::opt<bool> opt_print_ir_code("print-ir", cl::desc("Print LLVM IR code"), cl::cat(cl_category));
+static cl::opt<bool> opt_print_ast("print-ast", cl::desc("Print abstract syntax tree"), cl::cat(cl_category));
 static cl::opt<TanCompileType> opt_output_type(cl::desc("Output type"),
     cl::values(clEnumValN(DLIB, "shared", "Shared library"),
         clEnumValN(SLIB, "static", "Static library"),
         clEnumValN(EXE, "exe", "Executable"),
         clEnumValN(OBJ, "obj", "Object file")),
-    cl::init(EXE));
+    cl::init(EXE),
+    cl::cat(cl_category));
 
 int cli_main(int *pargc, char ***pargv) {
+  auto &opt_map = cl::getRegisteredOptions();
+  /// Remove options created by LLVM/Clang
+  /// We don't want tons of flags not created by this file appearing in the output of `tanc --help`
+  for (auto o: opt_map.keys()) {
+    auto cats = opt_map[o]->Categories;
+    bool found = false; /// search through categories, if no "tanc" option category, then hide it
+    size_t n = cats.size();
+    for (size_t i = 0; i < n; ++i) { /// since cats is llvm::SmallVector, we can just do a brute force search
+      if (cats[i]->getName() == "tanc") { found = true; }
+    }
+    if (!found) { opt_map[o]->setHiddenFlag(cl::ReallyHidden); }
+  }
+  // FIXME: cl::opt<bool> opt_version("version", cl::desc("Print tanc version and exit"), cl::cat(cl_category));
+
   cl::ParseCommandLineOptions(*pargc, *pargv, "tanc: compiler for TAN programming language\n\n"
-                                              "tan, a fucking amazing programming language\n\n");
+                                              "tan, a fucking amazing programming language\n");
 
   auto version_string = std::to_string(TAN_VERSION_MAJOR) + "." + std::to_string(TAN_VERSION_MINOR) + "."
       + std::to_string(TAN_VERSION_PATCH);
 
   /// --version
-  // if (opt_version.getValue()) { std::cout << version_string << "\n"; }
+  // FIXME: if (opt_version.getValue()) { std::cout << version_string << "\n"; }
 
   /// source files
   std::vector<char *> files;
