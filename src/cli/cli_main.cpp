@@ -39,16 +39,14 @@ int cli_main(int *pargc, char ***pargv) {
     }
     if (!found) { opt_map[o]->setHiddenFlag(cl::ReallyHidden); }
   }
-  // FIXME: cl::opt<bool> opt_version("version", cl::desc("Print tanc version and exit"), cl::cat(cl_category));
+
+  /// --version
+  auto version_string = "v" + std::to_string(TAN_VERSION_MAJOR) + "." + std::to_string(TAN_VERSION_MINOR) + "."
+      + std::to_string(TAN_VERSION_PATCH);
+  cl::SetVersionPrinter([&version_string](llvm::raw_ostream &os) { os << "tanc " << version_string << "\n"; });
 
   cl::ParseCommandLineOptions(*pargc, *pargv, "tanc: compiler for TAN programming language\n\n"
                                               "tan, a fucking amazing programming language\n");
-
-  auto version_string = std::to_string(TAN_VERSION_MAJOR) + "." + std::to_string(TAN_VERSION_MINOR) + "."
-      + std::to_string(TAN_VERSION_PATCH);
-
-  /// --version
-  // FIXME: if (opt_version.getValue()) { std::cout << version_string << "\n"; }
 
   /// source files
   std::vector<char *> files;
