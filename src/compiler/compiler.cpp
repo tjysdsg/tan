@@ -74,3 +74,21 @@ TargetMachine *Compiler::GetDefaultTargetMachine() {
   TAN_ASSERT(Compiler::target_machine);
   return Compiler::target_machine;
 }
+
+std::vector<std::string> Compiler::resolve_import(const std::string &callee_path, const std::string &import_name) {
+  std::vector<std::string> ret{};
+  auto import_path = fs::path(import_name);
+  /// search relative to callee's path
+  {
+    auto p = fs::path(callee_path).parent_path() / import_path;
+    p = p.lexically_normal();
+    if (fs::exists(p)) { ret.push_back(p.string()); }
+  }
+  /// search relative to directories in Compiler::import_dirs
+  for (const auto &rel : Compiler::import_dirs) {
+    auto p = fs::path(rel) / import_path;
+    p = p.lexically_normal();
+    if (fs::exists(p)) { ret.push_back(p.string()); }
+  }
+  return ret;
+}

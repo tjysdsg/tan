@@ -16,6 +16,8 @@ static cl::list<std::string> opt_source_files(cl::Positional,
     cl::value_desc("<source files>"),
     cl::OneOrMore,
     cl::cat(cl_category));
+static cl::list<std::string>
+    opt_import_dirs("I", cl::desc("Import search directories"), cl::Prefix, cl::cat(cl_category));
 static cl::opt<bool> opt_print_ir_code("print-ir", cl::desc("Print LLVM IR code"), cl::cat(cl_category));
 static cl::opt<bool> opt_print_ast("print-ast", cl::desc("Print abstract syntax tree"), cl::cat(cl_category));
 static cl::opt<TanCompileType> opt_output_type(cl::desc("Output type"),
@@ -62,6 +64,13 @@ int cli_main(int *pargc, char ***pargv) {
       opt_link_libraries.end(),
       [&link_files](const std::string &s) { link_files.push_back(c_cast(char*, s.c_str())); });
 
+  /// import search dirs
+  std::vector<char *> import_dirs;
+  import_dirs.reserve(opt_import_dirs.size());
+  std::for_each(opt_import_dirs.begin(),
+      opt_import_dirs.end(),
+      [&import_dirs](const std::string &s) { import_dirs.push_back(c_cast(char*, s.c_str())); });
+
   /// build config
   TanCompilation config;
   config.type = EXE;
@@ -73,6 +82,13 @@ int cli_main(int *pargc, char ***pargv) {
   } else {
     config.n_link_files = link_files.size();
     config.link_files = link_files.data();
+  }
+  if (import_dirs.empty()) {
+    config.import_dirs = nullptr;
+    config.n_import_dirs = 0;
+  } else {
+    config.n_import_dirs = import_dirs.size();
+    config.import_dirs = import_dirs.data();
   }
 
   /// output type

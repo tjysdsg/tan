@@ -45,13 +45,21 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
 bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config) {
   bool print_ir_code = config->verbose >= 1;
   bool print_ast = config->verbose >= 2;
+
+  /// input files
   std::vector<std::string> files;
   files.reserve(n_files);
-  for (size_t i = 0; i < n_files; ++i) {
-    files.push_back(std::string(input_paths[i]));
+  for (size_t i = 0; i < n_files; ++i) { files.push_back(std::string(input_paths[i])); }
+  /// import dirs
+  Compiler::import_dirs.reserve(config->n_import_dirs);
+  for (size_t i = 0; i < config->n_import_dirs; ++i) {
+    Compiler::import_dirs.push_back(std::string(config->import_dirs[i]));
   }
+
+  /// Compiler instances
   std::vector<std::shared_ptr<Compiler>> compilers{};
   compilers.reserve(n_files);
+
   /// parse all files before generating IR code
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
@@ -61,11 +69,12 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     if (print_ast) { compiler->dump_ast(); }
     END_TRY
   }
+  /// codegen
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
     compilers[i]->codegen();
     if (print_ir_code) { compilers[i]->dump_ir(); }
-    /// prepare the filename for linking
+    /// prepare filename for linking
     files[i] += ".o";
     files[i] = fs::path(files[i]).filename().string();
     std::cout << "Compiling TAN file: " << files[i] << "\n";
@@ -74,15 +83,11 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
 
   /// link
-  for (size_t i = 0; i < config->n_link_files; ++i) {
-    files.push_back(std::string(config->link_files[i]));
-  }
+  for (size_t i = 0; i < config->n_link_files; ++i) { files.push_back(std::string(config->link_files[i])); }
   if (config->type != OBJ) {
     bool ret = _link(files, config);
-    if (!ret) {
-      std::cerr << "Error linking files\n";
-    }
+    if (!ret) { std::cerr << "Error linking files\n"; }
   }
-  llvm::llvm_shutdown();
+  llvm::llvm_shutdown(); // FIXME: init and shutdown llvm both in cli_main()
   return true;
 }

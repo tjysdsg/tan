@@ -25,7 +25,9 @@ macro(enable_tests)
                 ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
         set_other_options(${test_target_name})
         target_link_libraries(${test_target_name} tan gtest_main)
-        target_compile_definitions(${test_target_name} PRIVATE -DTAN_SOURCE=${tts})
+        target_compile_definitions(${test_target_name} PRIVATE
+                -DTAN_SOURCE=${tts}
+                -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR})
         set(TANC_ALL_TESTS ${TANC_ALL_TESTS} ${test_target_name})
     endforeach ()
 

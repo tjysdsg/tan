@@ -27,16 +27,15 @@ size_t ASTImport::nud() {
   _end_index = rhs->parse(_parser, _cs);
   _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
 
-  // TODO: import path resolve system
   // FIXME: path containing non-ASCII characters?
-  auto import_path = fs::path(_file);
-  import_path = fs::relative(import_path);
-  auto path = import_path.string();
+  auto imported = Compiler::resolve_import(_parser->get_filename(), _file);
+  if (imported.empty()) { report_code_error(_token, "Cannot import: " + _file); }
+
   /// it might be already parsed
-  _imported_functions = CompilerSession::GetPublicFunctions(import_path.string());
+  _imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
   if (_imported_functions.empty()) {
-    Compiler::ParseFile(path);
-    _imported_functions = CompilerSession::GetPublicFunctions(import_path.string());
+    Compiler::ParseFile(imported[0]);
+    _imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
   }
   for (auto &n: _imported_functions) {
     auto f = ast_cast<ASTFunction>(n);

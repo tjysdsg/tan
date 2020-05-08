@@ -28,11 +28,13 @@ enum TanCompileType {
  * \brief Compilation configuration
  * */
 struct TanCompilation {
-  TanCompileType type = OBJ; ///< Type of compilation, \see TanCompileType
-  unsigned verbose = 0; ///< Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree
-  const char *out_file = "a.out"; ///< output filename, invalid if TanCompilation::type is set to OBJ
-  size_t n_link_files = 0;
-  const char *const *link_files = nullptr;
+  TanCompileType type = OBJ; /// Type of compilation, \see TanCompileType
+  unsigned verbose = 0; /// Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree
+  const char *out_file = "a.out"; /// output filename, invalid if TanCompilation::type is set to OBJ
+  size_t n_link_files = 0; /// number of files to link against
+  const char *const *link_files = nullptr; /// files to link against
+  size_t n_import_dirs = 0; /// number of import search paths
+  const char *const *import_dirs = nullptr; /// search import paths
   // TODO: output platform, architecture, ...
 };
 
