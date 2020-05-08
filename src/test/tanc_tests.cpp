@@ -10,7 +10,11 @@
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
 #endif
 
-TEST(tanc, general) {
+#ifndef TAN_TEST_NAME
+#error "Define TAN_TEST_NAME before compiling this"
+#endif
+
+TEST(tanc, TAN_TEST_NAME) {
   std::vector<const char *> cmd
       {"tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR), __STR__(TAN_SOURCE),
           "-lruntime/runtime.so"};

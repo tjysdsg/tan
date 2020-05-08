@@ -27,6 +27,14 @@ static cl::opt<TanCompileType> opt_output_type(cl::desc("Output type"),
         clEnumValN(OBJ, "obj", "Object file")),
     cl::init(EXE),
     cl::cat(cl_category));
+static cl::opt<TanOptLevel> opt_optimization_level(cl::desc("Optimization level"),
+    cl::values(clEnumValN(O0, "g", "None"),
+        clEnumVal(O0, "None"),
+        clEnumVal(O1, "Less"),
+        clEnumVal(O2, "Default"),
+        clEnumVal(O3, "Aggressive")),
+    cl::init(O0),
+    cl::cat(cl_category));
 
 int cli_main(int *pargc, char ***pargv) {
   auto &opt_map = cl::getRegisteredOptions();
@@ -93,6 +101,8 @@ int cli_main(int *pargc, char ***pargv) {
 
   /// output type
   config.type = opt_output_type.getValue();
+  /// opt level
+  config.opt_level = opt_optimization_level.getValue();
 
   /// verbosity
   if (opt_print_ast) { config.verbose = 2; }

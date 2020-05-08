@@ -28,9 +28,8 @@ Value *ASTArithmetic::codegen(CompilerSession *cs) {
       return _children[0]->codegen(cs);
     } else {
       auto *rhs = _children[0]->codegen(cs);
-      if (rhs->getType()->isFloatingPointTy()) {
-        return cs->get_builder()->CreateFNeg(rhs);
-      }
+      if (_children[0]->is_lvalue()) { rhs = cs->get_builder()->CreateLoad(rhs); }
+      if (rhs->getType()->isFloatingPointTy()) { return cs->get_builder()->CreateFNeg(rhs); }
       return cs->get_builder()->CreateNeg(rhs);
     }
   }

@@ -1,7 +1,4 @@
-set(RUNTIME_SRCS
-        ${CMAKE_CURRENT_LIST_DIR}/print.tan
-        ${CMAKE_CURRENT_LIST_DIR}/stdlib.tan
-        ${CMAKE_CURRENT_LIST_DIR}/debug.tan)
+file(GLOB_RECURSE RUNTIME_SRCS ${CMAKE_CURRENT_LIST_DIR}/*.tan)
 
 add_custom_target(runtime ALL DEPENDS tanc SOURCES ${RUNTIME_SRCS})
 add_custom_command(TARGET runtime

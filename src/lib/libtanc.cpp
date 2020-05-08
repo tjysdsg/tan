@@ -4,7 +4,6 @@
 #include "linker.h"
 #include "parser.h"
 #include "base.h"
-#include "src/llvm_include.h"
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -39,6 +38,22 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
   } else if (config->type == DLIB) {
     linker.add_flags({"-shared"});
   }
+  switch (config->opt_level) {
+    case O0:
+      linker.add_flag("-O0");
+      break;
+    case O1:
+      linker.add_flag("-O1");
+      break;
+    case O2:
+      linker.add_flag("-O2");
+      break;
+    case O3:
+      linker.add_flag("-O3");
+      break;
+    default:
+      TAN_ASSERT(false);
+  }
   return linker.link();
 }
 
@@ -50,6 +65,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   std::vector<std::string> files;
   files.reserve(n_files);
   for (size_t i = 0; i < n_files; ++i) { files.push_back(std::string(input_paths[i])); }
+  /// config
+  Compiler::compile_config = *config;
   /// import dirs
   Compiler::import_dirs.reserve(config->n_import_dirs);
   for (size_t i = 0; i < config->n_import_dirs; ++i) {
@@ -88,6 +105,5 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
     bool ret = _link(files, config);
     if (!ret) { std::cerr << "Error linking files\n"; }
   }
-  llvm::llvm_shutdown(); // FIXME: init and shutdown llvm both in cli_main()
   return true;
 }

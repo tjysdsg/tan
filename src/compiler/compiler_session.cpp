@@ -2,6 +2,7 @@
 #include "src/scope.h"
 #include "stack_trace.h"
 #include "src/compiler/function_table.h"
+#include "compiler.h"
 #include "base.h"
 #include "src/ast/ast_node.h"
 
@@ -15,14 +16,14 @@ void CompilerSession::initialize_scope() {
 
 CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *target_machine) : _target_machine(
     target_machine) {
-  _context = std::make_unique<LLVMContext>();
-  _builder = std::make_unique<IRBuilder<>>(*_context);
-  _module = std::make_unique<Module>(module_name, *_context);
+  _context = new LLVMContext();
+  _builder = new IRBuilder<>(*_context);
+  _module = new Module(module_name, *_context);
   init_llvm();
   // add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
   _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
-  _di_builder = std::make_unique<DIBuilder>(*_module.get());
+  _di_builder = std::make_unique<DIBuilder>(*_module);
   _di_file = _di_builder->createFile(module_name, ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
@@ -89,17 +90,11 @@ ASTNodePtr CompilerSession::get(const std::string &name) {
   return result;
 }
 
-LLVMContext *CompilerSession::get_context() {
-  return _context.get();
-}
+LLVMContext *CompilerSession::get_context() { return _context; }
 
-std::unique_ptr<IRBuilder<>> &CompilerSession::get_builder() {
-  return _builder;
-}
+IRBuilder<> *CompilerSession::get_builder() { return _builder; }
 
-std::unique_ptr<Module> &CompilerSession::get_module() {
-  return _module;
-}
+Module *CompilerSession::get_module() { return _module; }
 
 void CompilerSession::set_code_block(BasicBlock *block) {
   _scope.back()->_code_block = block;
@@ -112,30 +107,33 @@ BasicBlock *CompilerSession::get_code_block() const {
 void CompilerSession::init_llvm() {
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
+  auto opt_level = (llvm::CodeGenOpt::Level) Compiler::compile_config.opt_level;
+  _target_machine->setOptLevel(opt_level);
+  bool debug = opt_level == llvm::CodeGenOpt::Level::None;
 
   /// pass manager builder
   auto *pm_builder = new PassManagerBuilder();
-  pm_builder->OptLevel = _target_machine->getOptLevel();
+  pm_builder->OptLevel = opt_level;
   pm_builder->SizeLevel = 0; // TODO: optimize for size?
-  pm_builder->DisableTailCalls = true;
-  pm_builder->DisableUnrollLoops = true;
-  pm_builder->SLPVectorize = false;
-  pm_builder->LoopVectorize = false;
-  pm_builder->RerollLoops = false;
-  pm_builder->NewGVN = false;
-  pm_builder->DisableGVNLoadPRE = false;
+  pm_builder->DisableTailCalls = debug;
+  pm_builder->DisableUnrollLoops = debug;
+  pm_builder->SLPVectorize = !debug;
+  pm_builder->LoopVectorize = !debug;
+  pm_builder->RerollLoops = !debug;
+  pm_builder->NewGVN = !debug;
+  pm_builder->DisableGVNLoadPRE = !debug;
+  pm_builder->MergeFunctions = !debug;
   pm_builder->VerifyInput = true;
   pm_builder->VerifyOutput = true;
-  pm_builder->MergeFunctions = false;
   pm_builder->PrepareForLTO = false;
   pm_builder->PrepareForThinLTO = false;
   pm_builder->PerformThinLTO = false;
   llvm::TargetLibraryInfoImpl tlii(Triple(_module->getTargetTriple()));
   pm_builder->LibraryInfo = &tlii;
-  pm_builder->Inliner = llvm::createAlwaysInlinerLegacyPass(false);
+  if (debug) { pm_builder->Inliner = llvm::createAlwaysInlinerLegacyPass(false); }
 
   /// function pass
-  _fpm = std::make_unique<FunctionPassManager>(_module.get());
+  _fpm = std::make_unique<FunctionPassManager>(_module);
   auto *tliwp = new llvm::TargetLibraryInfoWrapperPass(tlii);
   _fpm->add(tliwp);
   _fpm->add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
@@ -153,10 +151,10 @@ void CompilerSession::emit_object(const std::string &filename) {
   _di_builder->finalize(); /// important: do this before any pass
 
   /// run function pass on all functions in the current module
-  for (auto &f: *_module.get()) {
+  for (auto &f: *_module) {
     if (f.getName() == "main") { /// special case for main function
       // mark as used, prevent LLVM from deleting it
-      llvm::appendToUsed(*_module.get(), {(GlobalValue *) &f});
+      llvm::appendToUsed(*_module, {(GlobalValue *) &f});
     }
     _fpm->run(f);
   }

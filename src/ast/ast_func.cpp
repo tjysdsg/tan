@@ -135,7 +135,7 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
       linkage = Function::ExternalLinkage;
     }
   }
-  _func = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module().get());
+  _func = Function::Create(FT, linkage, this->get_name(), compiler_session->get_module());
   _func->setCallingConv(llvm::CallingConv::C);
 
   /// set argument names

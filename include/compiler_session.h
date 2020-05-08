@@ -83,9 +83,9 @@ public:
    * */
   std::shared_ptr<ASTNode> get(const std::string &name);
   LLVMContext *get_context();
-  std::unique_ptr<IRBuilder<>> &get_builder();
+  IRBuilder<> *get_builder();
   std::unique_ptr<DIBuilder> &get_di_builder();
-  std::unique_ptr<Module> &get_module();
+  Module *get_module();
   void emit_object(const std::string &filename);
 
   /**
@@ -110,9 +110,9 @@ public:
   void set_current_debug_location(size_t l, size_t c);
 
 private:
-  std::unique_ptr<LLVMContext> _context;
-  std::unique_ptr<IRBuilder<>> _builder;
-  std::unique_ptr<Module> _module;
+  LLVMContext *_context = nullptr;
+  IRBuilder<> *_builder = nullptr;
+  Module *_module = nullptr;
   std::vector<std::shared_ptr<Scope>> _scope{};
   std::vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};

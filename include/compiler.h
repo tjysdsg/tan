@@ -1,8 +1,7 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
 #include "src/llvm_include.h"
-
-struct TanCompilation;
+#include "libtanc.h"
 
 namespace tanlang {
 
@@ -30,6 +29,11 @@ public:
    * \details This is set by compile_files() in libtanc.h
    * */
   static inline std::vector<std::string> import_dirs{};
+
+  /**
+   * \brief Current compile configuration
+   * */
+  static inline TanCompilation compile_config{};
 
   /**
    * \brief Get a list of possible files that corresponds to an import

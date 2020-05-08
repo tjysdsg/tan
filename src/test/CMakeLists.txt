@@ -27,7 +27,9 @@ macro(enable_tests)
         target_link_libraries(${test_target_name} tan gtest_main)
         target_compile_definitions(${test_target_name} PRIVATE
                 -DTAN_SOURCE=${tts}
-                -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR})
+                -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+                -DTAN_TEST_NAME=${test_name})
+        add_dependencies(${test_target_name} runtime)
         set(TANC_ALL_TESTS ${TANC_ALL_TESTS} ${test_target_name})
     endforeach ()
 

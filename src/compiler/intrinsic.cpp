@@ -174,7 +174,7 @@ static void init_assert(CompilerSession *cs) {
       std::vector<Type *> arg_types
           {cs->get_builder()->getInt8PtrTy(), cs->get_builder()->getInt8PtrTy(), cs->get_builder()->getInt32Ty(),};
       FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-      assert_func = Function::Create(FT, Function::ExternalWeakLinkage, "__assert", cs->get_module().get());
+      assert_func = Function::Create(FT, Function::ExternalWeakLinkage, "__assert", cs->get_module());
     }
   }
   { /// fn assert(a: i1) : void;
@@ -183,7 +183,7 @@ static void init_assert(CompilerSession *cs) {
       Type *ret_type = cs->get_builder()->getVoidTy();
       std::vector<Type *> arg_types{cs->get_builder()->getInt1Ty()};
       FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
-      func = Function::Create(func_t, Function::ExternalLinkage, "assert", cs->get_module().get());
+      func = Function::Create(func_t, Function::ExternalLinkage, "assert", cs->get_module());
       /// body
       BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "func_entry", func);
       cs->get_builder()->SetInsertPoint(main_block);
@@ -221,7 +221,7 @@ static void init_noop(CompilerSession *cs) {
     Type *ret_type = cs->get_builder()->getVoidTy();
     std::vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-    Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module().get());
+    Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }
 }
 

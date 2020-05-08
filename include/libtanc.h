@@ -31,11 +31,23 @@ enum TanCompileType {
 };
 
 /**
+* \enum TanOptLevel
+* \brief Optimization level
+* */
+enum TanOptLevel {
+  O0 = 0, /// Debug
+  O1 = 1, /// Less
+  O2 = 2, /// Default
+  O3 = 3, /// Aggressive
+};
+
+/**
  * \struct TanCompilation
  * \brief Compilation configuration
  * */
 struct TanCompilation {
   TanCompileType type = OBJ; /// Type of compilation, \see TanCompileType
+  TanOptLevel opt_level = O0; /// Optimization level, \see TanOptLevel
   unsigned verbose = 0; /// Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree
   const char *out_file = "a.out"; /// Output filename, invalid if TanCompilation::type is set to OBJ
   size_t n_link_files = 0; /// Number of files to link against
