@@ -307,11 +307,21 @@ void ASTTy::resolve() {
       _size_bits = 0;
       _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
       break;
-    case Ty::STRUCT:
-      // TODO: align size in bits
-      _align_bits = 64;
+    case Ty::STRUCT: {
+      /// align size is the max element size, if no element, 8 bits
+      /// size is the number of elements * align size
+      auto st = ast_cast<ASTStruct>(_cs->get(_type_name));
+      _align_bits = 8;
+      size_t n = st->get_n_elements();
+      for (size_t i = 0; i < n; ++i) {
+        auto et = ast_cast<ASTTy>(st->_children[i]);
+        auto s = et->get_size_bits();
+        if (s > _align_bits) { s = _align_bits; }
+      }
+      _size_bits = n * _align_bits;
       _is_struct = true;
       break;
+    }
     case Ty::ARRAY: {
       auto et = ast_cast<ASTTy>(_children[0]);
       auto s = ast_cast<ASTNumberLiteral>(_children[1]);
