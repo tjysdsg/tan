@@ -20,9 +20,28 @@ std::unordered_map<std::string, Ty> basic_tys =
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
+ASTTyPtr ASTTy::find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+  auto find = ASTTy::_cache.find(t);
+  if (find == ASTTy::_cache.end()) { return nullptr; }
+  if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
+  auto ret = find->second;
+
+  if (sub_tys.size() != ret->_children.size()) { return nullptr; }
+  size_t idx = 0;
+  for (const auto &sub : sub_tys) {
+    auto t1 = ast_cast<ASTTy>(sub);
+    auto t2 = ast_cast<ASTTy>(ret->_children[idx]);
+    if (t1->_tyty != t2->_tyty) { return nullptr; }
+    if (t1->_is_lvalue != t2->_is_lvalue) { return nullptr; }
+    ++idx;
+  }
+  return ret;
+}
+
 std::shared_ptr<ASTTy> ASTTy::Create(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
-  // TODO: cache types
-  auto ret = std::make_shared<ASTTy>(nullptr, 0);
+  auto ret = ASTTy::find_cache(t, sub_tys, is_lvalue);
+  if (ret) { return ret; }
+  ret = std::make_shared<ASTTy>(nullptr, 0);
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());

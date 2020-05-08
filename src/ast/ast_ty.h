@@ -46,6 +46,10 @@ class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 public:
   static std::shared_ptr<ASTTy> Create(Ty t, std::vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
 
+private:
+  static inline std::unordered_map<Ty, ASTTyPtr> _cache{};
+  static ASTTyPtr find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue);
+
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
