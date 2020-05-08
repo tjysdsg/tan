@@ -44,7 +44,7 @@ enum class Ty : uint64_t {
 
 class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
 public:
-  static std::shared_ptr<ASTTy> Create(Ty t, bool is_lvalue = false, std::vector<ASTNodePtr> sub_tys = {});
+  static std::shared_ptr<ASTTy> Create(Ty t, std::vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
 
 public:
   ASTTy() = delete;

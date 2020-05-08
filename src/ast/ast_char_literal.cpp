@@ -19,7 +19,7 @@ Value *ASTCharLiteral::codegen(CompilerSession *cs) {
 
 size_t ASTCharLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
-  _ty = ASTTy::Create(Ty::CHAR);
+  _ty = ASTTy::Create(Ty::CHAR, std::vector<ASTNodePtr>());
   _ty->_default_value = static_cast<uint64_t>(_c);
   return _end_index;
 }

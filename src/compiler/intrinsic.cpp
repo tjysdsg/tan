@@ -97,13 +97,13 @@ void Intrinsic::determine_type() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
-      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED));
+      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), std::vector<ASTNodePtr>());
       break;
     case IntrinsicType::FILENAME:
-      _ty = ASTTy::Create(Ty::STRING);
+      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
       break;
     case IntrinsicType::GET_DECL:
-      _ty = ASTTy::Create(Ty::STRING);
+      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
       parse_get_decl();
       break;
     default:

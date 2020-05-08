@@ -77,7 +77,9 @@
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keywordtype">size_t</span> ASTStringLiteral::nud() {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  _end_index = _start_index + 1; <span class="comment">/// skip self</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span>  _ty = ASTTy::Create(Ty::STRING);</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span> _ty =
+    ASTTy::Create(Ty::STRING, std::vector&lt;ASTNodePtr&gt;());
+</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <span class="keywordflow">return</span> _end_index;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;}</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>

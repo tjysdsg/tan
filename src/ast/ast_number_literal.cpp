@@ -16,15 +16,15 @@ void ASTNumberLiteral::resolve() {
   Ty t = Ty::INVALID;
   if (_is_float) {
     t = Ty::FLOAT;
-    _ty = ASTTy::Create(t);
+    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
     _ty->_default_value = _fvalue;
   } else if (_is_unsigned) {
     t = TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED);
-    _ty = ASTTy::Create(t);
+    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
     _ty->_default_value = static_cast<uint64_t>(_ivalue);
   } else {
     t = TY_OR(Ty::INT, Ty::BIT32);
-    _ty = ASTTy::Create(t);
+    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
     _ty->_default_value = static_cast<uint64_t>(_ivalue);
   }
 }

@@ -93,7 +93,8 @@
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  std::vector&lt;ASTNodePtr&gt; sub_tys{};</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  sub_tys.reserve(get_n_elements());</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  std::for_each(_children.begin(), _children.end(), [&amp;sub_tys](ASTNodePtr &amp;e) { sub_tys.push_back(e-&gt;get_ty()); });</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  _ty = ASTTy::Create(Ty::ARRAY, <span class="keyword">false</span>, sub_tys);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; _ty = ASTTy::Create(Ty::ARRAY, sub_tys);
+</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keywordflow">return</span> _end_index;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;}</div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>

@@ -211,29 +211,87 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>nud</b> () override
 <tr class="separator:a1faa4d0b11b4ae8920dafff84e0b80db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1ASTTy"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1ASTTy')"><img src="../../closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a></td></tr>
 <tr class="memitem:a43941ec131e9babec48dbec5f9c791b4 inherit pro_methods_classtanlang_1_1ASTTy"><td class="memItemLeft" align="right" valign="top"><a id="a43941ec131e9babec48dbec5f9c791b4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>resolve</b> ()</td></tr>
-<tr class="separator:a43941ec131e9babec48dbec5f9c791b4 inherit pro_methods_classtanlang_1_1ASTTy"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
-<tr class="memitem:acede45591ad73513e16fea1ed66a7b1c inherit pro_methods_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="acede45591ad73513e16fea1ed66a7b1c"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>led</b> (const ASTNodePtr &amp;left)</td></tr>
-<tr class="separator:acede45591ad73513e16fea1ed66a7b1c inherit pro_methods_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_static_methods_classtanlang_1_1ASTTy"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_classtanlang_1_1ASTTy')"><img src="../../closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a></td></tr>
-<tr class="memitem:acce89e0948805c49158c31e7dd38e30f inherit pub_static_methods_classtanlang_1_1ASTTy"><td class="memItemLeft" align="right" valign="top"><a id="acce89e0948805c49158c31e7dd38e30f"></a>
-static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (Ty t, bool is_lvalue=false, std::vector&lt; ASTNodePtr &gt; sub_tys={})</td></tr>
-<tr class="separator:acce89e0948805c49158c31e7dd38e30f inherit pub_static_methods_classtanlang_1_1ASTTy"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_classtanlang_1_1ASTTy"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTTy')"><img src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a></td></tr>
-<tr class="memitem:a6ba27da1ecc9c077dbd586beadc52f53 inherit pub_attribs_classtanlang_1_1ASTTy"><td class="memItemLeft" align="right" valign="top"><a id="a6ba27da1ecc9c077dbd586beadc52f53"></a>
-Ty&#160;</td><td class="memItemRight" valign="bottom"><b>_tyty</b> = Ty::INVALID</td></tr>
-<tr class="separator:a6ba27da1ecc9c077dbd586beadc52f53 inherit pub_attribs_classtanlang_1_1ASTTy"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8c15fd0f12e81d08c2e7a6c057c826f inherit pub_attribs_classtanlang_1_1ASTTy"><td class="memItemLeft" align="right" valign="top"><a id="aa8c15fd0f12e81d08c2e7a6c057c826f"></a>
-std::variant&lt; std::string, uint64_t, float, double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_default_value</b></td></tr>
-<tr class="separator:aa8c15fd0f12e81d08c2e7a6c057c826f inherit pub_attribs_classtanlang_1_1ASTTy"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_classtanlang_1_1ASTNode"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTNode')"><img src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a></td></tr>
-<tr class="memitem:a5e9ec3a995e684515941fe964351af84 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a5e9ec3a995e684515941fe964351af84"></a>
-ASTType&#160;</td><td class="memItemRight" valign="bottom"><b>_type</b> = ASTType::INVALID</td></tr>
+void&#160;
+</td>
+    <td class="memItemRight" valign="bottom"><b>resolve</b> ()</td>
+</tr>
+    <tr class="separator:a43941ec131e9babec48dbec5f9c791b4 inherit pro_methods_classtanlang_1_1ASTTy">
+        <td class="memSeparator" colspan="2">&#160;</td>
+    </tr>
+    <tr class="inherit_header pro_methods_classtanlang_1_1ASTNode">
+        <td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1ASTNode')"><img
+                src="../../closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el"
+                                                                                                   href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a>
+        </td>
+    </tr>
+    <tr class="memitem:acede45591ad73513e16fea1ed66a7b1c inherit pro_methods_classtanlang_1_1ASTNode">
+        <td class="memItemLeft" align="right" valign="top"><a id="acede45591ad73513e16fea1ed66a7b1c"></a>
+            virtual size_t&#160;
+        </td>
+        <td class="memItemRight" valign="bottom"><b>led</b> (const ASTNodePtr &amp;left)</td>
+    </tr>
+    <tr class="separator:acede45591ad73513e16fea1ed66a7b1c inherit pro_methods_classtanlang_1_1ASTNode">
+        <td class="memSeparator" colspan="2">&#160;</td>
+    </tr>
+</table>
+    <table class="memberdecls">
+        <tr class="heading">
+            <td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+                Additional Inherited Members</h2></td>
+        </tr>
+        <tr class="inherit_header pub_static_methods_classtanlang_1_1ASTTy">
+            <td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_classtanlang_1_1ASTTy')"><img
+                    src="../../closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el"
+                                                                                                           href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a>
+            </td>
+        </tr>
+        <tr class="memitem:a8d4d919b08211261894f086bd1379340 inherit pub_static_methods_classtanlang_1_1ASTTy">
+            <td class="memItemLeft" align="right" valign="top"><a id="a8d4d919b08211261894f086bd1379340"></a>
+                static std::shared_ptr&lt; <a class="el" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &gt;&#160;
+            </td>
+            <td class="memItemRight" valign="bottom"><b>Create</b> (Ty t, std::vector&lt; ASTNodePtr &gt; sub_tys={},
+                bool is_lvalue=false)
+            </td>
+        </tr>
+        <tr class="separator:a8d4d919b08211261894f086bd1379340 inherit pub_static_methods_classtanlang_1_1ASTTy">
+            <td class="memSeparator" colspan="2">&#160;</td>
+        </tr>
+        <tr class="inherit_header pub_attribs_classtanlang_1_1ASTTy">
+            <td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTTy')"><img
+                    src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el"
+                                                                                              href="../../da/d7c/classtanlang_1_1ASTTy.html">tanlang::ASTTy</a>
+            </td>
+        </tr>
+        <tr class="memitem:a6ba27da1ecc9c077dbd586beadc52f53 inherit pub_attribs_classtanlang_1_1ASTTy">
+            <td class="memItemLeft" align="right" valign="top"><a id="a6ba27da1ecc9c077dbd586beadc52f53"></a>
+                Ty&#160;
+            </td>
+            <td class="memItemRight" valign="bottom"><b>_tyty</b> = Ty::INVALID</td>
+        </tr>
+        <tr class="separator:a6ba27da1ecc9c077dbd586beadc52f53 inherit pub_attribs_classtanlang_1_1ASTTy">
+            <td class="memSeparator" colspan="2">&#160;</td>
+        </tr>
+        <tr class="memitem:aa8c15fd0f12e81d08c2e7a6c057c826f inherit pub_attribs_classtanlang_1_1ASTTy">
+            <td class="memItemLeft" align="right" valign="top"><a id="aa8c15fd0f12e81d08c2e7a6c057c826f"></a>
+                std::variant&lt; std::string, uint64_t, float, double &gt;&#160;
+            </td>
+            <td class="memItemRight" valign="bottom"><b>_default_value</b></td>
+        </tr>
+        <tr class="separator:aa8c15fd0f12e81d08c2e7a6c057c826f inherit pub_attribs_classtanlang_1_1ASTTy">
+            <td class="memSeparator" colspan="2">&#160;</td>
+        </tr>
+        <tr class="inherit_header pub_attribs_classtanlang_1_1ASTNode">
+            <td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTNode')"><img
+                    src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el"
+                                                                                              href="../../d5/d43/classtanlang_1_1ASTNode.html">tanlang::ASTNode</a>
+            </td>
+        </tr>
+        <tr class="memitem:a5e9ec3a995e684515941fe964351af84 inherit pub_attribs_classtanlang_1_1ASTNode">
+            <td class="memItemLeft" align="right" valign="top"><a id="a5e9ec3a995e684515941fe964351af84"></a>
+                ASTType&#160;
+            </td>
+            <td class="memItemRight" valign="bottom"><b>_type</b> = ASTType::INVALID</td>
+        </tr>
 <tr class="separator:a5e9ec3a995e684515941fe964351af84 inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5086725e51b3eb64ab2359f5eebd792b inherit pub_attribs_classtanlang_1_1ASTNode"><td class="memItemLeft" align="right" valign="top"><a id="a5086725e51b3eb64ab2359f5eebd792b"></a>
 std::vector&lt; ASTNodePtr &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_children</b> {}</td></tr>

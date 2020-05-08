@@ -69,15 +69,18 @@
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  Ty t = Ty::INVALID;</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keywordflow">if</span> (_is_float) {</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    t = Ty::FLOAT;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    _ty = ASTTy::Create(t);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; _ty = ASTTy::Create(t, std::vector&lt;ASTNodePtr&gt;());
+</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    _ty-&gt;_default_value = _fvalue;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (_is_unsigned) {</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    t = TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    _ty = ASTTy::Create(t);</div>
+    <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; _ty = ASTTy::Create(t, std::vector&lt;ASTNodePtr&gt;());
+    </div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    _ty-&gt;_default_value = <span class="keyword">static_cast&lt;</span>uint64_t<span class="keyword">&gt;</span>(_ivalue);</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  } <span class="keywordflow">else</span> {</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    t = TY_OR(Ty::INT, Ty::BIT32);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    _ty = ASTTy::Create(t);</div>
+    <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; _ty = ASTTy::Create(t, std::vector&lt;ASTNodePtr&gt;());
+    </div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    _ty-&gt;_default_value = <span class="keyword">static_cast&lt;</span>uint64_t<span class="keyword">&gt;</span>(_ivalue);</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  }</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;}</div>

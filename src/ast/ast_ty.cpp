@@ -20,7 +20,7 @@ std::unordered_map<std::string, Ty> basic_tys =
 std::unordered_map<std::string, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-std::shared_ptr<ASTTy> ASTTy::Create(Ty t, bool is_lvalue, std::vector<ASTNodePtr> sub_tys) {
+std::shared_ptr<ASTTy> ASTTy::Create(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   // TODO: cache types
   auto ret = std::make_shared<ASTTy>(nullptr, 0);
   ret->_tyty = t;
@@ -387,7 +387,7 @@ size_t ASTTy::nud() {
   return _end_index;
 }
 
-ASTTyPtr ASTTy::get_ptr_to() const { return ASTTy::Create(Ty::POINTER, false, {get_ty()}); }
+ASTTyPtr ASTTy::get_ptr_to() const { return ASTTy::Create(Ty::POINTER, {get_ty()}, false); }
 
 bool ASTTy::is_array() const {
   TAN_ASSERT(_resolved);
@@ -462,7 +462,7 @@ void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 ASTTyPtr ASTTy::get_contained_ty() const {
-  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR); }
+  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, std::vector<ASTNodePtr>(), false); }
   else if (_is_ptr) {
     TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);

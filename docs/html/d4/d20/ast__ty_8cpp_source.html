@@ -73,7 +73,9 @@
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;std::unordered_map&lt;std::string, Ty&gt;</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    qualifier_tys = {{<span class="stringliteral">&quot;const&quot;</span>, Ty::CONST}, {<span class="stringliteral">&quot;unsigned&quot;</span>, Ty::UNSIGNED}, {<span class="stringliteral">&quot;*&quot;</span>, Ty::POINTER},};</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;std::shared_ptr&lt;ASTTy&gt; ASTTy::Create(Ty t, <span class="keywordtype">bool</span> is_lvalue, std::vector&lt;ASTNodePtr&gt; sub_tys) {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;std::shared_ptr&lt;ASTTy&gt;
+    ASTTy::Create(Ty t, std::vector&lt;ASTNodePtr&gt; sub_tys, <span class="keywordtype">bool</span> is_lvalue) {
+</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="comment">// TODO: cache types</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <span class="keyword">auto</span> ret = std::make_shared&lt;ASTTy&gt;(<span class="keyword">nullptr</span>, 0);</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  ret-&gt;_tyty = t;</div>
@@ -440,7 +442,10 @@
 <div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;<span class="comment"></span>  <span class="keywordflow">return</span> _end_index;</div>
 <div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;}</div>
 <div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160; </div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;ASTTyPtr ASTTy::get_ptr_to()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> ASTTy::Create(Ty::POINTER, <span class="keyword">false</span>, {get_ty()}); }</div>
+    <div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;ASTTyPtr ASTTy::get_ptr_to()<span
+            class="keyword"> const </span>{ <span class="keywordflow">return</span> ASTTy::Create(Ty::POINTER,
+        {get_ty()}, <span class="keyword">false</span>); }
+    </div>
 <div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160; </div>
 <div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;<span class="keywordtype">bool</span> ASTTy::is_array()<span class="keyword"> const </span>{</div>
 <div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;  TAN_ASSERT(_resolved);</div>
@@ -515,7 +520,10 @@
 <div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;<span class="keywordtype">bool</span> ASTTy::operator!=(<span class="keyword">const</span> <a class="code" href="../../da/d7c/classtanlang_1_1ASTTy.html">ASTTy</a> &amp;other)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !this-&gt;operator==(other); }</div>
 <div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160; </div>
 <div class="line"><a name="l00464"></a><span class="lineno">  464</span>&#160;ASTTyPtr ASTTy::get_contained_ty()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160;  <span class="keywordflow">if</span> (_tyty == Ty::STRING) { <span class="keywordflow">return</span> ASTTy::Create(Ty::CHAR); }</div>
+    <div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160; <span class="keywordflow">if</span>
+        (_tyty == Ty::STRING) { <span class="keywordflow">return</span> ASTTy::Create(Ty::CHAR, std::vector&lt;ASTNodePtr&gt;(),
+        <span class="keyword">false</span>); }
+    </div>
 <div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (_is_ptr) {</div>
 <div class="line"><a name="l00467"></a><span class="lineno">  467</span>&#160;    TAN_ASSERT(_children.size());</div>
 <div class="line"><a name="l00468"></a><span class="lineno">  468</span>&#160;    <span class="keyword">auto</span> ret = ast_cast&lt;ASTTy&gt;(_children[0]);</div>
