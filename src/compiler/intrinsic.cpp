@@ -6,7 +6,6 @@
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_ty.h"
-#include "stack_trace.h"
 #include "token.h"
 
 namespace tanlang {
@@ -27,7 +26,6 @@ static void init_assert(CompilerSession *cs);
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_noop(cs);
-  init_stack_trace_intrinsic(cs);
   init_assert(cs);
 }
 
@@ -47,11 +45,8 @@ Value *Intrinsic::codegen(CompilerSession *cs) {
       _llvm_value = tmp->codegen(cs);
       break;
     case IntrinsicType::STACK_TRACE: {
-      TAN_ASSERT(_children[0]->_type == ASTType::FUNC_CALL);
-      TAN_ASSERT(_children[0]->_children[0]->_type == ASTType::NUM_LITERAL);
-      auto arg = ast_cast<ASTNumberLiteral>(_children[0]->_children[0]);
-      TAN_ASSERT(!arg->is_float());
-      _llvm_value = codegen_get_stack_trace(cs, (size_t) (arg->_ivalue));
+      // TODO
+      TAN_ASSERT(false);
       break;
     }
     default:
@@ -167,14 +162,13 @@ std::string Intrinsic::to_string(bool print_prefix) const {
 
 static void init_assert(CompilerSession *cs) {
   if (Intrinsic::assert_initialized) { return; }
-  Function *assert_func = cs->get_module()->getFunction("__assert");
-  { /// fn __assert(msg: char*, file: char*, line: int) : void;
-    if (!assert_func) {
+  Function *abort_func = cs->get_module()->getFunction("abort");
+  { /// fn abort() : void;
+    if (!abort_func) {
       Type *ret_type = cs->get_builder()->getVoidTy();
-      std::vector<Type *> arg_types
-          {cs->get_builder()->getInt8PtrTy(), cs->get_builder()->getInt8PtrTy(), cs->get_builder()->getInt32Ty(),};
+      std::vector<Type *> arg_types{};
       FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-      assert_func = Function::Create(FT, Function::ExternalWeakLinkage, "__assert", cs->get_module());
+      abort_func = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
     }
   }
   { /// fn assert(a: i1) : void;
@@ -185,7 +179,7 @@ static void init_assert(CompilerSession *cs) {
       FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
       func = Function::Create(func_t, Function::ExternalLinkage, "assert", cs->get_module());
       /// body
-      BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "func_entry", func);
+      BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "entry", func);
       cs->get_builder()->SetInsertPoint(main_block);
       Value *arg = &(*func->args().begin());
       Value *z = ConstantInt::get(cs->get_builder()->getInt1Ty(), 0, false);
@@ -196,15 +190,7 @@ static void init_assert(CompilerSession *cs) {
 
       cs->get_builder()->CreateCondBr(condition, then_bb, merge_bb);
       cs->get_builder()->SetInsertPoint(then_bb);
-      auto *st = codegen_get_stack_trace(cs, 1);
-      auto *int_t = cs->get_builder()->getInt32Ty();
-      auto *zero = ConstantInt::get(int_t, 0);
-      auto *one = ConstantInt::get(int_t, 1);
-      auto *two = ConstantInt::get(int_t, 2);
-      std::vector<Value *> args = {cs->get_builder()->CreateLoad(cs->get_builder()->CreateGEP(st, {zero, one})),
-          cs->get_builder()->CreateLoad(cs->get_builder()->CreateGEP(st, {zero, zero})),
-          cs->get_builder()->CreateLoad(cs->get_builder()->CreateGEP(st, {zero, two}))};
-      cs->get_builder()->CreateCall(assert_func, args);
+      cs->get_builder()->CreateCall(abort_func, {});
       cs->get_builder()->CreateBr(merge_bb);
       func->getBasicBlockList().push_back(merge_bb);
       cs->get_builder()->SetInsertPoint(merge_bb);
@@ -223,11 +209,6 @@ static void init_noop(CompilerSession *cs) {
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }
-}
-
-void Intrinsic::RuntimeInit(CompilerSession *cm) {
-  /// stack trace
-  runtime_init_stack_trace(cm);
 }
 
 bool Intrinsic::is_lvalue() const { return _is_lvalue; }

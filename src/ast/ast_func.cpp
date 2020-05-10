@@ -5,7 +5,6 @@
 #include "parser.h"
 #include "reader.h"
 #include "token.h"
-#include "stack_trace.h"
 #include "intrinsic.h"
 #include "compiler_session.h"
 #include "src/type_system.h"
@@ -56,18 +55,6 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     cs->push_di_scope(subprogram);
     /// reset debug emit location
     cs->get_builder()->SetCurrentDebugLocation(DebugLoc());
-
-    /// special cases for the main function
-    // TODO: move this to CompilerSession
-    if (func_name == "main") {
-      /// initialize stack trace
-      Intrinsic::RuntimeInit(cs);
-      auto stack_trace = std::make_shared<StackTrace>();
-      stack_trace->_filename = _parser->get_filename();
-      stack_trace->_src = _token->line->code;
-      stack_trace->_lineno = _token->l + 1;
-      codegen_push_stack_trace(cs, stack_trace);
-    }
 
     /// add all function arguments to scope
     size_t i = 2;
@@ -163,13 +150,7 @@ Value *ASTFunctionCall::codegen(CompilerSession *cm) {
     arg_vals.push_back(a);
     arg_types.push_back(a_type);
   }
-  auto stack_trace = std::make_shared<StackTrace>();
-  stack_trace->_filename = _parser->get_filename();
-  stack_trace->_src = _token->line->code;
-  stack_trace->_lineno = _children[0]->_token->l + 1;
-  codegen_push_stack_trace(cm, stack_trace);
   _llvm_value = cm->get_builder()->CreateCall(get_callee()->get_func(), arg_vals);
-  codegen_pop_stack_trace(cm);
   return _llvm_value;
 }
 
