@@ -223,6 +223,17 @@ endif ()
 
 message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
 
+# CLION + WSL not handling symlink correctly
+set(tmp ${LLVM_INCLUDE_DIRS}/llvm)
+set(LLVM_INCLUDE_DIRS "")
+foreach (d ${tmp})
+    get_filename_component(d ${d} REALPATH)
+    get_filename_component(d ${d} DIRECTORY)
+    set(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} ${d})
+endforeach ()
+
+message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
+
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
