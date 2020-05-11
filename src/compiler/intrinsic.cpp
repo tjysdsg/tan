@@ -3,9 +3,9 @@
 #include "parser.h"
 #include "src/ast/ast_string_literal.h"
 #include "src/ast/ast_number_literal.h"
-#include "src/ast/ast_identifier.h"
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_ty.h"
+#include "src/compiler/stack_trace.h"
 #include "token.h"
 
 namespace tanlang {
@@ -21,12 +21,12 @@ std::unordered_map<std::string, IntrinsicType>
     {"noop", IntrinsicType::NOOP}, {"get_decl", IntrinsicType::GET_DECL}, {"stack_trace", IntrinsicType::STACK_TRACE}};
 
 static void init_noop(CompilerSession *cs);
-static void init_assert(CompilerSession *cs);
+static void init_abort(CompilerSession *cs);
 
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_noop(cs);
-  init_assert(cs);
+  init_abort(cs);
 }
 
 Value *Intrinsic::codegen(CompilerSession *cs) {
@@ -45,8 +45,7 @@ Value *Intrinsic::codegen(CompilerSession *cs) {
       _llvm_value = tmp->codegen(cs);
       break;
     case IntrinsicType::STACK_TRACE: {
-      // TODO
-      TAN_ASSERT(false);
+      codegen_print_stack_trace(cs);
       break;
     }
     default:
@@ -86,9 +85,12 @@ void Intrinsic::determine_type() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       _ty = nullptr;
       break;
+    case IntrinsicType::ABORT:
+      _is_typed = false;
+      underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
+      _ty = nullptr;
+      break;
     case IntrinsicType::STACK_TRACE:
-      // TODO: set _tyty
-      _is_lvalue = true;
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
@@ -132,23 +134,6 @@ size_t Intrinsic::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-Function *Intrinsic::GetIntrinsic(IntrinsicType type, CompilerSession *cs) {
-  Function *f = nullptr;
-  switch (type) {
-    case IntrinsicType::NOOP:
-      f = cs->get_module()->getFunction("llvm.donothing");
-      break;
-    case IntrinsicType::STACK_TRACE:
-      f = cs->get_module()->getFunction("stack_trace");
-      break;
-    default:
-      TAN_ASSERT(false);
-      break;
-  }
-  TAN_ASSERT(f);
-  return f;
-}
-
 std::string Intrinsic::to_string(bool print_prefix) const {
   std::string ret;
   if (print_prefix) {
@@ -160,44 +145,15 @@ std::string Intrinsic::to_string(bool print_prefix) const {
   return ret;
 }
 
-static void init_assert(CompilerSession *cs) {
-  if (Intrinsic::assert_initialized) { return; }
+static void init_abort(CompilerSession *cs) {
   Function *abort_func = cs->get_module()->getFunction("abort");
-  { /// fn abort() : void;
-    if (!abort_func) {
-      Type *ret_type = cs->get_builder()->getVoidTy();
-      std::vector<Type *> arg_types{};
-      FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-      abort_func = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
-    }
+  /// fn abort() : void;
+  if (!abort_func) {
+    Type *ret_type = cs->get_builder()->getVoidTy();
+    std::vector<Type *> arg_types{};
+    FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
+    Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
   }
-  { /// fn assert(a: i1) : void;
-    Function *func = cs->get_module()->getFunction("assert");
-    if (!func) {
-      Type *ret_type = cs->get_builder()->getVoidTy();
-      std::vector<Type *> arg_types{cs->get_builder()->getInt1Ty()};
-      FunctionType *func_t = FunctionType::get(ret_type, arg_types, false);
-      func = Function::Create(func_t, Function::ExternalLinkage, "assert", cs->get_module());
-      /// body
-      BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "entry", func);
-      cs->get_builder()->SetInsertPoint(main_block);
-      Value *arg = &(*func->args().begin());
-      Value *z = ConstantInt::get(cs->get_builder()->getInt1Ty(), 0, false);
-      Value *condition = cs->get_builder()->CreateICmpEQ(z, arg);
-
-      BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
-      BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
-
-      cs->get_builder()->CreateCondBr(condition, then_bb, merge_bb);
-      cs->get_builder()->SetInsertPoint(then_bb);
-      cs->get_builder()->CreateCall(abort_func, {});
-      cs->get_builder()->CreateBr(merge_bb);
-      func->getBasicBlockList().push_back(merge_bb);
-      cs->get_builder()->SetInsertPoint(merge_bb);
-      cs->get_builder()->CreateRetVoid();
-    }
-  }
-  Intrinsic::assert_initialized = true;
 }
 
 static void init_noop(CompilerSession *cs) {

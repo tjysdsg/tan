@@ -49,13 +49,9 @@ enum class IntrinsicType {
 
 class Intrinsic : public ASTNode {
 public:
-  static inline bool assert_initialized = false;
-
-public:
+  static inline llvm::Function *abort_function = nullptr;
   static std::unordered_map<std::string, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
-  static void RuntimeInit(CompilerSession *);
-  static llvm::Function *GetIntrinsic(IntrinsicType type, CompilerSession *);
 
 public:
   Intrinsic() = delete;

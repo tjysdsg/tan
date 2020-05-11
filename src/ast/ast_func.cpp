@@ -32,17 +32,13 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     /// create a new basic block to start insertion into
     BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "func_entry", F);
     cs->get_builder()->SetInsertPoint(main_block);
-    cs->set_code_block(main_block);
+    cs->set_code_block(main_block); // TODO: remove this
 
     /// debug information
     DIScope *di_scope = cs->get_current_di_scope();
     auto *di_file = cs->get_di_file();
     auto *di_func_t = create_function_type(cs, ret_meta, arg_metas);
-    DISubprogram *subprogram = cs->get_di_builder()
-        ->createFunction(di_scope,
-            func_name,
-            func_name,
-            di_file,
+    DISubprogram *subprogram = cs->get_di_builder()->createFunction(di_scope, func_name, func_name, di_file,
             (unsigned) _token->l + 1,
             di_func_t,
             (unsigned) _token->l + 1,
@@ -91,9 +87,13 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
 
     /// create a return instruction if there is none, the return value is the default value of the return type
     if (!(cs->get_builder()->GetInsertBlock()->back().getOpcode() & llvm::Instruction::Ret)) {
-      auto *ret_val = _children[0]->get_llvm_value(cs);
-      TAN_ASSERT(ret_val);
-      cs->get_builder()->CreateRet(ret_val);
+      auto ret_ty = _children[0]->get_ty();
+      if (ret_ty->_tyty == Ty::VOID) { cs->get_builder()->CreateRetVoid(); }
+      else {
+        auto *ret_val = _children[0]->get_llvm_value(cs);
+        TAN_ASSERT(ret_val);
+        cs->get_builder()->CreateRet(ret_val);
+      }
     }
     cs->pop_di_scope();
   }
@@ -245,7 +245,7 @@ size_t ASTFunctionCall::nud() {
   auto *token = _parser->at(_end_index);
   if (token->value != "(") { report_code_error(token, "Invalid function call"); }
   ++_end_index;
-  while (!_parser->eof(_end_index)) {
+  while (!_parser->eof(_end_index) && _parser->at(_end_index)->value != ")") {
     _children.push_back(_parser->next_expression(_end_index));
     if (_parser->at(_end_index)->value == ",") { /// skip ,
       ++_end_index;

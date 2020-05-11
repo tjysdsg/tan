@@ -75,13 +75,15 @@
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    {<span class="stringliteral">&quot;noop&quot;</span>, IntrinsicType::NOOP}, {<span class="stringliteral">&quot;get_decl&quot;</span>, IntrinsicType::GET_DECL}, {<span class="stringliteral">&quot;stack_trace&quot;</span>, IntrinsicType::STACK_TRACE}};</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> init_noop(CompilerSession *cs);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> init_assert(CompilerSession *cs);</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">static</span> <span
+        class="keywordtype">void</span> init_abort(CompilerSession *cs);
+</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">/// add codegen for function definition if a new function-like intrinsic is added</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="../../dd/dae/classtanlang_1_1Intrinsic.html#acb3987e0e5286f9c443aa972c5b0dda7">   28</a></span>&#160;<span class="comment"></span><span class="keywordtype">void</span> <a class="code" href="../../dd/dae/classtanlang_1_1Intrinsic.html#acb3987e0e5286f9c443aa972c5b0dda7">Intrinsic::InitCodegen</a>(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) {</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  init_noop(cs);</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  init_stack_trace_intrinsic(cs);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  init_assert(cs);</div>
+    <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; init_abort(cs);</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;}</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;Value *Intrinsic::codegen(<a class="code" href="../../d1/d89/classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs) {</div>
@@ -224,7 +226,9 @@
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;  <span class="keywordflow">return</span> ret;</div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;}</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160; </div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="keyword">static</span> <span class="keywordtype">void</span> init_assert(CompilerSession *cs) {</div>
+    <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="keyword">static</span>
+        <span class="keywordtype">void</span> init_abort(CompilerSession *cs) {
+    </div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="keywordflow">if</span> (Intrinsic::assert_initialized) { <span class="keywordflow">return</span>; }</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  Function *assert_func = cs-&gt;get_module()-&gt;getFunction(<span class="stringliteral">&quot;__assert&quot;</span>);</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  { <span class="comment">/// fn __assert(msg: char*, file: char*, line: int) : void;</span></div>

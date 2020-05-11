@@ -15,6 +15,8 @@ set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
+
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
@@ -83,10 +85,9 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
 target_link_libraries(tan pthread ${DEP_LIBS})
-add_dependencies(tan dep)
 set_other_options(tan)
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16")
-    message(STATUS "CMake>=3.16 detected, precompiled headers are enabled")
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
+    message(STATUS "precompiled headers are enabled")
     target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
 endif ()
 

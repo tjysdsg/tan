@@ -4,7 +4,4 @@
 [submodule "dep/filesystem"]
 	path = dep/filesystem
 	url = https://github.com/gulrak/filesystem
-[submodule "dep/libbacktrace"]
-	path = dep/libbacktrace
-	url = https://github.com/ianlancetaylor/libbacktrace
 

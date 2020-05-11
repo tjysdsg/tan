@@ -234,16 +234,6 @@ endforeach ()
 
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
-# libbacktrace
-execute_process(
-        COMMAND ./configure
-        WORKING_DIRECTORY ${DEP_DIR}/libbacktrace
-)
-add_custom_target(dep ALL
-        COMMAND ${CMAKE_MAKE_PROGRAM} -j4
-        WORKING_DIRECTORY ${DEP_DIR}/libbacktrace
-)
-
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}

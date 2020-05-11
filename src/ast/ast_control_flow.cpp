@@ -28,15 +28,19 @@ Value *ASTIf::codegen(CompilerSession *cs) {
   /// emit then value
   cs->get_builder()->SetInsertPoint(then_bb);
   _children[1]->codegen(cs);
-  /// create a br instruction if there is no terminator instruction at the end of this block
-  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+  /// create a br instruction if there is no terminator instruction at the end of then
+  if (!then_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
 
   /// emit else block
   func->getBasicBlockList().push_back(else_bb);
   cs->get_builder()->SetInsertPoint(else_bb);
-  if (_has_else) { _children[2]->codegen(cs); }
-  /// create a br instruction if there is no terminator instruction at the end of this block
-  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+  if (_has_else) {
+    _children[2]->codegen(cs);
+  } else {
+    cs->get_builder()->CreateBr(merge_bb);
+  }
+  /// create a br instruction if there is no terminator instruction at the end of else
+  if (!else_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
 
   /// emit merge block
   func->getBasicBlockList().push_back(merge_bb);
