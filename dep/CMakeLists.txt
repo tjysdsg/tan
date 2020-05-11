@@ -234,19 +234,32 @@ endforeach ()
 
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
+# libbacktrace
+execute_process(
+        COMMAND ./configure
+        WORKING_DIRECTORY ${DEP_DIR}/libbacktrace
+)
+add_custom_target(dep ALL
+        COMMAND ${CMAKE_MAKE_PROGRAM} -j4
+        WORKING_DIRECTORY ${DEP_DIR}/libbacktrace
+)
+
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
         ${DEP_DIR}/filesystem/include
+        ${DEP_DIR}/libbacktrace
         PARENT_SCOPE)
 
 set(DEP_LIBS ${LLVM_LIBS}
         ${CLANG_LIBRARIES}
         z dl rt tinfo pthread m xml2
         gcov
+        backtrace
         PARENT_SCOPE)
 
 set(DEP_LIB_DIRS
         ${LLVM_LIBRARY_DIR}
         ${CLANG_LIBDIRS}
+        ${DEP_DIR}/libbacktrace/.libs
         PARENT_SCOPE)

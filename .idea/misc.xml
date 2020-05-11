@@ -9,6 +9,7 @@
       <file path="$PROJECT_DIR$/dep/filesystem" />
       <file path="$PROJECT_DIR$/dep/gflags" />
       <file path="$PROJECT_DIR$/dep/googletest" />
+      <file path="$PROJECT_DIR$/dep/libbacktrace" />
       <file path="$PROJECT_DIR$/examples" />
     </excludeRoots>
   </component>

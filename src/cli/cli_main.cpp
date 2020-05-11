@@ -1,7 +1,7 @@
 #include "cli.h"
 #include "libtanc.h"
 #include "base.h"
-#include <iostream>
+#include "include/config.h"
 #include <llvm/Support/CommandLine.h>
 
 namespace cl = llvm::cl;
@@ -37,6 +37,7 @@ static cl::opt<TanOptLevel> opt_optimization_level(cl::desc("Optimization level"
     cl::cat(cl_category));
 
 int cli_main(int *pargc, char ***pargv) {
+  /// option parser
   auto &opt_map = cl::getRegisteredOptions();
   /// Remove options created by LLVM/Clang
   /// We don't want tons of flags not created by this file appearing in the output of `tanc --help`

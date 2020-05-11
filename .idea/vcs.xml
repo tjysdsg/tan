@@ -4,5 +4,6 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dep/filesystem" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dep/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dep/libbacktrace" vcs="Git" />
   </component>
 </project>

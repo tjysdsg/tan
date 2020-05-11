@@ -1,0 +1,9 @@
+libbacktrace/stamp*
+libbacktrace/Makefile
+libbacktrace/libtool
+libbacktrace/install-debuginfo-for-buildid.sh
+libbacktrace/config.h
+libbacktrace/config.log
+libbacktrace/config.status
+libbacktrace/backtrace-supported.h
+libbacktrace/.libs
