@@ -24,23 +24,26 @@ Value *ASTIf::codegen(CompilerSession *cs) {
   BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
   BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
 
-  cs->get_builder()->CreateCondBr(condition, then_bb, else_bb);
+  if (_has_else) { cs->get_builder()->CreateCondBr(condition, then_bb, else_bb); }
+  else { cs->get_builder()->CreateCondBr(condition, then_bb, merge_bb); }
   /// emit then value
   cs->get_builder()->SetInsertPoint(then_bb);
   _children[1]->codegen(cs);
   /// create a br instruction if there is no terminator instruction at the end of then
+  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+  cs->get_builder()->SetInsertPoint(then_bb);
   if (!then_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
 
   /// emit else block
-  func->getBasicBlockList().push_back(else_bb);
-  cs->get_builder()->SetInsertPoint(else_bb);
   if (_has_else) {
+    func->getBasicBlockList().push_back(else_bb);
+    cs->get_builder()->SetInsertPoint(else_bb);
     _children[2]->codegen(cs);
-  } else {
-    cs->get_builder()->CreateBr(merge_bb);
+    /// create a br instruction if there is no terminator instruction at the end of else
+    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+    cs->get_builder()->SetInsertPoint(else_bb);
+    if (!else_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
   }
-  /// create a br instruction if there is no terminator instruction at the end of else
-  if (!else_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
 
   /// emit merge block
   func->getBasicBlockList().push_back(merge_bb);
