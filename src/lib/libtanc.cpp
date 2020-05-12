@@ -104,6 +104,8 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) { std::cerr << "Error linking files\n"; }
+    return ret;
+  } else {
+    return true;
   }
-  return true;
 }

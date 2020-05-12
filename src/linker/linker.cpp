@@ -26,8 +26,7 @@ bool Linker::link() {
     std::cout << a << " ";
   }
   std::cout << '\n';
-  clang_main(static_cast<int>(cargs.size()), cargs.data());
-  return true;
+  return !clang_main(static_cast<int>(cargs.size()), cargs.data());
 }
 
 void Linker::add_flag(std::string flag) {

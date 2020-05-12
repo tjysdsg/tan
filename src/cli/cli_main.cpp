@@ -105,7 +105,6 @@ int cli_main(int argc, char **argv) {
   /// verbosity
   if (opt_print_ast) { config.verbose = 2; }
   else if (opt_print_ir_code) { config.verbose = 1; }
-  compile_files((unsigned) files.size(), files.data(), &config);
-  return 0;
+  return !compile_files((unsigned) files.size(), files.data(), &config);
 }
 
