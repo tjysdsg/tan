@@ -10,7 +10,7 @@ macro(enable_tests)
     add_executable(lexer_tests ${TEST_DIR}/lexer_test.cpp)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/src/test)
-    target_link_libraries(lexer_tests tan gtest_main ${DEP_LIBS})
+    target_link_libraries(lexer_tests tan gtest ${DEP_LIBS})
     set_other_options(lexer_tests)
 
     # tanc tests
@@ -24,7 +24,7 @@ macro(enable_tests)
                 ${TEST_DIR}/tanc_tests.cpp
                 ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
         set_other_options(${test_target_name})
-        target_link_libraries(${test_target_name} tan gtest_main)
+        target_link_libraries(${test_target_name} tan gtest)
         target_compile_definitions(${test_target_name} PRIVATE
                 -DTAN_SOURCE=${tts}
                 -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
