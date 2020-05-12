@@ -4,6 +4,6 @@ add_custom_target(runtime ALL DEPENDS tanc SOURCES ${RUNTIME_SRCS} ${RUNTIME_CXX
 add_custom_command(TARGET runtime
         COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -I${CMAKE_CURRENT_LIST_DIR} --obj --print-ir ${RUNTIME_SRCS}
         COMMAND ${CMAKE_CXX_COMPILER} ${RUNTIME_CXX_SRCS} -c
-        COMMAND ${CMAKE_CXX_COMPILER} *.o -shared -stdlib=libc++ -o runtime.so
+        COMMAND ${CMAKE_CXX_COMPILER} *.o -shared -o runtime.so
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         )

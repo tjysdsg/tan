@@ -6,11 +6,14 @@
       <file path="$PROJECT_DIR$/dep/llvm-project" />
     </libraryRoots>
     <excludeRoots>
+      <file path="$PROJECT_DIR$/.github" />
+      <file path="$PROJECT_DIR$/bin" />
       <file path="$PROJECT_DIR$/dep/filesystem" />
       <file path="$PROJECT_DIR$/dep/gflags" />
       <file path="$PROJECT_DIR$/dep/googletest" />
       <file path="$PROJECT_DIR$/dep/libbacktrace" />
       <file path="$PROJECT_DIR$/examples" />
+      <file path="$PROJECT_DIR$/lib" />
     </excludeRoots>
   </component>
 </project>

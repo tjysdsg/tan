@@ -153,6 +153,8 @@
 #include <llvm/Support/Timer.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CrashRecoveryContext.h>
+#include <llvm/Support/CommandLine.h>
+namespace cl = llvm::cl;
 
 namespace tanlang {
 

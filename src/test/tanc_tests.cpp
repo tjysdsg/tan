@@ -20,7 +20,7 @@ TEST(tanc, TAN_TEST_NAME) {
           "-lruntime/runtime.so"};
   int argc = static_cast<int>(cmd.size());
   auto *argv = c_cast(char**, cmd.data());
-  EXPECT_EQ(0, cli_main(&argc, &argv));
+  EXPECT_EQ(0, cli_main(argc, argv));
   EXPECT_EQ(0, system("./a.out"));
 }
 

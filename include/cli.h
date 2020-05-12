@@ -8,6 +8,6 @@
  * \brief Call tanc with commandline arguments
  * \details This API can be useful when you want to integrate tan compiler into your project, or to test tanc
  * */
-int cli_main(int *pargc, char ***pargv);
+int cli_main(int argc, char **argv);
 
 #endif /* __TAN_INCLUDE_CLI_H__ */
