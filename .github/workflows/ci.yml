@@ -18,17 +18,10 @@ jobs:
     steps:
       - name: checkout
         run: git clone https://github.com/tjysdsg/tan --recursive
-      - name: compile tanc
-        run: cd tan; bash scripts/compile.sh tanc
-      - uses: actions/upload-artifact@v1
-        with:
-          name: bin
-          path: tan/bin
       - name: compile all and test all
         run: cd tan; bash scripts/compile.sh
       - name: upload coverage results
         shell: bash
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: wget https://codecov.io/bash -O codecov.sh; bash codecov.sh -f coverage/report.xml
-
+        run: wget https://codecov.io/bash -O codecov.sh; bash codecov.sh -f tan/coverage/report.xml
