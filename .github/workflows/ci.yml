@@ -25,4 +25,10 @@ jobs:
           name: bin
           path: tan/bin
       - name: compile all and test all
-        run: cd tan; bash scripts/compile.sh all
+        run: cd tan; bash scripts/compile.sh
+      - name: upload coverage results
+        shell: bash
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash)
+

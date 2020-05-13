@@ -1,7 +1,7 @@
 `tan` programming language
 ===
 
-[![Coverage Status](https://coveralls.io/repos/github/tjysdsg/tan/badge.svg?branch=master)](https://coveralls.io/github/tjysdsg/tan?branch=master)
+[![codecov](https://codecov.io/gh/tjysdsg/tan/branch/master/graph/badge.svg)](https://codecov.io/gh/tjysdsg/tan)
 
 *Work In Progress*
 
