@@ -32,13 +32,16 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     /// create a new basic block to start insertion into
     BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "func_entry", F);
     cs->get_builder()->SetInsertPoint(main_block);
-    cs->set_code_block(main_block); // TODO: remove this
 
     /// debug information
     DIScope *di_scope = cs->get_current_di_scope();
     auto *di_file = cs->get_di_file();
     auto *di_func_t = create_function_type(cs, ret_meta, arg_metas);
-    DISubprogram *subprogram = cs->get_di_builder()->createFunction(di_scope, func_name, func_name, di_file,
+    DISubprogram *subprogram = cs->get_di_builder()
+        ->createFunction(di_scope,
+            func_name,
+            func_name,
+            di_file,
             (unsigned) _token->l + 1,
             di_func_t,
             (unsigned) _token->l + 1,
@@ -96,9 +99,9 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
       }
     }
     cs->pop_di_scope();
+    /// restore parent code block
+    cs->get_builder()->SetInsertPoint(main_block);
   }
-  /// restore parent code block
-  cs->get_builder()->SetInsertPoint(cs->get_code_block());
   cs->pop_scope(); /// pop scope
   return nullptr;
 }

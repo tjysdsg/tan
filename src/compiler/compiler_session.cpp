@@ -10,7 +10,6 @@ using namespace tanlang;
 void CompilerSession::initialize_scope() {
   _scope = std::vector<std::shared_ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
-  _scope.back()->_code_block = _builder->GetInsertBlock();
 }
 
 CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *target_machine) : _target_machine(
@@ -32,9 +31,7 @@ CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *
 
 CompilerSession::~CompilerSession() {}
 
-std::shared_ptr<Scope> CompilerSession::get_current_scope() {
-  return _scope.back();
-}
+std::shared_ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
 
 std::shared_ptr<Scope> CompilerSession::push_scope() {
   auto r = std::make_shared<Scope>();
@@ -94,14 +91,6 @@ LLVMContext *CompilerSession::get_context() { return _context; }
 IRBuilder<> *CompilerSession::get_builder() { return _builder; }
 
 Module *CompilerSession::get_module() { return _module; }
-
-void CompilerSession::set_code_block(BasicBlock *block) {
-  _scope.back()->_code_block = block;
-}
-
-BasicBlock *CompilerSession::get_code_block() const {
-  return _scope.back()->_code_block;
-}
 
 void CompilerSession::init_llvm() {
   _module->setDataLayout(_target_machine->createDataLayout());

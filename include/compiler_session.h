@@ -63,8 +63,6 @@ public:
   DIScope *get_current_di_scope() const;
   void push_di_scope(DIScope *scope);
   void pop_di_scope();
-  void set_code_block(BasicBlock *block);
-  [[nodiscard]] BasicBlock *get_code_block() const;
 
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
