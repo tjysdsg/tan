@@ -84,7 +84,7 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     cs->get_builder()
         ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
             (unsigned) _children[_children.size() - 1]->_token->c + 1,
-            di_scope));
+            subprogram));
     /// generate function body
     _children[_children.size() - 1]->codegen(cs);
 

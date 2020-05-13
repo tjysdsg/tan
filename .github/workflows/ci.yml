@@ -24,4 +24,4 @@ jobs:
         shell: bash
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: wget https://codecov.io/bash -O codecov.sh; bash codecov.sh -f tan/coverage/report.xml
+        run: wget https://codecov.io/bash -O codecov.sh; bash codecov.sh

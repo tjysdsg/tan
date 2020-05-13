@@ -1,5 +1,6 @@
 macro(enable_tests)
-    if (DEFINED ENABLE_COVERAGE)
+    if (${ENABLE_COVERAGE})
+        message(STATUS "Enabling test coverage")
         set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
     else ()
         set(COVERAGE_CXX_FLAGS "-g -O0 -Wall")
@@ -54,6 +55,10 @@ macro(enable_tests)
                 -r ${PROJECT_SOURCE_DIR}
                 --object-directory=${CMAKE_BINARY_DIR}
                 -o ${PROJECT_SOURCE_DIR}/coverage/report.xml
+                COMMAND gcovr --html --html-details
+                -r ${PROJECT_SOURCE_DIR}
+                --object-directory=${CMAKE_BINARY_DIR}
+                -o ${PROJECT_SOURCE_DIR}/coverage/report.html
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 )
     endif ()

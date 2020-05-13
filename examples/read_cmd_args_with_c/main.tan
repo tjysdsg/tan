@@ -1,0 +1,6 @@
+extern fn print_args(argc: int, argv: char**) : void;
+
+pub fn main(argc: int, argv: char**) : int {
+    print_args(argc, argv);
+    return 0;
+}

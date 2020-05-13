@@ -16,6 +16,8 @@ project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
+option(ENABLE_COVERAGE "Enable coverage" OFF)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
@@ -41,7 +43,7 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 macro(set_other_options target_name)
-    message(STATUS "Generating target: ${target_name}")
+    message(DEBUG "Generating target: ${target_name}")
     target_compile_features(${target_name} PRIVATE cxx_std_17)
     target_compile_options(${target_name}
             PRIVATE -Wall
@@ -111,3 +113,6 @@ endif ()
 
 # ===== docs =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
+
+# ===== examples =====
+add_subdirectory(${PROJECT_SOURCE_DIR}/examples)

@@ -1,6 +1,0 @@
-fn print_shit(hours: int, salary: float) : int;
-
-fn main(argc: int, argv: char**) : int {
-    print_shit(4, 2.5);
-    return 0;
-}
