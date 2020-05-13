@@ -1,7 +1,6 @@
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_struct.h"
-#include "src/ast/ast_node.h"
 #include "src/common.h"
 #include "compiler_session.h"
 #include "token.h"

@@ -55,17 +55,19 @@ void CompilerSession::add(const std::string &name, ASTNodePtr value) {
 }
 
 void CompilerSession::set(const std::string &name, ASTNodePtr value) {
-  // search from the outer-est scope to the inner-est scope
-  auto scope = _scope.end(); // scope is an iterator
+  auto scope = _scope.end();
+  bool found = false;
   --scope;
   while (scope >= _scope.begin()) {
     auto search = (*scope)->_named.find(name);
     if (search != (*scope)->_named.end()) {
-      throw std::runtime_error("Cannot set the value of " + name);
+      found = true;
+      break;
     }
     --scope;
   }
-  (*scope)->_named[name] = value;
+  if (found) { (*scope)->_named[name] = value; }
+  else { throw std::runtime_error("Cannot set the value of " + name); }
 }
 
 ASTNodePtr CompilerSession::get(const std::string &name) {

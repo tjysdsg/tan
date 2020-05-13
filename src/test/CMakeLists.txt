@@ -50,10 +50,10 @@ macro(enable_tests)
                 )
 
         add_custom_command(TARGET coverage POST_BUILD
-                COMMAND gcovr --html --html-details
+                COMMAND gcovr --xml
                 -r ${PROJECT_SOURCE_DIR}
                 --object-directory=${CMAKE_BINARY_DIR}
-                -o ${PROJECT_SOURCE_DIR}/coverage/index.html
+                -o ${PROJECT_SOURCE_DIR}/coverage/report.xml
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                 )
     endif ()

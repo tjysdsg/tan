@@ -1,6 +1,7 @@
 #include "src/ast/ast_struct.h"
 #include "src/type_system.h"
 #include "src/common.h"
+#include "token.h"
 #include "compiler_session.h"
 
 namespace tanlang {
@@ -12,35 +13,44 @@ size_t ASTStruct::nud() {
   TAN_ASSERT(id->is_named());
   _type_name = id->get_name();
   _children.push_back(id);
-  _cs->add(id->get_name(), this->shared_from_this()); /// add self to current scope
+
+  auto forward_decl = _cs->get(_type_name);
+  if (!forward_decl) {
+    _cs->add(_type_name, this->shared_from_this()); /// add self to current scope
+  } else {
+    /// replace forward decl with self (even if this is a forward declaration too)
+    _cs->set(_type_name, this->shared_from_this());
+  }
 
   /// struct body
-  auto comp_stmt = _parser->peek(_end_index);
-  _end_index = comp_stmt->parse(_parser, _cs); // TODO: parse forward declaration
-  auto members = comp_stmt->_children;
+  if (_parser->at(_end_index)->value == "{") {
+    auto comp_stmt = _parser->next_expression(_end_index);
+    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { report_code_error(_token, "Invalid struct body"); }
 
-  /// resolve member names and types
-  ASTNodePtr var_decl = nullptr;
-  size_t n = comp_stmt->_children.size();
-  _member_names.reserve(n);
-  _children.reserve(n);
-  for (size_t i = 0; i < n; ++i) {
-    if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
-      var_decl = members[i];
-      _children.push_back(var_decl->get_ty());
-    } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
-      var_decl = members[i]->_children[0];
-      auto initial_value = members[i]->_children[1];
-      if (!is_ast_type_in(initial_value->_type, TypeSystem::LiteralTypes)) {
-        report_code_error(_token, "Invalid initial value of the member variable");
-      }
-      _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
-    } else { report_code_error(_token, "Invalid struct member"); }
-    auto name = var_decl->get_name();
-    _member_names.push_back(name);
-    _member_indices[name] = i;
+    /// resolve member names and types
+    auto members = comp_stmt->_children;
+    ASTNodePtr var_decl = nullptr;
+    size_t n = comp_stmt->_children.size();
+    _member_names.reserve(n);
+    _children.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
+        var_decl = members[i];
+        _children.push_back(var_decl->get_ty());
+      } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
+        var_decl = members[i]->_children[0];
+        auto initial_value = members[i]->_children[1];
+        if (!is_ast_type_in(initial_value->_type, TypeSystem::LiteralTypes)) {
+          report_code_error(_token, "Invalid initial value of the member variable");
+        }
+        _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+      } else { report_code_error(_token, "Invalid struct member"); }
+      auto name = var_decl->get_name();
+      _member_names.push_back(name);
+      _member_indices[name] = i;
+    }
+    this->resolve();
   }
-  this->resolve();
   return _end_index;
 }
 

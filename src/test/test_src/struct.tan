@@ -1,9 +1,8 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
-struct Fuck {
-    var val: i32 = 2;
-}
+struct Fuck;
+struct Useless;
 
 struct Useless {
     var shit: i8 = 1;
@@ -11,8 +10,14 @@ struct Useless {
     var fuck: Fuck;
 }
 
+struct Fuck {
+    var val: i32 = 2;
+}
+
 pub fn main(argc: int, argv: u8**) : i32 {
     var s: Useless;
+    var f: Fuck;
+    s.fuck = f;
     assert(s.shit == 1);
     assert(s.fuck.val == 2);
     s.shit = 100;
