@@ -188,7 +188,7 @@ Token *tokenize_char(Reader *reader, cursor &start) {
       }
       value = std::string(1, escape_char(value[1]));
     } else if (value.length() != 1) {
-      report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete character literal");
+      report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
     }
     t = new Token(TokenType::CHAR, value, start, &reader->get_line(start.l));
     start = (*reader).forward(forward);

@@ -19,7 +19,6 @@ struct line_info {
   line_info(const size_t lineno, const std::string &code) : lineno(lineno), code(code) {}
 };
 
-// TODO: support unicode
 class Reader final {
 public:
   Reader() = default;
