@@ -154,6 +154,36 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CrashRecoveryContext.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/ADT/StringExtras.h>
+#include <llvm/ADT/StringSwitch.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/BinaryFormat/Magic.h>
+#include <llvm/Object/Archive.h>
+#include <llvm/Object/ArchiveWriter.h>
+#include <llvm/Object/IRObjectFile.h>
+#include <llvm/Object/MachO.h>
+#include <llvm/Object/ObjectFile.h>
+#include <llvm/Object/SymbolicFile.h>
+#include <llvm/Support/Chrono.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ConvertUTF.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Format.h>
+#include <llvm/Support/FormatVariadic.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/InitLLVM.h>
+#include <llvm/Support/LineIterator.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Process.h>
+#include <llvm/Support/StringSaver.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/ToolOutputFile.h>
+#include <llvm/Support/WithColor.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/ToolDrivers/llvm-dlltool/DlltoolDriver.h>
+#include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
 namespace cl = llvm::cl;
 
 namespace tanlang {

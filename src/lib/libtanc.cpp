@@ -4,6 +4,7 @@
 #include "linker.h"
 #include "parser.h"
 #include "base.h"
+#include "src/lib/llvm-ar.h"
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -24,6 +25,13 @@
 #endif
 
 static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
+  /// static
+  if (config->type == SLIB) {
+    std::vector<const char *> args = {"ar", "rcs", config->out_file};
+    std::for_each(input_paths.begin(), input_paths.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
+    return !llvm_ar_main((int) args.size(), c_cast(char **, args.data()));
+  }
+  /// shared, obj, exe
   using tanlang::Linker;
   Linker linker;
   linker.add_files(input_paths);
@@ -31,10 +39,6 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
   if (config->type == EXE) {
     /// default flags
     linker.add_flags({"-fPIE"});
-  } else if (config->type == SLIB) {
-    // TODO: implement output type static lib
-    TAN_ASSERT(false);
-    // linker.add_flags({"-static-pie"});
   } else if (config->type == DLIB) {
     linker.add_flags({"-shared"});
   }
