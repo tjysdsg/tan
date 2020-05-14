@@ -37,7 +37,7 @@ size_t ASTArrayLiteral::nud() {
   }
 
   auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);
-  std::vector<ASTNodePtr> sub_tys{};
+  vector<ASTNodePtr> sub_tys{};
   sub_tys.reserve(get_n_elements());
   std::for_each(_children.begin(), _children.end(), [&sub_tys](ASTNodePtr &e) { sub_tys.push_back(e->get_ty()); });
   _ty = ASTTy::Create(Ty::ARRAY, sub_tys);
@@ -49,8 +49,8 @@ Value *ASTArrayLiteral::codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-std::string ASTArrayLiteral::to_string(bool print_prefix) const {
-  std::string ret;
+str ASTArrayLiteral::to_string(bool print_prefix) const {
+  str ret;
   if (print_prefix) { ret = ASTLiteral::to_string(true) + " "; }
   ret += "[";
   size_t i = 0;

@@ -3,9 +3,7 @@
 #include "config.h"
 #include "base.h"
 #include <cstdint>
-#include <string>
 #include <unistd.h>
-#include <vector>
 
 namespace tanlang {
 
@@ -13,17 +11,17 @@ struct cursor;
 
 struct line_info {
   size_t lineno;
-  std::string code;
+  str code;
   line_info() = delete;
   ~line_info() = default;
-  line_info(const size_t lineno, const std::string &code) : lineno(lineno), code(code) {}
+  line_info(const size_t lineno, const str &code) : lineno(lineno), code(code) {}
 };
 
 class Reader final {
 public:
   Reader() = default;
-  void open(const std::string &filename);
-  void from_string(const std::string &code);
+  void open(const str &filename);
+  void from_string(const str &code);
 
   /// \brief Return the number of lines of code of the current file
   [[nodiscard]] size_t size() const { return _lines.size(); }
@@ -38,14 +36,14 @@ public:
    * \brief Get a substring from start to the end of the current line
    * \param start start of the string, inclusive
    * */
-  std::string substr(const cursor &start) const;
+  str substr(const cursor &start) const;
 
   /**
    * \brief Get a substring from the source code
    * \param start start of the string, inclusive
    * \param end end of the string, exclusive
    * */
-  std::string substr(const cursor &start, cursor end) const;
+  str substr(const cursor &start, cursor end) const;
 
   [[nodiscard]] cursor begin() const;
   [[nodiscard]] cursor end() const;
@@ -54,7 +52,7 @@ public:
   [[nodiscard]] cursor forward(cursor ptr);
 
 private:
-  std::vector<line_info *> _lines{};
+  vector<line_info *> _lines{};
 };
 
 struct cursor {

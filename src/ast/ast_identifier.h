@@ -10,7 +10,7 @@ public:
   ASTIdentifier(Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *) override;
   bool is_named() const override;
-  std::string to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) const override;
   bool is_lvalue() const override;
   bool is_typed() const override;
 

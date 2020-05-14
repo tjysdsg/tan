@@ -11,12 +11,12 @@ public:
   ASTImport() = delete;
   ASTImport(Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *cm) override;
-  std::string to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) const override;
 
 protected:
   size_t nud() override;
-  std::string _file = "";
-  std::vector<std::shared_ptr<ASTFunction>> _imported_functions{};
+  str _file = "";
+  vector<std::shared_ptr<ASTFunction>> _imported_functions{};
 };
 
 } // namespace tanlang

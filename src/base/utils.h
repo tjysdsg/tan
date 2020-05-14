@@ -2,12 +2,13 @@
 #define __TAN_SRC_BASE_UTILS_H__
 #include <vector>
 #include <string>
+#include "src/base/container.h"
 
-inline std::vector<std::string> flag_to_list(const std::string &flag, const std::string &delimiter = ",") {
+inline vector<str> flag_to_list(const str &flag, const str &delimiter = ",") {
   size_t last = 0;
   size_t next = 0;
-  std::vector<std::string> results;
-  while ((next = flag.find(delimiter, last)) != std::string::npos) {
+  vector<str> results;
+  while ((next = flag.find(delimiter, last)) != str::npos) {
     results.push_back(flag.substr(last, next - last));
     last = next + 1;
   }

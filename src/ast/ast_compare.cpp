@@ -9,7 +9,7 @@ namespace tanlang {
 
 size_t ASTCompare::led(const ASTNodePtr &left) {
   auto ret = ASTInfixBinaryOp::led(left);
-  _ty = ASTTy::Create(Ty::BOOL, std::vector<ASTNodePtr>());
+  _ty = ASTTy::Create(Ty::BOOL, vector<ASTNodePtr>());
   return ret;
 }
 

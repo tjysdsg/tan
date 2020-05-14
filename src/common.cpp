@@ -1,9 +1,8 @@
 #include "src/common.h"
-#include "src/llvm_include.h"
 
 namespace tanlang {
 
-AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, const std::string &name) {
+AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, const str &name) {
   block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
   if (size <= 1) {

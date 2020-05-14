@@ -1,7 +1,6 @@
 #ifndef __TAN_INCLUDE_LINKER_H__
 #define __TAN_INCLUDE_LINKER_H__
-#include <vector>
-#include <string>
+#include "base.h"
 
 namespace tanlang {
 
@@ -9,15 +8,15 @@ class Linker final {
 public:
   Linker();
   ~Linker() = default;
-  void add_files(std::vector<std::string> filenames);
-  void add_flag(std::string flag);
-  void add_flags(std::vector<std::string> flags);
+  void add_files(vector<str> filenames);
+  void add_flag(str flag);
+  void add_flags(vector<str> flags);
   bool link();
 
 private:
-  std::vector<std::string> _input_files{};
-  std::vector<std::string> _flags{};
-  std::string _exe = "";
+  vector<str> _input_files{};
+  vector<str> _flags{};
+  str _exe = "";
   // TODO: platform, architecture, etc.
 };
 

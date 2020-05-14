@@ -38,9 +38,7 @@ public:
       bool is_signed = false);
 };
 
-llvm::DISubroutineType *create_function_type(CompilerSession *,
-    llvm::Metadata *ret,
-    std::vector<llvm::Metadata *> args);
+llvm::DISubroutineType *create_function_type(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 } // namespace
 

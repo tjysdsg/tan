@@ -85,7 +85,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     _access_type = MemberAccessMemberVariable;
     if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
     auto rhs = _children[1];
-    std::string m_name = rhs->get_name();
+    str m_name = rhs->get_name();
     std::shared_ptr<ASTStruct> struct_ast = nullptr;
     /// auto dereference pointers
     if (left->get_ty()->is_ptr()) {

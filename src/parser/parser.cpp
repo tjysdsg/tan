@@ -29,10 +29,10 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens, const std::string &filename, CompilerSession *cs)
+Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
 
-ASTNodePtr Parser::peek(size_t &index, TokenType type, const std::string &value) {
+ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) {
     throw std::runtime_error("Unexpected EOF");
   }
@@ -164,7 +164,7 @@ Token *Parser::at(const size_t idx) const {
   return _tokens[idx];
 }
 
-std::string Parser::get_filename() const { return _filename; }
+str Parser::get_filename() const { return _filename; }
 
 bool Parser::eof(size_t index) const { return index >= _tokens.size(); }
 

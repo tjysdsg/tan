@@ -16,23 +16,23 @@ void ASTNumberLiteral::resolve() {
   Ty t = Ty::INVALID;
   if (_is_float) {
     t = Ty::FLOAT;
-    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
+    _ty = ASTTy::Create(t, vector<ASTNodePtr>());
     _ty->_default_value = _fvalue;
   } else if (_is_unsigned) {
     t = TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED);
-    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
+    _ty = ASTTy::Create(t, vector<ASTNodePtr>());
     _ty->_default_value = static_cast<uint64_t>(_ivalue);
   } else {
     t = TY_OR(Ty::INT, Ty::BIT32);
-    _ty = ASTTy::Create(t, std::vector<ASTNodePtr>());
+    _ty = ASTTy::Create(t, vector<ASTNodePtr>());
     _ty->_default_value = static_cast<uint64_t>(_ivalue);
   }
 }
 
 bool tanlang::ASTNumberLiteral::is_float() const { return _is_float; }
 
-std::string ASTNumberLiteral::to_string(bool print_prefix) const {
-  std::string ret = "";
+str ASTNumberLiteral::to_string(bool print_prefix) const {
+  str ret = "";
   if (print_prefix) {
     ret += ASTLiteral::to_string(print_prefix) + " ";
   }
@@ -69,7 +69,7 @@ ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral
   resolve();
 }
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)
+ASTNumberLiteral::ASTNumberLiteral(const str &str, bool is_float, Token *token, size_t token_index)
     : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index) {
   _is_float = is_float;
   if (is_float) { _fvalue = std::stof(str); }

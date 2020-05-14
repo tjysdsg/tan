@@ -47,8 +47,8 @@ size_t ASTImport::nud() {
 
 ASTImport::ASTImport(Token *token, size_t token_index) : ASTNode(ASTType::IMPORT, 0, 0, token, token_index) {}
 
-std::string ASTImport::to_string(bool print_prefix) const {
-  std::string ret = "";
+str ASTImport::to_string(bool print_prefix) const {
+  str ret = "";
   if (print_prefix) {
     ret += ASTNode::to_string(print_prefix) + " ";
   }

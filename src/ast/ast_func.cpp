@@ -19,14 +19,14 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
 
   cs->push_scope(_scope); /// push scope
   /// set function arg types
-  std::vector<Metadata *> arg_metas;
+  vector<Metadata *> arg_metas;
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     auto type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
     arg_metas.push_back(type_name->to_llvm_meta(cs));
   }
 
   /// get function name
-  std::string func_name = this->get_name();
+  str func_name = this->get_name();
   /// function implementation
   if (!_is_external) {
     /// create a new basic block to start insertion into
@@ -108,7 +108,7 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
 
 Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool import) {
   Type *ret_type = _children[0]->to_llvm_type(compiler_session);
-  std::vector<Type *> arg_types;
+  vector<Type *> arg_types;
   /// set function arg types
   for (size_t i = 2; i < _children.size() - !_is_external; ++i) {
     auto type_name = ast_cast<ASTTy>(_children[i]->_children[1]);
@@ -140,8 +140,8 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
 Value *ASTFunctionCall::codegen(CompilerSession *cm) {
   /// args
   size_t n_args = _children.size();
-  std::vector<Value *> arg_vals;
-  std::vector<Type *> arg_types;
+  vector<Value *> arg_vals;
+  vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
     Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cm);
     auto *a = _children[i]->codegen(cm);

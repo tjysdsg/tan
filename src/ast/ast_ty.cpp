@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-std::unordered_map<std::string, Ty> basic_tys =
+umap<str, Ty> basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
         {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
@@ -17,10 +17,9 @@ std::unordered_map<std::string, Ty> basic_tys =
         {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
         {"bool", Ty::BOOL},};
 
-std::unordered_map<std::string, Ty>
-    qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+umap<str, Ty> qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTTyPtr ASTTy::find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   auto find = ASTTy::_cache.find(t);
   if (find == ASTTy::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
@@ -38,7 +37,7 @@ ASTTyPtr ASTTy::find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue
   return ret;
 }
 
-std::shared_ptr<ASTTy> ASTTy::Create(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+std::shared_ptr<ASTTy> ASTTy::Create(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   auto ret = ASTTy::find_cache(t, sub_tys, is_lvalue);
   if (ret) { return ret; }
   ret = std::make_shared<ASTTy>(nullptr, 0);
@@ -67,7 +66,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       ret = ConstantFP::get(type, std::get<double>(_default_value));
       break;
     case Ty::STRING:
-      ret = cs->get_builder()->CreateGlobalStringPtr(std::get<std::string>(_default_value));
+      ret = cs->get_builder()->CreateGlobalStringPtr(std::get<str>(_default_value));
       break;
     case Ty::VOID:
       TAN_ASSERT(false);
@@ -166,7 +165,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
       DIFile *di_file = cs->get_di_file();
       auto st = cs->get(_type_name);
       size_t n = st->_children.size();
-      std::vector<Metadata *> elements(n);
+      vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = st->_children[i]; // ASTVarDecl
         elements.push_back(e->get_ty()->to_llvm_meta(cs));
@@ -298,7 +297,7 @@ void ASTTy::resolve() {
     case Ty::STRING:
       _type_name = "u8*";
       _size_bits = tm->getPointerSizeInBits(0);
-      _default_value.emplace<std::string>("");
+      _default_value.emplace<str>("");
       _align_bits = 8;
       _is_ptr = true;
       break;
@@ -475,12 +474,12 @@ size_t ASTTy::get_size_bits() const {
   return _size_bits;
 }
 
-std::string ASTTy::get_type_name() const {
+str ASTTy::get_type_name() const {
   TAN_ASSERT(!_type_name.empty());
   return _type_name;
 }
 
-std::string ASTTy::to_string(bool print_prefix) const {
+str ASTTy::to_string(bool print_prefix) const {
   return ASTNode::to_string(print_prefix) + " " + get_type_name();
 }
 
@@ -491,7 +490,7 @@ void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 ASTTyPtr ASTTy::get_contained_ty() const {
-  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, std::vector<ASTNodePtr>(), false); }
+  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, vector<ASTNodePtr>(), false); }
   else if (_is_ptr) {
     TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);

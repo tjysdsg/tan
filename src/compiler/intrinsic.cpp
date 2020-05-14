@@ -10,7 +10,7 @@
 
 namespace tanlang {
 
-std::unordered_map<std::string, IntrinsicType>
+umap<str, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},
     {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
@@ -94,13 +94,13 @@ void Intrinsic::determine_type() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
-      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), vector<ASTNodePtr>());
       break;
     case IntrinsicType::FILENAME:
-      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
       break;
     case IntrinsicType::GET_DECL:
-      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
       parse_get_decl();
       break;
     default:
@@ -134,8 +134,8 @@ size_t Intrinsic::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-std::string Intrinsic::to_string(bool print_prefix) const {
-  std::string ret;
+str Intrinsic::to_string(bool print_prefix) const {
+  str ret;
   if (print_prefix) {
     ret = ASTNode::to_string(print_prefix) + " ";
   }
@@ -150,7 +150,7 @@ static void init_abort(CompilerSession *cs) {
   /// fn abort() : void;
   if (!abort_func) {
     Type *ret_type = cs->get_builder()->getVoidTy();
-    std::vector<Type *> arg_types{};
+    vector < Type * > arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
   }
@@ -161,7 +161,7 @@ static void init_noop(CompilerSession *cs) {
   if (!func) {
     /// fn llvm.donothing() : void;
     Type *ret_type = cs->get_builder()->getVoidTy();
-    std::vector<Type *> arg_types{};
+    vector < Type * > arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }

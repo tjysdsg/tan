@@ -45,7 +45,7 @@ Value *ASTVarDecl::codegen(CompilerSession *cs) {
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
   cs->set_current_debug_location(_token->l, _token->c);
   TAN_ASSERT(_children[0]->is_named());
-  std::string name = this->get_name();
+  str name = this->get_name();
   Type *type = _children[1]->to_llvm_type(cs);
   _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, 1, name);
   if (_type == ASTType::VAR_DECL) { /// don't do this for arguments

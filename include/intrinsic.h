@@ -1,9 +1,8 @@
 #ifndef __TAN_INCLUDE_INTRINSIC_H__
 #define __TAN_INCLUDE_INTRINSIC_H__
-#include <unordered_map>
-#include <string>
-#include <memory>
 #include "src/ast/ast_node.h"
+#include "base.h"
+#include <memory>
 
 namespace llvm {
 class Value;
@@ -50,7 +49,7 @@ enum class IntrinsicType {
 class Intrinsic : public ASTNode {
 public:
   static inline llvm::Function *abort_function = nullptr;
-  static std::unordered_map<std::string, IntrinsicType> intrinsics;
+  static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
 
 public:
@@ -58,7 +57,7 @@ public:
   Intrinsic(Token *token, size_t token_index);
   size_t led(const ASTNodePtr &left) override;
   size_t nud() override;
-  std::string to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) const override;
   llvm::Value *codegen(CompilerSession *) override;
   bool is_lvalue() const override;
   bool is_typed() const override;
@@ -69,7 +68,7 @@ protected:
 
 protected:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
-  std::string _str_data = "";
+  str _str_data = "";
   bool _is_lvalue = false;
   bool _is_typed = true;
 };

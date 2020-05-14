@@ -59,7 +59,7 @@ ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTTy(token, token_inde
   _tyty = Ty::STRUCT;
 }
 
-size_t ASTStruct::get_member_index(std::string name) {
+size_t ASTStruct::get_member_index(str name) {
   if (_member_indices.find(name) == _member_indices.end()) {
     throw std::runtime_error("Unknown member of struct '" + get_type_name() + "'");
   }
@@ -69,7 +69,7 @@ size_t ASTStruct::get_member_index(std::string name) {
 Type *ASTStruct::to_llvm_type(CompilerSession *cs) const {
   if (!_llvm_type) {
     auto *struct_type = StructType::create(*cs->get_context(), _type_name);
-    std::vector<Type *> body{};
+    vector<Type *> body{};
     size_t n = _children.size();
     body.reserve(n);
     for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(cs)); }
@@ -83,7 +83,7 @@ ASTNodePtr ASTStruct::get_member(size_t i) { return _children[i + 1]; }
 
 Value *ASTStruct::get_llvm_value(CompilerSession *cs) const {
   if (!_llvm_value) {
-    std::vector<llvm::Constant *> values{};
+    vector<llvm::Constant *> values{};
     size_t n = _children.size();
     for (size_t i = 1; i < n; ++i) { values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs)); }
     _llvm_value = ConstantStruct::get((StructType *) to_llvm_type(cs), values);

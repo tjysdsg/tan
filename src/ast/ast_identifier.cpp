@@ -38,7 +38,7 @@ ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType
   _name = token->value;
 }
 
-std::string ASTIdentifier::to_string(bool print_prefix) const {
+str ASTIdentifier::to_string(bool print_prefix) const {
   if (print_prefix) { return ASTNode::to_string(print_prefix) + " " + _name; }
   else { return _name; }
 }

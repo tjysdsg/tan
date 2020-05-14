@@ -9,8 +9,6 @@
 #include "src/base/macro.h"
 #include "src/base/utils.h"
 #include "src/base/filesystem.h"
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "src/base/container.h"
 
 #endif // TAN_BASE_H

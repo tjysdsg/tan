@@ -1,6 +1,7 @@
 #ifndef TAN_INCLUDE_COMPILER_SESSION_H_
 #define TAN_INCLUDE_COMPILER_SESSION_H_
 #include "src/llvm_include.h"
+#include "base.h"
 
 namespace tanlang {
 
@@ -19,21 +20,21 @@ class ASTLoop;
  * */
 class CompilerSession final {
 public:
-  static void AddPublicFunction(const std::string &filename, ASTNodePtr func);
-  static std::vector<ASTFunctionPtr> GetPublicFunctions(const std::string &filename);
+  static void AddPublicFunction(const str &filename, ASTNodePtr func);
+  static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
 
 private:
   /**
    * \brief Function table for each source files
    * \details filename -> (function name -> FunctionTable)
    * */
-  static inline std::unordered_map<std::string, FunctionTablePtr> public_func{};
+  static inline umap<str, FunctionTablePtr> public_func{};
 
 public:
   CompilerSession &operator=(const CompilerSession &) = delete;
   CompilerSession(const CompilerSession &) = delete;
   CompilerSession() = delete;
-  CompilerSession(const std::string &module_name, TargetMachine *target_machine);
+  CompilerSession(const str &module_name, TargetMachine *target_machine);
   ~CompilerSession();
 
 public:
@@ -67,24 +68,24 @@ public:
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
    * */
-  void add(const std::string &name, std::shared_ptr<ASTNode> value);
+  void add(const str &name, std::shared_ptr<ASTNode> value);
 
   /**
    * \brief Set a named ASTNode
    * */
-  void set(const std::string &name, std::shared_ptr<ASTNode> value);
+  void set(const str &name, std::shared_ptr<ASTNode> value);
 
   /**
    * \brief Get a named ASTNode that is visible to the current scope
    * \details This function starts by searching the current scope. If the target is not found in current scope,
    * search the parent scope, repeat the process until found. Return nullptr if not found in all visible scopes.
    * */
-  std::shared_ptr<ASTNode> get(const std::string &name);
+  std::shared_ptr<ASTNode> get(const str &name);
   LLVMContext *get_context();
   IRBuilder<> *get_builder();
   std::unique_ptr<DIBuilder> &get_di_builder();
   Module *get_module();
-  void emit_object(const std::string &filename);
+  void emit_object(const str &filename);
 
   /**
    * \brief Get the size of a pointer on the current machine
@@ -98,7 +99,7 @@ public:
    * call CompilerSession::AddPublicFunction
    * */
   void add_function(ASTNodePtr func);
-  std::vector<ASTFunctionPtr> get_functions(const std::string &name);
+  vector<ASTFunctionPtr> get_functions(const str &name);
   std::shared_ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(std::shared_ptr<ASTLoop>);
 
@@ -111,8 +112,8 @@ private:
   LLVMContext *_context = nullptr;
   IRBuilder<> *_builder = nullptr;
   Module *_module = nullptr;
-  std::vector<std::shared_ptr<Scope>> _scope{};
-  std::vector<DIScope *> _di_scope{};
+  vector<std::shared_ptr<Scope>> _scope{};
+  vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;

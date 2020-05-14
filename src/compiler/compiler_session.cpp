@@ -8,12 +8,12 @@
 using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
-  _scope = std::vector<std::shared_ptr<Scope>>();
+  _scope = vector<std::shared_ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
-CompilerSession::CompilerSession(const std::string &module_name, TargetMachine *target_machine) : _target_machine(
-    target_machine) {
+CompilerSession::CompilerSession(const str &module_name, TargetMachine *target_machine)
+    : _target_machine(target_machine) {
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);
@@ -50,11 +50,11 @@ std::shared_ptr<Scope> CompilerSession::pop_scope() {
   return r;
 }
 
-void CompilerSession::add(const std::string &name, ASTNodePtr value) {
+void CompilerSession::add(const str &name, ASTNodePtr value) {
   get_current_scope()->_named.insert(std::make_pair(name, value));
 }
 
-void CompilerSession::set(const std::string &name, ASTNodePtr value) {
+void CompilerSession::set(const str &name, ASTNodePtr value) {
   auto scope = _scope.end();
   bool found = false;
   --scope;
@@ -70,7 +70,7 @@ void CompilerSession::set(const std::string &name, ASTNodePtr value) {
   else { throw std::runtime_error("Cannot set the value of " + name); }
 }
 
-ASTNodePtr CompilerSession::get(const std::string &name) {
+ASTNodePtr CompilerSession::get(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
@@ -137,7 +137,7 @@ void CompilerSession::init_llvm() {
   pm_builder->populateModulePassManager(*_mpm.get());
 }
 
-void CompilerSession::emit_object(const std::string &filename) {
+void CompilerSession::emit_object(const str &filename) {
   _di_builder->finalize(); /// important: do this before any pass
 
   /// run function pass on all functions in the current module
@@ -185,7 +185,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const std::string &filename, ASTNodePtr func) {
+void CompilerSession::AddPublicFunction(const str &filename, ASTNodePtr func) {
   auto f = ast_cast<ASTFunction>(func);
   TAN_ASSERT(f);
   auto &pf = CompilerSession::public_func;
@@ -195,7 +195,7 @@ void CompilerSession::AddPublicFunction(const std::string &filename, ASTNodePtr 
   pf[filename]->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const std::string &filename) {
+vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
@@ -213,7 +213,7 @@ void CompilerSession::add_function(ASTNodePtr func) {
   _function_table->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::get_functions(const std::string &name) { return _function_table->get(name); }
+vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
