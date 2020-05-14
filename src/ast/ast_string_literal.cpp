@@ -24,7 +24,7 @@ ASTStringLiteral::ASTStringLiteral(const str &str, size_t ti) : ASTLiteral(ASTTy
 
 size_t ASTStringLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
-  _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
+  _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
   return _end_index;
 }
 

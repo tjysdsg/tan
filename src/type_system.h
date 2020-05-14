@@ -40,7 +40,7 @@ public:
 
 llvm::DISubroutineType *create_function_type(CompilerSession *,
     llvm::Metadata *ret,
-    std::vector<llvm::Metadata *> args);
+    vector<llvm::Metadata *> args);
 
 } // namespace
 

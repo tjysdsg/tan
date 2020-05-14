@@ -52,7 +52,7 @@ public:
   [[nodiscard]] cursor forward(cursor ptr);
 
 private:
-  std::vector<line_info *> _lines{};
+  vector<line_info *> _lines{};
 };
 
 struct cursor {

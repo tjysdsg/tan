@@ -16,12 +16,12 @@ using namespace clang;
 using namespace clang::driver;
 using namespace llvm::opt;
 
-std::string GetExecutablePath(const char *Argv0, bool CanonicalPrefixes) {
+str GetExecutablePath(const char *Argv0, bool CanonicalPrefixes) {
   if (!CanonicalPrefixes) {
     SmallString<128> ExecutablePath(Argv0);
     // Do a PATH lookup if Argv0 isn't a valid path.
     if (!llvm::sys::fs::exists(ExecutablePath)) {
-      if (llvm::ErrorOr<std::string> P = llvm::sys::findProgramByName(ExecutablePath)) {
+      if (llvm::ErrorOr<str> P = llvm::sys::findProgramByName(ExecutablePath)) {
         ExecutablePath = *P;
       }
     }
@@ -34,7 +34,7 @@ std::string GetExecutablePath(const char *Argv0, bool CanonicalPrefixes) {
   return llvm::sys::fs::getMainExecutable(Argv0, P);
 }
 
-static const char *GetStableCStr(std::set<std::string> &SavedStrings, StringRef S) {
+static const char *GetStableCStr(std::set<str> &SavedStrings, StringRef S) {
   return SavedStrings.insert(S).first->c_str();
 }
 
@@ -68,7 +68,7 @@ static const char *GetStableCStr(std::set<std::string> &SavedStrings, StringRef 
 static void ApplyOneQAOverride(raw_ostream &OS,
     SmallVectorImpl<const char *> &Args,
     StringRef Edit,
-    std::set<std::string> &SavedStrings) {
+    std::set<str> &SavedStrings) {
   // This does not need to be efficient.
   if (Edit[0] == '^') {
     const char *Str = GetStableCStr(SavedStrings, Edit.substr(1));
@@ -89,7 +89,7 @@ static void ApplyOneQAOverride(raw_ostream &OS,
       if (Args[i] == nullptr) {
         continue;
       }
-      std::string Repl = llvm::Regex(MatchPattern).sub(ReplPattern, Args[i]);
+      str Repl = llvm::Regex(MatchPattern).sub(ReplPattern, Args[i]);
 
       if (Repl != Args[i]) {
         OS << "### Replacing '" << Args[i] << "' with '" << Repl << "'\n";
@@ -138,9 +138,7 @@ static void ApplyOneQAOverride(raw_ostream &OS,
 
 /// ApplyQAOverride - Apply a comma separate list of edits to the
 /// input argument lists. See ApplyOneQAOverride.
-static void ApplyQAOverride(SmallVectorImpl<const char *> &Args,
-    const char *OverrideStr,
-    std::set<std::string> &SavedStrings) {
+static void ApplyQAOverride(SmallVectorImpl<const char *> &Args, const char *OverrideStr, std::set<str> &SavedStrings) {
   raw_ostream *OS = &llvm::errs();
 
   if (OverrideStr[0] == '#') {
@@ -159,7 +157,7 @@ static void ApplyQAOverride(SmallVectorImpl<const char *> &Args,
       End = S + strlen(S);
     }
     if (End != S) {
-      ApplyOneQAOverride(*OS, Args, std::string(S, End), SavedStrings);
+      ApplyOneQAOverride(*OS, Args, str(S, End), SavedStrings);
     }
     S = End;
     if (*S != '\0') {
@@ -173,7 +171,7 @@ extern int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *Main
 
 static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
     SmallVectorImpl<const char *> &ArgVector,
-    std::set<std::string> &SavedStrings) {
+    std::set<str> &SavedStrings) {
   // Put target and mode arguments at the start of argument list so that
   // arguments specified in command line could override them. Avoid putting
   // them at index 0, as an option like '-cc1' must remain the first.
@@ -193,7 +191,7 @@ static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
   }
 }
 
-static void getCLEnvVarOptions(std::string &EnvValue, llvm::StringSaver &Saver, SmallVectorImpl<const char *> &Opts) {
+static void getCLEnvVarOptions(str &EnvValue, llvm::StringSaver &Saver, SmallVectorImpl<const char *> &Opts) {
   llvm::cl::TokenizeWindowsCommandLine(EnvValue, Saver, Opts);
   // The first instance of '#' should be replaced with '=' in each option.
   for (const char *Opt : Opts) {
@@ -223,7 +221,7 @@ static void SetBackdoorDriverOutputsFromEnvVars(Driver &TheDriver) {
   }
 }
 
-static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const std::string &Path) {
+static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str &Path) {
   // If the clang binary happens to be named cl.exe for compatibility reasons,
   // use clang-cl.exe as the prefix to avoid confusion between clang and MSVC.
   StringRef ExeBasename(llvm::sys::path::stem(Path));
@@ -257,7 +255,7 @@ static void SetInstallDir(SmallVectorImpl<const char *> &argv, Driver &TheDriver
 
   // Do a PATH lookup, if there are no directory components.
   if (llvm::sys::path::filename(InstalledPath) == InstalledPath) {
-    if (llvm::ErrorOr<std::string> Tmp = llvm::sys::findProgramByName(llvm::sys::path::filename(InstalledPath.str()))) {
+    if (llvm::ErrorOr<str> Tmp = llvm::sys::findProgramByName(llvm::sys::path::filename(InstalledPath.str()))) {
       InstalledPath = *Tmp;
     }
   }
@@ -382,7 +380,7 @@ int main0(int argc_, const char **argv_) {
   // prepended or appended.
   if (ClangCLMode) {
     // Arguments in "CL" are prepended.
-    llvm::Optional<std::string> OptCL = llvm::sys::Process::GetEnv("CL");
+    llvm::Optional<str> OptCL = llvm::sys::Process::GetEnv("CL");
     if (OptCL.hasValue()) {
       SmallVector<const char *, 8> PrependedOpts;
       getCLEnvVarOptions(OptCL.getValue(), Saver, PrependedOpts);
@@ -391,7 +389,7 @@ int main0(int argc_, const char **argv_) {
       argv.insert(argv.begin() + 1, PrependedOpts.begin(), PrependedOpts.end());
     }
     // Arguments in "_CL_" are appended.
-    llvm::Optional<std::string> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
+    llvm::Optional<str> Opt_CL_ = llvm::sys::Process::GetEnv("_CL_");
     if (Opt_CL_.hasValue()) {
       SmallVector<const char *, 8> AppendedOpts;
       getCLEnvVarOptions(Opt_CL_.getValue(), Saver, AppendedOpts);
@@ -401,7 +399,7 @@ int main0(int argc_, const char **argv_) {
     }
   }
 
-  std::set<std::string> SavedStrings;
+  std::set<str> SavedStrings;
   // Handle CCC_OVERRIDE_OPTIONS, used for editing a command line behind the
   // scenes.
   if (const char *OverrideStr = ::getenv("CCC_OVERRIDE_OPTIONS")) {
@@ -409,7 +407,7 @@ int main0(int argc_, const char **argv_) {
     ApplyQAOverride(argv, OverrideStr, SavedStrings);
   }
 
-  std::string Path = GetExecutablePath(argv[0], CanonicalPrefixes);
+  str Path = GetExecutablePath(argv[0], CanonicalPrefixes);
 
   // Whether the cc1 tool should be called inside the current process, or if we
   // should spawn a new clang subprocess (old behavior).
@@ -515,8 +513,8 @@ int clang_main(int argc, const char **argv) {
   return ret;
 }
 
-int clang_compile(std::vector<const char *> input_files, TanCompilation *config) {
-  std::vector<const char *> args;
+int clang_compile(vector<const char *> input_files, TanCompilation *config) {
+  vector<const char *> args;
   args.reserve(input_files.size() + 2 * config->n_import_dirs + 1);
   args.push_back("clang");
   args.insert(args.end(), input_files.begin(), input_files.end());

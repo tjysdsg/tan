@@ -20,7 +20,7 @@ std::unordered_map<str, Ty> basic_tys =
 std::unordered_map<str, Ty>
     qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTTyPtr ASTTy::find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   auto find = ASTTy::_cache.find(t);
   if (find == ASTTy::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
@@ -38,7 +38,7 @@ ASTTyPtr ASTTy::find_cache(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue
   return ret;
 }
 
-std::shared_ptr<ASTTy> ASTTy::Create(Ty t, std::vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+std::shared_ptr<ASTTy> ASTTy::Create(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   auto ret = ASTTy::find_cache(t, sub_tys, is_lvalue);
   if (ret) { return ret; }
   ret = std::make_shared<ASTTy>(nullptr, 0);
@@ -166,7 +166,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
       DIFile *di_file = cs->get_di_file();
       auto st = cs->get(_type_name);
       size_t n = st->_children.size();
-      std::vector<Metadata *> elements(n);
+      vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = st->_children[i]; // ASTVarDecl
         elements.push_back(e->get_ty()->to_llvm_meta(cs));
@@ -491,7 +491,7 @@ void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
 
 ASTTyPtr ASTTy::get_contained_ty() const {
-  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, std::vector<ASTNodePtr>(), false); }
+  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, vector<ASTNodePtr>(), false); }
   else if (_is_ptr) {
     TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);

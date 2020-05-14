@@ -12,11 +12,11 @@ class FunctionTable final {
 public:
   FunctionTable() = default;
   void set(ASTFunctionPtr func);
-  std::vector<ASTFunctionPtr> get(const str &name);
-  std::vector<ASTFunctionPtr> get_all() const;
+  vector<ASTFunctionPtr> get(const str &name);
+  vector<ASTFunctionPtr> get_all() const;
 
 private:
-  std::unordered_map<str, std::vector<ASTFunctionPtr>> _table{};
+  std::unordered_map<str, vector<ASTFunctionPtr>> _table{};
 };
 
 using FunctionTablePtr = std::shared_ptr<FunctionTable>;

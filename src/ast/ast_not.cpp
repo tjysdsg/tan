@@ -33,7 +33,7 @@ Value *ASTNot::codegen(CompilerSession *cs) {
 
 size_t ASTNot::nud() {
   auto ret = ASTPrefix::nud();
-  if (_type == ASTType::LNOT) { _ty = ASTTy::Create(Ty::BOOL, std::vector<ASTNodePtr>()); }
+  if (_type == ASTType::LNOT) { _ty = ASTTy::Create(Ty::BOOL, vector<ASTNodePtr>()); }
   return ret;
 }
 

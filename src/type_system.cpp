@@ -62,8 +62,8 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
   } else { throw std::runtime_error("Invalid type conversion"); }
 }
 
-DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, std::vector<Metadata *> args) {
-  std::vector<Metadata *> types{ret};
+DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {
+  vector<Metadata *> types{ret};
   types.reserve(args.size());
   types.insert(types.begin() + 1, args.begin(), args.end());
   return cs->get_di_builder()

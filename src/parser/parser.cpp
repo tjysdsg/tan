@@ -29,7 +29,7 @@
 
 namespace tanlang {
 
-Parser::Parser(std::vector<Token *> tokens, const str &filename, CompilerSession *cs)
+Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
 
 ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {

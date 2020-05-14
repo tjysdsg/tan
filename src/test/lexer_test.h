@@ -48,9 +48,9 @@ TEST(tokenize, string_literal) {
 }
 
 TEST(tokenize, string_literal_escape) {
-  std::vector<str>
+  vector<str>
       input = {R"raw("\"hello world")raw", R"raw("\\")raw", R"raw("\n")raw", R"raw("he says, \"fuck you\"\n")raw"};
-  std::vector<str> output = {"\"hello world", "\\", "\n", "he says, \"fuck you\"\n"};
+  vector<str> output = {"\"hello world", "\\", "\n", "he says, \"fuck you\"\n"};
   for (size_t i = 0; i < input.size(); ++i) {
     str code = input[i];
     Reader r;
@@ -67,8 +67,8 @@ TEST(tokenize, string_literal_escape) {
 }
 
 TEST(tokenize, char_literal) {
-  std::vector<str> input = {"'\\\\'", "'\\n'", "'\\t'", "'\\''", "'\\\"'"};
-  std::vector<str> output = {"\\", "\n", "\t", "'", "\""};
+  vector<str> input = {"'\\\\'", "'\\n'", "'\\t'", "'\\''", "'\\\"'"};
+  vector<str> output = {"\\", "\n", "\t", "'", "\""};
   for (size_t i = 0; i < input.size(); ++i) {
     str code = input[i];
     Reader r;

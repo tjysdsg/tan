@@ -16,7 +16,7 @@ public:
 protected:
   size_t nud() override;
   str _file = "";
-  std::vector<std::shared_ptr<ASTFunction>> _imported_functions{};
+  vector<std::shared_ptr<ASTFunction>> _imported_functions{};
 };
 
 } // namespace tanlang

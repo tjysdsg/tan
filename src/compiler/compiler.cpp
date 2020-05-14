@@ -75,8 +75,8 @@ TargetMachine *Compiler::GetDefaultTargetMachine() {
   return Compiler::target_machine;
 }
 
-std::vector<str> Compiler::resolve_import(const str &callee_path, const str &import_name) {
-  std::vector<str> ret{};
+vector<str> Compiler::resolve_import(const str &callee_path, const str &import_name) {
+  vector<str> ret{};
   auto import_path = fs::path(import_name);
   /// search relative to callee's path
   {

@@ -282,10 +282,10 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
   return t;
 }
 
-std::vector<Token *> tokenize(Reader *reader) {
+vector<Token *> tokenize(Reader *reader) {
   cursor start = reader->begin();
   if (reader->size() == 0) { return {}; }
-  std::vector<Token *> tokens;
+  vector<Token *> tokens;
   const auto end = reader->end();
   while (start < end) {
     /// if start with a letter

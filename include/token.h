@@ -24,11 +24,11 @@ enum class TokenType {
 };
 
 extern std::unordered_map<TokenType, str> token_type_names;
-extern const std::vector<str> KEYWORDS;
-extern const std::vector<char> PUNCTUATIONS;
+extern const vector<str> KEYWORDS;
+extern const vector<char> PUNCTUATIONS;
 // any symbol in OP can both be an operator itself or the start of an operator
-extern const std::vector<char> OP;
-extern const std::vector<str> OP_ALL;
+extern const vector<char> OP;
+extern const vector<str> OP_ALL;
 extern std::unordered_map<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 struct Token {

@@ -1,7 +1,6 @@
 #ifndef TAN_LEXER_H
 #define TAN_LEXER_H
-#include <string>
-#include <vector>
+#include "base.h"
 #include <iostream>
 
 namespace tanlang {
@@ -10,7 +9,7 @@ struct line_info;
 struct Token;
 class Reader;
 
-std::vector<Token *> tokenize(Reader *p_reader);
+vector<Token *> tokenize(Reader *p_reader);
 
 } // namespace tanlang
 

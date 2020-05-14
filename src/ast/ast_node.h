@@ -94,7 +94,7 @@ public:
 
 public:
   ASTType _type = ASTType::INVALID;
-  std::vector<ASTNodePtr> _children{};
+  vector<ASTNodePtr> _children{};
   int _lbp = 0;
   int _rbp = 0;
   Token *_token = nullptr;

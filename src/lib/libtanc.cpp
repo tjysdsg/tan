@@ -39,10 +39,10 @@ static str opt_level_to_string(TanOptLevel l) {
   }
 }
 
-static bool _link(std::vector<str> input_paths, TanCompilation *config) {
+static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
-    std::vector<const char *> args = {"ar", "rcs", config->out_file};
+    vector<const char *> args = {"ar", "rcs", config->out_file};
     std::for_each(input_paths.begin(), input_paths.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
     return !llvm_ar_main((int) args.size(), c_cast(char **, args.data()));
   }
@@ -66,7 +66,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   bool print_ast = config->verbose >= 2;
 
   /// input files
-  std::vector<str> files;
+  vector<str> files;
   files.reserve(n_files);
   for (size_t i = 0; i < n_files; ++i) { files.push_back(str(input_paths[i])); }
   /// config
@@ -78,7 +78,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
 
   /// Compiler instances
-  std::vector<std::shared_ptr<Compiler>> compilers{};
+  vector<std::shared_ptr<Compiler>> compilers{};
   compilers.reserve(n_files);
 
   /// parse all files before generating IR code

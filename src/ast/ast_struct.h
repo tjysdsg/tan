@@ -28,7 +28,7 @@ protected:
 
 private:
   std::unordered_map<str, size_t> _member_indices{};
-  std::vector<str> _member_names{};
+  vector<str> _member_names{};
 };
 
 } // namespace tanlang

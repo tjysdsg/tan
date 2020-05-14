@@ -11,18 +11,18 @@ std::unordered_map<TokenType, str> token_type_names
         {TokenType::BOP, "BOP"},};
 
 /// keywords/reserved words
-const std::vector<str> KEYWORDS
+const vector<str> KEYWORDS
     {"for", "while", "if", "else", "fn", "var", "continue", "break", "let", "struct", "enum", "union", "switch", "case",
         "return", "pub", "extern", "import", "as"};
 
-const std::vector<char> PUNCTUATIONS
+const vector<char> PUNCTUATIONS
     {'~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"',
         ',', '.', '<', '>', '/', '?', '@'};
 
 /// any symbol in OP can both be an operator itself or the first character of an operator
-const std::vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
+const vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
 
-const std::vector<str> OP_ALL
+const vector<str> OP_ALL
     {"==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=",
         "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 

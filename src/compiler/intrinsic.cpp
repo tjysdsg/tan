@@ -94,13 +94,13 @@ void Intrinsic::determine_type() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     case IntrinsicType::LINENO:
-      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), vector<ASTNodePtr>());
       break;
     case IntrinsicType::FILENAME:
-      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
       break;
     case IntrinsicType::GET_DECL:
-      _ty = ASTTy::Create(Ty::STRING, std::vector<ASTNodePtr>());
+      _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
       parse_get_decl();
       break;
     default:
@@ -150,7 +150,7 @@ static void init_abort(CompilerSession *cs) {
   /// fn abort() : void;
   if (!abort_func) {
     Type *ret_type = cs->get_builder()->getVoidTy();
-    std::vector<Type *> arg_types{};
+    vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
   }
@@ -161,7 +161,7 @@ static void init_noop(CompilerSession *cs) {
   if (!func) {
     /// fn llvm.donothing() : void;
     Type *ret_type = cs->get_builder()->getVoidTy();
-    std::vector<Type *> arg_types{};
+    vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }

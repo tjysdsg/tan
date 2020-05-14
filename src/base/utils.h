@@ -4,10 +4,10 @@
 #include <string>
 #include "src/base/container.h"
 
-inline std::vector<str> flag_to_list(const str &flag, const str &delimiter = ",") {
+inline vector<str> flag_to_list(const str &flag, const str &delimiter = ",") {
   size_t last = 0;
   size_t next = 0;
-  std::vector<str> results;
+  vector<str> results;
   while ((next = flag.find(delimiter, last)) != str::npos) {
     results.push_back(flag.substr(last, next - last));
     last = next + 1;

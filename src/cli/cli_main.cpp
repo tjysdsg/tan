@@ -51,7 +51,7 @@ int cli_main(int argc, char **argv) {
                                            "tan, a fucking amazing programming language\n");
 
   /// tan source files
-  std::vector<str> source_files;
+  vector<str> source_files;
   source_files.reserve(opt_source_files.size());
   /*
    * split by space
@@ -68,10 +68,10 @@ int cli_main(int argc, char **argv) {
     }
   }
 
-  std::vector<char *> tan_files;
+  vector<char *> tan_files;
   tan_files.reserve(source_files.size());
   /// cxx
-  std::vector<const char *> cxx_files;
+  vector<const char *> cxx_files;
   cxx_files.reserve(source_files.size());
   for (size_t i = 0; i < source_files.size(); ++i) {
     bool is_cxx = false;
@@ -86,14 +86,14 @@ int cli_main(int argc, char **argv) {
   }
 
   /// files to link to
-  std::vector<const char *> link_files;
+  vector<const char *> link_files;
   link_files.reserve(opt_link_libraries.size());
   std::for_each(opt_link_libraries.begin(),
       opt_link_libraries.end(),
       [&link_files](const str &s) { link_files.push_back(s.c_str()); });
 
   /// import search dirs
-  std::vector<const char *> import_dirs;
+  vector<const char *> import_dirs;
   import_dirs.reserve(opt_import_dirs.size());
   std::for_each(opt_import_dirs.begin(),
       opt_import_dirs.end(),

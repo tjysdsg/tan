@@ -29,7 +29,7 @@ public:
    * \brief Import search directories
    * \details This is set by compile_files() in libtanc.h
    * */
-  static inline std::vector<str> import_dirs{};
+  static inline vector<str> import_dirs{};
 
   /**
    * \brief Current compile configuration
@@ -43,7 +43,7 @@ public:
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
    * */
-  static std::vector<str> resolve_import(const str &callee_path, const str &import_name);
+  static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
 private:
   /**
@@ -55,7 +55,7 @@ private:
    * \brief Compiler instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
    * */
-  static inline std::vector<std::shared_ptr<Compiler>> sub_compilers{};
+  static inline vector<std::shared_ptr<Compiler>> sub_compilers{};
   static inline TargetMachine *target_machine = nullptr;
 
 public:

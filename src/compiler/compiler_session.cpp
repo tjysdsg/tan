@@ -8,7 +8,7 @@
 using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
-  _scope = std::vector<std::shared_ptr<Scope>>();
+  _scope = vector<std::shared_ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
@@ -195,7 +195,7 @@ void CompilerSession::AddPublicFunction(const str &filename, ASTNodePtr func) {
   pf[filename]->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
+vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
@@ -213,7 +213,7 @@ void CompilerSession::add_function(ASTNodePtr func) {
   _function_table->set(f);
 }
 
-std::vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
+vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 

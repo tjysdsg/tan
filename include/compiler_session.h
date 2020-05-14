@@ -21,7 +21,7 @@ class ASTLoop;
 class CompilerSession final {
 public:
   static void AddPublicFunction(const str &filename, ASTNodePtr func);
-  static std::vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
+  static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
 
 private:
   /**
@@ -99,7 +99,7 @@ public:
    * call CompilerSession::AddPublicFunction
    * */
   void add_function(ASTNodePtr func);
-  std::vector<ASTFunctionPtr> get_functions(const str &name);
+  vector<ASTFunctionPtr> get_functions(const str &name);
   std::shared_ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(std::shared_ptr<ASTLoop>);
 
@@ -112,8 +112,8 @@ private:
   LLVMContext *_context = nullptr;
   IRBuilder<> *_builder = nullptr;
   Module *_module = nullptr;
-  std::vector<std::shared_ptr<Scope>> _scope{};
-  std::vector<DIScope *> _di_scope{};
+  vector<std::shared_ptr<Scope>> _scope{};
+  vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;

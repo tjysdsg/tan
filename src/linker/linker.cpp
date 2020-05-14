@@ -8,18 +8,18 @@ namespace tanlang {
 
 Linker::Linker() : _exe("clang") {}
 
-void Linker::add_files(std::vector<str> filenames) {
+void Linker::add_files(vector<str> filenames) {
   _input_files.insert(_input_files.end(), filenames.begin(), filenames.end());
 }
 
 bool Linker::link() {
-  std::vector<str> args{};
+  vector<str> args{};
   args.insert(args.end(), _exe);
   args.insert(args.end(), "-cc");
   args.insert(args.end(), "-stdlib=libc++"); /// link to libc++ by default
   args.insert(args.end(), _input_files.begin(), _input_files.end());
   args.insert(args.end(), _flags.begin(), _flags.end());
-  std::vector<const char *> cargs{};
+  vector<const char *> cargs{};
   for (const auto &a : args) {
     if (a.length() == 0) { continue; }
     cargs.push_back(a.c_str());
@@ -33,7 +33,7 @@ void Linker::add_flag(str flag) {
   _flags.push_back(flag);
 }
 
-void Linker::add_flags(std::vector<str> flags) {
+void Linker::add_flags(vector<str> flags) {
   _flags.insert(_flags.begin(), flags.begin(), flags.end());
 }
 
