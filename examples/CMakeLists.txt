@@ -10,9 +10,9 @@ foreach (example_dir ${EXAMPLES})
         add_custom_target(example_${example_name} ALL DEPENDS tanc runtime
                 SOURCES ${tan_srcs}
                 COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -I${CMAKE_CURRENT_LIST_DIR}
-                -l${PROJECT_SOURCE_DIR}/runtime/runtime.so --obj ${tan_srcs_str}
+                -l${PROJECT_SOURCE_DIR}/runtime/runtime.so ${tan_srcs_str}
                 COMMENT "${PROJECT_SOURCE_DIR}/bin/tanc -I${CMAKE_CURRENT_LIST_DIR}
-                -l${PROJECT_SOURCE_DIR}/runtime/runtime.so --obj ${tan_srcs_str}"
+                -l${PROJECT_SOURCE_DIR}/runtime/runtime.so ${tan_srcs_str}"
                 WORKING_DIRECTORY ${example_dir}
                 )
     endif ()

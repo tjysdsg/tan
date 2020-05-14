@@ -115,4 +115,6 @@ endif ()
 add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
 
 # ===== examples =====
-add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+if (${BUILD_EXAMPLES})
+    add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+endif ()
