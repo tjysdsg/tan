@@ -24,6 +24,21 @@
 #define END_TRY
 #endif
 
+static std::string opt_level_to_string(TanOptLevel l) {
+  switch (l) {
+    case O0:
+      return "-O0";
+    case O1:
+      return "-O1";
+    case O2:
+      return "-O2";
+    case O3:
+      return "-O3";
+    default:
+      TAN_ASSERT(false);
+  }
+}
+
 static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
@@ -42,22 +57,7 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
   } else if (config->type == DLIB) {
     linker.add_flags({"-shared"});
   }
-  switch (config->opt_level) {
-    case O0:
-      linker.add_flag("-O0");
-      break;
-    case O1:
-      linker.add_flag("-O1");
-      break;
-    case O2:
-      linker.add_flag("-O2");
-      break;
-    case O3:
-      linker.add_flag("-O3");
-      break;
-    default:
-      TAN_ASSERT(false);
-  }
+  linker.add_flag(opt_level_to_string(config->opt_level));
   return linker.link();
 }
 

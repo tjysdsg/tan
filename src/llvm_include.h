@@ -138,7 +138,6 @@
 #include <llvm/Option/ArgList.h>
 #include <llvm/Option/OptTable.h>
 #include <llvm/Option/Option.h>
-#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
@@ -184,7 +183,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/ToolDrivers/llvm-dlltool/DlltoolDriver.h>
 #include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
-namespace cl = llvm::cl;
+#include <clang/CodeGen/CodeGenAction.h>
 
 namespace tanlang {
 

@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "src/llvm_include.h"
+#include <iostream>
+#include "libtanc.h"
 #include <memory>
 #include <set>
 #include <system_error>
@@ -294,7 +296,7 @@ static int ExecuteCC1Tool(SmallVectorImpl<const char *> &ArgV) {
   return 1;
 }
 
-int clang_main(int argc_, const char **argv_) {
+int main0(int argc_, const char **argv_) {
   noteBottomOfStack();
   llvm::InitLLVM X(argc_, argv_);
   size_t argv_offset = (strcmp(argv_[1], "-cc1") == 0 || strcmp(argv_[1], "-cc1as") == 0) ? 0 : 1;
@@ -504,4 +506,38 @@ int clang_main(int argc_, const char **argv_) {
   // If we have multiple failing commands, we return the result of the first
   // failing command.
   return Res;
+}
+
+int clang_main(int argc, const char **argv) {
+  auto ret = main0(argc, argv);
+  llvm::cl::ResetCommandLineParser();
+  return ret;
+}
+
+int clang_compile(std::vector<const char *> input_files, TanCompilation *config) {
+  std::vector<const char *> args;
+  args.reserve(input_files.size() + 2 * config->n_import_dirs + 1);
+  args.push_back("clang");
+  args.insert(args.end(), input_files.begin(), input_files.end());
+  for (size_t i = 0; i < config->n_import_dirs; ++i) {
+    args.push_back("-I");
+    args.push_back(config->import_dirs[i]);
+  }
+  args.push_back("-c");
+
+  llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diag_id(new clang::DiagnosticIDs());
+  auto diag_options = new clang::DiagnosticOptions();
+  clang::DiagnosticsEngine
+      diag_engine(diag_id, diag_options, new clang::TextDiagnosticPrinter(llvm::errs(), diag_options));
+  auto clang_or_err = llvm::sys::findProgramByName("clang");
+  if (!clang_or_err) {
+    std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
+    return 1;
+  }
+  clang::driver::Driver driver(clang_or_err.get(), llvm::sys::getDefaultTargetTriple(), diag_engine);
+
+  auto *compilation = driver.BuildCompilation(args);
+  SmallVector<std::pair<int, const Command *>, 0> failing_commands;
+  if (compilation) { return driver.ExecuteCompilation(*compilation, failing_commands); }
+  return 1;
 }

@@ -6,14 +6,10 @@
 
 namespace tanlang {
 
-// TODO: optimise Reader for speed
 void Reader::open(const std::string &filename) {
-  if (!fs::exists(filename)) { throw std::runtime_error("Source file " + filename + " doesn't exist"); }
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
-  if (!ifs) {
-    throw std::runtime_error("Cannot open file: " + filename);
-  }
+  if (!ifs) { throw std::runtime_error("Cannot open file: " + filename); }
   // read the whole file at once
   std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   // count the number of lines
