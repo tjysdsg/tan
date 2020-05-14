@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "src/llvm_include.h"
+#include "base.h"
 #include <iostream>
 #include "libtanc.h"
 #include <memory>
@@ -529,7 +530,7 @@ int clang_compile(std::vector<const char *> input_files, TanCompilation *config)
   auto diag_options = new clang::DiagnosticOptions();
   clang::DiagnosticsEngine
       diag_engine(diag_id, diag_options, new clang::TextDiagnosticPrinter(llvm::errs(), diag_options));
-  auto clang_or_err = llvm::sys::findProgramByName("clang");
+  auto clang_or_err = llvm::sys::findProgramByName("clang", {__STR__(LLVM_BIN_DIR)});
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
     return 1;

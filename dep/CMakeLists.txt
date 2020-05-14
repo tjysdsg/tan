@@ -253,3 +253,9 @@ set(DEP_LIB_DIRS
         ${CLANG_LIBDIRS}
         ${DEP_DIR}/libbacktrace/.libs
         PARENT_SCOPE)
+
+if (NOT LLVM_TOOLS_BINARY_DIR)
+    message(FATAL_ERROR "Cannot find LLVM binary dir")
+endif ()
+set(LLVM_BIN_DIR "${LLVM_TOOLS_BINARY_DIR}" PARENT_SCOPE)
+message(DEBUG "LLVM binary dir found at: ${LLVM_BIN_DIR}")

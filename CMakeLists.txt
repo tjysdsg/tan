@@ -19,9 +19,6 @@ option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build"
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 
-# generate include/config.h using include/config.h.in
-configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
-
 # use static linking whenever possible
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
 
@@ -41,6 +38,18 @@ if (CCACHE_FOUND)
     message(STATUS "ccache found, enabling it for faster rebuilding...")
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif (CCACHE_FOUND)
+
+# ================================ thirdparty dependencies ========================== #
+# googletest
+add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
+# others in dep/
+add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
+include_directories(${DEP_INCLUDES})
+link_directories(${DEP_LIB_DIRS})
+# =================================================================================== #
+
+# generate include/config.h using include/config.h.in
+configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
 macro(set_other_options target_name)
     message(DEBUG "Generating target: ${target_name}")
@@ -64,15 +73,6 @@ macro(set_other_options target_name)
     set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 endmacro()
-
-# ================================ thirdparty dependencies ========================== #
-# googletest
-add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
-# others in dep/
-add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
-include_directories(${DEP_INCLUDES})
-link_directories(${DEP_LIB_DIRS})
-# =================================================================================== #
 
 # common source files shared by multiple targets
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
