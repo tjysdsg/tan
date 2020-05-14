@@ -24,7 +24,7 @@
 #define END_TRY
 #endif
 
-static std::string opt_level_to_string(TanOptLevel l) {
+static str opt_level_to_string(TanOptLevel l) {
   switch (l) {
     case O0:
       return "-O0";
@@ -39,7 +39,7 @@ static std::string opt_level_to_string(TanOptLevel l) {
   }
 }
 
-static bool _link(std::vector<std::string> input_paths, TanCompilation *config) {
+static bool _link(std::vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
     std::vector<const char *> args = {"ar", "rcs", config->out_file};
@@ -50,7 +50,7 @@ static bool _link(std::vector<std::string> input_paths, TanCompilation *config) 
   using tanlang::Linker;
   Linker linker;
   linker.add_files(input_paths);
-  linker.add_flag("-o" + std::string(config->out_file));
+  linker.add_flag("-o" + str(config->out_file));
   if (config->type == EXE) {
     /// default flags
     linker.add_flags({"-fPIE"});
@@ -66,15 +66,15 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   bool print_ast = config->verbose >= 2;
 
   /// input files
-  std::vector<std::string> files;
+  std::vector<str> files;
   files.reserve(n_files);
-  for (size_t i = 0; i < n_files; ++i) { files.push_back(std::string(input_paths[i])); }
+  for (size_t i = 0; i < n_files; ++i) { files.push_back(str(input_paths[i])); }
   /// config
   Compiler::compile_config = *config;
   /// import dirs
   Compiler::import_dirs.reserve(config->n_import_dirs);
   for (size_t i = 0; i < config->n_import_dirs; ++i) {
-    Compiler::import_dirs.push_back(std::string(config->import_dirs[i]));
+    Compiler::import_dirs.push_back(str(config->import_dirs[i]));
   }
 
   /// Compiler instances
@@ -104,7 +104,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
 
   /// link
-  for (size_t i = 0; i < config->n_link_files; ++i) { files.push_back(std::string(config->link_files[i])); }
+  for (size_t i = 0; i < config->n_link_files; ++i) { files.push_back(str(config->link_files[i])); }
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) { std::cerr << "Error linking files\n"; }

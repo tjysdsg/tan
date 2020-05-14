@@ -80,10 +80,10 @@ Token *tokenize_comments(Reader *reader, cursor &start) {
     // loop for each line
     while (static_cast<size_t>(forward.l) < reader->size()) {
       auto re = std::regex(R"(.*\*\/)");
-      auto str = reader->substr(forward);
+      auto s = reader->substr(forward);
       std::smatch result;
-      if (std::regex_match(str, result, re)) {
-        std::string value = str.substr(2, static_cast<size_t>(result.length(0) - 4));
+      if (std::regex_match(s, result, re)) {
+        str value = s.substr(2, static_cast<size_t>(result.length(0) - 4));
         t = new Token(TokenType::COMMENTS, value, start, &reader->get_line(start.l));
         forward.c = static_cast<size_t>(result.length(0));
         start = forward;
@@ -181,12 +181,12 @@ Token *tokenize_char(Reader *reader, cursor &start) {
   if (forward > end) {
     report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete character literal");
   } else {
-    std::string value = reader->substr(reader->forward(start), forward); // not including the single quotes
+    str value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
       if (value.length() != 2) {
         report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
       }
-      value = std::string(1, escape_char(value[1]));
+      value = str(1, escape_char(value[1]));
     } else if (value.length() != 1) {
       report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
     }
@@ -211,8 +211,8 @@ Token *tokenize_string(Reader *reader, cursor &start) {
   if (forward > end) {
     report_code_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete string literal");
   } else {
-    std::string value = reader->substr(reader->forward(start), forward); // not including the double quotes
-    std::string escaped = "";
+    str value = reader->substr(reader->forward(start), forward); // not including the double quotes
+    str escaped = "";
     size_t l = value.length();
     size_t start_i = 0;
     size_t i = 0;
@@ -245,13 +245,13 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
   } else if (*start == '"') { /// string literal
     t = tokenize_string(reader, start);
   } else if (std::find(OP.begin(), OP.end(), *start) != OP.end()) { /// operators
-    std::string value;
+    str value;
     {
       cursor nnext = reader->forward(next);
       cursor nnnext = reader->forward(nnext);
       cursor back_ptr = reader->end();
-      std::string two = reader->substr(start, nnext);
-      std::string three = reader->substr(start, reader->forward(nnext));
+      str two = reader->substr(start, nnext);
+      str three = reader->substr(start, reader->forward(nnext));
 
       if (next < back_ptr && nnext < back_ptr
           && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
@@ -264,7 +264,7 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
         }
       } else {
         /// operator containing one chars
-        value = std::string{*start};
+        value = str{*start};
         TAN_ASSERT(OPERATION_VALUE_TYPE_MAP.find(value) != OPERATION_VALUE_TYPE_MAP.end());
         start = next;
       }
@@ -274,7 +274,7 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
     t = new Token(type, value, start, &reader->get_line(lineno));
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION, std::string(1, *start), start, &reader->get_line(lineno));
+    t = new Token(TokenType::PUNCTUATION, str(1, *start), start, &reader->get_line(lineno));
     start = next;
   } else {
     t = nullptr;

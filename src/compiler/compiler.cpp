@@ -12,7 +12,7 @@ Compiler::~Compiler() {
   delete _compiler_session;
 }
 
-Compiler::Compiler(const std::string &filename) : _filename(filename) {
+Compiler::Compiler(const str &filename) : _filename(filename) {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -20,7 +20,7 @@ Compiler::Compiler(const std::string &filename) : _filename(filename) {
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
   auto target_triple = llvm::sys::getDefaultTargetTriple();
-  std::string error;
+  str error;
   auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
   if (!target) { throw std::runtime_error(error); }
   if (!Compiler::target_machine) {
@@ -34,7 +34,7 @@ Compiler::Compiler(const std::string &filename) : _filename(filename) {
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
 }
 
-void Compiler::emit_object(const std::string &filename) { _compiler_session->emit_object(filename); }
+void Compiler::emit_object(const str &filename) { _compiler_session->emit_object(filename); }
 
 Value *Compiler::codegen() {
   TAN_ASSERT(_ast);
@@ -60,11 +60,11 @@ void Compiler::parse() {
   Reader reader;
   reader.open(_filename);
   auto tokens = tokenize(&reader);
-  auto *parser = new Parser(tokens, std::string(_filename), _compiler_session);
+  auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
 }
 
-void Compiler::ParseFile(const std::string &filename) {
+void Compiler::ParseFile(const str &filename) {
   auto compiler = std::make_shared<Compiler>(filename);
   compiler->parse();
   Compiler::sub_compilers.push_back(compiler);
@@ -75,8 +75,8 @@ TargetMachine *Compiler::GetDefaultTargetMachine() {
   return Compiler::target_machine;
 }
 
-std::vector<std::string> Compiler::resolve_import(const std::string &callee_path, const std::string &import_name) {
-  std::vector<std::string> ret{};
+std::vector<str> Compiler::resolve_import(const str &callee_path, const str &import_name) {
+  std::vector<str> ret{};
   auto import_path = fs::path(import_name);
   /// search relative to callee's path
   {

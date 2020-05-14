@@ -26,7 +26,7 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
   }
 
   /// get function name
-  std::string func_name = this->get_name();
+  str func_name = this->get_name();
   /// function implementation
   if (!_is_external) {
     /// create a new basic block to start insertion into

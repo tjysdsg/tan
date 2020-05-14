@@ -10,7 +10,7 @@
 
 namespace tanlang {
 
-std::unordered_map<std::string, IntrinsicType>
+std::unordered_map<str, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},
     {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
@@ -134,8 +134,8 @@ size_t Intrinsic::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-std::string Intrinsic::to_string(bool print_prefix) const {
-  std::string ret;
+str Intrinsic::to_string(bool print_prefix) const {
+  str ret;
   if (print_prefix) {
     ret = ASTNode::to_string(print_prefix) + " ";
   }

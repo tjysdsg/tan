@@ -49,8 +49,8 @@ Value *ASTArrayLiteral::codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-std::string ASTArrayLiteral::to_string(bool print_prefix) const {
-  std::string ret;
+str ASTArrayLiteral::to_string(bool print_prefix) const {
+  str ret;
   if (print_prefix) { ret = ASTLiteral::to_string(true) + " "; }
   ret += "[";
   size_t i = 0;

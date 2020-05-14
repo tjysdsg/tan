@@ -1,9 +1,7 @@
 #ifndef TAN_LEXDEF_H
 #define TAN_LEXDEF_H
+#include "base.h"
 #include <array>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace tanlang {
 
@@ -25,25 +23,25 @@ enum class TokenType {
   BOP,         /// binary operator
 };
 
-extern std::unordered_map<TokenType, std::string> token_type_names;
-extern const std::vector<std::string> KEYWORDS;
+extern std::unordered_map<TokenType, str> token_type_names;
+extern const std::vector<str> KEYWORDS;
 extern const std::vector<char> PUNCTUATIONS;
 // any symbol in OP can both be an operator itself or the start of an operator
 extern const std::vector<char> OP;
-extern const std::vector<std::string> OP_ALL;
-extern std::unordered_map<std::string, TokenType> OPERATION_VALUE_TYPE_MAP;
+extern const std::vector<str> OP_ALL;
+extern std::unordered_map<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 struct Token {
   TokenType type = TokenType::END;
-  std::string value = "";
+  str value = "";
   size_t l = 0, c = 0;
   line_info *line = nullptr;
   bool is_unsigned = false;
 
   Token() = default;
   ~Token() = default;
-  Token(TokenType tokenType, std::string value, const cursor &cursor, const line_info *line);
-  [[nodiscard]] std::string to_string() const;
+  Token(TokenType tokenType, str value, const cursor &cursor, const line_info *line);
+  [[nodiscard]] str to_string() const;
   std::ostream &operator<<(std::ostream &os) const;
 };
 

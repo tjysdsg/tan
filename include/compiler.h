@@ -1,5 +1,6 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
+#include "base.h"
 #include "src/llvm_include.h"
 #include "libtanc.h"
 
@@ -17,7 +18,7 @@ public:
   /**
    * \brief Parse a single file to AST
    * */
-  static void ParseFile(const std::string &filename);
+  static void ParseFile(const str &filename);
 
   /**
    * \brief Get information about the current machine
@@ -28,7 +29,7 @@ public:
    * \brief Import search directories
    * \details This is set by compile_files() in libtanc.h
    * */
-  static inline std::vector<std::string> import_dirs{};
+  static inline std::vector<str> import_dirs{};
 
   /**
    * \brief Current compile configuration
@@ -42,13 +43,13 @@ public:
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
    * */
-  static std::vector<std::string> resolve_import(const std::string &callee_path, const std::string &import_name);
+  static std::vector<str> resolve_import(const str &callee_path, const str &import_name);
 
 private:
   /**
    * \brief CompilerSession object of each source file
    * */
-  static inline std::unordered_map<std::string, CompilerSession *> sessions{};
+  static inline std::unordered_map<str, CompilerSession *> sessions{};
 
   /**
    * \brief Compiler instances created due to import statements
@@ -62,7 +63,7 @@ public:
   /**
    * \brief Create a Compiler instance with its relevant source file name/path
    * */
-  explicit Compiler(const std::string &filename);
+  explicit Compiler(const str &filename);
   ~Compiler();
 
   /**
@@ -79,7 +80,7 @@ public:
    * \brief Emit object files
    * \details A file called "<filename>.o" will be created in the current working directory
    * */
-  void emit_object(const std::string &filename);
+  void emit_object(const str &filename);
 
   /**
    * \brief Print LLVM IR code
@@ -94,7 +95,7 @@ public:
 private:
   CompilerSession *_compiler_session = nullptr; /// wrapper for various LLVM classes
   std::shared_ptr<ASTNode> _ast = nullptr;
-  std::string _filename = "";
+  str _filename = "";
 };
 
 } // namespace tanlang

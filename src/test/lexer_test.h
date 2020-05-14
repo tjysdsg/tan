@@ -12,7 +12,7 @@ using tanlang::tokenize;
 using tanlang::TokenType;
 
 TEST(tokenize, empty) {
-  std::string code = "";
+  str code = "";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
@@ -20,7 +20,7 @@ TEST(tokenize, empty) {
 }
 
 TEST(tokenize, line_comment) {
-  std::string code = "// this is a comment";
+  str code = "// this is a comment";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
@@ -34,7 +34,7 @@ TEST(tokenize, line_comment) {
 }
 
 TEST(tokenize, string_literal) {
-  std::string code = "\"hello world, motherfucker dsfs \nshit \t\"";
+  str code = "\"hello world, motherfucker dsfs \nshit \t\"";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
@@ -48,11 +48,11 @@ TEST(tokenize, string_literal) {
 }
 
 TEST(tokenize, string_literal_escape) {
-  std::vector<std::string>
+  std::vector<str>
       input = {R"raw("\"hello world")raw", R"raw("\\")raw", R"raw("\n")raw", R"raw("he says, \"fuck you\"\n")raw"};
-  std::vector<std::string> output = {"\"hello world", "\\", "\n", "he says, \"fuck you\"\n"};
+  std::vector<str> output = {"\"hello world", "\\", "\n", "he says, \"fuck you\"\n"};
   for (size_t i = 0; i < input.size(); ++i) {
-    std::string code = input[i];
+    str code = input[i];
     Reader r;
     r.from_string(code);
     auto result = tokenize(&r);
@@ -67,10 +67,10 @@ TEST(tokenize, string_literal_escape) {
 }
 
 TEST(tokenize, char_literal) {
-  std::vector<std::string> input = {"'\\\\'", "'\\n'", "'\\t'", "'\\''", "'\\\"'"};
-  std::vector<std::string> output = {"\\", "\n", "\t", "'", "\""};
+  std::vector<str> input = {"'\\\\'", "'\\n'", "'\\t'", "'\\''", "'\\\"'"};
+  std::vector<str> output = {"\\", "\n", "\t", "'", "\""};
   for (size_t i = 0; i < input.size(); ++i) {
-    std::string code = input[i];
+    str code = input[i];
     Reader r;
     r.from_string(code);
     auto result = tokenize(&r);
@@ -85,7 +85,7 @@ TEST(tokenize, char_literal) {
 }
 
 TEST(tokenize, block_comment) {
-  std::string code = "/* this is a comment */";
+  str code = "/* this is a comment */";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
@@ -99,7 +99,7 @@ TEST(tokenize, block_comment) {
 }
 
 TEST(tokenize, number_literal) {
-  std::string code = "0b10010111 + 0xaBFd,-,-10,4.2";
+  str code = "0b10010111 + 0xaBFd,-,-10,4.2";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);
@@ -118,7 +118,7 @@ TEST(tokenize, number_literal) {
 }
 
 TEST(tokenize, number_literal1) {
-  std::string code = "1u + 2. - 3.0";
+  str code = "1u + 2. - 3.0";
   Reader r;
   r.from_string(code);
   auto result = tokenize(&r);

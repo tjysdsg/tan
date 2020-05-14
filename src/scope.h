@@ -1,7 +1,6 @@
 #ifndef TAN_SRC_AST_SCOPE_H_
 #define TAN_SRC_AST_SCOPE_H_
-#include <unordered_map>
-#include <string>
+#include "base.h"
 #include <memory>
 
 namespace tanlang {
@@ -10,7 +9,7 @@ class ASTNode;
 using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 struct Scope {
-  std::unordered_map<std::string, ASTNodePtr> _named{}; /// named identifiers in this scope
+  std::unordered_map<str, ASTNodePtr> _named{}; /// named identifiers in this scope
 };
 
 } // namespace tanlang

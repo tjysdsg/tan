@@ -7,7 +7,7 @@
 
 namespace tanlang {
 
-std::string ASTNode::to_string(bool print_prefix) const {
+str ASTNode::to_string(bool print_prefix) const {
   if (print_prefix) { return ast_type_names[this->_type]; }
   else { return ""; }
 }
@@ -21,7 +21,7 @@ void ASTNode::printTree() const {
   }
 }
 
-void ASTNode::printTree(const std::string &prefix, bool last_child) const {
+void ASTNode::printTree(const str &prefix, bool last_child) const {
   using std::cout;
 
   cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
@@ -34,8 +34,8 @@ void ASTNode::printTree(const std::string &prefix, bool last_child) const {
   }
 }
 
-std::string ASTNode::get_src() const {
-  std::string ret = "";
+str ASTNode::get_src() const {
+  str ret = "";
   for (size_t i = _start_index; i < _end_index; ++i) {
     ret += _parser->at(i)->value;
     if (i < _end_index - 1) {
@@ -87,8 +87,8 @@ Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
   else { return nullptr; }
 }
 
-std::string ASTNode::get_name() const { return _name; }
-std::string ASTNode::get_type_name() const { return _ty->get_type_name(); }
+str ASTNode::get_name() const { return _name; }
+str ASTNode::get_type_name() const { return _ty->get_type_name(); }
 std::shared_ptr<ASTTy> ASTNode::get_ty() const { return _ty; }
 llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) const { return _ty->to_llvm_type(cs); }
 llvm::Value *ASTNode::get_llvm_value(CompilerSession *) const { return _llvm_value; }
@@ -96,7 +96,7 @@ llvm::Value *ASTNode::get_llvm_value(CompilerSession *) const { return _llvm_val
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
-std::unordered_map<ASTType, std::string> ast_type_names
+std::unordered_map<ASTType, str> ast_type_names
     {MAKE_ASTTYPE_NAME_PAIR(PROGRAM), MAKE_ASTTYPE_NAME_PAIR(STATEMENT), MAKE_ASTTYPE_NAME_PAIR(SUM),
         MAKE_ASTTYPE_NAME_PAIR(SUBTRACT), MAKE_ASTTYPE_NAME_PAIR(MULTIPLY), MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
         MAKE_ASTTYPE_NAME_PAIR(MOD), MAKE_ASTTYPE_NAME_PAIR(ASSIGN), MAKE_ASTTYPE_NAME_PAIR(STRUCT_DECL),

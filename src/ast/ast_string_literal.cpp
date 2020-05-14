@@ -16,7 +16,7 @@ ASTStringLiteral::ASTStringLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::ST
     t,
     ti) { _svalue = t->value; }
 
-ASTStringLiteral::ASTStringLiteral(const std::string &str, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
+ASTStringLiteral::ASTStringLiteral(const str &str, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
     op_precedence[ASTType::STRING_LITERAL],
     0,
     nullptr,
@@ -28,6 +28,6 @@ size_t ASTStringLiteral::nud() {
   return _end_index;
 }
 
-std::string ASTStringLiteral::get_string() const { return _svalue; }
+str ASTStringLiteral::get_string() const { return _svalue; }
 
 } // namespace tanlang

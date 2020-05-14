@@ -31,8 +31,8 @@ void ASTNumberLiteral::resolve() {
 
 bool tanlang::ASTNumberLiteral::is_float() const { return _is_float; }
 
-std::string ASTNumberLiteral::to_string(bool print_prefix) const {
-  std::string ret = "";
+str ASTNumberLiteral::to_string(bool print_prefix) const {
+  str ret = "";
   if (print_prefix) {
     ret += ASTLiteral::to_string(print_prefix) + " ";
   }
@@ -69,7 +69,7 @@ ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral
   resolve();
 }
 
-ASTNumberLiteral::ASTNumberLiteral(const std::string &str, bool is_float, Token *token, size_t token_index)
+ASTNumberLiteral::ASTNumberLiteral(const str &str, bool is_float, Token *token, size_t token_index)
     : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index) {
   _is_float = is_float;
   if (is_float) { _fvalue = std::stof(str); }

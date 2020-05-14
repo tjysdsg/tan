@@ -22,7 +22,7 @@ public:
   llvm::Type *get_element_llvm_type(CompilerSession *) const;
   size_t get_n_elements() const;
   llvm::Value *codegen(CompilerSession *compiler_session) override;
-  std::string to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) const override;
 
 protected:
   size_t nud() override;

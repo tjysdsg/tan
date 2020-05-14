@@ -10,7 +10,7 @@ void FunctionTable::set(ASTFunctionPtr func) {
   _table[name].push_back(func);
 }
 
-std::vector<ASTFunctionPtr> FunctionTable::get(const std::string &name) {
+std::vector<ASTFunctionPtr> FunctionTable::get(const str &name) {
   std::vector<ASTFunctionPtr> ret{};
   if (_table.find(name) != _table.end()) {
     ret.insert(ret.end(), _table[name].begin(), _table[name].end());

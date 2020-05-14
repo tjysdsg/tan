@@ -58,12 +58,12 @@ public:
 public:
   llvm::Value *codegen(CompilerSession *) override { return nullptr; }
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
-  std::string to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
   llvm::Value *get_llvm_value(CompilerSession *) const override;
 
 public:
-  std::string get_type_name() const;
+  str get_type_name() const;
   bool is_lvalue() const override;
   bool is_typed() const override;
   ASTTyPtr get_contained_ty() const;
@@ -87,11 +87,11 @@ public:
   // avoid name collisions
   Ty _tyty = Ty::INVALID;
   // use variant to prevent non-trivial destructor problem
-  std::variant<std::string, uint64_t, float, double> _default_value;
+  std::variant<str, uint64_t, float, double> _default_value;
 
 protected:
   void resolve();
-  mutable std::string _type_name = "";
+  mutable str _type_name = "";
   mutable llvm::Type *_llvm_type = nullptr;
 
 private:

@@ -6,12 +6,12 @@
 
 namespace tanlang {
 
-void Reader::open(const std::string &filename) {
+void Reader::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
   if (!ifs) { throw std::runtime_error("Cannot open file: " + filename); }
   // read the whole file at once
-  std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+  str content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   // count the number of lines
   size_t n_lines = (size_t) std::count(content.begin(), content.end(), '\n');
   // reserve memory ahead
@@ -19,8 +19,8 @@ void Reader::open(const std::string &filename) {
   from_string(content);
 }
 
-void Reader::from_string(const std::string &code) {
-  std::string line;
+void Reader::from_string(const str &code) {
+  str line;
   size_t lineno = 0;
   size_t line_start = 0;
   line_info *new_line = nullptr;
@@ -36,7 +36,7 @@ void Reader::from_string(const std::string &code) {
       // delete whitespace at the beginning of the line
       for (size_t i = 0; i < line.length(); ++i) {
         if (!std::isspace(line[i])) {
-          new_line->code = std::string(line.begin() + (long) i, line.end());
+          new_line->code = str(line.begin() + (long) i, line.end());
           break;
         }
       }
@@ -46,7 +46,7 @@ void Reader::from_string(const std::string &code) {
   }
 }
 
-std::string Reader::substr(const cursor &start, cursor end) const {
+str Reader::substr(const cursor &start, cursor end) const {
   TAN_ASSERT(start.l != (size_t) -1 && start.c != (size_t) -1);
   // if end can contain -1 only if l and c are both -1
   TAN_ASSERT(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
@@ -56,7 +56,7 @@ std::string Reader::substr(const cursor &start, cursor end) const {
   }
   auto s_row = start.l;
   auto e_row = end.l;
-  std::string ret;
+  str ret;
   if (s_row == e_row) {
     TAN_ASSERT(start.c != end.c);
     ret = _lines[s_row]->code.substr(start.c, end.c - start.c);
@@ -100,7 +100,7 @@ char Reader::at(const cursor &ptr) const {
   return _lines[ptr.l]->code[ptr.c];
 }
 
-std::string Reader::substr(const cursor &start) const {
+str Reader::substr(const cursor &start) const {
   return substr(start, this->end());
 }
 

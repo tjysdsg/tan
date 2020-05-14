@@ -59,7 +59,7 @@ ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTTy(token, token_inde
   _tyty = Ty::STRUCT;
 }
 
-size_t ASTStruct::get_member_index(std::string name) {
+size_t ASTStruct::get_member_index(str name) {
   if (_member_indices.find(name) == _member_indices.end()) {
     throw std::runtime_error("Unknown member of struct '" + get_type_name() + "'");
   }

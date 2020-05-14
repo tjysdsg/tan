@@ -83,7 +83,7 @@ enum class ASTType {
 };
 
 /// get string representation of ASTType
-extern std::unordered_map<ASTType, std::string> ast_type_names;
+extern std::unordered_map<ASTType, str> ast_type_names;
 
 /// operator precedence for tokens
 extern std::unordered_map<ASTType, int> op_precedence;
@@ -119,18 +119,18 @@ public:
   /**
    * \brief Get original source for a AST node.
    * */
-  std::string get_src() const;
+  str get_src() const;
 
 public:
-  std::string get_name() const;
-  std::string get_type_name() const;
+  str get_name() const;
+  str get_type_name() const;
   std::shared_ptr<ASTTy> get_ty() const;
 
 public:
   virtual llvm::Type *to_llvm_type(CompilerSession *) const;
   virtual llvm::Value *get_llvm_value(CompilerSession *) const;
   virtual llvm::Value *codegen(CompilerSession *compiler_session);
-  virtual std::string to_string(bool print_prefix = true) const;
+  virtual str to_string(bool print_prefix = true) const;
   virtual bool is_typed() const { return false; }
   virtual bool is_named() const { return false; }
   virtual bool is_lvalue() const { return false; }
@@ -141,12 +141,12 @@ protected:
   [[nodiscard]] virtual size_t nud();
 
 private:
-  void printTree(const std::string &prefix, bool last_child) const;
+  void printTree(const str &prefix, bool last_child) const;
 
 protected:
   mutable llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
-  std::string _name = "";
+  str _name = "";
   bool _parsed = false;
   size_t _start_index = 0;
   size_t _end_index = 0;

@@ -45,14 +45,14 @@ static void print_back_trace() {
 
 namespace tanlang {
 
-void report_code_error(const std::string &source, size_t line, size_t col, const std::string &error_message) {
-  std::string error_output =
-      "[ERROR] at LINE" + std::to_string(line) + ": " + error_message + "\n" + source + "\n" + std::string(col, ' ')
+void report_code_error(const str &source, size_t line, size_t col, const str &error_message) {
+  str error_output =
+      "[ERROR] at LINE" + std::to_string(line) + ": " + error_message + "\n" + source + "\n" + str(col, ' ')
           + "^";
   throw std::runtime_error(error_output);
 }
 
-void report_code_error(Token *token, const std::string &error_message) {
+void report_code_error(Token *token, const str &error_message) {
   report_code_error(token->line->code, token->l, token->c, error_message);
 }
 
