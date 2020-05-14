@@ -16,7 +16,7 @@ public:
   vector<ASTFunctionPtr> get_all() const;
 
 private:
-  std::unordered_map<str, vector<ASTFunctionPtr>> _table{};
+  umap<str, vector<ASTFunctionPtr>> _table{};
 };
 
 using FunctionTablePtr = std::shared_ptr<FunctionTable>;

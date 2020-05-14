@@ -1,7 +1,6 @@
 #ifndef __TAN_SRC_AST_AST_STRUCT_H__
 #define __TAN_SRC_AST_AST_STRUCT_H__
 #include "src/ast/ast_ty.h"
-#include <unordered_map>
 
 namespace tanlang {
 
@@ -27,7 +26,7 @@ protected:
   size_t nud() override;
 
 private:
-  std::unordered_map<str, size_t> _member_indices{};
+  umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
 };
 

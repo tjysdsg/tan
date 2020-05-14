@@ -10,7 +10,7 @@
 
 namespace tanlang {
 
-std::unordered_map<str, IntrinsicType>
+umap<str, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},
     {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
@@ -150,7 +150,7 @@ static void init_abort(CompilerSession *cs) {
   /// fn abort() : void;
   if (!abort_func) {
     Type *ret_type = cs->get_builder()->getVoidTy();
-    vector<Type *> arg_types{};
+    vector < Type * > arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
   }
@@ -161,7 +161,7 @@ static void init_noop(CompilerSession *cs) {
   if (!func) {
     /// fn llvm.donothing() : void;
     Type *ret_type = cs->get_builder()->getVoidTy();
-    vector<Type *> arg_types{};
+    vector < Type * > arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }

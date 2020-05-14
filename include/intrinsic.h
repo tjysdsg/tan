@@ -49,7 +49,7 @@ enum class IntrinsicType {
 class Intrinsic : public ASTNode {
 public:
   static inline llvm::Function *abort_function = nullptr;
-  static std::unordered_map<str, IntrinsicType> intrinsics;
+  static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
 
 public:

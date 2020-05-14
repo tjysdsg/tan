@@ -47,7 +47,7 @@ public:
   static std::shared_ptr<ASTTy> Create(Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
 
 private:
-  static inline std::unordered_map<Ty, ASTTyPtr> _cache{};
+  static inline umap<Ty, ASTTyPtr> _cache{};
   static ASTTyPtr find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue);
 
 public:

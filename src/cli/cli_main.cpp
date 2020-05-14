@@ -25,8 +25,7 @@ int cli_main(int argc, char **argv) {
       cmd::value_desc("<source files>"),
       cmd::OneOrMore,
       cmd::cat(cl_category));
-  cmd::list<str>
-      opt_import_dirs("I", cmd::desc("Import search directories"), cmd::Prefix, cmd::cat(cl_category));
+  cmd::list<str> opt_import_dirs("I", cmd::desc("Import search directories"), cmd::Prefix, cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ir_code("print-ir", cmd::desc("Print LLVM IR code"), cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ast("print-ast", cmd::desc("Print abstract syntax tree"), cmd::cat(cl_category));
   cmd::opt<TanCompileType> opt_output_type(cmd::desc("Output type"),

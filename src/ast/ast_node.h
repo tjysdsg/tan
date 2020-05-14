@@ -83,10 +83,10 @@ enum class ASTType {
 };
 
 /// get string representation of ASTType
-extern std::unordered_map<ASTType, str> ast_type_names;
+extern umap<ASTType, str> ast_type_names;
 
 /// operator precedence for tokens
-extern std::unordered_map<ASTType, int> op_precedence;
+extern umap<ASTType, int> op_precedence;
 
 class ASTNode {
 public:

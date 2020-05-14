@@ -9,7 +9,7 @@ class ASTNode;
 using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 struct Scope {
-  std::unordered_map<str, ASTNodePtr> _named{}; /// named identifiers in this scope
+  umap<str, ASTNodePtr> _named{}; /// named identifiers in this scope
 };
 
 } // namespace tanlang

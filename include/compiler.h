@@ -49,7 +49,7 @@ private:
   /**
    * \brief CompilerSession object of each source file
    * */
-  static inline std::unordered_map<str, CompilerSession *> sessions{};
+  static inline umap<str, CompilerSession *> sessions{};
 
   /**
    * \brief Compiler instances created due to import statements

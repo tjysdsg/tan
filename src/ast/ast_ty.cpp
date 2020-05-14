@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-std::unordered_map<str, Ty> basic_tys =
+umap<str, Ty> basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
         {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
@@ -17,8 +17,7 @@ std::unordered_map<str, Ty> basic_tys =
         {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
         {"bool", Ty::BOOL},};
 
-std::unordered_map<str, Ty>
-    qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+umap<str, Ty> qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
 ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   auto find = ASTTy::_cache.find(t);

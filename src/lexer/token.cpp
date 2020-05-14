@@ -4,7 +4,7 @@
 namespace tanlang {
 
 /// map TokenType to string
-std::unordered_map<TokenType, str> token_type_names
+umap<TokenType, str> token_type_names
     {{TokenType::COMMENTS, "COMMENTS"}, {TokenType::KEYWORD, "KEYWORD"}, {TokenType::INT, "INT"},
         {TokenType::FLOAT, "FLOAT"}, {TokenType::ID, "ID"}, {TokenType::CHAR, "CHAR"}, {TokenType::STRING, "STRING"},
         {TokenType::PUNCTUATION, "PUNCTUATION"}, {TokenType::RELOP, "RELOP"}, {TokenType::UOP, "UOP"},
@@ -26,7 +26,7 @@ const vector<str> OP_ALL
     {"==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=",
         "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 
-std::unordered_map<str, TokenType> OPERATION_VALUE_TYPE_MAP{
+umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     // RELOP
     std::pair("==", TokenType::RELOP), std::pair("!=", TokenType::RELOP), std::pair(">=", TokenType::RELOP),
     std::pair("<=", TokenType::RELOP), std::pair(">", TokenType::RELOP), std::pair("<", TokenType::RELOP),

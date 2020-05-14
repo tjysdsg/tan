@@ -28,7 +28,7 @@ private:
    * \brief Function table for each source files
    * \details filename -> (function name -> FunctionTable)
    * */
-  static inline std::unordered_map<str, FunctionTablePtr> public_func{};
+  static inline umap<str, FunctionTablePtr> public_func{};
 
 public:
   CompilerSession &operator=(const CompilerSession &) = delete;

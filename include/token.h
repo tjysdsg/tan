@@ -23,13 +23,13 @@ enum class TokenType {
   BOP,         /// binary operator
 };
 
-extern std::unordered_map<TokenType, str> token_type_names;
+extern umap<TokenType, str> token_type_names;
 extern const vector<str> KEYWORDS;
 extern const vector<char> PUNCTUATIONS;
 // any symbol in OP can both be an operator itself or the start of an operator
 extern const vector<char> OP;
 extern const vector<str> OP_ALL;
-extern std::unordered_map<str, TokenType> OPERATION_VALUE_TYPE_MAP;
+extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 struct Token {
   TokenType type = TokenType::END;
