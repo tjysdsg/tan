@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   CI_master:
@@ -17,9 +20,12 @@ jobs:
 
     steps:
       - name: checkout
-        run: git clone https://github.com/tjysdsg/tan --recursive
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.sha }}
+          submodules: 'recursive'
       - name: compile all and test all
-        run: cd tan; bash scripts/compile.sh
+        run: bash scripts/compile.sh
       - name: upload coverage results
         shell: bash
         env:
