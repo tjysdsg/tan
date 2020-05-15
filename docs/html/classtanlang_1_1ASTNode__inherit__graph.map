@@ -1,0 +1,34 @@
+<map id="tanlang::ASTNode" name="tanlang::ASTNode">
+<area shape="rect" id="node1" title=" " alt="" coords="5,461,144,488"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ASTAmpersand.html" title=" " alt="" coords="205,5,382,32"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBreakContinue.html" title=" " alt="" coords="193,56,393,83"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTElse.html" title=" " alt="" coords="228,107,359,133"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1ASTFunction.html" title="Function prototype or definition." alt="" coords="214,157,373,184"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ASTFunctionCall.html" title="Call to a known function (or intrinsic function)" alt="" coords="201,208,385,235"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1ASTIdentifier.html" title=" " alt="" coords="212,259,375,285"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1ASTIf.html" title=" " alt="" coords="237,309,350,336"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1ASTImport.html" title=" " alt="" coords="220,360,367,387"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1ASTInfixBinaryOp.html" title=" " alt="" coords="197,411,389,437"/>
+<area shape="rect" id="node15" href="$classtanlang_1_1ASTLiteral.html" title="dummy, all literal types inherit from this class" alt="" coords="221,461,366,488"/>
+<area shape="rect" id="node20" href="$classtanlang_1_1ASTLoop.html" title=" " alt="" coords="226,512,361,539"/>
+<area shape="rect" id="node21" href="$classtanlang_1_1ASTMemberAccess.html" title=" " alt="" coords="192,563,395,589"/>
+<area shape="rect" id="node22" href="$classtanlang_1_1ASTParenthesis.html" title=" " alt="" coords="204,613,383,640"/>
+<area shape="rect" id="node23" href="$classtanlang_1_1ASTPrefix.html" title=" " alt="" coords="223,664,364,691"/>
+<area shape="rect" id="node26" href="$classtanlang_1_1ASTProgram.html" title=" " alt="" coords="214,715,373,741"/>
+<area shape="rect" id="node27" href="$classtanlang_1_1ASTStatement.html" title=" " alt="" coords="207,765,379,792"/>
+<area shape="rect" id="node28" href="$classtanlang_1_1ASTTy.html" title=" " alt="" coords="234,816,353,843"/>
+<area shape="rect" id="node30" href="$classtanlang_1_1ASTVarDecl.html" title="Variable and its declaration." alt="" coords="216,867,371,893"/>
+<area shape="rect" id="node32" href="$classtanlang_1_1Intrinsic.html" title=" " alt="" coords="228,917,359,944"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1ASTArithmetic.html" title="Arithmetic operators, + &#45; * /." alt="" coords="456,259,627,285"/>
+<area shape="rect" id="node12" href="$classtanlang_1_1ASTAssignment.html" title=" " alt="" coords="451,309,631,336"/>
+<area shape="rect" id="node13" href="$classtanlang_1_1ASTCast.html" title="Explicit cast." alt="" coords="475,360,607,387"/>
+<area shape="rect" id="node14" href="$classtanlang_1_1ASTCompare.html" title=" " alt="" coords="460,411,623,437"/>
+<area shape="rect" id="node16" href="$classtanlang_1_1ASTArrayLiteral.html" title="Array type." alt="" coords="452,461,631,488"/>
+<area shape="rect" id="node17" href="$classtanlang_1_1ASTCharLiteral.html" title=" " alt="" coords="454,512,629,539"/>
+<area shape="rect" id="node18" href="$classtanlang_1_1ASTNumberLiteral.html" title=" " alt="" coords="443,563,640,589"/>
+<area shape="rect" id="node19" href="$classtanlang_1_1ASTStringLiteral.html" title=" " alt="" coords="450,613,633,640"/>
+<area shape="rect" id="node24" href="$classtanlang_1_1ASTNot.html" title=" " alt="" coords="478,664,605,691"/>
+<area shape="rect" id="node25" href="$classtanlang_1_1ASTReturn.html" title=" " alt="" coords="468,715,615,741"/>
+<area shape="rect" id="node29" href="$classtanlang_1_1ASTStruct.html" title="Struct type." alt="" coords="470,816,613,843"/>
+<area shape="rect" id="node31" href="$classtanlang_1_1ASTArgDecl.html" title="Argument declaration." alt="" coords="464,867,619,893"/>
+</map>

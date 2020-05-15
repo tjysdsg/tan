@@ -1,0 +1,8 @@
+<map id="tanlang::ASTLiteral" name="tanlang::ASTLiteral">
+<area shape="rect" id="node1" title="dummy, all literal types inherit from this class" alt="" coords="192,81,337,108"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTArrayLiteral.html" title="Array type." alt="" coords="395,5,573,32"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTCharLiteral.html" title=" " alt="" coords="397,56,571,83"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1ASTNumberLiteral.html" title=" " alt="" coords="385,107,583,133"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ASTStringLiteral.html" title=" " alt="" coords="393,157,575,184"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ASTNode.html" title=" " alt="" coords="5,81,144,108"/>
+</map>

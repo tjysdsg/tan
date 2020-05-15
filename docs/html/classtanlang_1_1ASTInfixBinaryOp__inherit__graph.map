@@ -1,0 +1,8 @@
+<map id="tanlang::ASTInfixBinaryOp" name="tanlang::ASTInfixBinaryOp">
+<area shape="rect" id="node1" title=" " alt="" coords="284,80,476,107"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTArithmetic.html" title="Arithmetic operators, + &#45; * /." alt="" coords="5,155,176,181"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTAssignment.html" title=" " alt="" coords="201,155,381,181"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1ASTCast.html" title="Explicit cast." alt="" coords="405,155,537,181"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ASTCompare.html" title=" " alt="" coords="561,155,724,181"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ASTNode.html" title=" " alt="" coords="311,5,449,32"/>
+</map>
