@@ -19,6 +19,7 @@ int cli_main(int argc, char **argv) {
       ("o", cmd::desc("Output filename"), cmd::value_desc("output"), cmd::init("a.out"), cmd::cat(cl_category));
   cmd::list<str> opt_link_libraries
       ("l", cmd::desc("Libraries to link against"), cmd::value_desc("libraries"), cmd::Prefix, cmd::cat(cl_category));
+  cmd::list<str> opt_library_path("L", cmd::desc("Library search path"), cmd::Prefix, cmd::cat(cl_category));
   cmd::list<str> opt_source_files(cmd::Positional,
       cmd::Required,
       cmd::desc("Files to compile"),
@@ -84,6 +85,13 @@ int cli_main(int argc, char **argv) {
     else { tan_files.push_back(c_cast(char*, source_files[i].c_str())); } /// tan files
   }
 
+  /// lib dirs
+  vector<const char *> lib_dirs;
+  lib_dirs.reserve(opt_library_path.size());
+  std::for_each(opt_library_path.begin(), opt_library_path.end(), [&lib_dirs](const str &s) {
+    lib_dirs.push_back(s.c_str());
+  });
+
   /// files to link to
   vector<const char *> link_files;
   link_files.reserve(opt_link_libraries.size());
@@ -103,6 +111,13 @@ int cli_main(int argc, char **argv) {
   config.type = EXE;
   config.out_file = opt_output_file.c_str();
   config.verbose = 0;
+  if (lib_dirs.empty()) {
+    config.lib_dirs = nullptr;
+    config.n_lib_dirs = 0;
+  } else {
+    config.lib_dirs = lib_dirs.data();
+    config.n_lib_dirs = lib_dirs.size();
+  }
   if (link_files.empty()) {
     config.link_files = nullptr;
     config.n_link_files = 0;

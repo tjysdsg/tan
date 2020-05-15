@@ -13,8 +13,8 @@ public:
   TanCTests(const str &filename) : _filename(filename) {}
   void TestBody() override {
     vector<const char *> cmd
-        {"tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR), _filename.c_str(),
-            "-lruntime/runtime.so"};
+        {"tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR), _filename.c_str(), "-lruntime",
+            "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime"};
     int argc = static_cast<int>(cmd.size());
     auto *argv = c_cast(char**, cmd.data());
     EXPECT_EQ(0, cli_main(argc, argv));

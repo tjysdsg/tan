@@ -52,6 +52,8 @@ struct TanCompilation {
   const char *out_file = "a.out"; /// Output filename, invalid if TanCompilation::type is set to OBJ
   size_t n_link_files = 0; /// Number of files to link against
   const char *const *link_files = nullptr; /// Files to link against
+  size_t n_lib_dirs = 0; /// Number of library search path to link against
+  const char *const *lib_dirs = nullptr; /// Library search paths
   size_t n_import_dirs = 0; /// Number of import search paths
   const char *const *import_dirs = nullptr; /// Search import paths
   // TODO: output platform, architecture, ...

@@ -514,6 +514,7 @@ int clang_main(int argc, const char **argv) {
 }
 
 int clang_compile(vector<const char *> input_files, TanCompilation *config) {
+  // TODO: Optimization level
   vector<const char *> args;
   args.reserve(input_files.size() + 2 * config->n_import_dirs + 1);
   args.push_back("clang");

@@ -2,7 +2,6 @@
 #include "compiler.h"
 #include "lexer.h"
 #include "linker.h"
-#include "parser.h"
 #include "base.h"
 #include "src/lib/llvm-ar.h"
 
@@ -57,6 +56,16 @@ static bool _link(vector<str> input_paths, TanCompilation *config) {
   } else if (config->type == DLIB) {
     linker.add_flags({"-shared"});
   }
+  /// -L
+  for (size_t i = 0; i < config->n_lib_dirs; ++i) {
+    auto p = fs::absolute(fs::path(config->lib_dirs[i]));
+    linker.add_flag("-L" + p.string());
+    linker.add_flag("-Wl,-rpath," + p.string());
+  }
+  /// -l
+  for (size_t i = 0; i < config->n_link_files; ++i) {
+    linker.add_flag("-l" + std::string(config->link_files[i]));
+  }
   linker.add_flag(opt_level_to_string(config->opt_level));
   return linker.link();
 }
@@ -104,7 +113,6 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
 
   /// link
-  for (size_t i = 0; i < config->n_link_files; ++i) { files.push_back(str(config->link_files[i])); }
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) { std::cerr << "Error linking files\n"; }
