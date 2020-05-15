@@ -14,7 +14,7 @@ public:
   void TestBody() override {
     vector<const char *> cmd
         {"tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR), _filename.c_str(), "-lruntime",
-            "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime"};
+            "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-o", "a.out"};
     int argc = static_cast<int>(cmd.size());
     auto *argv = c_cast(char**, cmd.data());
     EXPECT_EQ(0, cli_main(argc, argv));

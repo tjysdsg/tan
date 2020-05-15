@@ -68,10 +68,10 @@ int cli_main(int argc, char **argv) {
     }
   }
 
-  vector<char *> tan_files;
+  vector<str> tan_files;
   tan_files.reserve(source_files.size());
   /// cxx
-  vector<const char *> cxx_files;
+  vector<str> cxx_files;
   cxx_files.reserve(source_files.size());
   for (size_t i = 0; i < source_files.size(); ++i) {
     bool is_cxx = false;
@@ -81,57 +81,39 @@ int cli_main(int argc, char **argv) {
         is_cxx |= std::equal(source_files[i].rbegin(), source_files[i].rbegin() + (long) n, s.rbegin(), s.rend());
       }
     });
-    if (is_cxx) { cxx_files.push_back(source_files[i].c_str()); } /// cxx files
-    else { tan_files.push_back(c_cast(char*, source_files[i].c_str())); } /// tan files
+    if (is_cxx) { cxx_files.push_back(source_files[i]); } /// cxx files
+    else { tan_files.push_back(source_files[i]); } /// tan files
   }
 
   /// lib dirs
-  vector<const char *> lib_dirs;
+  vector<str> lib_dirs;
   lib_dirs.reserve(opt_library_path.size());
-  std::for_each(opt_library_path.begin(), opt_library_path.end(), [&lib_dirs](const str &s) {
-    lib_dirs.push_back(s.c_str());
+  std::for_each(opt_library_path.begin(), opt_library_path.end(), [&lib_dirs](const auto &s) {
+    lib_dirs.push_back(s);
   });
 
   /// files to link to
-  vector<const char *> link_files;
+  vector<str> link_files;
   link_files.reserve(opt_link_libraries.size());
   std::for_each(opt_link_libraries.begin(),
       opt_link_libraries.end(),
-      [&link_files](const str &s) { link_files.push_back(s.c_str()); });
+      [&link_files](const auto &s) { link_files.push_back(s); });
 
   /// import search dirs
-  vector<const char *> import_dirs;
+  vector<str> import_dirs;
   import_dirs.reserve(opt_import_dirs.size());
   std::for_each(opt_import_dirs.begin(),
       opt_import_dirs.end(),
-      [&import_dirs](const str &s) { import_dirs.push_back(s.c_str()); });
+      [&import_dirs](const auto &s) { import_dirs.push_back(s); });
 
   /// build config
   TanCompilation config;
   config.type = EXE;
-  config.out_file = opt_output_file.c_str();
+  config.out_file = opt_output_file;
   config.verbose = 0;
-  if (lib_dirs.empty()) {
-    config.lib_dirs = nullptr;
-    config.n_lib_dirs = 0;
-  } else {
-    config.lib_dirs = lib_dirs.data();
-    config.n_lib_dirs = lib_dirs.size();
-  }
-  if (link_files.empty()) {
-    config.link_files = nullptr;
-    config.n_link_files = 0;
-  } else {
-    config.n_link_files = link_files.size();
-    config.link_files = link_files.data();
-  }
-  if (import_dirs.empty()) {
-    config.import_dirs = nullptr;
-    config.n_import_dirs = 0;
-  } else {
-    config.n_import_dirs = import_dirs.size();
-    config.import_dirs = import_dirs.data();
-  }
+  config.lib_dirs = lib_dirs;
+  config.link_files = link_files;
+  config.import_dirs = import_dirs;
 
   /// output type
   config.type = opt_output_type.getValue();
@@ -151,13 +133,14 @@ int cli_main(int argc, char **argv) {
     if (err_code) { return err_code; }
     /// add cxx object files
     size_t n = cxx_files.size();
-    vector<const char *> obj_files{};
+    vector<str> obj_files{};
     obj_files.reserve(n);
     for (size_t i = 0; i < n; ++i) {
       auto p = fs::path(str(cxx_files[i])).replace_extension(".o").filename();
-      obj_files.push_back(p.c_str());
+      obj_files.push_back(p.string());
     }
-    source_files.insert(source_files.end(), obj_files.begin(), obj_files.end());
+    tan_files.insert(tan_files.end(), obj_files.begin(), obj_files.end());
   }
-  return !compile_files((unsigned) tan_files.size(), tan_files.data(), &config);
+
+  return !compile_files(tan_files, &config);
 }

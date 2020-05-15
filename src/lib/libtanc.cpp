@@ -41,7 +41,7 @@ static str opt_level_to_string(TanOptLevel l) {
 static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
-    vector<const char *> args = {"ar", "rcs", config->out_file};
+    vector<const char *> args = {"ar", "rcs", config->out_file.c_str()};
     std::for_each(input_paths.begin(), input_paths.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
     return !llvm_ar_main((int) args.size(), c_cast(char **, args.data()));
   }
@@ -57,45 +57,48 @@ static bool _link(vector<str> input_paths, TanCompilation *config) {
     linker.add_flags({"-shared"});
   }
   /// -L
-  for (size_t i = 0; i < config->n_lib_dirs; ++i) {
+  size_t n_lib_dirs = config->lib_dirs.size();
+  for (size_t i = 0; i < n_lib_dirs; ++i) {
     auto p = fs::absolute(fs::path(config->lib_dirs[i]));
     linker.add_flag("-L" + p.string());
     linker.add_flag("-Wl,-rpath," + p.string());
   }
   /// -l
-  for (size_t i = 0; i < config->n_link_files; ++i) {
+  size_t n_link_files = config->link_files.size();
+  for (size_t i = 0; i < n_link_files; ++i) {
     linker.add_flag("-l" + std::string(config->link_files[i]));
   }
   linker.add_flag(opt_level_to_string(config->opt_level));
   return linker.link();
 }
 
-bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config) {
+bool compile_files(vector<str> input_paths, TanCompilation *config) {
   bool print_ir_code = config->verbose >= 1;
   bool print_ast = config->verbose >= 2;
 
   /// input files
+  size_t n_files = input_paths.size();
   vector<str> files;
   files.reserve(n_files);
   vector<str> obj_files;
   obj_files.reserve(n_files);
   for (size_t i = 0; i < n_files; ++i) {
     if (fs::path(input_paths[i]).extension() == ".tan") {
-      files.push_back(str(input_paths[i]));
+      files.push_back(input_paths[i]);
     } else if (fs::path(input_paths[i]).extension() == ".o") {
-      obj_files.push_back(str(input_paths[i]));
+      obj_files.push_back(input_paths[i]);
     } else {
       std::cerr << "Unknown file extension: " << input_paths[i] << "\n";
       return false;
     }
   }
+  n_files = files.size();
   /// config
   Compiler::compile_config = *config;
   /// import dirs
-  Compiler::import_dirs.reserve(config->n_import_dirs);
-  for (size_t i = 0; i < config->n_import_dirs; ++i) {
-    Compiler::import_dirs.push_back(str(config->import_dirs[i]));
-  }
+  size_t n_import = config->import_dirs.size();
+  Compiler::import_dirs.reserve(n_import);
+  Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
 
   /// Compiler instances
   vector<std::shared_ptr<Compiler>> compilers{};

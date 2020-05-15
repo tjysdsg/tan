@@ -513,15 +513,16 @@ int clang_main(int argc, const char **argv) {
   return ret;
 }
 
-int clang_compile(vector<const char *> input_files, TanCompilation *config) {
+int clang_compile(vector<str> input_files, TanCompilation *config) {
   // TODO: Optimization level
   vector<const char *> args;
-  args.reserve(input_files.size() + 2 * config->n_import_dirs + 1);
+  size_t n_import = config->import_dirs.size();
+  args.reserve(input_files.size() + 2 * +1);
   args.push_back("clang");
-  args.insert(args.end(), input_files.begin(), input_files.end());
-  for (size_t i = 0; i < config->n_import_dirs; ++i) {
+  std::for_each(input_files.begin(), input_files.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
+  for (size_t i = 0; i < n_import; ++i) {
     args.push_back("-I");
-    args.push_back(config->import_dirs[i]);
+    args.push_back(config->import_dirs[i].c_str());
   }
   args.push_back("-c");
 
