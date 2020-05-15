@@ -15,30 +15,25 @@ macro(enable_tests)
     set_other_options(lexer_tests)
 
     # tanc tests
-    set(TANC_ALL_TESTS "lexer_tests")
     file(GLOB TAN_TEST_SRCS ${TEST_DIR}/test_src/*.tan)
     set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
-    foreach (tts ${TAN_TEST_SRCS})
-        get_filename_component(test_name ${tts} NAME_WLE)
-        set(test_target_name "test_tanc_${test_name}")
-        add_executable(${test_target_name}
-                ${TEST_DIR}/tanc_tests.cpp
-                ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
-        set_other_options(${test_target_name})
-        target_link_libraries(${test_target_name} tan gtest)
-        target_compile_definitions(${test_target_name} PRIVATE
-                -DTAN_SOURCE=${tts}
-                -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-                -DTAN_TEST_NAME=${test_name})
-        add_dependencies(${test_target_name} runtime)
-        set(TANC_ALL_TESTS ${TANC_ALL_TESTS} ${test_target_name})
-    endforeach ()
+    add_executable(tanc_tests ${TEST_DIR}/tanc_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
+    set_other_options(tanc_tests)
+    target_link_libraries(tanc_tests tan gtest)
+    target_compile_definitions(tanc_tests PRIVATE
+            -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
+            )
+    add_dependencies(tanc_tests runtime)
 
     # tests target
-    add_custom_target(tests ALL DEPENDS ${TANC_ALL_TESTS})
-    foreach (tt ${TANC_ALL_TESTS})
+    add_custom_target(tests ALL DEPENDS lexer_tests tanc_tests)
+    add_custom_command(TARGET tests POST_BUILD
+            COMMAND ${PROJECT_SOURCE_DIR}/bin/lexer_tests
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            )
+    foreach (tt ${TAN_TEST_SRCS})
         add_custom_command(TARGET tests POST_BUILD
-                COMMAND ${PROJECT_SOURCE_DIR}/bin/${tt}
+                COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc_tests ${tt}
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 )
     endforeach ()
