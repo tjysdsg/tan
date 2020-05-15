@@ -125,6 +125,7 @@ public:
   str get_name() const;
   str get_type_name() const;
   std::shared_ptr<ASTTy> get_ty() const;
+  str get_source_location() const;
 
 public:
   virtual llvm::Type *to_llvm_type(CompilerSession *) const;

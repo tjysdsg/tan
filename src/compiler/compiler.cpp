@@ -32,6 +32,7 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
+  Intrinsic::Init(_compiler_session);
 }
 
 void Compiler::emit_object(const str &filename) { _compiler_session->emit_object(filename); }

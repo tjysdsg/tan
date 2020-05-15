@@ -133,7 +133,7 @@
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  ++_start_index;</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">void</span> Intrinsic::determine_type() {</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="keywordtype">void</span> Intrinsic::resolve() {</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="keyword">auto</span> *token = _parser-&gt;at(_start_index);</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordflow">if</span> (Intrinsic::intrinsics.find(token-&gt;value) == Intrinsic::intrinsics.end()) {</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    report_code_error(_token, <span class="stringliteral">&quot;Invalid intrinsic&quot;</span>);</div>
@@ -178,7 +178,7 @@
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;}</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160; </div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keywordtype">size_t</span> Intrinsic::nud() {</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  determine_type();</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  resolve();</div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="keywordflow">if</span> (_children.size() &gt;= 1) {</div>
 <div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    TAN_ASSERT(_children.size() == 1);</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    _end_index = _children[0]-&gt;parse(_parser, _cs);</div>
@@ -189,7 +189,7 @@
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keywordtype">size_t</span> Intrinsic::led(<span class="keyword">const</span> ASTNodePtr &amp;left) {</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  determine_type();</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  resolve();</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keywordflow">if</span> (_children.size() &gt;= 1) {</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    _end_index = _children[0]-&gt;parse(left, _parser, _cs);</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  } <span class="keywordflow">else</span> {</div>

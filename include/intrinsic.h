@@ -1,7 +1,6 @@
 #ifndef __TAN_INCLUDE_INTRINSIC_H__
 #define __TAN_INCLUDE_INTRINSIC_H__
 #include "src/ast/ast_node.h"
-#include "base.h"
 #include <memory>
 
 namespace llvm {
@@ -51,6 +50,7 @@ public:
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
+  static void Init(CompilerSession *);
 
 public:
   Intrinsic() = delete;
@@ -63,7 +63,7 @@ public:
   bool is_typed() const override;
 
 protected:
-  void determine_type();
+  void resolve();
   void parse_get_decl();
 
 protected:

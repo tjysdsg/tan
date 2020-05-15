@@ -93,6 +93,14 @@ std::shared_ptr<ASTTy> ASTNode::get_ty() const { return _ty; }
 llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) const { return _ty->to_llvm_type(cs); }
 llvm::Value *ASTNode::get_llvm_value(CompilerSession *) const { return _llvm_value; }
 
+str ASTNode::get_source_location() const {
+  TAN_ASSERT(_parser);
+  TAN_ASSERT(_token);
+  str ret = _parser->get_filename();
+  ret += ":" + std::to_string(_token->l);
+  return ret;
+}
+
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 

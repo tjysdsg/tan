@@ -23,7 +23,7 @@ size_t ASTVarDecl::_nud() {
     _is_type_resolved = true;
   } else { _ty = nullptr; }
   _children.push_back(_ty);
-  _cs->add(this->get_name(), this->shared_from_this());
+  _cs->add(this->get_name(), this->shared_from_this()); // FIXME: Remove this line?
   return _end_index;
 }
 

@@ -25,6 +25,9 @@ using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
  * */
 class ASTFunction final : public ASTNode, public std::enable_shared_from_this<ASTFunction> {
 public:
+  static ASTFunctionPtr CreateExtern(const str &name, vector<ASTTyPtr> types);
+
+public:
   ASTFunction(Token *token, size_t token_index);
   llvm::Value *codegen(CompilerSession *) override;
   llvm::Value *codegen_prototype(CompilerSession *, bool import = false);

@@ -4,6 +4,9 @@
 
 namespace tanlang {
 
+class ASTArgDecl;
+using ASTArgDeclPtr = std::shared_ptr<ASTArgDecl>;
+
 /**
  * \brief Argument declaration
  *
@@ -11,6 +14,9 @@ namespace tanlang {
  * immediately. In contrast, the type of a variable can be omitted if it can be inferred.
  * */
 class ASTArgDecl final : public ASTVarDecl {
+public:
+  static ASTArgDeclPtr Create(const str &name, ASTTyPtr ty);
+
 public:
   ASTArgDecl() = delete;
   ASTArgDecl(Token *token, size_t token_index);

@@ -1,15 +1,15 @@
 #include "src/ast/ast_func.h"
+#include "src/ast/ast_string_literal.h"
 #include "src/ast/ast_arg_decl.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_ty.h"
 #include "parser.h"
 #include "reader.h"
 #include "token.h"
-#include "intrinsic.h"
 #include "compiler_session.h"
 #include "src/type_system.h"
 
-namespace tanlang {
+using namespace tanlang;
 
 Value *ASTFunction::codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
@@ -311,4 +311,18 @@ ASTFunctionCall::ASTFunctionCall(Token *t, size_t ti) : ASTNode(ASTType::FUNC_CA
 
 ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
-} // namespace tanlang
+ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types) {
+  TAN_ASSERT(types.size() >= 1);
+  auto ret = std::make_shared<ASTFunction>(nullptr, 0);
+  ret->_children.reserve(types.size() + 1);
+  ret->_children.push_back(types[0]);
+  ret->_children.push_back(ASTStringLiteral::Create(name));
+  if (types.size() > 1) {
+    ret->_children.insert(ret->_children.end(), types.begin() + 1, types.end());
+  }
+  ret->_parsed = true;
+  ret->_is_external = true;
+  ret->_is_public = false;
+  ret->_name = name;
+  return ret;
+}

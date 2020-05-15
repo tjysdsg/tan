@@ -7,13 +7,14 @@
 #include "src/ast/ast_ty.h"
 #include "src/compiler/stack_trace.h"
 #include "token.h"
+#include <iostream>
 
 namespace tanlang {
 
 umap<str, IntrinsicType>
     Intrinsic::intrinsics{{"abort", IntrinsicType::ABORT}, {"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP},
     {"memset", IntrinsicType::MEMSET}, {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE},
-    {"compile_print", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
+    {"compprint", IntrinsicType::COMP_PRINT}, {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO},
     {"define", IntrinsicType::DEFINE}, {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF},
     {"isa", IntrinsicType::ISA}, {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF},
     {"max_of", IntrinsicType::MAX_OF}, {"is_unsigned", IntrinsicType::IS_UNSIGNED},
@@ -22,6 +23,10 @@ umap<str, IntrinsicType>
 
 static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
+
+void Intrinsic::Init(CompilerSession *cs) {
+  cs->add_function(ASTFunction::CreateExtern("compprint", {ASTTy::Create(Ty::VOID), ASTTy::Create(Ty::STRING)}));
+}
 
 /// add codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *cs) {
@@ -44,10 +49,11 @@ Value *Intrinsic::codegen(CompilerSession *cs) {
       tmp = std::make_shared<ASTStringLiteral>(cs->get(_str_data)->get_src(), _start_index);
       _llvm_value = tmp->codegen(cs);
       break;
-    case IntrinsicType::STACK_TRACE: {
+    case IntrinsicType::STACK_TRACE:
       codegen_print_stack_trace(cs);
       break;
-    }
+    case IntrinsicType::COMP_PRINT:
+      break;
     default:
       TAN_ASSERT(_children.size());
       _llvm_value = _children[0]->codegen(cs);
@@ -72,7 +78,7 @@ void Intrinsic::parse_get_decl() {
   ++_start_index;
 }
 
-void Intrinsic::determine_type() {
+void Intrinsic::resolve() {
   auto *token = _parser->at(_start_index);
   if (Intrinsic::intrinsics.find(token->value) == Intrinsic::intrinsics.end()) {
     report_code_error(_token, "Invalid intrinsic");
@@ -103,6 +109,9 @@ void Intrinsic::determine_type() {
       _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
       parse_get_decl();
       break;
+    case IntrinsicType::COMP_PRINT:
+      underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
+      break;
     default:
       report_code_error(token, "Unknown intrinsic");
   }
@@ -111,21 +120,35 @@ void Intrinsic::determine_type() {
     _rbp = underlying_ast->_rbp;
     _children.push_back(underlying_ast);
   }
+  _parsed = true;
 }
 
 size_t Intrinsic::nud() {
-  determine_type();
+  resolve();
   if (_children.size() >= 1) {
     TAN_ASSERT(_children.size() == 1);
     _end_index = _children[0]->parse(_parser, _cs);
   } else {
     _end_index = _start_index + 1;
   }
+  switch (_intrinsic_type) {
+    case IntrinsicType::COMP_PRINT: {
+      _end_index = _children[0]->parse(_parser, _cs);
+      auto fc = ast_cast<ASTStringLiteral>(_children[0]->_children[0]);
+      if (!fc) {
+        report_code_error(_token, "Invalid call to compprint, one argument with type 'str' required");
+      }
+      std::cout << "Message (" << get_source_location() << "): " << fc->get_string() << "\n";
+      break;
+    }
+    default:
+      break;
+  }
   return _end_index;
 }
 
 size_t Intrinsic::led(const ASTNodePtr &left) {
-  determine_type();
+  resolve();
   if (_children.size() >= 1) {
     _end_index = _children[0]->parse(left, _parser, _cs);
   } else {
@@ -150,7 +173,7 @@ static void init_abort(CompilerSession *cs) {
   /// fn abort() : void;
   if (!abort_func) {
     Type *ret_type = cs->get_builder()->getVoidTy();
-    vector < Type * > arg_types{};
+    vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
   }
@@ -161,7 +184,7 @@ static void init_noop(CompilerSession *cs) {
   if (!func) {
     /// fn llvm.donothing() : void;
     Type *ret_type = cs->get_builder()->getVoidTy();
-    vector < Type * > arg_types{};
+    vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());
   }

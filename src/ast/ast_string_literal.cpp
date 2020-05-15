@@ -24,10 +24,16 @@ ASTStringLiteral::ASTStringLiteral(const str &str, size_t ti) : ASTLiteral(ASTTy
 
 size_t ASTStringLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
-  _ty = ASTTy::Create(Ty::STRING, vector<ASTNodePtr>());
+  _ty = ASTTy::Create(Ty::STRING);
   return _end_index;
 }
 
 str ASTStringLiteral::get_string() const { return _svalue; }
+
+ASTStringLiteralPtr ASTStringLiteral::Create(const str &s) {
+  auto ret = std::make_shared<ASTStringLiteral>(s, 0);
+  ret->_ty = ASTTy::Create(Ty::STRING);
+  return ret;
+}
 
 } // namespace tanlang
