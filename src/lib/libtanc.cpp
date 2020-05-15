@@ -77,7 +77,18 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   /// input files
   vector<str> files;
   files.reserve(n_files);
-  for (size_t i = 0; i < n_files; ++i) { files.push_back(str(input_paths[i])); }
+  vector<str> obj_files;
+  obj_files.reserve(n_files);
+  for (size_t i = 0; i < n_files; ++i) {
+    if (fs::path(input_paths[i]).extension() == ".tan") {
+      files.push_back(str(input_paths[i]));
+    } else if (fs::path(input_paths[i]).extension() == ".o") {
+      obj_files.push_back(str(input_paths[i]));
+    } else {
+      std::cerr << "Unknown file extension: " << input_paths[i] << "\n";
+      return false;
+    }
+  }
   /// config
   Compiler::compile_config = *config;
   /// import dirs
@@ -113,6 +124,7 @@ bool compile_files(unsigned n_files, char **input_paths, TanCompilation *config)
   }
 
   /// link
+  files.insert(files.begin(), obj_files.begin(), obj_files.end());
   if (config->type != OBJ) {
     bool ret = _link(files, config);
     if (!ret) { std::cerr << "Error linking files\n"; }

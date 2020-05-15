@@ -149,15 +149,15 @@ int cli_main(int argc, char **argv) {
     std::cout << "\n";
     auto err_code = clang_compile(cxx_files, &config);
     if (err_code) { return err_code; }
-    /// add cxx object files to -l
-    config.n_link_files += cxx_files.size();
+    /// add cxx object files
     size_t n = cxx_files.size();
+    vector<const char *> obj_files{};
+    obj_files.reserve(n);
     for (size_t i = 0; i < n; ++i) {
       auto p = fs::path(str(cxx_files[i])).replace_extension(".o").filename();
-      cxx_files[i] = p.c_str();
+      obj_files.push_back(p.c_str());
     }
-    link_files.insert(link_files.end(), cxx_files.begin(), cxx_files.end());
-    config.link_files = link_files.data();
+    source_files.insert(source_files.end(), obj_files.begin(), obj_files.end());
   }
   return !compile_files((unsigned) tan_files.size(), tan_files.data(), &config);
 }
