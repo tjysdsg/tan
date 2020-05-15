@@ -216,6 +216,8 @@ size_t ASTFunction::nud() {
       ASTNodePtr arg = std::make_shared<ASTArgDecl>(_parser->at(_end_index), _end_index);
       _end_index = arg->parse(_parser, _cs); /// this will add args to the current scope
       _children.push_back(arg);
+      /// add arg to current scope if function body exists
+      if (!_is_external) { _cs->add(arg->get_name(), arg); }
       if (_parser->at(_end_index)->value == ",") {
         ++_end_index;
       } else { break; }
