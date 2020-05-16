@@ -41,9 +41,7 @@ static str opt_level_to_string(TanOptLevel l) {
 static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
-    vector<const char *> args = {"ar", "rcs", config->out_file.c_str()};
-    std::for_each(input_paths.begin(), input_paths.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
-    return !llvm_ar_main((int) args.size(), c_cast(char **, args.data()));
+    return !llvm_ar_create_static_lib(config->out_file, input_paths);
   }
   /// shared, obj, exe
   using tanlang::Linker;

@@ -1,6 +1,7 @@
 #ifndef __TAN_SRC_LIB_LLVM_AR_H__
 #define __TAN_SRC_LIB_LLVM_AR_H__
+#include "base.h"
 
-extern "C" int llvm_ar_main(int argc, char **argv);
+int llvm_ar_create_static_lib(const str &archive_name, vector<str> objects);
 
 #endif //__TAN_SRC_LIB_LLVM_AR_H__
