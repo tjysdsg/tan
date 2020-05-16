@@ -6,9 +6,9 @@
 <area shape="rect" id="node10" title=" " alt="" coords="448,468,631,509"/>
 <area shape="rect" id="node4" href="$classtanlang_1_1CompilerSession.html" title="Wraps all LLVM classes used for code generation." alt="" coords="5,289,193,316"/>
 <area shape="rect" id="node9" href="$classtanlang_1_1Parser.html" title=" " alt="" coords="584,572,703,599"/>
-<area shape="rect" id="node5" title="STL class." alt="" coords="733,103,820,130"/>
+<area shape="rect" id="node5" title="STL class." alt="" coords="741,103,828,130"/>
 <area shape="rect" id="node7" href="$structtanlang_1_1Token.html" title=" " alt="" coords="648,289,764,316"/>
-<area shape="rect" id="node8" href="$structtanlang_1_1line__info.html" title=" " alt="" coords="709,200,844,227"/>
-<area shape="rect" id="node6" title="STL class." alt="" coords="707,5,846,47"/>
+<area shape="rect" id="node8" href="$structtanlang_1_1SourceLine.html" title=" " alt="" coords="709,200,860,227"/>
+<area shape="rect" id="node6" title="STL class." alt="" coords="715,5,854,47"/>
 <area shape="rect" id="node12" title=" " alt="" coords="414,96,574,137"/>
 </map>

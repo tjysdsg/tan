@@ -16,7 +16,7 @@ namespace tanlang {
    x == '|' || x == '{' || x == '}' || x == '[' || x == ']' || x == '\'' ||    \
    x == '"' || x == ':')
 
-cursor skip_whitespace(Reader *reader, cursor ptr) {
+Cursor skip_whitespace(Reader *reader, Cursor ptr) {
   const auto end = reader->end();
   while (ptr < end && (std::isspace(*ptr) || *ptr == '\0')) {
     ptr = reader->forward(ptr);
@@ -30,7 +30,7 @@ cursor skip_whitespace(Reader *reader, cursor ptr) {
  * \note: Call of tokenize_keyword must before that of
  *      tokenize_id
  */
-Token *tokenize_id(Reader *reader, cursor &start) {
+Token *tokenize_id(Reader *reader, Cursor &start) {
   Token *ret = nullptr;
   auto forward = start;
   const auto end = reader->end();
@@ -48,10 +48,10 @@ Token *tokenize_id(Reader *reader, cursor &start) {
   return ret;
 }
 
-Token *tokenize_keyword(Reader *reader, cursor &start) {
+Token *tokenize_keyword(Reader *reader, Cursor &start) {
   // find whether the value is in KEYWORDS (in token.h/token.cpp) based on
   // returned value of tokenize_id()
-  cursor forward = start;
+  Cursor forward = start;
   auto *t = tokenize_id(reader, forward);
   if (t) {
     if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->value) != KEYWORDS.end()) {
@@ -65,7 +65,7 @@ Token *tokenize_keyword(Reader *reader, cursor &start) {
   return t;
 }
 
-Token *tokenize_comments(Reader *reader, cursor &start) {
+Token *tokenize_comments(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto next = reader->forward(start);
   if (*next == '/') {
@@ -99,7 +99,7 @@ Token *tokenize_comments(Reader *reader, cursor &start) {
   return t;
 }
 
-Token *tokenize_number(Reader *reader, cursor &start) {
+Token *tokenize_number(Reader *reader, Cursor &start) {
   auto forward = start;
   const auto end = reader->end();
   bool is_float = false;
@@ -166,7 +166,7 @@ char escape_char(char c) {
   }
 }
 
-Token *tokenize_char(Reader *reader, cursor &start) {
+Token *tokenize_char(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto forward = reader->forward(start);
   const auto end = reader->end();
@@ -196,7 +196,7 @@ Token *tokenize_char(Reader *reader, cursor &start) {
   return t;
 }
 
-Token *tokenize_string(Reader *reader, cursor &start) {
+Token *tokenize_string(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto forward = reader->forward(start);
   const auto end = reader->end();
@@ -233,7 +233,7 @@ Token *tokenize_string(Reader *reader, cursor &start) {
   return t;
 }
 
-Token *tokenize_punctuation(Reader *reader, cursor &start) {
+Token *tokenize_punctuation(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto next = reader->forward(start);
   size_t lineno = start.l;
@@ -247,9 +247,9 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
   } else if (std::find(OP.begin(), OP.end(), *start) != OP.end()) { /// operators
     str value;
     {
-      cursor nnext = reader->forward(next);
-      cursor nnnext = reader->forward(nnext);
-      cursor back_ptr = reader->end();
+      Cursor nnext = reader->forward(next);
+      Cursor nnnext = reader->forward(nnext);
+      Cursor back_ptr = reader->end();
       str two = reader->substr(start, nnext);
       str three = reader->substr(start, reader->forward(nnext));
 
@@ -283,7 +283,7 @@ Token *tokenize_punctuation(Reader *reader, cursor &start) {
 }
 
 vector<Token *> tokenize(Reader *reader) {
-  cursor start = reader->begin();
+  Cursor start = reader->begin();
   if (reader->size() == 0) { return {}; }
   vector<Token *> tokens;
   const auto end = reader->end();

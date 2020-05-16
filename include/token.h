@@ -5,8 +5,8 @@
 
 namespace tanlang {
 
-struct cursor;
-struct line_info;
+struct Cursor;
+struct SourceLine;
 
 enum class TokenType {
   END = -1,    /// EOF
@@ -35,12 +35,12 @@ struct Token {
   TokenType type = TokenType::END;
   str value = "";
   size_t l = 0, c = 0;
-  line_info *line = nullptr;
+  SourceLine *line = nullptr;
   bool is_unsigned = false;
 
   Token() = default;
   ~Token() = default;
-  Token(TokenType tokenType, str value, const cursor &cursor, const line_info *line);
+  Token(TokenType tokenType, str value, const Cursor &cursor, const SourceLine *line);
   [[nodiscard]] str to_string() const;
   std::ostream &operator<<(std::ostream &os) const;
 };
