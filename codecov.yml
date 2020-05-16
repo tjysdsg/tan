@@ -1,0 +1,6 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 0% # don't show CI failed if coverage is low
+        threshold: 100% # don't show CI failed if coverage decreases
