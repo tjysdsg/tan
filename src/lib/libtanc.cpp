@@ -3,6 +3,7 @@
 #include "lexer.h"
 #include "linker.h"
 #include "base.h"
+#include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"
 
 #ifndef DEBUG
@@ -22,21 +23,6 @@
 #else
 #define END_TRY
 #endif
-
-static str opt_level_to_string(TanOptLevel l) {
-  switch (l) {
-    case O0:
-      return "-O0";
-    case O1:
-      return "-O1";
-    case O2:
-      return "-O2";
-    case O3:
-      return "-O3";
-    default:
-      TAN_ASSERT(false);
-  }
-}
 
 static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static

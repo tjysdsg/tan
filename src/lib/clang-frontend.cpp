@@ -8,12 +8,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "src/llvm_include.h"
+#include "src/lib/misc.h"
 #include "base.h"
 #include <iostream>
 #include "libtanc.h"
-#include <memory>
-#include <set>
-#include <system_error>
 using namespace clang;
 using namespace clang::driver;
 using namespace llvm::opt;
@@ -176,7 +174,6 @@ int clang_main(int argc, const char **argv) {
 }
 
 int clang_compile(vector<str> input_files, TanCompilation *config) {
-  // TODO: Optimization level
   vector<const char *> args;
   size_t n_import = config->import_dirs.size();
   args.reserve(input_files.size() + 2 * +1);
@@ -186,6 +183,7 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
     args.push_back("-I");
     args.push_back(config->import_dirs[i].c_str());
   }
+  args.push_back(opt_level_to_string(config->opt_level).c_str());
   args.push_back("-c");
 
   llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diag_id(new clang::DiagnosticIDs());
