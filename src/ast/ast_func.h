@@ -68,6 +68,10 @@ public:
   bool is_named() const override;
   bool is_lvalue() const override;
   bool is_typed() const override;
+  void resolve();
+
+public:
+  bool _do_resolve = true;
 
 protected:
   size_t nud() override;

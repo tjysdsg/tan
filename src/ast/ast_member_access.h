@@ -4,7 +4,13 @@
 
 namespace tanlang {
 
+class ASTMemberAccess;
+using ASTMemberAccessPtr = std::shared_ptr<ASTMemberAccess>;
+
 class ASTMemberAccess final : public ASTNode {
+public:
+  static ASTMemberAccessPtr CreatePointerDeref(ASTNodePtr ptr);
+
 public:
   ASTMemberAccess() = delete;
   ASTMemberAccess(Token *token, size_t token_index);
@@ -16,6 +22,8 @@ protected:
   size_t led(const ASTNodePtr &left) override;
 
 private:
+  void resolve_ptr_deref(ASTNodePtr left);
+
   enum MemberAccessType {
     MemberAccessInvalid = 0,
     MemberAccessBracket,

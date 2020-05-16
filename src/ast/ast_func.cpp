@@ -89,10 +89,11 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     _children[_children.size() - 1]->codegen(cs);
 
     /// create a return instruction if there is none, the return value is the default value of the return type
-    if (!(cs->get_builder()->GetInsertBlock()->back().getOpcode() & llvm::Instruction::Ret)) {
+    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) {
       auto ret_ty = _children[0]->get_ty();
-      if (ret_ty->_tyty == Ty::VOID) { cs->get_builder()->CreateRetVoid(); }
-      else {
+      if (ret_ty->_tyty == Ty::VOID) {
+        cs->get_builder()->CreateRetVoid();
+      } else {
         auto *ret_val = _children[0]->get_llvm_value(cs);
         TAN_ASSERT(ret_val);
         cs->get_builder()->CreateRet(ret_val);
@@ -228,7 +229,7 @@ size_t ASTFunction::nud() {
   _parser->peek(_end_index, TokenType::PUNCTUATION, ":");
   ++_end_index;
   _children[0] = _parser->parse<ASTType::TY>(_end_index, true); /// return type
-  // TODO: set _tyty
+  // TODO: set _ty
 
   /// body
   if (!_is_external) {
@@ -258,7 +259,7 @@ size_t ASTFunctionCall::nud() {
   }
   _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
   ++_end_index;
-  _ty = ast_cast<ASTTy>(get_callee()->get_ret());
+  if (_do_resolve) { resolve(); }
   return _end_index;
 }
 
@@ -300,6 +301,8 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
   if (!_callee) { report_code_error(_token, "Unknown function call: " + _name); }
   return _callee;
 }
+
+void ASTFunctionCall::resolve() { _ty = ast_cast<ASTTy>(get_callee()->get_ret()); }
 
 bool ASTFunctionCall::is_named() const { return true; }
 

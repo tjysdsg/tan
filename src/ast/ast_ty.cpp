@@ -309,6 +309,7 @@ void ASTTy::resolve() {
     case Ty::STRUCT: {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
+      if (_type_name.empty()) { throw std::runtime_error("Requires struct type name"); }
       auto st = ast_cast<ASTStruct>(_cs->get(_type_name));
       _align_bits = 8;
       size_t n = st->get_n_elements();
@@ -393,15 +394,13 @@ size_t ASTTy::nud() {
       _tyty = TY_OR(_tyty, basic_tys[token->value]);
     } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        auto sub = std::make_shared<ASTTy>(token, _end_index + 1);
         /// swap self and child
-        sub->_tyty = this->_tyty;
+        auto sub = std::make_shared<ASTTy>(*this);
         _tyty = Ty::POINTER;
+        _children.clear(); // FIXME: is there a way to optimize these two lines
         _children.push_back(sub);
-        auto ei = sub->parse(_parser, _cs);
-        if (_end_index + 1 != ei) { _end_index = ei - 1; }
       }
-    } else if (token->type == TokenType::ID) { /// struct or array
+    } else if (token->type == TokenType::ID) { /// struct
       // TODO: identify type aliases
       _type_name = token->value; /// _type_name is the name of the struct
       _tyty = TY_OR(_tyty, Ty::STRUCT);
@@ -411,7 +410,7 @@ size_t ASTTy::nud() {
     } else { break; }
     ++_end_index;
   }
-  resolve(); /// fill in relevant member variables
+  resolve();
   return _end_index;
 }
 

@@ -3,6 +3,8 @@
 #include "src/ast/ast_node.h"
 
 namespace tanlang {
+class ASTAmpersand;
+using ASTAmpersandPtr = std::shared_ptr<ASTAmpersand>;
 
 /**
  * Class that delegates two types of ASTNode:
@@ -16,6 +18,9 @@ namespace tanlang {
  *  - typed: true
  * */
 class ASTAmpersand final : public ASTNode {
+public:
+  static ASTAmpersandPtr CreateAddressOf(ASTNodePtr n);
+
 public:
   ASTAmpersand() = delete;
   ASTAmpersand(Token *token, size_t token_index);

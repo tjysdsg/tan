@@ -35,6 +35,15 @@ Value *ASTAmpersand::codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
+ASTAmpersandPtr ASTAmpersand::CreateAddressOf(ASTNodePtr n) {
+  auto ret = std::make_shared<ASTAmpersand>(nullptr, 0);
+  ret->_type = ASTType::ADDRESS_OF;
+  ret->_rbp = op_precedence[ASTType::ADDRESS_OF];
+  ret->_children.push_back(n);
+  ret->_ty = n->get_ty()->get_ptr_to();
+  return ret;
+}
+
 // TODO
 size_t ASTAmpersand::led(const ASTNodePtr &) { TAN_ASSERT(false); }
 
