@@ -33,14 +33,10 @@ Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
 
 ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
-  if (index >= _tokens.size()) {
-    throw std::runtime_error("Unexpected EOF");
-  }
+  if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
-    report_code_error(token,
-        "Expect token " + value + " with type " + token_type_names[type] + ", but got " + token->to_string()
-            + " instead");
+    report_error(_filename, token, "Expect '" + value + "', but got '" + token->value + "' instead");
   }
   return peek(index);
 }
@@ -57,7 +53,7 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
   case_str("struct") return std::make_shared<ASTStruct>(token, index); //
   case_str_or2("break", "continue") return std::make_shared<ASTBreakContinue>(token, index); //
   case_str("as") return std::make_shared<ASTCast>(token, index); //
-  case_default report_code_error(token, "Keyword not implemented: " + token->to_string()); //
+  case_default return nullptr; //
   end_switch
 }
 
@@ -115,6 +111,7 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTParenthesis>(token, index);
   } else if (token->type == TokenType::KEYWORD) { /// keywords
     node = peek_keyword(token, index);
+    if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = std::make_shared<ASTMemberAccess>(token, index);
   } else if (check_typename_token(token)) { /// types
@@ -128,7 +125,7 @@ ASTNodePtr Parser::peek(size_t &index) {
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {
-    report_code_error(token, "Unknown token " + token->to_string());
+    report_error(_filename, token, "Unknown token " + token->to_string());
   }
   return node;
 }
@@ -160,7 +157,7 @@ ASTNodePtr Parser::parse() {
 }
 
 Token *Parser::at(const size_t idx) const {
-  if (this->eof(idx)) { throw std::runtime_error("Unexpected EOF"); }
+  if (this->eof(idx)) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   return _tokens[idx];
 }
 

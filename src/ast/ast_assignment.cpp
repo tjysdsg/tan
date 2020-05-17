@@ -17,9 +17,9 @@ Value *ASTAssignment::_codegen(CompilerSession *cs) {
   Value *to = lhs->codegen(cs);
 
   if (rhs->is_lvalue()) { from = builder->CreateLoad(from); }
-  if (!lhs->is_lvalue()) { report_code_error(lhs->_token, "Value can only be assigned to lvalue"); }
-  if (!to) { report_code_error(lhs->_token, "Invalid left-hand operand of the assignment"); }
-  if (!from) { report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment"); }
+  if (!lhs->is_lvalue()) { error("Value can only be assigned to lvalue"); }
+  if (!to) { error("Invalid left-hand operand of the assignment"); }
+  if (!from) { error("Invalid expression for right-hand operand of the assignment"); }
 
   /// to is lvalue
   from = TypeSystem::ConvertTo(cs, to->getType()->getContainedType(0), from, false, true);

@@ -23,7 +23,7 @@ Value *ASTArithmetic::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   if (_children.size() == 1) { /// unary plus/minus
     if (!is_ast_type_in(_type, {ASTType::SUM, ASTType::SUBTRACT})) {
-      report_code_error(_token, "Invalid unary operation");
+      error("Invalid unary operation");
     }
     if (_type == ASTType::SUM) {
       return _children[0]->codegen(cs);
@@ -88,7 +88,7 @@ ASTArithmetic::ASTArithmetic(Token *token, size_t token_index) : ASTInfixBinaryO
   case_str("*") _type = ASTType::MULTIPLY; //
   case_str("/") _type = ASTType::DIVIDE;   //
   case_str("%") _type = ASTType::MOD;      //
-  case_default report_code_error(token, "Invalid ASTType for comparisons " + token->to_string()); //
+  case_default error("Invalid ASTType for comparisons " + token->to_string()); //
   end_switch
   _lbp = op_precedence[_type];
 }

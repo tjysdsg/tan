@@ -8,7 +8,7 @@ namespace tanlang {
 
 Value *ASTIdentifier::_codegen(CompilerSession *cs) {
   auto var = ast_cast<ASTVarDecl>(cs->get(_name));
-  if (!var) { report_code_error(_token, "Cannot find variable '" + _name + "' in current scope"); }
+  if (!var) { error("Cannot find variable '" + _name + "' in current scope"); }
   _llvm_value = var->get_llvm_value(cs);
   return _llvm_value;
 }
@@ -16,7 +16,7 @@ Value *ASTIdentifier::_codegen(CompilerSession *cs) {
 ASTNodePtr ASTIdentifier::get_referred(bool strict) const {
   if (!_referred) {
     _referred = _cs->get(_name);
-    if (!_referred && strict) { report_code_error(_token, "Cannot find variable '" + _name + "' in current scope"); }
+    if (!_referred && strict) { error("Cannot find variable '" + _name + "' in current scope"); }
   }
   return _referred;
 }

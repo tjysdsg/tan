@@ -146,7 +146,7 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   for (size_t i = 0; i < n_args; ++i) {
     Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cs);
     auto *a = _children[i]->codegen(cs);
-    if (!a) { report_code_error(_children[i]->_token, "Invalid function call argument"); }
+    if (!a) { error("Invalid function call argument"); }
 
     /// implicit cast
     a = TypeSystem::ConvertTo(cs, expected_type, a, _children[i]->is_lvalue());
@@ -249,7 +249,7 @@ size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
   _end_index = _start_index + 1; /// skip function name
   auto *token = _parser->at(_end_index);
-  if (token->value != "(") { report_code_error(token, "Invalid function call"); }
+  if (token->value != "(") { error("Invalid function call"); }
   ++_end_index;
   while (!_parser->eof(_end_index) && _parser->at(_end_index)->value != ")") {
     _children.push_back(_parser->next_expression(_end_index));
@@ -294,11 +294,11 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
         if (c < cost) {
           _callee = f;
           cost = c;
-        } else if (c == cost) { report_code_error(_token, "Ambiguous function call: " + _name); }
+        } else if (c == cost) { error("Ambiguous function call: " + _name); }
       }
     }
   }
-  if (!_callee) { report_code_error(_token, "Unknown function call: " + _name); }
+  if (!_callee) { error("Unknown function call: " + _name); }
   return _callee;
 }
 

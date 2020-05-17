@@ -8,7 +8,7 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip operator
   _children.emplace_back(left); /// lhs
   auto n = _parser->next_expression(_end_index, _lbp);
-  if (!n) { report_code_error(_token, "Unexpected token"); }
+  if (!n) { error("Unexpected token"); }
   else { _children.emplace_back(n); }
   _dominant_idx = this->get_dominant_idx();
   _ty = _children[_dominant_idx]->get_ty();
@@ -35,7 +35,7 @@ size_t ASTInfixBinaryOp::get_dominant_idx() const {
   TAN_ASSERT(rhs->is_typed());
   int ret = TypeSystem::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
   if (-1 == ret) {
-    report_code_error(_token, "Cannot perform implicit type conversion");
+    error("Cannot perform implicit type conversion");
   }
   return (size_t) ret;
 }

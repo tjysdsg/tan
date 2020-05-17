@@ -310,8 +310,9 @@ void ASTTy::resolve() {
     case Ty::STRUCT: {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
-      if (_type_name.empty()) { throw std::runtime_error("Requires struct type name"); }
+      if (_type_name.empty()) { error("Requires struct type name"); }
       auto st = ast_cast<ASTStruct>(_cs->get(_type_name));
+      if (!st) { error("Invalid struct type"); }
       _align_bits = 8;
       size_t n = st->get_n_elements();
       for (size_t i = 0; i < n; ++i) {
@@ -361,7 +362,7 @@ size_t ASTTy::nud_array() {
   ASTNodePtr element = nullptr;
   /// element type
   if (_parser->at(_end_index)->value == "]") { /// empty
-    report_code_error(_parser->at(_end_index), "The array type and size must be specified");
+    report_error(_parser->get_filename(), _parser->at(_end_index), "The array type and size must be specified");
   } else {
     element = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
     _end_index = element->parse(_parser, _cs); /// this set the _type_name of child
@@ -372,11 +373,11 @@ size_t ASTTy::nud_array() {
   /// size
   auto size = _parser->peek(_end_index);
   if (size->_type != ASTType::NUM_LITERAL) {
-    report_code_error(_parser->at(_end_index), "Expect an unsigned integer");
+    report_error(_parser->get_filename(), _parser->at(_end_index), "Expect an unsigned integer");
   }
   auto size1 = ast_cast<ASTNumberLiteral>(size);
   if (size1->is_float() || size1->_ivalue < 0) {
-    report_code_error(_parser->at(_end_index), "Expect an unsigned integer");
+    report_error(_parser->get_filename(), _parser->at(_end_index), "Expect an unsigned integer");
   }
   _n_elements = static_cast<size_t>(size1->_ivalue);
   for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(element->get_ty()); }

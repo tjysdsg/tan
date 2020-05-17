@@ -39,23 +39,22 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     _ty = left->get_ty();
     TAN_ASSERT(_ty->is_ptr());
     _ty = _ty->get_contained_ty();
-    if (!_ty) { report_code_error(_token, "Unable to perform bracket access"); }
+    if (!_ty) { error("Unable to perform bracket access"); }
     // TODO: check bound if rhs is compile-time known
     if (rhs->_type == ASTType::NUM_LITERAL) {
-      if (!rhs->get_ty()->is_int()) { report_code_error(_token, "Expect an integer specifying array size"); }
+      if (!rhs->get_ty()->is_int()) { error("Expect an integer specifying array size"); }
       auto size = ast_cast<ASTNumberLiteral>(rhs);
       if (left->get_ty()->is_array()
           && (size_t) /** underflow helps us here */ size->_ivalue >= left->get_ty()->get_n_elements()) {
-        report_code_error(_token,
-            "Index " + std::to_string(size->_ivalue) + " out of bound, the array size is "
-                + std::to_string(left->get_ty()->get_n_elements()));
+        error("Index " + std::to_string(size->_ivalue) + " out of bound, the array size is "
+            + std::to_string(left->get_ty()->get_n_elements()));
       }
     }
   } else if (_access_type == MemberAccessDeref) { /// pointer dereference
     resolve_ptr_deref(left);
   } else if (_children[1]->_type == ASTType::ID) { /// member variable
     _access_type = MemberAccessMemberVariable;
-    if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { report_code_error(_token, "Invalid left-hand operand"); }
+    if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { error("Invalid left-hand operand"); }
     auto rhs = _children[1];
     str m_name = rhs->get_name();
     std::shared_ptr<ASTStruct> struct_ast = nullptr;
@@ -75,7 +74,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     func->_do_resolve = false;
     _end_index = func->parse(_parser, _cs);
     if (!left->is_lvalue() && !left->get_ty()->is_ptr()) {
-      report_code_error(_token, "Method calls require left-hand operand to be an lvalue or a pointer");
+      error("Method calls require left-hand operand to be an lvalue or a pointer");
     }
     /// auto dereference pointers
     if (left->is_lvalue() && !left->get_ty()->is_ptr()) {
@@ -86,7 +85,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     func->resolve();
     _ty = func->get_ty();
     _access_type = MemberAccessMemberFunction;
-  } else { report_code_error(_token, "Invalid right-hand operand"); }
+  } else { error("Invalid right-hand operand"); }
   return _end_index;
 }
 

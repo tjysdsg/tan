@@ -43,7 +43,7 @@ size_t ASTVarDecl::nud() {
 
 Value *ASTVarDecl::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
+  if (!_is_type_resolved) { error("Unknown type"); }
   cs->set_current_debug_location(_token->l, _token->c);
   TAN_ASSERT(_children[0]->is_named());
   str name = this->get_name();
@@ -74,7 +74,7 @@ Value *ASTVarDecl::_codegen(CompilerSession *cs) {
 }
 
 bool ASTVarDecl::is_typed() const {
-  if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
+  if (!_is_type_resolved) { error("Unknown type"); }
   return true;
 }
 

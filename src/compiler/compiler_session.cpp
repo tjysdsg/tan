@@ -47,9 +47,7 @@ std::shared_ptr<Scope> CompilerSession::push_scope() {
 void CompilerSession::push_scope(std::shared_ptr<Scope> scope) { _scope.push_back(scope); }
 
 std::shared_ptr<Scope> CompilerSession::pop_scope() {
-  if (_scope.size() == 1) {
-    throw std::runtime_error("Cannot pop the outer-est scope");
-  }
+  if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
   auto r = _scope.back();
   _scope.pop_back();
   return r;
@@ -72,7 +70,7 @@ void CompilerSession::set(const str &name, ASTNodePtr value) {
     --scope;
   }
   if (found) { (*scope)->_named[name] = value; }
-  else { throw std::runtime_error("Cannot set the value of " + name); }
+  else { report_error("Cannot set the value of " + name); }
 }
 
 ASTNodePtr CompilerSession::get(const str &name) {
@@ -156,11 +154,11 @@ void CompilerSession::emit_object(const str &filename) {
   /// generate object files
   std::error_code ec;
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
-  if (ec) { throw std::runtime_error("Could not open file: " + ec.message()); }
+  if (ec) { report_error("Could not open file: " + ec.message()); }
 
   auto file_type = llvm::CGFT_ObjectFile;
   if (_target_machine->addPassesToEmitFile(*_mpm.get(), dest, nullptr, file_type)) {
-    throw std::runtime_error("Target machine can't emit a file of this type");
+    report_error("Target machine can't emit a file of this type");
   }
   _mpm->run(*_module);
   dest.flush();

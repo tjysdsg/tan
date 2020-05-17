@@ -23,13 +23,11 @@ Value *ASTImport::_codegen(CompilerSession *cs) {
 size_t ASTImport::nud() {
   _end_index = _start_index + 1; /// skip "import"
   auto rhs = _parser->peek(_end_index);
-  if (rhs->_type != ASTType::STRING_LITERAL) { report_code_error(_token, "Invalid import statement"); }
+  if (rhs->_type != ASTType::STRING_LITERAL) { error("Invalid import statement"); }
   _end_index = rhs->parse(_parser, _cs);
   _file = ast_cast<ASTStringLiteral>(rhs)->get_string();
-
-  // FIXME: path containing non-ASCII characters?
   auto imported = Compiler::resolve_import(_parser->get_filename(), _file);
-  if (imported.empty()) { report_code_error(_token, "Cannot import: " + _file); }
+  if (imported.empty()) { error("Cannot import: " + _file); }
 
   /// it might be already parsed
   _imported_functions = CompilerSession::GetPublicFunctions(imported[0]);

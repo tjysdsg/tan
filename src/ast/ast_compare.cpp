@@ -68,7 +68,7 @@ ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfi
   if (!is_ast_type_in(type,
       {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR, ASTType::EQ,
           ASTType::NE})) {
-    report_code_error(token, "Invalid comparison: " + token->to_string());
+    error("Invalid comparison: " + token->to_string());
   }
   _type = type;
   _lbp = op_precedence[type];

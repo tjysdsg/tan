@@ -138,9 +138,10 @@ public:
   virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
 
 protected:
-  virtual llvm::Value *_codegen(CompilerSession *compiler_session);
+  virtual llvm::Value *_codegen(CompilerSession *);
   [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
   [[nodiscard]] virtual size_t nud();
+  [[noreturn]] void error(const str &error_message) const;
 
 private:
   void printTree(const str &prefix, bool last_child) const;

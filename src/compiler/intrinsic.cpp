@@ -71,7 +71,7 @@ void Intrinsic::parse_get_decl() {
   _parser->peek(_start_index, TokenType::PUNCTUATION, "(");
   ++_start_index;
   auto input = _parser->next_expression(_start_index);
-  if (input->_type != ASTType::ID) { report_code_error(_token, "Invalid call of @get_decl"); }
+  if (input->_type != ASTType::ID) { error("Invalid call of @get_decl"); }
   TAN_ASSERT(input->is_named());
   _str_data = input->get_name();
   _parser->peek(_start_index, TokenType::PUNCTUATION, ")");
@@ -81,7 +81,7 @@ void Intrinsic::parse_get_decl() {
 void Intrinsic::resolve() {
   auto *token = _parser->at(_start_index);
   if (Intrinsic::intrinsics.find(token->value) == Intrinsic::intrinsics.end()) {
-    report_code_error(_token, "Invalid intrinsic");
+    error("Invalid intrinsic");
   }
   _intrinsic_type = Intrinsic::intrinsics[token->value];
   ASTNodePtr underlying_ast = nullptr;
@@ -113,7 +113,7 @@ void Intrinsic::resolve() {
       underlying_ast = std::make_shared<ASTFunctionCall>(token, _start_index);
       break;
     default:
-      report_code_error(token, "Unknown intrinsic");
+      error("Unknown intrinsic");
   }
   if (underlying_ast) {
     _lbp = underlying_ast->_lbp;
@@ -136,7 +136,7 @@ size_t Intrinsic::nud() {
       _end_index = _children[0]->parse(_parser, _cs);
       auto fc = ast_cast<ASTStringLiteral>(_children[0]->_children[0]);
       if (!fc) {
-        report_code_error(_token, "Invalid call to compprint, one argument with type 'str' required");
+        error("Invalid call to compprint, one argument with type 'str' required");
       }
       std::cout << "Message (" << get_source_location() << "): " << fc->get_string() << "\n";
       break;

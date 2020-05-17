@@ -107,6 +107,7 @@ public:
 public:
   IRBuilder<> *_builder = nullptr; /// IR builder
   DIBuilder *_di_builder = nullptr; /// Debug information builder
+  Token *_current_token = nullptr; /// Used for error messages
 
 private:
   LLVMContext *_context = nullptr;

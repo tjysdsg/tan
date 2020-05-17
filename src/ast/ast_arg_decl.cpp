@@ -11,7 +11,7 @@ ASTArgDecl::ASTArgDecl(Token *token, size_t token_index) : ASTVarDecl(token, tok
 size_t ASTArgDecl::nud() {
   _end_index = _start_index;
   auto ret = _nud();
-  if (!_is_type_resolved) { report_code_error(_token, "Must specify a type for the argument"); }
+  if (!_is_type_resolved) { error("Must specify a type for the argument"); }
   return ret;
 }
 

@@ -63,7 +63,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
      * - even llvm::ArrayConstant is immediately converted to pointers after allocation
     */
     TAN_ASSERT(false);
-  } else { throw std::runtime_error("Invalid type conversion"); }
+  } else { report_error("Invalid type conversion"); /* TODO: move this outside */ }
 }
 
 DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {

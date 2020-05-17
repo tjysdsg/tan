@@ -1,6 +1,7 @@
 #include "src/ast/ast_node.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_ty.h"
+#include "compiler_session.h"
 #include "parser.h"
 #include "token.h"
 #include <iostream>
@@ -51,6 +52,7 @@ ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
 size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
   _parser = parser;
   _cs = cs;
+  if (_token) { _cs->_current_token = _token; }
   auto ret = this->led(left);
   _parsed = true;
   return ret;
@@ -59,21 +61,20 @@ size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *c
 size_t ASTNode::parse(Parser *parser, CompilerSession *cs) {
   _parser = parser;
   _cs = cs;
+  if (_token) { _cs->_current_token = _token; }
   auto ret = this->nud();
   _parsed = true;
   return ret;
 }
 
 llvm::Value *ASTNode::codegen(CompilerSession *cs) {
+  if (_token) { cs->_current_token = _token; }
   return this->_codegen(cs);
 }
 
-size_t ASTNode::led(const ASTNodePtr &left) {
-  UNUSED(left);
-  throw std::runtime_error("Not implemented");
-}
+size_t ASTNode::led(const ASTNodePtr &) { error("Not implemented"); }
 
-size_t ASTNode::nud() { throw std::runtime_error("Not implemented"); }
+size_t ASTNode::nud() { error("Not implemented"); }
 
 Value *ASTNode::_codegen(CompilerSession *compiler_session) {
   if (_children.empty()) { return nullptr; }
@@ -101,6 +102,13 @@ str ASTNode::get_source_location() const {
   str ret = _parser->get_filename();
   ret += ":" + std::to_string(_token->l);
   return ret;
+}
+
+void ASTNode::error(const str &error_message) const {
+  TAN_ASSERT(_cs);
+  TAN_ASSERT(_parser);
+  if (_cs->_current_token) { report_error(_parser->get_filename(), _cs->_current_token, error_message); }
+  else { error(error_message); }
 }
 
 /// other definitions

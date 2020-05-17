@@ -7,7 +7,7 @@ namespace tanlang {
 void Reader::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
-  if (!ifs) { throw std::runtime_error("Cannot open file: " + filename); }
+  if (!ifs) { report_error("Cannot open file: " + filename); }
   /// read the whole file at once
   str content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   /// count the number of lines

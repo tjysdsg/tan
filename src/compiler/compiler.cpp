@@ -22,7 +22,7 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   auto target_triple = llvm::sys::getDefaultTargetTriple();
   str error;
   auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
-  if (!target) { throw std::runtime_error(error); }
+  if (!target) { report_error(error); }
   if (!Compiler::target_machine) {
     auto CPU = "generic";
     auto features = "";

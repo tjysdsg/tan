@@ -10,7 +10,7 @@ namespace tanlang {
 
 size_t ASTArrayLiteral::nud() {
   _end_index = _start_index + 1; /// skip '['
-  if (_parser->at(_end_index)->value == "]") { report_code_error(_token, "Empty array"); }
+  if (_parser->at(_end_index)->value == "]") { error("Empty array"); }
   ASTType element_type = ASTType::INVALID;
   while (!_parser->eof(_end_index)) {
     if (_parser->at(_end_index)->value == ",") {
@@ -21,19 +21,19 @@ size_t ASTArrayLiteral::nud() {
       break;
     }
     auto node = _parser->peek(_end_index);
-    if (!node) { report_code_error(_token, "Unexpected token"); }
+    if (!node) { error("Unexpected token"); }
     /// check whether element types are the same
     if (element_type == ASTType::INVALID) { element_type = node->_type; }
     else {
       if (element_type != node->_type) {
-        report_code_error(_token, "All elements in an array must have the same type");
+        error("All elements in an array must have the same type");
       }
     }
     if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
       _end_index = node->parse(_parser, _cs);
       _children.push_back(node);
-    } else { report_code_error(_token, "Expect literals"); }
+    } else { error("Expect literals"); }
   }
 
   auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);

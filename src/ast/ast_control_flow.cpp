@@ -13,7 +13,7 @@ Value *ASTIf::_codegen(CompilerSession *cs) {
   Value *condition = _children[0]->codegen(cs);
   if (!condition) {
     auto *condition_token = _children[0]->_token;
-    report_code_error(condition_token, "Invalid condition expression " + condition_token->to_string());
+    error("Invalid condition expression " + condition_token->to_string());
   }
 
   /// convert to bool if not
@@ -60,7 +60,7 @@ Value *ASTElse::_codegen(CompilerSession *cs) {
 llvm::Value *ASTBreakContinue::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   auto loop = cs->get_current_loop();
-  if (!loop) { report_code_error(_token, "Any break/continue statement must be inside loop"); }
+  if (!loop) { error("Any break/continue statement must be inside loop"); }
   auto s = loop->get_loop_start();
   auto e = loop->get_loop_end();
   if (_type == ASTType::BREAK) {
