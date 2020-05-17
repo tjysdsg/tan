@@ -12,6 +12,7 @@
 using namespace tanlang;
 
 Value *ASTFunction::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Metadata *ret_meta = _children[0]->to_llvm_meta(cs);
   /// generate prototype
@@ -31,13 +32,13 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
   if (!_is_external) {
     /// create a new basic block to start insertion into
     BasicBlock *main_block = BasicBlock::Create(*cs->get_context(), "func_entry", F);
-    cs->get_builder()->SetInsertPoint(main_block);
+    builder->SetInsertPoint(main_block);
 
     /// debug information
     DIScope *di_scope = cs->get_current_di_scope();
     auto *di_file = cs->get_di_file();
     auto *di_func_t = create_function_type(cs, ret_meta, arg_metas);
-    DISubprogram *subprogram = cs->get_di_builder()
+    DISubprogram *subprogram = cs->_di_builder
         ->createFunction(di_scope,
             func_name,
             func_name,
@@ -53,17 +54,17 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
     F->setSubprogram(subprogram);
     cs->push_di_scope(subprogram);
     /// reset debug emit location
-    cs->get_builder()->SetCurrentDebugLocation(DebugLoc());
+    builder->SetCurrentDebugLocation(DebugLoc());
 
     /// add all function arguments to scope
     size_t i = 2;
     for (auto &a : F->args()) {
       auto arg_name = _children[i]->get_name();
       auto *arg_val = _children[i]->codegen(cs);
-      cs->get_builder()->CreateStore(&a, arg_val);
+      builder->CreateStore(&a, arg_val);
       /// create a debug descriptor for the arguments
       auto *arg_meta = ast_cast<ASTTy>(_children[i]->_children[1])->to_llvm_meta(cs);
-      llvm::DILocalVariable *di_arg = cs->get_di_builder()
+      llvm::DILocalVariable *di_arg = cs->_di_builder
           ->createParameterVariable(subprogram,
               arg_name,
               (unsigned) i + 1,
@@ -71,37 +72,36 @@ Value *ASTFunction::codegen(CompilerSession *cs) {
               (unsigned) _token->l + 1,
               (DIType *) arg_meta,
               true);
-      cs->get_di_builder()
+      cs->_di_builder
           ->insertDeclare(arg_val,
               di_arg,
-              cs->get_di_builder()->createExpression(),
+              cs->_di_builder->createExpression(),
               llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, subprogram),
-              cs->get_builder()->GetInsertBlock());
+              builder->GetInsertBlock());
       ++i;
     }
 
     /// set debug emit location to function body
-    cs->get_builder()
-        ->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
-            (unsigned) _children[_children.size() - 1]->_token->c + 1,
-            subprogram));
+    builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) _children[_children.size() - 1]->_token->l + 1,
+        (unsigned) _children[_children.size() - 1]->_token->c + 1,
+        subprogram));
     /// generate function body
     _children[_children.size() - 1]->codegen(cs);
 
     /// create a return instruction if there is none, the return value is the default value of the return type
-    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) {
+    if (!builder->GetInsertBlock()->back().isTerminator()) {
       auto ret_ty = _children[0]->get_ty();
       if (ret_ty->_tyty == Ty::VOID) {
-        cs->get_builder()->CreateRetVoid();
+        builder->CreateRetVoid();
       } else {
         auto *ret_val = _children[0]->get_llvm_value(cs);
         TAN_ASSERT(ret_val);
-        cs->get_builder()->CreateRet(ret_val);
+        builder->CreateRet(ret_val);
       }
     }
     cs->pop_di_scope();
     /// restore parent code block
-    cs->get_builder()->SetInsertPoint(main_block);
+    builder->SetInsertPoint(main_block);
   }
   cs->pop_scope(); /// pop scope
   return nullptr;
@@ -138,23 +138,23 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
   return _func;
 }
 
-Value *ASTFunctionCall::codegen(CompilerSession *cm) {
+Value *ASTFunctionCall::codegen(CompilerSession *cs) {
   /// args
   size_t n_args = _children.size();
   vector<Value *> arg_vals;
   vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
-    Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cm);
-    auto *a = _children[i]->codegen(cm);
+    Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cs);
+    auto *a = _children[i]->codegen(cs);
     if (!a) { report_code_error(_children[i]->_token, "Invalid function call argument"); }
 
     /// implicit cast
-    a = TypeSystem::ConvertTo(cm, expected_type, a, _children[i]->is_lvalue());
+    a = TypeSystem::ConvertTo(cs, expected_type, a, _children[i]->is_lvalue());
     Type *a_type = a->getType();
     arg_vals.push_back(a);
     arg_types.push_back(a_type);
   }
-  _llvm_value = cm->get_builder()->CreateCall(get_callee()->get_func(), arg_vals);
+  _llvm_value = cs->_builder->CreateCall(get_callee()->get_func(), arg_vals);
   return _llvm_value;
 }
 

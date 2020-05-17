@@ -12,20 +12,25 @@ void CompilerSession::initialize_scope() {
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
-CompilerSession::CompilerSession(const str &module_name, TargetMachine *target_machine)
-    : _target_machine(target_machine) {
+CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm) : _target_machine(tm) {
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);
   init_llvm();
-  // add the current debug info version into the module
+
+  /// add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
   _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
-  _di_builder = std::make_unique<DIBuilder>(*_module);
+
+  /// debug related
+  _di_builder = new DIBuilder(*_module);
   _di_file = _di_builder->createFile(module_name, ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
+
   _function_table = std::make_shared<FunctionTable>();
+
+  /// scopes
   initialize_scope();
 }
 
@@ -89,8 +94,6 @@ ASTNodePtr CompilerSession::get(const str &name) {
 }
 
 LLVMContext *CompilerSession::get_context() { return _context; }
-
-IRBuilder<> *CompilerSession::get_builder() { return _builder; }
 
 Module *CompilerSession::get_module() { return _module; }
 
@@ -161,10 +164,6 @@ void CompilerSession::emit_object(const str &filename) {
   }
   _mpm->run(*_module);
   dest.flush();
-}
-
-std::unique_ptr<DIBuilder> &CompilerSession::get_di_builder() {
-  return _di_builder;
 }
 
 DIScope *CompilerSession::get_current_di_scope() const {

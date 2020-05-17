@@ -172,7 +172,7 @@ static void init_abort(CompilerSession *cs) {
   Function *abort_func = cs->get_module()->getFunction("abort");
   /// fn abort() : void;
   if (!abort_func) {
-    Type *ret_type = cs->get_builder()->getVoidTy();
+    Type *ret_type = cs->_builder->getVoidTy();
     vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Intrinsic::abort_function = Function::Create(FT, Function::ExternalWeakLinkage, "abort", cs->get_module());
@@ -183,7 +183,7 @@ static void init_noop(CompilerSession *cs) {
   Function *func = cs->get_module()->getFunction("llvm.donothing");
   if (!func) {
     /// fn llvm.donothing() : void;
-    Type *ret_type = cs->get_builder()->getVoidTy();
+    Type *ret_type = cs->_builder->getVoidTy();
     vector<Type *> arg_types{};
     FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
     Function::Create(FT, Function::ExternalLinkage, "llvm.donothing", cs->get_module());

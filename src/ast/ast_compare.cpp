@@ -14,12 +14,13 @@ size_t ASTCompare::led(const ASTNodePtr &left) {
 }
 
 Value *ASTCompare::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Value *lhs = _children[0]->codegen(cs);
   Value *rhs = _children[1]->codegen(cs);
   TAN_ASSERT(lhs && rhs);
-  if (_children[0]->is_lvalue()) { lhs = cs->get_builder()->CreateLoad(lhs); }
-  if (_children[1]->is_lvalue()) { rhs = cs->get_builder()->CreateLoad(rhs); }
+  if (_children[0]->is_lvalue()) { lhs = builder->CreateLoad(lhs); }
+  if (_children[1]->is_lvalue()) { rhs = builder->CreateLoad(rhs); }
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
@@ -33,31 +34,31 @@ Value *ASTCompare::codegen(CompilerSession *cs) {
 
   if (lhs->getType()->isFloatingPointTy()) {
     if (_type == ASTType::EQ) {
-      _llvm_value = cs->get_builder()->CreateFCmpOEQ(lhs, rhs, "eq");
+      _llvm_value = builder->CreateFCmpOEQ(lhs, rhs, "eq");
     } else if (_type == ASTType::NE) {
-      _llvm_value = cs->get_builder()->CreateFCmpONE(lhs, rhs, "ne");
+      _llvm_value = builder->CreateFCmpONE(lhs, rhs, "ne");
     } else if (_type == ASTType::GT) {
-      _llvm_value = cs->get_builder()->CreateFCmpOGT(lhs, rhs, "gt");
+      _llvm_value = builder->CreateFCmpOGT(lhs, rhs, "gt");
     } else if (_type == ASTType::GE) {
-      _llvm_value = cs->get_builder()->CreateFCmpOGE(lhs, rhs, "ge");
+      _llvm_value = builder->CreateFCmpOGE(lhs, rhs, "ge");
     } else if (_type == ASTType::LT) {
-      _llvm_value = cs->get_builder()->CreateFCmpOLT(lhs, rhs, "lt");
+      _llvm_value = builder->CreateFCmpOLT(lhs, rhs, "lt");
     } else if (_type == ASTType::LE) {
-      _llvm_value = cs->get_builder()->CreateFCmpOLE(lhs, rhs, "le");
+      _llvm_value = builder->CreateFCmpOLE(lhs, rhs, "le");
     }
   } else {
     if (_type == ASTType::EQ) {
-      _llvm_value = cs->get_builder()->CreateICmpEQ(lhs, rhs, "eq");
+      _llvm_value = builder->CreateICmpEQ(lhs, rhs, "eq");
     } else if (_type == ASTType::NE) {
-      _llvm_value = cs->get_builder()->CreateICmpNE(lhs, rhs, "ne");
+      _llvm_value = builder->CreateICmpNE(lhs, rhs, "ne");
     } else if (_type == ASTType::GT) {
-      _llvm_value = cs->get_builder()->CreateICmpUGT(lhs, rhs, "gt");
+      _llvm_value = builder->CreateICmpUGT(lhs, rhs, "gt");
     } else if (_type == ASTType::GE) {
-      _llvm_value = cs->get_builder()->CreateICmpUGE(lhs, rhs, "ge");
+      _llvm_value = builder->CreateICmpUGE(lhs, rhs, "ge");
     } else if (_type == ASTType::LT) {
-      _llvm_value = cs->get_builder()->CreateICmpULT(lhs, rhs, "lt");
+      _llvm_value = builder->CreateICmpULT(lhs, rhs, "lt");
     } else if (_type == ASTType::LE) {
-      _llvm_value = cs->get_builder()->CreateICmpULE(lhs, rhs, "le");
+      _llvm_value = builder->CreateICmpULE(lhs, rhs, "le");
     }
   }
   return _llvm_value;

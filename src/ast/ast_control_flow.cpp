@@ -8,6 +8,7 @@
 namespace tanlang {
 
 Value *ASTIf::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Value *condition = _children[0]->codegen(cs);
   if (!condition) {
@@ -16,38 +17,38 @@ Value *ASTIf::codegen(CompilerSession *cs) {
   }
 
   /// convert to bool if not
-  condition = TypeSystem::ConvertTo(cs, cs->get_builder()->getInt1Ty(), condition, false);
+  condition = TypeSystem::ConvertTo(cs, builder->getInt1Ty(), condition, false);
 
   /// Create blocks for the then (and else) clause
-  Function *func = cs->get_builder()->GetInsertBlock()->getParent();
+  Function *func = builder->GetInsertBlock()->getParent();
   BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
   BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
   BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
 
-  if (_has_else) { cs->get_builder()->CreateCondBr(condition, then_bb, else_bb); }
-  else { cs->get_builder()->CreateCondBr(condition, then_bb, merge_bb); }
+  if (_has_else) { builder->CreateCondBr(condition, then_bb, else_bb); }
+  else { builder->CreateCondBr(condition, then_bb, merge_bb); }
   /// emit then value
-  cs->get_builder()->SetInsertPoint(then_bb);
+  builder->SetInsertPoint(then_bb);
   _children[1]->codegen(cs);
   /// create a br instruction if there is no terminator instruction at the end of then
-  if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
-  cs->get_builder()->SetInsertPoint(then_bb);
-  if (!then_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+  if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
+  builder->SetInsertPoint(then_bb);
+  if (!then_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
 
   /// emit else block
   if (_has_else) {
     func->getBasicBlockList().push_back(else_bb);
-    cs->get_builder()->SetInsertPoint(else_bb);
+    builder->SetInsertPoint(else_bb);
     _children[2]->codegen(cs);
     /// create a br instruction if there is no terminator instruction at the end of else
-    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
-    cs->get_builder()->SetInsertPoint(else_bb);
-    if (!else_bb->back().isTerminator()) { cs->get_builder()->CreateBr(merge_bb); }
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
+    builder->SetInsertPoint(else_bb);
+    if (!else_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
   }
 
   /// emit merge block
   func->getBasicBlockList().push_back(merge_bb);
-  cs->get_builder()->SetInsertPoint(merge_bb);
+  builder->SetInsertPoint(merge_bb);
   return nullptr;
 }
 
@@ -57,14 +58,15 @@ Value *ASTElse::codegen(CompilerSession *cs) {
 }
 
 llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   auto loop = cs->get_current_loop();
   if (!loop) { report_code_error(_token, "Any break/continue statement must be inside loop"); }
   auto s = loop->get_loop_start();
   auto e = loop->get_loop_end();
   if (_type == ASTType::BREAK) {
-    cs->get_builder()->CreateBr(e);
+    builder->CreateBr(e);
   } else if (_type == ASTType::CONTINUE) {
-    cs->get_builder()->CreateBr(s);
+    builder->CreateBr(s);
   } else { TAN_ASSERT(false); }
   return nullptr;
 }

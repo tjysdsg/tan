@@ -17,16 +17,17 @@ size_t ASTCast::led(const ASTNodePtr &left) {
 }
 
 Value *ASTCast::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto lhs = _children[0];
   auto *dest_type = _children[1]->to_llvm_type(cs);
   Value *val = lhs->codegen(cs);
   Value *ret = nullptr;
-  if (lhs->is_lvalue()) { val = cs->get_builder()->CreateLoad(val); }
+  if (lhs->is_lvalue()) { val = builder->CreateLoad(val); }
   val = TypeSystem::ConvertTo(cs, dest_type, val, false);
   if (lhs->is_lvalue()) {
-    ret = create_block_alloca(cs->get_builder()->GetInsertBlock(), dest_type);
-    cs->get_builder()->CreateStore(val, ret);
+    ret = create_block_alloca(builder->GetInsertBlock(), dest_type);
+    builder->CreateStore(val, ret);
   } else { ret = val; }
   return ret;
 }

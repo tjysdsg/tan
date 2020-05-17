@@ -13,19 +13,19 @@ ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index)
 }
 
 Value *ASTNot::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(cs);
-  if (_children[0]->is_lvalue()) { rhs = cs->get_builder()->CreateLoad(rhs); }
+  if (_children[0]->is_lvalue()) { rhs = builder->CreateLoad(rhs); }
   if (_type == ASTType::BNOT) {
-    _llvm_value = cs->get_builder()->CreateNot(rhs);
+    _llvm_value = builder->CreateNot(rhs);
   } else if (_type == ASTType::LNOT) {
     /// get value size in bits
     auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
     if (rhs->getType()->isFloatingPointTy()) {
-      _llvm_value = cs->get_builder()->CreateFCmpOEQ(rhs, ConstantFP::get(cs->get_builder()->getFloatTy(), 0.0f));
+      _llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
     } else {
-      _llvm_value = cs->get_builder()
-          ->CreateICmpEQ(rhs, ConstantInt::get(cs->get_builder()->getIntNTy((unsigned) size_in_bits), 0, false));
+      _llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
     }
   } else { TAN_ASSERT(false); }
   return _llvm_value;

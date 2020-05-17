@@ -42,32 +42,33 @@ size_t ASTVarDecl::nud() {
 }
 
 Value *ASTVarDecl::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
   cs->set_current_debug_location(_token->l, _token->c);
   TAN_ASSERT(_children[0]->is_named());
   str name = this->get_name();
   Type *type = _children[1]->to_llvm_type(cs);
-  _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), type, 1, name);
+  _llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, name);
   if (_type == ASTType::VAR_DECL) { /// don't do this for arguments
     auto *default_value = _children[1]->get_llvm_value(cs);
-    if (default_value) { cs->get_builder()->CreateStore(default_value, _llvm_value); }
+    if (default_value) { builder->CreateStore(default_value, _llvm_value); }
   }
   /// debug info
   {
     auto *current_di_scope = cs->get_current_di_scope();
     auto *arg_meta = get_ty()->to_llvm_meta(cs);
-    llvm::DILocalVariable *di_arg = cs->get_di_builder()
+    auto *di_arg = cs->_di_builder
         ->createAutoVariable(current_di_scope,
             get_name(),
             cs->get_di_file(),
             (unsigned) _token->l + 1,
             (DIType *) arg_meta);
-    cs->get_di_builder()
+    cs->_di_builder
         ->insertDeclare(_llvm_value,
             di_arg,
-            cs->get_di_builder()->createExpression(),
+            cs->_di_builder->createExpression(),
             llvm::DebugLoc::get((unsigned) _token->l + 1, (unsigned) _token->c + 1, current_di_scope),
-            cs->get_builder()->GetInsertBlock());
+            builder->GetInsertBlock());
   }
   return _llvm_value;
 }

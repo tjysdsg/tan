@@ -82,8 +82,6 @@ public:
    * */
   std::shared_ptr<ASTNode> get(const str &name);
   LLVMContext *get_context();
-  IRBuilder<> *get_builder();
-  std::unique_ptr<DIBuilder> &get_di_builder();
   Module *get_module();
   void emit_object(const str &filename);
 
@@ -102,15 +100,16 @@ public:
   vector<ASTFunctionPtr> get_functions(const str &name);
   std::shared_ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(std::shared_ptr<ASTLoop>);
-
-public:
   DIFile *get_di_file() const;
   DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
 
+public:
+  IRBuilder<> *_builder = nullptr; /// IR builder
+  DIBuilder *_di_builder = nullptr; /// Debug information builder
+
 private:
   LLVMContext *_context = nullptr;
-  IRBuilder<> *_builder = nullptr;
   Module *_module = nullptr;
   vector<std::shared_ptr<Scope>> _scope{};
   vector<DIScope *> _di_scope{};
@@ -118,7 +117,6 @@ private:
   std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;
 
-  std::unique_ptr<DIBuilder> _di_builder{}; /// Debug information builder
   DICompileUnit *_di_cu = nullptr;
   DIFile *_di_file = nullptr;
   FunctionTablePtr _function_table = nullptr;

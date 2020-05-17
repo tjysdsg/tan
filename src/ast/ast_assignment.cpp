@@ -8,6 +8,7 @@
 namespace tanlang {
 
 Value *ASTAssignment::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   /// codegen the rhs
   auto lhs = _children[0];
@@ -15,14 +16,14 @@ Value *ASTAssignment::codegen(CompilerSession *cs) {
   Value *from = rhs->codegen(cs);
   Value *to = lhs->codegen(cs);
 
-  if (rhs->is_lvalue()) { from = cs->get_builder()->CreateLoad(from); }
+  if (rhs->is_lvalue()) { from = builder->CreateLoad(from); }
   if (!lhs->is_lvalue()) { report_code_error(lhs->_token, "Value can only be assigned to lvalue"); }
   if (!to) { report_code_error(lhs->_token, "Invalid left-hand operand of the assignment"); }
   if (!from) { report_code_error(rhs->_token, "Invalid expression for right-hand operand of the assignment"); }
 
   /// to is lvalue
   from = TypeSystem::ConvertTo(cs, to->getType()->getContainedType(0), from, false, true);
-  cs->get_builder()->CreateStore(from, to);
+  builder->CreateStore(from, to);
   _llvm_value = to;
   return to;
 }

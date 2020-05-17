@@ -6,7 +6,7 @@
 namespace tanlang {
 
 Value *ASTStringLiteral::codegen(CompilerSession *cs) {
-  _llvm_value = cs->get_builder()->CreateGlobalStringPtr(_svalue);
+  _llvm_value = cs->_builder->CreateGlobalStringPtr(_svalue);
   return _llvm_value;
 }
 

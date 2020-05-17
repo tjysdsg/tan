@@ -49,6 +49,7 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, vector<ASTNodePtr> sub_tys, bool is_l
 }
 
 Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
+  auto *builder = cs->_builder;
   TAN_ASSERT(_resolved);
   Ty base = TY_GET_BASE(_tyty);
   Value *ret = nullptr;
@@ -66,7 +67,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       ret = ConstantFP::get(type, std::get<double>(_default_value));
       break;
     case Ty::STRING:
-      ret = cs->get_builder()->CreateGlobalStringPtr(std::get<str>(_default_value));
+      ret = builder->CreateGlobalStringPtr(std::get<str>(_default_value));
       break;
     case Ty::VOID:
       TAN_ASSERT(false);
@@ -82,12 +83,12 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       break;
     case Ty::ARRAY: {
       auto *e_type = _children[0]->to_llvm_type(cs);
-      ret = create_block_alloca(cs->get_builder()->GetInsertBlock(), e_type, _n_elements, "const_array");
+      ret = create_block_alloca(builder->GetInsertBlock(), e_type, _n_elements, "const_array");
       for (size_t i = 0; i < _n_elements; ++i) {
-        auto *idx = cs->get_builder()->getInt32((unsigned) i);
+        auto *idx = builder->getInt32((unsigned) i);
         auto *e_val = _children[i]->get_llvm_value(cs);
-        auto *e_ptr = cs->get_builder()->CreateGEP(ret, idx);
-        cs->get_builder()->CreateStore(e_val, e_ptr);
+        auto *e_ptr = builder->CreateGEP(ret, idx);
+        builder->CreateStore(e_val, e_ptr);
       }
       break;
     }
@@ -98,30 +99,31 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
 }
 
 Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
+  auto *builder = cs->_builder;
   TAN_ASSERT(_resolved);
   Ty base = TY_GET_BASE(_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
     case Ty::INT:
-      type = cs->get_builder()->getIntNTy((unsigned) _size_bits);
+      type = builder->getIntNTy((unsigned) _size_bits);
       break;
     case Ty::CHAR:
-      type = cs->get_builder()->getInt8Ty();
+      type = builder->getInt8Ty();
       break;
     case Ty::BOOL:
-      type = cs->get_builder()->getInt1Ty();
+      type = builder->getInt1Ty();
       break;
     case Ty::FLOAT:
-      type = cs->get_builder()->getFloatTy();
+      type = builder->getFloatTy();
       break;
     case Ty::DOUBLE:
-      type = cs->get_builder()->getDoubleTy();
+      type = builder->getDoubleTy();
       break;
     case Ty::STRING:
-      type = cs->get_builder()->getInt8PtrTy(); /// str as char*
+      type = builder->getInt8PtrTy(); /// str as char*
       break;
     case Ty::VOID:
-      type = cs->get_builder()->getVoidTy();
+      type = builder->getVoidTy();
       break;
     case Ty::STRUCT: {
       /// ASTStruct must override this, otherwise ASTStruct must override this, otherwise ASTStruct must override ...
@@ -153,12 +155,11 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
     case Ty::FLOAT:
     case Ty::VOID:
     case Ty::DOUBLE:
-      ret = cs->get_di_builder()->createBasicType(_type_name, _size_bits, _dwarf_encoding);
+      ret = cs->_di_builder->createBasicType(_type_name, _size_bits, _dwarf_encoding);
       break;
     case Ty::STRING: {
-      auto *e_di_type = cs->get_di_builder()->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
-      ret = cs->get_di_builder()
-          ->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
+      auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
+      ret = cs->_di_builder->createPointerType(e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }
     case Ty::STRUCT: {
@@ -170,7 +171,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
         auto e = st->_children[i]; // ASTVarDecl
         elements.push_back(e->get_ty()->to_llvm_meta(cs));
       }
-      ret = cs->get_di_builder()
+      ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
               _type_name,
               di_file,
@@ -179,7 +180,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
               (unsigned) _align_bits,
               DINode::DIFlags::FlagZero,
               nullptr,
-              cs->get_di_builder()->getOrCreateArray(elements),
+              cs->_di_builder->getOrCreateArray(elements),
               0,
               nullptr,
               _type_name);
@@ -189,7 +190,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
     case Ty::POINTER: {
       auto e = ast_cast<ASTTy>(_children[0]);
       auto *e_di_type = e->to_llvm_meta(cs);
-      ret = cs->get_di_builder()
+      ret = cs->_di_builder
           ->createPointerType((DIType *) e_di_type, _size_bits, (unsigned) _align_bits, llvm::None, _type_name);
       break;
     }

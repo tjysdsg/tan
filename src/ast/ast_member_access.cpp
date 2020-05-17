@@ -91,6 +91,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
 }
 
 Value *ASTMemberAccess::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto lhs = _children[0];
   ASTNodePtr rhs = nullptr;
@@ -99,22 +100,22 @@ Value *ASTMemberAccess::codegen(CompilerSession *cs) {
   Value *ret = nullptr;
   switch (_access_type) {
     case MemberAccessBracket: {
-      if (lhs->is_lvalue()) { from = cs->get_builder()->CreateLoad(from); }
+      if (lhs->is_lvalue()) { from = builder->CreateLoad(from); }
       auto *rhs_val = rhs->codegen(cs);
-      if (rhs->is_lvalue()) { rhs_val = cs->get_builder()->CreateLoad(rhs_val); }
-      ret = cs->get_builder()->CreateGEP(from, rhs_val, "bracket_access");
+      if (rhs->is_lvalue()) { rhs_val = builder->CreateLoad(rhs_val); }
+      ret = builder->CreateGEP(from, rhs_val, "bracket_access");
       break;
     }
     case MemberAccessMemberVariable: {
       if (lhs->is_lvalue() && lhs->get_ty()->is_ptr() && lhs->get_ty()->get_contained_ty()) {
         /// auto dereference pointers
-        from = cs->get_builder()->CreateLoad(from);
+        from = builder->CreateLoad(from);
       }
-      ret = cs->get_builder()->CreateStructGEP(from, (unsigned) _access_idx, "member_variable");
+      ret = builder->CreateStructGEP(from, (unsigned) _access_idx, "member_variable");
       break;
     }
     case MemberAccessDeref:
-      ret = cs->get_builder()->CreateLoad(from);
+      ret = builder->CreateLoad(from);
       break;
     case MemberAccessMemberFunction:
       ret = _children[1]->codegen(cs);

@@ -20,13 +20,14 @@ size_t ASTAmpersand::nud() {
 ASTAmpersand::ASTAmpersand(Token *token, size_t token_index) : ASTNode(ASTType::INVALID, 0, 0, token, token_index) {}
 
 Value *ASTAmpersand::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   if (_type == ASTType::ADDRESS_OF) {
     auto *val = _children[0]->codegen(cs);
     if (_children[0]->is_lvalue()) { /// lvalue, the val itself is a pointer to real value
       _llvm_value = val;
     } else { /// rvalue, create an anonymous variable, and get address of it
-      _llvm_value = create_block_alloca(cs->get_builder()->GetInsertBlock(), val->getType(), 1, "anonymous");
-      cs->get_builder()->CreateStore(val, _llvm_value);
+      _llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
+      builder->CreateStore(val, _llvm_value);
     }
   } else if (_type == ASTType::BAND) {
     // TODO: codegen for binary and

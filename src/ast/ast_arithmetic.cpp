@@ -19,6 +19,7 @@ size_t ASTArithmetic::nud() {
 }
 
 Value *ASTArithmetic::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   if (_children.size() == 1) { /// unary plus/minus
     if (!is_ast_type_in(_type, {ASTType::SUM, ASTType::SUBTRACT})) {
@@ -28,16 +29,16 @@ Value *ASTArithmetic::codegen(CompilerSession *cs) {
       return _children[0]->codegen(cs);
     } else {
       auto *rhs = _children[0]->codegen(cs);
-      if (_children[0]->is_lvalue()) { rhs = cs->get_builder()->CreateLoad(rhs); }
-      if (rhs->getType()->isFloatingPointTy()) { return cs->get_builder()->CreateFNeg(rhs); }
-      return cs->get_builder()->CreateNeg(rhs);
+      if (_children[0]->is_lvalue()) { rhs = builder->CreateLoad(rhs); }
+      if (rhs->getType()->isFloatingPointTy()) { return builder->CreateFNeg(rhs); }
+      return builder->CreateNeg(rhs);
     }
   }
   Value *lhs = _children[0]->codegen(cs);
   Value *rhs = _children[1]->codegen(cs);
   TAN_ASSERT(lhs && rhs);
-  if (_children[0]->is_lvalue()) { lhs = cs->get_builder()->CreateLoad(lhs); }
-  if (_children[1]->is_lvalue()) { rhs = cs->get_builder()->CreateLoad(rhs); }
+  if (_children[0]->is_lvalue()) { lhs = builder->CreateLoad(lhs); }
+  if (_children[1]->is_lvalue()) { rhs = builder->CreateLoad(rhs); }
 
   Type *ltype = lhs->getType();
   Type *rtype = rhs->getType();
@@ -49,32 +50,32 @@ Value *ASTArithmetic::codegen(CompilerSession *cs) {
   if (lhs->getType()->isFloatingPointTy()) {
     /// float arithmetic
     if (_type == ASTType::MULTIPLY) {
-      _llvm_value = cs->get_builder()->CreateFMul(lhs, rhs, "mul_tmp");
+      _llvm_value = builder->CreateFMul(lhs, rhs, "mul_tmp");
     } else if (_type == ASTType::DIVIDE) {
-      _llvm_value = cs->get_builder()->CreateFDiv(lhs, rhs, "div_tmp");
+      _llvm_value = builder->CreateFDiv(lhs, rhs, "div_tmp");
     } else if (_type == ASTType::SUM) {
-      _llvm_value = cs->get_builder()->CreateFAdd(lhs, rhs, "sum_tmp");
+      _llvm_value = builder->CreateFAdd(lhs, rhs, "sum_tmp");
     } else if (_type == ASTType::SUBTRACT) {
-      _llvm_value = cs->get_builder()->CreateFSub(lhs, rhs, "sub_tmp");
+      _llvm_value = builder->CreateFSub(lhs, rhs, "sub_tmp");
     } else if (_type == ASTType::MOD) {
-      _llvm_value = cs->get_builder()->CreateFRem(lhs, rhs, "mod_tmp");
+      _llvm_value = builder->CreateFRem(lhs, rhs, "mod_tmp");
     } else { TAN_ASSERT(false); }
   } else {
     /// integer arithmetic
     if (_type == ASTType::MULTIPLY) {
-      _llvm_value = cs->get_builder()->CreateMul(lhs, rhs, "mul_tmp");
+      _llvm_value = builder->CreateMul(lhs, rhs, "mul_tmp");
     } else if (_type == ASTType::DIVIDE) {
       auto ty = _children[0]->get_ty();
-      if (ty->is_unsigned()) { _llvm_value = cs->get_builder()->CreateUDiv(lhs, rhs, "div_tmp"); }
-      else { _llvm_value = cs->get_builder()->CreateSDiv(lhs, rhs, "div_tmp"); }
+      if (ty->is_unsigned()) { _llvm_value = builder->CreateUDiv(lhs, rhs, "div_tmp"); }
+      else { _llvm_value = builder->CreateSDiv(lhs, rhs, "div_tmp"); }
     } else if (_type == ASTType::SUM) {
-      _llvm_value = cs->get_builder()->CreateAdd(lhs, rhs, "sum_tmp");
+      _llvm_value = builder->CreateAdd(lhs, rhs, "sum_tmp");
     } else if (_type == ASTType::SUBTRACT) {
-      _llvm_value = cs->get_builder()->CreateSub(lhs, rhs, "sub_tmp");
+      _llvm_value = builder->CreateSub(lhs, rhs, "sub_tmp");
     } else if (_type == ASTType::MOD) {
       auto ty = _children[0]->get_ty();
-      if (ty->is_unsigned()) { _llvm_value = cs->get_builder()->CreateURem(lhs, rhs, "mod_tmp"); }
-      else { _llvm_value = cs->get_builder()->CreateSRem(lhs, rhs, "mod_tmp"); }
+      if (ty->is_unsigned()) { _llvm_value = builder->CreateURem(lhs, rhs, "mod_tmp"); }
+      else { _llvm_value = builder->CreateSRem(lhs, rhs, "mod_tmp"); }
     } else { TAN_ASSERT(false); }
   }
   return _llvm_value;

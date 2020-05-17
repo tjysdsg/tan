@@ -13,7 +13,7 @@ ASTCharLiteral::ASTCharLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::CHAR_L
     ti) { _c = t->value[0]; }
 
 Value *ASTCharLiteral::codegen(CompilerSession *cs) {
-  _llvm_value = ConstantInt::get(cs->get_builder()->getInt8Ty(), (uint64_t) _c);
+  _llvm_value = ConstantInt::get(cs->_builder->getInt8Ty(), (uint64_t) _c);
   return _llvm_value;
 }
 

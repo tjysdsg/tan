@@ -7,6 +7,7 @@
 namespace tanlang {
 
 llvm::Value *ASTLoop::codegen(CompilerSession *cs) {
+  auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   cs->set_current_loop(this->shared_from_this());
   if (_loop_type == ASTLoopType::WHILE) {
@@ -23,7 +24,7 @@ llvm::Value *ASTLoop::codegen(CompilerSession *cs) {
      *    ...
      * */
 
-    Function *func = cs->get_builder()->GetInsertBlock()->getParent();
+    Function *func = builder->GetInsertBlock()->getParent();
 
     /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
     /// use these two (get_loop_start() and get_loop_end())
@@ -33,24 +34,24 @@ llvm::Value *ASTLoop::codegen(CompilerSession *cs) {
 
     /// start loop
     // create a br instruction if there is no terminator instruction at the end of this block
-    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(_loop_start); }
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(_loop_start); }
 
     /// exit condition
-    cs->get_builder()->SetInsertPoint(_loop_start);
+    builder->SetInsertPoint(_loop_start);
     auto *cond = _children[0]->codegen(cs);
-    cond = TypeSystem::ConvertTo(cs, cs->get_builder()->getInt1Ty(), cond, false);
-    cs->get_builder()->CreateCondBr(cond, loop_body, _loop_end);
+    cond = TypeSystem::ConvertTo(cs, builder->getInt1Ty(), cond, false);
+    builder->CreateCondBr(cond, loop_body, _loop_end);
 
     /// loop body
-    cs->get_builder()->SetInsertPoint(loop_body);
+    builder->SetInsertPoint(loop_body);
     _children[1]->codegen(cs);
 
     /// go back to the start of the loop
     // create a br instruction if there is no terminator instruction at the end of this block
-    if (!cs->get_builder()->GetInsertBlock()->back().isTerminator()) { cs->get_builder()->CreateBr(_loop_start); }
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(_loop_start); }
 
     /// end loop
-    cs->get_builder()->SetInsertPoint(_loop_end);
+    builder->SetInsertPoint(_loop_end);
   } else { TAN_ASSERT(false); }
   cs->set_current_loop(nullptr);
   return nullptr;
