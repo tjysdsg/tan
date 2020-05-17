@@ -7,7 +7,7 @@
 
 namespace tanlang {
 
-Value *ASTIf::codegen(CompilerSession *cs) {
+Value *ASTIf::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Value *condition = _children[0]->codegen(cs);
@@ -52,12 +52,12 @@ Value *ASTIf::codegen(CompilerSession *cs) {
   return nullptr;
 }
 
-Value *ASTElse::codegen(CompilerSession *cs) {
+Value *ASTElse::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   return _children[0]->codegen(cs);
 }
 
-llvm::Value *ASTBreakContinue::codegen(CompilerSession *cs) {
+llvm::Value *ASTBreakContinue::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   auto loop = cs->get_current_loop();
   if (!loop) { report_code_error(_token, "Any break/continue statement must be inside loop"); }

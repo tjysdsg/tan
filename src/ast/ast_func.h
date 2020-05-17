@@ -29,7 +29,6 @@ public:
 
 public:
   ASTFunction(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
   llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
   bool is_named() const override;
   bool is_typed() const override;
@@ -42,6 +41,7 @@ public:
   void set_func(llvm::Function *f);
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 
 private:
@@ -64,7 +64,6 @@ class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
   bool is_named() const override;
   bool is_lvalue() const override;
   bool is_typed() const override;
@@ -74,6 +73,7 @@ public:
   bool _do_resolve = true;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
   ASTFunctionPtr get_callee() const;
 

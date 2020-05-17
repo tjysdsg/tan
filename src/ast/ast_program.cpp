@@ -6,7 +6,7 @@ namespace tanlang {
 
 ASTProgram::ASTProgram() : ASTNode(ASTType::PROGRAM, op_precedence[tanlang::ASTType::PROGRAM], 0, nullptr, 0) {}
 
-llvm::Value *ASTProgram::codegen(CompilerSession *cs) {
+llvm::Value *ASTProgram::_codegen(CompilerSession *cs) {
   for (const auto &e : _children) { e->codegen(cs); }
   return nullptr;
 }

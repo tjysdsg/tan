@@ -19,7 +19,7 @@ size_t ASTAmpersand::nud() {
 /// set type as invalid first, since we do not know if this is a 'binary and' or 'get address of'
 ASTAmpersand::ASTAmpersand(Token *token, size_t token_index) : ASTNode(ASTType::INVALID, 0, 0, token, token_index) {}
 
-Value *ASTAmpersand::codegen(CompilerSession *cs) {
+Value *ASTAmpersand::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   if (_type == ASTType::ADDRESS_OF) {
     auto *val = _children[0]->codegen(cs);

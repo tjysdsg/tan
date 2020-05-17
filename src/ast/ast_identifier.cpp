@@ -6,7 +6,7 @@
 
 namespace tanlang {
 
-Value *ASTIdentifier::codegen(CompilerSession *cs) {
+Value *ASTIdentifier::_codegen(CompilerSession *cs) {
   auto var = ast_cast<ASTVarDecl>(cs->get(_name));
   if (!var) { report_code_error(_token, "Cannot find variable '" + _name + "' in current scope"); }
   _llvm_value = var->get_llvm_value(cs);

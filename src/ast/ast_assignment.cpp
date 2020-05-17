@@ -7,10 +7,10 @@
 
 namespace tanlang {
 
-Value *ASTAssignment::codegen(CompilerSession *cs) {
+Value *ASTAssignment::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
-  /// codegen the rhs
+  /// _codegen the rhs
   auto lhs = _children[0];
   auto rhs = _children[1];
   Value *from = rhs->codegen(cs);

@@ -131,7 +131,7 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
       type = st->to_llvm_type(cs);
       break;
     }
-    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during codegen, they are the same
+    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
       auto e_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(cs);
       type = e_type->getPointerTo();

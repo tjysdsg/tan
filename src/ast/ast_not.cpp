@@ -12,7 +12,7 @@ ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index)
   _lbp = op_precedence[_type];
 }
 
-Value *ASTNot::codegen(CompilerSession *cs) {
+Value *ASTNot::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(cs);

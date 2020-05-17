@@ -9,7 +9,7 @@ ASTReturn::ASTReturn(Token *token, size_t token_index) : ASTPrefix(token, token_
   _lbp = op_precedence[_type];
 }
 
-Value *ASTReturn::codegen(CompilerSession *cs) {
+Value *ASTReturn::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   auto *result = _children[0]->codegen(cs);
   if (_children[0]->is_lvalue()) { result = cs->_builder->CreateLoad(result, "ret"); }

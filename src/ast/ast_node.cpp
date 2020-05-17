@@ -64,6 +64,10 @@ size_t ASTNode::parse(Parser *parser, CompilerSession *cs) {
   return ret;
 }
 
+llvm::Value *ASTNode::codegen(CompilerSession *cs) {
+  return this->_codegen(cs);
+}
+
 size_t ASTNode::led(const ASTNodePtr &left) {
   UNUSED(left);
   throw std::runtime_error("Not implemented");
@@ -71,15 +75,13 @@ size_t ASTNode::led(const ASTNodePtr &left) {
 
 size_t ASTNode::nud() { throw std::runtime_error("Not implemented"); }
 
-Value *ASTNode::codegen(CompilerSession *compiler_session) {
+Value *ASTNode::_codegen(CompilerSession *compiler_session) {
   if (_children.empty()) { return nullptr; }
   size_t n = _children.size();
-  Value *result = nullptr;
-  for (size_t i = 0; i < n - 1; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     _children[i]->codegen(compiler_session);
   }
-  result = _children[n - 1]->codegen(compiler_session);
-  return result;
+  return nullptr;
 }
 
 Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {

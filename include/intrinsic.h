@@ -58,7 +58,7 @@ public:
   size_t led(const ASTNodePtr &left) override;
   size_t nud() override;
   str to_string(bool print_prefix = true) const override;
-  llvm::Value *codegen(CompilerSession *) override;
+  llvm::Value *_codegen(CompilerSession *) override;
   bool is_lvalue() const override;
   bool is_typed() const override;
 

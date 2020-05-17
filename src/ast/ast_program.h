@@ -7,9 +7,9 @@ namespace tanlang {
 class ASTProgram final : public tanlang::ASTNode {
 public:
   ASTProgram();
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 };
 

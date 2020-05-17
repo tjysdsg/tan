@@ -15,10 +15,10 @@ public:
   ASTStringLiteral() = delete;
   ASTStringLiteral(Token *token, size_t token_index);
   ASTStringLiteral(const str &str, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
   str get_string() const;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 
 private:

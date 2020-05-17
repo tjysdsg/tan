@@ -11,7 +11,7 @@
 
 using namespace tanlang;
 
-Value *ASTFunction::codegen(CompilerSession *cs) {
+Value *ASTFunction::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Metadata *ret_meta = _children[0]->to_llvm_meta(cs);
@@ -138,7 +138,7 @@ Value *ASTFunction::codegen_prototype(CompilerSession *compiler_session, bool im
   return _func;
 }
 
-Value *ASTFunctionCall::codegen(CompilerSession *cs) {
+Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   /// args
   size_t n_args = _children.size();
   vector<Value *> arg_vals;

@@ -6,7 +6,7 @@
 
 namespace tanlang {
 
-llvm::Value *ASTLoop::codegen(CompilerSession *cs) {
+llvm::Value *ASTLoop::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   cs->set_current_loop(this->shared_from_this());

@@ -8,11 +8,11 @@ class ASTParenthesis final : public ASTNode {
 public:
   ASTParenthesis() = delete;
   ASTParenthesis(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
   bool is_typed() const override;
   bool is_lvalue() const override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 };
 

@@ -16,7 +16,7 @@ size_t ASTCast::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-Value *ASTCast::codegen(CompilerSession *cs) {
+Value *ASTCast::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto lhs = _children[0];

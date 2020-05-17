@@ -8,9 +8,9 @@ class ASTNot final : public ASTPrefix {
 public:
   ASTNot() = delete;
   ASTNot(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 };
 

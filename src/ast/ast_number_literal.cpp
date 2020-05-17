@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-Value *ASTNumberLiteral::codegen(CompilerSession *cs) { return _ty->get_llvm_value(cs); }
+Value *ASTNumberLiteral::_codegen(CompilerSession *cs) { return _ty->get_llvm_value(cs); }
 
 size_t ASTNumberLiteral::nud() {
   _end_index = _start_index + 1;

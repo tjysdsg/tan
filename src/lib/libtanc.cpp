@@ -97,7 +97,7 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
     if (print_ast) { compiler->dump_ast(); }
     END_TRY
   }
-  /// codegen
+  /// _codegen
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
     compilers[i]->codegen();

@@ -44,7 +44,7 @@ size_t ASTArrayLiteral::nud() {
   return _end_index;
 }
 
-Value *ASTArrayLiteral::codegen(CompilerSession *cs) {
+Value *ASTArrayLiteral::_codegen(CompilerSession *cs) {
   _llvm_value = _ty->get_llvm_value(cs);
   return _llvm_value;
 }

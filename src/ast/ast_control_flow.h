@@ -8,9 +8,9 @@ class ASTIf final : public ASTNode {
 public:
   ASTIf() = delete;
   ASTIf(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 
 private:
@@ -21,9 +21,9 @@ class ASTElse final : public ASTNode {
 public:
   ASTElse() = delete;
   ASTElse(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 };
 
@@ -31,9 +31,9 @@ class ASTBreakContinue final : public ASTNode {
 public:
   ASTBreakContinue() = delete;
   ASTBreakContinue(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
 };
 

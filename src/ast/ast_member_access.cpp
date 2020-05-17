@@ -90,7 +90,7 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-Value *ASTMemberAccess::codegen(CompilerSession *cs) {
+Value *ASTMemberAccess::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto lhs = _children[0];

@@ -13,7 +13,7 @@ size_t ASTCompare::led(const ASTNodePtr &left) {
   return ret;
 }
 
-Value *ASTCompare::codegen(CompilerSession *cs) {
+Value *ASTCompare::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   Value *lhs = _children[0]->codegen(cs);

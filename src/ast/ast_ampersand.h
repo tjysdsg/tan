@@ -24,11 +24,11 @@ public:
 public:
   ASTAmpersand() = delete;
   ASTAmpersand(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
   bool is_typed() const override;
   bool is_lvalue() const override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t led(const ASTNodePtr &left) override;
   size_t nud() override;
 };

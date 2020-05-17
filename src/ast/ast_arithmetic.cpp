@@ -18,7 +18,7 @@ size_t ASTArithmetic::nud() {
   return _end_index;
 }
 
-Value *ASTArithmetic::codegen(CompilerSession *cs) {
+Value *ASTArithmetic::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   if (_children.size() == 1) { /// unary plus/minus

@@ -26,7 +26,6 @@ public:
 public:
   ASTVarDecl() = delete;
   ASTVarDecl(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *cs) override;
   bool is_typed() const override;
   bool is_named() const override;
   bool is_lvalue() const override;
@@ -34,6 +33,7 @@ public:
   bool is_type_resolved() const;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *cs) override;
   size_t nud() override;
   size_t _nud();
 

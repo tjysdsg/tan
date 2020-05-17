@@ -59,7 +59,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
     /*
      * This should not be called, because:
      * - array type with size bound is checked during parsing phase
-     * - all array types are treated as pointers during codegen phase
+     * - all array types are treated as pointers during _codegen phase
      * - even llvm::ArrayConstant is immediately converted to pointers after allocation
     */
     TAN_ASSERT(false);

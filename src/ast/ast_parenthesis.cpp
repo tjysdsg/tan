@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-Value *ASTParenthesis::codegen(CompilerSession *cs) {
+Value *ASTParenthesis::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   _llvm_value = _children[0]->codegen(cs);
   size_t n = _children.size();

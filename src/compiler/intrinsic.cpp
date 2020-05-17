@@ -28,13 +28,13 @@ void Intrinsic::Init(CompilerSession *cs) {
   cs->add_function(ASTFunction::CreateExtern("compprint", {ASTTy::Create(Ty::VOID), ASTTy::Create(Ty::STRING)}));
 }
 
-/// add codegen for function definition if a new function-like intrinsic is added
+/// add _codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_noop(cs);
   init_abort(cs);
 }
 
-Value *Intrinsic::codegen(CompilerSession *cs) {
+Value *Intrinsic::_codegen(CompilerSession *cs) {
   ASTNodePtr tmp = nullptr;
   switch (_intrinsic_type) {
     case IntrinsicType::FILENAME:

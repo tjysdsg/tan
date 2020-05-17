@@ -8,9 +8,9 @@ class ASTCompare final : public ASTInfixBinaryOp {
 public:
   ASTCompare() = delete;
   ASTCompare(ASTType type, Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t led(const ASTNodePtr &left) override;
 };
 

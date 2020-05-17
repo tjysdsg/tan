@@ -41,7 +41,7 @@ size_t ASTVarDecl::nud() {
   return _nud();
 }
 
-Value *ASTVarDecl::codegen(CompilerSession *cs) {
+Value *ASTVarDecl::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   if (!_is_type_resolved) { report_code_error(_token, "Unknown type"); }
   cs->set_current_debug_location(_token->l, _token->c);

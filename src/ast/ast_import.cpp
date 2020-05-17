@@ -9,7 +9,7 @@
 
 namespace tanlang {
 
-Value *ASTImport::codegen(CompilerSession *cs) {
+Value *ASTImport::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   for (auto &n: _imported_functions) {
     auto f = ast_cast<ASTFunction>(n);

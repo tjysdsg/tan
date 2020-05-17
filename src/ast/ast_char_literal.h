@@ -8,9 +8,9 @@ class ASTCharLiteral final : public ASTLiteral {
 public:
   ASTCharLiteral() = delete;
   ASTCharLiteral(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *compiler_session) override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *compiler_session) override;
   size_t nud() override;
 
 private:

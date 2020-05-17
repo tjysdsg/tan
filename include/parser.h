@@ -3,6 +3,7 @@
 #include "base.h"
 #include <memory>
 #include <stack>
+#include <src/ast/ast_node.h>
 
 namespace tanlang {
 

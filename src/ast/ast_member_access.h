@@ -14,11 +14,11 @@ public:
 public:
   ASTMemberAccess() = delete;
   ASTMemberAccess(Token *token, size_t token_index);
-  llvm::Value *codegen(CompilerSession *) override;
   bool is_lvalue() const override;
   bool is_typed() const override;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override;
   size_t led(const ASTNodePtr &left) override;
 
 private:

@@ -108,6 +108,7 @@ public:
 public:
   [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs);
   [[nodiscard]] virtual size_t parse(Parser *parser, CompilerSession *cs);
+  llvm::Value *codegen(CompilerSession *cs);
 
   /**
    * \brief Pretty-print the AST
@@ -130,7 +131,6 @@ public:
 public:
   virtual llvm::Type *to_llvm_type(CompilerSession *) const;
   virtual llvm::Value *get_llvm_value(CompilerSession *) const;
-  virtual llvm::Value *codegen(CompilerSession *compiler_session);
   virtual str to_string(bool print_prefix = true) const;
   virtual bool is_typed() const { return false; }
   virtual bool is_named() const { return false; }
@@ -138,6 +138,7 @@ public:
   virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
 
 protected:
+  virtual llvm::Value *_codegen(CompilerSession *compiler_session);
   [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
   [[nodiscard]] virtual size_t nud();
 

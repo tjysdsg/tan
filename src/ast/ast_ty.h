@@ -56,7 +56,6 @@ public:
   ASTTy(const ASTTy &) = default;
 
 public:
-  llvm::Value *codegen(CompilerSession *) override { return nullptr; }
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
   str to_string(bool print_prefix = true) const override;
   llvm::Type *to_llvm_type(CompilerSession *) const override;
@@ -90,6 +89,7 @@ public:
   std::variant<str, uint64_t, float, double> _default_value;
 
 protected:
+  llvm::Value *_codegen(CompilerSession *) override { return nullptr; }
   void resolve();
   mutable str _type_name = "";
   mutable llvm::Type *_llvm_type = nullptr;
