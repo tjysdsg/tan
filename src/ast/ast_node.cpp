@@ -105,10 +105,15 @@ str ASTNode::get_source_location() const {
 }
 
 void ASTNode::error(const str &error_message) const {
-  TAN_ASSERT(_cs);
-  TAN_ASSERT(_parser);
-  if (_cs->_current_token) { report_error(_parser->get_filename(), _cs->_current_token, error_message); }
-  else { error(error_message); }
+  if (_cs && _cs->_current_token && _parser) {
+    report_error(_parser->get_filename(), _cs->_current_token, error_message);
+  } else { report_error(error_message); }
+}
+
+void ASTNode::error(size_t i, const str &error_message) const {
+  if (_parser) {
+    report_error(_parser->get_filename(), _parser->at(i), error_message);
+  } else { report_error(error_message); }
 }
 
 /// other definitions

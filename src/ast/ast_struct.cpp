@@ -25,7 +25,7 @@ size_t ASTStruct::nud() {
   /// struct body
   if (_parser->at(_end_index)->value == "{") {
     auto comp_stmt = _parser->next_expression(_end_index);
-    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error("Invalid struct body"); }
+    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error(_end_index, "Invalid struct body"); }
 
     /// resolve member names and types
     auto members = comp_stmt->_children;
@@ -41,10 +41,10 @@ size_t ASTStruct::nud() {
         var_decl = members[i]->_children[0];
         auto initial_value = members[i]->_children[1];
         if (!is_ast_type_in(initial_value->_type, TypeSystem::LiteralTypes)) {
-          error("Invalid initial value of the member variable");
+          initial_value->error("Invalid initial value of the member variable");
         }
         _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
-      } else { error("Invalid struct member"); }
+      } else { members[i]->error("Invalid struct member"); }
       auto name = var_decl->get_name();
       _member_names.push_back(name);
       _member_indices[name] = i;
@@ -61,7 +61,7 @@ ASTStruct::ASTStruct(Token *token, size_t token_index) : ASTTy(token, token_inde
 
 size_t ASTStruct::get_member_index(str name) {
   if (_member_indices.find(name) == _member_indices.end()) {
-    error("Unknown member of struct '" + get_type_name() + "'");
+    error("Unknown member of struct '" + get_type_name() + "'"); // TODO: move this outside
   }
   return _member_indices[name];
 }

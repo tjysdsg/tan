@@ -1,4 +1,5 @@
 #include "src/ast/ast_assignment.h"
+#include "src/ast/ast_identifier.h"
 #include "src/ast/ast_var_decl.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
@@ -17,9 +18,9 @@ Value *ASTAssignment::_codegen(CompilerSession *cs) {
   Value *to = lhs->codegen(cs);
 
   if (rhs->is_lvalue()) { from = builder->CreateLoad(from); }
-  if (!lhs->is_lvalue()) { error("Value can only be assigned to lvalue"); }
-  if (!to) { error("Invalid left-hand operand of the assignment"); }
-  if (!from) { error("Invalid expression for right-hand operand of the assignment"); }
+  if (!lhs->is_lvalue()) { lhs->error("Value can only be assigned to lvalue"); }
+  if (!to) { lhs->error("Invalid left-hand operand of the assignment"); }
+  if (!from) { rhs->error("Invalid expression for right-hand operand of the assignment"); }
 
   /// to is lvalue
   from = TypeSystem::ConvertTo(cs, to->getType()->getContainedType(0), from, false, true);
@@ -37,8 +38,8 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
   auto lhs = left;
   if (lhs->_type == ASTType::ID) {
     TAN_ASSERT(lhs->is_named());
-    lhs = _cs->get(left->get_name());
-    TAN_ASSERT(lhs);
+    auto id = ast_cast<ASTIdentifier>(lhs);
+    lhs = id->get_referred();
   }
   if (lhs->_type == ASTType::VAR_DECL) {
     auto var = ast_cast<ASTVarDecl>(lhs);

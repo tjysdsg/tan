@@ -13,7 +13,7 @@ Value *ASTIf::_codegen(CompilerSession *cs) {
   Value *condition = _children[0]->codegen(cs);
   if (!condition) {
     auto *condition_token = _children[0]->_token;
-    error("Invalid condition expression " + condition_token->to_string());
+    _children[0]->error("Invalid condition expression " + condition_token->to_string());
   }
 
   /// convert to bool if not

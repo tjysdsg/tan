@@ -127,6 +127,8 @@ public:
   str get_type_name() const;
   std::shared_ptr<ASTTy> get_ty() const;
   str get_source_location() const;
+  [[noreturn]] void error(const str &error_message) const;
+  [[noreturn]] void error(size_t token_idx, const str &error_message) const;
 
 public:
   virtual llvm::Type *to_llvm_type(CompilerSession *) const;
@@ -141,7 +143,6 @@ protected:
   virtual llvm::Value *_codegen(CompilerSession *);
   [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
   [[nodiscard]] virtual size_t nud();
-  [[noreturn]] void error(const str &error_message) const;
 
 private:
   void printTree(const str &prefix, bool last_child) const;

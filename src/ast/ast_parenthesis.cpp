@@ -18,7 +18,7 @@ size_t ASTParenthesis::nud() {
   while (true) {
     auto *t = _parser->at(_end_index);
     if (!t) {
-      error("Unexpected EOF");
+      error(_end_index - 1, "Unexpected EOF");
     } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
       ++_end_index;
       break;
@@ -27,7 +27,7 @@ size_t ASTParenthesis::nud() {
     if (n) {
       _children.push_back(n);
     } else {
-      error("Unexpected " + t->to_string());
+      error(_end_index, "Unexpected " + t->to_string());
     }
   }
   _ty = _children[0]->get_ty();

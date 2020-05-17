@@ -146,7 +146,7 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   for (size_t i = 0; i < n_args; ++i) {
     Type *expected_type = get_callee()->get_arg(i)->to_llvm_type(cs);
     auto *a = _children[i]->codegen(cs);
-    if (!a) { error("Invalid function call argument"); }
+    if (!a) { _children[i]->error("Invalid function call argument"); }
 
     /// implicit cast
     a = TypeSystem::ConvertTo(cs, expected_type, a, _children[i]->is_lvalue());
@@ -249,7 +249,7 @@ size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
   _end_index = _start_index + 1; /// skip function name
   auto *token = _parser->at(_end_index);
-  if (token->value != "(") { error("Invalid function call"); }
+  if (token->value != "(") { error(_end_index, "Invalid function call"); }
   ++_end_index;
   while (!_parser->eof(_end_index) && _parser->at(_end_index)->value != ")") {
     _children.push_back(_parser->next_expression(_end_index));

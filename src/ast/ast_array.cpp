@@ -21,19 +21,19 @@ size_t ASTArrayLiteral::nud() {
       break;
     }
     auto node = _parser->peek(_end_index);
-    if (!node) { error("Unexpected token"); }
+    if (!node) { error(_end_index, "Unexpected token"); }
     /// check whether element types are the same
     if (element_type == ASTType::INVALID) { element_type = node->_type; }
     else {
       if (element_type != node->_type) {
-        error("All elements in an array must have the same type");
+        error(_end_index, "All elements in an array must have the same type");
       }
     }
     if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++_end_index; }
       _end_index = node->parse(_parser, _cs);
       _children.push_back(node);
-    } else { error("Expect literals"); }
+    } else { error(_end_index, "Expect literals"); }
   }
 
   auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);

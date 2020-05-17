@@ -12,11 +12,11 @@ public:
   str to_string(bool print_prefix = true) const override;
   bool is_lvalue() const override;
   bool is_typed() const override;
+  ASTNodePtr get_referred(bool strict = true) const;
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
-  ASTNodePtr get_referred(bool strict = true) const;
 
 private:
   mutable ASTNodePtr _referred = nullptr;

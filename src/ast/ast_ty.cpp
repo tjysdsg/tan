@@ -362,7 +362,7 @@ size_t ASTTy::nud_array() {
   ASTNodePtr element = nullptr;
   /// element type
   if (_parser->at(_end_index)->value == "]") { /// empty
-    report_error(_parser->get_filename(), _parser->at(_end_index), "The array type and size must be specified");
+    error("The array type and size must be specified");
   } else {
     element = std::make_shared<ASTTy>(_parser->at(_end_index), _end_index);
     _end_index = element->parse(_parser, _cs); /// this set the _type_name of child
@@ -372,13 +372,9 @@ size_t ASTTy::nud_array() {
 
   /// size
   auto size = _parser->peek(_end_index);
-  if (size->_type != ASTType::NUM_LITERAL) {
-    report_error(_parser->get_filename(), _parser->at(_end_index), "Expect an unsigned integer");
-  }
+  if (size->_type != ASTType::NUM_LITERAL) { error(_end_index, "Expect an unsigned integer"); }
   auto size1 = ast_cast<ASTNumberLiteral>(size);
-  if (size1->is_float() || size1->_ivalue < 0) {
-    report_error(_parser->get_filename(), _parser->at(_end_index), "Expect an unsigned integer");
-  }
+  if (size1->is_float() || size1->_ivalue < 0) { error(_end_index, "Expect an unsigned integer"); }
   _n_elements = static_cast<size_t>(size1->_ivalue);
   for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(element->get_ty()); }
   /// set _type_name to [<element type>, <n_elements>]
