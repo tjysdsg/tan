@@ -56,8 +56,13 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
       return cs->get_builder()
           ->CreateICmpNE(loaded, ConstantInt::get(cs->get_builder()->getIntNTy((unsigned) s1), 0, false));
     }
-  } else if (orig->isArrayTy() && dest->isArrayTy()) { // between arrays
-    // TODO: cast between arrays
+  } else if (orig->isArrayTy() && dest->isArrayTy()) {
+    /*
+     * This should not be called, because:
+     * - array type with size bound is checked during parsing phase
+     * - all array types are treated as pointers during codegen phase
+     * - even llvm::ArrayConstant is immediately converted to pointers after allocation
+    */
     TAN_ASSERT(false);
   } else { throw std::runtime_error("Invalid type conversion"); }
 }

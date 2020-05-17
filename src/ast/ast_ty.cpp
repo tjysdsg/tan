@@ -397,7 +397,7 @@ size_t ASTTy::nud() {
         /// swap self and child
         auto sub = std::make_shared<ASTTy>(*this);
         _tyty = Ty::POINTER;
-        _children.clear(); // FIXME: is there a way to optimize these two lines
+        _children.clear(); /// clear but memory stays
         _children.push_back(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct
