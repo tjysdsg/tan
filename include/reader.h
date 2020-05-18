@@ -66,10 +66,11 @@ public:
   Cursor &operator=(const Cursor &other) = default;
   Cursor(const Cursor &other) = default;
   ~Cursor() = default;
-  bool operator==(const Cursor &other);
-  bool operator!=(const Cursor &other);
-  bool operator<(const Cursor &other);
-  bool operator>(const Cursor &other);
+  bool operator==(const Cursor &other) const;
+  bool operator!=(const Cursor &other) const;
+  bool operator<=(const Cursor &other) const;
+  bool operator<(const Cursor &other) const;
+  bool operator>(const Cursor &other) const;
   // prefix increment
   Cursor &operator++();
   // postfix increment

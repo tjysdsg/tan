@@ -56,7 +56,7 @@ str Reader::substr(const Cursor &start, Cursor end) const {
   auto e_row = end.l;
   str ret;
   if (s_row == e_row) {
-    TAN_ASSERT(start.c != end.c);
+    TAN_ASSERT(start.c <= end.c);
     ret = _lines[s_row].code.substr(start.c, end.c - start.c);
   } else {
     ret += _lines[s_row].code.substr(start.c);
@@ -113,11 +113,21 @@ const SourceLine &Reader::get_line(size_t index) const {
 
 Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader(c_cast(Reader *, reader)) {}
 
-bool Cursor::operator==(const Cursor &other) { return l == other.l && c == other.c; }
+bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 
-bool Cursor::operator!=(const Cursor &other) { return !(*this == other); }
+bool Cursor::operator!=(const Cursor &other) const { return !(*this == other); }
 
-bool Cursor::operator<(const Cursor &other) {
+bool Cursor::operator<=(const Cursor &other) const {
+  if (l < other.l) {
+    return true;
+  } else if (l > other.l) {
+    return false;
+  } else {
+    return c <= other.c;
+  }
+}
+
+bool Cursor::operator<(const Cursor &other) const {
   if (l < other.l) {
     return true;
   } else if (l > other.l) {
@@ -127,7 +137,7 @@ bool Cursor::operator<(const Cursor &other) {
   }
 }
 
-bool Cursor::operator>(const Cursor &other) {
+bool Cursor::operator>(const Cursor &other) const {
   if (l > other.l) {
     return true;
   } else if (l < other.l) {
