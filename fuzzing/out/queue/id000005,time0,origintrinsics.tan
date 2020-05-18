@@ -1,0 +1,18 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+import "runtime/stdlib.tan";
+
+pub fn main(argc: int, argv: char**) : int {
+    @compprint("main function starts");
+    var a: i32 = 0;
+    var b: i32 = 1;
+    var shit: i32 = !(a == b);
+    assert(shit);
+    assert(@file);
+    assert(@line);
+    var argc_decl: str = @get_decl(argc);
+    @stack_trace();
+    print("SUCCESS\n");
+    @compprint("main function ends");
+    return 0;
+}

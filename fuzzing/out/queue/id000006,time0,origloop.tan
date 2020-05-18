@@ -1,0 +1,41 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+pub fn main() : int {
+    var i: u32 = 0;
+    var gt_50: u32 = 0;
+    var lt_50: u32 = 0;
+    while (i < 100u) {
+        if (i > 50u) {
+            gt_50 = gt_50 + 1u;
+        } else {
+            lt_50 = lt_50 + 1u;
+        }
+        i = i + 1u;
+    }
+    assert(i == 100u);
+    assert(gt_50 == 49u);
+    assert(lt_50 == 51u);
+
+    i = 0;
+    while (1) {
+        if (i >= 100u) {
+            break;
+        }
+        i = i + 1u;
+    }
+    assert(i == 100u);
+
+    i = 0;
+    while (1) {
+        i = i + 1u;
+        if (i < 50u) {
+            continue;
+        }
+        break;
+    }
+    assert(i == 50u);
+
+    print("SUCCESS\n");
+    return 0;
+}

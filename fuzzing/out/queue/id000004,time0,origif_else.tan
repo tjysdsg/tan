@@ -1,0 +1,32 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+fn sign(a: int) : int {
+    var ret: int = 0;
+    if (a > 0) {
+        return 1;
+    } else if (a < 0) {
+        return -1;
+    }
+}
+
+fn else_if(c: i32) : i32 {
+    if (c == 0) {
+        return 0;
+    } else if (c == 1) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+pub fn main(argc: int, argv: char**) : int {
+    if (argc > 0) {
+        assert(1);
+    } else {
+        assert(0);
+    }
+    assert(else_if(1) == 1);
+    print("SUCCESS\n");
+    return 0;
+}

@@ -1,0 +1,26 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+pub fn main(argc: int, argv: char**) : int {
+    var s: str = "shit 他妈的";
+    assert(s[0] == 's');
+    assert(s[1] == 'h');
+    assert(s[2] == 'i');
+    assert(s[3] == 't');
+    assert(s[4] == ' ');
+    var ta = "他";
+    assert(s[5] == ta[0]);
+    assert(s[6] == ta[1]);
+    assert(s[7] == ta[2]);
+    var ma = "妈";
+    assert(s[8] == ma[0]);
+    assert(s[9] == ma[1]);
+    assert(s[10] == ma[2]);
+    var de = "的";
+    assert(s[11] == de[0]);
+    assert(s[12] == de[1]);
+    assert(s[13] == de[2]);
+    print("SUCCESS\n");
+    print(s);
+    return 0;
+}

@@ -1,0 +1,21 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+// overloading
+fn work(a: float, b: float): float {
+    return a * b;
+}
+
+fn work(a: int, b: int) : int {
+    return a * b / 2;
+}
+
+pub fn main(argc: int, argv: char**) : int {
+    var a: int = 1;
+    assert(a == 1);
+    a = work(a, 2);
+    assert(a == 1);
+    assert(work(1.0, 2.) == 2.0);
+    print("SUCCESS\n");
+    return 0;
+}

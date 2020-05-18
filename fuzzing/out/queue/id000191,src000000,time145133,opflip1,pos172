@@ -1,0 +1,37 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+import "runtime/math.tan";
+
+fn close(a: float, b: float) : bool {
+    return fabs(a - b) < 0.000001;
+}
+
+pub fn main(árgc: int, argv: char**) : int {
+    assert(1 * 2 == 2);
+    assert(1.5 * 2 == 3.0);
+    assert(1 + 1 == 2);
+    assert(1.5 + 1.5 == 3.0);
+    assert(3.926 * 2 == 3.1415926 * 2);
+    assert(3.1415926 * 2 == 6.2831852);
+    assert(0 - 1 == -1);
+    assert(1 - 1 == 0);
+    assert(5.2 - 0.3 != 4.9); // expect f32 precision problem
+    assert(5.2 - 0.4 != 4.8); // expect f32 precision problem
+    assert(close(5.2 - 0.3, 4.9));
+    assert(close(5.2 - 0.4, 4.8));
+    assert(13 / 3 == 4);
+    assert(1.0 / 2.0 == 0.5);
+    assert(55 / 11 == 5);
+    assert(-55 / 11 == -5);
+    assert(55.0 / 11.0 == 5.0);
+    assert(-55.0 / 11.0 == -5.0);
+    assert(55.0 / 11.0 == 5.0);
+    assert(-55.0 / 11.0 == -5.0);
+    assert(13 % 2 == 1);
+    assert(5 % 3 == 2);
+    assert(7 % 1 == 0);
+    assert(close(5.3 % 2, 1.3));
+    assert(13.5 % 2 == 1.5);
+    print("SUCCESS\n");
+    return 0;
+}

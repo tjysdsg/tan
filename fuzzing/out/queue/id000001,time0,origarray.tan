@@ -1,0 +1,22 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+fn get(array: i32*, i: u32) : i32 {
+    return array[i];
+}
+
+pub fn main() : i32 {
+    assert([0, 1][0] == 0);
+    assert([0, 1][1] == 1);
+    var flat: [i32, 3] = [1, 2, 3];
+    var e1: i32 = flat[1];
+    assert(e1 == 2);
+    assert(get(flat as i32*, 0u) == 1);
+    var nested: [[i32, 3], 4] = [[1, 1, 1], [2, 2, 2], [3, 3, 3], [3, 3, 3]];
+    var e2: i32 = nested[1][0];
+    assert(e2 == 2);
+    assert(nested[0][0] == 1);
+    assert(nested[2][0] == 3);
+    print("SUCCESS\n");
+    return 0;
+}
