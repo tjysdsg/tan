@@ -12,7 +12,8 @@ size_t ASTAmpersand::nud() {
   _end_index = _start_index + 1; /// skip '&'
   auto rhs = _parser->next_expression(_end_index, _rbp);
   _children.push_back(rhs);
-  _ty = rhs->get_ty()->get_ptr_to();
+  if (!(_ty = rhs->get_ty())) { error("Invalid operand"); }
+  _ty = _ty->get_ptr_to();
   return _end_index;
 }
 

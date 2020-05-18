@@ -53,7 +53,6 @@ private:
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
-  ASTTy(const ASTTy &) = default;
 
 public:
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
@@ -62,7 +61,7 @@ public:
   llvm::Value *get_llvm_value(CompilerSession *) const override;
 
 public:
-  str get_type_name() const;
+  str get_type_name() const; // override base class's method, but no need to mark as 'virtual'
   bool is_lvalue() const override;
   bool is_typed() const override;
   ASTTyPtr get_contained_ty() const;

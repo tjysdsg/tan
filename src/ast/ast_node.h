@@ -100,8 +100,6 @@ public:
   Token *_token = nullptr;
 
   ASTNode() = delete;
-  ASTNode(const ASTNode &) = default;
-  ASTNode &operator=(const ASTNode &) = default;
   ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
   virtual ~ASTNode() = default;
 
