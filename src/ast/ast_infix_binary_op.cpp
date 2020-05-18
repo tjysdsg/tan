@@ -33,12 +33,10 @@ bool ASTInfixBinaryOp::is_typed() const { return true; }
 size_t ASTInfixBinaryOp::get_dominant_idx() const {
   auto lhs = _children[0];
   auto rhs = _children[1];
-  TAN_ASSERT(lhs->is_typed());
-  TAN_ASSERT(rhs->is_typed());
+  if (!lhs->is_typed()) { error("Invalid left-hand operand"); }
+  if (!rhs->is_typed()) { error("Invalid right-hand operand"); }
   int ret = TypeSystem::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
-  if (-1 == ret) {
-    error("Cannot perform implicit type conversion");
-  }
+  if (-1 == ret) { error("Cannot perform implicit type conversion"); }
   return (size_t) ret;
 }
 
