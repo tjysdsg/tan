@@ -26,22 +26,18 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
     return builder->CreateBitCast(loaded, dest);
   } else if (orig->isIntegerTy() && dest->isIntegerTy() && s2 != 1) {
     /// different int types except dest is bool (1-bit int)
-    if (s1 == s2) {
-      return loaded;
-    } else {
-      return builder->CreateZExtOrTrunc(loaded, dest);
-    }
+    return builder->CreateZExtOrTrunc(loaded, dest);
   } else if (orig->isIntegerTy() && dest->isFloatingPointTy()) { /// int to float/double
     if (is_signed) {
-      return builder->CreateUIToFP(loaded, dest);
-    } else {
       return builder->CreateSIToFP(loaded, dest);
+    } else {
+      return builder->CreateUIToFP(loaded, dest);
     }
   } else if (orig->isFloatingPointTy() && dest->isIntegerTy()) { /// float/double to int
     if (is_signed) {
-      return builder->CreateFPToUI(loaded, dest);
-    } else {
       return builder->CreateFPToSI(loaded, dest);
+    } else {
+      return builder->CreateFPToUI(loaded, dest);
     }
   } else if (orig->isFloatingPointTy() && dest->isFloatingPointTy()) { /// float <-> double
     return builder->CreateFPCast(loaded, dest);
@@ -56,12 +52,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool i
       return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned) s1), 0, false));
     }
   } else if (orig->isArrayTy() && dest->isArrayTy()) {
-    /*
-     * This should not be called, because:
-     * - array type with size bound is checked during parsing phase
-     * - all array types are treated as pointers during _codegen phase
-     * - even llvm::ArrayConstant is immediately converted to pointers after allocation
-    */
+    // FIXME: casting array of float to/from array of integer is broken
     TAN_ASSERT(false);
   } else { report_error("Invalid type conversion"); /* TODO: move this outside */ }
 }

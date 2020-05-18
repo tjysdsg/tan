@@ -20,6 +20,26 @@ pub fn main() : int {
     assert(a7 as float == 100.0);
     a7 = a5;
     assert(a7 == 100 as double);
+
+    // float and signed/unsigned int
+    var fp: float = -1.0;
+    assert(fp as int == -1);
+    assert(fp as u32 == 4294967295u); // underflow
+    assert(fp);
+
+    // float, int and double
+    var integer = 100;
+    fp = integer;
+    var d: double = fp;
+    assert(d == fp);
+
+    // arrays, broken
+    var array1: [i32, 3] = [0, 1, 2];
+    var array2: [float, 3] = array1;
+    // assert(array1[0] == array2[0]);
+    // assert(array1[1] == array2[1]);
+    // assert(array1[2] == array2[2]);
+
     print("SUCCESS\n");
     return 0;
 }
