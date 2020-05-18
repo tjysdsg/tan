@@ -18,6 +18,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
+option(LIB_OUTPUT_DIR "Library output directory" ${PROJECT_SOURCE_DIR}/lib)
+option(EXE_OUTPUT_DIR "Executable output directory" ${PROJECT_SOURCE_DIR}/bin)
+option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 
 # use static linking whenever possible
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -35,8 +38,10 @@ endif ()
 # Use ccache to compile if possible
 find_program(CCACHE_FOUND ccache)
 if (CCACHE_FOUND)
-    message(STATUS "ccache found, enabling it for faster rebuilding...")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    if (${ENABLE_CCACHE})
+        message(STATUS "Enabling ccache for faster rebuilding...")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    endif ()
 endif (CCACHE_FOUND)
 
 # ================================ thirdparty dependencies ========================== #
@@ -69,9 +74,9 @@ macro(set_other_options target_name)
     else ()
         target_compile_options(${target_name} PRIVATE -O3)
     endif ()
-    set_target_properties(${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
-    set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
-    set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+    set_target_properties(${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
+    set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
+    set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
 # common source files shared by multiple targets
