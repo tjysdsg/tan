@@ -72,9 +72,11 @@ ASTNumberLiteral::ASTNumberLiteral(float value, size_t token_index) : ASTLiteral
 ASTNumberLiteral::ASTNumberLiteral(const str &str, bool is_float, Token *token, size_t token_index)
     : ASTLiteral(ASTType::NUM_LITERAL, op_precedence[ASTType::NUM_LITERAL], 0, token, token_index) {
   _is_float = is_float;
-  if (is_float) { _fvalue = std::stof(str); }
-  else { _ivalue = std::stoi(str); }
   _is_unsigned = token->is_unsigned;
+  // TODO: handle overflow/underflow
+  if (is_float) { _fvalue = std::stof(str); }
+  else if (_is_unsigned) { _ivalue = static_cast<int>(std::stoul(str)); }
+  else { _ivalue = static_cast<int>(std::stol(str)); }
   resolve();
 }
 

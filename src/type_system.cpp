@@ -2,68 +2,60 @@
 #include "src/common.h"
 #include "compiler_session.h"
 #include "src/ast/ast_ty.h"
-#include "src/llvm_include.h"
 
 namespace tanlang {
 
-Value *TypeSystem::ConvertTo(CompilerSession *cs, Type *dest, Value *val, bool is_lvalue, bool is_signed) {
+llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyPtr orig, ASTTyPtr dest) {
   auto *builder = cs->_builder;
-  auto *orig = val->getType();
   auto *loaded = val;
-  if (is_lvalue) { /// IMPORTANT
-    loaded = builder->CreateLoad(val);
-    TAN_ASSERT(orig->getNumContainedTypes() == 1);
-    orig = orig->getContainedType(0); /// we only care the type of the rvalue of orig_val
-  }
-  bool is_pointer1 = orig->isPointerTy();
-  bool is_pointer2 = dest->isPointerTy();
-  size_t s1 = orig->getPrimitiveSizeInBits();
-  size_t s2 = dest->getPrimitiveSizeInBits();
+
+  /// load if lvalue
+  if (orig->is_lvalue()) { loaded = builder->CreateLoad(val); }
+
+  bool is_pointer1 = orig->is_ptr();
+  bool is_pointer2 = dest->is_ptr();
+  size_t s1 = orig->get_size_bits();
+
   /// early return if types are the same
-  if (is_llvm_type_same(orig, dest)) { return loaded; };
+  if (*orig == *dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
-    return builder->CreateBitCast(loaded, dest);
-  } else if (orig->isIntegerTy() && dest->isIntegerTy() && s2 != 1) {
-    /// different int types except dest is bool (1-bit int)
-    if (s1 == s2) {
-      return loaded;
+    return builder->CreateBitCast(loaded, dest->to_llvm_type(cs));
+  } else if (orig->is_int() && dest->is_int()) {
+    return builder->CreateZExtOrTrunc(loaded, dest->to_llvm_type(cs));
+  } else if (orig->is_int() && dest->is_floating()) { /// int to float/double
+    if (orig->is_unsigned()) {
+      return builder->CreateUIToFP(loaded, dest->to_llvm_type(cs));
     } else {
-      return builder->CreateZExtOrTrunc(loaded, dest);
+      return builder->CreateSIToFP(loaded, dest->to_llvm_type(cs));
     }
-  } else if (orig->isIntegerTy() && dest->isFloatingPointTy()) { /// int to float/double
-    if (is_signed) {
-      return builder->CreateUIToFP(loaded, dest);
+  } else if (orig->is_floating() && dest->is_int()) { /// float/double to int
+    if (orig->is_unsigned()) {
+      return builder->CreateFPToUI(loaded, dest->to_llvm_type(cs));
     } else {
-      return builder->CreateSIToFP(loaded, dest);
+      return builder->CreateFPToSI(loaded, dest->to_llvm_type(cs));
     }
-  } else if (orig->isFloatingPointTy() && dest->isIntegerTy()) { /// float/double to int
-    if (is_signed) {
-      return builder->CreateFPToUI(loaded, dest);
-    } else {
-      return builder->CreateFPToSI(loaded, dest);
-    }
-  } else if (orig->isFloatingPointTy() && dest->isFloatingPointTy()) { /// float <-> double
-    return builder->CreateFPCast(loaded, dest);
-  } else if (dest->isIntegerTy(1)) { /// all types to bool, equivalent to val != 0
-    if (orig->isFloatingPointTy()) {
+  } else if (orig->is_floating() && dest->is_floating()) { /// float <-> double
+    return builder->CreateFPCast(loaded, dest->to_llvm_type(cs));
+  } else if (orig->is_bool() && dest->is_int()) { /// bool to int
+    return builder->CreateZExtOrTrunc(val, dest->to_llvm_type(cs));
+  } else if (dest->is_bool()) { /// all types to bool, equivalent to val != 0
+    if (orig->is_floating()) {
       return builder->CreateFCmpONE(loaded, ConstantFP::get(builder->getFloatTy(), 0.0f));
-    } else if (orig->isPointerTy()) {
+    } else if (orig->is_ptr()) {
       s1 = cs->get_ptr_size();
       loaded = builder->CreateIntToPtr(loaded, builder->getIntNTy((unsigned) s1));
       return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned) s1), 0, false));
     } else {
       return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned) s1), 0, false));
     }
-  } else if (orig->isArrayTy() && dest->isArrayTy()) {
-    /*
-     * This should not be called, because:
-     * - array type with size bound is checked during parsing phase
-     * - all array types are treated as pointers during _codegen phase
-     * - even llvm::ArrayConstant is immediately converted to pointers after allocation
-    */
+  } else if (orig->is_array() && dest->is_array()) {
+    // FIXME: casting array of float to/from array of integer is broken
     TAN_ASSERT(false);
-  } else { report_error("Invalid type conversion"); /* TODO: move this outside */ }
+  } else {
+    // TODO: move this outside
+    report_error("Invalid type conversion");
+  }
 }
 
 DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {

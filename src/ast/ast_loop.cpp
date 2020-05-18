@@ -1,5 +1,6 @@
 #include "src/ast/ast_loop.h"
 #include "src/type_system.h"
+#include "src/ast/ast_ty.h"
 #include "compiler_session.h"
 #include "parser.h"
 #include "token.h"
@@ -36,10 +37,11 @@ llvm::Value *ASTLoop::_codegen(CompilerSession *cs) {
     // create a br instruction if there is no terminator instruction at the end of this block
     if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(_loop_start); }
 
-    /// exit condition
+    /// condition
     builder->SetInsertPoint(_loop_start);
     auto *cond = _children[0]->codegen(cs);
-    cond = TypeSystem::ConvertTo(cs, builder->getInt1Ty(), cond, false);
+    if (!cond) { error("Expected a condition expression"); }
+    cond = TypeSystem::ConvertTo(cs, cond, _children[0]->get_ty(), ASTTy::Create(Ty::BOOL));
     builder->CreateCondBr(cond, loop_body, _loop_end);
 
     /// loop body

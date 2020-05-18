@@ -16,6 +16,7 @@ Value *ASTNot::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);
   auto *rhs = _children[0]->codegen(cs);
+  if (!rhs) { error("Invalid operand"); }
   if (_children[0]->is_lvalue()) { rhs = builder->CreateLoad(rhs); }
   if (_type == ASTType::BNOT) {
     _llvm_value = builder->CreateNot(rhs);

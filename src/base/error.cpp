@@ -51,14 +51,16 @@ void report_error(const str &error_message) {
 }
 
 void report_error(const str &source, size_t line, size_t col, const str &error_message) {
-  std::cerr << "[ERROR] at LINE" << std::to_string(line) << " " << error_message << "\n" << source << "\n"
-            << str(col, ' ') << "^\n";
+  str indent = col > 0 ? str(col - 1, ' ') : "";
+  std::cerr << "[ERROR] at LINE" << std::to_string(line) << " " << error_message << "\n" << source << "\n" << indent
+            << "^\n";
   exit(1);
 }
 
 void report_error(const str &filename, Token *token, const str &error_message) {
+  str indent = token->c > 0 ? str(token->c - 1, ' ') : "";
   std::cerr << "[ERROR] at " << filename << ":" << std::to_string(token->l + 1) << " " << error_message << "\n"
-            << token->line->code << "\n" << str(token->c, ' ') << str("^") << "\n";
+            << token->line->code << "\n" << indent << str("^") << "\n";
   exit(1);
 }
 

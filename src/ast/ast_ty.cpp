@@ -325,6 +325,7 @@ void ASTTy::resolve() {
       break;
     }
     case Ty::ARRAY: {
+      if (_children.empty()) { error("Invalid type"); }
       auto et = ast_cast<ASTTy>(_children[0]);
       auto s = ast_cast<ASTNumberLiteral>(_children[1]);
       TAN_ASSERT(et);
@@ -339,6 +340,7 @@ void ASTTy::resolve() {
       break;
     }
     case Ty::POINTER: {
+      if (_children.empty()) { error("Invalid type"); }
       auto e = ast_cast<ASTTy>(_children[0]);
       TAN_ASSERT(e);
       e->resolve();
@@ -350,7 +352,7 @@ void ASTTy::resolve() {
       break;
     }
     default:
-      TAN_ASSERT(false);
+      error("Invalid type");
   }
   _resolved = true;
 }
@@ -385,7 +387,7 @@ size_t ASTTy::nud_array() {
 
 size_t ASTTy::nud() {
   _end_index = _start_index;
-  Token *token = nullptr;
+  Token *token;
   while (!_parser->eof(_end_index)) {
     token = _parser->at(_end_index);
     if (basic_tys.find(token->value) != basic_tys.end()) { /// base types

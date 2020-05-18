@@ -52,24 +52,32 @@ ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
 size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
   _parser = parser;
   _cs = cs;
+  auto *prev_token = _cs->_current_token;
   if (_token) { _cs->_current_token = _token; }
   auto ret = this->led(left);
   _parsed = true;
+  _cs->_current_token = prev_token;
   return ret;
 }
 
 size_t ASTNode::parse(Parser *parser, CompilerSession *cs) {
   _parser = parser;
   _cs = cs;
+  auto *prev_token = _cs->_current_token;
   if (_token) { _cs->_current_token = _token; }
   auto ret = this->nud();
   _parsed = true;
+  _cs->_current_token = prev_token;
   return ret;
 }
 
 llvm::Value *ASTNode::codegen(CompilerSession *cs) {
+  _cs = cs;
+  auto *prev_token = cs->_current_token;
   if (_token) { cs->_current_token = _token; }
-  return this->_codegen(cs);
+  auto *ret = this->_codegen(cs);
+  cs->_current_token = prev_token;
+  return ret;
 }
 
 size_t ASTNode::led(const ASTNodePtr &) { error("Not implemented"); }

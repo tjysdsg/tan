@@ -1,5 +1,6 @@
-#include "src/type_system.h"
 #include "src/ast/ast_infix_binary_op.h"
+#include "src/type_system.h"
+#include "src/ast/ast_ty.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -11,7 +12,8 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   if (!n) { error(_end_index, "Unexpected token"); }
   else { _children.emplace_back(n); }
   _dominant_idx = this->get_dominant_idx();
-  _ty = _children[_dominant_idx]->get_ty();
+  _ty = std::make_shared<ASTTy>(*_children[_dominant_idx]->get_ty());
+  _ty->set_is_lvalue(false);
   return _end_index;
 }
 
@@ -31,12 +33,10 @@ bool ASTInfixBinaryOp::is_typed() const { return true; }
 size_t ASTInfixBinaryOp::get_dominant_idx() const {
   auto lhs = _children[0];
   auto rhs = _children[1];
-  TAN_ASSERT(lhs->is_typed());
-  TAN_ASSERT(rhs->is_typed());
+  if (!lhs->is_typed()) { error("Invalid left-hand operand"); }
+  if (!rhs->is_typed()) { error("Invalid right-hand operand"); }
   int ret = TypeSystem::CanImplicitCast(lhs->get_ty(), rhs->get_ty());
-  if (-1 == ret) {
-    error("Cannot perform implicit type conversion");
-  }
+  if (-1 == ret) { error("Cannot perform implicit type conversion"); }
   return (size_t) ret;
 }
 

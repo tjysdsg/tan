@@ -18,7 +18,8 @@ size_t ASTArgDecl::nud() {
 ASTArgDeclPtr ASTArgDecl::Create(const str &name, ASTTyPtr ty) {
   auto ret = std::make_shared<ASTArgDecl>(nullptr, 0);
   ret->_is_type_resolved = true;
-  ret->_ty = ty;
+  ret->_ty = std::make_shared<ASTTy>(*ty);
+  ret->_ty->set_is_lvalue(true);
   ret->_name = name;
   ret->_children.push_back(ASTStringLiteral::Create(name));
   ret->_children.push_back(ty);
