@@ -1,0 +1,7 @@
+./build/bin/tanc
+test_case.tan
+-I..
+-lruntime
+-L../runtime
+-o
+a.out
