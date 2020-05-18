@@ -18,9 +18,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
-option(LIB_OUTPUT_DIR "Library output directory" ${PROJECT_SOURCE_DIR}/lib)
-option(EXE_OUTPUT_DIR "Executable output directory" ${PROJECT_SOURCE_DIR}/bin)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
+set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
+set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
 
 # use static linking whenever possible
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
