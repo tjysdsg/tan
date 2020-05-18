@@ -1,6 +1,7 @@
 #include "src/ast/ast_assignment.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_var_decl.h"
+#include "src/ast/ast_ty.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
 #include "token.h"
@@ -16,14 +17,11 @@ Value *ASTAssignment::_codegen(CompilerSession *cs) {
   auto rhs = _children[1];
   Value *from = rhs->codegen(cs);
   Value *to = lhs->codegen(cs);
-
-  if (rhs->is_lvalue()) { from = builder->CreateLoad(from); }
-  if (!lhs->is_lvalue()) { lhs->error("Value can only be assigned to lvalue"); }
-  if (!to) { lhs->error("Invalid left-hand operand of the assignment"); }
   if (!from) { rhs->error("Invalid expression for right-hand operand of the assignment"); }
+  if (!to) { lhs->error("Invalid left-hand operand of the assignment"); }
+  if (!lhs->is_lvalue()) { lhs->error("Value can only be assigned to lvalue"); }
 
-  /// to is lvalue
-  from = TypeSystem::ConvertTo(cs, to->getType()->getContainedType(0), from, false, true);
+  from = TypeSystem::ConvertTo(cs, from, rhs->get_ty(), lhs->get_ty());
   builder->CreateStore(from, to);
   _llvm_value = to;
   return to;
@@ -44,7 +42,13 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
   if (lhs->_type == ASTType::VAR_DECL) {
     auto var = ast_cast<ASTVarDecl>(lhs);
     TAN_ASSERT(var);
-    if (!var->is_type_resolved()) { var->set_ty(_children[1]->get_ty()); }
+    if (!var->is_type_resolved()) {
+      auto ty = _children[1]->get_ty();
+      ty = std::make_shared<ASTTy>(*ty); // copy
+      ty->set_is_lvalue(true);
+      var->set_ty(ty);
+      _children[0] = var;
+    }
   }
 
   _ty = _children[0]->get_ty();

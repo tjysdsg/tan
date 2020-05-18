@@ -11,6 +11,7 @@ size_t ASTCast::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip operator
   _children.emplace_back(left); /// lhs
   _ty = ast_cast<ASTTy>(_parser->parse<ASTType::TY>(_end_index, true));
+  _ty->set_is_lvalue(left->is_lvalue());
   _children.push_back(_ty);
   _dominant_idx = this->get_dominant_idx();
   return _end_index;
@@ -22,11 +23,10 @@ Value *ASTCast::_codegen(CompilerSession *cs) {
   auto lhs = _children[0];
   auto *dest_type = _children[1]->to_llvm_type(cs);
   Value *val = lhs->codegen(cs);
-  Value *ret = nullptr;
-  if (lhs->is_lvalue()) { val = builder->CreateLoad(val); }
-  val = TypeSystem::ConvertTo(cs, dest_type, val, false);
+  Value *ret;
+  val = TypeSystem::ConvertTo(cs, val, lhs->get_ty(), _children[1]->get_ty());
   if (lhs->is_lvalue()) {
-    ret = create_block_alloca(builder->GetInsertBlock(), dest_type);
+    ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
     builder->CreateStore(val, ret);
   } else { ret = val; }
   return ret;

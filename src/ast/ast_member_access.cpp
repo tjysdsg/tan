@@ -13,7 +13,8 @@ void ASTMemberAccess::resolve_ptr_deref(ASTNodePtr left) {
   TAN_ASSERT(_access_type == MemberAccessDeref);
   _ty = left->get_ty();
   TAN_ASSERT(_ty->is_ptr());
-  _ty = _ty->get_contained_ty();
+  _ty = std::make_shared<ASTTy>(*_ty->get_contained_ty());
+  _ty->set_is_lvalue(true);
 }
 
 size_t ASTMemberAccess::led(const ASTNodePtr &left) {
@@ -38,7 +39,8 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     ++_end_index; /// skip "]" if this is a bracket access
     _ty = left->get_ty();
     TAN_ASSERT(_ty->is_ptr());
-    _ty = _ty->get_contained_ty();
+    _ty = std::make_shared<ASTTy>(*_ty->get_contained_ty());
+    _ty->set_is_lvalue(true);
     if (!_ty) { error("Unable to perform bracket access"); }
     // TODO: check bound if rhs is compile-time known
     if (rhs->_type == ASTType::NUM_LITERAL) {
@@ -66,7 +68,8 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     }
     _access_idx = struct_ast->get_member_index(m_name);
     auto member = struct_ast->get_member(_access_idx);
-    _ty = member->get_ty();
+    _ty = std::make_shared<ASTTy>(*member->get_ty());
+    _ty->set_is_lvalue(true);
   } else if (_children[1]->_type == ASTType::FUNC_CALL) { /// method call
     /// TODO: make `self` reference instead of pointer
     auto func = ast_cast<ASTFunctionCall>(_children[1]);
@@ -96,7 +99,7 @@ Value *ASTMemberAccess::_codegen(CompilerSession *cs) {
   ASTNodePtr rhs = nullptr;
   if (_children.size() >= 2) { rhs = _children[1]; } /// pointer access only have 1 child node
   auto *from = _children[0]->codegen(cs);
-  Value *ret = nullptr;
+  Value *ret;
   switch (_access_type) {
     case MemberAccessBracket: {
       if (lhs->is_lvalue()) { from = builder->CreateLoad(from); }

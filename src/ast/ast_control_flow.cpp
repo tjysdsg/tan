@@ -1,4 +1,5 @@
 #include "src/ast/ast_control_flow.h"
+#include "src/ast/ast_ty.h"
 #include "src/ast/ast_loop.h"
 #include "src/type_system.h"
 #include "compiler_session.h"
@@ -17,7 +18,7 @@ Value *ASTIf::_codegen(CompilerSession *cs) {
   }
 
   /// convert to bool if not
-  condition = TypeSystem::ConvertTo(cs, builder->getInt1Ty(), condition, false);
+  condition = TypeSystem::ConvertTo(cs, condition, _children[0]->get_ty(), ASTTy::Create(Ty::BOOL));
 
   /// Create blocks for the then (and else) clause
   Function *func = builder->GetInsertBlock()->getParent();

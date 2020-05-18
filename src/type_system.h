@@ -24,18 +24,13 @@ public:
   /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
+   * \param val Value to convert. This function automatically create a `load` instruction if orig is lvalue.
    * \param dest Destination type.
-   * \param val Value to convert.
-   * \param is_lvalue True if orig_val is an lvalue.
-   * \param is_signed True if orig_val is a signed integer, or dest type is a signed integer.
-   *                  Only used if converting from int to float, otherwise ignored.
-   * \return Converted value if convertible, otherwise `nullptr`.
+   * \param orig Original type.
+   * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
+   * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *,
-      llvm::Type *dest,
-      llvm::Value *val,
-      bool is_lvalue,
-      bool is_signed = false);
+  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTTyPtr orig, ASTTyPtr dest);
 };
 
 llvm::DISubroutineType *create_function_type(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);

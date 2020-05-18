@@ -1,5 +1,6 @@
-#include "src/type_system.h"
 #include "src/ast/ast_infix_binary_op.h"
+#include "src/type_system.h"
+#include "src/ast/ast_ty.h"
 #include "parser.h"
 
 namespace tanlang {
@@ -11,7 +12,8 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
   if (!n) { error(_end_index, "Unexpected token"); }
   else { _children.emplace_back(n); }
   _dominant_idx = this->get_dominant_idx();
-  _ty = _children[_dominant_idx]->get_ty();
+  _ty = std::make_shared<ASTTy>(*_children[_dominant_idx]->get_ty());
+  _ty->set_is_lvalue(false);
   return _end_index;
 }
 

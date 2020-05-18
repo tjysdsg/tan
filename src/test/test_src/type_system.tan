@@ -29,13 +29,15 @@ pub fn main() : int {
 
     // float, int and double
     var integer = 100;
-    fp = integer;
-    var d: double = fp;
-    assert(d == fp);
+    var fp1: float = integer;
+    var d: double = fp1;
+    assert(d == fp1);
 
     // arrays, broken
     var array1: [i32, 3] = [0, 1, 2];
     var array2: [float, 3] = array1;
+    var parray1: i32* = &array1[0];
+    assert(parray1.* == array1[0]);
     // assert(array1[0] == array2[0]);
     // assert(array1[1] == array2[1]);
     // assert(array1[2] == array2[2]);
