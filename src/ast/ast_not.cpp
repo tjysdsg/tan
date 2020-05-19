@@ -5,11 +5,11 @@
 
 namespace tanlang {
 
-ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
-  if (token->value == "!") { _type = ASTType::LNOT; }
-  else if (token->value == "~") { _type = ASTType::BNOT; }
-  else { TAN_ASSERT(false); }
-  _lbp = op_precedence[_type];
+size_t ASTNot::nud() {
+  auto ret = ASTPrefix::nud();
+  if (_type == ASTType::LNOT) { _ty = ASTTy::Create(Ty::BOOL, vector<ASTNodePtr>()); }
+  if (!_children[0]->get_ty()) { error("Invalid operand"); }
+  return ret;
 }
 
 Value *ASTNot::_codegen(CompilerSession *cs) {
@@ -25,17 +25,18 @@ Value *ASTNot::_codegen(CompilerSession *cs) {
     auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
     if (rhs->getType()->isFloatingPointTy()) {
       _llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
-    } else {
+    } else if (rhs->getType()->isSingleValueType()) {
       _llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
-    }
+    } else { error("Invalid operand"); }
   } else { TAN_ASSERT(false); }
   return _llvm_value;
 }
 
-size_t ASTNot::nud() {
-  auto ret = ASTPrefix::nud();
-  if (_type == ASTType::LNOT) { _ty = ASTTy::Create(Ty::BOOL, vector<ASTNodePtr>()); }
-  return ret;
+ASTNot::ASTNot(Token *token, size_t token_index) : ASTPrefix(token, token_index) {
+  if (token->value == "!") { _type = ASTType::LNOT; }
+  else if (token->value == "~") { _type = ASTType::BNOT; }
+  else { TAN_ASSERT(false); }
+  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang

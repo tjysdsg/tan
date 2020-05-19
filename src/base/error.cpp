@@ -60,7 +60,7 @@ void report_error(const str &source, size_t line, size_t col, const str &error_m
 void report_error(const str &filename, Token *token, const str &error_message) {
   str indent = token->c > 0 ? str(token->c - 1, ' ') : "";
   std::cerr << "[ERROR] at " << filename << ":" << std::to_string(token->l + 1) << " " << error_message << "\n"
-            << token->line->code << "\n" << indent << str("^") << "\n";
+            << token->line->code << "\n" << indent << "^\n";
   exit(1);
 }
 

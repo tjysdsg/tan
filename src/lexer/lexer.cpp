@@ -178,8 +178,10 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
     forward = reader->forward(forward);
   }
 
-  if (forward > end) {
-    report_error(reader->get_line(forward.l).code, forward.l, forward.c, "Incomplete character literal");
+  if (end <= forward) {
+    auto lineno = reader->size() - 1;
+    auto src = reader->get_line(lineno).code;
+    report_error(src, lineno, src.length() - 1, "Incomplete character literal");
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
