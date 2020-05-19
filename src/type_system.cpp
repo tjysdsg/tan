@@ -16,11 +16,17 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyP
   bool is_pointer2 = dest->is_ptr();
   size_t s1 = orig->get_size_bits();
 
+  /**
+   * NOTE: check enum before checking int
+   * */
+
   /// early return if types are the same
   if (*orig == *dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return builder->CreateBitCast(loaded, dest->to_llvm_type(cs));
+  } else if ((orig->is_enum() && dest->is_int()) || (dest->is_enum() && orig->is_int())) {
+    return builder->CreateZExtOrTrunc(loaded, dest->to_llvm_type(cs));
   } else if (orig->is_int() && dest->is_int()) {
     return builder->CreateZExtOrTrunc(loaded, dest->to_llvm_type(cs));
   } else if (orig->is_int() && dest->is_floating()) { /// int to float/double

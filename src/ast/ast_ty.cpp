@@ -58,6 +58,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
     case Ty::INT:
     case Ty::CHAR:
     case Ty::BOOL:
+    case Ty::ENUM:
       ret = ConstantInt::get(type, std::get<uint64_t>(_default_value));
       break;
     case Ty::FLOAT:
@@ -125,6 +126,9 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
     case Ty::VOID:
       type = builder->getVoidTy();
       break;
+    case Ty::ENUM:
+      type = _children[0]->to_llvm_type(cs);
+      break;
     case Ty::STRUCT: {
       /// ASTStruct must override this, otherwise ASTStruct must override this, otherwise ASTStruct must override ...
       auto st = ast_cast<ASTStruct>(cs->get(_type_name));
@@ -155,6 +159,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
     case Ty::FLOAT:
     case Ty::VOID:
     case Ty::DOUBLE:
+    case Ty::ENUM:
       ret = cs->_di_builder->createBasicType(_type_name, _size_bits, _dwarf_encoding);
       break;
     case Ty::STRING: {
@@ -307,6 +312,19 @@ void ASTTy::resolve() {
       _size_bits = 0;
       _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
       break;
+    case Ty::ENUM: {
+      auto sub = ast_cast<ASTTy>(_children[0]);
+      TAN_ASSERT(sub);
+      _size_bits = sub->_size_bits;
+      _align_bits = sub->_align_bits;
+      _dwarf_encoding = sub->_dwarf_encoding;
+      _default_value = sub->_default_value;
+      _is_unsigned = sub->_is_unsigned;
+      _is_int = sub->_is_int;
+      _is_enum = true;
+      /// _type_name, however, is set by ASTEnum::nud
+      break;
+    }
     case Ty::STRUCT: {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
@@ -400,10 +418,15 @@ size_t ASTTy::nud() {
         _children.clear(); /// clear but memory stays
         _children.push_back(sub);
       }
-    } else if (token->type == TokenType::ID) { /// struct
+    } else if (token->type == TokenType::ID) { /// struct or enum
       // TODO: identify type aliases
-      _type_name = token->value; /// _type_name is the name of the struct
-      _tyty = TY_OR(_tyty, Ty::STRUCT);
+      // TODO: rewrite struct, do parsing like enum
+      auto ty = ast_cast<ASTTy>(_cs->get(token->value));
+      if (ty) { *this = *ty; }
+      else {
+        _type_name = token->value; /// _type_name is the name of the struct
+        _tyty = TY_OR(_tyty, Ty::STRUCT);
+      }
     } else if (token->value == "[") {
       _tyty = TY_OR(_tyty, Ty::ARRAY);
       _end_index = nud_array(); /// set _type_name in nud_array()
@@ -446,6 +469,11 @@ bool ASTTy::is_bool() const {
   return _is_bool;
 }
 
+bool ASTTy::is_enum() const {
+  TAN_ASSERT(_resolved);
+  return _is_enum;
+}
+
 bool ASTTy::is_unsigned() const {
   TAN_ASSERT(_resolved);
   return _is_unsigned;
@@ -473,7 +501,7 @@ size_t ASTTy::get_size_bits() const {
   return _size_bits;
 }
 
-str ASTTy::get_type_name() const {
+str ASTTy::get_type_name() const { // TODO: remove this
   TAN_ASSERT(!_type_name.empty());
   return _type_name;
 }
@@ -499,3 +527,49 @@ ASTTyPtr ASTTy::get_contained_ty() const {
 }
 
 size_t ASTTy::get_n_elements() const { return _n_elements; }
+
+ASTTy &ASTTy::operator=(const ASTTy &other) {
+  _tyty = other._tyty;
+  _default_value = other._default_value;
+  _type_name = other._type_name;
+  _resolved = other._resolved;
+  _children = other._children;
+  _size_bits = other._size_bits;
+  _align_bits = other._align_bits;
+  _dwarf_encoding = other._dwarf_encoding;
+  _is_ptr = other._is_ptr;
+  _is_float = other._is_float;
+  _is_array = other._is_array;
+  _is_double = other._is_double;
+  _is_int = other._is_int;
+  _is_unsigned = other._is_unsigned;
+  _is_struct = other._is_struct;
+  _is_bool = other._is_bool;
+  _is_enum = other._is_enum;
+  _n_elements = other._n_elements;
+  _is_lvalue = other._is_lvalue;
+  return *this;
+}
+
+ASTTy &ASTTy::operator=(ASTTy &&other) {
+  _tyty = other._tyty;
+  _default_value = other._default_value;
+  _type_name = other._type_name;
+  _resolved = other._resolved;
+  _children = other._children;
+  _size_bits = other._size_bits;
+  _align_bits = other._align_bits;
+  _dwarf_encoding = other._dwarf_encoding;
+  _is_ptr = other._is_ptr;
+  _is_float = other._is_float;
+  _is_array = other._is_array;
+  _is_double = other._is_double;
+  _is_int = other._is_int;
+  _is_unsigned = other._is_unsigned;
+  _is_struct = other._is_struct;
+  _is_bool = other._is_bool;
+  _is_enum = other._is_enum;
+  _n_elements = other._n_elements;
+  _is_lvalue = other._is_lvalue;
+  return *this;
+}

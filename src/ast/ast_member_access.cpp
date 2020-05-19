@@ -1,4 +1,5 @@
 #include "src/ast/ast_member_access.h"
+#include "src/ast/ast_enum.h"
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_func.h"
 #include "src/ast/ast_struct.h"
@@ -20,7 +21,6 @@ void ASTMemberAccess::resolve_ptr_deref(ASTNodePtr left) {
 size_t ASTMemberAccess::led(const ASTNodePtr &left) {
   _end_index = _start_index + 1; /// skip "." or "["
   _children.push_back(left); /// lhs
-  TAN_ASSERT(left->is_typed());
   if (_parser->at(_start_index)->value == "[") { _access_type = MemberAccessBracket; }
   auto right = _parser->peek(_end_index);
   if (_access_type != MemberAccessBracket && right->_token->value == "*") { /// pointer dereference
@@ -54,22 +54,29 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
     }
   } else if (_access_type == MemberAccessDeref) { /// pointer dereference
     resolve_ptr_deref(left);
-  } else if (_children[1]->_type == ASTType::ID) { /// member variable
-    _access_type = MemberAccessMemberVariable;
-    if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { error("Invalid left-hand operand"); }
-    auto rhs = _children[1];
-    str m_name = rhs->get_name();
-    std::shared_ptr<ASTStruct> struct_ast = nullptr;
-    /// auto dereference pointers
-    if (left->get_ty()->is_ptr()) {
-      struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_ty()->get_contained_ty()->get_type_name()));
+  } else if (_children[1]->_type == ASTType::ID) { /// member variable or enum
+    if (left->get_ty()->is_enum()) {
+      _access_type = MemberAccessEnumValue;
+      auto enum_ = ast_cast<ASTEnum>(left->get_ty());
+      _ty = enum_;
+      _enum_value = enum_->get_enum_value(_children[1]->get_name());
     } else {
-      struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_type_name()));
+      _access_type = MemberAccessMemberVariable;
+      if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { error("Invalid left-hand operand"); }
+      auto rhs = _children[1];
+      str m_name = rhs->get_name();
+      std::shared_ptr<ASTStruct> struct_ast = nullptr;
+      /// auto dereference pointers
+      if (left->get_ty()->is_ptr()) {
+        struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_ty()->get_contained_ty()->get_type_name()));
+      } else {
+        struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_type_name()));
+      }
+      _access_idx = struct_ast->get_member_index(m_name);
+      auto member = struct_ast->get_member(_access_idx);
+      _ty = std::make_shared<ASTTy>(*member->get_ty());
+      _ty->set_is_lvalue(true);
     }
-    _access_idx = struct_ast->get_member_index(m_name);
-    auto member = struct_ast->get_member(_access_idx);
-    _ty = std::make_shared<ASTTy>(*member->get_ty());
-    _ty->set_is_lvalue(true);
   } else if (_children[1]->_type == ASTType::FUNC_CALL) { /// method call
     /// TODO: make `self` reference instead of pointer
     auto func = ast_cast<ASTFunctionCall>(_children[1]);
@@ -121,6 +128,9 @@ Value *ASTMemberAccess::_codegen(CompilerSession *cs) {
       break;
     case MemberAccessMemberFunction:
       ret = _children[1]->codegen(cs);
+      break;
+    case MemberAccessEnumValue:
+      ret = ConstantInt::get(_ty->to_llvm_type(cs), _enum_value, !_ty->is_unsigned());
       break;
     default:
       TAN_ASSERT(false);

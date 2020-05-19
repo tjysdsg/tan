@@ -54,6 +54,10 @@ private:
 public:
   ASTTy() = delete;
   ASTTy(Token *token, size_t token_index);
+  ASTTy(const ASTTy &) = default;
+  ASTTy(ASTTy &&) = default;
+  ASTTy &operator=(const ASTTy &);
+  ASTTy &operator=(ASTTy &&);
 
 public:
   llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
@@ -77,6 +81,7 @@ public:
   bool is_double() const;
   bool is_int() const;
   bool is_bool() const;
+  bool is_enum() const;
   bool is_unsigned() const;
   bool is_struct() const;
   bool is_array() const;
@@ -109,6 +114,7 @@ private:
   bool _is_unsigned = false;
   bool _is_struct = false;
   bool _is_bool = false;
+  bool _is_enum = false;
   bool _resolved = false;
   size_t _n_elements = 0;
   bool _is_lvalue = false;

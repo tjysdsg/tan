@@ -13,8 +13,9 @@ size_t ASTEnum::nud() {
   _type_name = name->get_name();
 
   // TODO: parse optionally specified underlying type
-  _ty = ASTTy::Create(TY_OR(Ty::INT, Ty::BIT32));
-  _ty->_default_value = static_cast<uint64_t>(0);
+  auto ty = ASTTy::Create(TY_OR(Ty::INT, Ty::BIT32));
+  _default_value = ty->_default_value = static_cast<uint64_t>(0);
+  _children.push_back(ty);
 
   /// enum body
   if (_parser->at(_end_index)->value != "{") { error("Invalid enum declaration"); }
@@ -28,16 +29,24 @@ size_t ASTEnum::nud() {
     if (_parser->at(_end_index)->value == ",") { ++_end_index; }
   }
   ++_end_index; /// skip '}'
+  this->resolve();
+  _cs->add(_type_name, this->shared_from_this());
   return _end_index;
 }
 
+uint64_t ASTEnum::get_enum_value(const str &value_name) const {
+  auto search = _enum_values.find(value_name);
+  if (search == _enum_values.end()) { return std::get<uint64_t>(_default_value); }
+  else { return search->second; }
+}
+
 Value *ASTEnum::get_llvm_value(CompilerSession *cs) const {
-  if (!_llvm_value) { _llvm_value = _ty->get_llvm_value(cs); }
+  if (!_llvm_value) { _llvm_value = _children[0]->get_llvm_value(cs); }
   return _llvm_value;
 }
 
 Type *ASTEnum::to_llvm_type(CompilerSession *cs) const {
-  if (!_llvm_type) { _llvm_type = _ty->to_llvm_type(cs); }
+  if (!_llvm_type) { _llvm_type = _children[0]->to_llvm_type(cs); }
   return _llvm_type;
 }
 

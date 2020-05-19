@@ -5,13 +5,15 @@
 namespace tanlang {
 
 /**
- * \brief Enum type
- * \details No children:
+ * \brief Enum type, a thin wrapper around its underlying type
+ * \details Children:
+ *  - Underlying type, ASTTy
  * */
 class ASTEnum final : public ASTTy {
 public:
   ASTEnum() = delete;
   ASTEnum(Token *token, size_t token_index);
+  uint64_t get_enum_value(const str &value_name) const;
 
 protected:
   size_t nud() override;

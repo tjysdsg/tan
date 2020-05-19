@@ -30,9 +30,11 @@ private:
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
     MemberAccessDeref,
+    MemberAccessEnumValue,
   };
   MemberAccessType _access_type = MemberAccessInvalid;
-  size_t _access_idx = (size_t) -1;
+  size_t _access_idx = (size_t) -1; /// struct member variable index
+  uint64_t _enum_value = 0; /// enum value
 };
 
 } // namespace tanlang
