@@ -149,7 +149,6 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
     /// implicit cast
     auto expected_ty = get_callee()->get_arg(i)->get_ty();
     a = TypeSystem::ConvertTo(cs, a, _children[i]->get_ty(), expected_ty);
-    Type *a_type = a->getType();
     arg_vals.push_back(a);
   }
   _llvm_value = cs->_builder->CreateCall(get_callee()->get_func(), arg_vals);

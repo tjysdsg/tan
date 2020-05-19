@@ -28,8 +28,9 @@ enum class Ty : uint64_t {
   STRING = 7u,
   CHAR = 8u,
   FUNC_PTR = 9u, // TODO: function ptr
-  STRUCT = 10u,   // struct (or class)
+  STRUCT = 10u,
   ARRAY = 11u,
+  ENUM = 12u,
 
   /// qualifiers 13->32 bits
   #define TY_QUALIFIER_MASK 0xffffff000u

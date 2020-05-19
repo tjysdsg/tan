@@ -23,6 +23,7 @@
 #include "src/ast/ast_struct.h"
 #include "src/ast/ast_program.h"
 #include "src/ast/ast_char_literal.h"
+#include "src/ast/ast_enum.h"
 #include "src/common.h"
 #include "intrinsic.h"
 #include "token.h"
@@ -46,6 +47,8 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
       return std::make_shared<ASTVarDecl>(token, index);
+    case "enum"_hs:
+      return std::make_shared<ASTEnum>(token, index);
     case "fn"_hs:
     case "pub"_hs:
     case "extern"_hs:

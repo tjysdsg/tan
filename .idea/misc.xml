@@ -8,6 +8,7 @@
     <excludeRoots>
       <file path="$PROJECT_DIR$/.github" />
       <file path="$PROJECT_DIR$/bin" />
+      <file path="$PROJECT_DIR$/coverage" />
       <file path="$PROJECT_DIR$/dep/filesystem" />
       <file path="$PROJECT_DIR$/dep/gflags" />
       <file path="$PROJECT_DIR$/dep/googletest" />

@@ -1,0 +1,9 @@
+enum enum_name {
+    e1,
+    e2,
+    e3,
+}
+
+pub fn main(argc: int, argv: char**) : int {
+    return 0;
+}
