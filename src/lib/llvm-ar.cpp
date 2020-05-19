@@ -42,18 +42,6 @@ static bool ParsingMRIScript;
   exit(1);
 }
 
-static void failIfError(std::error_code EC, Twine Context = "") {
-  if (!EC) {
-    return;
-  }
-
-  std::string ContextStr = Context.str();
-  if (ContextStr.empty()) {
-    fail(EC.message());
-  }
-  fail(Context + ": " + EC.message());
-}
-
 static void failIfError(Error E, Twine Context = "") {
   if (!E) {
     return;
@@ -76,11 +64,6 @@ static bool Deterministic = true;         ///< 'D' and 'U' modifiers
 // refers. Only one of 'a', 'b' or 'i' can be specified so we only need
 // one variable.
 static std::string RelPos;
-
-// Count parameter for 'N' modifier. This variable specifies which file should
-// match for extract/delete operations when there are multiple matches. This is
-// 1-indexed. A value of 0 is invalid, and implies 'N' is not used.
-static int CountParam = 0;
 
 ///
 static std::string ArchiveName;
@@ -167,7 +150,7 @@ static std::vector<NewArchiveMember> computeNewArchiveMembers(object::Archive *O
         default:
           break;
       }
-      if (MemberI != Members.end() && !CountParam) { Members.erase(MemberI); }
+      if (MemberI != Members.end()) { Members.erase(MemberI); }
     }
     failIfError(std::move(Err));
   }
@@ -234,7 +217,7 @@ static void performWriteOperation(object::Archive *OldArchive, std::unique_ptr<M
   failIfError(std::move(E), ArchiveName);
 }
 
-extern int llvm_ar_create_static_lib(const str &archive_name, vector<str> objects) {
+extern int llvm_ar_create_static_lib(const str &archive_name, const vector<str> &objects) {
   ArchiveName = archive_name;
   Members = objects;
   llvm::InitializeAllTargetInfos();

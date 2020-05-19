@@ -20,19 +20,5 @@ bool is_string_in(std::string_view s, std::initializer_list<std::string_view> li
   return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
 }
 
-bool is_llvm_type_same(llvm::Type *t1, llvm::Type *t2) {
-  if (t1->getTypeID() != t2->getTypeID()) { return false; }
-  auto n = t1->getNumContainedTypes();
-  if (n > 0) {
-    if (n != t2->getNumContainedTypes()) { return false; }
-    for (unsigned i = 0; i < n; ++i) {
-      if (!is_llvm_type_same(t1->getContainedType(i), t2->getContainedType(i))) { return false; }
-    }
-  } else {
-    return t1->getPrimitiveSizeInBits() == t2->getPrimitiveSizeInBits();
-  }
-  return true;
-}
-
 } // namespace tanlang
 

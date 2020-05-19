@@ -39,7 +39,9 @@ size_t ASTArrayLiteral::nud() {
   auto size = std::make_shared<ASTNumberLiteral>(get_n_elements(), 0);
   vector<ASTNodePtr> sub_tys{};
   sub_tys.reserve(get_n_elements());
-  std::for_each(_children.begin(), _children.end(), [&sub_tys](ASTNodePtr &e) { sub_tys.push_back(e->get_ty()); });
+  std::for_each(_children.begin(),
+      _children.end(),
+      [&sub_tys](const ASTNodePtr &e) { sub_tys.push_back(e->get_ty()); });
   _ty = ASTTy::Create(Ty::ARRAY, sub_tys);
   return _end_index;
 }

@@ -14,13 +14,13 @@ ASTStringLiteral::ASTStringLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::ST
     op_precedence[ASTType::STRING_LITERAL],
     0,
     t,
-    ti) { _svalue = t->value; }
+    ti), _svalue(t->value) {}
 
-ASTStringLiteral::ASTStringLiteral(const str &str, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
+ASTStringLiteral::ASTStringLiteral(const str &s, size_t ti) : ASTLiteral(ASTType::STRING_LITERAL,
     op_precedence[ASTType::STRING_LITERAL],
     0,
     nullptr,
-    ti) { _svalue = str; }
+    ti), _svalue(s) {}
 
 size_t ASTStringLiteral::nud() {
   _end_index = _start_index + 1; /// skip self
