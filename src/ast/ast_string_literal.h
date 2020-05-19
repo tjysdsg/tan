@@ -15,7 +15,7 @@ public:
   ASTStringLiteral() = delete;
   ASTStringLiteral(Token *token, size_t token_index);
   ASTStringLiteral(const str &str, size_t token_index);
-  str get_string() const;
+  str get_string();
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

@@ -34,18 +34,18 @@ size_t ASTEnum::nud() {
   return _end_index;
 }
 
-uint64_t ASTEnum::get_enum_value(const str &value_name) const {
+uint64_t ASTEnum::get_enum_value(const str &value_name) {
   auto search = _enum_values.find(value_name);
   if (search == _enum_values.end()) { return std::get<uint64_t>(_default_value); }
   else { return search->second; }
 }
 
-Value *ASTEnum::get_llvm_value(CompilerSession *cs) const {
+Value *ASTEnum::get_llvm_value(CompilerSession *cs) {
   if (!_llvm_value) { _llvm_value = _children[0]->get_llvm_value(cs); }
   return _llvm_value;
 }
 
-Type *ASTEnum::to_llvm_type(CompilerSession *cs) const {
+Type *ASTEnum::to_llvm_type(CompilerSession *cs) {
   if (!_llvm_type) { _llvm_type = _children[0]->to_llvm_type(cs); }
   return _llvm_type;
 }

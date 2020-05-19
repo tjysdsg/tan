@@ -5,7 +5,7 @@ namespace tanlang {
 
 ASTPrefix::ASTPrefix(Token *t, size_t ti) : ASTNode(ASTType::INVALID, 0, 0, t, ti) {}
 
-bool ASTPrefix::is_typed() const { return true; }
+bool ASTPrefix::is_typed() { return true; }
 
 size_t ASTPrefix::nud() {
   _end_index = _start_index + 1; /// skip self

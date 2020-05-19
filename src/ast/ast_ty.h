@@ -60,32 +60,34 @@ public:
   ASTTy &operator=(ASTTy &&);
 
 public:
-  llvm::Metadata *to_llvm_meta(CompilerSession *) const override;
-  str to_string(bool print_prefix = true) const override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  str get_type_name();
+  llvm::Metadata *to_llvm_meta(CompilerSession *) override;
+  str to_string(bool print_prefix = true) override;
+  llvm::Type *to_llvm_type(CompilerSession *) override;
+  llvm::Value *get_llvm_value(CompilerSession *) override;
 
 public:
-  str get_type_name() const; // override base class's method, but no need to mark as 'virtual'
-  bool is_lvalue() const override;
-  bool is_typed() const override;
-  ASTTyPtr get_contained_ty() const;
-  ASTTyPtr get_ptr_to() const;
-  bool operator==(const ASTTy &other) const;
-  bool operator!=(const ASTTy &other) const;
+  bool is_lvalue() override;
+  bool is_typed() override;
+  ASTTyPtr get_contained_ty();
+  ASTTyPtr get_ptr_to();
+  bool operator==(const ASTTy &other);
+  bool operator!=(const ASTTy &other);
   void set_is_lvalue(bool is_lvalue);
-  size_t get_size_bits() const;
-  bool is_ptr() const;
-  bool is_float() const;
-  bool is_floating() const;
-  bool is_double() const;
-  bool is_int() const;
-  bool is_bool() const;
-  bool is_enum() const;
-  bool is_unsigned() const;
-  bool is_struct() const;
-  bool is_array() const;
-  size_t get_n_elements() const;
+  size_t get_size_bits();
+  bool is_ptr();
+  bool is_float();
+  bool is_floating();
+  bool is_double();
+  bool is_int();
+  bool is_bool();
+  bool is_enum();
+  bool is_unsigned();
+  bool is_struct();
+  bool is_array();
+  size_t get_n_elements();
+  size_t get_member_index(str name);
+  ASTNodePtr get_member(size_t i);
 
 public:
   // avoid name collisions
@@ -95,14 +97,12 @@ public:
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override { return nullptr; }
-  void resolve();
-  mutable str _type_name = "";
-  mutable llvm::Type *_llvm_type = nullptr;
-
-private:
   size_t nud_array();
+  size_t nud_struct();
   size_t nud() override;
-
+  void resolve();
+  str _type_name = "";
+  llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;
   size_t _align_bits = 0;
   unsigned _dwarf_encoding = 0;
@@ -118,6 +118,9 @@ private:
   bool _resolved = false;
   size_t _n_elements = 0;
   bool _is_lvalue = false;
+  umap<str, size_t> _member_indices{};
+  vector<str> _member_names{};
+  bool _is_forward_decl = true;
 };
 
 } // namespace tanlang

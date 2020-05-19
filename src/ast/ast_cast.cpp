@@ -32,11 +32,11 @@ Value *ASTCast::_codegen(CompilerSession *cs) {
   return ret;
 }
 
-size_t ASTCast::get_dominant_idx() const { return 1; }
+size_t ASTCast::get_dominant_idx() { return 1; }
 
-bool ASTCast::is_typed() const { return true; }
+bool ASTCast::is_typed() { return true; }
 
-bool ASTCast::is_lvalue() const {
+bool ASTCast::is_lvalue() {
   TAN_ASSERT(_children.size() == 2);
   return _children[0]->is_lvalue();
 }

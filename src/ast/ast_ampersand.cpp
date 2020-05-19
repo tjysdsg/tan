@@ -49,8 +49,8 @@ ASTAmpersandPtr ASTAmpersand::CreateAddressOf(ASTNodePtr n) {
 // TODO
 size_t ASTAmpersand::led(const ASTNodePtr &) { TAN_ASSERT(false); }
 
-bool ASTAmpersand::is_typed() const { return true; }
+bool ASTAmpersand::is_typed() { return true; }
 
-bool ASTAmpersand::is_lvalue() const { return false; }
+bool ASTAmpersand::is_lvalue() { return false; }
 
 } // namespace tanlang

@@ -14,8 +14,8 @@ public:
 public:
   ASTMemberAccess() = delete;
   ASTMemberAccess(Token *token, size_t token_index);
-  bool is_lvalue() const override;
-  bool is_typed() const override;
+  bool is_lvalue() override;
+  bool is_typed() override;
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

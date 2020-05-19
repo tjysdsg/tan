@@ -34,12 +34,12 @@ size_t ASTParenthesis::nud() {
   return _end_index;
 }
 
-bool ASTParenthesis::is_typed() const {
+bool ASTParenthesis::is_typed() {
   TAN_ASSERT(_children.size() > 0);
   return _children[0]->is_typed();
 }
 
-bool ASTParenthesis::is_lvalue() const {
+bool ASTParenthesis::is_lvalue() {
   TAN_ASSERT(_children.size() > 0);
   return _children[0]->is_lvalue();
 }

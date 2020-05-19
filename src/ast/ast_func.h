@@ -30,14 +30,14 @@ public:
 public:
   ASTFunction(Token *token, size_t token_index);
   llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
-  bool is_named() const override;
-  bool is_typed() const override;
+  bool is_named() override;
+  bool is_typed() override;
   // TODO: implement function type
 
-  ASTNodePtr get_ret() const;
-  ASTNodePtr get_arg(size_t i) const;
-  size_t get_n_args() const;
-  llvm::Function *get_func() const;
+  ASTNodePtr get_ret();
+  ASTNodePtr get_arg(size_t i);
+  size_t get_n_args();
+  llvm::Function *get_func();
   void set_func(llvm::Function *f);
 
 protected:
@@ -64,9 +64,9 @@ class ASTFunctionCall final : public ASTNode {
 public:
   ASTFunctionCall() = delete;
   ASTFunctionCall(Token *token, size_t token_index);
-  bool is_named() const override;
-  bool is_lvalue() const override;
-  bool is_typed() const override;
+  bool is_named() override;
+  bool is_lvalue() override;
+  bool is_typed() override;
   void resolve();
 
 public:
@@ -75,7 +75,7 @@ public:
 protected:
   llvm::Value *_codegen(CompilerSession *) override;
   size_t nud() override;
-  ASTFunctionPtr get_callee() const;
+  ASTFunctionPtr get_callee();
 
 private:
   mutable ASTFunctionPtr _callee = nullptr;

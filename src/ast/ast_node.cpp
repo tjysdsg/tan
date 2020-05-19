@@ -8,12 +8,12 @@
 
 namespace tanlang {
 
-str ASTNode::to_string(bool print_prefix) const {
+str ASTNode::to_string(bool print_prefix) {
   if (print_prefix) { return ast_type_names[this->_type]; }
   else { return ""; }
 }
 
-void ASTNode::printTree() const {
+void ASTNode::printTree() {
   using std::cout;
   cout << this->to_string(true) << "\n";
   size_t n_children = _children.size();
@@ -22,7 +22,7 @@ void ASTNode::printTree() const {
   }
 }
 
-void ASTNode::printTree(const str &prefix, bool last_child) const {
+void ASTNode::printTree(const str &prefix, bool last_child) {
   using std::cout;
 
   cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
@@ -35,7 +35,7 @@ void ASTNode::printTree(const str &prefix, bool last_child) const {
   }
 }
 
-str ASTNode::get_src() const {
+str ASTNode::get_src() {
   str ret = "";
   for (size_t i = _start_index; i < _end_index; ++i) {
     ret += _parser->at(i)->value;
@@ -93,18 +93,18 @@ Value *ASTNode::_codegen(CompilerSession *compiler_session) {
   return nullptr;
 }
 
-Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) const {
+Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) {
   if (_children.size() > 0) { return _children[0]->to_llvm_meta(cs); }
   else { return nullptr; }
 }
 
-str ASTNode::get_name() const { return _name; }
-str ASTNode::get_type_name() const { return _ty->get_type_name(); }
-std::shared_ptr<ASTTy> ASTNode::get_ty() const { return _ty; }
-llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) const { return _ty->to_llvm_type(cs); }
-llvm::Value *ASTNode::get_llvm_value(CompilerSession *) const { return _llvm_value; }
+str ASTNode::get_name() { return _name; }
+str ASTNode::get_type_name() { return _ty->get_type_name(); }
+std::shared_ptr<ASTTy> ASTNode::get_ty() { return _ty; }
+llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) { return _ty->to_llvm_type(cs); }
+llvm::Value *ASTNode::get_llvm_value(CompilerSession *) { return _llvm_value; }
 
-str ASTNode::get_source_location() const {
+str ASTNode::get_source_location() {
   TAN_ASSERT(_parser);
   TAN_ASSERT(_token);
   str ret = _parser->get_filename();
@@ -112,13 +112,13 @@ str ASTNode::get_source_location() const {
   return ret;
 }
 
-void ASTNode::error(const str &error_message) const {
+void ASTNode::error(const str &error_message) {
   if (_cs && _cs->_current_token && _parser) {
     report_error(_parser->get_filename(), _cs->_current_token, error_message);
   } else { report_error(error_message); }
 }
 
-void ASTNode::error(size_t i, const str &error_message) const {
+void ASTNode::error(size_t i, const str &error_message) {
   if (_parser) {
     report_error(_parser->get_filename(), _parser->at(i), error_message);
   } else { report_error(error_message); }
@@ -130,19 +130,19 @@ void ASTNode::error(size_t i, const str &error_message) const {
 umap<ASTType, str> ast_type_names
     {MAKE_ASTTYPE_NAME_PAIR(PROGRAM), MAKE_ASTTYPE_NAME_PAIR(STATEMENT), MAKE_ASTTYPE_NAME_PAIR(SUM),
         MAKE_ASTTYPE_NAME_PAIR(SUBTRACT), MAKE_ASTTYPE_NAME_PAIR(MULTIPLY), MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
-        MAKE_ASTTYPE_NAME_PAIR(MOD), MAKE_ASTTYPE_NAME_PAIR(ASSIGN), MAKE_ASTTYPE_NAME_PAIR(STRUCT_DECL),
-        MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL), MAKE_ASTTYPE_NAME_PAIR(STRING_LITERAL), MAKE_ASTTYPE_NAME_PAIR(BAND),
-        MAKE_ASTTYPE_NAME_PAIR(LAND), MAKE_ASTTYPE_NAME_PAIR(BOR), MAKE_ASTTYPE_NAME_PAIR(LOR),
-        MAKE_ASTTYPE_NAME_PAIR(BNOT), MAKE_ASTTYPE_NAME_PAIR(LNOT), MAKE_ASTTYPE_NAME_PAIR(XOR),
-        MAKE_ASTTYPE_NAME_PAIR(RET), MAKE_ASTTYPE_NAME_PAIR(IF), MAKE_ASTTYPE_NAME_PAIR(ELSE),
-        MAKE_ASTTYPE_NAME_PAIR(GT), MAKE_ASTTYPE_NAME_PAIR(GE), MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE),
-        MAKE_ASTTYPE_NAME_PAIR(ID), MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS), MAKE_ASTTYPE_NAME_PAIR(FUNC_CALL),
-        MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL), MAKE_ASTTYPE_NAME_PAIR(ARG_DECL), MAKE_ASTTYPE_NAME_PAIR(VAR_DECL),
-        MAKE_ASTTYPE_NAME_PAIR(TY), MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS), MAKE_ASTTYPE_NAME_PAIR(ARRAY_LITERAL),
-        MAKE_ASTTYPE_NAME_PAIR(EQ), MAKE_ASTTYPE_NAME_PAIR(INTRINSIC), MAKE_ASTTYPE_NAME_PAIR(LOOP),
-        MAKE_ASTTYPE_NAME_PAIR(NE), MAKE_ASTTYPE_NAME_PAIR(IMPORT), MAKE_ASTTYPE_NAME_PAIR(CAST),
-        MAKE_ASTTYPE_NAME_PAIR(CHAR_LITERAL), MAKE_ASTTYPE_NAME_PAIR(ADDRESS_OF), MAKE_ASTTYPE_NAME_PAIR(BREAK),
-        MAKE_ASTTYPE_NAME_PAIR(CONTINUE), MAKE_ASTTYPE_NAME_PAIR(ENUM_DECL)};
+        MAKE_ASTTYPE_NAME_PAIR(MOD), MAKE_ASTTYPE_NAME_PAIR(ASSIGN), MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL),
+        MAKE_ASTTYPE_NAME_PAIR(STRING_LITERAL), MAKE_ASTTYPE_NAME_PAIR(BAND), MAKE_ASTTYPE_NAME_PAIR(LAND),
+        MAKE_ASTTYPE_NAME_PAIR(BOR), MAKE_ASTTYPE_NAME_PAIR(LOR), MAKE_ASTTYPE_NAME_PAIR(BNOT),
+        MAKE_ASTTYPE_NAME_PAIR(LNOT), MAKE_ASTTYPE_NAME_PAIR(XOR), MAKE_ASTTYPE_NAME_PAIR(RET),
+        MAKE_ASTTYPE_NAME_PAIR(IF), MAKE_ASTTYPE_NAME_PAIR(ELSE), MAKE_ASTTYPE_NAME_PAIR(GT),
+        MAKE_ASTTYPE_NAME_PAIR(GE), MAKE_ASTTYPE_NAME_PAIR(LT), MAKE_ASTTYPE_NAME_PAIR(LE), MAKE_ASTTYPE_NAME_PAIR(ID),
+        MAKE_ASTTYPE_NAME_PAIR(PARENTHESIS), MAKE_ASTTYPE_NAME_PAIR(FUNC_CALL), MAKE_ASTTYPE_NAME_PAIR(FUNC_DECL),
+        MAKE_ASTTYPE_NAME_PAIR(ARG_DECL), MAKE_ASTTYPE_NAME_PAIR(VAR_DECL), MAKE_ASTTYPE_NAME_PAIR(TY),
+        MAKE_ASTTYPE_NAME_PAIR(MEMBER_ACCESS), MAKE_ASTTYPE_NAME_PAIR(ARRAY_LITERAL), MAKE_ASTTYPE_NAME_PAIR(EQ),
+        MAKE_ASTTYPE_NAME_PAIR(INTRINSIC), MAKE_ASTTYPE_NAME_PAIR(LOOP), MAKE_ASTTYPE_NAME_PAIR(NE),
+        MAKE_ASTTYPE_NAME_PAIR(IMPORT), MAKE_ASTTYPE_NAME_PAIR(CAST), MAKE_ASTTYPE_NAME_PAIR(CHAR_LITERAL),
+        MAKE_ASTTYPE_NAME_PAIR(ADDRESS_OF), MAKE_ASTTYPE_NAME_PAIR(BREAK), MAKE_ASTTYPE_NAME_PAIR(CONTINUE),
+        MAKE_ASTTYPE_NAME_PAIR(ENUM_DECL)};
 
 #undef MAKE_ASTTYPE_NAME_PAIR
 

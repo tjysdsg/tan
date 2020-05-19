@@ -8,7 +8,7 @@ class ASTPrefix : public ASTNode {
 public:
   ASTPrefix() = delete;
   ASTPrefix(Token *token, size_t token_index);
-  bool is_typed() const override;
+  bool is_typed() override;
 
 protected:
   size_t nud() override;

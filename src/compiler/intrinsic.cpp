@@ -157,7 +157,7 @@ size_t Intrinsic::led(const ASTNodePtr &left) {
   return _end_index;
 }
 
-str Intrinsic::to_string(bool print_prefix) const {
+str Intrinsic::to_string(bool print_prefix) {
   str ret;
   if (print_prefix) {
     ret = ASTNode::to_string(print_prefix) + " ";
@@ -190,8 +190,8 @@ static void init_noop(CompilerSession *cs) {
   }
 }
 
-bool Intrinsic::is_lvalue() const { return _is_lvalue; }
+bool Intrinsic::is_lvalue() { return _is_lvalue; }
 
-bool Intrinsic::is_typed() const { return _is_typed; }
+bool Intrinsic::is_typed() { return _is_typed; }
 
 } // namespace tanlang

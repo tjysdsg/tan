@@ -29,9 +29,9 @@ void ASTNumberLiteral::resolve() {
   }
 }
 
-bool tanlang::ASTNumberLiteral::is_float() const { return _is_float; }
+bool tanlang::ASTNumberLiteral::is_float() { return _is_float; }
 
-str ASTNumberLiteral::to_string(bool print_prefix) const {
+str ASTNumberLiteral::to_string(bool print_prefix) {
   str ret = "";
   if (print_prefix) {
     ret += ASTLiteral::to_string(print_prefix) + " ";

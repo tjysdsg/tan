@@ -1,5 +1,4 @@
 #include "src/ast/ast_ty.h"
-#include "src/ast/ast_struct.h"
 #include "src/ast/ast_number_literal.h"
 #include "parser.h"
 #include "token.h"
@@ -48,9 +47,9 @@ std::shared_ptr<ASTTy> ASTTy::Create(Ty t, vector<ASTNodePtr> sub_tys, bool is_l
   return ret;
 }
 
-Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
+Value *ASTTy::get_llvm_value(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  TAN_ASSERT(_resolved);
+  resolve();
   Ty base = TY_GET_BASE(_tyty);
   Value *ret = nullptr;
   Type *type = this->to_llvm_type(cs);
@@ -72,11 +71,13 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
       break;
     case Ty::VOID:
       TAN_ASSERT(false);
-      break;
     case Ty::STRUCT: {
-      auto st = ast_cast<ASTStruct>(cs->get(_type_name));
-      TAN_ASSERT(st);
-      ret = st->get_llvm_value(cs);
+      vector<llvm::Constant *> values{};
+      size_t n = _children.size();
+      for (size_t i = 1; i < n; ++i) {
+        values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs));
+      }
+      ret = ConstantStruct::get((StructType *) to_llvm_type(cs), values);
       break;
     }
     case Ty::POINTER:
@@ -99,9 +100,9 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) const {
   return ret;
 }
 
-Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
+Type *ASTTy::to_llvm_type(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  TAN_ASSERT(_resolved);
+  resolve();
   Ty base = TY_GET_BASE(_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
@@ -130,9 +131,13 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
       type = _children[0]->to_llvm_type(cs);
       break;
     case Ty::STRUCT: {
-      /// ASTStruct must override this, otherwise ASTStruct must override this, otherwise ASTStruct must override ...
-      auto st = ast_cast<ASTStruct>(cs->get(_type_name));
-      type = st->to_llvm_type(cs);
+      auto *struct_type = StructType::create(*cs->get_context(), _type_name);
+      vector<Type *> body{};
+      size_t n = _children.size();
+      body.reserve(n);
+      for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(cs)); }
+      struct_type->setBody(body);
+      type = struct_type;
       break;
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
@@ -147,8 +152,8 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) const {
   return type;
 }
 
-Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
-  TAN_ASSERT(_resolved);
+Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
+  resolve();
   Ty base = TY_GET_BASE(_tyty);
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;
@@ -169,18 +174,17 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
     }
     case Ty::STRUCT: {
       DIFile *di_file = cs->get_di_file();
-      auto st = cs->get(_type_name);
-      size_t n = st->_children.size();
+      size_t n = _children.size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        auto e = st->_children[i]; // ASTVarDecl
+        auto e = _children[i]; // ASTVarDecl
         elements.push_back(e->get_ty()->to_llvm_meta(cs));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
               _type_name,
               di_file,
-              (unsigned) st->_token->l,
+              (unsigned) _token->l,
               _size_bits,
               (unsigned) _align_bits,
               DINode::DIFlags::FlagZero,
@@ -205,7 +209,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) const {
   return ret;
 }
 
-bool ASTTy::operator==(const ASTTy &other) const {
+bool ASTTy::operator==(const ASTTy &other) {
   #define CHECK(val) if (this->val != other.val) { return false; }
   CHECK(_size_bits)
   CHECK(_align_bits)
@@ -229,7 +233,13 @@ bool ASTTy::operator==(const ASTTy &other) const {
 }
 
 void ASTTy::resolve() {
-  if (_resolved) { return; }
+  Ty base = TY_GET_BASE(_tyty);
+  Ty qual = TY_GET_QUALIFIER(_tyty);
+  if (_resolved) {
+    if (base == Ty::STRUCT) {
+      if (!_is_forward_decl) { return; }
+    } else { return; }
+  }
   _ty = this->shared_from_this();
   /// resolve children if they are ASTTy
   for (auto c: _children) {
@@ -237,8 +247,6 @@ void ASTTy::resolve() {
     if (t && t->_type == ASTType::TY && !t->_resolved) { t->resolve(); }
   }
   auto *tm = Compiler::GetDefaultTargetMachine(); /// can't use _cs here, cuz some ty are created by ASTTy::Create()
-  Ty base = TY_GET_BASE(_tyty);
-  Ty qual = TY_GET_QUALIFIER(_tyty);
   switch (base) {
     case Ty::INT: {
       _size_bits = 32;
@@ -328,18 +336,22 @@ void ASTTy::resolve() {
     case Ty::STRUCT: {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
-      if (_type_name.empty()) { error("Requires struct type name"); }
-      auto st = ast_cast<ASTStruct>(_cs->get(_type_name));
-      if (!st) { error("Invalid struct type"); }
-      _align_bits = 8;
-      size_t n = st->get_n_elements();
-      for (size_t i = 0; i < n; ++i) {
-        auto et = ast_cast<ASTTy>(st->_children[i]);
-        auto s = et->get_size_bits();
-        if (s > _align_bits) { s = _align_bits; }
+      if (_is_forward_decl) {
+        auto real = ast_cast<ASTTy>(_cs->get(_type_name));
+        if (!real) { error("Incomplete type"); }
+        *this = *real;
+        _is_forward_decl = false;
+      } else {
+        _align_bits = 8;
+        size_t n = _children.size();
+        for (size_t i = 0; i < n; ++i) {
+          auto et = ast_cast<ASTTy>(_children[i]);
+          auto s = et->get_size_bits();
+          if (s > _align_bits) { _align_bits = s; }
+        }
+        _size_bits = n * _align_bits;
+        _is_struct = true;
       }
-      _size_bits = n * _align_bits;
-      _is_struct = true;
       break;
     }
     case Ty::ARRAY: {
@@ -403,6 +415,51 @@ size_t ASTTy::nud_array() {
   return _end_index;
 }
 
+size_t ASTTy::nud_struct() {
+  _end_index = _start_index + 1; /// skip "struct"
+  /// struct typename
+  auto id = _parser->parse<ASTType::ID>(_end_index, true);
+  TAN_ASSERT(id->is_named());
+  _type_name = id->get_name();
+
+  auto forward_decl = _cs->get(_type_name);
+  if (!forward_decl) {
+    _cs->add(_type_name, this->shared_from_this()); /// add self to current scope
+  } else {
+    /// replace forward decl with self (even if this is a forward declaration too)
+    _cs->set(_type_name, this->shared_from_this());
+  }
+
+  /// struct body
+  if (_parser->at(_end_index)->value == "{") {
+    auto comp_stmt = _parser->next_expression(_end_index);
+    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error(_end_index, "Invalid struct body"); }
+
+    /// resolve member names and types
+    auto members = comp_stmt->_children;
+    ASTNodePtr var_decl = nullptr;
+    size_t n = comp_stmt->_children.size();
+    _member_names.reserve(n);
+    _children.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
+        var_decl = members[i];
+        _children.push_back(var_decl->get_ty());
+      } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
+        var_decl = members[i]->_children[0];
+        auto initial_value = members[i]->_children[1];
+        // TODO: check if value is compile-time known
+        _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+      } else { members[i]->error("Invalid struct member"); }
+      auto name = var_decl->get_name();
+      _member_names.push_back(name);
+      _member_indices[name] = i;
+    }
+    this->resolve();
+  } else { _is_forward_decl = true; }
+  return _end_index;
+}
+
 size_t ASTTy::nud() {
   _end_index = _start_index;
   Token *token;
@@ -420,16 +477,18 @@ size_t ASTTy::nud() {
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
       // TODO: identify type aliases
-      // TODO: rewrite struct, do parsing like enum
-      auto ty = ast_cast<ASTTy>(_cs->get(token->value));
+      _type_name = token->value;
+      auto ty = ast_cast<ASTTy>(_cs->get(_type_name));
       if (ty) { *this = *ty; }
-      else {
-        _type_name = token->value; /// _type_name is the name of the struct
-        _tyty = TY_OR(_tyty, Ty::STRUCT);
-      }
+      else { error("Invalid type name"); }
     } else if (token->value == "[") {
-      _tyty = TY_OR(_tyty, Ty::ARRAY);
+      _tyty = Ty::ARRAY;
       _end_index = nud_array(); /// set _type_name in nud_array()
+      break;
+    } else if (token->value == "struct") {
+      _tyty = Ty::STRUCT;
+      _end_index = nud_struct();
+      break;
     } else { break; }
     ++_end_index;
   }
@@ -437,102 +496,95 @@ size_t ASTTy::nud() {
   return _end_index;
 }
 
-ASTTyPtr ASTTy::get_ptr_to() const { return ASTTy::Create(Ty::POINTER, {get_ty()}, false); }
+ASTTyPtr ASTTy::get_ptr_to() { return ASTTy::Create(Ty::POINTER, {get_ty()}, false); }
 
-bool ASTTy::is_array() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_array() {
+  resolve();
   return _is_array;
 }
 
-bool ASTTy::is_ptr() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_ptr() {
+  resolve();
   return _is_ptr;
 }
 
-bool ASTTy::is_float() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_float() {
+  resolve();
   return _is_float;
 }
 
-bool ASTTy::is_double() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_double() {
+  resolve();
   return _is_double;
 }
 
-bool ASTTy::is_int() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_int() {
+  resolve();
   return _is_int;
 }
 
-bool ASTTy::is_bool() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_bool() {
+  resolve();;
   return _is_bool;
 }
 
-bool ASTTy::is_enum() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_enum() {
+  resolve();;
   return _is_enum;
 }
 
-bool ASTTy::is_unsigned() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_unsigned() {
+  resolve();;
   return _is_unsigned;
 }
 
-bool ASTTy::is_struct() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_struct() {
+  resolve();;
   return _is_struct;
 }
 
-bool ASTTy::is_floating() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_floating() {
+  resolve();;
   return _is_float || _is_double;
 }
 
-bool ASTTy::is_lvalue() const {
-  TAN_ASSERT(_resolved);
+bool ASTTy::is_lvalue() {
+  resolve();;
   return _is_lvalue;
 }
 
-bool ASTTy::is_typed() const { return true; }
+bool ASTTy::is_typed() { return true; }
 
-size_t ASTTy::get_size_bits() const {
-  TAN_ASSERT(_resolved);
+size_t ASTTy::get_size_bits() {
+  resolve();;
   return _size_bits;
 }
 
-str ASTTy::get_type_name() const { // TODO: remove this
-  TAN_ASSERT(!_type_name.empty());
-  return _type_name;
-}
-
-str ASTTy::to_string(bool print_prefix) const {
-  return ASTNode::to_string(print_prefix) + " " + get_type_name();
-}
+str ASTTy::to_string(bool print_prefix) { return ASTNode::to_string(print_prefix) + " " + get_type_name(); }
 
 ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
 void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
 
-bool ASTTy::operator!=(const ASTTy &other) const { return !this->operator==(other); }
+bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
 
-ASTTyPtr ASTTy::get_contained_ty() const {
+ASTTyPtr ASTTy::get_contained_ty() {
   if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, vector<ASTNodePtr>(), false); }
   else if (_is_ptr) {
     TAN_ASSERT(_children.size());
     auto ret = ast_cast<ASTTy>(_children[0]);
     TAN_ASSERT(ret);
+    ret->resolve();
     return ret;
   } else { return nullptr; }
 }
 
-size_t ASTTy::get_n_elements() const { return _n_elements; }
+size_t ASTTy::get_n_elements() { return _n_elements; }
 
 ASTTy &ASTTy::operator=(const ASTTy &other) {
   _tyty = other._tyty;
   _default_value = other._default_value;
   _type_name = other._type_name;
-  _resolved = other._resolved;
   _children = other._children;
   _size_bits = other._size_bits;
   _align_bits = other._align_bits;
@@ -548,14 +600,14 @@ ASTTy &ASTTy::operator=(const ASTTy &other) {
   _is_enum = other._is_enum;
   _n_elements = other._n_elements;
   _is_lvalue = other._is_lvalue;
-  return *this;
+  _is_forward_decl = other._is_forward_decl;
+  return const_cast<ASTTy &>(*this);
 }
 
 ASTTy &ASTTy::operator=(ASTTy &&other) {
   _tyty = other._tyty;
   _default_value = other._default_value;
   _type_name = other._type_name;
-  _resolved = other._resolved;
   _children = other._children;
   _size_bits = other._size_bits;
   _align_bits = other._align_bits;
@@ -571,5 +623,20 @@ ASTTy &ASTTy::operator=(ASTTy &&other) {
   _is_enum = other._is_enum;
   _n_elements = other._n_elements;
   _is_lvalue = other._is_lvalue;
-  return *this;
+  _is_forward_decl = other._is_forward_decl;
+  return const_cast<ASTTy &>(*this);
+}
+
+ASTNodePtr ASTTy::get_member(size_t i) { return _children[i]; }
+
+size_t ASTTy::get_member_index(str name) {
+  if (_member_indices.find(name) == _member_indices.end()) {
+    error("Unknown member of struct '" + get_type_name() + "'"); // TODO: move this outside
+  }
+  return _member_indices.at(name);
+}
+
+str ASTTy::get_type_name() {
+  resolve();
+  return _type_name;
 }

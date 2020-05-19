@@ -51,7 +51,7 @@ Value *ASTArrayLiteral::_codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-str ASTArrayLiteral::to_string(bool print_prefix) const {
+str ASTArrayLiteral::to_string(bool print_prefix) {
   str ret;
   if (print_prefix) { ret = ASTLiteral::to_string(true) + " "; }
   ret += "[";
@@ -65,11 +65,11 @@ str ASTArrayLiteral::to_string(bool print_prefix) const {
   return ret + "]";
 }
 
-Type *ASTArrayLiteral::get_element_llvm_type(CompilerSession *cs) const {
+Type *ASTArrayLiteral::get_element_llvm_type(CompilerSession *cs) {
   return get_ty()->get_contained_ty()->to_llvm_type(cs);
 }
 
-size_t ASTArrayLiteral::get_n_elements() const { return _children.size(); }
+size_t ASTArrayLiteral::get_n_elements() { return _children.size(); }
 
 ASTArrayLiteral::ASTArrayLiteral(Token *t, size_t ti) : ASTLiteral(ASTType::ARRAY_LITERAL, 0, 0, t, ti) {}
 

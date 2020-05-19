@@ -13,13 +13,13 @@ class ASTEnum final : public ASTTy {
 public:
   ASTEnum() = delete;
   ASTEnum(Token *token, size_t token_index);
-  uint64_t get_enum_value(const str &value_name) const;
+  uint64_t get_enum_value(const str &value_name);
 
 protected:
   size_t nud() override;
   llvm::Value *_codegen(CompilerSession *) override;
-  llvm::Type *to_llvm_type(CompilerSession *) const override;
-  llvm::Value *get_llvm_value(CompilerSession *) const override;
+  llvm::Type *to_llvm_type(CompilerSession *) override;
+  llvm::Value *get_llvm_value(CompilerSession *) override;
 
 private:
   umap<str, uint64_t> _enum_values{};

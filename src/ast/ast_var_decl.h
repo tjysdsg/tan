@@ -26,11 +26,11 @@ public:
 public:
   ASTVarDecl() = delete;
   ASTVarDecl(Token *token, size_t token_index);
-  bool is_typed() const override;
-  bool is_named() const override;
-  bool is_lvalue() const override;
+  bool is_typed() override;
+  bool is_named() override;
+  bool is_lvalue() override;
   void set_ty(std::shared_ptr<ASTTy> ty);
-  bool is_type_resolved() const;
+  bool is_type_resolved();
 
 protected:
   llvm::Value *_codegen(CompilerSession *cs) override;

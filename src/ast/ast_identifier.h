@@ -8,11 +8,11 @@ class ASTIdentifier final : public ASTNode {
 public:
   ASTIdentifier() = delete;
   ASTIdentifier(Token *token, size_t token_index);
-  bool is_named() const override;
-  str to_string(bool print_prefix = true) const override;
-  bool is_lvalue() const override;
-  bool is_typed() const override;
-  ASTNodePtr get_referred(bool strict = true) const;
+  bool is_named() override;
+  str to_string(bool print_prefix = true) override;
+  bool is_lvalue() override;
+  bool is_typed() override;
+  ASTNodePtr get_referred(bool strict = true);
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

@@ -80,9 +80,15 @@ int TypeSystem::CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2) {
   size_t s1 = t1->get_size_bits();
   size_t s2 = t2->get_size_bits();
 
-  if (t1->is_bool()) { return 0; }
+  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t2->get_contained_ty()) {
+    return 0;
+  } else if (t1->is_bool()) { return 0; }
   else if (t2->is_bool()) { return 1; }
-  else if (t1->is_int() && t2->is_int()) { /// between integers
+  else if (t1->is_enum() && t2->is_int()) {
+    return 1;
+  } else if (t2->is_enum() && t1->is_int()) {
+    return 0;
+  } else if (t1->is_int() && t2->is_int()) { /// between integers
     /// should be both unsigned or both signed
     if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
     return s1 >= s2 ? 0 : 1;

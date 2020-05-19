@@ -24,8 +24,8 @@ public:
 public:
   ASTAmpersand() = delete;
   ASTAmpersand(Token *token, size_t token_index);
-  bool is_typed() const override;
-  bool is_lvalue() const override;
+  bool is_typed() override;
+  bool is_lvalue() override;
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

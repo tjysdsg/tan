@@ -19,18 +19,18 @@ size_t ASTInfixBinaryOp::led(const ASTNodePtr &left) {
 
 ASTInfixBinaryOp::ASTInfixBinaryOp(Token *t, size_t ti) : ASTNode(ASTType::INVALID, PREC_LOWEST, 0, t, ti) {}
 
-llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *cs) const {
+llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *cs) {
   TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->to_llvm_meta(cs);
 }
 
-bool ASTInfixBinaryOp::is_lvalue() const {
+bool ASTInfixBinaryOp::is_lvalue() {
   return false;
 }
 
-bool ASTInfixBinaryOp::is_typed() const { return true; }
+bool ASTInfixBinaryOp::is_typed() { return true; }
 
-size_t ASTInfixBinaryOp::get_dominant_idx() const {
+size_t ASTInfixBinaryOp::get_dominant_idx() {
   auto lhs = _children[0];
   auto rhs = _children[1];
   if (!lhs->is_typed()) { error("Invalid left-hand operand"); }

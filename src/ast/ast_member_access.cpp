@@ -2,7 +2,6 @@
 #include "src/ast/ast_enum.h"
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_func.h"
-#include "src/ast/ast_struct.h"
 #include "src/ast/ast_ampersand.h"
 #include "src/common.h"
 #include "compiler_session.h"
@@ -65,12 +64,12 @@ size_t ASTMemberAccess::led(const ASTNodePtr &left) {
       if (!left->is_lvalue() && !left->get_ty()->is_ptr()) { error("Invalid left-hand operand"); }
       auto rhs = _children[1];
       str m_name = rhs->get_name();
-      std::shared_ptr<ASTStruct> struct_ast = nullptr;
+      std::shared_ptr<ASTTy> struct_ast = nullptr;
       /// auto dereference pointers
       if (left->get_ty()->is_ptr()) {
-        struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_ty()->get_contained_ty()->get_type_name()));
+        struct_ast = ast_cast<ASTTy>(_cs->get(left->get_ty()->get_contained_ty()->get_type_name()));
       } else {
-        struct_ast = ast_cast<ASTStruct>(_cs->get(left->get_type_name()));
+        struct_ast = ast_cast<ASTTy>(_cs->get(left->get_type_name()));
       }
       _access_idx = struct_ast->get_member_index(m_name);
       auto member = struct_ast->get_member(_access_idx);
@@ -154,8 +153,8 @@ ASTMemberAccess::ASTMemberAccess(Token *t, size_t ti) : ASTNode(ASTType::MEMBER_
     t,
     ti) {}
 
-bool ASTMemberAccess::is_lvalue() const { return true; }
+bool ASTMemberAccess::is_lvalue() { return true; }
 
-bool ASTMemberAccess::is_typed() const { return true; }
+bool ASTMemberAccess::is_typed() { return true; }
 
 } // namespace tanlang

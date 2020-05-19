@@ -52,10 +52,13 @@ size_t ASTAssignment::led(const ASTNodePtr &left) {
   }
 
   _ty = _children[0]->get_ty();
+  if (TypeSystem::CanImplicitCast(_ty, _children[1]->get_ty()) != 0) {
+    error("Cannot perform implicit type conversion");
+  }
   return _end_index;
 }
 
-bool ASTAssignment::is_lvalue() const { return true; }
+bool ASTAssignment::is_lvalue() { return true; }
 
 ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
   _type = ASTType::ASSIGN;

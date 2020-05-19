@@ -20,7 +20,6 @@
 #include "src/ast/ast_number_literal.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_return.h"
-#include "src/ast/ast_struct.h"
 #include "src/ast/ast_program.h"
 #include "src/ast/ast_char_literal.h"
 #include "src/ast/ast_enum.h"
@@ -65,7 +64,7 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
     case "for"_hs:
       return std::make_shared<ASTLoop>(token, index);
     case "struct"_hs:
-      return std::make_shared<ASTStruct>(token, index);
+      return std::make_shared<ASTTy>(token, index);
     case "break"_hs:
     case "continue"_hs:
       return std::make_shared<ASTBreakContinue>(token, index);

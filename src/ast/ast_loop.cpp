@@ -88,9 +88,9 @@ size_t ASTLoop::nud() {
 
 ASTLoop::ASTLoop(Token *token, size_t token_index) : ASTNode(ASTType::LOOP, 0, 0, token, token_index) {}
 
-BasicBlock *ASTLoop::get_loop_end() const { return _loop_end; }
+BasicBlock *ASTLoop::get_loop_end() { return _loop_end; }
 
-BasicBlock *ASTLoop::get_loop_start() const { return _loop_start; }
+BasicBlock *ASTLoop::get_loop_start() { return _loop_start; }
 
 } // namespace tanlang
 

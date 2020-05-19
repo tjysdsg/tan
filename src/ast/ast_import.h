@@ -10,7 +10,7 @@ class ASTImport : public ASTNode {
 public:
   ASTImport() = delete;
   ASTImport(Token *token, size_t token_index);
-  str to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) override;
 
 protected:
   llvm::Value *_codegen(CompilerSession *cm) override;

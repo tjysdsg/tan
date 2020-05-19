@@ -57,10 +57,10 @@ public:
   Intrinsic(Token *token, size_t token_index);
   size_t led(const ASTNodePtr &left) override;
   size_t nud() override;
-  str to_string(bool print_prefix = true) const override;
+  str to_string(bool print_prefix = true) override;
   llvm::Value *_codegen(CompilerSession *) override;
-  bool is_lvalue() const override;
-  bool is_typed() const override;
+  bool is_lvalue() override;
+  bool is_typed() override;
 
 protected:
   void resolve();

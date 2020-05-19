@@ -13,7 +13,7 @@ Value *ASTIdentifier::_codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-ASTNodePtr ASTIdentifier::get_referred(bool strict) const {
+ASTNodePtr ASTIdentifier::get_referred(bool strict) {
   if (!_referred) {
     _referred = _cs->get(_name);
     if (!_referred && strict) { error("Cannot find variable '" + _name + "' in current scope"); }
@@ -28,17 +28,17 @@ size_t ASTIdentifier::nud() {
   return _end_index;
 }
 
-bool ASTIdentifier::is_lvalue() const { return get_referred()->is_lvalue(); }
+bool ASTIdentifier::is_lvalue() { return get_referred()->is_lvalue(); }
 
-bool ASTIdentifier::is_named() const { return true; }
+bool ASTIdentifier::is_named() { return true; }
 
-bool ASTIdentifier::is_typed() const { return get_referred()->is_typed(); }
+bool ASTIdentifier::is_typed() { return get_referred()->is_typed(); }
 
 ASTIdentifier::ASTIdentifier(Token *token, size_t token_index) : ASTNode(ASTType::ID, 0, 0, token, token_index) {
   _name = token->value;
 }
 
-str ASTIdentifier::to_string(bool print_prefix) const {
+str ASTIdentifier::to_string(bool print_prefix) {
   if (print_prefix) { return ASTNode::to_string(print_prefix) + " " + _name; }
   else { return _name; }
 }

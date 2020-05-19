@@ -28,7 +28,7 @@ size_t ASTStringLiteral::nud() {
   return _end_index;
 }
 
-str ASTStringLiteral::get_string() const { return _svalue; }
+str ASTStringLiteral::get_string() { return _svalue; }
 
 ASTStringLiteralPtr ASTStringLiteral::Create(const str &s) {
   auto ret = std::make_shared<ASTStringLiteral>(s, 0);

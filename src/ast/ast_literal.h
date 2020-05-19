@@ -9,7 +9,7 @@ class ASTLiteral : public ASTNode {
 public:
   ASTLiteral() = delete;
   ASTLiteral(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
-  bool is_typed() const override;
+  bool is_typed() override;
 };
 
 } // namespace tanlang

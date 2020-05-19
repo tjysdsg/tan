@@ -12,8 +12,8 @@ class ASTLoop final : public ASTNode, public std::enable_shared_from_this<ASTLoo
 public:
   ASTLoop() = delete;
   ASTLoop(Token *token, size_t token_index);
-  llvm::BasicBlock *get_loop_end() const;
-  llvm::BasicBlock *get_loop_start() const;
+  llvm::BasicBlock *get_loop_end();
+  llvm::BasicBlock *get_loop_start();
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

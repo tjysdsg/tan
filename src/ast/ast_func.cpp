@@ -155,22 +155,22 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-ASTNodePtr ASTFunction::get_ret() const {
+ASTNodePtr ASTFunction::get_ret() {
   TAN_ASSERT(_children.size());
   return _children[0];
 }
 
-ASTNodePtr ASTFunction::get_arg(size_t i) const {
+ASTNodePtr ASTFunction::get_arg(size_t i) {
   TAN_ASSERT(i + 2 < _children.size());
   return _children[i + 2];
 }
 
-size_t ASTFunction::get_n_args() const {
+size_t ASTFunction::get_n_args() {
   TAN_ASSERT(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
   return _children.size() - (_is_external ? 2 : 3);
 }
 
-Function *ASTFunction::get_func() const { return _func; }
+Function *ASTFunction::get_func() { return _func; }
 
 void ASTFunction::set_func(Function *f) { _func = f; }
 
@@ -238,9 +238,9 @@ size_t ASTFunction::nud() {
   return _end_index;
 }
 
-bool ASTFunction::is_named() const { return true; }
+bool ASTFunction::is_named() { return true; }
 
-bool ASTFunction::is_typed() const { return true; }
+bool ASTFunction::is_typed() { return true; }
 
 size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
@@ -260,7 +260,7 @@ size_t ASTFunctionCall::nud() {
   return _end_index;
 }
 
-ASTFunctionPtr ASTFunctionCall::get_callee() const {
+ASTFunctionPtr ASTFunctionCall::get_callee() {
   if (!_callee) {
     auto func_candidates = _cs->get_functions(_name);
     /// always prefer the function with lowest cost if multiple candidates are callable
@@ -301,11 +301,11 @@ ASTFunctionPtr ASTFunctionCall::get_callee() const {
 
 void ASTFunctionCall::resolve() { _ty = ast_cast<ASTTy>(get_callee()->get_ret()); }
 
-bool ASTFunctionCall::is_named() const { return true; }
+bool ASTFunctionCall::is_named() { return true; }
 
-bool ASTFunctionCall::is_lvalue() const { return false; }
+bool ASTFunctionCall::is_lvalue() { return false; }
 
-bool ASTFunctionCall::is_typed() const { return true; }
+bool ASTFunctionCall::is_typed() { return true; }
 
 ASTFunctionCall::ASTFunctionCall(Token *t, size_t ti) : ASTNode(ASTType::FUNC_CALL, 0, 0, t, ti) {
   _name = t->value;

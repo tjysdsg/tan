@@ -42,7 +42,6 @@ enum class ASTType {
   FUNC_CALL,
   ARG_DECL,
   VAR_DECL,
-  STRUCT_DECL,
   ENUM_DECL,
   ENUM_VAL,
   STATEMENT,   /// statement or compound statements
@@ -119,29 +118,29 @@ public:
    * \details This requires the source code to be saved in unicode, otherwise the output will be strange. It also
    * requires the terminal to be able to print characters like '└──' and '├──'
    * */
-  void printTree() const;
+  void printTree();
 
   /**
    * \brief Get original source for a AST node.
    * */
-  str get_src() const;
+  str get_src();
 
 public:
-  str get_name() const;
-  str get_type_name() const;
-  std::shared_ptr<ASTTy> get_ty() const;
-  str get_source_location() const;
-  [[noreturn]] void error(const str &error_message) const;
-  [[noreturn]] void error(size_t token_idx, const str &error_message) const;
+  str get_name();
+  str get_type_name();
+  std::shared_ptr<ASTTy> get_ty();
+  str get_source_location();
+  [[noreturn]] void error(const str &error_message);
+  [[noreturn]] void error(size_t token_idx, const str &error_message);
 
 public:
-  virtual llvm::Type *to_llvm_type(CompilerSession *) const;
-  virtual llvm::Value *get_llvm_value(CompilerSession *) const;
-  virtual str to_string(bool print_prefix = true) const;
-  virtual bool is_typed() const { return false; }
-  virtual bool is_named() const { return false; }
-  virtual bool is_lvalue() const { return false; }
-  virtual llvm::Metadata *to_llvm_meta(CompilerSession *) const;
+  virtual llvm::Type *to_llvm_type(CompilerSession *);
+  virtual llvm::Value *get_llvm_value(CompilerSession *);
+  virtual str to_string(bool print_prefix = true);
+  virtual bool is_typed() { return false; }
+  virtual bool is_named() { return false; }
+  virtual bool is_lvalue() { return false; }
+  virtual llvm::Metadata *to_llvm_meta(CompilerSession *);
 
 protected:
   virtual llvm::Value *_codegen(CompilerSession *);
@@ -149,10 +148,10 @@ protected:
   [[nodiscard]] virtual size_t nud();
 
 private:
-  void printTree(const str &prefix, bool last_child) const;
+  void printTree(const str &prefix, bool last_child);
 
 protected:
-  mutable llvm::Value *_llvm_value = nullptr;
+  llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
   str _name = "";
   bool _parsed = false;

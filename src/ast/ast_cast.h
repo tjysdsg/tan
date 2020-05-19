@@ -15,13 +15,13 @@ class ASTCast final : public ASTInfixBinaryOp {
 public:
   ASTCast() = delete;
   ASTCast(Token *token, size_t token_index);
-  bool is_typed() const override;
-  bool is_lvalue() const override;
+  bool is_typed() override;
+  bool is_lvalue() override;
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;
   size_t led(const ASTNodePtr &left) override;
-  size_t get_dominant_idx() const override;
+  size_t get_dominant_idx() override;
 };
 
 } // namespace tanlang

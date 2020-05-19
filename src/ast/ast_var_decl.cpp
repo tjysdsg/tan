@@ -34,7 +34,7 @@ void ASTVarDecl::set_ty(std::shared_ptr<ASTTy> ty) {
   _is_type_resolved = true;
 }
 
-bool ASTVarDecl::is_type_resolved() const { return _is_type_resolved; }
+bool ASTVarDecl::is_type_resolved() { return _is_type_resolved; }
 
 size_t ASTVarDecl::nud() {
   _end_index = _start_index + 1; /// skip "var"
@@ -73,13 +73,13 @@ Value *ASTVarDecl::_codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-bool ASTVarDecl::is_typed() const {
+bool ASTVarDecl::is_typed() {
   if (!_is_type_resolved) { error("Unknown type"); }
   return true;
 }
 
-bool ASTVarDecl::is_named() const { return true; }
+bool ASTVarDecl::is_named() { return true; }
 
-bool ASTVarDecl::is_lvalue() const { return true; }
+bool ASTVarDecl::is_lvalue() { return true; }
 
 } // namespace tanlang
