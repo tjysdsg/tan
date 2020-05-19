@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "base.h"
 #include "src/ast/ast_array.h"
 #include "src/ast/ast_ampersand.h"
 #include "src/ast/ast_cast.h"
@@ -42,19 +43,34 @@ ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
 }
 
 static ASTNodePtr peek_keyword(Token *token, size_t &index) {
-  switch_str(token->value)
-  case_str0("var") return std::make_shared<ASTVarDecl>(token, index); //
-  case_str_or3("fn", "pub", "extern") return std::make_shared<ASTFunction>(token, index); //
-  case_str("import") return std::make_shared<ASTImport>(token, index); //
-  case_str("if") return std::make_shared<ASTIf>(token, index); //
-  case_str("else") return std::make_shared<ASTElse>(token, index); //
-  case_str("return") return std::make_shared<ASTReturn>(token, index); //
-  case_str_or2("while", "for") return std::make_shared<ASTLoop>(token, index); //
-  case_str("struct") return std::make_shared<ASTStruct>(token, index); //
-  case_str_or2("break", "continue") return std::make_shared<ASTBreakContinue>(token, index); //
-  case_str("as") return std::make_shared<ASTCast>(token, index); //
-  case_default return nullptr; //
-  end_switch
+  switch (hashed_string{token->value.c_str()}) {
+    case "var"_hs:
+      return std::make_shared<ASTVarDecl>(token, index);
+    case "fn"_hs:
+    case "pub"_hs:
+    case "extern"_hs:
+      return std::make_shared<ASTFunction>(token, index);
+    case "import"_hs:
+      return std::make_shared<ASTImport>(token, index);
+    case "if"_hs:
+      return std::make_shared<ASTIf>(token, index);
+    case "else"_hs:
+      return std::make_shared<ASTElse>(token, index);
+    case "return"_hs:
+      return std::make_shared<ASTReturn>(token, index);
+    case "while"_hs:
+    case "for"_hs:
+      return std::make_shared<ASTLoop>(token, index);
+    case "struct"_hs:
+      return std::make_shared<ASTStruct>(token, index);
+    case "break"_hs:
+    case "continue"_hs:
+      return std::make_shared<ASTBreakContinue>(token, index);
+    case "as"_hs:
+      return std::make_shared<ASTCast>(token, index);
+    default:
+      return nullptr;
+  }
 }
 
 ASTNodePtr Parser::peek(size_t &index) {

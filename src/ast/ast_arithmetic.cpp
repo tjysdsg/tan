@@ -91,14 +91,25 @@ Value *ASTArithmetic::_codegen(CompilerSession *cs) {
 }
 
 ASTArithmetic::ASTArithmetic(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  switch_str(token->value)
-  case_str0("+") _type = ASTType::SUM;     //
-  case_str("-") _type = ASTType::SUBTRACT; //
-  case_str("*") _type = ASTType::MULTIPLY; //
-  case_str("/") _type = ASTType::DIVIDE;   //
-  case_str("%") _type = ASTType::MOD;      //
-  case_default error("Invalid ASTType for comparisons " + token->to_string()); //
-  end_switch
+  switch (hashed_string{token->value.c_str()}) {
+    case "+"_hs:
+      _type = ASTType::SUM;
+      break;
+    case "-"_hs:
+      _type = ASTType::SUBTRACT;
+      break;
+    case "*"_hs:
+      _type = ASTType::MULTIPLY;
+      break;
+    case "/"_hs:
+      _type = ASTType::DIVIDE;
+      break;
+    case "%"_hs:
+      _type = ASTType::MOD;
+      break;
+    default:
+      error("Invalid ASTType for comparisons " + token->to_string());
+  }
   _lbp = op_precedence[_type];
 }
 
