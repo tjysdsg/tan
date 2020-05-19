@@ -13,7 +13,7 @@ size_t ASTNumberLiteral::nud() {
 }
 
 void ASTNumberLiteral::resolve() {
-  Ty t = Ty::INVALID;
+  Ty t;
   if (_is_float) {
     t = Ty::FLOAT;
     _ty = ASTTy::Create(t, vector<ASTNodePtr>());

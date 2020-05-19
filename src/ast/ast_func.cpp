@@ -142,7 +142,6 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   /// args
   size_t n_args = _children.size();
   vector<Value *> arg_vals;
-  vector<Type *> arg_types;
   for (size_t i = 0; i < n_args; ++i) {
     auto *a = _children[i]->codegen(cs);
     if (!a) { _children[i]->error("Invalid function call argument"); }
@@ -152,7 +151,6 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
     a = TypeSystem::ConvertTo(cs, a, _children[i]->get_ty(), expected_ty);
     Type *a_type = a->getType();
     arg_vals.push_back(a);
-    arg_types.push_back(a_type);
   }
   _llvm_value = cs->_builder->CreateCall(get_callee()->get_func(), arg_vals);
   return _llvm_value;
