@@ -11,6 +11,7 @@ str get_name(ASTNodePtr p);
 size_t get_n_children(ASTNodePtr p);
 bool is_lvalue(ASTNodePtr p);
 bool is_lvalue(ASTTyPtr p);
+ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p);
 
 /// \section AST factories
 
@@ -23,49 +24,39 @@ ASTNodePtr ast_create_var_decl(const str &name, ASTTyPtr ty);
 
 /// \subsection Literals
 
-ASTNodePtr ast_create_string_literal();
-ASTNodePtr ast_create_string_literal(const str &);
-ASTNodePtr ast_create_array_literal();
-ASTNodePtr ast_create_numeric_literal();
+ASTNodePtr ast_create_string_literal(CompilerSession *cs);
+ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &);
+ASTNodePtr ast_create_array_literal(CompilerSession *cs);
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs);
 
 /// \subsection Binary ops
 
-ASTNodePtr ast_create_arithmetic(const str &op);
-ASTNodePtr ast_create_comparison(const str &op);
+ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op);
+ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
+ASTNodePtr ast_create_assignment(CompilerSession *cs);
 
 /// \subsection Others
 
-ASTNodePtr ast_create_program();
-ASTNodePtr ast_create_statement();
-ASTNodePtr ast_create_identifier();
-ASTNodePtr ast_create_identifier(const str &name);
-ASTTyPtr ast_create_ty();
+ASTNodePtr ast_create_program(CompilerSession *cs);
+ASTNodePtr ast_create_statement(CompilerSession *cs);
+ASTNodePtr ast_create_identifier(CompilerSession *cs);
+ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
+ASTTyPtr ast_create_ty(CompilerSession *cs);
 
 /// \section Literals
 
-ASTNodePtr create_numeric_literal(uint64_t val, bool is_unsigned = false);
-ASTNodePtr create_numeric_literal(double val);
+ASTNodePtr create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
+ASTNodePtr create_numeric_literal(CompilerSession *cs, double val);
 
 /// \section Types
 
-ASTTyPtr create_ty(Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
-ASTTyPtr get_ty(ASTNodePtr p);
 str get_type_name(ASTNodePtr p);
-ASTTyPtr get_contained_ty(ASTTyPtr p);
-ASTTyPtr get_ptr_to(ASTTyPtr p);
-size_t get_size_bits(ASTTyPtr p);
-bool is_ptr(ASTTyPtr p);
-bool is_float(ASTTyPtr p);
-bool is_floating(ASTTyPtr p);
-bool is_double(ASTTyPtr p);
-bool is_int(ASTTyPtr p);
-bool is_bool(ASTTyPtr p);
-bool is_enum(ASTTyPtr p);
-bool is_unsigned(ASTTyPtr p);
-bool is_struct(ASTTyPtr p);
-bool is_array(ASTTyPtr p);
-size_t get_struct_member_index(ASTTyPtr p, str name);
-ASTTyPtr get_struct_member_ty(ASTTyPtr p, size_t i);
+ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
+ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p);
+ASTTyPtr get_ptr_to(CompilerSession *cs, ASTTyPtr p);
+size_t get_size_bits(CompilerSession *cs, ASTTyPtr p);
+size_t get_struct_member_index(CompilerSession *cs, ASTTyPtr p, str name);
+ASTTyPtr get_struct_member_ty(CompilerSession *cs, ASTTyPtr p, size_t i);
 void resolve_ty(CompilerSession *cs, ASTTyPtr p);
 
 /// \section Analysis

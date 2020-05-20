@@ -6,11 +6,6 @@ namespace tanlang {
 
 Value *ASTNumberLiteral::_codegen(CompilerSession *cs) { return _ty->get_llvm_value(cs); }
 
-size_t ASTNumberLiteral::nud() {
-  _end_index = _start_index + 1;
-  return _end_index;
-}
-
 void ASTNumberLiteral::resolve() {
   Ty t;
   if (_is_float) {

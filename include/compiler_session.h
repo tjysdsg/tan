@@ -105,6 +105,7 @@ public:
   void set_current_debug_location(size_t l, size_t c);
 
 public:
+  str _filename = "";
   IRBuilder<> *_builder = nullptr; /// IR builder
   DIBuilder *_di_builder = nullptr; /// Debug information builder
   Token *_current_token = nullptr; /// Used for error messages
@@ -117,7 +118,6 @@ private:
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;
-
   DICompileUnit *_di_cu = nullptr;
   DIFile *_di_file = nullptr;
   FunctionTablePtr _function_table = nullptr;

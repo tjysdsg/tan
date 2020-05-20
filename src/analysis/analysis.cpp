@@ -1,9 +1,15 @@
 #include "src/analysis/analysis.h"
+#include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
 #include "compiler_session.h"
 #include "compiler.h"
+#include "token.h"
 
 namespace tanlang {
+
+static void error(CompilerSession *cs, const str &error_message);
+
+ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p) { return cs->get(p->_name); }
 
 /// \section General
 
@@ -13,36 +19,36 @@ size_t get_n_children(ASTNodePtr p) { return p->_children.size(); }
 
 /// \section Factory
 
-ASTNodePtr ast_create_string_literal() {
+ASTNodePtr ast_create_string_literal(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::STRING_LITERAL, op_precedence[ASTType::STRING_LITERAL], 0);
   ret->_is_valued = true;
   ret->_is_typed = true;
-  ret->_ty = create_ty(Ty::STRING);
+  ret->_ty = create_ty(cs, Ty::STRING);
   ret->_ty->_is_lvalue = true;
   return ret;
 }
 
-ASTNodePtr ast_create_string_literal(const str &s) {
-  auto ret = ast_create_string_literal();
+ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &s) {
+  auto ret = ast_create_string_literal(cs);
   ret->_value = s;
   return ret;
 }
 
-ASTNodePtr ast_create_array_literal() {
+ASTNodePtr ast_create_array_literal(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::ARRAY_LITERAL, 0, 0);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
 }
 
-ASTNodePtr ast_create_numeric_literal() {
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::NUM_LITERAL, 0, 0);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
 }
 
-ASTNodePtr ast_create_var_decl() {
+ASTNodePtr ast_create_var_decl(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::ARG_DECL, 0, 0);
   ret->_is_typed = true;
   ret->_is_valued = true;
@@ -50,7 +56,7 @@ ASTNodePtr ast_create_var_decl() {
   return ret;
 }
 
-ASTNodePtr ast_create_var_decl(const str &name, ASTTyPtr ty) {
+ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
   auto ret = ast_create_arg_decl();
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
@@ -58,7 +64,7 @@ ASTNodePtr ast_create_var_decl(const str &name, ASTTyPtr ty) {
   return ret;
 }
 
-ASTNodePtr ast_create_arg_decl() {
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::ARG_DECL, 0, 0);
   ret->_is_named = true;
   ret->_is_typed = true;
@@ -66,7 +72,7 @@ ASTNodePtr ast_create_arg_decl() {
   return ret;
 }
 
-ASTNodePtr ast_create_arg_decl(const str &name, ASTTyPtr ty) {
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
   auto ret = ast_create_arg_decl();
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
@@ -74,7 +80,7 @@ ASTNodePtr ast_create_arg_decl(const str &name, ASTTyPtr ty) {
   return ret;
 }
 
-ASTNodePtr ast_create_arithmetic(const str &op) {
+ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op) {
   auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0, 0);
   switch (hashed_string{op.c_str()}) {
     case "+"_hs:
@@ -101,7 +107,7 @@ ASTNodePtr ast_create_arithmetic(const str &op) {
   return ret;
 }
 
-ASTNodePtr ast_create_comparison(const str &op) {
+ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op) {
   auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0, 0);
   switch (hashed_string{op.c_str()}) {
     case ">"_hs:
@@ -131,26 +137,33 @@ ASTNodePtr ast_create_comparison(const str &op) {
   return ret;
 }
 
-ASTNodePtr ast_create_program() {
+ASTNodePtr ast_create_assignment(CompilerSession *cs) {
+  auto ret = make_ptr<ASTNode>(ASTType::ASSIGN, op_precedence[ASTType::ASSIGN], 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_program(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0, 0);
   return ret;
 }
 
-ASTNodePtr ast_create_statement() { return make_ptr<ASTNode>(ASTType::STATEMENT, 0, 0); }
+ASTNodePtr ast_create_statement(CompilerSession *cs) { return make_ptr<ASTNode>(ASTType::STATEMENT, 0, 0); }
 
-ASTNodePtr ast_create_identifier() {
+ASTNodePtr ast_create_identifier(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::ID, 0, 0);
   ret->_is_named = true;
   return ret;
 }
 
-ASTNodePtr ast_create_identifier(const str &name) {
-  auto ret = ast_create_identifier();
+ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name) {
+  auto ret = ast_create_identifier(cs);
   ret->_name = name;
   return ret;
 }
 
-ASTTyPtr ast_create_ty() {
+ASTTyPtr ast_create_ty(CompilerSession *cs) {
   auto ret = make_ptr<ASTTy>();
   ret->_is_typed = true;
   ret->_is_valued = true; /// every type has its default value
@@ -160,17 +173,15 @@ ASTTyPtr ast_create_ty() {
 
 /// \section Types
 
-str get_type_name(ASTNodePtr p) { return get_ty(p)->_type_name; }
+str get_type_name(ASTNodePtr p) { return p->_ty->_type_name; }
 
-ASTTyPtr get_ty(ASTNodePtr p) { return p->_ty; }
-
-ASTTyPtr create_ty(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   // TODO: cache
   auto ret = make_ptr<ASTTy>();
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-  resolve_ty(ret);
+  resolve_ty(cs, ret);
   return ret;
 }
 
@@ -186,7 +197,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
   /// resolve_ty children if they are ASTTy
   for (auto c: p->_children) {
     auto t = ast_cast<ASTTy>(c);
-    if (t && t->_type == ASTType::TY && !t->_resolved) { resolve_ty(t); }
+    if (t && t->_type == ASTType::TY && !t->_resolved) { resolve_ty(cs, t); }
   }
   // FIXME: can't use p->_cs here, cuz some ty are created by create_ty() without its _cs being set
   auto *tm = Compiler::GetDefaultTargetMachine();
@@ -281,7 +292,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
         auto real = ast_cast<ASTTy>(cs->get(p->_type_name));
-        if (!real) { p->error("Incomplete type"); }
+        if (!real) { error(cs, "Incomplete type"); }
         *p = *real;
         p->_is_forward_decl = false;
       } else {
@@ -289,7 +300,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
         size_t n = p->_children.size();
         for (size_t i = 0; i < n; ++i) {
           auto et = ast_cast<ASTTy>(p->_children[i]);
-          auto s = get_size_bits(et);
+          auto s = get_size_bits(cs, et);
           if (s > p->_align_bits) { p->_align_bits = s; }
         }
         p->_size_bits = n * p->_align_bits;
@@ -298,7 +309,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
       break;
     }
     case Ty::ARRAY: {
-      if (p->_children.empty()) { p->error("Invalid type"); }
+      if (p->_children.empty()) { error(cs, "Invalid type"); }
       auto et = ast_cast<ASTTy>(p->_children[0]);
       auto s = ast_cast<ASTNumberLiteral>(p->_children[1]);
       TAN_ASSERT(et);
@@ -308,112 +319,51 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
       p->_is_ptr = true;
       p->_is_array = true;
       p->_size_bits = tm->getPointerSizeInBits(0);
-      p->_align_bits = get_size_bits(et);
+      p->_align_bits = get_size_bits(cs, et);
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
     case Ty::POINTER: {
-      if (p->_children.empty()) { p->error("Invalid type"); }
+      if (p->_children.empty()) { error(cs, "Invalid type"); }
       auto e = ast_cast<ASTTy>(p->_children[0]);
       TAN_ASSERT(e);
-      resolve_ty(e);
+      resolve_ty(cs, e);
       p->_type_name = get_type_name(e) + "*";
       p->_size_bits = tm->getPointerSizeInBits(0);
-      p->_align_bits = get_size_bits(e);
+      p->_align_bits = get_size_bits(cs, e);
       p->_is_ptr = true;
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
     default:
-      p->error("Invalid type");
+      error(cs, "Invalid type");
   }
   p->_resolved = true;
 }
 
-ASTTyPtr get_ptr_to(ASTTyPtr p) { return create_ty(Ty::POINTER, {get_ty(p)}, false); }
+ASTTyPtr get_ptr_to(CompilerSession *cs, ASTTyPtr p) { return create_ty(cs, Ty::POINTER, {p->_ty}, false); }
 
-bool is_array(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_array;
-}
+bool is_lvalue(ASTNodePtr p) { return p->_ty->_is_lvalue; }
 
-bool is_ptr(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_ptr;
-}
-
-bool is_float(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_float;
-}
-
-bool is_double(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_double;
-}
-
-bool is_int(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_int;
-}
-
-bool is_bool(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_bool;
-}
-
-bool is_enum(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_enum;
-}
-
-bool is_unsigned(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_unsigned;
-}
-
-bool is_struct(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_struct;
-}
-
-bool is_floating(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_float || p->_is_double;
-}
-
-bool is_lvalue(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_is_lvalue;
-}
-
-bool is_lvalue(ASTNodePtr p) { return is_lvalue(get_ty(p)); }
-
-ASTTyPtr get_contained_ty(ASTTyPtr p) {
-  if (p->_tyty == Ty::STRING) { return create_ty(Ty::CHAR, vector<ASTNodePtr>(), false); }
+ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p) {
+  if (p->_tyty == Ty::STRING) { return create_ty(cs, Ty::CHAR, vector<ASTNodePtr>(), false); }
   else if (p->_is_ptr) {
     TAN_ASSERT(p->_children.size());
     auto ret = ast_cast<ASTTy>(p->_children[0]);
     TAN_ASSERT(ret);
-    resolve_ty(ret);
     return ret;
   } else { return nullptr; }
 }
 
-size_t get_size_bits(ASTTyPtr p) {
-  resolve_ty(p);
-  return p->_size_bits;
-}
-
 ASTTyPtr get_struct_member_ty(ASTTyPtr p, size_t i) {
   TAN_ASSERT(p->_tyty == Ty::STRUCT);
-  return get_ty(p->_children[i]);
+  return p->_children[i]->_ty;
 }
 
 size_t get_struct_member_index(ASTTyPtr p, str name) {
   auto search = p->_member_indices.find(name);
   if (search == p->_member_indices.end()) {
-    p->error("Unknown member of struct '" + get_type_name(p) + "'");
+    return (size_t) (-1);
   }
   return search->second;
 }
@@ -438,11 +388,49 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::LE:
     case ASTType::EQ:
     case ASTType::NE:
-      p->_ty = create_ty(Ty::BOOL);
+      p->_ty = create_ty(cs, Ty::BOOL);
+      break;
+    case ASTType::ASSIGN: {
+      /// special case for variable declaration
+      auto lhs = p->_children[0];
+      if (lhs->_type == ASTType::ID) {
+        TAN_ASSERT(lhs->_is_named);
+        lhs = get_id_referred(cs, lhs);
+      }
+      if (lhs->_type == ASTType::VAR_DECL) {
+        if (!lhs->_ty) {
+          auto ty = p->_children[1]->_ty;
+          ty = std::make_shared<ASTTy>(*ty); // copy
+          ty->_is_lvalue = true;
+          lhs->_ty = ty;
+        }
+      }
+      p->_ty = p->_children[0]->_ty;
+      if (TypeSystem::CanImplicitCast(p->_ty, p->_children[1]->_ty) != 0) {
+        error(cs, "Cannot perform implicit type conversion");
+      }
+      break;
+    }
+    case ASTType::NUM_LITERAL:
+      if (p->_token->type == TokenType::INT) {
+        auto tyty = Ty::INT;
+        if (p->_token->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
+        p->_ty = create_ty(cs, tyty);
+      } else if (p->_token->type == TokenType::FLOAT) {
+        p->_ty = create_ty(cs, Ty::FLOAT);
+      }
       break;
     default:
       break;
   }
+}
+
+/// \section Other
+
+static void error(CompilerSession *cs, const str &error_message) {
+  if (cs && cs->_current_token) {
+    report_error(cs->_filename, cs->_current_token, error_message);
+  } else { report_error(error_message); }
 }
 
 } // namespace tanlang

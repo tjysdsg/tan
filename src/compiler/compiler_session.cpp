@@ -12,7 +12,8 @@ void CompilerSession::initialize_scope() {
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
-CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm) : _target_machine(tm) {
+CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
+    : _filename(module_name), _target_machine(tm) {
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);

@@ -28,41 +28,6 @@ Value *ASTAssignment::_codegen(CompilerSession *cs) {
 }
 
 size_t ASTAssignment::led(const ASTNodePtr &left) {
-  _end_index = _start_index + 1; /// skip "="
-  _children.push_back(left);
-  _children.push_back(_parser->next_expression(_end_index, 0));
-
-  /// special case for variable declaration
-  auto lhs = left;
-  if (lhs->_type == ASTType::ID) {
-    TAN_ASSERT(lhs->is_named());
-    auto id = ast_cast<ASTIdentifier>(lhs);
-    lhs = id->get_referred();
-  }
-  if (lhs->_type == ASTType::VAR_DECL) {
-    auto var = ast_cast<ASTVarDecl>(lhs);
-    TAN_ASSERT(var);
-    if (!var->is_type_resolved()) {
-      auto ty = _children[1]->get_ty();
-      ty = std::make_shared<ASTTy>(*ty); // copy
-      ty->set_is_lvalue(true);
-      var->set_ty(ty);
-      _children[0] = var;
-    }
-  }
-
-  _ty = _children[0]->get_ty();
-  if (TypeSystem::CanImplicitCast(_ty, _children[1]->get_ty()) != 0) {
-    error("Cannot perform implicit type conversion");
-  }
-  return _end_index;
-}
-
-bool ASTAssignment::is_lvalue() { return true; }
-
-ASTAssignment::ASTAssignment(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  _type = ASTType::ASSIGN;
-  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang
