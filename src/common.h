@@ -7,7 +7,7 @@
 namespace tanlang {
 
 /**
- * \brief Create an `alloca` instruction in the beginning of a block.
+ * \brief create_ty an `alloca` instruction in the beginning of a block.
  * \param block BasicBlock to insert to.
  * \param type Intended type to store.
  * \param name Name of the `alloca` instruction.

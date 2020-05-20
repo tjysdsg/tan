@@ -1,4 +1,4 @@
-#include "src/type_system.h"
+#include "src/analysis/type_system.h"
 #include "src/common.h"
 #include "compiler_session.h"
 #include "src/ast/ast_ty.h"

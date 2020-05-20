@@ -1,5 +1,6 @@
 #include "src/ast/ast_ty.h"
 #include "src/ast/ast_number_literal.h"
+#include "src/analysis/analysis.h"
 #include "parser.h"
 #include "token.h"
 #include "compiler_session.h"
@@ -36,20 +37,9 @@ ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   return ret;
 }
 
-std::shared_ptr<ASTTy> ASTTy::Create(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
-  auto ret = ASTTy::find_cache(t, sub_tys, is_lvalue);
-  if (ret) { return ret; }
-  ret = std::make_shared<ASTTy>(nullptr, 0);
-  ret->_tyty = t;
-  ret->_is_lvalue = is_lvalue;
-  ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-  ret->resolve();
-  return ret;
-}
-
 Value *ASTTy::get_llvm_value(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  resolve();
+  Analyzer::resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   Value *ret = nullptr;
   Type *type = this->to_llvm_type(cs);
@@ -75,7 +65,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) {
       vector<llvm::Constant *> values{};
       size_t n = _children.size();
       for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) _children[i]->get_ty()->get_llvm_value(cs));
+        values.push_back((llvm::Constant *) Analyzer::get_ty(_children[i])->get_llvm_value(cs));
       }
       ret = ConstantStruct::get((StructType *) to_llvm_type(cs), values);
       break;
@@ -102,7 +92,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) {
 
 Type *ASTTy::to_llvm_type(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  resolve();
+  Analyzer::resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
@@ -153,7 +143,7 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) {
 }
 
 Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
-  resolve();
+  Analyzer::resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;
@@ -178,7 +168,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = _children[i]; // ASTVarDecl
-        elements.push_back(e->get_ty()->to_llvm_meta(cs));
+        elements.push_back(Analyzer::get_ty(e)->to_llvm_meta(cs));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
@@ -232,161 +222,6 @@ bool ASTTy::operator==(const ASTTy &other) {
   return true;
 }
 
-void ASTTy::resolve() {
-  Ty base = TY_GET_BASE(_tyty);
-  Ty qual = TY_GET_QUALIFIER(_tyty);
-  if (_resolved) {
-    if (base == Ty::STRUCT) {
-      if (!_is_forward_decl) { return; }
-    } else { return; }
-  }
-  _ty = this->shared_from_this();
-  /// resolve children if they are ASTTy
-  for (auto c: _children) {
-    auto t = ast_cast<ASTTy>(c);
-    if (t && t->_type == ASTType::TY && !t->_resolved) { t->resolve(); }
-  }
-  auto *tm = Compiler::GetDefaultTargetMachine(); /// can't use _cs here, cuz some ty are created by ASTTy::Create()
-  switch (base) {
-    case Ty::INT: {
-      _size_bits = 32;
-      _type_name = "i32";
-      _is_int = true;
-      _default_value.emplace<uint64_t>(0);
-      if (TY_IS(qual, Ty::BIT8)) {
-        _size_bits = 8;
-        _type_name = "i8";
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        _size_bits = 16;
-        _type_name = "i16";
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        _size_bits = 64;
-        _type_name = "i64";
-      }
-      if (TY_IS(qual, Ty::UNSIGNED)) {
-        _is_unsigned = true;
-        if (_size_bits == 8) {
-          _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
-        } else {
-          _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned;
-        }
-      } else {
-        if (_size_bits == 8) {
-          _dwarf_encoding = llvm::dwarf::DW_ATE_signed_char;
-        } else {
-          _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
-        }
-      }
-      break;
-    }
-    case Ty::CHAR:
-      _type_name = "char";
-      _size_bits = 8;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
-      _is_unsigned = true;
-      _default_value.emplace<uint64_t>(0);
-      _is_int = true;
-      break;
-    case Ty::BOOL:
-      _type_name = "bool";
-      _size_bits = 1;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
-      _default_value.emplace<uint64_t>(0);
-      _is_bool = true;
-      break;
-    case Ty::FLOAT:
-      _type_name = "float";
-      _size_bits = 32;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_float;
-      _default_value.emplace<float>(0);
-      _is_float = true;
-      break;
-    case Ty::DOUBLE:
-      _type_name = "double";
-      _size_bits = 64;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_float;
-      _default_value.emplace<double>(0);
-      _is_double = true;
-      break;
-    case Ty::STRING:
-      _type_name = "u8*";
-      _size_bits = tm->getPointerSizeInBits(0);
-      _default_value.emplace<str>("");
-      _align_bits = 8;
-      _is_ptr = true;
-      break;
-    case Ty::VOID:
-      _type_name = "void";
-      _size_bits = 0;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_signed;
-      break;
-    case Ty::ENUM: {
-      auto sub = ast_cast<ASTTy>(_children[0]);
-      TAN_ASSERT(sub);
-      _size_bits = sub->_size_bits;
-      _align_bits = sub->_align_bits;
-      _dwarf_encoding = sub->_dwarf_encoding;
-      _default_value = sub->_default_value;
-      _is_unsigned = sub->_is_unsigned;
-      _is_int = sub->_is_int;
-      _is_enum = true;
-      /// _type_name, however, is set by ASTEnum::nud
-      break;
-    }
-    case Ty::STRUCT: {
-      /// align size is the max element size, if no element, 8 bits
-      /// size is the number of elements * align size
-      if (_is_forward_decl) {
-        auto real = ast_cast<ASTTy>(_cs->get(_type_name));
-        if (!real) { error("Incomplete type"); }
-        *this = *real;
-        _is_forward_decl = false;
-      } else {
-        _align_bits = 8;
-        size_t n = _children.size();
-        for (size_t i = 0; i < n; ++i) {
-          auto et = ast_cast<ASTTy>(_children[i]);
-          auto s = et->get_size_bits();
-          if (s > _align_bits) { _align_bits = s; }
-        }
-        _size_bits = n * _align_bits;
-        _is_struct = true;
-      }
-      break;
-    }
-    case Ty::ARRAY: {
-      if (_children.empty()) { error("Invalid type"); }
-      auto et = ast_cast<ASTTy>(_children[0]);
-      auto s = ast_cast<ASTNumberLiteral>(_children[1]);
-      TAN_ASSERT(et);
-      TAN_ASSERT(s);
-      _n_elements = _children.size();
-      _type_name = "[" + et->get_type_name() + ", " + std::to_string(_n_elements) + "]";
-      _is_ptr = true;
-      _is_array = true;
-      _size_bits = tm->getPointerSizeInBits(0);
-      _align_bits = et->get_size_bits();
-      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
-      break;
-    }
-    case Ty::POINTER: {
-      if (_children.empty()) { error("Invalid type"); }
-      auto e = ast_cast<ASTTy>(_children[0]);
-      TAN_ASSERT(e);
-      e->resolve();
-      _type_name = e->get_type_name() + "*";
-      _size_bits = tm->getPointerSizeInBits(0);
-      _align_bits = e->get_size_bits();
-      _is_ptr = true;
-      _dwarf_encoding = llvm::dwarf::DW_ATE_address;
-      break;
-    }
-    default:
-      error("Invalid type");
-  }
-  _resolved = true;
-}
-
 /// current token should be "[" when this is called
 /// this will set _type_name
 size_t ASTTy::nud_array() {
@@ -408,7 +243,7 @@ size_t ASTTy::nud_array() {
   auto size1 = ast_cast<ASTNumberLiteral>(size);
   if (size1->is_float() || size1->_ivalue < 0) { error(_end_index, "Expect an unsigned integer"); }
   _n_elements = static_cast<size_t>(size1->_ivalue);
-  for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(element->get_ty()); }
+  for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(Analyzer::get_ty(element)); }
   /// set _type_name to [<element type>, <n_elements>]
   _type_name = "[" + _type_name + ", " + std::to_string(_n_elements) + "]";
   ++_end_index; /// skip "]"
@@ -419,15 +254,14 @@ size_t ASTTy::nud_struct() {
   _end_index = _start_index + 1; /// skip "struct"
   /// struct typename
   auto id = _parser->parse<ASTType::ID>(_end_index, true);
-  TAN_ASSERT(id->is_named());
-  _type_name = id->get_name();
+  _type_name = Analyzer::get_name(id);
 
   auto forward_decl = _cs->get(_type_name);
   if (!forward_decl) {
-    _cs->add(_type_name, this->shared_from_this()); /// add self to current scope
+    _cs->add(_type_name, this->ptr_from_this()); /// add self to current scope
   } else {
     /// replace forward decl with self (even if this is a forward declaration too)
-    _cs->set(_type_name, this->shared_from_this());
+    _cs->set(_type_name, this->ptr_from_this());
   }
 
   /// struct body
@@ -444,18 +278,18 @@ size_t ASTTy::nud_struct() {
     for (size_t i = 0; i < n; ++i) {
       if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
         var_decl = members[i];
-        _children.push_back(var_decl->get_ty());
+        _children.push_back(Analyzer::get_ty(var_decl));
       } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
         var_decl = members[i]->_children[0];
         auto initial_value = members[i]->_children[1];
         // TODO: check if value is compile-time known
-        _children.push_back(initial_value->get_ty()); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+        _children.push_back(Analyzer::get_ty(initial_value)); /// initial value is set to ASTTy in ASTLiteral::get_ty()
       } else { members[i]->error("Invalid struct member"); }
-      auto name = var_decl->get_name();
+      auto name = Analyzer::get_name(var_decl);
       _member_names.push_back(name);
       _member_indices[name] = i;
     }
-    this->resolve();
+    Analyzer::resolve(this->ptr_from_this());
   } else { _is_forward_decl = true; }
   return _end_index;
 }
@@ -492,94 +326,15 @@ size_t ASTTy::nud() {
     } else { break; }
     ++_end_index;
   }
-  resolve();
+  Analyzer::resolve(ptr_from_this());
   return _end_index;
-}
-
-ASTTyPtr ASTTy::get_ptr_to() { return ASTTy::Create(Ty::POINTER, {get_ty()}, false); }
-
-bool ASTTy::is_array() {
-  resolve();
-  return _is_array;
-}
-
-bool ASTTy::is_ptr() {
-  resolve();
-  return _is_ptr;
-}
-
-bool ASTTy::is_float() {
-  resolve();
-  return _is_float;
-}
-
-bool ASTTy::is_double() {
-  resolve();
-  return _is_double;
-}
-
-bool ASTTy::is_int() {
-  resolve();
-  return _is_int;
-}
-
-bool ASTTy::is_bool() {
-  resolve();;
-  return _is_bool;
-}
-
-bool ASTTy::is_enum() {
-  resolve();;
-  return _is_enum;
-}
-
-bool ASTTy::is_unsigned() {
-  resolve();;
-  return _is_unsigned;
-}
-
-bool ASTTy::is_struct() {
-  resolve();;
-  return _is_struct;
-}
-
-bool ASTTy::is_floating() {
-  resolve();;
-  return _is_float || _is_double;
-}
-
-bool ASTTy::is_lvalue() {
-  resolve();;
-  return _is_lvalue;
-}
-
-bool ASTTy::is_typed() { return true; }
-
-size_t ASTTy::get_size_bits() {
-  resolve();;
-  return _size_bits;
 }
 
 str ASTTy::to_string(bool print_prefix) { return ASTNode::to_string(print_prefix) + " " + get_type_name(); }
 
 ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
-void ASTTy::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
-
 bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
-
-ASTTyPtr ASTTy::get_contained_ty() {
-  if (_tyty == Ty::STRING) { return ASTTy::Create(Ty::CHAR, vector<ASTNodePtr>(), false); }
-  else if (_is_ptr) {
-    TAN_ASSERT(_children.size());
-    auto ret = ast_cast<ASTTy>(_children[0]);
-    TAN_ASSERT(ret);
-    ret->resolve();
-    return ret;
-  } else { return nullptr; }
-}
-
-size_t ASTTy::get_n_elements() { return _n_elements; }
 
 ASTTy &ASTTy::operator=(const ASTTy &other) {
   _tyty = other._tyty;
@@ -625,18 +380,4 @@ ASTTy &ASTTy::operator=(ASTTy &&other) {
   _is_lvalue = other._is_lvalue;
   _is_forward_decl = other._is_forward_decl;
   return const_cast<ASTTy &>(*this);
-}
-
-ASTNodePtr ASTTy::get_member(size_t i) { return _children[i]; }
-
-size_t ASTTy::get_member_index(str name) {
-  if (_member_indices.find(name) == _member_indices.end()) {
-    error("Unknown member of struct '" + get_type_name() + "'"); // TODO: move this outside
-  }
-  return _member_indices.at(name);
-}
-
-str ASTTy::get_type_name() {
-  resolve();
-  return _type_name;
 }

@@ -11,10 +11,6 @@
 
 namespace tanlang {
 
-class Parser;
-class ASTTy;
-using ASTTyPtr = std::shared_ptr<ASTTy>;
-
 enum class Ty : uint64_t {
   INVALID = 0,
   /// basic types 1->12 bits
@@ -43,9 +39,9 @@ enum class Ty : uint64_t {
   BIT64 = 1u << 18u,
 };
 
-class ASTTy : public ASTNode, public std::enable_shared_from_this<ASTTy> {
+class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
 public:
-  static std::shared_ptr<ASTTy> Create(Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
+  friend class Analyzer;
 
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};
@@ -60,37 +56,17 @@ public:
   ASTTy &operator=(ASTTy &&);
 
 public:
-  str get_type_name();
   llvm::Metadata *to_llvm_meta(CompilerSession *) override;
   str to_string(bool print_prefix = true) override;
   llvm::Type *to_llvm_type(CompilerSession *) override;
   llvm::Value *get_llvm_value(CompilerSession *) override;
 
 public:
-  bool is_lvalue() override;
-  bool is_typed() override;
-  ASTTyPtr get_contained_ty();
-  ASTTyPtr get_ptr_to();
   bool operator==(const ASTTy &other);
   bool operator!=(const ASTTy &other);
-  void set_is_lvalue(bool is_lvalue);
-  size_t get_size_bits();
-  bool is_ptr();
-  bool is_float();
-  bool is_floating();
-  bool is_double();
-  bool is_int();
-  bool is_bool();
-  bool is_enum();
-  bool is_unsigned();
-  bool is_struct();
-  bool is_array();
-  size_t get_n_elements();
-  size_t get_member_index(str name);
-  ASTNodePtr get_member(size_t i);
 
 public:
-  // avoid name collisions
+  // avoid name collision with _ty
   Ty _tyty = Ty::INVALID;
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
@@ -100,7 +76,6 @@ protected:
   size_t nud_array();
   size_t nud_struct();
   size_t nud() override;
-  void resolve();
   str _type_name = "";
   llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;
@@ -117,7 +92,6 @@ protected:
   bool _is_enum = false;
   bool _resolved = false;
   size_t _n_elements = 0;
-  bool _is_lvalue = false;
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
   bool _is_forward_decl = true;

@@ -61,7 +61,7 @@ private:
 public:
   Compiler() = delete;
   /**
-   * \brief Create a Compiler instance with its relevant source file name/path
+   * \brief create_ty a Compiler instance with its relevant source file name/path
    * */
   explicit Compiler(const str &filename);
   ~Compiler();

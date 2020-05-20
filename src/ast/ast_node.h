@@ -96,6 +96,7 @@ extern umap<ASTType, int> op_precedence;
 class ASTNode {
 public:
   friend class Parser;
+  friend class Analyzer;
 
 public:
   ASTType _type = ASTType::INVALID;
@@ -126,9 +127,6 @@ public:
   str get_src();
 
 public:
-  str get_name();
-  str get_type_name();
-  std::shared_ptr<ASTTy> get_ty();
   str get_source_location();
   [[noreturn]] void error(const str &error_message);
   [[noreturn]] void error(size_t token_idx, const str &error_message);
@@ -136,11 +134,8 @@ public:
 public:
   virtual llvm::Type *to_llvm_type(CompilerSession *);
   virtual llvm::Value *get_llvm_value(CompilerSession *);
-  virtual str to_string(bool print_prefix = true);
-  virtual bool is_typed() { return false; }
-  virtual bool is_named() { return false; }
-  virtual bool is_lvalue() { return false; }
   virtual llvm::Metadata *to_llvm_meta(CompilerSession *);
+  virtual str to_string(bool print_prefix = true);
 
 protected:
   virtual llvm::Value *_codegen(CompilerSession *);
@@ -154,6 +149,9 @@ protected:
   llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
   str _name = "";
+  bool _is_typed = false;
+  bool _is_valued = false;
+  bool _is_lvalue = false;
   bool _parsed = false;
   size_t _start_index = 0;
   size_t _end_index = 0;
@@ -162,6 +160,12 @@ protected:
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
+
+/// \section forward declarations
+class Parser;
+class ASTTy;
+using ASTTyPtr = ptr<ASTTy>;
+enum class Ty : uint64_t;
 
 } // namespace tanlang
 

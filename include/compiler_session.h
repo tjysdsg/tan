@@ -45,7 +45,7 @@ public:
   std::shared_ptr<Scope> get_current_scope();
 
   /**
-   * \brief Create a new scope
+   * \brief create_ty a new scope
    * \see Scope
    * */
   std::shared_ptr<Scope> push_scope();

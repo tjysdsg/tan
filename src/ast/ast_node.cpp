@@ -98,10 +98,8 @@ Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) {
   else { return nullptr; }
 }
 
-str ASTNode::get_name() { return _name; }
-str ASTNode::get_type_name() { return _ty->get_type_name(); }
-std::shared_ptr<ASTTy> ASTNode::get_ty() { return _ty; }
 llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) { return _ty->to_llvm_type(cs); }
+
 llvm::Value *ASTNode::get_llvm_value(CompilerSession *) { return _llvm_value; }
 
 str ASTNode::get_source_location() {

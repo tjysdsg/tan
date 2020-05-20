@@ -17,15 +17,13 @@ using ASTAmpersandPtr = std::shared_ptr<ASTAmpersand>;
  *  - lvalue: false
  *  - typed: true
  * */
-class ASTAmpersand final : public ASTNode {
+class ASTAmpersand final : public ASTNode, public enable_ptr_from_this<ASTAmpersand> {
 public:
   static ASTAmpersandPtr CreateAddressOf(ASTNodePtr n);
 
 public:
   ASTAmpersand() = delete;
   ASTAmpersand(Token *token, size_t token_index);
-  bool is_typed() override;
-  bool is_lvalue() override;
 
 protected:
   llvm::Value *_codegen(CompilerSession *) override;

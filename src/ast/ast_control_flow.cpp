@@ -20,7 +20,7 @@ Value *ASTIf::_codegen(CompilerSession *cs) {
   /// convert to bool if not
   condition = TypeSystem::ConvertTo(cs, condition, _children[0]->get_ty(), ASTTy::Create(Ty::BOOL));
 
-  /// Create blocks for the then (and else) clause
+  /// create_ty blocks for the then (and else) clause
   Function *func = builder->GetInsertBlock()->getParent();
   BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
   BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
