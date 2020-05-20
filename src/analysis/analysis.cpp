@@ -57,7 +57,7 @@ ASTNodePtr ast_create_var_decl(CompilerSession *cs) {
 }
 
 ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
-  auto ret = ast_create_arg_decl();
+  auto ret = ast_create_arg_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
   ret->_name = name;
@@ -73,7 +73,7 @@ ASTNodePtr ast_create_arg_decl(CompilerSession *cs) {
 }
 
 ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
-  auto ret = ast_create_arg_decl();
+  auto ret = ast_create_arg_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
   ret->_name = name;
@@ -311,9 +311,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
     case Ty::ARRAY: {
       if (p->_children.empty()) { error(cs, "Invalid type"); }
       auto et = ast_cast<ASTTy>(p->_children[0]);
-      auto s = ast_cast<ASTNumberLiteral>(p->_children[1]);
       TAN_ASSERT(et);
-      TAN_ASSERT(s);
       p->_n_elements = p->_children.size();
       p->_type_name = "[" + get_type_name(et) + ", " + std::to_string(p->_n_elements) + "]";
       p->_is_ptr = true;
@@ -378,10 +376,12 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::SUBTRACT:
     case ASTType::MULTIPLY:
     case ASTType::DIVIDE:
-    case ASTType::MOD:
-      // TODO: p->_ty = std::make_shared<ASTTy>(*_children[_dominant_idx]->get_ty());
-      // p->_ty->set_is_lvalue(false);
+    case ASTType::MOD: {
+      int i = TypeSystem::CanImplicitCast(ast_cast<ASTTy>(p->_children[0]), ast_cast<ASTTy>(p->_children[1]));
+      if (i == -1) { error(cs, "Cannot perform implicit type conversion"); }
+      p->_ty = ast_cast<ASTTy>(p->_children[(size_t) i]);
       break;
+    }
     case ASTType::GT:
     case ASTType::GE:
     case ASTType::LT:

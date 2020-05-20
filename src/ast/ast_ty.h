@@ -66,8 +66,8 @@ public:
   unsigned _dwarf_encoding = 0;
   bool _is_ptr = false;
   bool _is_float = false;
+  // TODO: size bits for float
   bool _is_array = false;
-  bool _is_double = false;
   bool _is_int = false;
   bool _is_unsigned = false;
   bool _is_struct = false;

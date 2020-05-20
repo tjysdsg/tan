@@ -19,7 +19,7 @@ public:
    * \brief Find out which type should a value be implicitly cast to.
    * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
    * */
-  static int CanImplicitCast(ASTTyPtr t1, ASTTyPtr t2);
+  static int CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2);
 
   /**
    * \brief Convert a value to from orig type to dest type.

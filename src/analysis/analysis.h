@@ -17,10 +17,10 @@ ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p);
 
 /// \subsection Declarations
 
-ASTNodePtr ast_create_arg_decl();
-ASTNodePtr ast_create_var_decl();
-ASTNodePtr ast_create_arg_decl(const str &name, ASTTyPtr ty);
-ASTNodePtr ast_create_var_decl(const str &name, ASTTyPtr ty);
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs);
+ASTNodePtr ast_create_var_decl(CompilerSession *cs);
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
+ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
 
 /// \subsection Literals
 

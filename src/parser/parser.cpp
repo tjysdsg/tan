@@ -28,7 +28,7 @@ static ASTNodePtr peek_keyword(Token *token, size_t &index) {
   ASTNodePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
-      ret = ast_create_var_decl();
+      ret = ast_create_var_decl(_cs);
     case "enum"_hs:
       ret = ast_create_enum(_cs);
     case "fn"_hs:
