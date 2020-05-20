@@ -28,6 +28,20 @@ ASTNodePtr ast_create_string_literal(const str &s) {
   return ret;
 }
 
+ASTNodePtr ast_create_array_literal() {
+  auto ret = make_ptr<ASTNode>(ASTType::ARRAY_LITERAL, 0, 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_numeric_literal() {
+  auto ret = make_ptr<ASTNode>(ASTType::NUM_LITERAL, 0, 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
 ASTNodePtr ast_create_var_decl() {
   auto ret = make_ptr<ASTNode>(ASTType::ARG_DECL, 0, 0);
   ret->_is_typed = true;
@@ -87,6 +101,36 @@ ASTNodePtr ast_create_arithmetic(const str &op) {
   return ret;
 }
 
+ASTNodePtr ast_create_comparison(const str &op) {
+  auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0, 0);
+  switch (hashed_string{op.c_str()}) {
+    case ">"_hs:
+      ret->_type = ASTType::GT;
+      break;
+    case ">="_hs:
+      ret->_type = ASTType::GE;
+      break;
+    case "<"_hs:
+      ret->_type = ASTType::LT;
+      break;
+    case "<="_hs:
+      ret->_type = ASTType::LE;
+      break;
+    case "=="_hs:
+      ret->_type = ASTType::EQ;
+      break;
+    case "!="_hs:
+      ret->_type = ASTType::NE;
+      break;
+    default:
+      return nullptr;
+  }
+  ret->_lbp = op_precedence[ret->_type];
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
 ASTNodePtr ast_create_program() {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0, 0);
   return ret;
@@ -97,6 +141,12 @@ ASTNodePtr ast_create_statement() { return make_ptr<ASTNode>(ASTType::STATEMENT,
 ASTNodePtr ast_create_identifier() {
   auto ret = make_ptr<ASTNode>(ASTType::ID, 0, 0);
   ret->_is_named = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_identifier(const str &name) {
+  auto ret = ast_create_identifier();
+  ret->_name = name;
   return ret;
 }
 
@@ -124,7 +174,7 @@ ASTTyPtr create_ty(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   return ret;
 }
 
-void resolve_ty(ASTTyPtr p) {
+void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
   Ty base = TY_GET_BASE(p->_tyty);
   Ty qual = TY_GET_QUALIFIER(p->_tyty);
   if (p->_resolved) {
@@ -230,7 +280,7 @@ void resolve_ty(ASTTyPtr p) {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
-        auto real = ast_cast<ASTTy>(_cs->get(p->_type_name));
+        auto real = ast_cast<ASTTy>(cs->get(p->_type_name));
         if (!real) { p->error("Incomplete type"); }
         *p = *real;
         p->_is_forward_decl = false;
@@ -369,5 +419,30 @@ size_t get_struct_member_index(ASTTyPtr p, str name) {
 }
 
 void set_is_lvalue(ASTTyPtr p, bool is_lvalue) { p->_is_lvalue = is_lvalue; }
+
+/// \section Analysis
+
+void analyze(CompilerSession *cs, ASTNodePtr p) {
+  switch (p->_type) {
+    case ASTType::SUM:
+    case ASTType::SUBTRACT:
+    case ASTType::MULTIPLY:
+    case ASTType::DIVIDE:
+    case ASTType::MOD:
+      // TODO: p->_ty = std::make_shared<ASTTy>(*_children[_dominant_idx]->get_ty());
+      // p->_ty->set_is_lvalue(false);
+      break;
+    case ASTType::GT:
+    case ASTType::GE:
+    case ASTType::LT:
+    case ASTType::LE:
+    case ASTType::EQ:
+    case ASTType::NE:
+      p->_ty = create_ty(Ty::BOOL);
+      break;
+    default:
+      break;
+  }
+}
 
 } // namespace tanlang

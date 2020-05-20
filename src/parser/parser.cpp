@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "base.h"
 #include "compiler_session.h"
+#include "src/analysis/type_system.h"
 #include "src/analysis/analysis.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_ty.h"
@@ -72,44 +73,32 @@ ASTNodePtr Parser::peek(size_t &index) {
   if (token->value == "@") { /// intrinsics
     node = std::make_shared<Intrinsic>(token, index);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
-    node = std::make_shared<ASTAssignment>(token, index);
+    node = ast_create_assignment();
   } else if (token->value == "!" || token->value == "~") {
-    node = std::make_shared<ASTNot>(token, index);
+    node = ast_create_not();
   } else if (token->value == "[") {
     auto prev = this->at(index - 1);
     if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
       /// array literal if there is no identifier, "]", or ")" before
-      node = std::make_shared<ASTArrayLiteral>(token, index);
+      node = ast_create_array_literal();
     } else {
       /// otherwise bracket access
-      node = std::make_shared<ASTMemberAccess>(token, index);
+      node = ast_create_member_access();
     }
-  } else if (token->type == TokenType::RELOP) {
-    if (token->value == ">") {
-      node = std::make_shared<ASTCompare>(ASTType::GT, token, index);
-    } else if (token->value == ">=") {
-      node = std::make_shared<ASTCompare>(ASTType::GE, token, index);
-    } else if (token->value == "<") {
-      node = std::make_shared<ASTCompare>(ASTType::LT, token, index);
-    } else if (token->value == "<=") {
-      node = std::make_shared<ASTCompare>(ASTType::LE, token, index);
-    } else if (token->value == "==") {
-      node = std::make_shared<ASTCompare>(ASTType::EQ, token, index);
-    } else if (token->value == "!=") {
-      node = std::make_shared<ASTCompare>(ASTType::NE, token, index);
-    }
+  } else if (token->type == TokenType::RELOP) { /// comparisons
+    node = ast_create_comparison(token->value);
   } else if (token->type == TokenType::INT) {
     node = std::make_shared<ASTNumberLiteral>(token->value, false, token, index);
   } else if (token->type == TokenType::FLOAT) {
     node = std::make_shared<ASTNumberLiteral>(token->value, true, token, index);
-  } else if (token->type == TokenType::STRING) {
-    node = std::make_shared<ASTStringLiteral>(token, index);
-  } else if (token->type == TokenType::CHAR) {
+  } else if (token->type == TokenType::STRING) { /// string literal
+    node = ast_create_string_literal(token->value);
+  } else if (token->type == TokenType::CHAR) { /// char literal
     node = std::make_shared<ASTCharLiteral>(token, index);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }
-    else { node = std::make_shared<ASTIdentifier>(token, index); }
+    else { node = ast_create_identifier(token->value); }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = std::make_shared<ASTParenthesis>(token, index);
   } else if (token->type == TokenType::KEYWORD) { /// keywords
@@ -118,7 +107,7 @@ ASTNodePtr Parser::peek(size_t &index) {
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = std::make_shared<ASTMemberAccess>(token, index);
   } else if (check_typename_token(token)) { /// types
-    node = std::make_shared<ASTTy>(token, index);
+    node = ast_create_ty();
   } else if (token->value == "&") {
     node = std::make_shared<ASTAmpersand>(token, index);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
@@ -131,7 +120,7 @@ ASTNodePtr Parser::peek(size_t &index) {
     report_error(_filename, token, "Unknown token " + token->to_string());
   }
   node->_token = token;
-  node->_end_index = index;
+  node->_start_index = node->_end_index = index;
   return node;
 }
 
@@ -191,8 +180,9 @@ size_t Parser::parse_node(ASTNodePtr p) {
         ++p->_end_index; /// skip ';'
       }
       break;
-    case ASTType::ARG_DECL:
-    case ASTType::VAR_DECL: {
+    case ASTType::VAR_DECL:
+      ++p->_end_index; /// skip 'var'
+    case ASTType::ARG_DECL: {
       /// var name
       auto name_token = at(p->_end_index);
       p->_name = name_token->value;
@@ -210,6 +200,57 @@ size_t Parser::parse_node(ASTNodePtr p) {
       if (p->_type == ASTType::VAR_DECL) { _cs->add(p->_name, p); }
       break;
     }
+    case ASTType::SUM:
+    case ASTType::SUBTRACT: { /// unary '+' or '-'
+      ++p->_end_index; /// skip "-" or "+"
+      /// higher precedence than infix plus/minus
+      p->_rbp = PREC_UNARY;
+      auto rhs = next_expression(p->_end_index, p->_rbp);
+      if (!rhs) { error(p->_end_index, "Invalid operand"); }
+      p->_children.push_back(rhs);
+      break;
+    }
+    case ASTType::ARRAY_LITERAL: {
+      ++p->_end_index; /// skip '['
+      if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
+      ASTType element_type = ASTType::INVALID;
+      while (!eof(p->_end_index)) {
+        if (at(p->_end_index)->value == ",") {
+          ++p->_end_index;
+          continue;
+        } else if (at(p->_end_index)->value == "]") {
+          ++p->_end_index;
+          break;
+        }
+        auto node = peek(p->_end_index);
+        if (!node) { error(p->_end_index, "Unexpected token"); }
+        /// check whether element types are the same
+        if (element_type == ASTType::INVALID) { element_type = node->_type; }
+        else {
+          if (element_type != node->_type) {
+            error(p->_end_index, "All elements in an array must have the same type");
+          }
+        }
+        if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
+          if (node->_type == ASTType::ARRAY_LITERAL) { ++p->_end_index; }
+          p->_end_index = parse_node(node);
+          p->_children.push_back(node);
+        } else { error(p->_end_index, "Expect literals"); }
+      }
+
+      vector<ASTNodePtr> sub_tys{};
+      sub_tys.reserve(p->_children.size());
+      std::for_each(p->_children.begin(),
+          p->_children.end(),
+          [&sub_tys](const ASTNodePtr &e) { sub_tys.push_back(get_ty(e)); });
+      p->_ty = create_ty(Ty::ARRAY, sub_tys);
+      break;
+    }
+    case ASTType::ID:
+    case ASTType::NUM_LITERAL:
+    case ASTType::STRING_LITERAL: /// trivially parsed ASTs
+      ++p->_end_index;
+      break;
     default:
       break;
   }
@@ -217,6 +258,28 @@ size_t Parser::parse_node(ASTNodePtr p) {
 }
 
 size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
+  p->_end_index = p->_start_index;
+  switch (p->_type) {
+    case ASTType::GT:
+    case ASTType::GE:
+    case ASTType::LT:
+    case ASTType::LE:
+    case ASTType::EQ:
+    case ASTType::NE:
+    case ASTType::SUM:
+    case ASTType::SUBTRACT:
+    case ASTType::MULTIPLY:
+    case ASTType::DIVIDE:
+    case ASTType::MOD: {
+      ++p->_end_index; /// skip operator
+      p->_children.push_back(left); /// lhs
+      auto n = next_expression(p->_end_index, p->_lbp);
+      if (!n) { error(p->_end_index, "Invalid operand"); }
+      p->_children.push_back(n);
+    }
+    default:
+      break;
+  }
   return p->_end_index;
 }
 
@@ -234,5 +297,13 @@ Token *Parser::at(const size_t idx) const {
 str Parser::get_filename() const { return _filename; }
 
 bool Parser::eof(size_t index) const { return index >= _tokens.size(); }
+
+void Parser::error(const str &error_message) {
+  if (_cs && _cs->_current_token) {
+    report_error(get_filename(), _cs->_current_token, error_message);
+  } else { report_error(error_message); }
+}
+
+void Parser::error(size_t i, const str &error_message) { report_error(get_filename(), at(i), error_message); }
 
 } // namespace tanlang

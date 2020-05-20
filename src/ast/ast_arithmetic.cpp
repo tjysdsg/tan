@@ -1,25 +1,9 @@
-#include "src/ast/ast_arithmetic.h"
 #include "src/ast/ast_ty.h"
 #include "src/common.h"
 #include "compiler_session.h"
 #include "token.h"
 
 namespace tanlang {
-
-/// special case for unary '-' or '+'
-size_t ASTArithmetic::nud() {
-  _end_index = _start_index + 1; /// skip "-" or "+"
-  /// unary plus/minus has higher precedence than infix plus/minus
-  _rbp = PREC_UNARY;
-  auto rhs = _parser->next_expression(_end_index, PREC_UNARY);
-  if (!rhs) { error("Unexpected token"); }
-  _children.push_back(rhs);
-  _dominant_idx = 0;
-  if (!_children[0]->get_ty()) { error("Invalid operand"); }
-  _ty = std::make_shared<ASTTy>(*_children[0]->get_ty());
-  _ty->set_is_lvalue(false);
-  return _end_index;
-}
 
 Value *ASTArithmetic::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;

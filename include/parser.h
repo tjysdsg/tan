@@ -28,6 +28,8 @@ public:
   bool eof(size_t index) const;
   [[nodiscard]] Token *at(const size_t idx) const;
   [[nodiscard]] str get_filename() const;
+  void error(const str &error_message);
+  void error(size_t i, const str &error_message);
 
 protected:
   vector<Token *> _tokens{};

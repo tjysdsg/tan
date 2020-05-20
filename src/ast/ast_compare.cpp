@@ -1,17 +1,4 @@
-#include "src/ast/ast_compare.h"
-#include "src/ast/ast_ty.h"
-#include "compiler_session.h"
-#include "src/type_system.h"
-#include "src/common.h"
-#include "token.h"
-
 namespace tanlang {
-
-size_t ASTCompare::led(const ASTNodePtr &left) {
-  auto ret = ASTInfixBinaryOp::led(left);
-  _ty = ASTTy::Create(Ty::BOOL, vector<ASTNodePtr>());
-  return ret;
-}
 
 Value *ASTCompare::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
@@ -61,16 +48,6 @@ Value *ASTCompare::_codegen(CompilerSession *cs) {
     }
   }
   return _llvm_value;
-}
-
-ASTCompare::ASTCompare(ASTType type, Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  if (!is_ast_type_in(type,
-      {ASTType::GT, ASTType::GE, ASTType::LT, ASTType::LE, ASTType::LAND, ASTType::LNOT, ASTType::LOR, ASTType::EQ,
-          ASTType::NE})) {
-    error("Invalid comparison: " + token->to_string());
-  }
-  _type = type;
-  _lbp = op_precedence[type];
 }
 
 } // namespace tanlang

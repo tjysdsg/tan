@@ -115,8 +115,6 @@ public:
 public:
   str get_source_location();
   virtual str to_string(bool print_prefix = true);
-  [[noreturn]] void error(const str &error_message);
-  [[noreturn]] void error(size_t token_idx, const str &error_message);
 
 private:
   void printTree(const str &prefix, bool last_child);

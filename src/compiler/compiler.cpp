@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "lexer.h"
 #include "compiler_session.h"
+#include "src/analysis/analysis.h"
 #include "intrinsic.h"
 #include "reader.h"
 #include "parser.h"
@@ -63,6 +64,7 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
+  analyze(_compiler_session, _ast);
 }
 
 void Compiler::ParseFile(const str &filename) {

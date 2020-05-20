@@ -12,19 +12,39 @@ size_t get_n_children(ASTNodePtr p);
 bool is_lvalue(ASTNodePtr p);
 bool is_lvalue(ASTTyPtr p);
 
-/// \section Factory
+/// \section AST factories
+
+/// \subsection Declarations
 
 ASTNodePtr ast_create_arg_decl();
 ASTNodePtr ast_create_var_decl();
-ASTNodePtr ast_create_string_literal();
 ASTNodePtr ast_create_arg_decl(const str &name, ASTTyPtr ty);
 ASTNodePtr ast_create_var_decl(const str &name, ASTTyPtr ty);
+
+/// \subsection Literals
+
+ASTNodePtr ast_create_string_literal();
 ASTNodePtr ast_create_string_literal(const str &);
+ASTNodePtr ast_create_array_literal();
+ASTNodePtr ast_create_numeric_literal();
+
+/// \subsection Binary ops
+
 ASTNodePtr ast_create_arithmetic(const str &op);
+ASTNodePtr ast_create_comparison(const str &op);
+
+/// \subsection Others
+
 ASTNodePtr ast_create_program();
 ASTNodePtr ast_create_statement();
 ASTNodePtr ast_create_identifier();
+ASTNodePtr ast_create_identifier(const str &name);
 ASTTyPtr ast_create_ty();
+
+/// \section Literals
+
+ASTNodePtr create_numeric_literal(uint64_t val, bool is_unsigned = false);
+ASTNodePtr create_numeric_literal(double val);
 
 /// \section Types
 
@@ -46,7 +66,11 @@ bool is_struct(ASTTyPtr p);
 bool is_array(ASTTyPtr p);
 size_t get_struct_member_index(ASTTyPtr p, str name);
 ASTTyPtr get_struct_member_ty(ASTTyPtr p, size_t i);
-void resolve_ty(ASTTyPtr p);
+void resolve_ty(CompilerSession *cs, ASTTyPtr p);
+
+/// \section Analysis
+
+void analyze(CompilerSession *cs, ASTNodePtr p);
 
 } // namespace tanlang
 
