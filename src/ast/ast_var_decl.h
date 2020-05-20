@@ -4,8 +4,6 @@
 
 namespace tanlang {
 
-struct Token;
-
 /**
  * \brief Variable and its declaration
  *
@@ -14,32 +12,11 @@ struct Token;
  *  - variable name, ASTIdentifier
  *  - type, ASTTy
  *
+ * valued: true
  * lvalue: true
  * typed: true
  * named: true
  * */
-class ASTVarDecl : public ASTNode, public std::enable_shared_from_this<ASTVarDecl> {
-public:
-  friend class ASTAssignment;
-  friend class ASTFunction;
-
-public:
-  ASTVarDecl() = delete;
-  ASTVarDecl(Token *token, size_t token_index);
-  bool is_typed() override;
-  bool is_named() override;
-  bool is_lvalue() override;
-  void set_ty(std::shared_ptr<ASTTy> ty);
-  bool is_type_resolved();
-
-protected:
-  llvm::Value *_codegen(CompilerSession *cs) override;
-  size_t nud() override;
-  size_t _nud();
-
-protected:
-  bool _is_type_resolved = false;
-};
 
 } // namespace tanlang
 

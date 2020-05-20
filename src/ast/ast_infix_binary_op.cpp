@@ -1,5 +1,4 @@
 #include "src/ast/ast_infix_binary_op.h"
-#include "src/type_system.h"
 #include "src/ast/ast_ty.h"
 #include "parser.h"
 
@@ -23,12 +22,6 @@ llvm::Metadata *ASTInfixBinaryOp::to_llvm_meta(CompilerSession *cs) {
   TAN_ASSERT(_children.size() > _dominant_idx);
   return _children[_dominant_idx]->to_llvm_meta(cs);
 }
-
-bool ASTInfixBinaryOp::is_lvalue() {
-  return false;
-}
-
-bool ASTInfixBinaryOp::is_typed() { return true; }
 
 size_t ASTInfixBinaryOp::get_dominant_idx() {
   auto lhs = _children[0];

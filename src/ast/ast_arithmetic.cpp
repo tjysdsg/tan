@@ -1,6 +1,5 @@
 #include "src/ast/ast_arithmetic.h"
 #include "src/ast/ast_ty.h"
-#include "src/type_system.h"
 #include "src/common.h"
 #include "compiler_session.h"
 #include "token.h"
@@ -88,29 +87,6 @@ Value *ASTArithmetic::_codegen(CompilerSession *cs) {
     } else { TAN_ASSERT(false); }
   }
   return _llvm_value;
-}
-
-ASTArithmetic::ASTArithmetic(Token *token, size_t token_index) : ASTInfixBinaryOp(token, token_index) {
-  switch (hashed_string{token->value.c_str()}) {
-    case "+"_hs:
-      _type = ASTType::SUM;
-      break;
-    case "-"_hs:
-      _type = ASTType::SUBTRACT;
-      break;
-    case "*"_hs:
-      _type = ASTType::MULTIPLY;
-      break;
-    case "/"_hs:
-      _type = ASTType::DIVIDE;
-      break;
-    case "%"_hs:
-      _type = ASTType::MOD;
-      break;
-    default:
-      error("Invalid ASTType for comparisons " + token->to_string());
-  }
-  _lbp = op_precedence[_type];
 }
 
 } // namespace tanlang

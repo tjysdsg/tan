@@ -49,6 +49,3 @@ ASTAmpersandPtr ASTAmpersand::CreateAddressOf(ASTNodePtr n) {
   ret->_ty = Analyzer::get_ptr_to(Analyzer::get_ty(n));
   return ret;
 }
-
-// TODO
-size_t ASTAmpersand::led(const ASTNodePtr &) { TAN_ASSERT(false); }

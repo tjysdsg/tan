@@ -15,15 +15,6 @@ namespace tanlang {
  * lvalue: false
  * typed: true
  * */
-class ASTArithmetic final : public ASTInfixBinaryOp {
-public:
-  ASTArithmetic() = delete;
-  ASTArithmetic(Token *token, size_t token_index);
-
-protected:
-  llvm::Value *_codegen(CompilerSession *cs) override;
-  size_t nud() override; /// special case for parsing unary plus and minus
-};
 
 } // namespace tanlang
 

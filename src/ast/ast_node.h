@@ -1,6 +1,7 @@
 #ifndef TAN_SRC_AST_ASTNODE_H_
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
+#include <variant>
 
 namespace llvm {
 class Value;
@@ -95,24 +96,9 @@ extern umap<ASTType, int> op_precedence;
 
 class ASTNode {
 public:
-  friend class Parser;
-  friend class Analyzer;
-
-public:
-  ASTType _type = ASTType::INVALID;
-  vector<ASTNodePtr> _children{};
-  int _lbp = 0;
-  int _rbp = 0;
-  Token *_token = nullptr;
-
   ASTNode() = delete;
-  ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index);
+  ASTNode(ASTType op, int lbp, int rbp);
   virtual ~ASTNode() = default;
-
-public:
-  [[nodiscard]] virtual size_t parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs);
-  [[nodiscard]] virtual size_t parse(Parser *parser, CompilerSession *cs);
-  llvm::Value *codegen(CompilerSession *cs);
 
   /**
    * \brief Pretty-print the AST
@@ -128,44 +114,43 @@ public:
 
 public:
   str get_source_location();
+  virtual str to_string(bool print_prefix = true);
   [[noreturn]] void error(const str &error_message);
   [[noreturn]] void error(size_t token_idx, const str &error_message);
-
-public:
-  virtual llvm::Type *to_llvm_type(CompilerSession *);
-  virtual llvm::Value *get_llvm_value(CompilerSession *);
-  virtual llvm::Metadata *to_llvm_meta(CompilerSession *);
-  virtual str to_string(bool print_prefix = true);
-
-protected:
-  virtual llvm::Value *_codegen(CompilerSession *);
-  [[nodiscard]] virtual size_t led(const ASTNodePtr &left);
-  [[nodiscard]] virtual size_t nud();
 
 private:
   void printTree(const str &prefix, bool last_child);
 
-protected:
+public:
+  ASTType _type = ASTType::INVALID;
+  vector<ASTNodePtr> _children{};
+  int _lbp = 0;
+  int _rbp = 0;
+  Token *_token = nullptr;
   llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
   str _name = "";
   bool _is_typed = false;
   bool _is_valued = false;
-  bool _is_lvalue = false;
+  bool _is_named = false;
   bool _parsed = false;
   size_t _start_index = 0;
   size_t _end_index = 0;
-  Parser *_parser = nullptr;
-  CompilerSession *_cs = nullptr;
+  std::variant<str, uint64_t, double> _value;
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
 
-/// \section forward declarations
+/// \section Forward declarations
+#define AST_FWD_DECL(c)  \
+class c;                 \
+using c##Ptr = ptr<c>
+
 class Parser;
-class ASTTy;
-using ASTTyPtr = ptr<ASTTy>;
 enum class Ty : uint64_t;
+AST_FWD_DECL(ASTTy);
+
+#undef AST_FWD_DECL
 
 } // namespace tanlang
 

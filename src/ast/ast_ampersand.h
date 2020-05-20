@@ -17,19 +17,6 @@ using ASTAmpersandPtr = std::shared_ptr<ASTAmpersand>;
  *  - lvalue: false
  *  - typed: true
  * */
-class ASTAmpersand final : public ASTNode, public enable_ptr_from_this<ASTAmpersand> {
-public:
-  static ASTAmpersandPtr CreateAddressOf(ASTNodePtr n);
-
-public:
-  ASTAmpersand() = delete;
-  ASTAmpersand(Token *token, size_t token_index);
-
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t led(const ASTNodePtr &left) override;
-  size_t nud() override;
-};
 
 } // namespace tanlang
 

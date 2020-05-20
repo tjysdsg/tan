@@ -40,42 +40,25 @@ enum class Ty : uint64_t {
 };
 
 class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
-public:
-  friend class Analyzer;
-
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};
   static ASTTyPtr find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue);
 
 public:
-  ASTTy() = delete;
-  ASTTy(Token *token, size_t token_index);
+  ASTTy();
   ASTTy(const ASTTy &) = default;
   ASTTy(ASTTy &&) = default;
   ASTTy &operator=(const ASTTy &);
   ASTTy &operator=(ASTTy &&);
-
-public:
-  llvm::Metadata *to_llvm_meta(CompilerSession *) override;
-  str to_string(bool print_prefix = true) override;
-  llvm::Type *to_llvm_type(CompilerSession *) override;
-  llvm::Value *get_llvm_value(CompilerSession *) override;
-
-public:
   bool operator==(const ASTTy &other);
   bool operator!=(const ASTTy &other);
+  str to_string(bool print_prefix = true) override;
 
 public:
   // avoid name collision with _ty
   Ty _tyty = Ty::INVALID;
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
-
-protected:
-  llvm::Value *_codegen(CompilerSession *) override { return nullptr; }
-  size_t nud_array();
-  size_t nud_struct();
-  size_t nud() override;
   str _type_name = "";
   llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;
@@ -91,6 +74,7 @@ protected:
   bool _is_bool = false;
   bool _is_enum = false;
   bool _resolved = false;
+  bool _is_lvalue = false;
   size_t _n_elements = 0;
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};

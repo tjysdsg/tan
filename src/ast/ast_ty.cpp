@@ -39,7 +39,7 @@ ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
 
 Value *ASTTy::get_llvm_value(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  Analyzer::resolve(this->ptr_from_this());
+  resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   Value *ret = nullptr;
   Type *type = this->to_llvm_type(cs);
@@ -65,7 +65,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) {
       vector<llvm::Constant *> values{};
       size_t n = _children.size();
       for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) Analyzer::get_ty(_children[i])->get_llvm_value(cs));
+        values.push_back((llvm::Constant *) get_ty(_children[i])->get_llvm_value(cs));
       }
       ret = ConstantStruct::get((StructType *) to_llvm_type(cs), values);
       break;
@@ -92,7 +92,7 @@ Value *ASTTy::get_llvm_value(CompilerSession *cs) {
 
 Type *ASTTy::to_llvm_type(CompilerSession *cs) {
   auto *builder = cs->_builder;
-  Analyzer::resolve(this->ptr_from_this());
+  resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
@@ -143,7 +143,7 @@ Type *ASTTy::to_llvm_type(CompilerSession *cs) {
 }
 
 Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
-  Analyzer::resolve(this->ptr_from_this());
+  resolve(this->ptr_from_this());
   Ty base = TY_GET_BASE(_tyty);
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;
@@ -168,7 +168,7 @@ Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = _children[i]; // ASTVarDecl
-        elements.push_back(Analyzer::get_ty(e)->to_llvm_meta(cs));
+        elements.push_back(get_ty(e)->to_llvm_meta(cs));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
@@ -243,7 +243,7 @@ size_t ASTTy::nud_array() {
   auto size1 = ast_cast<ASTNumberLiteral>(size);
   if (size1->is_float() || size1->_ivalue < 0) { error(_end_index, "Expect an unsigned integer"); }
   _n_elements = static_cast<size_t>(size1->_ivalue);
-  for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(Analyzer::get_ty(element)); }
+  for (size_t i = 0; i < _n_elements; ++i) { _children.push_back(get_ty(element)); }
   /// set _type_name to [<element type>, <n_elements>]
   _type_name = "[" + _type_name + ", " + std::to_string(_n_elements) + "]";
   ++_end_index; /// skip "]"
@@ -254,7 +254,7 @@ size_t ASTTy::nud_struct() {
   _end_index = _start_index + 1; /// skip "struct"
   /// struct typename
   auto id = _parser->parse<ASTType::ID>(_end_index, true);
-  _type_name = Analyzer::get_name(id);
+  _type_name = get_name(id);
 
   auto forward_decl = _cs->get(_type_name);
   if (!forward_decl) {
@@ -269,7 +269,7 @@ size_t ASTTy::nud_struct() {
     auto comp_stmt = _parser->next_expression(_end_index);
     if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error(_end_index, "Invalid struct body"); }
 
-    /// resolve member names and types
+    /// resolve_ty member names and types
     auto members = comp_stmt->_children;
     ASTNodePtr var_decl = nullptr;
     size_t n = comp_stmt->_children.size();
@@ -278,18 +278,18 @@ size_t ASTTy::nud_struct() {
     for (size_t i = 0; i < n; ++i) {
       if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
         var_decl = members[i];
-        _children.push_back(Analyzer::get_ty(var_decl));
+        _children.push_back(get_ty(var_decl));
       } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
         var_decl = members[i]->_children[0];
         auto initial_value = members[i]->_children[1];
         // TODO: check if value is compile-time known
-        _children.push_back(Analyzer::get_ty(initial_value)); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+        _children.push_back(get_ty(initial_value)); /// initial value is set to ASTTy in ASTLiteral::get_ty()
       } else { members[i]->error("Invalid struct member"); }
-      auto name = Analyzer::get_name(var_decl);
+      auto name = get_name(var_decl);
       _member_names.push_back(name);
       _member_indices[name] = i;
     }
-    Analyzer::resolve(this->ptr_from_this());
+    resolve(this->ptr_from_this());
   } else { _is_forward_decl = true; }
   return _end_index;
 }
@@ -326,13 +326,11 @@ size_t ASTTy::nud() {
     } else { break; }
     ++_end_index;
   }
-  Analyzer::resolve(ptr_from_this());
+  resolve(ptr_from_this());
   return _end_index;
 }
 
 str ASTTy::to_string(bool print_prefix) { return ASTNode::to_string(print_prefix) + " " + get_type_name(); }
-
-ASTTy::ASTTy(Token *token, size_t token_index) : ASTNode(ASTType::TY, 0, 0, token, token_index) {}
 
 bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
 
@@ -381,3 +379,5 @@ ASTTy &ASTTy::operator=(ASTTy &&other) {
   _is_forward_decl = other._is_forward_decl;
   return const_cast<ASTTy &>(*this);
 }
+
+ASTTy::ASTTy() : ASTNode(ASTType::TY, 0, 0) {}

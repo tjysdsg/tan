@@ -6,7 +6,7 @@
 #include "token.h"
 #include <iostream>
 
-namespace tanlang {
+using namespace tanlang;
 
 str ASTNode::to_string(bool print_prefix) {
   if (print_prefix) { return ast_type_names[this->_type]; }
@@ -46,8 +46,7 @@ str ASTNode::get_src() {
   return ret;
 }
 
-ASTNode::ASTNode(ASTType op, int lbp, int rbp, Token *token, size_t token_index)
-    : _type(op), _lbp(lbp), _rbp(rbp), _token(token), _start_index(token_index) {}
+ASTNode::ASTNode(ASTType op, int lbp, int rbp) : _type(op), _lbp(lbp), _rbp(rbp) {}
 
 size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
   _parser = parser;
@@ -157,4 +156,3 @@ umap<ASTType, int> op_precedence
         {ASTType::LAND, PREC_LOGICAL_AND}, {ASTType::LOR, PREC_LOGICAL_OR}, {ASTType::NUM_LITERAL, PREC_LITERAL},
         {ASTType::STRING_LITERAL, PREC_LITERAL}, {ASTType::CAST, PREC_CAST}, {ASTType::ADDRESS_OF, PREC_UNARY}};
 
-} // namespace tanlang

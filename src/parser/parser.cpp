@@ -1,28 +1,9 @@
 #include "parser.h"
 #include "base.h"
-#include "src/ast/ast_array.h"
-#include "src/ast/ast_ampersand.h"
-#include "src/ast/ast_cast.h"
-#include "src/ast/ast_import.h"
-#include "src/ast/ast_member_access.h"
-#include "src/ast/ast_string_literal.h"
-#include "src/ast/ast_func.h"
-#include "src/ast/ast_statement.h"
-#include "src/ast/ast_loop.h"
+#include "compiler_session.h"
+#include "src/analysis/analysis.h"
 #include "src/parser/token_check.h"
-#include "src/parser/parser.hpp"
-#include "src/ast/ast_parenthesis.h"
-#include "src/ast/ast_var_decl.h"
-#include "src/ast/ast_not.h"
-#include "src/ast/ast_arithmetic.h"
-#include "src/ast/ast_compare.h"
-#include "src/ast/ast_assignment.h"
-#include "src/ast/ast_number_literal.h"
-#include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_return.h"
-#include "src/ast/ast_program.h"
-#include "src/ast/ast_char_literal.h"
-#include "src/ast/ast_enum.h"
+#include "src/ast/ast_ty.h"
 #include "src/common.h"
 #include "intrinsic.h"
 #include "token.h"
@@ -43,36 +24,40 @@ ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
 }
 
 static ASTNodePtr peek_keyword(Token *token, size_t &index) {
+  ASTNodePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
-      return std::make_shared<ASTVarDecl>(token, index);
+      ret = ast_create_var_decl();
     case "enum"_hs:
-      return std::make_shared<ASTEnum>(token, index);
+      ret = ast_create_enum();
     case "fn"_hs:
     case "pub"_hs:
     case "extern"_hs:
-      return std::make_shared<ASTFunction>(token, index);
+      ret = ast_create_func_decl();
     case "import"_hs:
-      return std::make_shared<ASTImport>(token, index);
+      ret = ast_create_import();
     case "if"_hs:
-      return std::make_shared<ASTIf>(token, index);
+      ret = ast_create_if();
     case "else"_hs:
-      return std::make_shared<ASTElse>(token, index);
+      ret = ast_create_else();
     case "return"_hs:
-      return std::make_shared<ASTReturn>(token, index);
+      ret = ast_create_return();
     case "while"_hs:
     case "for"_hs:
-      return std::make_shared<ASTLoop>(token, index);
+      ret = ast_create_loop();
     case "struct"_hs:
-      return std::make_shared<ASTTy>(token, index);
+      ret = ast_create_struct_decl();
     case "break"_hs:
     case "continue"_hs:
-      return std::make_shared<ASTBreakContinue>(token, index);
+      ret = ast_create_break_or_continue();
     case "as"_hs:
-      return std::make_shared<ASTCast>(token, index);
+      ret = ast_create_cast();
     default:
       return nullptr;
   }
+  ret->_token = token;
+  ret->_start_index = index;
+  return ret;
 }
 
 ASTNodePtr Parser::peek(size_t &index) {
@@ -136,15 +121,17 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = std::make_shared<ASTTy>(token, index);
   } else if (token->value == "&") {
     node = std::make_shared<ASTAmpersand>(token, index);
-  } else if (token->type == TokenType::PUNCTUATION && token->value == "{") {
-    node = std::make_shared<ASTStatement>(true, token, index);
-  } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) {
-    node = std::make_shared<ASTArithmetic>(token, index);
+  } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
+    node = ast_create_statement();
+  } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
+    node = ast_create_arithmetic(token->value);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {
     report_error(_filename, token, "Unknown token " + token->to_string());
   }
+  node->_token = token;
+  node->_end_index = index;
   return node;
 }
 
@@ -153,14 +140,14 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
   ++index;
   if (!node) { return nullptr; }
   auto n = node;
-  index = n->parse(this, _cs);
+  index = parse_node(n);
   auto left = n;
   node = peek(index);
   if (!node) { return left; }
   while (rbp < node->_lbp) {
     node = peek(index);
     n = node;
-    index = n->parse(left, this, _cs);
+    index = parse_node(left, n);
     left = n;
     node = peek(index);
     if (!node) { break; }
@@ -168,9 +155,74 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
   return left;
 }
 
+size_t Parser::parse_node(ASTNodePtr p) {
+  p->_end_index = p->_start_index;
+  switch (p->_type) {
+    case ASTType::PROGRAM:
+      while (!eof(p->_end_index)) {
+        auto stmt = ast_create_statement();
+        stmt->_token = at(p->_end_index);
+        stmt->_start_index = p->_end_index;
+        p->_end_index = parse_node(stmt);
+        p->_children.push_back(stmt);
+      }
+      break;
+    case ASTType::STATEMENT:
+      if (at(p->_end_index)->value == "{") { /// compound statement
+        ++p->_end_index; /// skip "{"
+        while (!eof(p->_end_index)) {
+          auto node = peek(p->_end_index);
+          while (node) { /// stops at a terminal token
+            p->_children.push_back(next_expression(p->_end_index, 0));
+            node = peek(p->_end_index);
+          }
+          if (at(p->_end_index)->value == "}") {
+            ++p->_end_index; /// skip "}"
+            break;
+          }
+          ++p->_end_index;
+        }
+      } else { /// single statement
+        auto node = peek(p->_end_index);
+        while (node) { /// stops at a terminal token
+          p->_children.push_back(next_expression(p->_end_index, 0));
+          node = peek(p->_end_index);
+        }
+        ++p->_end_index; /// skip ';'
+      }
+      break;
+    case ASTType::ARG_DECL:
+    case ASTType::VAR_DECL: {
+      /// var name
+      auto name_token = at(p->_end_index);
+      p->_name = name_token->value;
+      ++p->_end_index;
+      if (at(p->_end_index)->value == ":") {
+        ++p->_end_index;
+        /// type
+        auto ty = ast_create_ty();
+        ty->_token = at(p->_end_index);
+        ty->_end_index = ty->_start_index = p->_end_index;
+        ty->_is_lvalue = true;
+        p->_end_index = parse_node(ty);
+        p->_ty = ty;
+      } else { p->_ty = nullptr; }
+      if (p->_type == ASTType::VAR_DECL) { _cs->add(p->_name, p); }
+      break;
+    }
+    default:
+      break;
+  }
+  return p->_end_index;
+}
+
+size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
+  return p->_end_index;
+}
+
 ASTNodePtr Parser::parse() {
-  _root = std::make_shared<ASTProgram>();
-  (void) _root->parse(this, _cs); /// fix the [[nodiscard]] warning
+  _root = ast_create_program();
+  parse_node(_root);
   return _root;
 }
 
@@ -182,7 +234,5 @@ Token *Parser::at(const size_t idx) const {
 str Parser::get_filename() const { return _filename; }
 
 bool Parser::eof(size_t index) const { return index >= _tokens.size(); }
-
-std::shared_ptr<ASTNode> Parser::get_ast() const { return _root; }
 
 } // namespace tanlang

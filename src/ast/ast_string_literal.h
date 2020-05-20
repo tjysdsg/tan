@@ -4,13 +4,7 @@
 
 namespace tanlang {
 
-class ASTStringLiteral;
-using ASTStringLiteralPtr = std::shared_ptr<ASTStringLiteral>;
-
 class ASTStringLiteral final : public ASTLiteral {
-public:
-  static ASTStringLiteralPtr Create(const str &s);
-
 public:
   ASTStringLiteral() = delete;
   ASTStringLiteral(Token *token, size_t token_index);

@@ -30,10 +30,4 @@ size_t ASTStringLiteral::nud() {
 
 str ASTStringLiteral::get_string() { return _svalue; }
 
-ASTStringLiteralPtr ASTStringLiteral::Create(const str &s) {
-  auto ret = std::make_shared<ASTStringLiteral>(s, 0);
-  ret->_ty = ASTTy::Create(Ty::STRING);
-  return ret;
-}
-
 } // namespace tanlang
