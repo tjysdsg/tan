@@ -1,13 +1,9 @@
-#include "src/ast/ast_func.h"
-#include "src/ast/ast_string_literal.h"
-#include "src/ast/ast_arg_decl.h"
 #include "src/ast/ast_identifier.h"
 #include "src/ast/ast_ty.h"
 #include "parser.h"
 #include "reader.h"
 #include "token.h"
 #include "compiler_session.h"
-#include "src/type_system.h"
 
 using namespace tanlang;
 
@@ -155,93 +151,6 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   return _llvm_value;
 }
 
-ASTNodePtr ASTFunction::get_ret() {
-  TAN_ASSERT(_children.size());
-  return _children[0];
-}
-
-ASTNodePtr ASTFunction::get_arg(size_t i) {
-  TAN_ASSERT(i + 2 < _children.size());
-  return _children[i + 2];
-}
-
-size_t ASTFunction::get_n_args() {
-  TAN_ASSERT(_children.size() >= (_is_external ? 2 : 3)); /// minus return, function name (, function body)
-  return _children.size() - (_is_external ? 2 : 3);
-}
-
-Function *ASTFunction::get_func() { return _func; }
-
-void ASTFunction::set_func(Function *f) { _func = f; }
-
-size_t ASTFunction::nud() {
-  if (_parser->at(_start_index)->value == "fn") {
-    /// skip "fn"
-    _end_index = _start_index + 1;
-  } else if (_parser->at(_start_index)->value == "pub") {
-    _is_public = true;
-    /// skip "pub fn"
-    _end_index = _start_index + 2;
-  } else if (_parser->at(_start_index)->value == "extern") {
-    _is_external = true;
-    /// skip "pub fn"
-    _end_index = _start_index + 2;
-  } else { TAN_ASSERT(false); }
-
-  /// function return type, set later
-  _children.push_back(nullptr);
-
-  /// function name
-  auto name = ast_cast<ASTIdentifier>(_parser->parse<ASTType::ID>(_end_index, true));
-  _name = name->get_name();
-  _children.push_back(name);
-
-  /// add self to function table
-  if (_is_public || _is_external) {
-    CompilerSession::AddPublicFunction(_parser->get_filename(), this->shared_from_this());
-  }
-  /// ... and internal function table
-  _cs->add_function(this->shared_from_this());
-
-  /// only push scope if having function body
-  if (!_is_external) { _scope = _cs->push_scope(); } else { _scope = _cs->get_current_scope(); }
-
-  /// arguments
-  _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-  ++_end_index;
-  if (_parser->at(_end_index)->value != ")") {
-    while (!_parser->eof(_end_index)) {
-      ASTNodePtr arg = std::make_shared<ASTArgDecl>(_parser->at(_end_index), _end_index);
-      _end_index = arg->parse(_parser, _cs); /// this will add args to the current scope
-      _children.push_back(arg);
-      /// add arg to current scope if function body exists
-      if (!_is_external) { _cs->add(arg->get_name(), arg); }
-      if (_parser->at(_end_index)->value == ",") {
-        ++_end_index;
-      } else { break; }
-    }
-  }
-  _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
-  ++_end_index;
-  _parser->peek(_end_index, TokenType::PUNCTUATION, ":");
-  ++_end_index;
-  _children[0] = _parser->parse<ASTType::TY>(_end_index, true); /// return type
-  // TODO: set _ty
-
-  /// body
-  if (!_is_external) {
-    auto body = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-    _end_index = body->parse(_parser, _cs);
-    _children.push_back(body);
-    _cs->pop_scope();
-  }
-  return _end_index;
-}
-
-bool ASTFunction::is_named() { return true; }
-
-bool ASTFunction::is_typed() { return true; }
-
 size_t ASTFunctionCall::nud() {
   if (_parsed) { return _end_index; }
   _end_index = _start_index + 1; /// skip function name
@@ -298,20 +207,6 @@ ASTFunctionPtr ASTFunctionCall::get_callee() {
   if (!_callee) { error("Unknown function call: " + _name); }
   return _callee;
 }
-
-void ASTFunctionCall::resolve() { _ty = ast_cast<ASTTy>(get_callee()->get_ret()); }
-
-bool ASTFunctionCall::is_named() { return true; }
-
-bool ASTFunctionCall::is_lvalue() { return false; }
-
-bool ASTFunctionCall::is_typed() { return true; }
-
-ASTFunctionCall::ASTFunctionCall(Token *t, size_t ti) : ASTNode(ASTType::FUNC_CALL, 0, 0, t, ti) {
-  _name = t->value;
-}
-
-ASTFunction::ASTFunction(Token *token, size_t token_index) : ASTNode(ASTType::FUNC_DECL, 0, 0, token, token_index) {}
 
 ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types) {
   TAN_ASSERT(types.size() >= 1);

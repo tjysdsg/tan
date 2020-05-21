@@ -10,7 +10,7 @@
 #include "token.h"
 #include <memory>
 
-namespace tanlang {
+using namespace tanlang;
 
 Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
@@ -24,7 +24,7 @@ ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
   return peek(index);
 }
 
-static ASTNodePtr peek_keyword(Token *token, size_t &index) {
+ASTNodePtr Parser::peek_keyword(Token *token, size_t &index) {
   ASTNodePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
@@ -246,6 +246,64 @@ size_t Parser::parse_node(ASTNodePtr p) {
       p->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);
       break;
     }
+    case ASTType::FUNC_DECL: {
+      if (at(p->_start_index)->value == "fn") {
+        /// skip "fn"
+        ++p->_end_index;
+      } else if (at(p->_start_index)->value == "pub") {
+        p->_is_public = true;
+        /// skip "pub fn"
+        p->_end_index = p->_start_index + 2;
+      } else if (at(p->_start_index)->value == "extern") {
+        p->_is_external = true;
+        /// skip "pub fn"
+        p->_end_index = p->_start_index + 2;
+      } else { TAN_ASSERT(false); }
+
+      /// function return type, set later
+      p->_children.push_back(nullptr);
+
+      /// function name
+      auto id = peek(p->_end_index);
+      if (id->_type != ASTType::ID) { error(p->_end_index, "Invalid function name"); }
+      p->_end_index = parse_node(id);
+      p->_name = id->_name;
+
+      /// arguments
+      peek(p->_end_index, TokenType::PUNCTUATION, "(");
+      ++p->_end_index;
+      if (at(p->_end_index)->value != ")") {
+        while (!eof(p->_end_index)) {
+          auto arg = ast_create_arg_decl(_cs);
+          arg->_token = at(p->_end_index);
+          arg->_end_index = arg->_start_index = p->_end_index;
+          p->_end_index = parse_node(arg); /// this will add args to the current scope
+          p->_children.push_back(arg);
+          if (at(p->_end_index)->value == ",") {
+            ++p->_end_index;
+          } else { break; }
+        }
+      }
+      peek(p->_end_index, TokenType::PUNCTUATION, ")");
+      ++p->_end_index;
+      peek(p->_end_index, TokenType::PUNCTUATION, ":");
+      ++p->_end_index;
+      auto ret_ty = ast_create_ty(_cs);
+      ret_ty->_token = at(p->_end_index);
+      ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
+      p->_end_index = parse_node(ret_ty); /// return type
+      p->_children[0] = ret_ty;
+      // TODO: set _ty
+
+      /// body
+      if (!p->_is_external) {
+        auto body = peek(p->_end_index, TokenType::PUNCTUATION, "{");
+        p->_end_index = parse_node(body);
+        p->_children.push_back(body);
+        _cs->pop_scope();
+      }
+      break;
+    }
     case ASTType::ID:
     case ASTType::NUM_LITERAL:
     case ASTType::STRING_LITERAL: /// trivially parsed ASTs
@@ -311,4 +369,3 @@ void Parser::error(const str &error_message) {
 
 void Parser::error(size_t i, const str &error_message) { report_error(get_filename(), at(i), error_message); }
 
-} // namespace tanlang

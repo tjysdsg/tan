@@ -1,4 +1,3 @@
-#include "src/ast/ast_identifier.h"
 #include "compiler_session.h"
 #include "parser.h"
 #include "token.h"
@@ -10,13 +9,6 @@ Value *ASTIdentifier::_codegen(CompilerSession *cs) {
   if (!var) { error("Cannot find variable '" + _name + "' in current scope"); }
   _llvm_value = var->get_llvm_value(cs);
   return _llvm_value;
-}
-
-size_t ASTIdentifier::nud() {
-  _end_index = _start_index + 1;
-  get_referred(false);
-  _ty = _referred ? _referred->get_ty() : nullptr;
-  return _end_index;
 }
 
 str ASTIdentifier::to_string(bool print_prefix) {

@@ -19,10 +19,11 @@ class Parser final {
 public:
   Parser() = delete;
   Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs);
-  std::shared_ptr<ASTNode> peek(size_t &index);
-  std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const str &value);
-  std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
-  std::shared_ptr<ASTNode> parse();
+  ASTNodePtr peek(size_t &index);
+  ASTNodePtr peek(size_t &index, TokenType type, const str &value);
+  ASTNodePtr peek_keyword(Token *token, size_t &index);
+  ASTNodePtr next_expression(size_t &index, int rbp = 0);
+  ASTNodePtr parse();
   size_t parse_node(ASTNodePtr p);
   size_t parse_node(ASTNodePtr left, ASTNodePtr p);
   bool eof(size_t index) const;

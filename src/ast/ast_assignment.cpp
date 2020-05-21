@@ -1,8 +1,6 @@
 #include "src/ast/ast_assignment.h"
 #include "src/ast/ast_identifier.h"
-#include "src/ast/ast_var_decl.h"
 #include "src/ast/ast_ty.h"
-#include "src/type_system.h"
 #include "compiler_session.h"
 #include "token.h"
 #include "parser.h"
@@ -25,9 +23,6 @@ Value *ASTAssignment::_codegen(CompilerSession *cs) {
   builder->CreateStore(from, to);
   _llvm_value = to;
   return to;
-}
-
-size_t ASTAssignment::led(const ASTNodePtr &left) {
 }
 
 } // namespace tanlang

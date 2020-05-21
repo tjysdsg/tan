@@ -21,6 +21,7 @@ ASTNodePtr ast_create_arg_decl(CompilerSession *cs);
 ASTNodePtr ast_create_var_decl(CompilerSession *cs);
 ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
 ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
+ASTNodePtr ast_create_func_decl(CompilerSession *cs);
 
 /// \subsection Literals
 

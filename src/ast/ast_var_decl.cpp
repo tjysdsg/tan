@@ -1,9 +1,3 @@
-#include "src/ast/ast_ty.h"
-#include "src/analysis/analysis.h"
-#include "src/common.h"
-#include "token.h"
-#include "compiler_session.h"
-
 using namespace tanlang;
 
 Value *ASTVarDecl::_codegen(CompilerSession *cs) {

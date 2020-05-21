@@ -11,6 +11,7 @@ class Metadata;
 
 namespace tanlang {
 
+class Scope;
 struct Token;
 enum class Ty : uint64_t;
 class CompilerSession;
@@ -132,8 +133,11 @@ public:
   bool _is_valued = false;
   bool _is_named = false;
   bool _parsed = false;
+  bool _is_external = false;
+  bool _is_public = false;
   size_t _start_index = 0;
   size_t _end_index = 0;
+  ptr<Scope> _scope = nullptr;
   std::variant<str, uint64_t, double> _value;
 };
 
