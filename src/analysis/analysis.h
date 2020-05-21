@@ -46,8 +46,10 @@ ASTTyPtr ast_create_ty(CompilerSession *cs);
 
 /// \section Literals
 
-ASTNodePtr create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
-ASTNodePtr create_numeric_literal(CompilerSession *cs, double val);
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val);
+ASTNodePtr ast_create_char_literal(CompilerSession *cs);
+ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 
 /// \section Types
 

@@ -179,6 +179,19 @@ ASTNodePtr ast_create_func_decl(CompilerSession *cs) {
   return ret;
 }
 
+ASTNodePtr ast_create_char_literal(CompilerSession *cs) {
+  auto ret = make_ptr<ASTNode>(ASTType::CHAR_LITERAL, 0, 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
+  auto ret = ast_create_char_literal(cs);
+  ret->_value = static_cast<uint64_t>(c);
+  return ret;
+}
+
 /// \section Types
 
 str get_type_name(ASTNodePtr p) { return p->_ty->_type_name; }
@@ -379,6 +392,7 @@ size_t get_struct_member_index(ASTTyPtr p, str name) {
 void analyze(CompilerSession *cs, ASTNodePtr p) {
   p->_scope = cs->get_current_scope();
   switch (p->_type) {
+    /////////////////////////// binary ops ///////////////////////////////////
     case ASTType::SUM:
     case ASTType::SUBTRACT:
     case ASTType::MULTIPLY:
@@ -399,6 +413,17 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::NE:
       p->_ty = create_ty(cs, Ty::BOOL);
       break;
+    case ASTType::ASSIGN: {
+      /// special case for variable declaration
+      auto lhs = p->_children[0];
+      analyze(cs, lhs);
+      p->_ty = p->_children[0]->_ty;
+      if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
+        error(cs, "Cannot perform implicit type conversion");
+      }
+      break;
+    }
+      ////////////////////////////////////////////////////////////////////////
     case ASTType::ID: {
       auto referred = get_id_referred(cs, p);
       p->_children.push_back(referred);
@@ -414,16 +439,11 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       p->_ty = ty;
       break;
     }
-    case ASTType::ASSIGN: {
-      /// special case for variable declaration
-      auto lhs = p->_children[0];
-      analyze(cs, lhs);
-      p->_ty = p->_children[0]->_ty;
-      if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
-        error(cs, "Cannot perform implicit type conversion");
-      }
-      break;
-    }
+      //////////////////////// literals ///////////////////////////////////////
+    case ASTType::CHAR_LITERAL:
+      p->_ty = create_ty(cs, Ty::CHAR, {});
+      p->_value = static_cast<uint64_t>(p->_token->value[0]);
+      p->_ty->_default_value = std::get<uint64_t>(p->_value);
     case ASTType::NUM_LITERAL:
       if (p->_token->type == TokenType::INT) {
         auto tyty = Ty::INT;
@@ -433,6 +453,16 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
         p->_ty = create_ty(cs, Ty::FLOAT);
       }
       break;
+    case ASTType::ARRAY_LITERAL: {
+      vector<ASTNodePtr> sub_tys{};
+      sub_tys.reserve(p->_children.size());
+      std::for_each(p->_children.begin(), p->_children.end(), [&sub_tys](const ASTNodePtr &e) {
+        sub_tys.push_back(e->_ty);
+      });
+      p->_ty = create_ty(cs, Ty::ARRAY, sub_tys);
+      break;
+    }
+      /////////////////////////////////////////////////////////////////////////
     case ASTType::FUNC_DECL: {
       /// add to function table
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }

@@ -87,14 +87,12 @@ ASTNodePtr Parser::peek(size_t &index) {
     }
   } else if (token->type == TokenType::RELOP) { /// comparisons
     node = ast_create_comparison(_cs, token->value);
-  } else if (token->type == TokenType::INT) {
-    node = std::make_shared<ASTNumberLiteral>(token->value, false, token, index);
-  } else if (token->type == TokenType::FLOAT) {
-    node = std::make_shared<ASTNumberLiteral>(token->value, true, token, index);
+  } else if (token->type == TokenType::INT || token->type == TokenType::FLOAT) {
+    node = ast_create_numeric_literal(_cs);
   } else if (token->type == TokenType::STRING) { /// string literal
     node = ast_create_string_literal(_cs, token->value);
   } else if (token->type == TokenType::CHAR) { /// char literal
-    node = std::make_shared<ASTCharLiteral>(token, index);
+    node = ast_create_char_literal(_cs);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }
@@ -213,7 +211,7 @@ size_t Parser::parse_node(ASTNodePtr p) {
     case ASTType::ARRAY_LITERAL: {
       ++p->_end_index; /// skip '['
       if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
-      ASTType element_type = ASTType::INVALID;
+      auto element_type = ASTType::INVALID;
       while (!eof(p->_end_index)) {
         if (at(p->_end_index)->value == ",") {
           ++p->_end_index;
@@ -237,13 +235,6 @@ size_t Parser::parse_node(ASTNodePtr p) {
           p->_children.push_back(node);
         } else { error(p->_end_index, "Expect literals"); }
       }
-
-      vector<ASTNodePtr> sub_tys{};
-      sub_tys.reserve(p->_children.size());
-      std::for_each(p->_children.begin(),
-          p->_children.end(),
-          [&sub_tys](const ASTNodePtr &e) { sub_tys.push_back(e->_ty); });
-      p->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);
       break;
     }
     case ASTType::FUNC_DECL: {
@@ -293,7 +284,6 @@ size_t Parser::parse_node(ASTNodePtr p) {
       ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
       p->_end_index = parse_node(ret_ty); /// return type
       p->_children[0] = ret_ty;
-      // TODO: set _ty
 
       /// body
       if (!p->_is_external) {
@@ -304,11 +294,14 @@ size_t Parser::parse_node(ASTNodePtr p) {
       }
       break;
     }
+      /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTType::ID:
     case ASTType::NUM_LITERAL:
-    case ASTType::STRING_LITERAL: /// trivially parsed ASTs
+    case ASTType::CHAR_LITERAL:
+    case ASTType::STRING_LITERAL:
       ++p->_end_index;
       break;
+      /////////////////////////////////////////////////////////////////////////////////////////
     default:
       break;
   }
