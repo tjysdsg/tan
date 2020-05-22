@@ -29,6 +29,7 @@ ASTNodePtr ast_create_string_literal(CompilerSession *cs);
 ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &);
 ASTNodePtr ast_create_array_literal(CompilerSession *cs);
 ASTNodePtr ast_create_numeric_literal(CompilerSession *cs);
+ASTNodePtr ast_create_cast(CompilerSession *cs);
 
 /// \subsection Binary ops
 

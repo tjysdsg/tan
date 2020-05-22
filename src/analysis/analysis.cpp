@@ -190,6 +190,13 @@ ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
   return ret;
 }
 
+ASTNodePtr ast_create_cast(CompilerSession *cs) {
+  auto ret = make_ptr<ASTNode>(ASTType::CAST, op_precedence[ASTType::CAST], 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
 /// \section Types
 
 Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p) {
@@ -439,6 +446,7 @@ size_t get_struct_member_index(ASTTyPtr p, str name) {
 
 void analyze(CompilerSession *cs, ASTNodePtr p) {
   p->_scope = cs->get_current_scope();
+  for (const auto &sub: p->_children) { analyze(cs, sub); }
   switch (p->_type) {
     /////////////////////////// binary ops ///////////////////////////////////
     case ASTType::SUM:
@@ -446,8 +454,6 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::MULTIPLY:
     case ASTType::DIVIDE:
     case ASTType::MOD: {
-      analyze(cs, p->_children[0]);
-      analyze(cs, p->_children[1]);
       int i = TypeSystem::CanImplicitCast(cs, p->_children[0]->_ty, p->_children[1]->_ty);
       if (i == -1) { error(cs, "Cannot perform implicit type conversion"); }
       p->_ty = ast_cast<ASTTy>(p->_children[(size_t) i]);
@@ -462,16 +468,20 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::NE:
       p->_ty = create_ty(cs, Ty::BOOL);
       break;
-    case ASTType::ASSIGN: {
-      /// special case for variable declaration
-      auto lhs = p->_children[0];
-      analyze(cs, lhs);
+    case ASTType::ASSIGN:
+      // TODO: special case for variable declaration
       p->_ty = p->_children[0]->_ty;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
         error(cs, "Cannot perform implicit type conversion");
       }
       break;
-    }
+    case ASTType::CAST:
+      p->_ty = make_ptr<ASTTy>(*p->_children[1]->_ty);
+      p->_ty->_is_lvalue = p->_children[0]->_ty->_is_lvalue;
+      if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[0]->_ty) != 0) {
+        error(cs, "Cannot perform implicit type conversion");
+      }
+      break;
       ////////////////////////////////////////////////////////////////////////
     case ASTType::ID: {
       auto referred = get_id_referred(cs, p);
@@ -480,8 +490,7 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       break;
     }
     case ASTType::VAR_DECL: {
-      auto type = p->_children[1];
-      analyze(cs, type);
+      auto type = p->_children[0];
       auto ty = type->_ty;
       ty = make_ptr<ASTTy>(*ty); // copy
       ty->_is_lvalue = true;
@@ -517,7 +526,6 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }
       /// ... and to the internal function table
       cs->add_function(p);
-      analyze(cs, p->_children[0]);
 
       // TODO: function type
 
@@ -525,14 +533,12 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       size_t n = p->_children.size();
       size_t arg_end = n - 1 - !p->_is_external;
       for (size_t i = 1; i < arg_end; ++i) {
-        analyze(cs, p->_children[i]);
         if (!p->_is_external) { cs->add(p->_children[i]->_name, p->_children[i]); }
       }
       if (!p->_is_external) {
         /// new scope for function body
         auto f_body = p->_children[n - 1];
         if (!p->_is_external) { f_body->_scope = cs->push_scope(); }
-        analyze(cs, f_body);
       }
       break;
     }

@@ -311,6 +311,8 @@ size_t Parser::parse_node(ASTNodePtr p) {
 size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
   p->_end_index = p->_start_index;
   switch (p->_type) {
+    case ASTType::CAST:
+    case ASTType::ASSIGN:
     case ASTType::GT:
     case ASTType::GE:
     case ASTType::LT:
@@ -327,12 +329,8 @@ size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
       auto n = next_expression(p->_end_index, p->_lbp);
       if (!n) { error(p->_end_index, "Invalid operand"); }
       p->_children.push_back(n);
-    }
-    case ASTType::ASSIGN:
-      ++p->_end_index; /// skip "="
-      p->_children.push_back(left);
-      p->_children.push_back(next_expression(p->_end_index));
       break;
+    }
     default:
       break;
   }

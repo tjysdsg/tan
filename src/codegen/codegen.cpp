@@ -142,6 +142,21 @@ static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
   return to;
 }
 
+static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  auto lhs = p->_children[0];
+  auto *dest_type = to_llvm_type(cs, p->_children[1]->_ty);
+  Value *val = codegen(cs, lhs);
+  Value *ret;
+  val = TypeSystem::ConvertTo(cs, val, lhs->_ty, p->_children[1]->_ty);
+  if (lhs->_ty->_is_lvalue) {
+    ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
+    builder->CreateStore(val, ret);
+  } else { ret = val; }
+  return ret;
+}
+
 static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
   auto *builder = cs->_builder;
   resolve_ty(cs, p);
@@ -218,6 +233,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::ASSIGN:
       ret = codegen_assignment(cs, p);
+      break;
+    case ASTType::CAST:
+      ret = codegen_cast(cs, p);
       break;
     case ASTType::ARRAY_LITERAL:
     case ASTType::NUM_LITERAL:
