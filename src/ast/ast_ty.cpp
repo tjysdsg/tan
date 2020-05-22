@@ -1,5 +1,4 @@
 #include "src/ast/ast_ty.h"
-#include "src/ast/ast_number_literal.h"
 #include "src/analysis/analysis.h"
 #include "parser.h"
 #include "token.h"
@@ -35,111 +34,6 @@ ASTTyPtr ASTTy::find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
     ++idx;
   }
   return ret;
-}
-
-Value *ASTTy::get_llvm_value(CompilerSession *cs) {
-  auto *builder = cs->_builder;
-  resolve(this->ptr_from_this());
-  Ty base = TY_GET_BASE(_tyty);
-  Value *ret = nullptr;
-  Type *type = this->to_llvm_type(cs);
-  switch (base) {
-    case Ty::INT:
-    case Ty::CHAR:
-    case Ty::BOOL:
-    case Ty::ENUM:
-      ret = ConstantInt::get(type, std::get<uint64_t>(_default_value));
-      break;
-    case Ty::FLOAT:
-      ret = ConstantFP::get(type, std::get<float>(_default_value));
-      break;
-    case Ty::DOUBLE:
-      ret = ConstantFP::get(type, std::get<double>(_default_value));
-      break;
-    case Ty::STRING:
-      ret = builder->CreateGlobalStringPtr(std::get<str>(_default_value));
-      break;
-    case Ty::VOID:
-      TAN_ASSERT(false);
-    case Ty::STRUCT: {
-      vector<llvm::Constant *> values{};
-      size_t n = _children.size();
-      for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) get_ty(_children[i])->get_llvm_value(cs));
-      }
-      ret = ConstantStruct::get((StructType *) to_llvm_type(cs), values);
-      break;
-    }
-    case Ty::POINTER:
-      ret = ConstantPointerNull::get((PointerType *) type);
-      break;
-    case Ty::ARRAY: {
-      auto *e_type = _children[0]->to_llvm_type(cs);
-      ret = create_block_alloca(builder->GetInsertBlock(), e_type, _n_elements, "const_array");
-      for (size_t i = 0; i < _n_elements; ++i) {
-        auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = _children[i]->get_llvm_value(cs);
-        auto *e_ptr = builder->CreateGEP(ret, idx);
-        builder->CreateStore(e_val, e_ptr);
-      }
-      break;
-    }
-    default:
-      TAN_ASSERT(false);
-  }
-  return ret;
-}
-
-Type *ASTTy::to_llvm_type(CompilerSession *cs) {
-  auto *builder = cs->_builder;
-  resolve(this->ptr_from_this());
-  Ty base = TY_GET_BASE(_tyty);
-  llvm::Type *type = nullptr;
-  switch (base) {
-    case Ty::INT:
-      type = builder->getIntNTy((unsigned) _size_bits);
-      break;
-    case Ty::CHAR:
-      type = builder->getInt8Ty();
-      break;
-    case Ty::BOOL:
-      type = builder->getInt1Ty();
-      break;
-    case Ty::FLOAT:
-      type = builder->getFloatTy();
-      break;
-    case Ty::DOUBLE:
-      type = builder->getDoubleTy();
-      break;
-    case Ty::STRING:
-      type = builder->getInt8PtrTy(); /// str as char*
-      break;
-    case Ty::VOID:
-      type = builder->getVoidTy();
-      break;
-    case Ty::ENUM:
-      type = _children[0]->to_llvm_type(cs);
-      break;
-    case Ty::STRUCT: {
-      auto *struct_type = StructType::create(*cs->get_context(), _type_name);
-      vector<Type *> body{};
-      size_t n = _children.size();
-      body.reserve(n);
-      for (size_t i = 1; i < n; ++i) { body.push_back(_children[i]->to_llvm_type(cs)); }
-      struct_type->setBody(body);
-      type = struct_type;
-      break;
-    }
-    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
-    case Ty::POINTER: {
-      auto e_type = ast_cast<ASTTy>(_children[0])->to_llvm_type(cs);
-      type = e_type->getPointerTo();
-      break;
-    }
-    default:
-      TAN_ASSERT(false);
-  }
-  return type;
 }
 
 Metadata *ASTTy::to_llvm_meta(CompilerSession *cs) {
@@ -345,13 +239,11 @@ ASTTy &ASTTy::operator=(const ASTTy &other) {
   _is_ptr = other._is_ptr;
   _is_float = other._is_float;
   _is_array = other._is_array;
-  _is_double = other._is_double;
   _is_int = other._is_int;
   _is_unsigned = other._is_unsigned;
   _is_struct = other._is_struct;
   _is_bool = other._is_bool;
   _is_enum = other._is_enum;
-  _n_elements = other._n_elements;
   _is_lvalue = other._is_lvalue;
   _is_forward_decl = other._is_forward_decl;
   return const_cast<ASTTy &>(*this);
@@ -368,13 +260,11 @@ ASTTy &ASTTy::operator=(ASTTy &&other) {
   _is_ptr = other._is_ptr;
   _is_float = other._is_float;
   _is_array = other._is_array;
-  _is_double = other._is_double;
   _is_int = other._is_int;
   _is_unsigned = other._is_unsigned;
   _is_struct = other._is_struct;
   _is_bool = other._is_bool;
   _is_enum = other._is_enum;
-  _n_elements = other._n_elements;
   _is_lvalue = other._is_lvalue;
   _is_forward_decl = other._is_forward_decl;
   return const_cast<ASTTy &>(*this);

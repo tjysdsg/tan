@@ -192,6 +192,58 @@ ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
 
 /// \section Types
 
+Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p) {
+  auto *builder = cs->_builder;
+  resolve_ty(cs, p);
+  Ty base = TY_GET_BASE(p->_tyty);
+  llvm::Type *type = nullptr;
+  switch (base) {
+    case Ty::INT:
+      type = builder->getIntNTy((unsigned) p->_size_bits);
+      break;
+    case Ty::CHAR:
+      type = builder->getInt8Ty();
+      break;
+    case Ty::BOOL:
+      type = builder->getInt1Ty();
+      break;
+    case Ty::FLOAT:
+      type = builder->getFloatTy();
+      break;
+    case Ty::DOUBLE:
+      type = builder->getDoubleTy();
+      break;
+    case Ty::STRING:
+      type = builder->getInt8PtrTy(); /// str as char*
+      break;
+    case Ty::VOID:
+      type = builder->getVoidTy();
+      break;
+    case Ty::ENUM:
+      type = to_llvm_type(cs, p->_children[0]->_ty);
+      break;
+    case Ty::STRUCT: {
+      auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
+      vector<Type *> body{};
+      size_t n = p->_children.size();
+      body.reserve(n);
+      for (size_t i = 1; i < n; ++i) { body.push_back(to_llvm_type(cs, p->_children[i]->_ty)); }
+      struct_type->setBody(body);
+      type = struct_type;
+      break;
+    }
+    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
+    case Ty::POINTER: {
+      auto e_type = to_llvm_type(cs, p->_children[0]->_ty);
+      type = e_type->getPointerTo();
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return type;
+}
+
 str get_type_name(ASTNodePtr p) { return p->_ty->_type_name; }
 
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
@@ -218,7 +270,6 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
     auto t = ast_cast<ASTTy>(c);
     if (t && t->_type == ASTType::TY && !t->_resolved) { resolve_ty(cs, t); }
   }
-  // FIXME: can't use p->_cs here, cuz some ty are created by create_ty() without its _cs being set
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
@@ -331,8 +382,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
       if (p->_children.empty()) { error(cs, "Invalid type"); }
       auto et = ast_cast<ASTTy>(p->_children[0]);
       TAN_ASSERT(et);
-      p->_n_elements = p->_children.size();
-      p->_type_name = "[" + get_type_name(et) + ", " + std::to_string(p->_n_elements) + "]";
+      p->_type_name = "[" + get_type_name(et) + ", " + std::to_string(p->_children.size()) + "]";
       p->_is_ptr = true;
       p->_is_array = true;
       p->_size_bits = tm->getPointerSizeInBits(0);

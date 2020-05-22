@@ -1,4 +1,3 @@
-#include "src/ast/ast_enum.h"
 #include "src/llvm_include.h"
 #include "compiler_session.h"
 #include "parser.h"
@@ -40,19 +39,7 @@ uint64_t ASTEnum::get_enum_value(const str &value_name) {
   else { return search->second; }
 }
 
-Value *ASTEnum::get_llvm_value(CompilerSession *cs) {
-  if (!_llvm_value) { _llvm_value = _children[0]->get_llvm_value(cs); }
-  return _llvm_value;
-}
-
-Type *ASTEnum::to_llvm_type(CompilerSession *cs) {
-  if (!_llvm_type) { _llvm_type = _children[0]->to_llvm_type(cs); }
-  return _llvm_type;
-}
-
 ASTEnum::ASTEnum(Token *t, size_t ti) : ASTTy(t, ti) {
   _type = ASTType::ENUM_DECL;
   _tyty = Ty::ENUM;
 }
-
-Value *ASTEnum::_codegen(CompilerSession *) { return nullptr; }

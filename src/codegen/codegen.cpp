@@ -1,8 +1,7 @@
-#include <src/common.h>
+#include "src/analysis/analysis.h"
 #include "src/codegen/codegen.h"
 #include "compiler_session.h"
 #include "src/llvm_include.h"
-#include "src/ast/ast_node.h"
 #include "src/ast/ast_ty.h"
 #include "src/analysis/type_system.h"
 #include "src/common.h"
@@ -143,6 +142,58 @@ static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
   return to;
 }
 
+static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
+  auto *builder = cs->_builder;
+  resolve_ty(cs, p);
+  Ty base = TY_GET_BASE(p->_tyty);
+  Value *ret = nullptr;
+  Type *type = to_llvm_type(cs, p);
+  switch (base) {
+    case Ty::INT:
+    case Ty::CHAR:
+    case Ty::BOOL:
+    case Ty::ENUM:
+      ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value));
+      break;
+    case Ty::FLOAT:
+      ret = ConstantFP::get(type, std::get<float>(p->_default_value));
+      break;
+    case Ty::DOUBLE:
+      ret = ConstantFP::get(type, std::get<double>(p->_default_value));
+      break;
+    case Ty::STRING:
+      ret = builder->CreateGlobalStringPtr(std::get<str>(p->_default_value));
+      break;
+    case Ty::VOID:
+      TAN_ASSERT(false);
+    case Ty::STRUCT: {
+      vector<llvm::Constant *> values{};
+      size_t n = p->_children.size();
+      for (size_t i = 1; i < n; ++i) { values.push_back((llvm::Constant *) codegen_ty(cs, p->_children[i]->_ty)); }
+      ret = ConstantStruct::get((StructType *) to_llvm_type(cs, p), values);
+      break;
+    }
+    case Ty::POINTER:
+      ret = ConstantPointerNull::get((PointerType *) type);
+      break;
+    case Ty::ARRAY: {
+      auto *e_type = to_llvm_type(cs, p->_children[0]->_ty);
+      size_t n = p->_children.size();
+      ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
+      for (size_t i = 0; i < n; ++i) {
+        auto *idx = builder->getInt32((unsigned) i);
+        auto *e_val = codegen_ty(cs, p->_children[i]->_ty);
+        auto *e_ptr = builder->CreateGEP(ret, idx);
+        builder->CreateStore(e_val, e_ptr);
+      }
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -167,6 +218,18 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::ASSIGN:
       ret = codegen_assignment(cs, p);
+      break;
+    case ASTType::ARRAY_LITERAL:
+    case ASTType::NUM_LITERAL:
+    case ASTType::CHAR_LITERAL:
+    case ASTType::STRING_LITERAL:
+      ret = p->_llvm_value = codegen(cs, p->_ty);
+      break;
+    case ASTType::TY:
+      ret = p->_llvm_value = codegen_ty(cs, ast_cast<ASTTy>(p));
+      break;
+    case ASTType::ID:
+      ret = p->_llvm_value = codegen(cs, p->_children[0]);
       break;
     default:
       break;
