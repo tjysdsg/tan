@@ -7,8 +7,6 @@
 
 namespace tanlang {
 
-static void error(CompilerSession *cs, const str &error_message);
-
 ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p) { return cs->get(p->_name); }
 
 /// \section General
@@ -403,6 +401,7 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       int i = TypeSystem::CanImplicitCast(cs, p->_children[0]->_ty, p->_children[1]->_ty);
       if (i == -1) { error(cs, "Cannot perform implicit type conversion"); }
       p->_ty = ast_cast<ASTTy>(p->_children[(size_t) i]);
+      p->_dominant_idx = (size_t) i;
       break;
     }
     case ASTType::GT:
@@ -490,14 +489,6 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
     default:
       break;
   }
-}
-
-/// \section Other
-
-static void error(CompilerSession *cs, const str &error_message) {
-  if (cs && cs->_current_token) {
-    report_error(cs->_filename, cs->_current_token, error_message);
-  } else { report_error(error_message); }
 }
 
 } // namespace tanlang

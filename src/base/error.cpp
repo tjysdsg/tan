@@ -1,6 +1,7 @@
 #include "base.h"
 #include "reader.h"
 #include "token.h"
+#include "compiler_session.h"
 #include <iostream>
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
@@ -62,6 +63,12 @@ void report_error(const str &filename, Token *token, const str &error_message) {
   std::cerr << "[ERROR] at " << filename << ":" << std::to_string(token->l + 1) << " " << error_message << "\n"
             << token->line->code << "\n" << indent << "^\n";
   exit(1);
+}
+
+void error(CompilerSession *cs, const str &error_message) {
+  if (cs && cs->_current_token) {
+    report_error(cs->_filename, cs->_current_token, error_message);
+  } else { report_error(error_message); }
 }
 
 } // namespace tanlang

@@ -7,6 +7,7 @@
 namespace tanlang {
 
 struct Token;
+class CompilerSession;
 
 #define TAN_ASSERT(expr) (static_cast<bool>((expr)) ?  \
   void (0) :                                           \
@@ -15,6 +16,8 @@ struct Token;
 [[noreturn]] void report_error(const str &error_message);
 [[noreturn]] void report_error(const str &source, size_t line, size_t col, const str &error_message);
 [[noreturn]] void report_error(const str &filename, Token *token, const str &error_message);
+
+void error(CompilerSession *cs, const str &error_message);
 
 } // namespace tanlang
 

@@ -139,6 +139,7 @@ public:
   size_t _end_index = 0;
   ptr<Scope> _scope = nullptr;
   std::variant<str, uint64_t, double> _value;
+  size_t _dominant_idx = 0;
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }

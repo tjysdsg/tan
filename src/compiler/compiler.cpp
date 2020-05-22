@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "compiler_session.h"
 #include "src/analysis/analysis.h"
+#include "src/codegen/codegen.h"
 #include "intrinsic.h"
 #include "reader.h"
 #include "parser.h"
@@ -43,7 +44,7 @@ Value *Compiler::codegen() {
   TAN_ASSERT(_compiler_session);
   TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
-  auto *ret = _ast->codegen(_compiler_session);
+  auto *ret = codegen(_compiler_session, _ast);
   return ret;
 }
 

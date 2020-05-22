@@ -87,6 +87,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/analysis COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== target library tan =====
