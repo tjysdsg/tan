@@ -107,7 +107,7 @@ ASTNodePtr Parser::peek(size_t &index) {
   } else if (check_typename_token(token)) { /// types
     node = ast_create_ty(_cs);
   } else if (token->value == "&") {
-    node = std::make_shared<ASTAmpersand>(token, index);
+    node = ast_create_ampersand(_cs);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = ast_create_statement(_cs);
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
@@ -144,6 +144,10 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
 
 size_t Parser::parse_node(ASTNodePtr p) {
   p->_end_index = p->_start_index;
+  if (p->_token->value == "&") {
+    p->_type = ASTType::ADDRESS_OF;
+    p->_lbp = op_precedence[p->_type];
+  }
   switch (p->_type) {
     case ASTType::PROGRAM:
       while (!eof(p->_end_index)) {
@@ -237,6 +241,12 @@ size_t Parser::parse_node(ASTNodePtr p) {
       }
       break;
     }
+    case ASTType::ADDRESS_OF: {
+      ++p->_end_index; /// skip '&'
+      auto rhs = next_expression(p->_end_index, p->_rbp);
+      p->_children.push_back(rhs);
+      break;
+    }
     case ASTType::FUNC_DECL: {
       if (at(p->_start_index)->value == "fn") {
         /// skip "fn"
@@ -310,6 +320,10 @@ size_t Parser::parse_node(ASTNodePtr p) {
 
 size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
   p->_end_index = p->_start_index;
+  if (p->_token->value == "&") {
+    p->_type = ASTType::BAND;
+    p->_lbp = op_precedence[p->_type];
+  }
   switch (p->_type) {
     case ASTType::CAST:
     case ASTType::ASSIGN:
@@ -331,6 +345,9 @@ size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
       p->_children.push_back(n);
       break;
     }
+    case ASTType::BAND:
+      // TODO: parsing for binary and
+      break;
     default:
       break;
   }

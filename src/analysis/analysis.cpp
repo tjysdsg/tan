@@ -17,6 +17,14 @@ size_t get_n_children(ASTNodePtr p) { return p->_children.size(); }
 
 /// \section Factory
 
+ASTNodePtr ast_create_ampersand(CompilerSession *cs) {
+  /// we don't know if this is address_of or binary and
+  auto ret = make_ptr<ASTNode>(ASTType::INVALID, op_precedence[ASTType::INVALID], 0);
+  ret->_is_valued = true;
+  ret->_is_typed = true;
+  return ret;
+}
+
 ASTNodePtr ast_create_string_literal(CompilerSession *cs) {
   auto ret = make_ptr<ASTNode>(ASTType::STRING_LITERAL, op_precedence[ASTType::STRING_LITERAL], 0);
   ret->_is_valued = true;
@@ -482,7 +490,11 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
         error(cs, "Cannot perform implicit type conversion");
       }
       break;
-      ////////////////////////////////////////////////////////////////////////
+      /////////////////////////// unary ops ////////////////////////////////////
+    case ASTType::ADDRESS_OF:
+      if (!(p->_ty = p->_children[0]->_ty)) { error(cs, "Invalid operand"); }
+      p->_ty = get_ptr_to(cs, p->_ty);
+      break;
     case ASTType::ID: {
       auto referred = get_id_referred(cs, p);
       p->_children.push_back(referred);

@@ -209,6 +209,18 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
   return ret;
 }
 
+static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  auto *val = codegen(cs, p->_children[0]);
+  if (is_lvalue(p->_children[0])) { /// lvalue, the val itself is a pointer to real value
+    p->_llvm_value = val;
+  } else { /// rvalue, create an anonymous variable, and get address of it
+    p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
+    builder->CreateStore(val, p->_llvm_value);
+  }
+  return p->_llvm_value;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -236,6 +248,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::CAST:
       ret = codegen_cast(cs, p);
+      break;
+    case ASTType::ADDRESS_OF:
+      ret = codegen_address_of(cs, p);
       break;
     case ASTType::ARRAY_LITERAL:
     case ASTType::NUM_LITERAL:

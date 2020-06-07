@@ -37,6 +37,10 @@ ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
 
+/// \subsection Unary ops
+
+ASTNodePtr ast_create_ampersand(CompilerSession *cs);
+
 /// \subsection Others
 
 ASTNodePtr ast_create_program(CompilerSession *cs);
