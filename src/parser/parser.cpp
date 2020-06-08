@@ -205,6 +205,16 @@ size_t Parser::parse_node(ASTNodePtr p) {
       ++p->_end_index;
       p->_children.push_back(next_expression(p->_end_index));
       break;
+    case ASTType::SUM: /// unary +
+    case ASTType::SUBTRACT: { /// unary -
+      ++p->_end_index; /// skip "-" or "+"
+      /// higher precedence than infix plus/minus
+      p->_lbp = PREC_UNARY;
+      auto rhs = next_expression(p->_end_index, p->_lbp);
+      if (!rhs) { error(p->_end_index, "Invalid operand"); }
+      p->_children.push_back(rhs);
+      break;
+    }
       ////////////////////////////////////////////////////////////////
     case ASTType::VAR_DECL:
       ++p->_end_index; /// skip 'var'
@@ -224,16 +234,6 @@ size_t Parser::parse_node(ASTNodePtr p) {
         p->_ty = ty;
       } else { p->_ty = nullptr; }
       if (p->_type == ASTType::VAR_DECL) { _cs->add(p->_name, p); }
-      break;
-    }
-    case ASTType::SUM:
-    case ASTType::SUBTRACT: { /// unary '+' or '-'
-      ++p->_end_index; /// skip "-" or "+"
-      /// higher precedence than infix plus/minus
-      p->_rbp = PREC_UNARY;
-      auto rhs = next_expression(p->_end_index, p->_rbp);
-      if (!rhs) { error(p->_end_index, "Invalid operand"); }
-      p->_children.push_back(rhs);
       break;
     }
     case ASTType::ARRAY_LITERAL: {

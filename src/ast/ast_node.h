@@ -11,15 +11,18 @@ class Metadata;
 
 namespace tanlang {
 
+/// \section Forward declarations
+#define AST_FWD_DECL(c)  \
+class c;                 \
+using c##Ptr = ptr<c>
+
+AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTNode);
 class Scope;
+class CompilerSession;
+class Parser;
 struct Token;
 enum class Ty : uint64_t;
-class CompilerSession;
-class ASTTy;
-using ASTTyPtr = std::shared_ptr<ASTTy>;
-class Parser;
-class ASTNode;
-using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 enum PrecedenceLevel {
   PREC_LOWEST = 0,        //
@@ -98,7 +101,7 @@ extern umap<ASTType, int> op_precedence;
 class ASTNode {
 public:
   ASTNode() = delete;
-  ASTNode(ASTType op, int lbp, int rbp);
+  ASTNode(ASTType op, int lbp);
   virtual ~ASTNode() = default;
 
   /**
@@ -124,7 +127,6 @@ public:
   ASTType _type = ASTType::INVALID;
   vector<ASTNodePtr> _children{};
   int _lbp = 0;
-  int _rbp = 0;
   Token *_token = nullptr;
   llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
@@ -143,15 +145,6 @@ public:
 };
 
 template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
-
-/// \section Forward declarations
-#define AST_FWD_DECL(c)  \
-class c;                 \
-using c##Ptr = ptr<c>
-
-class Parser;
-enum class Ty : uint64_t;
-AST_FWD_DECL(ASTTy);
 
 #undef AST_FWD_DECL
 

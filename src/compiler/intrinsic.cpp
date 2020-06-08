@@ -117,7 +117,6 @@ void Intrinsic::resolve() {
   }
   if (underlying_ast) {
     _lbp = underlying_ast->_lbp;
-    _rbp = underlying_ast->_rbp;
     _children.push_back(underlying_ast);
   }
   _parsed = true;

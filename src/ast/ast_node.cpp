@@ -46,60 +46,7 @@ str ASTNode::get_src() {
   return ret;
 }
 
-ASTNode::ASTNode(ASTType op, int lbp, int rbp) : _type(op), _lbp(lbp), _rbp(rbp) {}
-
-size_t ASTNode::parse(const ASTNodePtr &left, Parser *parser, CompilerSession *cs) {
-  _parser = parser;
-  _cs = cs;
-  auto *prev_token = _cs->_current_token;
-  if (_token) { _cs->_current_token = _token; }
-  auto ret = this->led(left);
-  _parsed = true;
-  _cs->_current_token = prev_token;
-  return ret;
-}
-
-size_t ASTNode::parse(Parser *parser, CompilerSession *cs) {
-  _parser = parser;
-  _cs = cs;
-  auto *prev_token = _cs->_current_token;
-  if (_token) { _cs->_current_token = _token; }
-  auto ret = this->nud();
-  _parsed = true;
-  _cs->_current_token = prev_token;
-  return ret;
-}
-
-llvm::Value *ASTNode::codegen(CompilerSession *cs) {
-  _cs = cs;
-  auto *prev_token = cs->_current_token;
-  if (_token) { cs->_current_token = _token; }
-  auto *ret = this->_codegen(cs);
-  cs->_current_token = prev_token;
-  return ret;
-}
-
-size_t ASTNode::led(const ASTNodePtr &) { error("Not implemented"); }
-
-size_t ASTNode::nud() { error("Not implemented"); }
-
-Value *ASTNode::_codegen(CompilerSession *compiler_session) {
-  if (_children.empty()) { return nullptr; }
-  size_t n = _children.size();
-  for (size_t i = 0; i < n; ++i) {
-    _children[i]->codegen(compiler_session);
-  }
-  return nullptr;
-}
-
-Metadata *ASTNode::to_llvm_meta(CompilerSession *cs) {
-  if (_children.size() > 0) { return _children[0]->to_llvm_meta(cs); }
-  else { return nullptr; }
-}
-
-llvm::Type *ASTNode::to_llvm_type(CompilerSession *cs) { return _ty->to_llvm_type(cs); }
-
-llvm::Value *ASTNode::get_llvm_value(CompilerSession *) { return _llvm_value; }
+ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}
 
 str ASTNode::get_source_location() {
   TAN_ASSERT(_parser);
