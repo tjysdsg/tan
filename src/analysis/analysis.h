@@ -40,6 +40,7 @@ ASTNodePtr ast_create_assignment(CompilerSession *cs);
 /// \subsection Unary ops
 
 ASTNodePtr ast_create_ampersand(CompilerSession *cs);
+ASTNodePtr ast_create_return(CompilerSession *cs);
 
 /// \subsection Others
 

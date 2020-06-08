@@ -74,6 +74,15 @@ static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
+static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  auto *result = codegen(cs, p->_children[0]);
+  if (is_lvalue(p->_children[0])) { result = builder->CreateLoad(result, "ret"); }
+  builder->CreateRet(result);
+  return nullptr;
+}
+
 static Value *codegen_comparison(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(p->_token->l, p->_token->c);
@@ -211,6 +220,7 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
 
 static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
   auto *val = codegen(cs, p->_children[0]);
   if (is_lvalue(p->_children[0])) { /// lvalue, the val itself is a pointer to real value
     p->_llvm_value = val;

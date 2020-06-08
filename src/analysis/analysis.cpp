@@ -17,6 +17,10 @@ size_t get_n_children(ASTNodePtr p) { return p->_children.size(); }
 
 /// \section Factory
 
+ASTNodePtr ast_create_return(CompilerSession *cs) {
+  return make_ptr<ASTNode>(ASTType::RET, op_precedence[ASTType::RET], 0);
+}
+
 ASTNodePtr ast_create_ampersand(CompilerSession *cs) {
   /// we don't know if this is address_of or binary and
   auto ret = make_ptr<ASTNode>(ASTType::INVALID, op_precedence[ASTType::INVALID], 0);
@@ -554,6 +558,8 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       }
       break;
     }
+      /////////////////////// trivially analysed /////////////////////////////
+    case ASTType::RET:
     default:
       break;
   }

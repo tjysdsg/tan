@@ -182,6 +182,10 @@ size_t Parser::parse_node(ASTNodePtr p) {
         ++p->_end_index; /// skip ';'
       }
       break;
+    case ASTType::RET:
+      ++p->_end_index; /// skip 'return'
+      p->_children.push_back(next_expression(p->_end_index));
+      break;
     case ASTType::VAR_DECL:
       ++p->_end_index; /// skip 'var'
     case ASTType::ARG_DECL: {
