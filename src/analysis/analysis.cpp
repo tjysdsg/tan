@@ -21,9 +21,17 @@ ASTNodePtr ast_create_return(CompilerSession *cs) {
   return make_ptr<ASTNode>(ASTType::RET, op_precedence[ASTType::RET], 0);
 }
 
+ASTNodePtr ast_create_not(CompilerSession *cs) {
+  /// logical not or bitwise not
+  auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0, 0);
+  ret->_is_valued = true;
+  ret->_is_typed = true;
+  return ret;
+}
+
 ASTNodePtr ast_create_ampersand(CompilerSession *cs) {
-  /// we don't know if this is address_of or binary and
-  auto ret = make_ptr<ASTNode>(ASTType::INVALID, op_precedence[ASTType::INVALID], 0);
+  /// address_of or binary and
+  auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0, 0);
   ret->_is_valued = true;
   ret->_is_typed = true;
   return ret;
@@ -495,6 +503,12 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       }
       break;
       /////////////////////////// unary ops ////////////////////////////////////
+    case ASTType::LNOT:
+      p->_ty = create_ty(cs, Ty::BOOL);
+      break;
+    case ASTType::BNOT:
+      p->_ty = p->_children[0]->_ty;
+      break;
     case ASTType::ADDRESS_OF:
       if (!(p->_ty = p->_children[0]->_ty)) { error(cs, "Invalid operand"); }
       p->_ty = get_ptr_to(cs, p->_ty);

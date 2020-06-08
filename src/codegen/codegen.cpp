@@ -74,6 +74,32 @@ static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
+static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  auto *rhs = codegen(cs, p->_children[0]);
+  if (!rhs) { error(cs, "Invalid operand"); }
+  if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
+  /// get value size in bits
+  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
+  if (rhs->getType()->isFloatingPointTy()) {
+    p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
+  } else if (rhs->getType()->isSingleValueType()) {
+    p->_llvm_value =
+        builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
+  } else { error(cs, "Invalid operand"); }
+  return p->_llvm_value;
+}
+
+static Value *codegen_bnot(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  auto *rhs = codegen(cs, p->_children[0]);
+  if (!rhs) { error(cs, "Invalid operand"); }
+  if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
+  return (p->_llvm_value = builder->CreateNot(rhs));
+}
+
 static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(p->_token->l, p->_token->c);
@@ -238,6 +264,7 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       for (const auto &e : p->_children) { codegen(cs, e); }
       ret = nullptr;
       break;
+      ///////////////////////// binary ops ///////////////////////////
     case ASTType::SUM:
     case ASTType::SUBTRACT:
     case ASTType::MULTIPLY:
@@ -259,15 +286,27 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::CAST:
       ret = codegen_cast(cs, p);
       break;
-    case ASTType::ADDRESS_OF:
-      ret = codegen_address_of(cs, p);
-      break;
+      ////////////////////////////// literals ////////////////////////
     case ASTType::ARRAY_LITERAL:
     case ASTType::NUM_LITERAL:
     case ASTType::CHAR_LITERAL:
     case ASTType::STRING_LITERAL:
       ret = p->_llvm_value = codegen(cs, p->_ty);
       break;
+      ////////////////////////////// prefix //////////////////////////
+    case ASTType::ADDRESS_OF:
+      ret = codegen_address_of(cs, p);
+      break;
+    case ASTType::RET:
+      ret = codegen_return(cs, p);
+      break;
+    case ASTType::LNOT:
+      ret = codegen_lnot(cs, p);
+      break;
+    case ASTType::BNOT:
+      ret = codegen_bnot(cs, p);
+      break;
+      ///////////////////////////// other ////////////////////////////
     case ASTType::TY:
       ret = p->_llvm_value = codegen_ty(cs, ast_cast<ASTTy>(p));
       break;

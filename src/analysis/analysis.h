@@ -39,8 +39,13 @@ ASTNodePtr ast_create_assignment(CompilerSession *cs);
 
 /// \subsection Unary ops
 
-ASTNodePtr ast_create_ampersand(CompilerSession *cs);
 ASTNodePtr ast_create_return(CompilerSession *cs);
+
+/// \subsection Ambiguous ops
+/// The type of these operators/expression is undetermined before parsing
+
+ASTNodePtr ast_create_ampersand(CompilerSession *cs);
+ASTNodePtr ast_create_not(CompilerSession *cs);
 
 /// \subsection Others
 

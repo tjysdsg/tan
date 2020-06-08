@@ -144,10 +144,25 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
 
 size_t Parser::parse_node(ASTNodePtr p) {
   p->_end_index = p->_start_index;
-  if (p->_token->value == "&") {
-    p->_type = ASTType::ADDRESS_OF;
-    p->_lbp = op_precedence[p->_type];
+
+  /// resolve ambiguous AST type
+  switch (hashed_string{p->_token->value.c_str()}) {
+    case "&"_hs:
+      p->_type = ASTType::ADDRESS_OF;
+      p->_lbp = op_precedence[p->_type];
+      break;
+    case "!"_hs:
+      p->_type = ASTType::LNOT;
+      p->_lbp = op_precedence[p->_type];
+      break;
+    case "~"_hs:
+      p->_type = ASTType::BNOT;
+      p->_lbp = op_precedence[p->_type];
+      break;
+    default:
+      break;
   }
+
   switch (p->_type) {
     case ASTType::PROGRAM:
       while (!eof(p->_end_index)) {
@@ -182,10 +197,15 @@ size_t Parser::parse_node(ASTNodePtr p) {
         ++p->_end_index; /// skip ';'
       }
       break;
+      ////////////////////////// prefix ////////////////////////////////
+    case ASTType::ADDRESS_OF:
+    case ASTType::LNOT:
+    case ASTType::BNOT:
     case ASTType::RET:
-      ++p->_end_index; /// skip 'return'
+      ++p->_end_index;
       p->_children.push_back(next_expression(p->_end_index));
       break;
+      ////////////////////////////////////////////////////////////////
     case ASTType::VAR_DECL:
       ++p->_end_index; /// skip 'var'
     case ASTType::ARG_DECL: {
@@ -243,12 +263,6 @@ size_t Parser::parse_node(ASTNodePtr p) {
           p->_children.push_back(node);
         } else { error(p->_end_index, "Expect literals"); }
       }
-      break;
-    }
-    case ASTType::ADDRESS_OF: {
-      ++p->_end_index; /// skip '&'
-      auto rhs = next_expression(p->_end_index, p->_rbp);
-      p->_children.push_back(rhs);
       break;
     }
     case ASTType::FUNC_DECL: {
@@ -324,11 +338,18 @@ size_t Parser::parse_node(ASTNodePtr p) {
 
 size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
   p->_end_index = p->_start_index;
-  if (p->_token->value == "&") {
-    p->_type = ASTType::BAND;
-    p->_lbp = op_precedence[p->_type];
+  /// resolve ambiguous AST type
+  switch (hashed_string{p->_token->value.c_str()}) {
+    case "&"_hs:
+      p->_type = ASTType::BAND;
+      p->_lbp = op_precedence[p->_type];
+      break;
+    default:
+      break;
   }
+
   switch (p->_type) {
+    case ASTType::BAND:
     case ASTType::CAST:
     case ASTType::ASSIGN:
     case ASTType::GT:
@@ -349,9 +370,6 @@ size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
       p->_children.push_back(n);
       break;
     }
-    case ASTType::BAND:
-      // TODO: parsing for binary and
-      break;
     default:
       break;
   }

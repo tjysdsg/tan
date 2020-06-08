@@ -39,6 +39,7 @@ enum class Ty : uint64_t {
   BIT64 = 1u << 18u,
 };
 
+// TODO: make ASTTy immutable, like llvm::Type
 class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};

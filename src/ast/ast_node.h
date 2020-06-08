@@ -57,7 +57,7 @@ enum class ASTType {
   LAND,        /// logical and
   BOR,         /// binary or
   LOR,         /// logical or
-  BNOT,        /// binary not
+  BNOT,        /// bitwise not
   LNOT,        /// logical not
   GT,          /// >
   GE,          /// >=
