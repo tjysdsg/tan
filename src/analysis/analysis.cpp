@@ -480,8 +480,10 @@ size_t get_struct_member_index(ASTTyPtr p, str name) {
 
 /// \section Analysis
 
-void analyze(CompilerSession *cs, ASTNodePtr p) {
+void analyze(CompilerSession *cs, const ASTNodePtr &p) {
   p->_scope = cs->get_current_scope();
+  // TODO: update _cs->_current_token
+
   for (const auto &sub: p->_children) { analyze(cs, sub); }
   switch (p->_type) {
     /////////////////////////// binary ops ///////////////////////////////////
@@ -566,7 +568,15 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       p->_ty = create_ty(cs, Ty::ARRAY, sub_tys);
       break;
     }
-      ////////////////////////// others /////////////////////////////////////////
+      ////////////////////////// keywords ///////////////////////////
+    case ASTType::IF: {
+      auto cond = p->_children[0];
+      if (0 != TypeSystem::CanImplicitCast(cs, create_ty(cs, Ty::BOOL), cond->_ty)) {
+        error(cs, "Cannot convert type to bool");
+      }
+      break;
+    }
+      ////////////////////////// others ///////////////////////////
     case ASTType::PARENTHESIS:
       p->_ty = p->_children[0]->_ty;
       break;

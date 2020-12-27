@@ -6,51 +6,6 @@
 
 namespace tanlang {
 
-Value *ASTIf::_codegen(CompilerSession *cs) {
-  auto *builder = cs->_builder;
-  cs->set_current_debug_location(_token->l, _token->c);
-  Value *condition = _children[0]->codegen(cs);
-  if (!condition) {
-    auto *condition_token = _children[0]->_token;
-    _children[0]->error("Invalid condition expression " + condition_token->to_string());
-  }
-
-  /// convert to bool if not
-  condition = TypeSystem::ConvertTo(cs, condition, _children[0]->get_ty(), ASTTy::Create(Ty::BOOL));
-
-  /// create_ty blocks for the then (and else) clause
-  Function *func = builder->GetInsertBlock()->getParent();
-  BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
-  BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
-  BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
-
-  if (_has_else) { builder->CreateCondBr(condition, then_bb, else_bb); }
-  else { builder->CreateCondBr(condition, then_bb, merge_bb); }
-  /// emit then value
-  builder->SetInsertPoint(then_bb);
-  _children[1]->codegen(cs);
-  /// create a br instruction if there is no terminator instruction at the end of then
-  if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
-  builder->SetInsertPoint(then_bb);
-  if (!then_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
-
-  /// emit else block
-  if (_has_else) {
-    func->getBasicBlockList().push_back(else_bb);
-    builder->SetInsertPoint(else_bb);
-    _children[2]->codegen(cs);
-    /// create a br instruction if there is no terminator instruction at the end of else
-    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
-    builder->SetInsertPoint(else_bb);
-    if (!else_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
-  }
-
-  /// emit merge block
-  func->getBasicBlockList().push_back(merge_bb);
-  builder->SetInsertPoint(merge_bb);
-  return nullptr;
-}
-
 Value *ASTElse::_codegen(CompilerSession *cs) {
   cs->set_current_debug_location(_token->l, _token->c);
   return _children[0]->codegen(cs);

@@ -25,7 +25,7 @@ public:
   ASTNodePtr next_expression(size_t &index, int rbp = 0);
   ASTNodePtr parse();
   size_t parse_node(const ASTNodePtr &p);
-  size_t parse_node(const ASTNodePtr &left, ASTNodePtr p);
+  size_t parse_node(const ASTNodePtr &left, const ASTNodePtr &p);
   bool eof(size_t index) const;
   [[nodiscard]] Token *at(const size_t idx) const;
   [[nodiscard]] str get_filename() const;

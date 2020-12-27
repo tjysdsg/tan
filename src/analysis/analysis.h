@@ -81,7 +81,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p);
 
 /// \section Analysis
 
-void analyze(CompilerSession *cs, ASTNodePtr p);
+void analyze(CompilerSession *cs, const ASTNodePtr &p);
 
 } // namespace tanlang
 

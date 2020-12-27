@@ -1,3 +1,4 @@
+#include "src/ast/ast_control_flow.h"
 #include "src/analysis/analysis.h"
 #include "src/codegen/codegen.h"
 #include "compiler_session.h"
@@ -85,8 +86,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   if (rhs->getType()->isFloatingPointTy()) {
     p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
   } else if (rhs->getType()->isSingleValueType()) {
-    p->_llvm_value =
-        builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
+    p->_llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
   } else { error(cs, "Invalid operand"); }
   return p->_llvm_value;
 }
@@ -294,6 +294,55 @@ static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
   // FIXME: multiple expressions in the parenthesis?
   p->_llvm_value = codegen(cs, p->_children[0]);
   return p->_llvm_value;
+}
+
+static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
+  // TODO: update cs->_current_token
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+
+  Value *condition = codegen(cs, p->_children[0]);
+  if (!condition) {
+    error(cs, "Invalid condition expression ");
+  }
+
+  /// convert to bool if not
+  condition = TypeSystem::ConvertTo(cs, condition, p->_children[0]->_ty, create_ty(cs, Ty::BOOL));
+
+  /// create_ty blocks for the then (and else) clause
+  Function *func = builder->GetInsertBlock()->getParent();
+  BasicBlock *then_bb = BasicBlock::Create(*cs->get_context(), "then", func);
+  BasicBlock *else_bb = BasicBlock::Create(*cs->get_context(), "else");
+  BasicBlock *merge_bb = BasicBlock::Create(*cs->get_context(), "fi");
+
+  auto pif = ast_cast<ASTIf>(p);
+  TAN_ASSERT(pif);
+  if (pif->_has_else) { builder->CreateCondBr(condition, then_bb, else_bb); }
+  else { builder->CreateCondBr(condition, then_bb, merge_bb); }
+
+  /// emit then value
+  builder->SetInsertPoint(then_bb);
+  codegen(cs, p->_children[1]);
+  /// create a br instruction if there is no terminator instruction at the end of then
+  if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
+  builder->SetInsertPoint(then_bb);
+  if (!then_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
+
+  /// emit else block
+  if (pif->_has_else) {
+    func->getBasicBlockList().push_back(else_bb);
+    builder->SetInsertPoint(else_bb);
+    codegen(cs, p->_children[2]);
+    /// create a br instruction if there is no terminator instruction at the end of else
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
+    builder->SetInsertPoint(else_bb);
+    if (!else_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
+  }
+
+  /// emit merge block
+  func->getBasicBlockList().push_back(merge_bb);
+  builder->SetInsertPoint(merge_bb);
+  return nullptr;
 }
 
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {

@@ -145,6 +145,7 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
 
 size_t Parser::parse_node(const ASTNodePtr &p) {
   p->_end_index = p->_start_index;
+  // TODO: update _cs->_current_token
 
   /// resolve ambiguous AST type
   // FIXME
@@ -388,7 +389,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t Parser::parse_node(const ASTNodePtr &left, ASTNodePtr p) {
+size_t Parser::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
   p->_end_index = p->_start_index;
   /// resolve ambiguous AST type
   switch (hashed_string{p->_token->value.c_str()}) {
