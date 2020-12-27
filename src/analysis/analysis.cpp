@@ -67,7 +67,7 @@ ASTNodePtr ast_create_numeric_literal(CompilerSession *) {
 }
 
 ASTNodePtr ast_create_var_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::ARG_DECL, 0);
+  auto ret = make_ptr<ASTNode>(ASTType::VAR_DECL, 0);
   ret->_is_typed = true;
   ret->_is_valued = true;
   ret->_is_named = true;
@@ -75,7 +75,7 @@ ASTNodePtr ast_create_var_decl(CompilerSession *) {
 }
 
 ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
-  auto ret = ast_create_arg_decl(cs);
+  auto ret = ast_create_var_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
   ret->_name = name;
@@ -496,7 +496,6 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       p->_ty = create_ty(cs, Ty::BOOL);
       break;
     case ASTType::ASSIGN:
-      // TODO: special case for variable declaration
       p->_ty = p->_children[0]->_ty;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
         error(cs, "Cannot perform implicit type conversion");
@@ -532,6 +531,7 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       ty = make_ptr<ASTTy>(*ty); // copy
       ty->_is_lvalue = true;
       p->_ty = ty;
+      cs->add(p->_name, p);
       break;
     }
       //////////////////////// literals ///////////////////////////////////////

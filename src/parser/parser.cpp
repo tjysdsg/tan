@@ -238,6 +238,7 @@ size_t Parser::parse_node(ASTNodePtr p) {
       ////////////////////////////////////////////////////////////////
     case ASTType::VAR_DECL:
       ++p->_end_index; /// skip 'var'
+      // fallthrough
     case ASTType::ARG_DECL: {
       /// var name
       auto name_token = at(p->_end_index);
@@ -253,8 +254,6 @@ size_t Parser::parse_node(ASTNodePtr p) {
         p->_end_index = parse_node(ty);
         p->_ty = ty;
       } else { p->_ty = nullptr; }
-      if (p->_type == ASTType::VAR_DECL) { _cs->add(p->_name, p); }
-      break;
     }
     case ASTType::ARRAY_LITERAL: {
       ++p->_end_index; /// skip '['
@@ -342,6 +341,9 @@ size_t Parser::parse_node(ASTNodePtr p) {
       }
       break;
     }
+    case ASTType::TY:
+      // TODO
+      break;
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTType::ID:
     case ASTType::NUM_LITERAL:
