@@ -261,7 +261,7 @@ static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
 static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
   cs->set_current_debug_location(p->_token->l, p->_token->c);
   // FIXME: multiple expressions in the parenthesis?
-  p->_llvm_value = p->_children[0]->codegen(cs);
+  p->_llvm_value = codegen(cs, p->_children[0]);
   return p->_llvm_value;
 }
 
