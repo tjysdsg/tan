@@ -2,6 +2,7 @@
 #include "base.h"
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
+#include "src/ast/ast_control_flow.h"
 #include "src/analysis/analysis.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_ty.h"
@@ -142,10 +143,11 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-size_t Parser::parse_node(ASTNodePtr p) {
+size_t Parser::parse_node(const ASTNodePtr &p) {
   p->_end_index = p->_start_index;
 
   /// resolve ambiguous AST type
+  // FIXME
   switch (hashed_string{p->_token->value.c_str()}) {
     case "&"_hs:
       p->_type = ASTType::ADDRESS_OF;
@@ -164,7 +166,7 @@ size_t Parser::parse_node(ASTNodePtr p) {
   }
 
   switch (p->_type) {
-    case ASTType::PROGRAM:
+    case ASTType::PROGRAM: {
       while (!eof(p->_end_index)) {
         auto stmt = ast_create_statement(_cs);
         stmt->_token = at(p->_end_index);
@@ -173,7 +175,8 @@ size_t Parser::parse_node(ASTNodePtr p) {
         p->_children.push_back(stmt);
       }
       break;
-    case ASTType::STATEMENT:
+    }
+    case ASTType::STATEMENT: {
       if (at(p->_end_index)->value == "{") { /// compound statement
         ++p->_end_index; /// skip "{"
         while (!eof(p->_end_index)) {
@@ -197,7 +200,8 @@ size_t Parser::parse_node(ASTNodePtr p) {
         ++p->_end_index; /// skip ';'
       }
       break;
-    case ASTType::PARENTHESIS:
+    }
+    case ASTType::PARENTHESIS: {
       ++p->_end_index; /// skip "("
       while (true) {
         auto *t = at(p->_end_index);
@@ -217,14 +221,40 @@ size_t Parser::parse_node(ASTNodePtr p) {
         }
       }
       break;
+    }
+      ////////////////////////// keywords ////////////////////////////////
+    case ASTType::IF: {
+      auto pif = ast_cast<ASTIf>(p);
+      TAN_ASSERT(pif);
+      ++pif->_end_index; /// skip "if"
+      /// condition
+      auto condition = peek(pif->_end_index, TokenType::PUNCTUATION, "(");
+      pif->_end_index = parse_node(condition);
+      pif->_children.push_back(condition);
+      /// if clause
+      auto if_clause = peek(pif->_end_index, TokenType::PUNCTUATION, "{");
+      pif->_end_index = parse_node(if_clause);
+      pif->_children.push_back(if_clause);
+
+      /// else clause, if any
+      auto *token = at(pif->_end_index);
+      if (token->type == TokenType::KEYWORD && token->value == "else") {
+        auto else_clause = peek(pif->_end_index);
+        pif->_end_index = parse_node(else_clause);
+        pif->_children.push_back(else_clause);
+        pif->_has_else = true;
+      }
+      break;
+    }
       ////////////////////////// prefix ////////////////////////////////
     case ASTType::ADDRESS_OF:
     case ASTType::LNOT:
     case ASTType::BNOT:
-    case ASTType::RET:
+    case ASTType::RET: {
       ++p->_end_index;
       p->_children.push_back(next_expression(p->_end_index));
       break;
+    }
     case ASTType::SUM: /// unary +
     case ASTType::SUBTRACT: { /// unary -
       ++p->_end_index; /// skip "-" or "+"
@@ -358,7 +388,7 @@ size_t Parser::parse_node(ASTNodePtr p) {
   return p->_end_index;
 }
 
-size_t Parser::parse_node(ASTNodePtr left, ASTNodePtr p) {
+size_t Parser::parse_node(const ASTNodePtr &left, ASTNodePtr p) {
   p->_end_index = p->_start_index;
   /// resolve ambiguous AST type
   switch (hashed_string{p->_token->value.c_str()}) {

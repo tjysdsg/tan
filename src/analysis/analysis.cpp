@@ -162,6 +162,11 @@ ASTNodePtr ast_create_assignment(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_if(CompilerSession *) {
+  auto ret = make_ptr<ASTIf>(ASTType::IF, op_precedence[ASTType::IF]);
+  return ret;
+}
+
 ASTNodePtr ast_create_program(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0);
   return ret;

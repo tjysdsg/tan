@@ -1,7 +1,5 @@
-#include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_ty.h"
 #include "src/ast/ast_loop.h"
-#include "src/type_system.h"
 #include "compiler_session.h"
 #include "parser.h"
 #include "token.h"
@@ -72,28 +70,6 @@ llvm::Value *ASTBreakContinue::_codegen(CompilerSession *cs) {
   return nullptr;
 }
 
-size_t ASTIf::nud() {
-  _end_index = _start_index + 1; /// skip "if"
-  /// condition
-  auto condition = _parser->peek(_end_index, TokenType::PUNCTUATION, "(");
-  _end_index = condition->parse(_parser, _cs);
-  _children.push_back(condition);
-  /// if clause
-  auto if_clause = _parser->peek(_end_index, TokenType::PUNCTUATION, "{");
-  _end_index = if_clause->parse(_parser, _cs);
-  _children.push_back(if_clause);
-
-  /// else clause, if any
-  auto *token = _parser->at(_end_index);
-  if (token->type == TokenType::KEYWORD && token->value == "else") {
-    auto else_clause = _parser->peek(_end_index);
-    _end_index = else_clause->parse(_parser, _cs);
-    _children.push_back(else_clause);
-    _has_else = true;
-  }
-  return _end_index;
-}
-
 size_t ASTElse::nud() {
   _end_index = _start_index + 1; /// skip "else"
   auto else_clause = _parser->peek(_end_index);
@@ -106,8 +82,6 @@ size_t ASTBreakContinue::nud() {
   _end_index = _start_index + 1;
   return _end_index;
 }
-
-ASTIf::ASTIf(Token *t, size_t ti) : ASTNode(ASTType::IF, op_precedence[ASTType::IF], 0, t, ti) {}
 
 ASTElse::ASTElse(Token *t, size_t ti) : ASTNode(ASTType::ELSE, op_precedence[ASTType::ELSE], 0, t, ti) {}
 

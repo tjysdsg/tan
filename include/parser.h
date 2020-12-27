@@ -24,8 +24,8 @@ public:
   ASTNodePtr peek_keyword(Token *token, size_t &index);
   ASTNodePtr next_expression(size_t &index, int rbp = 0);
   ASTNodePtr parse();
-  size_t parse_node(ASTNodePtr p);
-  size_t parse_node(ASTNodePtr left, ASTNodePtr p);
+  size_t parse_node(const ASTNodePtr &p);
+  size_t parse_node(const ASTNodePtr &left, ASTNodePtr p);
   bool eof(size_t index) const;
   [[nodiscard]] Token *at(const size_t idx) const;
   [[nodiscard]] str get_filename() const;
