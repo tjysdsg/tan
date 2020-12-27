@@ -66,6 +66,7 @@ ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 /// \section Types
 
 llvm::Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p);
+llvm::Metadata *to_llvm_meta(CompilerSession *cs, ASTTyPtr p);
 str get_type_name(ASTNodePtr p);
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
 ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p);

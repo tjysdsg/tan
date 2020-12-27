@@ -278,6 +278,10 @@ Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p) {
   return type;
 }
 
+Metadata *to_llvm_meta(CompilerSession *cs, ASTTyPtr p) {
+  // TODO
+}
+
 str get_type_name(ASTNodePtr p) { return p->_ty->_type_name; }
 
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {

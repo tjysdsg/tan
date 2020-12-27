@@ -195,7 +195,7 @@ static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
   auto *builder = cs->_builder;
-  resolve_ty(cs, p);
+  resolve_ty(cs, p); // TODO: move this to analysis phase
   Ty base = TY_GET_BASE(p->_tyty);
   Value *ret = nullptr;
   Type *type = to_llvm_type(cs, p);
@@ -243,6 +243,37 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
       TAN_ASSERT(false);
   }
   return ret;
+}
+
+static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+
+  if (!p->_ty->_resolved) { error(cs, "Unknown type"); }
+  codegen_ty(cs, ast_cast<ASTTy>(p->_ty));
+  Type *type = to_llvm_type(cs, p->_ty);
+  p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->_name);
+  if (p->_type == ASTType::VAR_DECL) { /// don't do this for arg_decl
+    auto *default_value = p->_ty->_llvm_value;
+    if (default_value) { builder->CreateStore(default_value, p->_ty->_llvm_value); }
+  }
+  /// debug info
+  {
+    auto *di_builder = cs->_di_builder;
+    auto *curr_di_scope = cs->get_current_di_scope();
+    auto *arg_meta = to_llvm_meta(cs, p->_ty);
+    auto *di_arg = di_builder->createAutoVariable(curr_di_scope,
+        p->_name,
+        cs->get_di_file(),
+        (unsigned) p->_token->l + 1,
+        (DIType *) arg_meta);
+    di_builder->insertDeclare(p->_llvm_value,
+        di_arg,
+        cs->_di_builder->createExpression(),
+        llvm::DebugLoc::get((unsigned) p->_token->l + 1, (unsigned) p->_token->c + 1, curr_di_scope),
+        builder->GetInsertBlock());
+  }
+  return p->_llvm_value;
 }
 
 static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
