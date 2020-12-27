@@ -98,7 +98,7 @@ ASTNodePtr Parser::peek(size_t &index) {
     if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }
     else { node = ast_create_identifier(_cs, token->value); }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
-    node = std::make_shared<ASTParenthesis>(token, index);
+    node = ast_create_parenthesis(_cs);
   } else if (token->type == TokenType::KEYWORD) { /// keywords
     node = peek_keyword(token, index);
     if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
@@ -179,7 +179,7 @@ size_t Parser::parse_node(ASTNodePtr p) {
         while (!eof(p->_end_index)) {
           auto node = peek(p->_end_index);
           while (node) { /// stops at a terminal token
-            p->_children.push_back(next_expression(p->_end_index, 0));
+            p->_children.push_back(next_expression(p->_end_index, PREC_LOWEST));
             node = peek(p->_end_index);
           }
           if (at(p->_end_index)->value == "}") {
@@ -191,10 +191,30 @@ size_t Parser::parse_node(ASTNodePtr p) {
       } else { /// single statement
         auto node = peek(p->_end_index);
         while (node) { /// stops at a terminal token
-          p->_children.push_back(next_expression(p->_end_index, 0));
+          p->_children.push_back(next_expression(p->_end_index, PREC_LOWEST));
           node = peek(p->_end_index);
         }
         ++p->_end_index; /// skip ';'
+      }
+      break;
+    case ASTType::PARENTHESIS:
+      ++p->_end_index; /// skip "("
+      while (true) {
+        auto *t = at(p->_end_index);
+        if (!t) {
+          error(p->_end_index - 1, "Unexpected EOF");
+        } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
+          ++p->_end_index;
+          break;
+        }
+        // FIXME: multiple expressions in the parenthesis?
+        /// NOTE: parenthesis without child expression inside are illegal (except function call)
+        auto n = next_expression(p->_end_index, PREC_LOWEST);
+        if (n) {
+          p->_children.push_back(n);
+        } else {
+          error(p->_end_index, "Unexpected " + t->to_string());
+        }
       }
       break;
       ////////////////////////// prefix ////////////////////////////////

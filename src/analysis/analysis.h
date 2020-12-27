@@ -53,6 +53,7 @@ ASTNodePtr ast_create_program(CompilerSession *cs);
 ASTNodePtr ast_create_statement(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
+ASTNodePtr ast_create_parenthesis(CompilerSession *cs);
 ASTTyPtr ast_create_ty(CompilerSession *cs);
 
 /// \section Literals

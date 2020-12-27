@@ -44,7 +44,7 @@ Value *Compiler::codegen() {
   TAN_ASSERT(_compiler_session);
   TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
-  auto *ret = codegen(_compiler_session, _ast);
+  auto *ret = ::codegen(_compiler_session, _ast);
   return ret;
 }
 
@@ -65,7 +65,7 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
-  analyze(_compiler_session, _ast);
+  analyze(_compiler_session, _ast); // TODO: separate parsing and analyzing phase
 }
 
 void Compiler::ParseFile(const str &filename) {

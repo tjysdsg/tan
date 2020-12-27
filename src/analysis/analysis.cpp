@@ -181,6 +181,13 @@ ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name) {
   return ret;
 }
 
+ASTNodePtr ast_create_parenthesis(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::PARENTHESIS, op_precedence[ASTType::PARENTHESIS]);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
 ASTTyPtr ast_create_ty(CompilerSession *) {
   auto ret = make_ptr<ASTTy>();
   ret->_is_typed = true;
@@ -550,7 +557,10 @@ void analyze(CompilerSession *cs, ASTNodePtr p) {
       p->_ty = create_ty(cs, Ty::ARRAY, sub_tys);
       break;
     }
-      /////////////////////////////////////////////////////////////////////////
+      ////////////////////////// others /////////////////////////////////////////
+    case ASTType::PARENTHESIS:
+      p->_ty = p->_children[0]->_ty;
+      break;
     case ASTType::FUNC_DECL: {
       /// add to function table
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }

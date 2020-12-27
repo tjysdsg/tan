@@ -183,12 +183,13 @@ static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
   auto lhs = p->_children[0];
   auto *dest_type = to_llvm_type(cs, p->_children[1]->_ty);
   Value *val = codegen(cs, lhs);
-  Value *ret;
+  Value *ret = nullptr;
   val = TypeSystem::ConvertTo(cs, val, lhs->_ty, p->_children[1]->_ty);
   if (lhs->_ty->_is_lvalue) {
     ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
     builder->CreateStore(val, ret);
   } else { ret = val; }
+  p->_llvm_value = ret;
   return ret;
 }
 
@@ -257,6 +258,13 @@ static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
+static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  // FIXME: multiple expressions in the parenthesis?
+  p->_llvm_value = p->_children[0]->codegen(cs);
+  return p->_llvm_value;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -309,6 +317,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       ///////////////////////////// other ////////////////////////////
     case ASTType::TY:
       ret = p->_llvm_value = codegen_ty(cs, ast_cast<ASTTy>(p));
+      break;
+    case ASTType::PARENTHESIS:
+      ret = p->_llvm_value = codegen_parenthesis(cs, p);
       break;
     case ASTType::ID:
       ret = p->_llvm_value = codegen(cs, p->_children[0]);
