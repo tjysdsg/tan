@@ -1,3 +1,4 @@
+#include "src/common.h"
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/analysis/analysis.h"
@@ -232,6 +233,12 @@ ASTNodePtr ast_create_func_decl(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_struct_decl(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::STRUCT_DECL, 0);
+  ret->_is_named;
+  return ret;
+}
+
 ASTNodePtr ast_create_char_literal(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::CHAR_LITERAL, 0);
   ret->_is_typed = true;
@@ -332,7 +339,7 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
   }
   p->_ty = p;
   /// resolve_ty children if they are ASTTy
-  for (auto c: p->_children) {
+  for (const auto &c: p->_children) {
     auto t = ast_cast<ASTTy>(c);
     if (t && t->_type == ASTType::TY && !t->_resolved) { resolve_ty(cs, t); }
   }
@@ -545,6 +552,9 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       break;
     }
       /////////////////////////// unary ops ////////////////////////////////////
+    case ASTType::RET:
+      // TODO: check if return type can be implicitly cast to function return type
+      break;
     case ASTType::LNOT:
       p->_ty = create_ty(cs, Ty::BOOL);
       break;
@@ -560,16 +570,6 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       auto referred = get_id_referred(cs, p);
       p->_children.push_back(referred);
       p->_ty = referred->_ty;
-      break;
-    }
-    case ASTType::ARG_DECL:
-    case ASTType::VAR_DECL: {
-      auto type = p->_children[0];
-      auto ty = type->_ty;
-      ty = make_ptr<ASTTy>(*ty); // copy
-      ty->_is_lvalue = true;
-      p->_ty = ty;
-      cs->add(p->_name, p);
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
@@ -615,10 +615,17 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       p->_children[0] = ASTFunction::GetCallee(nullptr, p->_name, args);
       break;
     }
+    case ASTType::TY: {
+      ASTTyPtr pt = ast_cast<ASTTy>(p);
+      TAN_ASSERT(pt);
+      resolve_ty(cs, pt);
+      break;
+    }
+      ////////////////////////// declarations ///////////////////////////
     case ASTType::FUNC_DECL: {
       /// add to function table
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }
-      /// ... and to the internal function table
+      /// ...and to the internal function table
       cs->add_function(p);
 
       // TODO: function type
@@ -636,14 +643,56 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       }
       break;
     }
-    case ASTType::TY: {
-      ASTTyPtr pt = ast_cast<ASTTy>(p);
-      TAN_ASSERT(pt);
-      resolve_ty(cs, pt);
+    case ASTType::ARG_DECL:
+    case ASTType::VAR_DECL: {
+      auto type = p->_children[0];
+      auto ty = type->_ty;
+      ty = make_ptr<ASTTy>(*ty); // copy
+      ty->_is_lvalue = true;
+      p->_ty = ty;
+      cs->add(p->_name, p);
+      resolve_ty(cs, p->_ty);
+      break;
+    }
+    case ASTType::STRUCT_DECL: {
+      str struct_name = p->_children[0]->_name;
+      auto ty = ast_create_ty(cs);
+      ty->_tyty = Ty::STRUCT;
+
+      auto forward_decl = cs->get(struct_name);
+      // TODO: Check if struct name is in conflicts of variable/function names
+      if (!forward_decl) {
+        cs->add(struct_name, ty); /// add self to current scope
+      } else {
+        /// replace forward decl with self (even if this is a forward declaration too)
+        cs->set(struct_name, ty);
+      }
+
+      /// resolve member names and types
+      auto members = p->_children;
+      size_t n = p->_children.size();
+      ty->_member_names.reserve(n);
+      ty->_children.reserve(n);
+      for (size_t i = 0; i < n; ++i) {
+        ASTNodePtr m = members[i];
+        if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
+          ty->_children.push_back(m->_ty);
+        } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
+          auto init_val = m->_children[1];
+          m = m->_children[0];
+          if (!is_ast_type_in(init_val->_type, TypeSystem::LiteralTypes)) {
+            error(cs, "Invalid initial value of the member variable");
+          }
+          ty->_children.push_back(init_val->_ty); /// init_val->_ty->_default_value is set to the initial value
+        } else { error(cs, "Invalid struct member"); }
+        ty->_member_names.push_back(m->_name);
+        ty->_member_indices[m->_name] = i;
+      }
+      resolve_ty(cs, ty);
+      p->_ty = ty;
       break;
     }
       /////////////////////// trivially analysed /////////////////////////////
-    case ASTType::RET:
     default:
       break;
   }

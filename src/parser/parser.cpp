@@ -404,25 +404,6 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       ++p->_end_index;
       break;
     }
-    case ASTType::VAR_DECL:
-      ++p->_end_index; /// skip 'var'
-      // fallthrough
-    case ASTType::ARG_DECL: {
-      /// var name
-      auto name_token = at(p->_end_index);
-      p->_name = name_token->value;
-      ++p->_end_index;
-      if (at(p->_end_index)->value == ":") {
-        ++p->_end_index;
-        /// type
-        auto ty = ast_create_ty(_cs);
-        ty->_token = at(p->_end_index);
-        ty->_end_index = ty->_start_index = p->_end_index;
-        ty->_is_lvalue = true;
-        p->_end_index = parse_node(ty);
-        p->_ty = ty;
-      } else { p->_ty = nullptr; }
-    }
     case ASTType::ARRAY_LITERAL: {
       ++p->_end_index; /// skip '['
       if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
@@ -451,6 +432,77 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         } else { error(p->_end_index, "Expect literals"); }
       }
       break;
+    }
+    case ASTType::TY: {
+      Token *token;
+      ASTTyPtr pt = ast_cast<ASTTy>(p);
+      TAN_ASSERT(pt);
+      while (!eof(p->_end_index)) {
+        token = at(p->_end_index);
+        if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
+          pt->_tyty = TY_OR(pt->_tyty, basic_tys[token->value]);
+        } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
+          if (token->value == "*") { /// pointer
+            /// swap self and child
+            auto sub = std::make_shared<ASTTy>(*pt);
+            pt->_tyty = Ty::POINTER;
+            pt->_children.clear(); /// clear but memory stays
+            pt->_children.push_back(sub);
+          }
+        } else if (token->type == TokenType::ID) { /// struct or enum
+          // TODO: identify type aliases
+          pt->_type_name = token->value;
+          auto ty = ast_cast<ASTTy>(_cs->get(pt->_type_name));
+          if (ty) { *pt = *ty; }
+          else { error("Invalid type name"); }
+        } else if (token->value == "[") {
+          pt->_tyty = Ty::ARRAY;
+          pt->_end_index = parse_ty_array(pt);
+          break;
+        } else if (token->value == "struct") {
+          pt->_tyty = Ty::STRUCT;
+          pt->_end_index = parse_ty_struct(pt);
+          break;
+        } else { break; }
+        ++pt->_end_index;
+      }
+      break;
+    }
+      ////////////////////////// declarations /////////////////////////////////
+    case ASTType::STRUCT_DECL: {
+      ++p->_end_index; /// skip "struct"
+
+      /// struct name
+      auto id = peek(p->_end_index);
+      if (id->_type != ASTType::ID) { error("Expect struct name"); }
+      p->_name = id->_name;
+
+      /// struct body
+      if (at(p->_end_index)->value == "{") {
+        auto comp_stmt = next_expression(p->_end_index);
+        if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error("Invalid struct body"); }
+        p->_children = comp_stmt->_children;
+      }
+      break;
+    }
+    case ASTType::VAR_DECL:
+      ++p->_end_index; /// skip 'var'
+      // fallthrough
+    case ASTType::ARG_DECL: {
+      /// var name
+      auto name_token = at(p->_end_index);
+      p->_name = name_token->value;
+      ++p->_end_index;
+      if (at(p->_end_index)->value == ":") {
+        ++p->_end_index;
+        /// type
+        auto ty = ast_create_ty(_cs);
+        ty->_token = at(p->_end_index);
+        ty->_end_index = ty->_start_index = p->_end_index;
+        ty->_is_lvalue = true;
+        p->_end_index = parse_node(ty);
+        p->_ty = ty;
+      } else { p->_ty = nullptr; }
     }
     case ASTType::FUNC_DECL: {
       if (at(p->_start_index)->value == "fn") {
@@ -506,41 +558,6 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         p->_end_index = parse_node(body);
         p->_children.push_back(body);
         _cs->pop_scope();
-      }
-      break;
-    }
-    case ASTType::TY: {
-      Token *token;
-      ASTTyPtr pt = ast_cast<ASTTy>(p);
-      TAN_ASSERT(pt);
-      while (!eof(p->_end_index)) {
-        token = at(p->_end_index);
-        if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
-          pt->_tyty = TY_OR(pt->_tyty, basic_tys[token->value]);
-        } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
-          if (token->value == "*") { /// pointer
-            /// swap self and child
-            auto sub = std::make_shared<ASTTy>(*pt);
-            pt->_tyty = Ty::POINTER;
-            pt->_children.clear(); /// clear but memory stays
-            pt->_children.push_back(sub);
-          }
-        } else if (token->type == TokenType::ID) { /// struct or enum
-          // TODO: identify type aliases
-          pt->_type_name = token->value;
-          auto ty = ast_cast<ASTTy>(_cs->get(pt->_type_name));
-          if (ty) { *pt = *ty; }
-          else { error("Invalid type name"); }
-        } else if (token->value == "[") {
-          pt->_tyty = Ty::ARRAY;
-          pt->_end_index = parse_ty_array(pt);
-          break;
-        } else if (token->value == "struct") {
-          pt->_tyty = Ty::STRUCT;
-          pt->_end_index = parse_ty_struct(pt);
-          break;
-        } else { break; }
-        ++pt->_end_index;
       }
       break;
     }

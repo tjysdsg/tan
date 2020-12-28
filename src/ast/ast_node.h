@@ -47,6 +47,7 @@ enum class ASTType {
   FUNC_CALL,
   ARG_DECL,
   VAR_DECL,
+  STRUCT_DECL,
   ENUM_DECL,
   ENUM_VAL,
   STATEMENT,   /// statement or compound statements
