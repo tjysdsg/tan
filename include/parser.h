@@ -30,7 +30,7 @@ public:
   [[nodiscard]] Token *at(const size_t idx) const;
   [[nodiscard]] str get_filename() const;
   void error(const str &error_message);
-  void error(size_t i, const str &error_message);
+  void error(size_t i, const str &error_message) const;
 
 private:
   size_t parse_ty_array(const ASTTyPtr &p);

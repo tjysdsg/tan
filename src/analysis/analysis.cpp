@@ -1,4 +1,5 @@
-#include <src/ast/ast_member_access.h>
+#include "src/ast/ast_member_access.h"
+#include "src/ast/ast_control_flow.h"
 #include "src/analysis/analysis.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
@@ -171,6 +172,11 @@ ASTNodePtr ast_create_member_access(CompilerSession *cs) {
 
 ASTNodePtr ast_create_if(CompilerSession *) {
   auto ret = make_ptr<ASTIf>(ASTType::IF, op_precedence[ASTType::IF]);
+  return ret;
+}
+
+ASTNodePtr ast_create_else(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::ELSE, op_precedence[ASTType::ELSE]);
   return ret;
 }
 

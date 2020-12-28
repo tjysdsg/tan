@@ -327,6 +327,13 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       }
       break;
     }
+    case ASTType::ELSE: {
+      ++p->_end_index; /// skip "else"
+      auto else_clause = peek(p->_end_index);
+      p->_end_index = parse_node(else_clause);
+      p->_children.push_back(else_clause);
+      break;
+    }
       ////////////////////////// prefix ////////////////////////////////
     case ASTType::ADDRESS_OF:
     case ASTType::LNOT:
@@ -667,5 +674,5 @@ void Parser::error(const str &error_message) {
   } else { report_error(error_message); }
 }
 
-void Parser::error(size_t i, const str &error_message) { report_error(get_filename(), at(i), error_message); }
+void Parser::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
 

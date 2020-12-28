@@ -571,6 +571,11 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::PARENTHESIS:
       ret = codegen_parenthesis(cs, p);
       break;
+
+      /////////////////// trivial codegen /////////////////
+    case ASTType::ELSE:
+      cs->set_current_debug_location(p->_token->l, p->_token->c);
+      // fallthrough
     case ASTType::ID:
       ret = codegen(cs, p->_children[0]);
       break;

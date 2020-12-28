@@ -48,6 +48,7 @@ ASTNodePtr ast_create_not(CompilerSession *cs);
 
 /// \subsection Keywords
 ASTNodePtr ast_create_if(CompilerSession *cs);
+ASTNodePtr ast_create_else(CompilerSession *cs);
 
 /// \subsection Others
 
