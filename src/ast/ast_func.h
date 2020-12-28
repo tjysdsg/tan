@@ -34,8 +34,6 @@ public:
     _is_external = false;
     _is_public = false;
   };
-  [[nodiscard]] llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
-  // TODO: implement function type
 
   [[nodiscard]] ASTNodePtr get_ret() const { return _children[0]; }
   [[nodiscard]] ASTNodePtr get_arg(size_t i) const { return _children[i + 1]; }
