@@ -98,8 +98,11 @@ ASTNodePtr Parser::peek(size_t &index) {
     node = ast_create_char_literal(_cs);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
-    if (next->value == "(") { node = std::make_shared<ASTFunctionCall>(token, index); }
-    else { node = ast_create_identifier(_cs, token->value); }
+    if (next->value == "(") {
+      node = ast_create_func_call(_cs);
+    } else {
+      node = ast_create_identifier(_cs, token->value);
+    }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = ast_create_parenthesis(_cs);
   } else if (token->type == TokenType::KEYWORD) { /// keywords
@@ -343,7 +346,27 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       p->_children.push_back(rhs);
       break;
     }
-      ////////////////////////////////////////////////////////////////
+      ////////////////////////// others /////////////////////////////////
+    case ASTType::FUNC_CALL: {
+      /// function name
+      p->_name = at(p->_end_index)->value;
+      ++p->_end_index;
+
+      // No need to check since '(' is what distinguish a function call from an identifier at the first place
+      // auto *token = at(p->_end_index); if (token->value != "(") { error("Invalid function call"); }
+      ++p->_end_index; /// skip (
+
+      /// args
+      while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
+        p->_children.push_back(next_expression(p->_end_index));
+        if (at(p->_end_index)->value == ",") { /// skip ,
+          ++p->_end_index;
+        } else { break; }
+      }
+      peek(p->_end_index, TokenType::PUNCTUATION, ")");
+      ++p->_end_index;
+      break;
+    }
     case ASTType::VAR_DECL:
       ++p->_end_index; /// skip 'var'
       // fallthrough
@@ -491,7 +514,6 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
     case ASTType::STRING_LITERAL:
       ++p->_end_index;
       break;
-      /////////////////////////////////////////////////////////////////////////////////////////
     default:
       break;
   }

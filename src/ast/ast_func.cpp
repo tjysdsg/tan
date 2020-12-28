@@ -1,4 +1,3 @@
-#include "src/ast/ast_identifier.h"
 #include "src/ast/ast_ty.h"
 #include "parser.h"
 #include "reader.h"
@@ -149,24 +148,6 @@ Value *ASTFunctionCall::_codegen(CompilerSession *cs) {
   }
   _llvm_value = cs->_builder->CreateCall(get_callee()->get_func(), arg_vals);
   return _llvm_value;
-}
-
-size_t ASTFunctionCall::nud() {
-  if (_parsed) { return _end_index; }
-  _end_index = _start_index + 1; /// skip function name
-  auto *token = _parser->at(_end_index);
-  if (token->value != "(") { error(_end_index, "Invalid function call"); }
-  ++_end_index;
-  while (!_parser->eof(_end_index) && _parser->at(_end_index)->value != ")") {
-    _children.push_back(_parser->next_expression(_end_index));
-    if (_parser->at(_end_index)->value == ",") { /// skip ,
-      ++_end_index;
-    } else { break; }
-  }
-  _parser->peek(_end_index, TokenType::PUNCTUATION, ")");
-  ++_end_index;
-  if (_do_resolve) { resolve(); }
-  return _end_index;
 }
 
 ASTFunctionPtr ASTFunctionCall::get_callee() {

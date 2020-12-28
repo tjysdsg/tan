@@ -199,6 +199,14 @@ ASTNodePtr ast_create_parenthesis(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_func_call(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::FUNC_CALL, 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  ret->_is_named = true;
+  return ret;
+}
+
 ASTTyPtr ast_create_ty(CompilerSession *) {
   auto ret = make_ptr<ASTTy>();
   ret->_is_typed = true;
