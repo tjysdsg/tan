@@ -180,6 +180,11 @@ ASTNodePtr ast_create_else(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_loop(CompilerSession *) {
+  auto ret = make_ptr<ASTLoop>();
+  return ret;
+}
+
 ASTNodePtr ast_create_program(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0);
   return ret;

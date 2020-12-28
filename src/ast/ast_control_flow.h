@@ -2,6 +2,10 @@
 #define __TAN_SRC_AST_AST_CONTROL_FLOW_H__
 #include "src/ast/ast_node.h"
 
+namespace llvm {
+class BasicBlock;
+}
+
 namespace tanlang {
 
 class ASTIf : public ASTNode {
@@ -11,6 +15,18 @@ public:
 
 public:
   bool _has_else = false;
+};
+
+enum class ASTLoopType { FOR, WHILE };
+
+class ASTLoop final : public ASTNode {
+public:
+  ASTLoop() : ASTNode(ASTType::LOOP, 0) {}
+
+public:
+  ASTLoopType _loop_type = ASTLoopType::WHILE;
+  llvm::BasicBlock *_loop_start = nullptr;
+  llvm::BasicBlock *_loop_end = nullptr;
 };
 
 } // namespace tanlang

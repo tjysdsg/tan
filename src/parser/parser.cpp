@@ -303,7 +303,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       }
       break;
     }
-      ////////////////////////// keywords ////////////////////////////////
+      ////////////////////////// control flow ////////////////////////////////
     case ASTType::IF: {
       auto pif = ast_cast<ASTIf>(p);
       TAN_ASSERT(pif);
@@ -332,6 +332,35 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       auto else_clause = peek(p->_end_index);
       p->_end_index = parse_node(else_clause);
       p->_children.push_back(else_clause);
+      break;
+    }
+    case ASTType::LOOP: {
+      auto pl = ast_cast<ASTLoop>(p);
+      TAN_ASSERT(pl);
+      if (at(p->_end_index)->value == "for") {
+        // TODO: implement for loop
+        pl->_loop_type = ASTLoopType::FOR;
+        TAN_ASSERT(false);
+      } else if (at(p->_end_index)->value == "while") {
+        pl->_loop_type = ASTLoopType::WHILE;
+      } else {
+        TAN_ASSERT(false);
+      }
+      ++p->_end_index; /// skip while/for
+      switch (pl->_loop_type) {
+        case ASTLoopType::WHILE:
+          peek(p->_end_index, TokenType::PUNCTUATION, "(");
+          p->_children.push_back(next_expression(p->_end_index)); /// condition
+          peek(p->_end_index, TokenType::PUNCTUATION, "{");
+          p->_children.push_back(next_expression(p->_end_index)); /// loop body
+          break;
+        case ASTLoopType::FOR:
+          // TODO: implement for loop
+          TAN_ASSERT(false);
+          break;
+        default:
+          break;
+      }
       break;
     }
       ////////////////////////// prefix ////////////////////////////////

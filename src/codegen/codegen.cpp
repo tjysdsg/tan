@@ -299,6 +299,62 @@ static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
+static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  auto prev_loop = cs->get_current_loop();
+  auto pl = ast_cast<ASTLoop>(p);
+  TAN_ASSERT(pl);
+
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  cs->set_current_loop(pl);
+  if (pl->_loop_type == ASTLoopType::WHILE) {
+    /*
+     * Results should like this:
+     *
+     * ...
+     * loop:
+     *    exit condition check, goto 'loop_body' or 'after_loop'
+     * loop_body:
+     *    ...
+     *    goto 'loop'
+     * after_loop:
+     *    ...
+     * */
+
+    Function *func = builder->GetInsertBlock()->getParent();
+
+    /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
+    /// use these two (get_loop_start() and get_loop_end())
+    pl->_loop_start = BasicBlock::Create(*cs->get_context(), "loop", func);
+    BasicBlock *loop_body = BasicBlock::Create(*cs->get_context(), "loop_body", func);
+    pl->_loop_end = BasicBlock::Create(*cs->get_context(), "after_loop", func);
+
+    /// start loop
+    // create a br instruction if there is no terminator instruction at the end of this block
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(pl->_loop_start); }
+
+    /// condition
+    builder->SetInsertPoint(pl->_loop_start);
+    auto *cond = codegen(cs, p->_children[0]);
+    if (!cond) { error(cs, "Expected a condition expression"); }
+    cond = TypeSystem::ConvertTo(cs, cond, p->_children[0]->_ty, create_ty(cs, Ty::BOOL));
+    builder->CreateCondBr(cond, loop_body, pl->_loop_end);
+
+    /// loop body
+    builder->SetInsertPoint(loop_body);
+    codegen(cs, p->_children[1]);
+
+    /// go back to the start of the loop
+    // create a br instruction if there is no terminator instruction at the end of this block
+    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(pl->_loop_start); }
+
+    /// end loop
+    builder->SetInsertPoint(pl->_loop_end);
+  } else { TAN_ASSERT(false); }
+  cs->set_current_loop(prev_loop); /// restore the outer loop
+  return nullptr;
+}
+
 static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
   // TODO: update cs->_current_token
   auto *builder = cs->_builder;
@@ -560,6 +616,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::IF:
       ret = codegen_if(cs, p);
+      break;
+    case ASTType::LOOP:
+      ret = codegen_loop(cs, p);
       break;
     case ASTType::VAR_DECL:
     case ASTType::ARG_DECL:
