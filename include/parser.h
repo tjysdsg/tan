@@ -32,7 +32,11 @@ public:
   void error(const str &error_message);
   void error(size_t i, const str &error_message);
 
-protected:
+private:
+  size_t parse_ty_array(const ASTTyPtr &p);
+  size_t parse_ty_struct(const ASTTyPtr &p);
+
+private:
   vector<Token *> _tokens{};
   str _filename = "";
   CompilerSession *_cs = nullptr;

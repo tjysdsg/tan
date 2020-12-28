@@ -7,10 +7,8 @@ namespace tanlang {
 
 /// \section General
 
-str get_name(ASTNodePtr p);
 size_t get_n_children(ASTNodePtr p);
 bool is_lvalue(ASTNodePtr p);
-bool is_lvalue(ASTTyPtr p);
 ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p);
 
 /// \section AST factories

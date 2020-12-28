@@ -17,7 +17,7 @@ class CompilerSession;
 [[noreturn]] void report_error(const str &source, size_t line, size_t col, const str &error_message);
 [[noreturn]] void report_error(const str &filename, Token *token, const str &error_message);
 
-void error(CompilerSession *cs, const str &error_message);
+[[noreturn]] void error(CompilerSession *cs, const str &error_message);
 
 } // namespace tanlang
 

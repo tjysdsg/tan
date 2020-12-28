@@ -13,6 +13,7 @@
 #include <memory>
 
 using namespace tanlang;
+// TODO: move type resolving and other stuff to analysis phase
 
 Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
@@ -142,6 +143,82 @@ ASTNodePtr Parser::next_expression(size_t &index, int rbp) {
     if (!node) { break; }
   }
   return left;
+}
+
+/// current token should be "[" when this is called.
+size_t Parser::parse_ty_array(const ASTTyPtr &p) {
+  ++p->_end_index; /// skip "["
+  ASTNodePtr element = nullptr;
+  /// element type
+  if (at(p->_end_index)->value == "]") { /// empty
+    error("The array type and size must be specified");
+  } else {
+    element = peek(p->_end_index);
+    if (element->_type != ASTType::TY) { error("Expect a type"); }
+    p->_end_index = parse_node(element);
+  }
+  peek(p->_end_index, TokenType::PUNCTUATION, ",");
+  ++p->_end_index; /// skip ","
+
+  /// size
+  ASTTyPtr ety = ast_cast<ASTTy>(element);
+  TAN_ASSERT(ety);
+  auto size = peek(p->_end_index);
+  if (size->_type != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
+  p->_end_index = parse_node(size);
+  if (size->_ty->_is_float || static_cast<int64_t>(std::get<uint64_t>(size->_value)) < 0) {
+    error(p->_end_index, "Expect an unsigned integer");
+  }
+  p->_array_size = std::get<uint64_t>(size->_value);
+  p->_children.push_back(ety);
+  /// set _type_name to '[<element type>, <n_elements>]'
+  p->_type_name = "[" + p->_type_name + ", " + std::to_string(p->_array_size) + "]";
+  ++p->_end_index; /// skip "]"
+  return p->_end_index;
+}
+
+size_t Parser::parse_ty_struct(const ASTTyPtr &p) {
+  ++p->_end_index; /// skip "struct"
+  /// struct typename
+  auto id = peek(p->_end_index);
+  if (id->_type != ASTType::ID) { error("Expecting a typename"); }
+  p->_type_name = id->_name;
+
+  auto forward_decl = _cs->get(p->_type_name);
+  if (!forward_decl) {
+    _cs->add(p->_type_name, p); /// add type to current scope
+  } else {
+    /// replace forward decl with p (even if p is a forward declaration too)
+    _cs->set(p->_type_name, p);
+  }
+
+  /// struct body
+  if (at(p->_end_index)->value == "{") {
+    auto comp_stmt = next_expression(p->_end_index);
+    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) { error("Invalid struct body"); }
+
+    /// resolve_ty member names and types
+    auto members = comp_stmt->_children;
+    ASTNodePtr var_decl = nullptr;
+    size_t n = comp_stmt->_children.size();
+    p->_member_names.reserve(n);
+    p->_children.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
+        var_decl = members[i];
+        p->_children.push_back(var_decl->_ty);
+      } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
+        var_decl = members[i]->_children[0];
+        auto initial_value = members[i]->_children[1];
+        // TODO: check if value is compile-time known
+        p->_children.push_back(initial_value->_ty); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+      } else { error("Invalid struct member"); }
+      auto name = var_decl->_name;
+      p->_member_names.push_back(name);
+      p->_member_indices[name] = i;
+    }
+  } else { p->_is_forward_decl = true; }
+  return p->_end_index;
 }
 
 size_t Parser::parse_node(const ASTNodePtr &p) {
@@ -372,9 +449,41 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       }
       break;
     }
-    case ASTType::TY:
-      // TODO
+    case ASTType::TY: {
+      Token *token;
+      ASTTyPtr pt = ast_cast<ASTTy>(p);
+      TAN_ASSERT(pt);
+      while (!eof(p->_end_index)) {
+        token = at(p->_end_index);
+        if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
+          pt->_tyty = TY_OR(pt->_tyty, basic_tys[token->value]);
+        } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
+          if (token->value == "*") { /// pointer
+            /// swap self and child
+            auto sub = std::make_shared<ASTTy>(*pt);
+            pt->_tyty = Ty::POINTER;
+            pt->_children.clear(); /// clear but memory stays
+            pt->_children.push_back(sub);
+          }
+        } else if (token->type == TokenType::ID) { /// struct or enum
+          // TODO: identify type aliases
+          pt->_type_name = token->value;
+          auto ty = ast_cast<ASTTy>(_cs->get(pt->_type_name));
+          if (ty) { *pt = *ty; }
+          else { error("Invalid type name"); }
+        } else if (token->value == "[") {
+          pt->_tyty = Ty::ARRAY;
+          pt->_end_index = parse_ty_array(pt);
+          break;
+        } else if (token->value == "struct") {
+          pt->_tyty = Ty::STRUCT;
+          pt->_end_index = parse_ty_struct(pt);
+          break;
+        } else { break; }
+        ++pt->_end_index;
+      }
       break;
+    }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTType::ID:
     case ASTType::NUM_LITERAL:

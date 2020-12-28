@@ -12,8 +12,6 @@ ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p) { return cs->get(p
 
 /// \section General
 
-str get_name(ASTNodePtr p) { return p->_name; }
-
 size_t get_n_children(ASTNodePtr p) { return p->_children.size(); }
 
 /// \section Factory
@@ -514,19 +512,21 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::NE:
       p->_ty = create_ty(cs, Ty::BOOL);
       break;
-    case ASTType::ASSIGN:
+    case ASTType::ASSIGN: {
       p->_ty = p->_children[0]->_ty;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
         error(cs, "Cannot perform implicit type conversion");
       }
       break;
-    case ASTType::CAST:
+    }
+    case ASTType::CAST: {
       p->_ty = make_ptr<ASTTy>(*p->_children[1]->_ty);
       p->_ty->_is_lvalue = p->_children[0]->_ty->_is_lvalue;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[0]->_ty) != 0) {
         error(cs, "Cannot perform implicit type conversion");
       }
       break;
+    }
       /////////////////////////// unary ops ////////////////////////////////////
     case ASTType::LNOT:
       p->_ty = create_ty(cs, Ty::BOOL);
@@ -534,10 +534,11 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::BNOT:
       p->_ty = p->_children[0]->_ty;
       break;
-    case ASTType::ADDRESS_OF:
+    case ASTType::ADDRESS_OF: {
       if (!(p->_ty = p->_children[0]->_ty)) { error(cs, "Invalid operand"); }
       p->_ty = get_ptr_to(cs, p->_ty);
       break;
+    }
     case ASTType::ID: {
       auto referred = get_id_referred(cs, p);
       p->_children.push_back(referred);
@@ -554,11 +555,13 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
-    case ASTType::CHAR_LITERAL:
+    case ASTType::CHAR_LITERAL: {
       p->_ty = create_ty(cs, Ty::CHAR, {});
       p->_value = static_cast<uint64_t>(p->_token->value[0]);
       p->_ty->_default_value = std::get<uint64_t>(p->_value);
-    case ASTType::NUM_LITERAL:
+      break;
+    }
+    case ASTType::NUM_LITERAL: {
       if (p->_token->type == TokenType::INT) {
         auto tyty = Ty::INT;
         if (p->_token->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
@@ -567,6 +570,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
         p->_ty = create_ty(cs, Ty::FLOAT);
       }
       break;
+    }
     case ASTType::ARRAY_LITERAL: {
       vector<ASTNodePtr> sub_tys{};
       sub_tys.reserve(p->_children.size());
@@ -607,6 +611,12 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
         auto f_body = p->_children[n - 1];
         if (!p->_is_external) { f_body->_scope = cs->push_scope(); }
       }
+      break;
+    }
+    case ASTType::TY: {
+      ASTTyPtr pt = ast_cast<ASTTy>(p);
+      TAN_ASSERT(pt);
+      resolve_ty(cs, pt);
       break;
     }
       /////////////////////// trivially analysed /////////////////////////////
