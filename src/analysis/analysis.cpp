@@ -551,6 +551,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       p->_ty = referred->_ty;
       break;
     }
+    case ASTType::ARG_DECL:
     case ASTType::VAR_DECL: {
       auto type = p->_children[0];
       auto ty = type->_ty;

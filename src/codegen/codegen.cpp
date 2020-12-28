@@ -244,6 +244,7 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
     default:
       TAN_ASSERT(false);
   }
+  p->_llvm_value = ret;
   return ret;
 }
 
@@ -421,14 +422,21 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::FUNC_CALL:
       ret = codegen_func_call(cs, p);
       break;
+    case ASTType::IF:
+      ret = codegen_if(cs, p);
+      break;
+    case ASTType::VAR_DECL:
+    case ASTType::ARG_DECL:
+      ret = codegen_var_arg_decl(cs, p);
+      break;
     case ASTType::TY:
-      ret = p->_llvm_value = codegen_ty(cs, ast_cast<ASTTy>(p));
+      ret = codegen_ty(cs, ast_cast<ASTTy>(p));
       break;
     case ASTType::PARENTHESIS:
-      ret = p->_llvm_value = codegen_parenthesis(cs, p);
+      ret = codegen_parenthesis(cs, p);
       break;
     case ASTType::ID:
-      ret = p->_llvm_value = codegen(cs, p->_children[0]);
+      ret = codegen(cs, p->_children[0]);
       break;
     default:
       break;

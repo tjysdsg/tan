@@ -34,12 +34,12 @@ public:
     _is_external = false;
     _is_public = false;
   };
-  llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
+  [[nodiscard]] llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
   // TODO: implement function type
 
-  ASTNodePtr get_ret() const { return _children[0]; }
-  ASTNodePtr get_arg(size_t i) const { return _children[i + 1]; }
-  size_t get_n_args() const { return _children.size() - 1; }
+  [[nodiscard]] ASTNodePtr get_ret() const { return _children[0]; }
+  [[nodiscard]] ASTNodePtr get_arg(size_t i) const { return _children[i + 1]; }
+  [[nodiscard]] size_t get_n_args() const { return _children.size() - 1; }
 
 public:
   llvm::Function *_func = nullptr;
