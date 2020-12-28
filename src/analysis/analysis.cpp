@@ -551,6 +551,71 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       }
       break;
     }
+    case ASTType::MEMBER_ACCESS: {
+      auto lhs = p->_children[0];
+      auto pma = ast_cast<ASTMemberAccess>(p);
+      TAN_ASSERT(pma);
+
+      if (pma->_access_type == MemberAccessType::MemberAccessDeref) { /// pointer dereference
+        // TODO: resolve_ptr_deref(lhs);
+      } else if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
+        auto rhs = p->_children[1];
+        ASTTyPtr ty = lhs->_ty;
+        if (!ty->_is_ptr) { error(cs, "Expect a pointer or an array"); }
+        ty = std::make_shared<ASTTy>(*get_contained_ty(cs, ty));
+        ty->_is_lvalue = true;
+        if (!ty) { error(cs, "Unable to perform bracket access"); }
+        p->_ty = ty;
+        if (rhs->_type == ASTType::NUM_LITERAL) {
+          if (!rhs->_ty->_is_int) { error(cs, "Expect an integer specifying array size"); }
+          auto size = std::get<uint64_t>(rhs->_value); // underflow
+          if (rhs->_ty->_is_array && size >= lhs->_ty->_array_size) {
+            error(cs,
+                "Index " + std::to_string(size) + " out of bound, the array size is "
+                    + std::to_string(lhs->_ty->_array_size));
+          }
+        }
+      } else if (p->_children[1]->_type == ASTType::ID) { /// member variable or enum
+        auto rhs = p->_children[1];
+        if (lhs->_ty->_is_enum) {
+          pma->_access_type = MemberAccessType::MemberAccessEnumValue;
+          auto enum_ = ast_cast<ASTEnum>(lhs->_ty);
+          p->_ty = enum_;
+          _enum_value = enum_->get_enum_value(rhs->_name);
+        } else {
+          pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
+          if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) { error(cs, "Invalid left-hand operand"); }
+          str m_name = rhs->_name;
+          std::shared_ptr<ASTTy> struct_ast = nullptr;
+          /// auto dereference pointers
+          if (lhs->_ty->_is_ptr) {
+            struct_ast = ast_cast<ASTTy>(cs->get(get_contained_ty(cs, lhs->_ty)->_type_name));
+          } else {
+            struct_ast = ast_cast<ASTTy>(cs->get(lhs->_ty->_type_name));
+          }
+          TAN_ASSERT(struct_ast);
+          pma->_access_idx = get_struct_member_index(cs, struct_ast, m_name);
+          auto member = struct_ast->_children[pma->_access_idx];
+          p->_ty = std::make_shared<ASTTy>(*member->_ty);
+          p->_ty->_is_lvalue = true;
+        }
+      } else if (pma->_access_type == MemberAccessType::MemberAccessMemberFunction) { /// method call
+        auto rhs = p->_children[1];
+        if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
+          error(cs, "Method calls require left-hand operand to be an lvalue or a pointer");
+        }
+        /// auto dereference pointers
+        if (lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
+          rhs->_children.insert(rhs->_children.begin(), create_address_of(lhs));
+        } else {
+          rhs->_children.insert(rhs->_children.begin(), lhs);
+        }
+        /// TODO: postpone analysis of FUNC_CALL until now
+        analyze(cs, rhs);
+        p->_ty = rhs->_ty;
+      } else { error(cs, "Invalid right-hand operand"); }
+      break;
+    }
       /////////////////////////// unary ops ////////////////////////////////////
     case ASTType::RET:
       // TODO: check if return type can be implicitly cast to function return type
@@ -613,6 +678,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::FUNC_CALL: {
       std::vector<ASTNodePtr> args(p->_children.begin() + 1, p->_children.end());
       p->_children[0] = ASTFunction::GetCallee(nullptr, p->_name, args);
+      p->_ty = p->_children[0]->_ty;
       break;
     }
     case ASTType::TY: {

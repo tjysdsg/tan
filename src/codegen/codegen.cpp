@@ -197,7 +197,7 @@ static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
   auto *builder = cs->_builder;
-  resolve_ty(cs, p); // TODO: move this to analysis phase
+  TAN_ASSERT(p->_resolved);
   Ty base = TY_GET_BASE(p->_tyty);
   Value *ret = nullptr;
   Type *type = to_llvm_type(cs, p);

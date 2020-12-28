@@ -597,79 +597,25 @@ size_t Parser::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
       ++p->_end_index; /// skip "." or "["
       p->_children.push_back(left); /// lhs
       auto right = peek(p->_end_index);
-      if (pma->_access_type != MemberAccessType::MemberAccessBracket && right->_token->value == "*") {
-        /// pointer dereference
-        pma->_access_type = MemberAccessType::MemberAccessDeref;
-        ++p->_end_index;
-      } else {
-        p->_end_index = parse_node(right);
-        p->_children.push_back(right);
-      }
-      // TODO: member function call, (insert 'self' as the first arg)
-      // if (right->_type != ASTType::FUNC_CALL)
+      p->_end_index = parse_node(right);
+      p->_children.push_back(right);
 
       if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
-        auto rhs = p->_children[1];
-        ++p->_end_index; /// skip "]" if this is a bracket access
-        ASTTyPtr ty = left->_ty;
-        TAN_ASSERT(ty->_is_ptr);
-        ty = std::make_shared<ASTTy>(*get_contained_ty(_cs, ty));
-        ty->_is_lvalue = true;
-        if (!ty) { error("Unable to perform bracket access"); }
-        p->_ty = ty;
-        // TODO
-        //  if (rhs->_type == ASTType::NUM_LITERAL) {
-        //    if (!rhs->_ty->_is_int) { error("Expect an integer specifying array size"); }
-        //    if (left->_ty->_is_array
-        //        && (size_t) /* underflow */ std::get<uint64_t>(rhs->_value) >= left->_ty->get_n_elements()) {
-        //      error("Index " + std::to_string(size->_ivalue) + " out of bound, the array size is "
-        //          + std::to_string(left->get_ty()->get_n_elements()));
-        //    }
-        //  }
-      } else if (pma->_access_type == MemberAccessType::MemberAccessDeref) { /// pointer dereference
-        resolve_ptr_deref(left);
-      } else if (p->_children[1]->_type == ASTType::ID) { /// member variable or enum
-        if (left->_ty->_is_enum) {
-          pma->_access_type = MemberAccessType::MemberAccessEnumValue;
-          auto enum_ = ast_cast<ASTEnum>(left->_ty);
-          p->_ty = enum_;
-          _enum_value = enum_->get_enum_value(p->_children[1]->_name);
-        } else {
-          pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
-          if (!left->_ty->_is_lvalue && !left->_ty->_is_ptr) { error("Invalid left-hand operand"); }
-          auto rhs = p->_children[1];
-          str m_name = rhs->_name;
-          std::shared_ptr<ASTTy> struct_ast = nullptr;
-          /// auto dereference pointers
-          if (left->_ty->_is_ptr) {
-            struct_ast = ast_cast<ASTTy>(_cs->get(left->_ty->get_contained_ty()->get_type_name()));
-          } else {
-            struct_ast = ast_cast<ASTTy>(_cs->get(left->_ty->_type_name));
-          }
-          pma->_access_idx = struct_ast->get_member_index(m_name);
-          auto member = struct_ast->get_member(pma->_access_idx);
-          p->_ty = std::make_shared<ASTTy>(*member->get_ty());
-          p->_ty->_is_lvalue = true;
-        }
-      } else if (p->_children[1]->_type == ASTType::FUNC_CALL) { /// method call
-        /// TODO: make `self` reference instead of pointer
-        auto func = ast_cast<ASTFunctionCall>(p->_children[1]);
-        TAN_ASSERT(func);
-        func->_do_resolve = false;
-        p->_end_index = parse_node(_cs, func);
-        if (!left->_ty->_is_lvalue && !left->_ty->_is_ptr) {
-          error("Method calls require left-hand operand to be an lvalue or a pointer");
-        }
-        /// auto dereference pointers
-        if (left->_ty->_is_lvalue && !left->_ty->_is_ptr) {
-          func->_children.insert(func->_children.begin(), ASTAmpersand::CreateAddressOf(left));
-        } else {
-          func->_children.insert(func->_children.begin(), left);
-        }
-        func->resolve();
-        p->_ty = func->_ty;
+        ++p->_end_index; /// skip ]
+      } else if (pma->_access_type != MemberAccessType::MemberAccessBracket && right->_token->value == "*") {
+        /// pointer dereference
+        pma->_access_type = MemberAccessType::MemberAccessDeref;
+        ++p->_end_index; /// skip *
+      } else if (right->_type == ASTType::FUNC_CALL) { /// method call
         pma->_access_type = MemberAccessType::MemberAccessMemberFunction;
-      } else { error("Invalid right-hand operand"); }
+      }
+
+      if (!(pma->_access_type == MemberAccessType::MemberAccessMemberFunction /// method call
+          || pma->_access_type == MemberAccessType::MemberAccessDeref /// pointer dereference
+          || right->_type == ASTType::ID /// member variable or enum
+      )) {
+        error("Invalid right-hand operand");
+      }
       break;
     }
     case ASTType::BAND:
