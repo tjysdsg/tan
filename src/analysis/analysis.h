@@ -51,6 +51,9 @@ ASTNodePtr ast_create_not(CompilerSession *cs);
 ASTNodePtr ast_create_if(CompilerSession *cs);
 ASTNodePtr ast_create_else(CompilerSession *cs);
 ASTNodePtr ast_create_loop(CompilerSession *cs);
+ASTNodePtr ast_create_break(CompilerSession *cs);
+ASTNodePtr ast_create_continue(CompilerSession *cs);
+
 
 /// \subsection Others
 

@@ -299,6 +299,20 @@ static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
+static Value *codegen_break_continue(CompilerSession *cs, ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  auto loop = cs->get_current_loop();
+  if (!loop) { error(cs, "Any break/continue statement must be inside loop"); }
+  auto s = loop->_loop_start;
+  auto e = loop->_loop_end;
+  if (p->_type == ASTType::BREAK) {
+    builder->CreateBr(e);
+  } else if (p->_type == ASTType::CONTINUE) {
+    builder->CreateBr(s);
+  } else { TAN_ASSERT(false); }
+  return nullptr;
+}
+
 static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   auto prev_loop = cs->get_current_loop();
@@ -616,6 +630,10 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::IF:
       ret = codegen_if(cs, p);
+      break;
+    case ASTType::CONTINUE:
+    case ASTType::BREAK:
+      ret = codegen_break_continue(cs, p);
       break;
     case ASTType::LOOP:
       ret = codegen_loop(cs, p);

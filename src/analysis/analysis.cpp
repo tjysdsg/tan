@@ -186,6 +186,16 @@ ASTNodePtr ast_create_loop(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_break(CompilerSession *cs) {
+  auto ret = make_ptr<ASTNode>(ASTType::BREAK, 0);
+  return ret;
+}
+
+ASTNodePtr ast_create_continue(CompilerSession *cs) {
+  auto ret = make_ptr<ASTNode>(ASTType::CONTINUE, 0);
+  return ret;
+}
+
 ASTNodePtr ast_create_program(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0);
   return ret;
@@ -671,6 +681,8 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       }
       break;
     }
+      // TODO: cs->set_current_loop(pl) // case ASTType::LOOP:
+      // TODO: cs->get_current_loop() // case ASTType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
     case ASTType::PARENTHESIS:
       p->_ty = p->_children[0]->_ty;

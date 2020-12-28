@@ -18,7 +18,7 @@ enum class TokenType;
 class Parser final {
 public:
   Parser() = delete;
-  Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs);
+  Parser(vector<Token *> tokens, str filename, CompilerSession *cs);
   ASTNodePtr peek(size_t &index);
   ASTNodePtr peek(size_t &index, TokenType type, const str &value);
   ASTNodePtr peek_keyword(Token *token, size_t &index);

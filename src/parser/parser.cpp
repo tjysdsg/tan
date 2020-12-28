@@ -11,12 +11,13 @@
 #include "intrinsic.h"
 #include "token.h"
 #include <memory>
+#include <utility>
 
 using namespace tanlang;
 // TODO: move type resolving and other stuff to analysis phase
 
-Parser::Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs)
-    : _tokens(std::move(tokens)), _filename(filename), _cs(cs) {}
+Parser::Parser(vector<Token *> tokens, str filename, CompilerSession *cs)
+    : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
 
 ASTNodePtr Parser::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
@@ -32,30 +33,43 @@ ASTNodePtr Parser::peek_keyword(Token *token, size_t &index) {
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
       ret = ast_create_var_decl(_cs);
+      break;
     case "enum"_hs:
       ret = ast_create_enum(_cs);
+      break;
     case "fn"_hs:
     case "pub"_hs:
     case "extern"_hs:
       ret = ast_create_func_decl(_cs);
+      break;
     case "import"_hs:
       ret = ast_create_import(_cs);
+      break;
     case "if"_hs:
       ret = ast_create_if(_cs);
+      break;
     case "else"_hs:
       ret = ast_create_else(_cs);
+      break;
     case "return"_hs:
       ret = ast_create_return(_cs);
+      break;
     case "while"_hs:
     case "for"_hs:
       ret = ast_create_loop(_cs);
+      break;
     case "struct"_hs:
       ret = ast_create_struct_decl(_cs);
+      break;
     case "break"_hs:
+      ret = ast_create_break(_cs);
+      break;
     case "continue"_hs:
-      ret = ast_create_break_or_continue(_cs);
+      ret = ast_create_continue(_cs);
+      break;
     case "as"_hs:
       ret = ast_create_cast(_cs);
+      break;
     default:
       return nullptr;
   }
@@ -562,6 +576,8 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       break;
     }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
+    case ASTType::BREAK:
+    case ASTType::CONTINUE:
     case ASTType::ID:
     case ASTType::NUM_LITERAL:
     case ASTType::CHAR_LITERAL:
