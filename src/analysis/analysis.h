@@ -36,6 +36,7 @@ ASTNodePtr ast_create_cast(CompilerSession *cs);
 ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
+ASTNodePtr ast_create_member_access(CompilerSession *cs);
 
 /// \subsection Unary ops
 

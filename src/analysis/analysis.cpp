@@ -1,3 +1,4 @@
+#include <src/ast/ast_member_access.h>
 #include "src/analysis/analysis.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
@@ -157,6 +158,13 @@ ASTNodePtr ast_create_comparison(CompilerSession *, const str &op) {
 
 ASTNodePtr ast_create_assignment(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::ASSIGN, op_precedence[ASTType::ASSIGN]);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_member_access(CompilerSession *cs) {
+  auto ret = make_ptr<ASTMemberAccess>(ASTType::MEMBER_ACCESS, op_precedence[ASTType::MEMBER_ACCESS]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
