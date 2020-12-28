@@ -11,11 +11,11 @@
 
 namespace tanlang {
 
-ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p) { return cs->get(p->_name); }
+ASTNodePtr get_id_referred(CompilerSession *cs, const ASTNodePtr &p) { return cs->get(p->_name); }
 
 /// \section General
 
-size_t get_n_children(ASTNodePtr p) { return p->_children.size(); }
+size_t get_n_children(const ASTNodePtr &p) { return p->_children.size(); }
 
 /// \section Factory
 
@@ -76,7 +76,7 @@ ASTNodePtr ast_create_var_decl(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
+ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty) {
   auto ret = ast_create_var_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
@@ -92,7 +92,7 @@ ASTNodePtr ast_create_arg_decl(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty) {
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty) {
   auto ret = ast_create_arg_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
@@ -271,7 +271,7 @@ ASTNodePtr ast_create_cast(CompilerSession *) {
 
 /// \section Types
 
-Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p) {
+Type *to_llvm_type(CompilerSession *cs, const ASTTyPtr &p) {
   auto *builder = cs->_builder;
   resolve_ty(cs, p);
   Ty base = TY_GET_BASE(p->_tyty);
@@ -323,11 +323,11 @@ Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p) {
   return type;
 }
 
-Metadata *to_llvm_meta(CompilerSession *cs, ASTTyPtr p) {
+Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
   // TODO
 }
 
-str get_type_name(ASTNodePtr p) { return p->_ty->_type_name; }
+str get_type_name(const ASTNodePtr &p) { return p->_ty->_type_name; }
 
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
   // TODO: cache
@@ -339,7 +339,7 @@ ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool i
   return ret;
 }
 
-void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
+void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
   Ty base = TY_GET_BASE(p->_tyty);
   Ty qual = TY_GET_QUALIFIER(p->_tyty);
   if (p->_resolved) {
@@ -491,11 +491,11 @@ void resolve_ty(CompilerSession *cs, ASTTyPtr p) {
   p->_resolved = true;
 }
 
-ASTTyPtr get_ptr_to(CompilerSession *cs, ASTTyPtr p) { return create_ty(cs, Ty::POINTER, {p->_ty}, false); }
+ASTTyPtr get_ptr_to(CompilerSession *cs, const ASTTyPtr &p) { return create_ty(cs, Ty::POINTER, {p->_ty}, false); }
 
-bool is_lvalue(ASTNodePtr p) { return p->_ty->_is_lvalue; }
+bool is_lvalue(const ASTNodePtr &p) { return p->_ty->_is_lvalue; }
 
-ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p) {
+ASTTyPtr get_contained_ty(CompilerSession *cs, const ASTTyPtr &p) {
   if (p->_tyty == Ty::STRING) { return create_ty(cs, Ty::CHAR, vector<ASTNodePtr>(), false); }
   else if (p->_is_ptr) {
     TAN_ASSERT(p->_children.size());
@@ -505,12 +505,12 @@ ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p) {
   } else { return nullptr; }
 }
 
-ASTTyPtr get_struct_member_ty(ASTTyPtr p, size_t i) {
+ASTTyPtr get_struct_member_ty(const ASTTyPtr &p, size_t i) {
   TAN_ASSERT(p->_tyty == Ty::STRUCT);
   return p->_children[i]->_ty;
 }
 
-size_t get_struct_member_index(ASTTyPtr p, str name) {
+size_t get_struct_member_index(const ASTTyPtr &p, const str &name) {
   auto search = p->_member_indices.find(name);
   if (search == p->_member_indices.end()) {
     return (size_t) (-1);
@@ -604,9 +604,8 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
             struct_ast = ast_cast<ASTTy>(cs->get(lhs->_ty->_type_name));
           }
           TAN_ASSERT(struct_ast);
-          pma->_access_idx = get_struct_member_index(cs, struct_ast, m_name);
-          auto member = struct_ast->_children[pma->_access_idx];
-          p->_ty = std::make_shared<ASTTy>(*member->_ty);
+          pma->_access_idx = get_struct_member_index(struct_ast, m_name);
+          p->_ty = make_ptr<ASTTy>(*get_struct_member_ty(struct_ast, pma->_access_idx));
           p->_ty->_is_lvalue = true;
         }
       } else if (pma->_access_type == MemberAccessType::MemberAccessMemberFunction) { /// method call

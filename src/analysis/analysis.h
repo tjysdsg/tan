@@ -7,9 +7,9 @@ namespace tanlang {
 
 /// \section General
 
-size_t get_n_children(ASTNodePtr p);
-bool is_lvalue(ASTNodePtr p);
-ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p);
+size_t get_n_children(const ASTNodePtr &p);
+bool is_lvalue(const ASTNodePtr &p);
+ASTNodePtr get_id_referred(CompilerSession *cs, const ASTNodePtr &p);
 
 /// \section AST factories
 
@@ -17,8 +17,8 @@ ASTNodePtr get_id_referred(CompilerSession *cs, ASTNodePtr p);
 
 ASTNodePtr ast_create_arg_decl(CompilerSession *cs);
 ASTNodePtr ast_create_var_decl(CompilerSession *cs);
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
-ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, ASTTyPtr ty);
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty);
+ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty);
 ASTNodePtr ast_create_func_decl(CompilerSession *cs);
 ASTNodePtr ast_create_struct_decl(CompilerSession *cs);
 
@@ -74,16 +74,16 @@ ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 
 /// \section Types
 
-llvm::Type *to_llvm_type(CompilerSession *cs, ASTTyPtr p);
-llvm::Metadata *to_llvm_meta(CompilerSession *cs, ASTTyPtr p);
-str get_type_name(ASTNodePtr p);
+llvm::Type *to_llvm_type(CompilerSession *cs, const ASTTyPtr &p);
+llvm::Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p);
+str get_type_name(const ASTNodePtr &p);
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
-ASTTyPtr get_contained_ty(CompilerSession *cs, ASTTyPtr p);
-ASTTyPtr get_ptr_to(CompilerSession *cs, ASTTyPtr p);
+ASTTyPtr get_contained_ty(CompilerSession *cs, const ASTTyPtr &p);
+ASTTyPtr get_ptr_to(CompilerSession *cs, const ASTTyPtr &p);
 size_t get_size_bits(CompilerSession *cs, ASTTyPtr p);
-size_t get_struct_member_index(CompilerSession *cs, ASTTyPtr p, str name);
-ASTTyPtr get_struct_member_ty(CompilerSession *cs, ASTTyPtr p, size_t i);
-void resolve_ty(CompilerSession *cs, ASTTyPtr p);
+size_t get_struct_member_index(const ASTTyPtr &p, const str &name);
+ASTTyPtr get_struct_member_ty(const ASTTyPtr &p, size_t i);
+void resolve_ty(CompilerSession *cs, const ASTTyPtr &p);
 
 /// \section Analysis
 
