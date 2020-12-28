@@ -2,6 +2,7 @@
 #include "src/analysis/analysis.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
+#include "src/ast/ast_func.h"
 #include "compiler_session.h"
 #include "compiler.h"
 #include "token.h"
@@ -216,10 +217,7 @@ ASTTyPtr ast_create_ty(CompilerSession *) {
 }
 
 ASTNodePtr ast_create_func_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::FUNC_DECL, 0);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  ret->_is_named = true;
+  auto ret = make_ptr<ASTFunction>();
   return ret;
 }
 
@@ -600,6 +598,11 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::PARENTHESIS:
       p->_ty = p->_children[0]->_ty;
       break;
+    case ASTType::FUNC_CALL: {
+      std::vector<ASTNodePtr> args(p->_children.begin() + 1, p->_children.end());
+      p->_children[0] = ASTFunction::GetCallee(nullptr, p->_name, args);
+      break;
+    }
     case ASTType::FUNC_DECL: {
       /// add to function table
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }

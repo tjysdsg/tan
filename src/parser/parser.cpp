@@ -356,6 +356,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       // auto *token = at(p->_end_index); if (token->value != "(") { error("Invalid function call"); }
       ++p->_end_index; /// skip (
 
+      p->_children.push_back(nullptr); /// pointer to ASTFunction (callee), set in analysis phase
       /// args
       while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
         p->_children.push_back(next_expression(p->_end_index));

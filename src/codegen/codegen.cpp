@@ -1,4 +1,5 @@
 #include "src/ast/ast_control_flow.h"
+#include "src/ast/ast_func.h"
 #include "src/analysis/analysis.h"
 #include "src/codegen/codegen.h"
 #include "compiler_session.h"
@@ -86,7 +87,8 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   if (rhs->getType()->isFloatingPointTy()) {
     p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
   } else if (rhs->getType()->isSingleValueType()) {
-    p->_llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
+    p->_llvm_value =
+        builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
   } else { error(cs, "Invalid operand"); }
   return p->_llvm_value;
 }
@@ -345,6 +347,27 @@ static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
+static Value *codegen_func_call(CompilerSession *cs, ASTNodePtr p) {
+  size_t n = p->_children.size(); /// = n_args + 1
+
+  auto callee = ast_cast<ASTFunction>(p->_children[0]);
+  TAN_ASSERT(callee);
+
+  /// args
+  vector<Value *> arg_vals;
+  for (size_t i = 1; i < n; ++i) {
+    auto *a = codegen(cs, p->_children[i]);
+    if (!a) { error(cs, "Invalid function call argument"); }
+
+    /// implicit cast
+    auto expected_ty = callee->get_arg(i)->_ty;
+    a = TypeSystem::ConvertTo(cs, a, p->_children[i]->_ty, expected_ty);
+    arg_vals.push_back(a);
+  }
+  p->_llvm_value = cs->_builder->CreateCall(callee->_func, arg_vals);
+  return p->_llvm_value;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -395,6 +418,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       ret = codegen_bnot(cs, p);
       break;
       ///////////////////////////// other ////////////////////////////
+    case ASTType::FUNC_CALL:
+      ret = codegen_func_call(cs, p);
+      break;
     case ASTType::TY:
       ret = p->_llvm_value = codegen_ty(cs, ast_cast<ASTTy>(p));
       break;
