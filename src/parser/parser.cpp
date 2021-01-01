@@ -319,6 +319,15 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       }
       break;
     }
+    case ASTType::IMPORT: {
+      ++p->_end_index; /// skip "import"
+      auto rhs = peek(p->_end_index);
+      if (rhs->_type != ASTType::STRING_LITERAL) { error("Invalid import statement"); }
+      p->_end_index = parse_node(rhs);
+      str filename = std::get<str>(rhs->_value);
+      p->_name = filename;
+      break;
+    }
       ////////////////////////// control flow ////////////////////////////////
     case ASTType::IF: {
       auto pif = ast_cast<ASTIf>(p);

@@ -1,3 +1,4 @@
+#include "src/ast/factory.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_func.h"
 #include "src/analysis/analysis.h"
@@ -87,8 +88,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   if (rhs->getType()->isFloatingPointTy()) {
     p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
   } else if (rhs->getType()->isSingleValueType()) {
-    p->_llvm_value =
-        builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
+    p->_llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
   } else { error(cs, "Invalid operand"); }
   return p->_llvm_value;
 }
@@ -569,6 +569,17 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
   return nullptr;
 }
 
+static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  for (auto &n: p->_children) {
+    auto f = ast_cast<ASTFunction>(n);
+    /// do nothing for already defined intrinsics
+    auto *func = cs->get_module()->getFunction(f->_name);
+    if (!func) { codegen_func_prototype(cs, f); } else { f->_func = func; }
+  }
+  return nullptr;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -617,6 +628,9 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       break;
     case ASTType::BNOT:
       ret = codegen_bnot(cs, p);
+      break;
+    case ASTType::IMPORT:
+      ret = codegen_import(cs, p);
       break;
       ///////////////////////////// other ////////////////////////////
     case ASTType::FUNC_DECL: {

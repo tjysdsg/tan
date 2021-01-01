@@ -61,7 +61,7 @@ public:
    * \see Scope
    * */
   std::shared_ptr<Scope> pop_scope();
-  DIScope *get_current_di_scope() const;
+  [[nodiscard]] DIScope *get_current_di_scope() const;
   void push_di_scope(DIScope *scope);
   void pop_di_scope();
 
@@ -89,7 +89,7 @@ public:
    * \brief Get the size of a pointer on the current machine
    * \details This is equivalent as llvm::TargetMachine->PointerSizeInBits()
    * */
-  unsigned get_ptr_size() const;
+  [[nodiscard]] unsigned get_ptr_size() const;
 
   /**
    * \brief Add a function AST to the current file's function table
@@ -98,10 +98,10 @@ public:
    * */
   void add_function(ASTNodePtr func);
   vector<ASTFunctionPtr> get_functions(const str &name);
-  std::shared_ptr<ASTLoop> get_current_loop() const;
+  [[nodiscard]] std::shared_ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(std::shared_ptr<ASTLoop>);
-  DIFile *get_di_file() const;
-  DICompileUnit *get_di_cu() const;
+  [[nodiscard]] DIFile *get_di_file() const;
+  [[nodiscard]] DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
 
 public:

@@ -327,10 +327,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       } else if (p->_children[1]->_type == ASTType::ID) { /// member variable or enum
         auto rhs = p->_children[1];
         if (lhs->_ty->_is_enum) {
-          pma->_access_type = MemberAccessType::MemberAccessEnumValue;
-          auto enum_ = ast_cast<ASTEnum>(lhs->_ty);
-          p->_ty = enum_;
-          _enum_value = enum_->get_enum_value(rhs->_name);
+          // TODO: Member access of enums
         } else {
           pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
           if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) { error(cs, "Invalid left-hand operand"); }
@@ -422,6 +419,24 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       // TODO: cs->set_current_loop(pl) // case ASTType::LOOP:
       // TODO: cs->get_current_loop() // case ASTType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
+    case ASTType::IMPORT: {
+      auto rhs = p->_children[0];
+      str file = std::get<str>(rhs->_value);
+      auto imported = Compiler::resolve_import(cs->_filename, file);
+      if (imported.empty()) { error(cs, "Cannot import: " + file); }
+
+      /// it might be already parsed
+      vector<ASTFunctionPtr> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+      if (imported_functions.empty()) {
+        Compiler::ParseFile(imported[0]);
+        imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+      }
+      for (auto &f: imported_functions) {
+        cs->add_function(f);
+        p->_children.push_back(f);
+      }
+      break;
+    }
     case ASTType::PARENTHESIS:
       p->_ty = p->_children[0]->_ty;
       break;

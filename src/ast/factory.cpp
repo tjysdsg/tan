@@ -7,7 +7,6 @@
 #include "src/ast/ast_ty.h"
 #include "src/ast/ast_func.h"
 #include "compiler_session.h"
-#include "compiler.h"
 #include "token.h"
 
 namespace tanlang {
@@ -222,6 +221,12 @@ ASTNodePtr ast_create_continue(CompilerSession *cs) {
 
 ASTNodePtr ast_create_program(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::PROGRAM, 0);
+  return ret;
+}
+
+ASTNodePtr ast_create_import(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::IMPORT, 0);
+  ret->_is_named = true; /// name is the file imported
   return ret;
 }
 
