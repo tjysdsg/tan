@@ -36,7 +36,7 @@ ASTNodePtr Parser::peek_keyword(Token *token, size_t &index) {
       ret = ast_create_var_decl(_cs);
       break;
     case "enum"_hs:
-      ret = ast_create_enum(_cs);
+      ret = ast_create_enum_decl(_cs);
       break;
     case "fn"_hs:
     case "pub"_hs:
@@ -574,6 +574,24 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         p->_children.push_back(body);
         _cs->pop_scope();
       }
+      break;
+    }
+    case ASTType::ENUM_DECL: {
+      ++p->_end_index; /// skip "enum"
+      auto name = peek(p->_end_index);
+      if (name->_type != ASTType::ID) { error("Expect an enum name"); }
+
+      /// enum body
+      if (at(p->_end_index)->value != "{") {
+        error("Invalid enum declaration");
+      }
+      ++p->_end_index;
+      while (!eof(p->_end_index) && at(p->_end_index)->value != "}") {
+        auto e = ast_create_statement(_cs);
+        p->_children.push_back(e);
+        if (at(p->_end_index)->value == ",") { ++p->_end_index; }
+      }
+      ++p->_end_index; /// skip '}'
       break;
     }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////

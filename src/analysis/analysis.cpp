@@ -68,6 +68,19 @@ ASTNodePtr ast_create_numeric_literal(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_char_literal(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::CHAR_LITERAL, 0);
+  ret->_is_typed = true;
+  ret->_is_valued = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
+  auto ret = ast_create_char_literal(cs);
+  ret->_value = static_cast<uint64_t>(c);
+  return ret;
+}
+
 ASTNodePtr ast_create_var_decl(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::VAR_DECL, 0);
   ret->_is_typed = true;
@@ -97,6 +110,24 @@ ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTy
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
   ret->_name = name;
+  return ret;
+}
+
+ASTNodePtr ast_create_func_decl(CompilerSession *) {
+  auto ret = make_ptr<ASTFunction>();
+  ret->_is_named = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_struct_decl(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::STRUCT_DECL, 0);
+  ret->_is_named = true;
+  return ret;
+}
+
+ASTNodePtr ast_create_enum_decl(CompilerSession *) {
+  auto ret = make_ptr<ASTNode>(ASTType::ENUM_DECL, 0);
+  ret->_is_named = true;
   return ret;
 }
 
@@ -235,30 +266,6 @@ ASTTyPtr ast_create_ty(CompilerSession *) {
   ret->_is_typed = true;
   ret->_is_valued = true; /// every type has its default value
   ret->_ty = ret;
-  return ret;
-}
-
-ASTNodePtr ast_create_func_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTFunction>();
-  return ret;
-}
-
-ASTNodePtr ast_create_struct_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::STRUCT_DECL, 0);
-  ret->_is_named;
-  return ret;
-}
-
-ASTNodePtr ast_create_char_literal(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::CHAR_LITERAL, 0);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
-  auto ret = ast_create_char_literal(cs);
-  ret->_value = static_cast<uint64_t>(c);
   return ret;
 }
 
@@ -699,6 +706,10 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       break;
     }
       ////////////////////////// declarations ///////////////////////////
+    case ASTType::ENUM_DECL: {
+      // TODO: Analysis of enum types and values
+      break;
+    }
     case ASTType::FUNC_DECL: {
       /// add to function table
       if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }
