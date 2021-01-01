@@ -7,6 +7,7 @@
 #include "src/ast/ast_member_access.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_ty.h"
+#include "src/ast/factory.h"
 #include "src/common.h"
 #include "intrinsic.h"
 #include "token.h"
