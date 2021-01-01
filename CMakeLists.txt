@@ -13,14 +13,25 @@ set(CMAKE_PROJECT_TAN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
+option(CUSTOM_LLVM_CMAKE_DIR "Custom directory containing FindLLVM.cmake" OFF)
+option(CUSTOM_CLANG_CMAKE_DIR "Custom directory containing FindClang.cmake" OFF)
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
+
+if (CUSTOM_CLANG_CMAKE_DIR)
+    list(PREPEND CMAKE_MODULE_PATH "${CUSTOM_CLANG_CMAKE_DIR}")
+    message(STATUS "Using ${CUSTOM_CLANG_CMAKE_DIR} to find FindClang.cmake")
+endif ()
+if (CUSTOM_LLVM_CMAKE_DIR)
+    list(PREPEND CMAKE_MODULE_PATH "${CUSTOM_LLVM_CMAKE_DIR}")
+    message(STATUS "Using ${CUSTOM_LLVM_CMAKE_DIR} to find FindLLVM.cmake")
+endif ()
 
 # use static linking whenever possible
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -56,15 +67,22 @@ link_directories(${DEP_LIB_DIRS})
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
-macro(set_other_options target_name)
+macro(set_common_options target_name)
     message(DEBUG "Generating target: ${target_name}")
     target_compile_features(${target_name} PRIVATE cxx_std_17)
-    target_compile_options(${target_name}
-            PRIVATE -Wall
-            PRIVATE -Wextra
-            PRIVATE -pedantic-errors
-            PRIVATE -Wconversion
-            )
+    if (CMAKE_COMPILER_IS_GNUCXX)
+        target_compile_options(${target_name}
+                PRIVATE -Wall
+                PRIVATE -Wextra
+                PRIVATE -pedantic-errors
+                PRIVATE -Wconversion
+                )
+    else ()
+        target_compile_options(${target_name}
+                PRIVATE -Wall
+                PRIVATE -pedantic-errors
+                )
+    endif (CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -94,7 +112,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
 target_link_libraries(tan pthread ${DEP_LIBS} unwind)
-set_other_options(tan)
+set_common_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")
     target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
@@ -104,7 +122,7 @@ endif ()
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${CLI_SRCS})
 target_link_libraries(tanc tan)
-set_other_options(tanc)
+set_common_options(tanc)
 
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)

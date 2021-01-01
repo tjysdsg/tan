@@ -1,3 +1,4 @@
+include/config.h
 fuzzing/
 dep-build/
 build/

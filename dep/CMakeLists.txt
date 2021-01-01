@@ -1,5 +1,9 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
-find_package(LLVM 10 REQUIRED)
+find_package(
+        LLVM 10 REQUIRED
+        PATHS
+        ${CUSTOM_LLVM_CMAKE_DIR}
+)
 
 set(LLVM_LIBS
         LLVM
@@ -145,7 +149,11 @@ set(LLVM_LIBS
         LLVMDemangle
         )
 
-find_package(Clang REQUIRED)
+find_package(
+        Clang REQUIRED  # ClangConfig.cmake doesn't seem to specify version
+        PATHS
+        ${CUSTOM_CLANG_CMAKE_DIR}
+)
 
 if (NOT DEFINED CLANG_INCLUDE_DIRS)
     message(FATAL_ERROR "Cannot find clang")
