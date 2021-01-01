@@ -12,9 +12,8 @@
 #ifdef __clang__
 #pragma clang system_header
 #endif
-
 #ifdef _MSC_VER
-__pragma(warning(push, 0))
+#pragma warning(push, 0)
 #endif
 
 #include <llvm/IR/Value.h>
@@ -241,7 +240,7 @@ using llvm::DebugLoc;
 } // namespace tanlang
 
 #ifdef _MSC_VER
-__pragma(warning(pop))
+#pragma warning(pop)
 #endif
 
 #endif /* TAN_SRC_LLVM_INCLUDE_H_ */

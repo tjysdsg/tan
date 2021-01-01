@@ -18,7 +18,7 @@ using c##Ptr = ptr<c>
 
 AST_FWD_DECL(ASTTy);
 AST_FWD_DECL(ASTNode);
-class Scope;
+struct Scope;
 class CompilerSession;
 class Parser;
 struct Token;

@@ -14,6 +14,7 @@
 #include <utility>
 
 using namespace tanlang;
+using tanlang::TokenType; // distinguish from the one in winnt.h
 // TODO: move type resolving and other stuff to analysis phase
 
 Parser::Parser(vector<Token *> tokens, str filename, CompilerSession *cs)

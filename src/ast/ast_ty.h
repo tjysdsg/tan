@@ -11,15 +11,14 @@
 
 namespace tanlang {
 
+#undef VOID
+#undef CONST
+
 enum class Ty : uint64_t {
   INVALID = 0,
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
-  VOID = 1u,
-  INT = 2u,
-  FLOAT = 3u,
-  DOUBLE = 4u,
-  BOOL = 5u,
+  VOID = 1u, INT = 2u, FLOAT = 3u, DOUBLE = 4u, BOOL = 5u,
   POINTER = 6u,
   STRING = 7u,
   CHAR = 8u,
