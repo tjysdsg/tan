@@ -77,11 +77,11 @@ macro(set_common_options target_name)
                 PRIVATE -pedantic-errors
                 PRIVATE -Wconversion
                 )
-    else ()
-        target_compile_options(${target_name}
-                PRIVATE -Wall
-                PRIVATE -pedantic-errors
-                )
+        # MSVC will throw out tons of warnings from LLVM headers and I failed to suppress them
+        # else ()
+        #       target_compile_options(${target_name}
+        #       PRIVATE -Wall
+        # )
     endif (CMAKE_COMPILER_IS_GNUCXX)
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
