@@ -22,10 +22,14 @@ ASTNodePtr ast_create_string_literal(CompilerSession *cs);
 ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &);
 ASTNodePtr ast_create_array_literal(CompilerSession *cs);
 ASTNodePtr ast_create_numeric_literal(CompilerSession *cs);
-ASTNodePtr ast_create_cast(CompilerSession *cs);
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
+ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val);
+ASTNodePtr ast_create_char_literal(CompilerSession *cs);
+ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 
 /// \section Binary ops
 
+ASTNodePtr ast_create_cast(CompilerSession *cs);
 ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
@@ -52,19 +56,13 @@ ASTNodePtr ast_create_continue(CompilerSession *cs);
 
 ASTNodePtr ast_create_program(CompilerSession *cs);
 ASTNodePtr ast_create_import(CompilerSession *cs);
+ASTNodePtr ast_create_intrinsic(CompilerSession *cs);
 ASTNodePtr ast_create_statement(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
 ASTNodePtr ast_create_parenthesis(CompilerSession *cs);
 ASTNodePtr ast_create_func_call(CompilerSession *cs);
 ASTTyPtr ast_create_ty(CompilerSession *cs);
-
-/// \section Literals
-
-ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
-ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val);
-ASTNodePtr ast_create_char_literal(CompilerSession *cs);
-ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 
 /// \section Types
 

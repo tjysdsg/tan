@@ -1,3 +1,5 @@
+#include <iostream>
+#include "intrinsic.h"
 #include "src/common.h"
 #include "src/ast/ast_member_access.h"
 #include "src/ast/ast_control_flow.h"
@@ -259,6 +261,59 @@ size_t get_struct_member_index(const ASTTyPtr &p, const str &name) {
 
 /// \section Analysis
 
+str get_source_location(CompilerSession *cs, ASTNodePtr p) {
+  TAN_ASSERT(p->_token);
+  return cs->_filename + ":" + std::to_string(p->_token->l);
+}
+
+static void analyze_intrinsic(CompilerSession *cs, ASTNodePtr p) {
+  TAN_ASSERT(p->_token);
+  auto pi = ast_cast<Intrinsic>(p);
+  TAN_ASSERT(pi);
+
+  auto *token = p->_token;
+  auto c = p->_children[0];
+  auto void_type = create_ty(cs, Ty::VOID);
+  if (Intrinsic::intrinsics.find(token->value) == Intrinsic::intrinsics.end()) {
+    error(cs, "Invalid intrinsic");
+  }
+  pi->_intrinsic_type = Intrinsic::intrinsics[token->value];
+  switch (pi->_intrinsic_type) {
+    case IntrinsicType::STACK_TRACE:
+    case IntrinsicType::ABORT:
+    case IntrinsicType::NOOP: {
+      p->_ty = void_type;
+      break;
+    }
+    case IntrinsicType::LINENO: {
+      p->_ty = create_ty(cs, TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED));
+      p->_value = p->_token->l;
+      break;
+    }
+    case IntrinsicType::FILENAME: {
+      p->_ty = create_ty(cs, Ty::STRING);
+      p->_value = cs->_filename;
+      break;
+    }
+    case IntrinsicType::GET_DECL: {
+      p->_ty = create_ty(cs, Ty::STRING);
+      TAN_ASSERT(c->_type == ASTType::STRING_LITERAL);
+      p->_value = std::get<str>(c->_value);
+      break;
+    }
+    case IntrinsicType::COMP_PRINT: {
+      p->_ty = void_type;
+      if (c->_type != ASTType::STRING_LITERAL) {
+        error(cs, "Invalid call to compprint, one argument with type 'str' required");
+      }
+      std::cout << "Message (" << get_source_location(cs, p) << "): " << std::get<str>(c->_value) << "\n";
+      break;
+    }
+    default:
+      error(cs, "Unknown intrinsic");
+  }
+}
+
 void analyze(CompilerSession *cs, const ASTNodePtr &p) {
   p->_scope = cs->get_current_scope();
   // TODO: update _cs->_current_token
@@ -319,9 +374,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
           if (!rhs->_ty->_is_int) { error(cs, "Expect an integer specifying array size"); }
           auto size = std::get<uint64_t>(rhs->_value); // underflow
           if (rhs->_ty->_is_array && size >= lhs->_ty->_array_size) {
-            error(cs,
-                "Index " + std::to_string(size) + " out of bound, the array size is "
-                    + std::to_string(lhs->_ty->_array_size));
+            error(cs, "Index " + std::to_string(size) + " out of bound, the array size is " + std::to_string(lhs->_ty->_array_size));
           }
         }
       } else if (p->_children[1]->_type == ASTType::ID) { /// member variable or enum
@@ -419,6 +472,10 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       // TODO: cs->set_current_loop(pl) // case ASTType::LOOP:
       // TODO: cs->get_current_loop() // case ASTType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
+    case ASTType::INTRINSIC: {
+      analyze_intrinsic(cs, p);
+      break;
+    }
     case ASTType::IMPORT: {
       auto rhs = p->_children[0];
       str file = std::get<str>(rhs->_value);

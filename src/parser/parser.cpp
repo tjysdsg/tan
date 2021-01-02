@@ -88,9 +88,10 @@ ASTNodePtr Parser::peek(size_t &index) {
     ++index;
     token = _tokens[index];
   }
+
   ASTNodePtr node;
   if (token->value == "@") { /// intrinsics
-    node = std::make_shared<Intrinsic>(token, index);
+    node = ast_create_intrinsic(_cs);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
     node = ast_create_assignment(_cs);
   } else if (token->value == "!" || token->value == "~") {
@@ -326,6 +327,16 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       p->_end_index = parse_node(rhs);
       str filename = std::get<str>(rhs->_value);
       p->_name = filename;
+      break;
+    }
+    case ASTType::INTRINSIC: {
+      ++p->_end_index; /// skip "@"
+      auto e = peek(p->_end_index);
+      /// Only allow identifier or function call as valid intrinsic token
+      if (e->_type != ASTType::ID && e->_type != ASTType::FUNC_CALL) {
+        error("Unexpected token");
+      }
+      p->_children.push_back(e);
       break;
     }
       ////////////////////////// control flow ////////////////////////////////
@@ -712,4 +723,3 @@ void Parser::error(const str &error_message) {
 }
 
 void Parser::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
-

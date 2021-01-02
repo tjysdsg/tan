@@ -48,14 +48,6 @@ str ASTNode::get_src() {
 
 ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}
 
-str ASTNode::get_source_location() {
-  TAN_ASSERT(_parser);
-  TAN_ASSERT(_token);
-  str ret = _parser->get_filename();
-  ret += ":" + std::to_string(_token->l);
-  return ret;
-}
-
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 

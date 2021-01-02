@@ -118,7 +118,6 @@ public:
   str get_src();
 
 public:
-  str get_source_location();
   virtual str to_string(bool print_prefix = true);
 
 private:

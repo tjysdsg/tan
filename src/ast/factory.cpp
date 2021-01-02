@@ -1,6 +1,7 @@
 #include "src/ast/factory.h"
 #include "src/common.h"
 #include "src/ast/ast_member_access.h"
+#include "intrinsic.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/analysis/analysis.h"
 #include "src/analysis/type_system.h"
@@ -227,6 +228,11 @@ ASTNodePtr ast_create_program(CompilerSession *) {
 ASTNodePtr ast_create_import(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::IMPORT, 0);
   ret->_is_named = true; /// name is the file imported
+  return ret;
+}
+
+ASTNodePtr ast_create_intrinsic(CompilerSession *) {
+  auto ret = make_ptr<Intrinsic>();
   return ret;
 }
 

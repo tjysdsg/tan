@@ -34,7 +34,6 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
-  Intrinsic::Init(_compiler_session);
 }
 
 void Compiler::emit_object(const str &filename) { _compiler_session->emit_object(filename); }
@@ -65,7 +64,10 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
-  analyze(_compiler_session, _ast); // TODO: separate parsing and analyzing phase
+
+  // TODO: separate parsing and analyzing phase
+  Intrinsic::InitAnalysis(_compiler_session);
+  analyze(_compiler_session, _ast);
 }
 
 void Compiler::ParseFile(const str &filename) {
