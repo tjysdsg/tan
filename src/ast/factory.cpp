@@ -233,6 +233,14 @@ ASTNodePtr ast_create_ampersand(CompilerSession *) {
   return ret;
 }
 
+ASTNodePtr ast_create_address_of(CompilerSession *cs, ASTNodePtr p) {
+  auto ret = make_ptr<ASTNode>(ASTType::ADDRESS_OF, op_precedence[ASTType::ADDRESS_OF]);
+  ret->_is_valued = true;
+  ret->_is_typed = true;
+  ret->_children.push_back(p);
+  return ret;
+}
+
 /// \section Control flow
 
 ASTNodePtr ast_create_if(CompilerSession *) {

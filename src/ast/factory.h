@@ -34,6 +34,7 @@ ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
 ASTNodePtr ast_create_member_access(CompilerSession *cs);
 ASTNodePtr ast_create_return(CompilerSession *cs);
+ASTNodePtr ast_create_address_of(CompilerSession *cs, ASTNodePtr p);
 
 /// \section Ambiguous ops
 /// The type of these operators/expression is undetermined before parsing

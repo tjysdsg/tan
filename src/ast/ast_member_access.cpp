@@ -4,14 +4,6 @@
 
 namespace tanlang {
 
-void ASTMemberAccess::resolve_ptr_deref(ASTNodePtr left) {
-  TAN_ASSERT(_access_type == MemberAccessDeref);
-  _ty = left->get_ty();
-  TAN_ASSERT(_ty->is_ptr());
-  _ty = std::make_shared<ASTTy>(*_ty->get_contained_ty());
-  _ty->set_is_lvalue(true);
-}
-
 Value *ASTMemberAccess::_codegen(CompilerSession *cs) {
   auto *builder = cs->_builder;
   cs->set_current_debug_location(_token->l, _token->c);

@@ -358,7 +358,11 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       TAN_ASSERT(pma);
 
       if (pma->_access_type == MemberAccessType::MemberAccessDeref) { /// pointer dereference
-        // TODO: resolve_ptr_deref(lhs);
+        auto ty = lhs->_ty;
+        TAN_ASSERT(ty->_is_ptr);
+        ty = std::make_shared<ASTTy>(*get_contained_ty(cs, ty));
+        ty->_is_lvalue = true;
+        p->_ty = ty;
       } else if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
         auto rhs = p->_children[1];
         ASTTyPtr ty = lhs->_ty;
@@ -401,9 +405,11 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
         if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
           error(cs, "Method calls require left-hand operand to be an lvalue or a pointer");
         }
-        /// auto dereference pointers
+        /// get address of the struct instance
         if (lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
-          rhs->_children.insert(rhs->_children.begin(), create_address_of(lhs));
+          auto tmp = ast_create_address_of(cs, lhs);
+          analyze(cs, tmp);
+          rhs->_children.insert(rhs->_children.begin(), tmp);
         } else {
           rhs->_children.insert(rhs->_children.begin(), lhs);
         }
