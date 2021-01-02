@@ -1,4 +1,5 @@
 #include "src/ast/factory.h"
+#include "src/ast/ast_member_access.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_func.h"
 #include "src/analysis/analysis.h"
@@ -612,6 +613,47 @@ static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
   return ret;
 }
 
+static Value *codegen_member_access(CompilerSession *cs, ASTMemberAccessPtr p) {
+  auto *builder = cs->_builder;
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  auto lhs = p->_children[0];
+  ASTNodePtr rhs = nullptr;
+  if (p->_children.size() >= 2) { rhs = p->_children[1]; } /// pointer access only have 1 child node
+  auto *from = codegen(cs, lhs);
+  Value *ret;
+  switch (p->_access_type) {
+    case MemberAccessType::MemberAccessBracket: {
+      if (lhs->_ty->_is_lvalue) { from = builder->CreateLoad(from); }
+      auto *rhs_val = codegen(cs, rhs);
+      if (rhs->_ty->_is_lvalue) { rhs_val = builder->CreateLoad(rhs_val); }
+      ret = builder->CreateGEP(from, rhs_val, "bracket_access");
+      break;
+    }
+    case MemberAccessType::MemberAccessMemberVariable: {
+      if (lhs->_ty->_is_lvalue && lhs->_ty->_is_ptr && get_contained_ty(cs, lhs->_ty)) {
+        /// auto dereference pointers
+        from = builder->CreateLoad(from);
+      }
+      ret = builder->CreateStructGEP(from, (unsigned) p->_access_idx, "member_variable");
+      break;
+    }
+    case MemberAccessType::MemberAccessDeref:
+      ret = builder->CreateLoad(from);
+      break;
+    case MemberAccessType::MemberAccessMemberFunction:
+      ret = codegen(cs, p->_children[1]);
+      break;
+    case MemberAccessType::MemberAccessEnumValue:
+      ret = nullptr;
+      // TODO: codegen of enum_type.enum_value
+      break;
+    default:
+      TAN_ASSERT(false);
+  }
+  p->_llvm_value = ret;
+  return ret;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -619,7 +661,7 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       for (const auto &e : p->_children) { codegen(cs, e); }
       ret = nullptr;
       break;
-      ///////////////////////// binary ops ///////////////////////////
+      ///////////////////////// ops ///////////////////////////
     case ASTType::SUM:
     case ASTType::SUBTRACT:
     case ASTType::MULTIPLY:
@@ -641,15 +683,6 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::CAST:
       ret = codegen_cast(cs, p);
       break;
-      ////////////////////////////// literals ////////////////////////
-    case ASTType::ARRAY_LITERAL:
-    case ASTType::NUM_LITERAL:
-    case ASTType::CHAR_LITERAL:
-    case ASTType::STRING_LITERAL: {
-      ret = codegen_literals(cs, p);
-      break;
-    }
-      ////////////////////////////// prefix //////////////////////////
     case ASTType::ADDRESS_OF:
       ret = codegen_address_of(cs, p);
       break;
@@ -665,6 +698,20 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::IMPORT:
       ret = codegen_import(cs, p);
       break;
+    case ASTType::MEMBER_ACCESS: {
+      auto pma = ast_cast<ASTMemberAccess>(p);
+      TAN_ASSERT(pma);
+      ret = codegen_member_access(cs, pma);
+      break;
+    }
+      ////////////////////////////// literals ////////////////////////
+    case ASTType::ARRAY_LITERAL:
+    case ASTType::NUM_LITERAL:
+    case ASTType::CHAR_LITERAL:
+    case ASTType::STRING_LITERAL: {
+      ret = codegen_literals(cs, p);
+      break;
+    }
       ///////////////////////////// other ////////////////////////////
     case ASTType::INTRINSIC: {
       auto pi = ast_cast<Intrinsic>(p);
