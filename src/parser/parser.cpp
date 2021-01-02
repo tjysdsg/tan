@@ -107,12 +107,14 @@ ASTNodePtr Parser::peek(size_t &index) {
     }
   } else if (token->type == TokenType::RELOP) { /// comparisons
     node = ast_create_comparison(_cs, token->value);
-  } else if (token->type == TokenType::INT || token->type == TokenType::FLOAT) {
-    node = ast_create_numeric_literal(_cs);
+  } else if (token->type == TokenType::INT) {
+    node = ast_create_numeric_literal(_cs, (uint64_t) std::stol(token->value), token->is_unsigned);
+  } else if (token->type == TokenType::FLOAT) {
+    node = ast_create_numeric_literal(_cs, (double) std::stod(token->value));
   } else if (token->type == TokenType::STRING) { /// string literal
     node = ast_create_string_literal(_cs, token->value);
   } else if (token->type == TokenType::CHAR) { /// char literal
-    node = ast_create_char_literal(_cs);
+    node = ast_create_char_literal(_cs, token->value[0]);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") {

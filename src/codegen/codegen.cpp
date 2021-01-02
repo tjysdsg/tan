@@ -88,7 +88,8 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   if (rhs->getType()->isFloatingPointTy()) {
     p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
   } else if (rhs->getType()->isSingleValueType()) {
-    p->_llvm_value = builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
+    p->_llvm_value =
+        builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
   } else { error(cs, "Invalid operand"); }
   return p->_llvm_value;
 }
@@ -580,6 +581,12 @@ static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
+static Value *codegen_literals(CompilerSession *cs, ASTNodePtr p) {
+  /// Value of literals is set to p->_ty->_default_value, and to_llvm_value returns a type's default value
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  return codegen_ty(cs, p->_ty);
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -613,9 +620,10 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
     case ASTType::ARRAY_LITERAL:
     case ASTType::NUM_LITERAL:
     case ASTType::CHAR_LITERAL:
-    case ASTType::STRING_LITERAL:
-      ret = p->_llvm_value = codegen(cs, p->_ty);
+    case ASTType::STRING_LITERAL: {
+      ret = codegen_literals(cs, p);
       break;
+    }
       ////////////////////////////// prefix //////////////////////////
     case ASTType::ADDRESS_OF:
       ret = codegen_address_of(cs, p);

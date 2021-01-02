@@ -21,22 +21,18 @@ ASTNodePtr ast_create_enum_decl(CompilerSession *cs);
 ASTNodePtr ast_create_string_literal(CompilerSession *cs);
 ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &);
 ASTNodePtr ast_create_array_literal(CompilerSession *cs);
-ASTNodePtr ast_create_numeric_literal(CompilerSession *cs);
 ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
 ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val);
 ASTNodePtr ast_create_char_literal(CompilerSession *cs);
 ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
 
-/// \section Binary ops
+/// \section Ops
 
 ASTNodePtr ast_create_cast(CompilerSession *cs);
 ASTNodePtr ast_create_arithmetic(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
 ASTNodePtr ast_create_member_access(CompilerSession *cs);
-
-/// \section Unary ops
-
 ASTNodePtr ast_create_return(CompilerSession *cs);
 
 /// \section Ambiguous ops
