@@ -75,7 +75,64 @@ Type *to_llvm_type(CompilerSession *cs, const ASTTyPtr &p) {
 }
 
 Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
-  // TODO
+  Ty base = TY_GET_BASE(p->_tyty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
+  DIType *ret = nullptr;
+  switch (base) {
+    case Ty::CHAR:
+    case Ty::INT:
+    case Ty::BOOL:
+    case Ty::FLOAT:
+    case Ty::VOID:
+    case Ty::DOUBLE:
+    case Ty::ENUM:
+      ret = cs->_di_builder->createBasicType(p->_type_name, p->_size_bits, p->_dwarf_encoding);
+      break;
+    case Ty::STRING: {
+      auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
+      ret = cs->_di_builder
+          ->createPointerType(e_di_type, p->_size_bits, (unsigned) p->_align_bits, llvm::None, p->_type_name);
+      break;
+    }
+    case Ty::STRUCT: {
+      DIFile *di_file = cs->get_di_file();
+      size_t n = p->_children.size();
+      vector<Metadata *> elements(n);
+      for (size_t i = 1; i < n; ++i) {
+        auto e = p->_children[i]; // ASTVarDecl
+        elements.push_back(to_llvm_meta(cs, e->_ty));
+      }
+      ret = cs->_di_builder
+          ->createStructType(cs->get_current_di_scope(),
+              p->_type_name,
+              di_file,
+              (unsigned) p->_token->l,
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              DINode::DIFlags::FlagZero,
+              nullptr,
+              cs->_di_builder->getOrCreateArray(elements),
+              0,
+              nullptr,
+              p->_type_name);
+      break;
+    }
+    case Ty::ARRAY:
+    case Ty::POINTER: {
+      auto e = ast_cast<ASTTy>(p->_children[0]);
+      auto *e_di_type = to_llvm_meta(cs, e);
+      ret = cs->_di_builder
+          ->createPointerType((DIType *) e_di_type,
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              llvm::None,
+              p->_type_name);
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
 }
 
 str get_type_name(const ASTNodePtr &p) { return p->_ty->_type_name; }

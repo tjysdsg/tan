@@ -18,7 +18,11 @@ enum class Ty : uint64_t {
   INVALID = 0,
   /// basic types 1->12 bits
   #define TY_BASE_MASK 0xfffu
-  VOID = 1u, INT = 2u, FLOAT = 3u, DOUBLE = 4u, BOOL = 5u,
+  VOID = 1u,
+  INT = 2u,
+  FLOAT = 3u,
+  DOUBLE = 4u,
+  BOOL = 5u,
   POINTER = 6u,
   STRING = 7u,
   CHAR = 8u,
@@ -42,14 +46,14 @@ enum class Ty : uint64_t {
 class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};
-  static ASTTyPtr find_cache(Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue);
+  static ASTTyPtr find_cache(Ty t, const vector<ASTNodePtr> &sub_tys, bool is_lvalue);
 
 public:
-  ASTTy();
+  ASTTy() : ASTNode(ASTType::TY, 0) {}
   ASTTy(const ASTTy &) = default;
   ASTTy(ASTTy &&) = default;
-  ASTTy &operator=(const ASTTy &);
-  ASTTy &operator=(ASTTy &&);
+  ASTTy &operator=(const ASTTy &) = default;
+  ASTTy &operator=(ASTTy &&) = default;
   bool operator==(const ASTTy &other);
   bool operator!=(const ASTTy &other);
   str to_string(bool print_prefix = true) override;
