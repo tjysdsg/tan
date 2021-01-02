@@ -33,33 +33,6 @@ void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_abort(cs);
 }
 
-Value *Intrinsic::_codegen(CompilerSession *cs) {
-  ASTNodePtr tmp = nullptr;
-  switch (_intrinsic_type) {
-    case IntrinsicType::FILENAME:
-      auto c = ast_create_string_literal(cs, cs->_filename);
-      break;
-    case IntrinsicType::LINENO:
-      tmp = std::make_shared<ASTNumberLiteral>(_token->l, _start_index);
-      _llvm_value = tmp->codegen(cs);
-      break;
-    case IntrinsicType::GET_DECL:
-      tmp = std::make_shared<ASTStringLiteral>(cs->get(_str_data)->get_src(), _start_index);
-      _llvm_value = tmp->codegen(cs);
-      break;
-    case IntrinsicType::STACK_TRACE:
-      codegen_print_stack_trace(cs);
-      break;
-    case IntrinsicType::COMP_PRINT:
-      break;
-    default:
-      TAN_ASSERT(_children.size());
-      _llvm_value = _children[0]->codegen(cs);
-      break;
-  }
-  return _llvm_value;
-}
-
 static void init_abort(CompilerSession *cs) {
   Function *abort_func = cs->get_module()->getFunction("abort");
   /// fn abort() : void;

@@ -6,6 +6,7 @@
 #include "compiler_session.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_ty.h"
+#include "intrinsic.h"
 #include "src/analysis/type_system.h"
 #include "src/common.h"
 #include "token.h"
@@ -587,6 +588,30 @@ static Value *codegen_literals(CompilerSession *cs, ASTNodePtr p) {
   return codegen_ty(cs, p->_ty);
 }
 
+static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
+  cs->set_current_debug_location(p->_token->l, p->_token->c);
+
+  Value *ret = nullptr;
+  switch (p->_intrinsic_type) {
+    /// trivial codegen
+    case IntrinsicType::GET_DECL:
+    case IntrinsicType::LINENO:
+    case IntrinsicType::NOOP:
+    case IntrinsicType::ABORT:
+    case IntrinsicType::FILENAME: {
+      ret = codegen(cs, p->_children[0]);
+      break;
+    }
+      /// others
+    case IntrinsicType::STACK_TRACE:
+      // TODO: codegen of stack trace
+      break;
+    default:
+      break;
+  }
+  return ret;
+}
+
 Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
@@ -641,6 +666,12 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
       ret = codegen_import(cs, p);
       break;
       ///////////////////////////// other ////////////////////////////
+    case ASTType::INTRINSIC: {
+      auto pi = ast_cast<Intrinsic>(p);
+      TAN_ASSERT(pi);
+      ret = codegen_intrinsic(cs, pi);
+      break;
+    }
     case ASTType::FUNC_DECL: {
       auto pf = ast_cast<ASTFunction>(p);
       TAN_ASSERT(pf);
