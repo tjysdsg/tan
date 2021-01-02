@@ -13,7 +13,7 @@ public:
   FunctionTable() = default;
   void set(ASTFunctionPtr func);
   vector<ASTFunctionPtr> get(const str &name);
-  vector<ASTFunctionPtr> get_all() const;
+  [[nodiscard]] vector<ASTFunctionPtr> get_all() const;
 
 private:
   umap<str, vector<ASTFunctionPtr>> _table{};
