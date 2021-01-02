@@ -1,7 +1,5 @@
 #include "src/ast/ast_node.h"
-#include "src/llvm_include.h"
 #include "src/ast/ast_ty.h"
-#include "compiler_session.h"
 #include "parser.h"
 #include "token.h"
 #include <iostream>
@@ -33,17 +31,6 @@ void ASTNode::printTree(const str &prefix, bool last_child) {
     const auto &c = _children[i];
     c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
   }
-}
-
-str ASTNode::get_src() {
-  str ret = "";
-  for (size_t i = _start_index; i < _end_index; ++i) {
-    ret += _parser->at(i)->value;
-    if (i < _end_index - 1) {
-      ret += " ";
-    }
-  }
-  return ret;
 }
 
 ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}

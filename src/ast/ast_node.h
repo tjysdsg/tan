@@ -112,11 +112,6 @@ public:
    * */
   void printTree();
 
-  /**
-   * \brief Get original source for a AST node.
-   * */
-  str get_src();
-
 public:
   virtual str to_string(bool print_prefix = true);
 
@@ -130,7 +125,7 @@ public:
   Token *_token = nullptr;
   llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
-  str _name = "";
+  str _name;
   bool _is_typed = false;
   bool _is_valued = false;
   bool _is_named = false;

@@ -25,27 +25,27 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyP
   if (*orig == *dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
-    return builder->CreateBitCast(loaded, dest->to_llvm_type(cs));
+    return builder->CreateBitCast(loaded, to_llvm_type(cs, dest));
   } else if ((orig->_is_enum && dest->_is_int) || (dest->_is_enum && orig->_is_int)) {
-    return builder->CreateZExtOrTrunc(loaded, dest->to_llvm_type(cs));
+    return builder->CreateZExtOrTrunc(loaded, to_llvm_type(cs, dest));
   } else if (orig->_is_int && dest->_is_int) {
-    return builder->CreateZExtOrTrunc(loaded, dest->to_llvm_type(cs));
+    return builder->CreateZExtOrTrunc(loaded, to_llvm_type(cs, dest));
   } else if (orig->_is_int && dest->_is_float) { /// int to float/double
     if (orig->_is_unsigned) {
-      return builder->CreateUIToFP(loaded, dest->to_llvm_type(cs));
+      return builder->CreateUIToFP(loaded, to_llvm_type(cs, dest));
     } else {
-      return builder->CreateSIToFP(loaded, dest->to_llvm_type(cs));
+      return builder->CreateSIToFP(loaded, to_llvm_type(cs, dest));
     }
   } else if (orig->_is_float && dest->_is_int) { /// float/double to int
     if (orig->_is_unsigned) {
-      return builder->CreateFPToUI(loaded, dest->to_llvm_type(cs));
+      return builder->CreateFPToUI(loaded, to_llvm_type(cs, dest));
     } else {
-      return builder->CreateFPToSI(loaded, dest->to_llvm_type(cs));
+      return builder->CreateFPToSI(loaded, to_llvm_type(cs, dest));
     }
   } else if (orig->_is_float && dest->_is_float) { /// float <-> double
-    return builder->CreateFPCast(loaded, dest->to_llvm_type(cs));
+    return builder->CreateFPCast(loaded, to_llvm_type(cs, dest));
   } else if (orig->_is_bool && dest->_is_int) { /// bool to int
-    return builder->CreateZExtOrTrunc(val, dest->to_llvm_type(cs));
+    return builder->CreateZExtOrTrunc(val, to_llvm_type(cs, dest));
   } else if (dest->_is_bool) { /// all types to bool, equivalent to val != 0
     if (orig->_is_float) {
       return builder->CreateFCmpONE(loaded, ConstantFP::get(builder->getFloatTy(), 0.0f));
