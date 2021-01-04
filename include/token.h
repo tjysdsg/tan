@@ -33,7 +33,7 @@ extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 struct Token {
   TokenType type = TokenType::END;
-  str value = "";
+  str value;
   size_t l = 0, c = 0;
   SourceLine *line = nullptr;
   bool is_unsigned = false;

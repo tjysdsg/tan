@@ -44,6 +44,10 @@ enum class Ty : uint64_t {
 
 // TODO: make ASTTy immutable, like llvm::Type
 class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
+public:
+  static umap<str, Ty> basic_tys;
+  static umap<str, Ty> qualifier_tys;
+
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};
   static ASTTyPtr find_cache(Ty t, const vector<ASTNodePtr> &sub_tys, bool is_lvalue);
@@ -84,16 +88,6 @@ public:
   vector<str> _member_names{};
   bool _is_forward_decl = false;
 };
-
-umap<str, Ty> basic_tys =
-    {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
-        {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
-        {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
-        {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
-        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
-        {"bool", Ty::BOOL},};
-
-umap<str, Ty> qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
 } // namespace tanlang
 

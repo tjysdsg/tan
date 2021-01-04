@@ -251,7 +251,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
         size_t n = p->_children.size();
         for (size_t i = 0; i < n; ++i) {
           auto et = ast_cast<ASTTy>(p->_children[i]);
-          auto s = get_size_bits(cs, et);
+          auto s = et->_size_bits;
           if (s > p->_align_bits) { p->_align_bits = s; }
         }
         p->_size_bits = n * p->_align_bits;
@@ -267,7 +267,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       p->_is_ptr = true;
       p->_is_array = true;
       p->_size_bits = tm->getPointerSizeInBits(0);
-      p->_align_bits = get_size_bits(cs, et);
+      p->_align_bits = et->_size_bits;
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
@@ -278,7 +278,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       resolve_ty(cs, e);
       p->_type_name = get_type_name(e) + "*";
       p->_size_bits = tm->getPointerSizeInBits(0);
-      p->_align_bits = get_size_bits(cs, e);
+      p->_align_bits = e->_size_bits;
       p->_is_ptr = true;
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;

@@ -13,7 +13,16 @@
 #pragma clang system_header
 #endif
 #ifdef _MSC_VER
-#pragma warning(push, 0)
+
+/// fix bunch of errors caused by macros defined in windows.h
+#pragma warning(disable:4596)
+#include <windows.h>
+#include <DbgHelp.h>
+#undef min
+#undef max
+#undef OPTIONAL
+#undef CONST
+#undef VOID
 #endif
 
 #include <llvm/IR/Value.h>
@@ -238,9 +247,5 @@ using llvm::DINode;
 using llvm::DebugLoc;
 
 } // namespace tanlang
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 #endif /* TAN_SRC_LLVM_INCLUDE_H_ */

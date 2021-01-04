@@ -5,148 +5,160 @@ find_package(
         ${CUSTOM_LLVM_CMAKE_DIR}
 )
 
+add_definitions(-D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
+
 set(LLVM_LIBS
-        LLVM
-        LLVMXRay
-        LLVMWindowsManifest
-        LLVMTextAPI
-        LLVMTableGen
-        LLVMSymbolize
-        LLVMDebugInfoPDB
-        LLVMOrcJIT
-        LLVMJITLink
-        LLVMObjectYAML
-        LLVMMCA
-        LLVMLTO
-        LLVMPasses
-        LLVMObjCARCOpts
-        LLVMLineEditor
-        LLVMLibDriver
-        LLVMInterpreter
-        LLVMFuzzMutate
-        LLVMMCJIT
-        LLVMExecutionEngine
-        LLVMRuntimeDyld
-        LLVMDlltoolDriver
-        LLVMOption
-        LLVMDebugInfoGSYM
-        LLVMCoverage
+        LLVMAArch64AsmParser
+        LLVMAArch64CodeGen
+        LLVMAArch64Desc
+        LLVMAArch64Disassembler
+        LLVMAArch64Info
+        LLVMAArch64Utils
+        LLVMAMDGPUAsmParser
+        LLVMAMDGPUCodeGen
+        LLVMAMDGPUDesc
+        LLVMAMDGPUDisassembler
+        LLVMAMDGPUInfo
+        LLVMAMDGPUUtils
+        LLVMARMAsmParser
+        LLVMARMCodeGen
+        LLVMARMDesc
+        LLVMARMDisassembler
+        LLVMARMInfo
+        LLVMARMUtils
+        LLVMAVRAsmParser
+        LLVMAVRCodeGen
+        LLVMAVRDesc
+        LLVMAVRDisassembler
+        LLVMAVRInfo
+        LLVMAggressiveInstCombine
+        LLVMAnalysis
+        LLVMAsmParser
+        LLVMAsmPrinter
+        LLVMBPFAsmParser
+        LLVMBPFCodeGen
+        LLVMBPFDesc
+        LLVMBPFDisassembler
+        LLVMBPFInfo
+        LLVMBinaryFormat
+        LLVMBitReader
+        LLVMBitWriter
+        LLVMBitstreamReader
+        LLVMCFGuard
+        LLVMCodeGen
+        LLVMCore
         LLVMCoroutines
-        LLVMXCoreDisassembler
-        LLVMXCoreCodeGen
-        LLVMXCoreDesc
-        LLVMXCoreInfo
-        LLVMX86Disassembler
-        LLVMX86AsmParser
-        LLVMX86CodeGen
-        LLVMX86Desc
-        LLVMX86Utils
-        LLVMX86Info
-        LLVMWebAssemblyDisassembler
-        LLVMWebAssemblyCodeGen
-        LLVMWebAssemblyDesc
-        LLVMWebAssemblyAsmParser
-        LLVMWebAssemblyInfo
-        LLVMSystemZDisassembler
-        LLVMSystemZCodeGen
-        LLVMSystemZAsmParser
-        LLVMSystemZDesc
-        LLVMSystemZInfo
-        LLVMSparcDisassembler
-        LLVMSparcCodeGen
-        LLVMSparcAsmParser
-        LLVMSparcDesc
-        LLVMSparcInfo
-        LLVMRISCVDisassembler
-        LLVMRISCVCodeGen
-        LLVMRISCVAsmParser
-        LLVMRISCVDesc
-        LLVMRISCVUtils
-        LLVMRISCVInfo
-        LLVMPowerPCDisassembler
-        LLVMPowerPCCodeGen
-        LLVMPowerPCAsmParser
-        LLVMPowerPCDesc
-        LLVMPowerPCInfo
+        LLVMCoverage
+        LLVMDWARFLinker
+        LLVMDebugInfoCodeView
+        LLVMDebugInfoDWARF
+        LLVMDebugInfoGSYM
+        LLVMDebugInfoMSF
+        LLVMDebugInfoPDB
+        LLVMDemangle
+        LLVMDlltoolDriver
+        LLVMExecutionEngine
+        LLVMExtensions
+        LLVMFrontendOpenMP
+        LLVMFuzzMutate
+        LLVMGlobalISel
+        LLVMHexagonAsmParser
+        LLVMHexagonCodeGen
+        LLVMHexagonDesc
+        LLVMHexagonDisassembler
+        LLVMHexagonInfo
+        LLVMIRReader
+        LLVMInstCombine
+        LLVMInstrumentation
+        LLVMInterpreter
+        LLVMJITLink
+        LLVMLTO
+        LLVMLanaiAsmParser
+        LLVMLanaiCodeGen
+        LLVMLanaiDesc
+        LLVMLanaiDisassembler
+        LLVMLanaiInfo
+        LLVMLibDriver
+        LLVMLineEditor
+        LLVMLinker
+        LLVMMC
+        LLVMMCA
+        LLVMMCDisassembler
+        LLVMMCJIT
+        LLVMMCParser
+        LLVMMIRParser
+        LLVMMSP430AsmParser
+        LLVMMSP430CodeGen
+        LLVMMSP430Desc
+        LLVMMSP430Disassembler
+        LLVMMSP430Info
+        LLVMMipsAsmParser
+        LLVMMipsCodeGen
+        LLVMMipsDesc
+        LLVMMipsDisassembler
+        LLVMMipsInfo
         LLVMNVPTXCodeGen
         LLVMNVPTXDesc
         LLVMNVPTXInfo
-        LLVMMSP430Disassembler
-        LLVMMSP430CodeGen
-        LLVMMSP430AsmParser
-        LLVMMSP430Desc
-        LLVMMSP430Info
-        LLVMMipsDisassembler
-        LLVMMipsCodeGen
-        LLVMMipsAsmParser
-        LLVMMipsDesc
-        LLVMMipsInfo
-        LLVMLanaiDisassembler
-        LLVMLanaiCodeGen
-        LLVMLanaiAsmParser
-        LLVMLanaiDesc
-        LLVMLanaiInfo
-        LLVMHexagonDisassembler
-        LLVMHexagonCodeGen
-        LLVMHexagonAsmParser
-        LLVMHexagonDesc
-        LLVMHexagonInfo
-        LLVMBPFDisassembler
-        LLVMBPFCodeGen
-        LLVMBPFAsmParser
-        LLVMBPFDesc
-        LLVMBPFInfo
-        LLVMARMDisassembler
-        LLVMARMCodeGen
-        LLVMARMAsmParser
-        LLVMARMDesc
-        LLVMARMUtils
-        LLVMARMInfo
-        LLVMAMDGPUDisassembler
-        LLVMAMDGPUCodeGen
-        LLVMMIRParser
-        LLVMipo
-        LLVMInstrumentation
-        LLVMVectorize
-        LLVMLinker
-        LLVMIRReader
-        LLVMAsmParser
-        LLVMAMDGPUAsmParser
-        LLVMAMDGPUDesc
-        LLVMAMDGPUUtils
-        LLVMAMDGPUInfo
-        LLVMAArch64Disassembler
-        LLVMMCDisassembler
-        LLVMAArch64CodeGen
-        LLVMGlobalISel
-        LLVMSelectionDAG
-        LLVMAsmPrinter
-        LLVMDebugInfoDWARF
-        LLVMCodeGen
-        LLVMTarget
-        LLVMScalarOpts
-        LLVMInstCombine
-        LLVMAggressiveInstCombine
-        LLVMTransformUtils
-        LLVMBitWriter
-        LLVMAnalysis
-        LLVMProfileData
+        LLVMObjCARCOpts
         LLVMObject
-        LLVMBitReader
-        LLVMBitstreamReader
-        LLVMCore
+        LLVMObjectYAML
+        LLVMOption
+        LLVMOrcError
+        LLVMOrcJIT
+        LLVMPasses
+        LLVMPerfJITEvents
+        LLVMPowerPCAsmParser
+        LLVMPowerPCCodeGen
+        LLVMPowerPCDesc
+        LLVMPowerPCDisassembler
+        LLVMPowerPCInfo
+        LLVMProfileData
+        LLVMRISCVAsmParser
+        LLVMRISCVCodeGen
+        LLVMRISCVDesc
+        LLVMRISCVDisassembler
+        LLVMRISCVInfo
+        LLVMRISCVUtils
         LLVMRemarks
-        LLVMAArch64AsmParser
-        LLVMMCParser
-        LLVMAArch64Desc
-        LLVMMC
-        LLVMDebugInfoCodeView
-        LLVMDebugInfoMSF
-        LLVMBinaryFormat
-        LLVMAArch64Utils
-        LLVMAArch64Info
+        LLVMRuntimeDyld
+        LLVMScalarOpts
+        LLVMSelectionDAG
+        LLVMSparcAsmParser
+        LLVMSparcCodeGen
+        LLVMSparcDesc
+        LLVMSparcDisassembler
+        LLVMSparcInfo
         LLVMSupport
-        LLVMDemangle
+        LLVMSymbolize
+        LLVMSystemZAsmParser
+        LLVMSystemZCodeGen
+        LLVMSystemZDesc
+        LLVMSystemZDisassembler
+        LLVMSystemZInfo
+        LLVMTableGen
+        LLVMTarget
+        LLVMTextAPI
+        LLVMTransformUtils
+        LLVMVectorize
+        LLVMWebAssemblyAsmParser
+        LLVMWebAssemblyCodeGen
+        LLVMWebAssemblyDesc
+        LLVMWebAssemblyDisassembler
+        LLVMWebAssemblyInfo
+        LLVMWindowsManifest
+        LLVMX86AsmParser
+        LLVMX86CodeGen
+        LLVMX86Desc
+        LLVMX86Disassembler
+        LLVMX86Info
+        LLVMX86Utils
+        LLVMXCoreCodeGen
+        LLVMXCoreDesc
+        LLVMXCoreDisassembler
+        LLVMXCoreInfo
+        LLVMXRay
+        LLVMipo
         )
 
 find_package(
@@ -195,38 +207,72 @@ if (NOT CLANG_LIBRARIES)
     endmacro(FIND_AND_ADD_CLANG_LIB)
 
     FIND_AND_ADD_CLANG_LIB(clang)
+
+    FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
+    FIND_AND_ADD_CLANG_LIB(clangAST)
+    FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
+    FIND_AND_ADD_CLANG_LIB(clangAnalysis)
+    FIND_AND_ADD_CLANG_LIB(clangApplyReplacements)
+
     FIND_AND_ADD_CLANG_LIB(clangBasic)
+
     FIND_AND_ADD_CLANG_LIB(clangCodeGen)
+    FIND_AND_ADD_CLANG_LIB(clangChangeNamespace)
+    FIND_AND_ADD_CLANG_LIB(clangCrossTU)
+    FIND_AND_ADD_CLANG_LIB(clangDaemon)
+    FIND_AND_ADD_CLANG_LIB(clangDaemonTweaks)
     FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangTooling)
+    FIND_AND_ADD_CLANG_LIB(clangDependencyScanning)
+    FIND_AND_ADD_CLANG_LIB(clangDirectoryWatcher)
+    FIND_AND_ADD_CLANG_LIB(clangDriver)
+    FIND_AND_ADD_CLANG_LIB(clangDynamicASTMatchers)
+
+    FIND_AND_ADD_CLANG_LIB(clangEdit)
+
+    FIND_AND_ADD_CLANG_LIB(clangFormat)
     FIND_AND_ADD_CLANG_LIB(clangFrontend)
     FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-    FIND_AND_ADD_CLANG_LIB(clangSerialization)
-    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-    FIND_AND_ADD_CLANG_LIB(clangFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangSerialization)
+
+    FIND_AND_ADD_CLANG_LIB(clangHandleCXX)
+    FIND_AND_ADD_CLANG_LIB(clangHandleLLVM)
+
+    FIND_AND_ADD_CLANG_LIB(clangIncludeFixer)
+    FIND_AND_ADD_CLANG_LIB(clangIncludeFixerPlugin)
+    FIND_AND_ADD_CLANG_LIB(clangIndex)
+
+    FIND_AND_ADD_CLANG_LIB(clangLex)
+
+    FIND_AND_ADD_CLANG_LIB(clangMove)
+
+    FIND_AND_ADD_CLANG_LIB(clangParse)
+
+    FIND_AND_ADD_CLANG_LIB(clangQuery)
+
+    FIND_AND_ADD_CLANG_LIB(clangReorderFields)
+    FIND_AND_ADD_CLANG_LIB(clangRewrite)
+    FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
+
     FIND_AND_ADD_CLANG_LIB(clangSema)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
+    FIND_AND_ADD_CLANG_LIB(clangSerialization)
+
     FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
     FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
-    FIND_AND_ADD_CLANG_LIB(clangAnalysis)
-    FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
-    FIND_AND_ADD_CLANG_LIB(clangAST)
-    FIND_AND_ADD_CLANG_LIB(clangParse)
-    FIND_AND_ADD_CLANG_LIB(clangSema)
-    FIND_AND_ADD_CLANG_LIB(clangBasic)
-    FIND_AND_ADD_CLANG_LIB(clangEdit)
-    FIND_AND_ADD_CLANG_LIB(clangLex)
-    FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
-    FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangRewrite)
-    FIND_AND_ADD_CLANG_LIB(clangCrossTU)
-    FIND_AND_ADD_CLANG_LIB(clangIndex)
+    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
+
+    FIND_AND_ADD_CLANG_LIB(clangTooling)
+    FIND_AND_ADD_CLANG_LIB(clangToolingASTDiff)
+    FIND_AND_ADD_CLANG_LIB(clangToolingCore)
+    FIND_AND_ADD_CLANG_LIB(clangToolingInclusions)
+    FIND_AND_ADD_CLANG_LIB(clangToolingRefactoring)
+    FIND_AND_ADD_CLANG_LIB(clangToolingSyntax)
+    FIND_AND_ADD_CLANG_LIB(clangTransformer)
+
     FIND_AND_ADD_CLANG_LIB(Polly)
     FIND_AND_ADD_CLANG_LIB(PollyISL)
     FIND_AND_ADD_CLANG_LIB(PollyPPCG)
+
+    FIND_AND_ADD_CLANG_LIB(findAllSymbols)
+    FIND_AND_ADD_CLANG_LIB(Remarks)
 endif ()
 
 message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
@@ -240,8 +286,6 @@ foreach (d ${tmp})
     set(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} ${d})
 endforeach ()
 
-message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
-
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
@@ -249,12 +293,20 @@ set(DEP_INCLUDES
         ${DEP_DIR}/libbacktrace
         PARENT_SCOPE)
 
-set(DEP_LIBS ${LLVM_LIBS}
-        ${CLANG_LIBRARIES}
-        z dl rt tinfo pthread m xml2
-        gcov
-        backtrace
-        PARENT_SCOPE)
+if (MSVC)
+    set(DEP_LIBS
+            ${LLVM_LIBS}
+            ${CLANG_LIBRARIES}
+            PARENT_SCOPE)
+else ()
+    set(DEP_LIBS
+            ${LLVM_LIBS}
+            ${CLANG_LIBRARIES}
+            z dl rt tinfo pthread m xml2
+            gcov
+            backtrace
+            PARENT_SCOPE)
+endif ()
 
 set(DEP_LIB_DIRS
         ${LLVM_LIBRARY_DIR}

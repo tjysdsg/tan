@@ -63,9 +63,6 @@ public:
     _is_valued = true;
   }
 
-protected:
-  void parse_get_decl();
-
 public:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
 };

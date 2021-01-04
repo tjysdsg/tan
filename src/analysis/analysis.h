@@ -15,7 +15,6 @@ llvm::Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p);
 str get_type_name(const ASTNodePtr &p);
 ASTTyPtr get_contained_ty(CompilerSession *cs, const ASTTyPtr &p);
 ASTTyPtr get_ptr_to(CompilerSession *cs, const ASTTyPtr &p);
-size_t get_size_bits(CompilerSession *cs, ASTTyPtr p);
 size_t get_struct_member_index(const ASTTyPtr &p, const str &name);
 ASTTyPtr get_struct_member_ty(const ASTTyPtr &p, size_t i);
 void resolve_ty(CompilerSession *cs, const ASTTyPtr &p);

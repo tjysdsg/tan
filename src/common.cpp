@@ -9,7 +9,7 @@ AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, cons
     return tmp_builder.CreateAlloca(type, nullptr, name);
   } else {
     return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned) size), name);
-  };
+  }
 }
 
 bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list) {

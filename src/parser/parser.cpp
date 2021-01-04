@@ -3,7 +3,6 @@
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_control_flow.h"
-#include "src/analysis/analysis.h"
 #include "src/ast/ast_member_access.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_ty.h"
@@ -251,15 +250,15 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
   switch (hashed_string{p->_token->value.c_str()}) {
     case "&"_hs:
       p->_type = ASTType::ADDRESS_OF;
-      p->_lbp = op_precedence[p->_type];
+      p->_lbp = ASTNode::op_precedence[p->_type];
       break;
     case "!"_hs:
       p->_type = ASTType::LNOT;
-      p->_lbp = op_precedence[p->_type];
+      p->_lbp = ASTNode::op_precedence[p->_type];
       break;
     case "~"_hs:
       p->_type = ASTType::BNOT;
-      p->_lbp = op_precedence[p->_type];
+      p->_lbp = ASTNode::op_precedence[p->_type];
       break;
     default:
       break;
@@ -477,9 +476,11 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       TAN_ASSERT(pt);
       while (!eof(p->_end_index)) {
         token = at(p->_end_index);
-        if (basic_tys.find(token->value) != basic_tys.end()) { /// base types
-          pt->_tyty = TY_OR(pt->_tyty, basic_tys[token->value]);
-        } else if (qualifier_tys.find(token->value) != qualifier_tys.end()) { /// TODO: qualifiers
+        auto qb = ASTTy::basic_tys.find(token->value);
+        auto qq = ASTTy::qualifier_tys.find(token->value);
+        if (qb != ASTTy::basic_tys.end()) { /// base types
+          pt->_tyty = TY_OR(pt->_tyty, qb->second);
+        } else if (qq != ASTTy::qualifier_tys.end()) { /// TODO: qualifiers
           if (token->value == "*") { /// pointer
             /// swap self and child
             auto sub = std::make_shared<ASTTy>(*pt);
@@ -640,7 +641,7 @@ size_t Parser::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
   switch (hashed_string{p->_token->value.c_str()}) {
     case "&"_hs:
       p->_type = ASTType::BAND;
-      p->_lbp = op_precedence[p->_type];
+      p->_lbp = ASTNode::op_precedence[p->_type];
       break;
     default:
       break;

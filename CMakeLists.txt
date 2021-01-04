@@ -16,8 +16,9 @@ project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
-option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
+option(ENABLE_COVERAGE "Enable coverage" OFF)
+option(BUILD_DOCS "Build doxygen" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 option(CUSTOM_LLVM_CMAKE_DIR "Custom directory containing FindLLVM.cmake" OFF)
 option(CUSTOM_CLANG_CMAKE_DIR "Custom directory containing FindClang.cmake" OFF)
@@ -70,19 +71,14 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 macro(set_common_options target_name)
     message(DEBUG "Generating target: ${target_name}")
     target_compile_features(${target_name} PRIVATE cxx_std_17)
-    if (CMAKE_COMPILER_IS_GNUCXX)
+    if (NOT MSVC)
         target_compile_options(${target_name}
                 PRIVATE -Wall
                 PRIVATE -Wextra
                 PRIVATE -pedantic-errors
                 PRIVATE -Wconversion
                 )
-        # MSVC will throw out tons of warnings from LLVM headers and I failed to suppress them
-        # else ()
-        #       target_compile_options(${target_name}
-        #       PRIVATE -Wall
-        # )
-    endif (CMAKE_COMPILER_IS_GNUCXX)
+    endif ()
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -108,13 +104,23 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
+if (CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
+    # https://stackoverflow.com/questions/58708772/cmake-project-in-visual-studio-gives-flag-override-warnings-command-line-warnin
+    string(REGEX REPLACE "/W[3|4]" "/w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    add_compile_options("/std:c++17")
+endif ()
+
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread ${DEP_LIBS} unwind)
+if (MSVC)
+    target_link_libraries(tan ${DEP_LIBS})
+else ()
+    target_link_libraries(tan ${DEP_LIBS} unwind)
+endif ()
 set_common_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
-    message(STATUS "precompiled headers are enabled")
+    message(STATUS "Precompiled headers are enabled")
     target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
 endif ()
 
@@ -137,7 +143,9 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 endif ()
 
 # ===== docs =====
-add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
+if (${BUILD_DOCS})
+    add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
+endif ()
 
 # ===== examples =====
 if (${BUILD_EXAMPLES})

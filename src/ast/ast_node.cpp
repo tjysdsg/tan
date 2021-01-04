@@ -38,7 +38,7 @@ ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
-umap<ASTType, str> ast_type_names
+umap<ASTType, str>ASTNode::ast_type_names =
     {MAKE_ASTTYPE_NAME_PAIR(PROGRAM), MAKE_ASTTYPE_NAME_PAIR(STATEMENT), MAKE_ASTTYPE_NAME_PAIR(SUM),
         MAKE_ASTTYPE_NAME_PAIR(SUBTRACT), MAKE_ASTTYPE_NAME_PAIR(MULTIPLY), MAKE_ASTTYPE_NAME_PAIR(DIVIDE),
         MAKE_ASTTYPE_NAME_PAIR(MOD), MAKE_ASTTYPE_NAME_PAIR(ASSIGN), MAKE_ASTTYPE_NAME_PAIR(NUM_LITERAL),
@@ -58,7 +58,7 @@ umap<ASTType, str> ast_type_names
 #undef MAKE_ASTTYPE_NAME_PAIR
 
 /// operator precedence
-umap<ASTType, int> op_precedence
+umap<ASTType, int>ASTNode::op_precedence =
     {{ASTType::PROGRAM, PREC_LOWEST}, {ASTType::STATEMENT, PREC_LOWEST}, {ASTType::INVALID, PREC_LOWEST},
         {ASTType::SUM, PREC_TERM}, {ASTType::SUBTRACT, PREC_TERM}, {ASTType::BOR, PREC_TERM}, {ASTType::XOR, PREC_TERM},
         {ASTType::MULTIPLY, PREC_FACTOR}, {ASTType::DIVIDE, PREC_FACTOR}, {ASTType::MOD, PREC_FACTOR},

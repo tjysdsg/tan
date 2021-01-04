@@ -93,13 +93,14 @@ enum class ASTType {
   INVALID,
 };
 
-/// get string representation of ASTType
-extern umap<ASTType, str> ast_type_names;
-
-/// operator precedence for tokens
-extern umap<ASTType, int> op_precedence;
-
 class ASTNode {
+public:
+  /// string representation of ASTType
+  static umap<ASTType, str> ast_type_names;
+
+  /// operator precedence of tokens
+  static umap<ASTType, int> op_precedence;
+
 public:
   ASTNode() = delete;
   ASTNode(ASTType op, int lbp);

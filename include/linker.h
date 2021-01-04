@@ -9,7 +9,7 @@ public:
   Linker();
   ~Linker() = default;
   void add_files(vector<str> filenames);
-  void add_flag(str flag);
+  void add_flag(const str &flag);
   void add_flags(vector<str> flags);
   bool link();
 

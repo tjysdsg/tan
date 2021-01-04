@@ -55,3 +55,13 @@ bool ASTTy::operator==(const ASTTy &other) {
 str ASTTy::to_string(bool print_prefix) { return ASTNode::to_string(print_prefix) + " " + _type_name; }
 
 bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
+
+umap<str, Ty>ASTTy::basic_tys =
+    {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
+        {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
+        {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
+        {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
+        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
+        {"bool", Ty::BOOL},};
+
+umap<str, Ty> ASTTy::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
