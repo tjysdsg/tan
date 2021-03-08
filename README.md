@@ -1,6 +1,8 @@
 `tan` programming language
 ===
 
+**The project is being overhauled**
+
 [![codecov](https://codecov.io/gh/tjysdsg/tan/branch/master/graph/badge.svg)](https://codecov.io/gh/tjysdsg/tan)
 [![CodeFactor](https://www.codefactor.io/repository/github/tjysdsg/tan/badge)](https://www.codefactor.io/repository/github/tjysdsg/tan)
 [![Code Inspector](https://www.code-inspector.com/project/8230/score/svg)](https://frontend.code-inspector.com/public/project/8230/tan/dashboard)
