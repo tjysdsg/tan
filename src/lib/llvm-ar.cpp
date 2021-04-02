@@ -56,6 +56,10 @@ static void failIfError(Error E, Twine Context = "") {
   });
 }
 
+static void failIfError(std::error_code E, Twine Context = "") {
+  failIfError(llvm::createStringError(E, "Runtime error"), Context);
+}
+
 static bool Symtab = true;                ///< 's' modifier
 static bool Deterministic = true;         ///< 'D' and 'U' modifiers
 
