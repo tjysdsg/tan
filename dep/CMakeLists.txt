@@ -8,6 +8,10 @@ find_package(
 add_definitions(-D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
 
 set(LLVM_LIBS
+        LLVMPolly
+        LLVMgold
+        Fuzzer
+        LLVM
         LLVMAArch64AsmParser
         LLVMAArch64CodeGen
         LLVMAArch64Desc
@@ -159,6 +163,105 @@ set(LLVM_LIBS
         LLVMXCoreInfo
         LLVMXRay
         LLVMipo
+        LTO
+        Polly
+        PollyISL
+        PollyPPCG
+        Remarks
+        archer
+        archer_static
+        c++
+        c++abi
+        clang-10
+        clang-cpp
+        clang
+        clang
+        clangARCMigrate
+        clangAST
+        clangASTMatchers
+        clangAnalysis
+        clangApplyReplacements
+        clangBasic
+        clangChangeNamespace
+        clangCodeGen
+        clangCrossTU
+        clangDaemon
+        clangDaemonTweaks
+        clangDependencyScanning
+        clangDirectoryWatcher
+        clangDoc
+        clangDriver
+        clangDynamicASTMatchers
+        clangEdit
+        clangFormat
+        clangFrontend
+        clangFrontendTool
+        clangHandleCXX
+        clangHandleLLVM
+        clangIncludeFixer
+        clangIncludeFixerPlugin
+        clangIndex
+        clangLex
+        clangMove
+        clangParse
+        clangQuery
+        clangReorderFields
+        clangRewrite
+        clangRewriteFrontend
+        clangSema
+        clangSerialization
+        clangStaticAnalyzerCheckers
+        clangStaticAnalyzerCore
+        clangStaticAnalyzerFrontend
+        clangTidy
+        clangTidyAbseilModule
+        clangTidyAndroidModule
+        clangTidyBoostModule
+        clangTidyBugproneModule
+        clangTidyCERTModule
+        clangTidyCppCoreGuidelinesModule
+        clangTidyDarwinModule
+        clangTidyFuchsiaModule
+        clangTidyGoogleModule
+        clangTidyHICPPModule
+        clangTidyLLVMModule
+        clangTidyLinuxKernelModule
+        clangTidyMPIModule
+        clangTidyMiscModule
+        clangTidyModernizeModule
+        clangTidyObjCModule
+        clangTidyOpenMPModule
+        clangTidyPerformanceModule
+        clangTidyPlugin
+        clangTidyPortabilityModule
+        clangTidyReadabilityModule
+        clangTidyUtils
+        clangTidyZirconModule
+        clangTooling
+        clangToolingASTDiff
+        clangToolingCore
+        clangToolingInclusions
+        clangToolingRefactoring
+        clangToolingSyntax
+        clangTransformer
+        findAllSymbols
+        gomp
+        iomp5
+        lldCOFF
+        lldCommon
+        lldCore
+        lldDriver
+        lldELF
+        lldMachO
+        lldMinGW
+        lldReaderWriter
+        lldWasm
+        lldYAML
+        lldb
+        lldbIntelFeatures
+        omp-10
+        omp
+        omptarget
         )
 
 find_package(
@@ -173,109 +276,33 @@ else ()
     message(STATUS "Clang headers found in: ${CLANG_INCLUDE_DIRS}")
 endif ()
 
-find_library(CLANG_LIBRARIES
-        NAMES
-        clang-cpp-10.0
-        clang-cpp100
-        clang-cpp
-        PATHS
-        ${CLANG_LIBDIRS}
-        /usr/lib/llvm-10/lib
-        /usr/local/llvm100/lib
-        /usr/local/llvm10/lib
-        )
+macro(FIND_AND_ADD_CLANG_LIB _libname_)
+    string(TOUPPER ${_libname_} _prettylibname_)
+    message(STATUS "Checking LLVM lib: ${_libname_}")
+    find_library(CLANG_${_prettylibname_}_LIB NAMES ${_libname_}
+            PATHS
+            ${CLANG_LIBDIRS}
+            /usr/lib/llvm/10/lib
+            /usr/lib/llvm-10/lib
+            /usr/lib/llvm-10.0/lib
+            /usr/local/llvm100/lib
+            /usr/local/llvm10/lib
+            /mingw64/lib
+            /c/msys64/mingw64/lib
+            c:\\msys64\\mingw64\\lib
+            )
+    if (CLANG_${_prettylibname_}_LIB)
+        set(LLVM_LIB_FILES ${LLVM_LIB_FILES} ${CLANG_${_prettylibname_}_LIB})
+    else ()
+        message(WARNING "Checking LLVM lib: ${_libname_} failed")
+    endif ()
+endmacro(FIND_AND_ADD_CLANG_LIB)
 
-if (NOT CLANG_LIBRARIES)
-    set(CLANG_LIBRARIES "")
-    macro(FIND_AND_ADD_CLANG_LIB _libname_)
-        string(TOUPPER ${_libname_} _prettylibname_)
-        find_library(CLANG_${_prettylibname_}_LIB NAMES ${_libname_}
-                PATHS
-                ${CLANG_LIBDIRS}
-                /usr/lib/llvm/10/lib
-                /usr/lib/llvm-10/lib
-                /usr/lib/llvm-10.0/lib
-                /usr/local/llvm100/lib
-                /usr/local/llvm10/lib
-                /mingw64/lib
-                /c/msys64/mingw64/lib
-                c:\\msys64\\mingw64\\lib
-                )
-        if (CLANG_${_prettylibname_}_LIB)
-            set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
-        endif ()
-    endmacro(FIND_AND_ADD_CLANG_LIB)
+foreach (LIBNAME ${LLVM_LIBS})
+    FIND_AND_ADD_CLANG_LIB(${LIBNAME})
+endforeach ()
 
-    FIND_AND_ADD_CLANG_LIB(clang)
-
-    FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
-    FIND_AND_ADD_CLANG_LIB(clangAST)
-    FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
-    FIND_AND_ADD_CLANG_LIB(clangAnalysis)
-    FIND_AND_ADD_CLANG_LIB(clangApplyReplacements)
-
-    FIND_AND_ADD_CLANG_LIB(clangBasic)
-
-    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-    FIND_AND_ADD_CLANG_LIB(clangChangeNamespace)
-    FIND_AND_ADD_CLANG_LIB(clangCrossTU)
-    FIND_AND_ADD_CLANG_LIB(clangDaemon)
-    FIND_AND_ADD_CLANG_LIB(clangDaemonTweaks)
-    FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangDependencyScanning)
-    FIND_AND_ADD_CLANG_LIB(clangDirectoryWatcher)
-    FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangDynamicASTMatchers)
-
-    FIND_AND_ADD_CLANG_LIB(clangEdit)
-
-    FIND_AND_ADD_CLANG_LIB(clangFormat)
-    FIND_AND_ADD_CLANG_LIB(clangFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-
-    FIND_AND_ADD_CLANG_LIB(clangHandleCXX)
-    FIND_AND_ADD_CLANG_LIB(clangHandleLLVM)
-
-    FIND_AND_ADD_CLANG_LIB(clangIncludeFixer)
-    FIND_AND_ADD_CLANG_LIB(clangIncludeFixerPlugin)
-    FIND_AND_ADD_CLANG_LIB(clangIndex)
-
-    FIND_AND_ADD_CLANG_LIB(clangLex)
-
-    FIND_AND_ADD_CLANG_LIB(clangMove)
-
-    FIND_AND_ADD_CLANG_LIB(clangParse)
-
-    FIND_AND_ADD_CLANG_LIB(clangQuery)
-
-    FIND_AND_ADD_CLANG_LIB(clangReorderFields)
-    FIND_AND_ADD_CLANG_LIB(clangRewrite)
-    FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
-
-    FIND_AND_ADD_CLANG_LIB(clangSema)
-    FIND_AND_ADD_CLANG_LIB(clangSerialization)
-
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
-
-    FIND_AND_ADD_CLANG_LIB(clangTooling)
-    FIND_AND_ADD_CLANG_LIB(clangToolingASTDiff)
-    FIND_AND_ADD_CLANG_LIB(clangToolingCore)
-    FIND_AND_ADD_CLANG_LIB(clangToolingInclusions)
-    FIND_AND_ADD_CLANG_LIB(clangToolingRefactoring)
-    FIND_AND_ADD_CLANG_LIB(clangToolingSyntax)
-    FIND_AND_ADD_CLANG_LIB(clangTransformer)
-
-    FIND_AND_ADD_CLANG_LIB(Polly)
-    FIND_AND_ADD_CLANG_LIB(PollyISL)
-    FIND_AND_ADD_CLANG_LIB(PollyPPCG)
-
-    FIND_AND_ADD_CLANG_LIB(findAllSymbols)
-    FIND_AND_ADD_CLANG_LIB(Remarks)
-endif ()
-
-message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
+message(STATUS "LLVM libraries to link against: ${LLVM_LIB_FILES}")
 
 # CLION + WSL not handling symlink correctly
 set(tmp ${LLVM_INCLUDE_DIRS}/llvm)
@@ -296,12 +323,12 @@ set(DEP_INCLUDES
 if (MSVC)
     set(DEP_LIBS
             ${LLVM_LIBS}
-            ${CLANG_LIBRARIES}
+            ${LLVM_LIB_FILES}
             PARENT_SCOPE)
 else ()
     set(DEP_LIBS
             ${LLVM_LIBS}
-            ${CLANG_LIBRARIES}
+            ${LLVM_LIB_FILES}
             z dl rt tinfo pthread m xml2
             gcov
             backtrace
