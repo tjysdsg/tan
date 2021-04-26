@@ -9,30 +9,33 @@ list(GET VERSION_LIST 2 PROJECT_VERSION_PATCH)
 set(CMAKE_PROJECT_TAN_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CMAKE_PROJECT_TAN_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CMAKE_PROJECT_TAN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+
+# Define macros used in C headers
 # see include/config.h.in
 set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
-project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
-list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+# Override compiling flags
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
+# project
+project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
+# include cmake/*.cmake
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
+# ==================== OPTIONS ====================
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_DOCS "Build doxygen" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
-option(CUSTOM_LLVM_CMAKE_DIR "Custom directory containing FindLLVM.cmake" OFF)
-option(CUSTOM_CLANG_CMAKE_DIR "Custom directory containing FindClang.cmake" OFF)
+
+option(LLVM_CUSTOM_CONFIG_EXE_DIR "Custom location of llvm_config executable" OFF)
+option(CLANG_CUSTOM_CONFIG_EXE_DIR "Custom location of llvm_config executable" OFF)
+
+# ==================== GENERAL CONFIGS ====================
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
-
-if (CUSTOM_CLANG_CMAKE_DIR)
-    list(PREPEND CMAKE_MODULE_PATH "${CUSTOM_CLANG_CMAKE_DIR}")
-    message(STATUS "Using ${CUSTOM_CLANG_CMAKE_DIR} to find FindClang.cmake")
-endif ()
-if (CUSTOM_LLVM_CMAKE_DIR)
-    list(PREPEND CMAKE_MODULE_PATH "${CUSTOM_LLVM_CMAKE_DIR}")
-    message(STATUS "Using ${CUSTOM_LLVM_CMAKE_DIR} to find FindLLVM.cmake")
-endif ()
 
 # use static linking whenever possible
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
@@ -57,12 +60,17 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # ================================ thirdparty dependencies ========================== #
+find_package(llvm)
 # googletest
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 # others in dep/
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
 include_directories(${DEP_INCLUDES})
 link_directories(${DEP_LIB_DIRS})
+set(DEP_LIBS ${LLVM_LIBRARIES} ${DEP_LIBS})
+
+message(STATUS "Dependency library dirs are ${DEP_LIB_DIRS}")
+message(STATUS "Dependency libraries are ${DEP_LIBS}")
 # =================================================================================== #
 
 # generate include/config.h using include/config.h.in
@@ -79,7 +87,11 @@ macro(set_common_options target_name)
                 PRIVATE -Wconversion
                 )
     endif ()
-    target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
+    target_include_directories(${target_name} PRIVATE
+            ${PROJECT_SOURCE_DIR}
+            ${PROJECT_SOURCE_DIR}/include
+            ${LLVM_INCLUDE_DIRS}
+            )
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         # add `DEBUG` and `_DEBUG` macro
@@ -104,6 +116,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
+# set C++17 standard for msvc cuz microsoft is a special bitch
 if (CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
     # https://stackoverflow.com/questions/58708772/cmake-project-in-visual-studio-gives-flag-override-warnings-command-line-warnin
     string(REGEX REPLACE "/W[3|4]" "/w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tanc runtime" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-I. --shared -lunwind -o libruntime.so debug.tan stdlib.tan math.tan print.tan  stack_trace.cpp" REDIRECT_INPUT="false" ELEVATE="false" WORKING_DIR="file://$PROJECT_DIR$/runtime" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc">
+  <configuration default="false" name="tanc runtime" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="-I. --shared -lunwind -o libruntime.so debug.tan stdlib.tan math.tan print.tan  stack_trace.cpp" REDIRECT_INPUT="false" ELEVATE="false" WORKING_DIR="file://$PROJECT_DIR$/runtime" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc" CONFIG_NAME="Debug-win64" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>
