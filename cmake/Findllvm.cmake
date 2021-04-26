@@ -14,10 +14,8 @@ find_program(LLVM_CONFIG_EXE
         NAMES llvm-config-12 llvm-config-12.0 llvm-config120 llvm-config12 llvm-config
         PATHS
         ${LLVM_CUSTOM_CONFIG_EXE_DIR}
-        "/mingw64/bin"
-        "/c/msys64/mingw64/bin"
-        "c:/msys64/mingw64/bin"
-        "C:/Libraries/llvm-12.0.0/bin")
+        NO_DEFAULT_PATH
+        )
 
 if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
     message(FATAL_ERROR "unable to find llvm-config")
@@ -26,6 +24,8 @@ endif ()
 if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
     message(FATAL_ERROR "unable to find llvm-config")
 endif ()
+
+message(STATUS "llvm-config executable found at ${LLVM_CONFIG_EXE}")
 
 # check version
 execute_process(
@@ -81,25 +81,24 @@ NEED_TARGET("X86")
 NEED_TARGET("XCore")
 
 # get libraries and lib dirs
-if (ZIG_STATIC_LLVM)
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --libfiles --link-static
-            OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
+execute_process(
+        COMMAND ${LLVM_CONFIG_EXE} --libfiles --link-static
+        OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
 
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --system-libs --link-static
-            OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
+execute_process(
+        COMMAND ${LLVM_CONFIG_EXE} --system-libs --link-static
+        OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
 
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --libdir --link-static
-            OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
-endif ()
+execute_process(
+        COMMAND ${LLVM_CONFIG_EXE} --libdir --link-static
+        OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
+
 if (NOT LLVM_LIBRARIES)
     execute_process(
             COMMAND ${LLVM_CONFIG_EXE} --libs
@@ -143,6 +142,7 @@ macro(FIND_AND_ADD_CLANG_LIB _libname_)
             /mingw64/lib
             /c/msys64/mingw64/lib
             c:\\msys64\\mingw64\\lib
+            NO_DEFAULT_PATH
             )
     if (CLANG_${_prettylibname_}_LIB)
         set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
@@ -151,29 +151,84 @@ macro(FIND_AND_ADD_CLANG_LIB _libname_)
     endif ()
 endmacro(FIND_AND_ADD_CLANG_LIB)
 
-FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-FIND_AND_ADD_CLANG_LIB(clangFrontend)
-FIND_AND_ADD_CLANG_LIB(clangDriver)
-FIND_AND_ADD_CLANG_LIB(clangSerialization)
-FIND_AND_ADD_CLANG_LIB(clangSema)
-FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
-FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
-FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
-FIND_AND_ADD_CLANG_LIB(clangAnalysis)
-FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
-FIND_AND_ADD_CLANG_LIB(clangAST)
-FIND_AND_ADD_CLANG_LIB(clangParse)
-FIND_AND_ADD_CLANG_LIB(clangSema)
-FIND_AND_ADD_CLANG_LIB(clangBasic)
-FIND_AND_ADD_CLANG_LIB(clangEdit)
-FIND_AND_ADD_CLANG_LIB(clangLex)
-FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
-FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
-FIND_AND_ADD_CLANG_LIB(clangRewrite)
-FIND_AND_ADD_CLANG_LIB(clangCrossTU)
-FIND_AND_ADD_CLANG_LIB(clangIndex)
-FIND_AND_ADD_CLANG_LIB(clangToolingCore)
+FIND_AND_ADD_CLANG_LIB(clang-cpp)
+# FIND_AND_ADD_CLANG_LIB(clangAPINotes)
+# FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
+# FIND_AND_ADD_CLANG_LIB(clangAST)
+# FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
+# FIND_AND_ADD_CLANG_LIB(clangAnalysis)
+# FIND_AND_ADD_CLANG_LIB(clangApplyReplacements)
+# FIND_AND_ADD_CLANG_LIB(clangBasic)
+# FIND_AND_ADD_CLANG_LIB(clangChangeNamespace)
+# FIND_AND_ADD_CLANG_LIB(clangCodeGen)
+# FIND_AND_ADD_CLANG_LIB(clangCrossTU)
+# FIND_AND_ADD_CLANG_LIB(clangDaemon)
+# FIND_AND_ADD_CLANG_LIB(clangDaemonTweaks)
+# FIND_AND_ADD_CLANG_LIB(clangDependencyScanning)
+# FIND_AND_ADD_CLANG_LIB(clangDirectoryWatcher)
+# FIND_AND_ADD_CLANG_LIB(clangDoc)
+# FIND_AND_ADD_CLANG_LIB(clangDriver)
+# FIND_AND_ADD_CLANG_LIB(clangDynamicASTMatchers)
+# FIND_AND_ADD_CLANG_LIB(clangEdit)
+# FIND_AND_ADD_CLANG_LIB(clangFormat)
+# FIND_AND_ADD_CLANG_LIB(clangFrontend)
+# FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
+# FIND_AND_ADD_CLANG_LIB(clangHandleCXX)
+# FIND_AND_ADD_CLANG_LIB(clangHandleLLVM)
+# FIND_AND_ADD_CLANG_LIB(clangIncludeFixer)
+# FIND_AND_ADD_CLANG_LIB(clangIncludeFixerPlugin)
+# FIND_AND_ADD_CLANG_LIB(clangIndex)
+# FIND_AND_ADD_CLANG_LIB(clangIndexSerialization)
+# FIND_AND_ADD_CLANG_LIB(clangLex)
+# FIND_AND_ADD_CLANG_LIB(clangMove)
+# FIND_AND_ADD_CLANG_LIB(clangParse)
+# FIND_AND_ADD_CLANG_LIB(clangQuery)
+# FIND_AND_ADD_CLANG_LIB(clangReorderFields)
+# FIND_AND_ADD_CLANG_LIB(clangRewrite)
+# FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
+# FIND_AND_ADD_CLANG_LIB(clangSema)
+# FIND_AND_ADD_CLANG_LIB(clangSerialization)
+# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
+# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
+# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
+# FIND_AND_ADD_CLANG_LIB(clangTesting)
+# FIND_AND_ADD_CLANG_LIB(clangTidy)
+# FIND_AND_ADD_CLANG_LIB(clangTidyAbseilModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyAlteraModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyAndroidModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyBoostModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyBugproneModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyCERTModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyConcurrencyModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyCppCoreGuidelinesModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyDarwinModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyFuchsiaModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyGoogleModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyHICPPModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyLLVMLibcModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyLLVMModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyLinuxKernelModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyMPIModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyMain)
+# FIND_AND_ADD_CLANG_LIB(clangTidyMiscModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyModernizeModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyObjCModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyOpenMPModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyPerformanceModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyPlugin)
+# FIND_AND_ADD_CLANG_LIB(clangTidyPortabilityModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyReadabilityModule)
+# FIND_AND_ADD_CLANG_LIB(clangTidyUtils)
+# FIND_AND_ADD_CLANG_LIB(clangTidyZirconModule)
+# FIND_AND_ADD_CLANG_LIB(clangTooling)
+# FIND_AND_ADD_CLANG_LIB(clangToolingASTDiff)
+# FIND_AND_ADD_CLANG_LIB(clangToolingCore)
+# FIND_AND_ADD_CLANG_LIB(clangToolingInclusions)
+# FIND_AND_ADD_CLANG_LIB(clangToolingRefactoring)
+# FIND_AND_ADD_CLANG_LIB(clangToolingSyntax)
+# FIND_AND_ADD_CLANG_LIB(clangTransformer)
+# FIND_AND_ADD_CLANG_LIB(clangdRemoteIndex)
+# FIND_AND_ADD_CLANG_LIB(clangdSupport)
 
 # merge clang libs and llvm libs
 
@@ -190,7 +245,9 @@ macro(FIND_AND_ADD_LLD_LIB _libname_)
             /usr/local/llvm12/lib
             /mingw64/lib
             /c/msys64/mingw64/lib
-            c:/msys64/mingw64/lib)
+            c:/msys64/mingw64/lib
+            NO_DEFAULT_PATH
+            )
     if (LLD_${_prettylibname_}_LIB)
         set(LLD_LIBRARIES ${LLD_LIBRARIES} ${LLD_${_prettylibname_}_LIB})
     else ()
@@ -210,8 +267,14 @@ FIND_AND_ADD_LLD_LIB(lldYAML)
 FIND_AND_ADD_LLD_LIB(lldCommon)
 
 # merge lld libs and llvm libs
-
 set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${LLD_LIBRARIES})
+
+# get compiling flags for llvm
+execute_process(
+        COMMAND ${LLVM_CONFIG_EXE} --cxxflags
+        OUTPUT_VARIABLE LLVM_CXXFLAGS
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+add_definitions(${LLVM_CXXFLAGS})
 
 # ===========================
 include(FindPackageHandleStandardArgs)

@@ -5,3 +5,6 @@
 	path = dep/filesystem
 	url = https://github.com/gulrak/filesystem
 
+[submodule "dep/libunwind"]
+	path = dep/libunwind
+	url = https://github.com/libunwind/libunwind

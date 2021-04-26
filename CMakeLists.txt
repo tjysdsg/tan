@@ -31,7 +31,6 @@ option(BUILD_DOCS "Build doxygen" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 
 option(LLVM_CUSTOM_CONFIG_EXE_DIR "Custom location of llvm_config executable" OFF)
-option(CLANG_CUSTOM_CONFIG_EXE_DIR "Custom location of llvm_config executable" OFF)
 
 # ==================== GENERAL CONFIGS ====================
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")

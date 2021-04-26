@@ -276,7 +276,10 @@ static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
     di_builder->insertDeclare(p->_llvm_value,
         di_arg,
         cs->_di_builder->createExpression(),
-        llvm::DebugLoc::get((unsigned) p->_token->l + 1, (unsigned) p->_token->c + 1, curr_di_scope),
+        llvm::DILocation::get(*cs->get_context(),
+            (unsigned) p->_token->l + 1,
+            (unsigned) p->_token->c + 1,
+            curr_di_scope),
         builder->GetInsertBlock());
   }
   return p->_llvm_value;
@@ -541,13 +544,17 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
           ->insertDeclare(arg_val,
               di_arg,
               cs->_di_builder->createExpression(),
-              llvm::DebugLoc::get((unsigned) p->_token->l + 1, (unsigned) p->_token->c + 1, subprogram),
+              llvm::DILocation::get(*cs->get_context(),
+                  (unsigned) p->_token->l + 1,
+                  (unsigned) p->_token->c + 1,
+                  subprogram),
               builder->GetInsertBlock());
       ++i;
     }
 
     /// set debug emit location to function body
-    builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) p->_children.back()->_token->l + 1,
+    builder->SetCurrentDebugLocation(llvm::DILocation::get(*cs->get_context(),
+        (unsigned) p->_children.back()->_token->l + 1,
         (unsigned) p->_children.back()->_token->c + 1,
         subprogram));
     /// generate function body
