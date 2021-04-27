@@ -178,9 +178,7 @@ void CompilerSession::pop_di_scope() {
 }
 
 void CompilerSession::set_current_debug_location(size_t l, size_t c) {
-
-  _builder->SetCurrentDebugLocation(llvm::DILocation::get(*get_context(),
-      (unsigned) (l + 1),
+  _builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) (l + 1),
       (unsigned) (c + 1),
       this->get_current_di_scope()));
 }

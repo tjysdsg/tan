@@ -35,7 +35,7 @@ sudo make install
 - Others:
 
 ```bash
-sudo apt install libz-dev libxml2-dev lzma-dev
+sudo apt install libz-dev libxml2-dev lzma-dev libpthread-stubs0-dev libtinfo5
 ```
 
 ## Optional Dependencies

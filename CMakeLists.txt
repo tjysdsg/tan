@@ -20,8 +20,6 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_fla
 
 # project
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
-# include cmake/*.cmake
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # ==================== OPTIONS ====================
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
@@ -30,18 +28,12 @@ option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_DOCS "Build doxygen" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 
-option(LLVM_CUSTOM_CONFIG_EXE_DIR "Custom location of llvm_config executable" OFF)
-
 # ==================== GENERAL CONFIGS ====================
+# include cmake/*.cmake
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
-
-# use static linking whenever possible
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-
-# always use full RPATH
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # default build debug
 if (NOT CMAKE_BUILD_TYPE)
@@ -59,7 +51,6 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # ================================ thirdparty dependencies ========================== #
-find_package(llvm)
 # googletest
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 # others in dep/
@@ -89,7 +80,7 @@ macro(set_common_options target_name)
     target_include_directories(${target_name} PRIVATE
             ${PROJECT_SOURCE_DIR}
             ${PROJECT_SOURCE_DIR}/include
-            ${LLVM_INCLUDE_DIRS}
+            ${DEP_INCLUDES}
             )
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -102,6 +93,7 @@ macro(set_common_options target_name)
     set_target_properties(${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
     set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
+    set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS ${EXE_CFLAGS})
 endmacro()
 
 # common source files shared by multiple targets
@@ -115,11 +107,24 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
-# set C++17 standard for msvc cuz microsoft is a special bitch
-if (CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
-    # https://stackoverflow.com/questions/58708772/cmake-project-in-visual-studio-gives-flag-override-warnings-command-line-warnin
-    string(REGEX REPLACE "/W[3|4]" "/w" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    add_compile_options("/std:c++17")
+# ================ FLAGS ================
+if (MSVC)
+    set(EXE_CFLAGS "${EXE_CFLAGS}")
+else ()
+    set(EXE_CFLAGS "${EXE_CFLAGS} -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -D_GNU_SOURCE -fvisibility-inlines-hidden -fno-exceptions -fno-rtti -Werror=type-limits -Wno-missing-braces")
+    if (MINGW)
+        set(EXE_CFLAGS "${EXE_CFLAGS} -Wno-format")
+    endif ()
+endif ()
+
+set(EXE_LDFLAGS " ")
+if (MSVC)
+    set(EXE_LDFLAGS "${EXE_LDFLAGS} /STACK:16777216")
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND NOT "${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+        set(EXE_LDFLAGS "${EXE_LDFLAGS} /debug:fastlink")
+    endif ()
+elseif (MINGW)
+    set(EXE_LDFLAGS "${EXE_LDFLAGS} -Wl,--stack,16777216")
 endif ()
 
 # ===== target library tan =====
@@ -133,7 +138,7 @@ endif ()
 set_common_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "Precompiled headers are enabled")
-    target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
+    target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h)
 endif ()
 
 # ===== target CLI compiler =====

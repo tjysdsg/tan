@@ -1,5 +1,3 @@
-# BASED ON https://github.com/ziglang/zig/tree/master/cmake
-
 # Copyright (c) 2014 Andrew Kelley
 # This file is MIT licensed.
 # See http://opensource.org/licenses/MIT
@@ -9,274 +7,301 @@
 # LLVM_LIBRARIES
 # LLVM_LIBDIRS
 
-# ============= LLVM =============
-find_program(LLVM_CONFIG_EXE
-        NAMES llvm-config-12 llvm-config-12.0 llvm-config120 llvm-config12 llvm-config
-        PATHS
-        ${LLVM_CUSTOM_CONFIG_EXE_DIR}
-        NO_DEFAULT_PATH
-        )
-
-if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
-    message(FATAL_ERROR "unable to find llvm-config")
-endif ()
-
-if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
-    message(FATAL_ERROR "unable to find llvm-config")
-endif ()
-
-message(STATUS "llvm-config executable found at ${LLVM_CONFIG_EXE}")
-
-# check version
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --version
-        OUTPUT_VARIABLE LLVM_CONFIG_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-if ("${LLVM_CONFIG_VERSION}" VERSION_LESS 12)
-    message(FATAL_ERROR "expected LLVM 12.x but found ${LLVM_CONFIG_VERSION} using ${LLVM_CONFIG_EXE}")
-endif ()
-if ("${LLVM_CONFIG_VERSION}" VERSION_EQUAL 13)
-    message(FATAL_ERROR "expected LLVM 12.x but found ${LLVM_CONFIG_VERSION} using ${LLVM_CONFIG_EXE}")
-endif ()
-if ("${LLVM_CONFIG_VERSION}" VERSION_GREATER 13)
-    message(FATAL_ERROR "expected LLVM 12.x but found ${LLVM_CONFIG_VERSION} using ${LLVM_CONFIG_EXE}")
-endif ()
-
-# get include dirs
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --includedir
-        OUTPUT_VARIABLE LLVM_INCLUDE_DIRS_SPACES
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " " ";" LLVM_INCLUDE_DIRS "${LLVM_INCLUDE_DIRS_SPACES}")
-
-# get list of llvm targets
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --targets-built
-        OUTPUT_VARIABLE LLVM_TARGETS_BUILT_SPACES
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " " ";" LLVM_TARGETS_BUILT "${LLVM_TARGETS_BUILT_SPACES}")
-function(NEED_TARGET TARGET_NAME)
-    list(FIND LLVM_TARGETS_BUILT "${TARGET_NAME}" _index)
-    if (${_index} EQUAL -1)
-        message(FATAL_ERROR "LLVM (according to ${LLVM_CONFIG_EXE}) is missing target ${TARGET_NAME}. Zig requires LLVM to be built with all default targets enabled.")
-    endif ()
-endfunction(NEED_TARGET)
-NEED_TARGET("AArch64")
-NEED_TARGET("AMDGPU")
-NEED_TARGET("ARM")
-NEED_TARGET("AVR")
-NEED_TARGET("BPF")
-NEED_TARGET("Hexagon")
-NEED_TARGET("Lanai")
-NEED_TARGET("Mips")
-NEED_TARGET("MSP430")
-NEED_TARGET("NVPTX")
-NEED_TARGET("PowerPC")
-NEED_TARGET("RISCV")
-NEED_TARGET("Sparc")
-NEED_TARGET("SystemZ")
-NEED_TARGET("WebAssembly")
-NEED_TARGET("X86")
-NEED_TARGET("XCore")
-
-# get libraries and lib dirs
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --libfiles --link-static
-        OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
-
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --system-libs --link-static
-        OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
-
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --libdir --link-static
-        OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
-
-if (NOT LLVM_LIBRARIES)
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --libs
-            OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
-
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --system-libs
-            OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
-
-    execute_process(
-            COMMAND ${LLVM_CONFIG_EXE} --libdir
-            OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
-endif ()
-
-set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${LLVM_SYSTEM_LIBS})
-
-if (NOT LLVM_LIBRARIES)
-    find_library(LLVM_LIBRARIES NAMES LLVM LLVM-12 LLVM-12.0)
-endif ()
-
-link_directories("${CMAKE_PREFIX_PATH}/lib")
-link_directories("${LLVM_LIBDIRS}")
-
-# ============= CLANG =============
-macro(FIND_AND_ADD_CLANG_LIB _libname_)
-    string(TOUPPER ${_libname_} _prettylibname_)
-    find_library(CLANG_${_prettylibname_}_LIB NAMES ${_libname_}
+if ("${ZIG_TARGET_TRIPLE}" STREQUAL "native")
+    find_program(LLVM_CONFIG_EXE
+            NAMES llvm-config-10 llvm-config-10.0 llvm-config100 llvm-config10 llvm-config
             PATHS
-            ${LLVM_LIBDIRS}
-            /usr/lib/llvm/12/lib
-            /usr/lib/llvm-12/lib
-            /usr/lib/llvm-12.0/lib
-            /usr/local/llvm120/lib
-            /usr/local/llvm12/lib
-            /mingw64/lib
-            /c/msys64/mingw64/lib
-            c:\\msys64\\mingw64\\lib
-            NO_DEFAULT_PATH
-            )
-    if (CLANG_${_prettylibname_}_LIB)
-        set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
-    else ()
-        message(WARNING "Cannot find Clang library ${_libname_}")
+            "/mingw64/bin"
+            "/c/msys64/mingw64/bin"
+            "c:/msys64/mingw64/bin"
+            "C:/Libraries/llvm-10.0.0/bin")
+
+    if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
+        message(FATAL_ERROR "unable to find llvm-config")
     endif ()
-endmacro(FIND_AND_ADD_CLANG_LIB)
 
-FIND_AND_ADD_CLANG_LIB(clang-cpp)
-# FIND_AND_ADD_CLANG_LIB(clangAPINotes)
-# FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
-# FIND_AND_ADD_CLANG_LIB(clangAST)
-# FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
-# FIND_AND_ADD_CLANG_LIB(clangAnalysis)
-# FIND_AND_ADD_CLANG_LIB(clangApplyReplacements)
-# FIND_AND_ADD_CLANG_LIB(clangBasic)
-# FIND_AND_ADD_CLANG_LIB(clangChangeNamespace)
-# FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-# FIND_AND_ADD_CLANG_LIB(clangCrossTU)
-# FIND_AND_ADD_CLANG_LIB(clangDaemon)
-# FIND_AND_ADD_CLANG_LIB(clangDaemonTweaks)
-# FIND_AND_ADD_CLANG_LIB(clangDependencyScanning)
-# FIND_AND_ADD_CLANG_LIB(clangDirectoryWatcher)
-# FIND_AND_ADD_CLANG_LIB(clangDoc)
-# FIND_AND_ADD_CLANG_LIB(clangDriver)
-# FIND_AND_ADD_CLANG_LIB(clangDynamicASTMatchers)
-# FIND_AND_ADD_CLANG_LIB(clangEdit)
-# FIND_AND_ADD_CLANG_LIB(clangFormat)
-# FIND_AND_ADD_CLANG_LIB(clangFrontend)
-# FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-# FIND_AND_ADD_CLANG_LIB(clangHandleCXX)
-# FIND_AND_ADD_CLANG_LIB(clangHandleLLVM)
-# FIND_AND_ADD_CLANG_LIB(clangIncludeFixer)
-# FIND_AND_ADD_CLANG_LIB(clangIncludeFixerPlugin)
-# FIND_AND_ADD_CLANG_LIB(clangIndex)
-# FIND_AND_ADD_CLANG_LIB(clangIndexSerialization)
-# FIND_AND_ADD_CLANG_LIB(clangLex)
-# FIND_AND_ADD_CLANG_LIB(clangMove)
-# FIND_AND_ADD_CLANG_LIB(clangParse)
-# FIND_AND_ADD_CLANG_LIB(clangQuery)
-# FIND_AND_ADD_CLANG_LIB(clangReorderFields)
-# FIND_AND_ADD_CLANG_LIB(clangRewrite)
-# FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
-# FIND_AND_ADD_CLANG_LIB(clangSema)
-# FIND_AND_ADD_CLANG_LIB(clangSerialization)
-# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
-# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
-# FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
-# FIND_AND_ADD_CLANG_LIB(clangTesting)
-# FIND_AND_ADD_CLANG_LIB(clangTidy)
-# FIND_AND_ADD_CLANG_LIB(clangTidyAbseilModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyAlteraModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyAndroidModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyBoostModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyBugproneModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyCERTModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyConcurrencyModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyCppCoreGuidelinesModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyDarwinModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyFuchsiaModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyGoogleModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyHICPPModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyLLVMLibcModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyLLVMModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyLinuxKernelModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyMPIModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyMain)
-# FIND_AND_ADD_CLANG_LIB(clangTidyMiscModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyModernizeModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyObjCModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyOpenMPModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyPerformanceModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyPlugin)
-# FIND_AND_ADD_CLANG_LIB(clangTidyPortabilityModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyReadabilityModule)
-# FIND_AND_ADD_CLANG_LIB(clangTidyUtils)
-# FIND_AND_ADD_CLANG_LIB(clangTidyZirconModule)
-# FIND_AND_ADD_CLANG_LIB(clangTooling)
-# FIND_AND_ADD_CLANG_LIB(clangToolingASTDiff)
-# FIND_AND_ADD_CLANG_LIB(clangToolingCore)
-# FIND_AND_ADD_CLANG_LIB(clangToolingInclusions)
-# FIND_AND_ADD_CLANG_LIB(clangToolingRefactoring)
-# FIND_AND_ADD_CLANG_LIB(clangToolingSyntax)
-# FIND_AND_ADD_CLANG_LIB(clangTransformer)
-# FIND_AND_ADD_CLANG_LIB(clangdRemoteIndex)
-# FIND_AND_ADD_CLANG_LIB(clangdSupport)
+    if ("${LLVM_CONFIG_EXE}" STREQUAL "LLVM_CONFIG_EXE-NOTFOUND")
+        message(FATAL_ERROR "unable to find llvm-config")
+    endif ()
 
-# merge clang libs and llvm libs
+    execute_process(
+            COMMAND ${LLVM_CONFIG_EXE} --version
+            OUTPUT_VARIABLE LLVM_CONFIG_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${CLANG_LIBRARIES})
+    if ("${LLVM_CONFIG_VERSION}" VERSION_LESS 10)
+        message(FATAL_ERROR "expected LLVM 10.x but found ${LLVM_CONFIG_VERSION}")
+    endif ()
+    if ("${LLVM_CONFIG_VERSION}" VERSION_EQUAL 11)
+        message(FATAL_ERROR "expected LLVM 10.x but found ${LLVM_CONFIG_VERSION}")
+    endif ()
+    if ("${LLVM_CONFIG_VERSION}" VERSION_GREATER 11)
+        message(FATAL_ERROR "expected LLVM 10.x but found ${LLVM_CONFIG_VERSION}")
+    endif ()
 
-# ============= LLD =============
-macro(FIND_AND_ADD_LLD_LIB _libname_)
-    string(TOUPPER ${_libname_} _prettylibname_)
-    find_library(LLD_${_prettylibname_}_LIB NAMES ${_libname_}
+    execute_process(
+            COMMAND ${LLVM_CONFIG_EXE} --targets-built
+            OUTPUT_VARIABLE LLVM_TARGETS_BUILT_SPACES
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    string(REPLACE " " ";" LLVM_TARGETS_BUILT "${LLVM_TARGETS_BUILT_SPACES}")
+    function(NEED_TARGET TARGET_NAME)
+        list(FIND LLVM_TARGETS_BUILT "${TARGET_NAME}" _index)
+        if (${_index} EQUAL -1)
+            message(FATAL_ERROR "LLVM is missing target ${TARGET_NAME}. Zig requires LLVM to be built with all default targets enabled.")
+        endif ()
+    endfunction(NEED_TARGET)
+    NEED_TARGET("AArch64")
+    NEED_TARGET("AMDGPU")
+    NEED_TARGET("ARM")
+    NEED_TARGET("BPF")
+    NEED_TARGET("Hexagon")
+    NEED_TARGET("Lanai")
+    NEED_TARGET("Mips")
+    NEED_TARGET("MSP430")
+    NEED_TARGET("NVPTX")
+    NEED_TARGET("PowerPC")
+    NEED_TARGET("RISCV")
+    NEED_TARGET("Sparc")
+    NEED_TARGET("SystemZ")
+    NEED_TARGET("WebAssembly")
+    NEED_TARGET("X86")
+    NEED_TARGET("XCore")
+
+    if (ZIG_STATIC_LLVM)
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --libfiles --link-static
+                OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
+
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --system-libs --link-static
+                OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
+
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --libdir --link-static
+                OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
+    endif ()
+    if (NOT LLVM_LIBRARIES)
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --libs
+                OUTPUT_VARIABLE LLVM_LIBRARIES_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_LIBRARIES "${LLVM_LIBRARIES_SPACES}")
+
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --system-libs
+                OUTPUT_VARIABLE LLVM_SYSTEM_LIBS_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_SYSTEM_LIBS "${LLVM_SYSTEM_LIBS_SPACES}")
+
+        execute_process(
+                COMMAND ${LLVM_CONFIG_EXE} --libdir
+                OUTPUT_VARIABLE LLVM_LIBDIRS_SPACES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        string(REPLACE " " ";" LLVM_LIBDIRS "${LLVM_LIBDIRS_SPACES}")
+    endif ()
+
+    execute_process(
+            COMMAND ${LLVM_CONFIG_EXE} --includedir
+            OUTPUT_VARIABLE LLVM_INCLUDE_DIRS
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${LLVM_SYSTEM_LIBS})
+
+    if (NOT LLVM_LIBRARIES)
+        find_library(LLVM_LIBRARIES NAMES LLVM LLVM-10 LLVM-10.0)
+    endif ()
+
+    link_directories("${CMAKE_PREFIX_PATH}/lib")
+    link_directories("${LLVM_LIBDIRS}")
+else ()
+    # Here we assume that we're cross compiling with Zig, of course. No reason
+    # to support more complicated setups. We also assume the experimental target
+    # AVR is enabled.
+
+    find_path(LLVM_INCLUDE_DIRS NAMES llvm/IR/IRBuilder.h
             PATHS
-            ${LLVM_LIBDIRS}
-            /usr/lib/llvm-12/lib
-            /usr/local/llvm120/lib
-            /usr/local/llvm12/lib
-            /mingw64/lib
-            /c/msys64/mingw64/lib
-            c:/msys64/mingw64/lib
-            NO_DEFAULT_PATH
-            )
-    if (LLD_${_prettylibname_}_LIB)
-        set(LLD_LIBRARIES ${LLD_LIBRARIES} ${LLD_${_prettylibname_}_LIB})
-    else ()
-        message(WARNING "Cannot find LLD library ${_libname_}")
-    endif ()
-endmacro(FIND_AND_ADD_LLD_LIB)
+            /usr/lib/llvm/10/include
+            /usr/lib/llvm-10/include
+            /usr/lib/llvm-10.0/include
+            /usr/local/llvm100/include
+            /usr/local/llvm10/include
+            /mingw64/include)
 
-FIND_AND_ADD_LLD_LIB(lldDriver)
-FIND_AND_ADD_LLD_LIB(lldMinGW)
-FIND_AND_ADD_LLD_LIB(lldELF)
-FIND_AND_ADD_LLD_LIB(lldCOFF)
-FIND_AND_ADD_LLD_LIB(lldMachO)
-FIND_AND_ADD_LLD_LIB(lldWasm)
-FIND_AND_ADD_LLD_LIB(lldReaderWriter)
-FIND_AND_ADD_LLD_LIB(lldCore)
-FIND_AND_ADD_LLD_LIB(lldYAML)
-FIND_AND_ADD_LLD_LIB(lldCommon)
+    macro(FIND_AND_ADD_LLVM_LIB _libname_)
+        string(TOUPPER ${_libname_} _prettylibname_)
+        find_library(LLVM_${_prettylibname_}_LIB NAMES ${_libname_}
+                PATHS
+                ${LLVM_LIBDIRS}
+                /usr/lib/llvm/10/lib
+                /usr/lib/llvm-10/lib
+                /usr/lib/llvm-10.0/lib
+                /usr/local/llvm100/lib
+                /usr/local/llvm10/lib
+                /mingw64/lib
+                /c/msys64/mingw64/lib
+                c:\\msys64\\mingw64\\lib)
+        set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${LLVM_${_prettylibname_}_LIB})
+    endmacro(FIND_AND_ADD_LLVM_LIB)
 
-# merge lld libs and llvm libs
-set(LLVM_LIBRARIES ${LLVM_LIBRARIES} ${LLD_LIBRARIES})
+    # This list can be re-generated with `llvm-config --libfiles` and then
+    # reformatting using your favorite text editor. Note we do not execute
+    # `llvm-config` here because we are cross compiling.
+    FIND_AND_ADD_LLVM_LIB(LLVMXRay)
+    FIND_AND_ADD_LLVM_LIB(LLVMWindowsManifest)
+    FIND_AND_ADD_LLVM_LIB(LLVMSymbolize)
+    FIND_AND_ADD_LLVM_LIB(LLVMDebugInfoPDB)
+    FIND_AND_ADD_LLVM_LIB(LLVMOrcJIT)
+    FIND_AND_ADD_LLVM_LIB(LLVMOrcError)
+    FIND_AND_ADD_LLVM_LIB(LLVMJITLink)
+    FIND_AND_ADD_LLVM_LIB(LLVMObjectYAML)
+    FIND_AND_ADD_LLVM_LIB(LLVMMCA)
+    FIND_AND_ADD_LLVM_LIB(LLVMLTO)
+    FIND_AND_ADD_LLVM_LIB(LLVMPasses)
+    FIND_AND_ADD_LLVM_LIB(LLVMObjCARCOpts)
+    FIND_AND_ADD_LLVM_LIB(LLVMLineEditor)
+    FIND_AND_ADD_LLVM_LIB(LLVMLibDriver)
+    FIND_AND_ADD_LLVM_LIB(LLVMInterpreter)
+    FIND_AND_ADD_LLVM_LIB(LLVMFuzzMutate)
+    FIND_AND_ADD_LLVM_LIB(LLVMFrontendOpenMP)
+    FIND_AND_ADD_LLVM_LIB(LLVMMCJIT)
+    FIND_AND_ADD_LLVM_LIB(LLVMExecutionEngine)
+    FIND_AND_ADD_LLVM_LIB(LLVMRuntimeDyld)
+    FIND_AND_ADD_LLVM_LIB(LLVMDWARFLinker)
+    FIND_AND_ADD_LLVM_LIB(LLVMDlltoolDriver)
+    FIND_AND_ADD_LLVM_LIB(LLVMOption)
+    FIND_AND_ADD_LLVM_LIB(LLVMDebugInfoGSYM)
+    FIND_AND_ADD_LLVM_LIB(LLVMCoverage)
+    FIND_AND_ADD_LLVM_LIB(LLVMCoroutines)
+    FIND_AND_ADD_LLVM_LIB(LLVMAVRDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMAVRCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMAVRAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMAVRDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMAVRInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMXCoreDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMXCoreCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMXCoreDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMXCoreInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86Disassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86AsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86CodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86Desc)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86Utils)
+    FIND_AND_ADD_LLVM_LIB(LLVMX86Info)
+    FIND_AND_ADD_LLVM_LIB(LLVMWebAssemblyDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMWebAssemblyCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMWebAssemblyDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMWebAssemblyAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMWebAssemblyInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMSystemZDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMSystemZCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMSystemZAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMSystemZDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMSystemZInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMSparcDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMSparcCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMSparcAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMSparcDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMSparcInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVUtils)
+    FIND_AND_ADD_LLVM_LIB(LLVMRISCVInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMPowerPCDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMPowerPCCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMPowerPCAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMPowerPCDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMPowerPCInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMNVPTXCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMNVPTXDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMNVPTXInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMMSP430Disassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMMSP430CodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMMSP430AsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMMSP430Desc)
+    FIND_AND_ADD_LLVM_LIB(LLVMMSP430Info)
+    FIND_AND_ADD_LLVM_LIB(LLVMMipsDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMMipsCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMMipsAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMMipsDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMMipsInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMLanaiDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMLanaiCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMLanaiAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMLanaiDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMLanaiInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMHexagonDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMHexagonCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMHexagonAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMHexagonDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMHexagonInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMBPFDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMBPFCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMBPFAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMBPFDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMBPFInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMUtils)
+    FIND_AND_ADD_LLVM_LIB(LLVMARMInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMMIRParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMipo)
+    FIND_AND_ADD_LLVM_LIB(LLVMInstrumentation)
+    FIND_AND_ADD_LLVM_LIB(LLVMVectorize)
+    FIND_AND_ADD_LLVM_LIB(LLVMLinker)
+    FIND_AND_ADD_LLVM_LIB(LLVMIRReader)
+    FIND_AND_ADD_LLVM_LIB(LLVMAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUAsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUDesc)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUUtils)
+    FIND_AND_ADD_LLVM_LIB(LLVMAMDGPUInfo)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64Disassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMMCDisassembler)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64CodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMCFGuard)
+    FIND_AND_ADD_LLVM_LIB(LLVMGlobalISel)
+    FIND_AND_ADD_LLVM_LIB(LLVMSelectionDAG)
+    FIND_AND_ADD_LLVM_LIB(LLVMAsmPrinter)
+    FIND_AND_ADD_LLVM_LIB(LLVMDebugInfoDWARF)
+    FIND_AND_ADD_LLVM_LIB(LLVMCodeGen)
+    FIND_AND_ADD_LLVM_LIB(LLVMTarget)
+    FIND_AND_ADD_LLVM_LIB(LLVMScalarOpts)
+    FIND_AND_ADD_LLVM_LIB(LLVMInstCombine)
+    FIND_AND_ADD_LLVM_LIB(LLVMAggressiveInstCombine)
+    FIND_AND_ADD_LLVM_LIB(LLVMTransformUtils)
+    FIND_AND_ADD_LLVM_LIB(LLVMBitWriter)
+    FIND_AND_ADD_LLVM_LIB(LLVMAnalysis)
+    FIND_AND_ADD_LLVM_LIB(LLVMProfileData)
+    FIND_AND_ADD_LLVM_LIB(LLVMObject)
+    FIND_AND_ADD_LLVM_LIB(LLVMTextAPI)
+    FIND_AND_ADD_LLVM_LIB(LLVMBitReader)
+    FIND_AND_ADD_LLVM_LIB(LLVMCore)
+    FIND_AND_ADD_LLVM_LIB(LLVMRemarks)
+    FIND_AND_ADD_LLVM_LIB(LLVMBitstreamReader)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64AsmParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMMCParser)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64Desc)
+    FIND_AND_ADD_LLVM_LIB(LLVMMC)
+    FIND_AND_ADD_LLVM_LIB(LLVMDebugInfoCodeView)
+    FIND_AND_ADD_LLVM_LIB(LLVMDebugInfoMSF)
+    FIND_AND_ADD_LLVM_LIB(LLVMBinaryFormat)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64Utils)
+    FIND_AND_ADD_LLVM_LIB(LLVMAArch64Info)
+    FIND_AND_ADD_LLVM_LIB(LLVMSupport)
+    FIND_AND_ADD_LLVM_LIB(LLVMDemangle)
+endif ()
 
-# get compiling flags for llvm
-execute_process(
-        COMMAND ${LLVM_CONFIG_EXE} --cxxflags
-        OUTPUT_VARIABLE LLVM_CXXFLAGS
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-add_definitions(${LLVM_CXXFLAGS})
-
-# ===========================
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(llvm DEFAULT_MSG LLVM_LIBRARIES LLVM_INCLUDE_DIRS)
 
