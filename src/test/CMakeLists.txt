@@ -12,13 +12,13 @@ macro(enable_tests)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/src/test)
     target_link_libraries(lexer_tests tan gtest ${DEP_LIBS})
-    set_common_options(lexer_tests)
+    set_other_options(lexer_tests)
 
     # tanc tests
     file(GLOB TAN_TEST_SRCS ${TEST_DIR}/test_src/*.tan)
     set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
     add_executable(tanc_tests ${TEST_DIR}/tanc_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
-    set_common_options(tanc_tests)
+    set_other_options(tanc_tests)
     target_link_libraries(tanc_tests tan gtest)
     target_compile_definitions(tanc_tests PRIVATE
             -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
