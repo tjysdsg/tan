@@ -17,7 +17,7 @@ using namespace clang::driver;
 using namespace llvm::opt;
 
 str GetExecutablePath(str name) {
-  auto clang_or_err = llvm::sys::findProgramByName(name, {__STR__(LLVM_BIN_DIR)});
+  auto clang_or_err = llvm::sys::findProgramByName(name, {}); // find executable in PATH
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
     exit(0);
