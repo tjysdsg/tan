@@ -206,7 +206,7 @@ ASTNodePtr ast_create_assignment(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_member_access(CompilerSession *cs) {
+ASTNodePtr ast_create_member_access(CompilerSession *) {
   auto ret = make_ptr<ASTMemberAccess>(ASTType::MEMBER_ACCESS, ASTNode::op_precedence[ASTType::MEMBER_ACCESS]);
   ret->_is_typed = true;
   ret->_is_valued = true;
@@ -233,7 +233,7 @@ ASTNodePtr ast_create_ampersand(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_address_of(CompilerSession *cs, ASTNodePtr p) {
+ASTNodePtr ast_create_address_of(CompilerSession *, ASTNodePtr p) {
   auto ret = make_ptr<ASTNode>(ASTType::ADDRESS_OF, ASTNode::op_precedence[ASTType::ADDRESS_OF]);
   ret->_is_valued = true;
   ret->_is_typed = true;
@@ -258,12 +258,12 @@ ASTNodePtr ast_create_loop(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_break(CompilerSession *cs) {
+ASTNodePtr ast_create_break(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::BREAK, 0);
   return ret;
 }
 
-ASTNodePtr ast_create_continue(CompilerSession *cs) {
+ASTNodePtr ast_create_continue(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTType::CONTINUE, 0);
   return ret;
 }
