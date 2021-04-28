@@ -247,21 +247,23 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
   // TODO: update _cs->_current_token
 
   /// determine p's type depending on whether p is led or nud
-  switch (hashed_string{p->_token->value.c_str()}) {
-    case "&"_hs:
-      p->_type = ASTType::ADDRESS_OF;
-      p->_lbp = ASTNode::op_precedence[p->_type];
-      break;
-    case "!"_hs:
-      p->_type = ASTType::LNOT;
-      p->_lbp = ASTNode::op_precedence[p->_type];
-      break;
-    case "~"_hs:
-      p->_type = ASTType::BNOT;
-      p->_lbp = ASTNode::op_precedence[p->_type];
-      break;
-    default:
-      break;
+  if (p->_token != nullptr) {
+    switch (hashed_string{p->_token->value.c_str()}) {
+      case "&"_hs:
+        p->_type = ASTType::ADDRESS_OF;
+        p->_lbp = ASTNode::op_precedence[p->_type];
+        break;
+      case "!"_hs:
+        p->_type = ASTType::LNOT;
+        p->_lbp = ASTNode::op_precedence[p->_type];
+        break;
+      case "~"_hs:
+        p->_type = ASTType::BNOT;
+        p->_lbp = ASTNode::op_precedence[p->_type];
+        break;
+      default:
+        break;
+    }
   }
 
   switch (p->_type) {
