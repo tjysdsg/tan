@@ -375,8 +375,16 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
   for (const auto &sub: p->_children) { analyze(cs, sub); }
   switch (p->_type) {
     /////////////////////////// binary ops ///////////////////////////////////
+    // TODO: create a new ASTType for unary plus and minus
     case ASTType::SUM:
-    case ASTType::SUBTRACT:
+    case ASTType::SUBTRACT: {
+      /// unary plus/minus
+      if (p->_children.size() == 1) {
+        p->_ty = ast_cast<ASTTy>(p->_children[0]);
+        break;
+      }
+      // fallthrough
+    }
     case ASTType::MULTIPLY:
     case ASTType::DIVIDE:
     case ASTType::MOD: {
