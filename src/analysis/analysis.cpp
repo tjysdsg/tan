@@ -106,7 +106,7 @@ Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
           ->createStructType(cs->get_current_di_scope(),
               p->_type_name,
               di_file,
-              (unsigned) p->_token->l,
+              (unsigned) p->get_line(),
               p->_size_bits,
               (unsigned) p->_align_bits,
               DINode::DIFlags::FlagZero,
@@ -319,8 +319,7 @@ size_t get_struct_member_index(const ASTTyPtr &p, const str &name) {
 /// \section Analysis
 
 str get_source_location(CompilerSession *cs, ASTNodePtr p) {
-  TAN_ASSERT(p->_token);
-  return cs->_filename + ":" + std::to_string(p->_token->l);
+  return cs->_filename + ":" + std::to_string(p->get_line());
 }
 
 static void analyze_intrinsic(CompilerSession *cs, ASTNodePtr p) {
@@ -342,7 +341,7 @@ static void analyze_intrinsic(CompilerSession *cs, ASTNodePtr p) {
       break;
     }
     case IntrinsicType::LINENO: {
-      p->_children[0] = ast_create_numeric_literal(cs, c->_token->l);
+      p->_children[0] = ast_create_numeric_literal(cs, c->get_line());
       break;
     }
     case IntrinsicType::FILENAME: {
@@ -372,7 +371,10 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
   p->_scope = cs->get_current_scope();
   // TODO: update _cs->_current_token
 
-  for (const auto &sub: p->_children) { analyze(cs, sub); }
+  if (p->_type == ASTType::FUNC_DECL) { /// children will not be automatically parsed for function declaration
+    for (const auto &sub: p->_children) { analyze(cs, sub); }
+  }
+
   switch (p->_type) {
     /////////////////////////// binary ops ///////////////////////////////////
     // TODO: create a new ASTType for unary plus and minus
@@ -508,16 +510,16 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       //////////////////////// literals ///////////////////////////////////////
     case ASTType::CHAR_LITERAL: {
       p->_ty = create_ty(cs, Ty::CHAR, {});
-      p->_value = static_cast<uint64_t>(p->_token->value[0]);
+      p->_value = static_cast<uint64_t>(p->get_token()->value[0]);
       p->_ty->_default_value = std::get<uint64_t>(p->_value);
       break;
     }
     case ASTType::NUM_LITERAL: {
-      if (p->_token->type == TokenType::INT) {
+      if (p->get_token()->type == TokenType::INT) {
         auto tyty = Ty::INT;
-        if (p->_token->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
+        if (p->get_token()->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
         p->_ty = create_ty(cs, tyty);
-      } else if (p->_token->type == TokenType::FLOAT) {
+      } else if (p->get_token()->type == TokenType::FLOAT) {
         p->_ty = create_ty(cs, Ty::FLOAT);
       }
       break;
@@ -604,7 +606,9 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       if (!p->_is_external) {
         /// new scope for function body
         auto f_body = p->_children[n - 1];
-        if (!p->_is_external) { f_body->_scope = cs->push_scope(); }
+        if (!p->_is_external) {
+          f_body->_scope = cs->push_scope();
+        }
       }
       break;
     }

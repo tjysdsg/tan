@@ -35,6 +35,26 @@ void ASTNode::printTree(const str &prefix, bool last_child) {
 
 ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}
 
+size_t ASTNode::get_line() {
+  return get_token()->l + 1;
+}
+
+size_t ASTNode::get_col() {
+  return get_token()->c + 1;
+}
+
+Token *ASTNode::get_token() {
+  return _token;
+}
+
+str ASTNode::get_token_str() {
+  return _token->value;
+}
+
+void ASTNode::set_token(Token *token) {
+  _token = token;
+}
+
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 

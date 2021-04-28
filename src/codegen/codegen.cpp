@@ -14,9 +14,13 @@
 
 namespace tanlang {
 
+void set_current_debug_location(CompilerSession *cs, ASTNodePtr p) {
+  cs->set_current_debug_location(p->get_line(), p->get_col());
+}
+
 static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   /// unary plus/minus
   if (p->_children.size() == 1) {
     if (!is_ast_type_in(p->_type, {ASTType::SUM, ASTType::SUBTRACT})) { error(cs, "Invalid unary operation"); }
@@ -81,7 +85,7 @@ static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto *rhs = codegen(cs, p->_children[0]);
   if (!rhs) { error(cs, "Invalid operand"); }
   if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
@@ -98,7 +102,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_bnot(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto *rhs = codegen(cs, p->_children[0]);
   if (!rhs) { error(cs, "Invalid operand"); }
   if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
@@ -107,7 +111,7 @@ static Value *codegen_bnot(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto *result = codegen(cs, p->_children[0]);
   if (is_lvalue(p->_children[0])) { result = builder->CreateLoad(result, "ret"); }
   builder->CreateRet(result);
@@ -116,7 +120,7 @@ static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_comparison(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
   auto rhs = p->_children[1];
   Value *l = codegen(cs, lhs);
@@ -166,7 +170,7 @@ static Value *codegen_comparison(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   /// _codegen the rhs
   auto lhs = p->_children[0];
   auto rhs = p->_children[1];
@@ -184,7 +188,7 @@ static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
   auto *dest_type = to_llvm_type(cs, p->_children[1]->_ty);
   Value *val = codegen(cs, lhs);
@@ -253,7 +257,7 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
 
 static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
 
   if (!p->_ty->_resolved) { error(cs, "Unknown type"); }
   codegen_ty(cs, ast_cast<ASTTy>(p->_ty));
@@ -271,12 +275,12 @@ static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
     auto *di_arg = di_builder->createAutoVariable(curr_di_scope,
         p->_name,
         cs->get_di_file(),
-        (unsigned) p->_token->l + 1,
+        (unsigned) p->get_line(),
         (DIType *) arg_meta);
     di_builder->insertDeclare(p->_llvm_value,
         di_arg,
         cs->_di_builder->createExpression(),
-        llvm::DebugLoc::get((unsigned) p->_token->l + 1, (unsigned) p->_token->c + 1, curr_di_scope),
+        llvm::DebugLoc::get((unsigned) p->get_line(), (unsigned) p->get_col(), curr_di_scope),
         builder->GetInsertBlock());
   }
   return p->_llvm_value;
@@ -284,7 +288,7 @@ static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto *val = codegen(cs, p->_children[0]);
   if (is_lvalue(p->_children[0])) { /// lvalue, the val itself is a pointer to real value
     p->_llvm_value = val;
@@ -296,7 +300,7 @@ static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
 }
 
 static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   // FIXME: multiple expressions in the parenthesis?
   p->_llvm_value = codegen(cs, p->_children[0]);
   return p->_llvm_value;
@@ -322,7 +326,7 @@ static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
   auto pl = ast_cast<ASTLoop>(p);
   TAN_ASSERT(pl);
 
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   cs->set_current_loop(pl);
   if (pl->_loop_type == ASTLoopType::WHILE) {
     /*
@@ -375,7 +379,7 @@ static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
 static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
   // TODO: update cs->_current_token
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
 
   Value *condition = codegen(cs, p->_children[0]);
   if (!condition) {
@@ -470,12 +474,13 @@ static Value *codegen_func_prototype(CompilerSession *cs, ASTFunctionPtr p, bool
     (args + j)->setName("_" + p->_children[i]->_name);
   }
   p->_llvm_value = func;
+  p->_func = func;
   return func;
 }
 
 static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
 
   auto ret_ty = p->_children[0]->_ty;
   Metadata *ret_meta = to_llvm_meta(cs, ret_ty);
@@ -508,9 +513,9 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
             func_name,
             func_name,
             di_file,
-            (unsigned) p->_token->l + 1,
+            (unsigned) p->get_line(),
             di_func_t,
-            (unsigned) p->_token->l + 1,
+            (unsigned) p->get_col(),
             DINode::FlagPrototyped,
             DISubprogram::SPFlagDefinition,
             nullptr,
@@ -534,21 +539,21 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
               arg_name,
               (unsigned) i + 1,
               di_file,
-              (unsigned) p->_token->l + 1,
+              (unsigned) p->get_line(),
               (DIType *) arg_meta,
               true);
       cs->_di_builder
           ->insertDeclare(arg_val,
               di_arg,
               cs->_di_builder->createExpression(),
-              llvm::DebugLoc::get((unsigned) p->_token->l + 1, (unsigned) p->_token->c + 1, subprogram),
+              llvm::DebugLoc::get((unsigned) p->get_line(), (unsigned) p->get_col(), subprogram),
               builder->GetInsertBlock());
       ++i;
     }
 
     /// set debug emit location to function body
-    builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) p->_children.back()->_token->l + 1,
-        (unsigned) p->_children.back()->_token->c + 1,
+    builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) p->_children.back()->get_line(),
+        (unsigned) p->_children.back()->get_col(),
         subprogram));
     /// generate function body
     auto body = p->_children.back();
@@ -573,7 +578,7 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
 }
 
 static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   for (auto &n: p->_children) {
     auto f = ast_cast<ASTFunction>(n);
     /// do nothing for already defined intrinsics
@@ -585,12 +590,12 @@ static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
 
 static Value *codegen_literals(CompilerSession *cs, ASTNodePtr p) {
   /// Value of literals is set to p->_ty->_default_value, and to_llvm_value returns a type's default value
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   return codegen_ty(cs, p->_ty);
 }
 
 static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
 
   Value *ret = nullptr;
   switch (p->_intrinsic_type) {
@@ -615,7 +620,7 @@ static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
 
 static Value *codegen_member_access(CompilerSession *cs, ASTMemberAccessPtr p) {
   auto *builder = cs->_builder;
-  cs->set_current_debug_location(p->_token->l, p->_token->c);
+  set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
   ASTNodePtr rhs = nullptr;
   if (p->_children.size() >= 2) { rhs = p->_children[1]; } /// pointer access only have 1 child node
@@ -658,6 +663,7 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   Value *ret = nullptr;
   switch (p->_type) {
     case ASTType::PROGRAM:
+    case ASTType::STATEMENT:
       for (const auto &e : p->_children) { codegen(cs, e); }
       ret = nullptr;
       break;
@@ -751,7 +757,7 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
 
       /////////////////// trivial codegen /////////////////
     case ASTType::ELSE:
-      cs->set_current_debug_location(p->_token->l, p->_token->c);
+      set_current_debug_location(cs, p);
       // fallthrough
     case ASTType::ID:
       ret = codegen(cs, p->_children[0]);

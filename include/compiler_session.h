@@ -113,7 +113,7 @@ public:
 private:
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
-  vector<std::shared_ptr<Scope>> _scope{};
+  vector<std::shared_ptr<Scope>> _scope{}; // TODO: use tree for scope
   vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};

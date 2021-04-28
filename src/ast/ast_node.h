@@ -113,17 +113,38 @@ public:
    * */
   void printTree();
 
+  /**
+   * \brief Get the line number of this node, starting from 1
+   */
+  size_t get_line();
+
+  /**
+   * \brief Get the column number of this node, starting from 1
+   */
+  size_t get_col();
+
+  /**
+   * \brief Get the token of this node at idx
+   */
+  Token *get_token();
+
+  void set_token(Token *token);
+
+  str get_token_str();
+
 public:
   virtual str to_string(bool print_prefix = true);
 
 private:
   void printTree(const str &prefix, bool last_child);
 
+private:
+  Token *_token = nullptr;
+
 public:
   ASTType _type = ASTType::INVALID;
   vector<ASTNodePtr> _children{};
   int _lbp = 0;
-  Token *_token = nullptr;
   llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
   str _name;

@@ -74,7 +74,7 @@ ASTNodePtr Parser::peek_keyword(Token *token, size_t &index) {
     default:
       return nullptr;
   }
-  ret->_token = token;
+  ret->set_token(token);
   ret->_start_index = index;
   return ret;
 }
@@ -143,7 +143,7 @@ ASTNodePtr Parser::peek(size_t &index) {
   } else {
     report_error(_filename, token, "Unknown token " + token->to_string());
   }
-  node->_token = token;
+  node->set_token(token);
   node->_start_index = node->_end_index = index;
   return node;
 }
@@ -249,8 +249,8 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
   // TODO: update _cs->_current_token
 
   /// determine p's type depending on whether p is led or nud
-  if (p->_token != nullptr) {
-    switch (hashed_string{p->_token->value.c_str()}) {
+  if (p->get_token() != nullptr) {
+    switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         p->_type = ASTType::ADDRESS_OF;
         p->_lbp = ASTNode::op_precedence[p->_type];
@@ -272,7 +272,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
     case ASTType::PROGRAM: {
       while (!eof(p->_end_index)) {
         auto stmt = ast_create_statement(_cs);
-        stmt->_token = at(p->_end_index);
+        stmt->set_token(at(p->_end_index));
         stmt->_start_index = p->_end_index;
         p->_end_index = parse_node(stmt);
         p->_children.push_back(stmt);
@@ -540,7 +540,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         ++p->_end_index;
         /// type
         auto ty = ast_create_ty(_cs);
-        ty->_token = at(p->_end_index);
+        ty->set_token(at(p->_end_index));
         ty->_end_index = ty->_start_index = p->_end_index;
         ty->_is_lvalue = true;
         p->_end_index = parse_node(ty);
@@ -584,7 +584,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       if (at(p->_end_index)->value != ")") {
         while (!eof(p->_end_index)) {
           auto arg = ast_create_arg_decl(_cs);
-          arg->_token = at(p->_end_index);
+          arg->set_token(at(p->_end_index));
           arg->_end_index = arg->_start_index = p->_end_index;
           p->_end_index = parse_node(arg); /// this will add args to the current scope
           p->_children.push_back(arg);
@@ -598,7 +598,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       peek(p->_end_index, TokenType::PUNCTUATION, ":");
       ++p->_end_index;
       auto ret_ty = ast_create_ty(_cs);
-      ret_ty->_token = at(p->_end_index);
+      ret_ty->set_token(at(p->_end_index));
       ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
       p->_end_index = parse_node(ret_ty); /// return type
       p->_children[0] = ret_ty;
@@ -650,7 +650,7 @@ size_t Parser::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
   // TODO: update _cs->_current_token
 
   /// determine p's type depending on whether p is led or nud
-  switch (hashed_string{p->_token->value.c_str()}) {
+  switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
       p->_type = ASTType::BAND;
       p->_lbp = ASTNode::op_precedence[p->_type];
@@ -673,7 +673,7 @@ size_t Parser::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
 
       if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
         ++p->_end_index; /// skip ]
-      } else if (pma->_access_type != MemberAccessType::MemberAccessBracket && right->_token->value == "*") {
+      } else if (pma->_access_type != MemberAccessType::MemberAccessBracket && right->get_token_str() == "*") {
         /// pointer dereference
         pma->_access_type = MemberAccessType::MemberAccessDeref;
         ++p->_end_index; /// skip *
