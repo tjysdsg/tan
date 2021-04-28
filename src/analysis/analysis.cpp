@@ -243,7 +243,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
         auto real = ast_cast<ASTTy>(cs->get(p->_type_name));
-        if (!real) { error(cs, "Incomplete type"); }
+        if (!real) { report_error(cs, p, "Incomplete type"); }
         *p = *real;
         p->_is_forward_decl = false;
       } else {
@@ -260,7 +260,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       break;
     }
     case Ty::ARRAY: {
-      if (p->_children.empty()) { error(cs, "Invalid type"); }
+      if (p->_children.empty()) { report_error(cs, p, "Invalid type"); }
       auto et = ast_cast<ASTTy>(p->_children[0]);
       TAN_ASSERT(et);
       p->_type_name = "[" + get_type_name(et) + ", " + std::to_string(p->_children.size()) + "]";
@@ -272,7 +272,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       break;
     }
     case Ty::POINTER: {
-      if (p->_children.empty()) { error(cs, "Invalid type"); }
+      if (p->_children.empty()) { report_error(cs, p, "Invalid type"); }
       auto e = ast_cast<ASTTy>(p->_children[0]);
       TAN_ASSERT(e);
       resolve_ty(cs, e);
@@ -284,7 +284,7 @@ void resolve_ty(CompilerSession *cs, const ASTTyPtr &p) {
       break;
     }
     default:
-      error(cs, "Invalid type");
+      report_error(cs, p, "Invalid type");
   }
   p->_resolved = true;
 }
@@ -331,7 +331,7 @@ static void analyze_intrinsic(CompilerSession *cs, ASTNodePtr p) {
   TAN_ASSERT(c->_is_named);  // both function call and identifier have a name
   auto void_type = create_ty(cs, Ty::VOID);
   auto q = Intrinsic::intrinsics.find(c->_name);
-  if (q == Intrinsic::intrinsics.end()) { error(cs, "Invalid intrinsic"); }
+  if (q == Intrinsic::intrinsics.end()) { report_error(cs, p, "Invalid intrinsic"); }
   pi->_intrinsic_type = q->second;
   switch (pi->_intrinsic_type) {
     case IntrinsicType::STACK_TRACE:
@@ -357,13 +357,13 @@ static void analyze_intrinsic(CompilerSession *cs, ASTNodePtr p) {
     case IntrinsicType::COMP_PRINT: {
       p->_ty = void_type;
       if (c->_type != ASTType::STRING_LITERAL) {
-        error(cs, "Invalid call to compprint, one argument with type 'str' required");
+        report_error(cs, p, "Invalid call to compprint, one argument with type 'str' required");
       }
       std::cout << "Message (" << get_source_location(cs, p) << "): " << std::get<str>(c->_value) << "\n";
       break;
     }
     default:
-      error(cs, "Unknown intrinsic");
+      report_error(cs, p, "Unknown intrinsic");
   }
 }
 
@@ -391,7 +391,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::DIVIDE:
     case ASTType::MOD: {
       int i = TypeSystem::CanImplicitCast(cs, p->_children[0]->_ty, p->_children[1]->_ty);
-      if (i == -1) { error(cs, "Cannot perform implicit type conversion"); }
+      if (i == -1) { report_error(cs, p, "Cannot perform implicit type conversion"); }
       p->_ty = ast_cast<ASTTy>(p->_children[(size_t) i]);
       p->_dominant_idx = (size_t) i;
       break;
@@ -407,7 +407,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::ASSIGN: {
       p->_ty = p->_children[0]->_ty;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[1]->_ty) != 0) {
-        error(cs, "Cannot perform implicit type conversion");
+        report_error(cs, p, "Cannot perform implicit type conversion");
       }
       break;
     }
@@ -415,7 +415,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       p->_ty = make_ptr<ASTTy>(*p->_children[1]->_ty);
       p->_ty->_is_lvalue = p->_children[0]->_ty->_is_lvalue;
       if (TypeSystem::CanImplicitCast(cs, p->_ty, p->_children[0]->_ty) != 0) {
-        error(cs, "Cannot perform implicit type conversion");
+        report_error(cs, p, "Cannot perform implicit type conversion");
       }
       break;
     }
@@ -433,16 +433,17 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       } else if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
         auto rhs = p->_children[1];
         ASTTyPtr ty = lhs->_ty;
-        if (!ty->_is_ptr) { error(cs, "Expect a pointer or an array"); }
+        if (!ty->_is_ptr) { report_error(cs, p, "Expect a pointer or an array"); }
         ty = std::make_shared<ASTTy>(*get_contained_ty(cs, ty));
         ty->_is_lvalue = true;
-        if (!ty) { error(cs, "Unable to perform bracket access"); }
+        if (!ty) { report_error(cs, p, "Unable to perform bracket access"); }
         p->_ty = ty;
         if (rhs->_type == ASTType::NUM_LITERAL) {
-          if (!rhs->_ty->_is_int) { error(cs, "Expect an integer specifying array size"); }
+          if (!rhs->_ty->_is_int) { report_error(cs, p, "Expect an integer specifying array size"); }
           auto size = std::get<uint64_t>(rhs->_value); // underflow
           if (rhs->_ty->_is_array && size >= lhs->_ty->_array_size) {
-            error(cs,
+            report_error(cs,
+                p,
                 "Index " + std::to_string(size) + " out of bound, the array size is "
                     + std::to_string(lhs->_ty->_array_size));
           }
@@ -453,7 +454,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
           // TODO: Member access of enums
         } else {
           pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
-          if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) { error(cs, "Invalid left-hand operand"); }
+          if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) { report_error(cs, p, "Invalid left-hand operand"); }
           str m_name = rhs->_name;
           std::shared_ptr<ASTTy> struct_ast = nullptr;
           /// auto dereference pointers
@@ -470,7 +471,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       } else if (pma->_access_type == MemberAccessType::MemberAccessMemberFunction) { /// method call
         auto rhs = p->_children[1];
         if (!lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
-          error(cs, "Method calls require left-hand operand to be an lvalue or a pointer");
+          report_error(cs, p, "Method calls require left-hand operand to be an lvalue or a pointer");
         }
         /// get address of the struct instance
         if (lhs->_ty->_is_lvalue && !lhs->_ty->_is_ptr) {
@@ -483,7 +484,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
         /// TODO: postpone analysis of FUNC_CALL until now
         analyze(cs, rhs);
         p->_ty = rhs->_ty;
-      } else { error(cs, "Invalid right-hand operand"); }
+      } else { report_error(cs, p, "Invalid right-hand operand"); }
       break;
     }
       /////////////////////////// unary ops ////////////////////////////////////
@@ -497,7 +498,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       p->_ty = p->_children[0]->_ty;
       break;
     case ASTType::ADDRESS_OF: {
-      if (!(p->_ty = p->_children[0]->_ty)) { error(cs, "Invalid operand"); }
+      if (!(p->_ty = p->_children[0]->_ty)) { report_error(cs, p, "Invalid operand"); }
       p->_ty = get_ptr_to(cs, p->_ty);
       break;
     }
@@ -537,7 +538,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     case ASTType::IF: {
       auto cond = p->_children[0];
       if (0 != TypeSystem::CanImplicitCast(cs, create_ty(cs, Ty::BOOL), cond->_ty)) {
-        error(cs, "Cannot convert type to bool");
+        report_error(cs, p, "Cannot convert type to bool");
       }
       break;
     }
@@ -554,7 +555,7 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       // str file = std::get<str>(rhs->_value);
       str file = p->_name;
       auto imported = Compiler::resolve_import(cs->_filename, file);
-      if (imported.empty()) { error(cs, "Cannot import: " + file); }
+      if (imported.empty()) { report_error(cs, p, "Cannot import: " + file); }
 
       /// it might be already parsed
       vector<ASTFunctionPtr> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
@@ -645,10 +646,10 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
           auto init_val = m->_children[1];
           m = m->_children[0];
           if (!is_ast_type_in(init_val->_type, TypeSystem::LiteralTypes)) {
-            error(cs, "Invalid initial value of the member variable");
+            report_error(cs, p, "Invalid initial value of the member variable");
           }
           ty->_children.push_back(init_val->_ty); /// init_val->_ty->_default_value is set to the initial value
-        } else { error(cs, "Invalid struct member"); }
+        } else { report_error(cs, p, "Invalid struct member"); }
         ty->_member_names.push_back(m->_name);
         ty->_member_indices[m->_name] = i;
       }

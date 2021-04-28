@@ -3,11 +3,14 @@
 #include "src/base/container.h"
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
+[[noreturn]] void __tan_assert_fail();
 
 namespace tanlang {
 
 struct Token;
 class CompilerSession;
+class ASTNode;
+using ASTNodePtr = std::shared_ptr<ASTNode>;
 
 #define TAN_ASSERT(expr) (static_cast<bool>((expr)) ?  \
   void (0) :                                           \
@@ -16,8 +19,7 @@ class CompilerSession;
 [[noreturn]] void report_error(const str &error_message);
 [[noreturn]] void report_error(const str &source, size_t line, size_t col, const str &error_message);
 [[noreturn]] void report_error(const str &filename, Token *token, const str &error_message);
-
-[[noreturn]] void error(CompilerSession *cs, const str &error_message);
+[[noreturn]] void report_error(CompilerSession *cs, ASTNodePtr p, const str &message);
 
 } // namespace tanlang
 

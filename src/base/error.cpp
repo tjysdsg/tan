@@ -2,7 +2,9 @@
 #include "reader.h"
 #include "token.h"
 #include "compiler_session.h"
+#include <fmt/core.h>
 #include <iostream>
+#include "src/ast/ast_node.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -170,31 +172,44 @@ static void print_back_trace() {
   abort();
 }
 
+[[noreturn]] void __tan_assert_fail() {
+  print_back_trace();
+  abort();
+}
+
+#ifdef DEBUG
+#define ABORT() __tan_assert_fail()
+#else
+#define ABORT() exit(1)
+#endif
+
 namespace tanlang {
 
 void report_error(const str &error_message) {
   std::cerr << "[ERROR] " << error_message << "\n";
-  exit(1);
+  ABORT();
 }
 
 void report_error(const str &source, size_t line, size_t col, const str &error_message) {
   str indent = col > 0 ? str(col - 1, ' ') : "";
   std::cerr << "[ERROR] at LINE" << std::to_string(line) << " " << error_message << "\n" << source << "\n" << indent
             << "^\n";
-  exit(1);
+  ABORT();
 }
 
 void report_error(const str &filename, Token *token, const str &error_message) {
   str indent = token->c > 0 ? str(token->c - 1, ' ') : "";
-  std::cerr << "[ERROR] at " << filename << ":" << std::to_string(token->l + 1) << " " << error_message << "\n"
-            << token->line->code << "\n" << indent << "^\n";
-  exit(1);
+  std::cerr << fmt::format("[ERROR] at {}:{} {}\n{}\n{}^\n",
+      filename,
+      token->l + 1,
+      error_message,
+      token->line->code,
+      indent);
+  ABORT();
 }
 
-void error(CompilerSession *cs, const str &error_message) {
-  if (cs && cs->_current_token) {
-    report_error(cs->_filename, cs->_current_token, error_message);
-  } else { report_error(error_message); }
+void report_error(CompilerSession *cs, ASTNodePtr p, const str &message) {
+  report_error(cs->_filename, p->get_token(), message);
 }
 
 } // namespace tanlang

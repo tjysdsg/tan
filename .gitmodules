@@ -8,3 +8,6 @@
 [submodule "dep/libunwind"]
 	path = dep/libunwind
 	url = https://github.com/libunwind/libunwind
+[submodule "dep/fmt"]
+	path = dep/fmt
+	url = git@github.com:fmtlib/fmt.git

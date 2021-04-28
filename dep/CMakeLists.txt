@@ -234,6 +234,10 @@ endforeach ()
 
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
+# ================== other deps ==================
+add_subdirectory(fmt)
+# ================================================
+
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
@@ -243,6 +247,7 @@ set(DEP_INCLUDES
 
 set(DEP_LIBS ${LLVM_LIBS}
         ${CLANG_LIBRARIES}
+        fmt::fmt
         z dl rt tinfo pthread m xml2
         gcov
         backtrace

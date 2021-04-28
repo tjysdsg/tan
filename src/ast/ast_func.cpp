@@ -39,10 +39,16 @@ ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, cons
       if (c < cost) {
         ret = f;
         cost = c;
-      } else if (c == cost) { error(cs, "Ambiguous function call: " + name); }
+      } else if (c == cost) {
+        throw std::runtime_error("Ambiguous function call: " + name);
+        // FIXME: report_error(cs, p, "Ambiguous function call: " + name);
+      }
     }
   }
-  if (!ret) { error(cs, "Unknown function call: " + name); }
+  if (!ret) {
+    throw std::runtime_error("Unknown function call: " + name);
+    // FIXME: report_error(cs, p, "Unknown function call: " + name);
+  }
   return ret;
 }
 

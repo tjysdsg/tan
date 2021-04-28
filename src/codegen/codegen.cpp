@@ -23,7 +23,9 @@ static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
   set_current_debug_location(cs, p);
   /// unary plus/minus
   if (p->_children.size() == 1) {
-    if (!is_ast_type_in(p->_type, {ASTType::SUM, ASTType::SUBTRACT})) { error(cs, "Invalid unary operation"); }
+    if (!is_ast_type_in(p->_type, {ASTType::SUM, ASTType::SUBTRACT})) {
+      report_error(cs, p, "Invalid unary operation");
+    }
     if (p->_type == ASTType::SUM) { return codegen(cs, p->_children[0]); }
     else {
       auto *r = codegen(cs, p->_children[0]);
@@ -87,7 +89,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto *rhs = codegen(cs, p->_children[0]);
-  if (!rhs) { error(cs, "Invalid operand"); }
+  if (!rhs) { report_error(cs, p, "Invalid operand"); }
   if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
   /// get value size in bits
   auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
@@ -96,7 +98,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   } else if (rhs->getType()->isSingleValueType()) {
     p->_llvm_value =
         builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned) size_in_bits), 0, false));
-  } else { error(cs, "Invalid operand"); }
+  } else { report_error(cs, p, "Invalid operand"); }
   return p->_llvm_value;
 }
 
@@ -104,7 +106,7 @@ static Value *codegen_bnot(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto *rhs = codegen(cs, p->_children[0]);
-  if (!rhs) { error(cs, "Invalid operand"); }
+  if (!rhs) { report_error(cs, p, "Invalid operand"); }
   if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
   return (p->_llvm_value = builder->CreateNot(rhs));
 }
@@ -176,9 +178,9 @@ static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
   auto rhs = p->_children[1];
   Value *from = codegen(cs, rhs);
   Value *to = codegen(cs, lhs);
-  if (!from) { error(cs, "Invalid expression for right-hand operand of the assignment"); }
-  if (!to) { error(cs, "Invalid left-hand operand of the assignment"); }
-  if (!lhs->_ty->_is_lvalue) { error(cs, "Value can only be assigned to lvalue"); }
+  if (!from) { report_error(cs, lhs, "Invalid expression for right-hand operand of the assignment"); }
+  if (!to) { report_error(cs, rhs, "Invalid left-hand operand of the assignment"); }
+  if (!lhs->_ty->_is_lvalue) { report_error(cs, lhs, "Value can only be assigned to lvalue"); }
 
   from = TypeSystem::ConvertTo(cs, from, rhs->_ty, lhs->_ty);
   builder->CreateStore(from, to);
@@ -259,7 +261,7 @@ static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
 
-  if (!p->_ty->_resolved) { error(cs, "Unknown type"); }
+  if (!p->_ty->_resolved) { report_error(cs, p, "Unknown type"); }
   codegen_ty(cs, ast_cast<ASTTy>(p->_ty));
   Type *type = to_llvm_type(cs, p->_ty);
   p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->_name);
@@ -309,7 +311,7 @@ static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
 static Value *codegen_break_continue(CompilerSession *cs, ASTNodePtr p) {
   auto *builder = cs->_builder;
   auto loop = cs->get_current_loop();
-  if (!loop) { error(cs, "Any break/continue statement must be inside loop"); }
+  if (!loop) { report_error(cs, p, "Any break/continue statement must be inside loop"); }
   auto s = loop->_loop_start;
   auto e = loop->_loop_end;
   if (p->_type == ASTType::BREAK) {
@@ -357,7 +359,7 @@ static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
     /// condition
     builder->SetInsertPoint(pl->_loop_start);
     auto *cond = codegen(cs, p->_children[0]);
-    if (!cond) { error(cs, "Expected a condition expression"); }
+    if (!cond) { report_error(cs, p, "Expected a condition expression"); }
     cond = TypeSystem::ConvertTo(cs, cond, p->_children[0]->_ty, create_ty(cs, Ty::BOOL));
     builder->CreateCondBr(cond, loop_body, pl->_loop_end);
 
@@ -383,7 +385,7 @@ static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
 
   Value *condition = codegen(cs, p->_children[0]);
   if (!condition) {
-    error(cs, "Invalid condition expression ");
+    report_error(cs, p, "Invalid condition expression ");
   }
 
   /// convert to bool if not
@@ -435,7 +437,7 @@ static Value *codegen_func_call(CompilerSession *cs, ASTNodePtr p) {
   vector<Value *> arg_vals;
   for (size_t i = 1; i < n; ++i) {
     auto *a = codegen(cs, p->_children[i]);
-    if (!a) { error(cs, "Invalid function call argument"); }
+    if (!a) { report_error(cs, p->_children[i], "Invalid function call argument"); }
 
     /// implicit cast
     auto expected_ty = callee->get_arg(i)->_ty;
