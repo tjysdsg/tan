@@ -385,8 +385,8 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
         p->_ty = ast_cast<ASTTy>(p->_children[0]);
         break;
       }
-      // fallthrough
     }
+      // fallthrough
     case ASTType::MULTIPLY:
     case ASTType::DIVIDE:
     case ASTType::MOD: {
