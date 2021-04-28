@@ -544,6 +544,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         p->_end_index = parse_node(ty);
         p->_ty = ty;
       } else { p->_ty = nullptr; }
+      break;
     }
     case ASTType::FUNC_DECL: {
       if (at(p->_start_index)->value == "fn") {
@@ -563,11 +564,18 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       p->_children.push_back(nullptr);
 
       /// function name
-      auto id = peek(p->_end_index);
+      // Don't use peek since it look ahead and returns ASTType::FUNCTION when it finds "(",
+      // but we only want the function name as an identifier
+      // auto id = peek(p->_end_index);
+      Token *id_token = at(p->_end_index);
+      auto id = ast_create_identifier(_cs, id_token->value);
+      id->_start_index = id->_end_index = p->_end_index;
+
       if (id->_type != ASTType::ID) { error(p->_end_index, "Invalid function name"); }
       p->_end_index = parse_node(id);
       p->_name = id->_name;
 
+      _cs->push_scope(); /// pop a new scope
       /// arguments
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
       ++p->_end_index;
@@ -598,8 +606,8 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
         auto body = peek(p->_end_index, TokenType::PUNCTUATION, "{");
         p->_end_index = parse_node(body);
         p->_children.push_back(body);
-        _cs->pop_scope();
       }
+      _cs->pop_scope(); /// pop function scope
       break;
     }
     case ASTType::ENUM_DECL: {
