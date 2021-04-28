@@ -17,7 +17,7 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);
-  init_llvm();
+  init_llvm(); // FIXME: call this during codegen instead of now
 
   /// add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
