@@ -337,6 +337,7 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
     case ASTType::INTRINSIC: {
       ++p->_end_index; /// skip "@"
       auto e = peek(p->_end_index);
+      p->_end_index = parse_node(e);
       /// Only allow identifier or function call as valid intrinsic token
       if (e->_type != ASTType::ID && e->_type != ASTType::FUNC_CALL) {
         error("Unexpected token");
@@ -433,7 +434,6 @@ size_t Parser::parse_node(const ASTNodePtr &p) {
       // auto *token = at(p->_end_index); if (token->value != "(") { error("Invalid function call"); }
       ++p->_end_index; /// skip (
 
-      p->_children.push_back(nullptr); /// pointer to ASTFunction (callee), set in analysis phase
       /// args
       while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
         p->_children.push_back(next_expression(p->_end_index));

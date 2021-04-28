@@ -539,8 +539,10 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       break;
     }
     case ASTType::IMPORT: {
-      auto rhs = p->_children[0];
-      str file = std::get<str>(rhs->_value);
+      // TODO: determine whether to use class field or child ASTNode to store imported filename
+      // auto rhs = p->_children[0];
+      // str file = std::get<str>(rhs->_value);
+      str file = p->_name;
       auto imported = Compiler::resolve_import(cs->_filename, file);
       if (imported.empty()) { error(cs, "Cannot import: " + file); }
 
@@ -560,8 +562,9 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       p->_ty = p->_children[0]->_ty;
       break;
     case ASTType::FUNC_CALL: {
-      std::vector<ASTNodePtr> args(p->_children.begin() + 1, p->_children.end());
-      p->_children[0] = ASTFunction::GetCallee(nullptr, p->_name, args);
+      std::vector<ASTNodePtr> args(p->_children.begin(), p->_children.end());
+      p->_children.clear();
+      p->_children.push_back(ASTFunction::GetCallee(cs, p->_name, args));
       p->_ty = p->_children[0]->_ty;
       break;
     }
@@ -599,13 +602,8 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
     }
     case ASTType::ARG_DECL:
     case ASTType::VAR_DECL: {
-      auto type = p->_children[0];
-      auto ty = type->_ty;
-      ty = make_ptr<ASTTy>(*ty); // copy
-      ty->_is_lvalue = true;
-      p->_ty = ty;
-      cs->add(p->_name, p);
       resolve_ty(cs, p->_ty);
+      cs->add(p->_name, p);
       break;
     }
     case ASTType::STRUCT_DECL: {
