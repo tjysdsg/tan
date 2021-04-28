@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include "lexer.h"
+#include "token.h"
 #include "compiler_session.h"
 #include "src/analysis/analysis.h"
 #include "src/codegen/codegen.h"

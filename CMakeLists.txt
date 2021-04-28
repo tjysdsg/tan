@@ -52,6 +52,11 @@ endif (CCACHE_FOUND)
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 # others in dep/
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
+
+message(STATUS "DEP_INCLUDES ${DEP_INCLUDES}")
+message(STATUS "DEP_LIBS: ${DEP_LIBS}")
+message(STATUS "DEP_LIB_DIRS: ${DEP_LIB_DIRS}")
+
 include_directories(${DEP_INCLUDES})
 link_directories(${DEP_LIB_DIRS})
 # =================================================================================== #
