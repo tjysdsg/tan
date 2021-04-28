@@ -83,10 +83,12 @@ ASTNodePtr Parser::peek(size_t &index) {
   if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
-  while (token->type == TokenType::COMMENTS) {
+  while (token && token->type == TokenType::COMMENTS) {
     ++index;
     token = _tokens[index];
   }
+  // check if there are tokens after the comment
+  if (index >= _tokens.size()) { return nullptr; }
 
   ASTNodePtr node;
   if (token->value == "@") { /// intrinsics
