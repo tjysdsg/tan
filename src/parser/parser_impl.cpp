@@ -296,32 +296,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
       break;
     }
     case ASTType::ARRAY_LITERAL: {
-      ++p->_end_index; /// skip '['
-      if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
-      auto element_type = ASTType::INVALID;
-      while (!eof(p->_end_index)) {
-        if (at(p->_end_index)->value == ",") {
-          ++p->_end_index;
-          continue;
-        } else if (at(p->_end_index)->value == "]") {
-          ++p->_end_index;
-          break;
-        }
-        auto node = peek(p->_end_index);
-        if (!node) { error(p->_end_index, "Unexpected token"); }
-        /// check whether element types are the same
-        if (element_type == ASTType::INVALID) { element_type = node->_type; }
-        else {
-          if (element_type != node->_type) {
-            error(p->_end_index, "All elements in an array must have the same type");
-          }
-        }
-        if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
-          if (node->_type == ASTType::ARRAY_LITERAL) { ++p->_end_index; }
-          p->_end_index = parse_node(node);
-          p->_children.push_back(node);
-        } else { error(p->_end_index, "Expect literals"); }
-      }
+      parse_array_literal(p);
       break;
     }
     case ASTType::TY: {
@@ -330,43 +305,15 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
     }
       ////////////////////////// declarations /////////////////////////////////
     case ASTType::STRUCT_DECL: {
-      ++p->_end_index; /// skip "struct"
-
-      /// struct name
-      auto id = peek(p->_end_index);
-      if (id->_type != ASTType::ID) {
-        error(p->_end_index, "Expect struct name");
-      }
-      p->_name = id->_name;
-
-      /// struct body
-      if (at(p->_end_index)->value == "{") {
-        auto comp_stmt = next_expression(p->_end_index);
-        if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) {
-          error(comp_stmt->_end_index, "Invalid struct body");
-        }
-        p->_children = comp_stmt->_children;
-      }
+      parse_struct_decl(p);
       break;
     }
-    case ASTType::VAR_DECL:
-      ++p->_end_index; /// skip 'var'
-      // fallthrough
+    case ASTType::VAR_DECL: {
+      parse_var_decl(p);
+      break;
+    }
     case ASTType::ARG_DECL: {
-      /// var name
-      auto name_token = at(p->_end_index);
-      p->_name = name_token->value;
-      ++p->_end_index;
-      if (at(p->_end_index)->value == ":") {
-        ++p->_end_index;
-        /// type
-        auto ty = ast_create_ty(_cs);
-        ty->set_token(at(p->_end_index));
-        ty->_end_index = ty->_start_index = p->_end_index;
-        ty->_is_lvalue = true;
-        p->_end_index = parse_node(ty);
-        p->_ty = ty;
-      } else { p->_ty = nullptr; }
+      parse_arg_decl(p);
       break;
     }
     case ASTType::FUNC_DECL: {
@@ -374,23 +321,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
       break;
     }
     case ASTType::ENUM_DECL: {
-      ++p->_end_index; /// skip "enum"
-      auto name = peek(p->_end_index);
-      if (name->_type != ASTType::ID) {
-        error(p->_end_index, "Expect an enum name");
-      }
-
-      /// enum body
-      if (at(p->_end_index)->value != "{") {
-        error(p->_end_index, "Invalid enum declaration");
-      }
-      ++p->_end_index;
-      while (!eof(p->_end_index) && at(p->_end_index)->value != "}") {
-        auto e = ast_create_statement(_cs);
-        p->_children.push_back(e);
-        if (at(p->_end_index)->value == ",") { ++p->_end_index; }
-      }
-      ++p->_end_index; /// skip '}'
+      parse_enum_decl(p);
       break;
     }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
@@ -412,7 +343,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
   p->_end_index = p->_start_index;
   // TODO: update _cs->_current_token
 
-  /// determine p's type depending on whether p is led or nud
+  /// special tokens that require whether p is led or nud to determine the node type
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
       p->_type = ASTType::BAND;
@@ -424,32 +355,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
 
   switch (p->_type) {
     case ASTType::MEMBER_ACCESS: {
-      auto pma = ast_cast<ASTMemberAccess>(p);
-      TAN_ASSERT(pma);
-      if (at(p->_end_index)->value == "[") { pma->_access_type = MemberAccessType::MemberAccessBracket; }
-
-      ++p->_end_index; /// skip "." or "["
-      p->_children.push_back(left); /// lhs
-      auto right = peek(p->_end_index);
-      p->_end_index = parse_node(right);
-      p->_children.push_back(right);
-
-      if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
-        ++p->_end_index; /// skip ]
-      } else if (pma->_access_type != MemberAccessType::MemberAccessBracket && right->get_token_str() == "*") {
-        /// pointer dereference
-        pma->_access_type = MemberAccessType::MemberAccessDeref;
-        ++p->_end_index; /// skip *
-      } else if (right->_type == ASTType::FUNC_CALL) { /// method call
-        pma->_access_type = MemberAccessType::MemberAccessMemberFunction;
-      }
-
-      if (!(pma->_access_type == MemberAccessType::MemberAccessMemberFunction /// method call
-          || pma->_access_type == MemberAccessType::MemberAccessDeref /// pointer dereference
-          || right->_type == ASTType::ID /// member variable or enum
-      )) {
-        error(right->_end_index, "Invalid right-hand operand");
-      }
+      parse_member_access(left, p);
       break;
     }
     case ASTType::BAND:

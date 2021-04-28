@@ -41,6 +41,12 @@ private:
   size_t parse_loop(const ASTNodePtr &p);
   size_t parse_func_decl(const ASTNodePtr &p);
   size_t parse_func_call(const ASTNodePtr &p);
+  size_t parse_array_literal(const ASTNodePtr &p);
+  size_t parse_var_decl(const ASTNodePtr &p);
+  size_t parse_arg_decl(const ASTNodePtr &p);
+  size_t parse_struct_decl(const ASTNodePtr &p);
+  size_t parse_enum_decl(const ASTNodePtr &p);
+  size_t parse_member_access(const ASTNodePtr &left, const ASTNodePtr &p);
 
 private:
   vector<Token *> _tokens{};
