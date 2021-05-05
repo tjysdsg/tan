@@ -17,39 +17,39 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_if(const ASTNodePtr &p) {
+size_t ParserImpl::parse_if(const ParsableASTNodePtr &p) {
   auto pif = ast_cast<ASTIf>(p);
   TAN_ASSERT(pif);
   ++pif->_end_index; /// skip "if"
   /// condition
   auto condition = peek(pif->_end_index, TokenType::PUNCTUATION, "(");
   pif->_end_index = parse_node(condition);
-  pif->_children.push_back(condition);
+  pif->append_child(condition);
   /// if clause
   auto if_clause = peek(pif->_end_index, TokenType::PUNCTUATION, "{");
   pif->_end_index = parse_node(if_clause);
-  pif->_children.push_back(if_clause);
+  pif->append_child(if_clause);
 
   /// else clause, if any
   auto *token = at(pif->_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
     auto else_clause = peek(pif->_end_index);
     pif->_end_index = parse_node(else_clause);
-    pif->_children.push_back(else_clause);
+    pif->append_child(else_clause);
     pif->_has_else = true;
   }
   return pif->_end_index;
 }
 
-size_t ParserImpl::parse_else(const ASTNodePtr &p) {
+size_t ParserImpl::parse_else(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "else"
   auto else_clause = peek(p->_end_index);
   p->_end_index = parse_node(else_clause);
-  p->_children.push_back(else_clause);
+  p->append_child(else_clause);
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_loop(const ASTNodePtr &p) {
+size_t ParserImpl::parse_loop(const ParsableASTNodePtr &p) {
   auto pl = ast_cast<ASTLoop>(p);
   TAN_ASSERT(pl);
   if (at(p->_end_index)->value == "for") {
@@ -64,9 +64,9 @@ size_t ParserImpl::parse_loop(const ASTNodePtr &p) {
   switch (pl->_loop_type) {
     case ASTLoopType::WHILE:
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
-      p->_children.push_back(next_expression(p->_end_index)); /// condition
+      p->append_child(next_expression(p->_end_index)); /// condition
       peek(p->_end_index, TokenType::PUNCTUATION, "{");
-      p->_children.push_back(next_expression(p->_end_index)); /// loop body
+      p->append_child(next_expression(p->_end_index)); /// loop body
       break;
     case ASTLoopType::FOR:
       // TODO: implement for loop

@@ -1,13 +1,18 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
-#include "src/ast/ast_node.h"
 #include <variant>
+#include "src/ast/source_traceable.h"
+#include "base.h"
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
 #define TY_IS(t1, t2) ((bool)((uint64_t)(t1) & (uint64_t)(t2)))
 #define TY_OR(a, b) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b))
 #define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
+
+namespace llvm {
+class Type;
+}
 
 namespace tanlang {
 
@@ -42,29 +47,43 @@ enum class Ty : uint64_t {
   BIT64 = 1u << 18u,
 };
 
-// TODO: make ASTTy immutable, like llvm::Type
-class ASTTy : public ASTNode, public enable_ptr_from_this<ASTTy> {
+class ASTTy;
+using ASTTyPtr = ptr<ASTTy>;
+
+/**
+ * \brief Type of an ASTNode
+ *
+ * \details Globally unique (also for pointers), so you can compare two types by comparing two pointers
+ * TODO: make it also immutable once created
+ */
+class ASTTy : public SourceTraceable, public enable_ptr_from_this<ASTTy> {
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
 
 private:
   static inline umap<Ty, ASTTyPtr> _cache{};
-  static ASTTyPtr find_cache(Ty t, const vector<ASTNodePtr> &sub_tys, bool is_lvalue);
+  static ASTTyPtr find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue);
 
 public:
-  ASTTy() : ASTNode(ASTType::TY, 0) {}
+  ASTTy() {}
+
   ASTTy(const ASTTy &) = default;
   ASTTy(ASTTy &&) = default;
   ASTTy &operator=(const ASTTy &) = default;
   ASTTy &operator=(ASTTy &&) = default;
+
   bool operator==(const ASTTy &other);
   bool operator!=(const ASTTy &other);
-  str to_string(bool print_prefix = true) override;
+
+  virtual str to_string(bool print_prefix = true);
 
 public:
-  // avoid name collision with _ty
   Ty _tyty = Ty::INVALID;
+
+  vector<ASTTyPtr> _children{};
+
+  // avoid name collision with _ty
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
   str _type_name = "";
@@ -84,6 +103,7 @@ public:
   bool _is_enum = false;
   bool _resolved = false;
   bool _is_lvalue = false;
+  size_t _dominant_idx = 0;
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
   bool _is_forward_decl = false;

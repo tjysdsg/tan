@@ -169,7 +169,7 @@ ASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-size_t ParserImpl::parse_node(const ASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   p->_end_index = p->_start_index;
   // TODO: update _cs->_current_token
 
@@ -177,30 +177,30 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
   if (p->get_token() != nullptr) {
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        p->_type = ASTType::ADDRESS_OF;
-        p->_lbp = ASTNode::op_precedence[p->_type];
+        p->set_node_type(ASTType::ADDRESS_OF);
+        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
         break;
       case "!"_hs:
-        p->_type = ASTType::LNOT;
-        p->_lbp = ASTNode::op_precedence[p->_type];
+        p->set_node_type(ASTType::LNOT);
+        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
         break;
       case "~"_hs:
-        p->_type = ASTType::BNOT;
-        p->_lbp = ASTNode::op_precedence[p->_type];
+        p->set_node_type(ASTType::BNOT);
+        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
         break;
       default:
         break;
     }
   }
 
-  switch (p->_type) {
+  switch (p->get_node_type()) {
     case ASTType::PROGRAM: {
       while (!eof(p->_end_index)) {
         auto stmt = ast_create_statement(_cs);
         stmt->set_token(at(p->_end_index));
         stmt->_start_index = p->_end_index;
         p->_end_index = parse_node(stmt);
-        p->_children.push_back(stmt);
+        p->append_child(stmt);
       }
       break;
     }
@@ -210,7 +210,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
         while (!eof(p->_end_index)) {
           auto node = peek(p->_end_index);
           while (node) { /// stops at a terminal token
-            p->_children.push_back(next_expression(p->_end_index, PREC_LOWEST));
+            p->append_child(next_expression(p->_end_index, PREC_LOWEST));
             node = peek(p->_end_index);
           }
           if (at(p->_end_index)->value == "}") {
@@ -222,7 +222,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
       } else { /// single statement
         auto node = peek(p->_end_index);
         while (node) { /// stops at a terminal token
-          p->_children.push_back(next_expression(p->_end_index, PREC_LOWEST));
+          p->append_child(next_expression(p->_end_index, PREC_LOWEST));
           node = peek(p->_end_index);
         }
         ++p->_end_index; /// skip ';'
@@ -243,7 +243,7 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
         /// NOTE: parenthesis without child expression inside are illegal (except function call)
         auto n = next_expression(p->_end_index, PREC_LOWEST);
         if (n) {
-          p->_children.push_back(n);
+          p->append_child(n);
         } else {
           error(p->_end_index, "Unexpected " + t->to_string());
         }
@@ -277,17 +277,17 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
     case ASTType::BNOT:
     case ASTType::RET: {
       ++p->_end_index;
-      p->_children.push_back(next_expression(p->_end_index));
+      p->append_child(next_expression(p->_end_index));
       break;
     }
     case ASTType::SUM: /// unary +
     case ASTType::SUBTRACT: { /// unary -
       ++p->_end_index; /// skip "-" or "+"
       /// higher precedence than infix plus/minus
-      p->_lbp = PREC_UNARY;
-      auto rhs = next_expression(p->_end_index, p->_lbp);
+      p->set_lbp(PREC_UNARY);
+      auto rhs = next_expression(p->_end_index, p->get_lbp());
       if (!rhs) { error(p->_end_index, "Invalid operand"); }
-      p->_children.push_back(rhs);
+      p->append_child(rhs);
       break;
     }
       ////////////////////////// others /////////////////////////////////
@@ -339,21 +339,21 @@ size_t ParserImpl::parse_node(const ASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
   p->_end_index = p->_start_index;
   // TODO: update _cs->_current_token
 
   /// special tokens that require whether p is led or nud to determine the node type
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
-      p->_type = ASTType::BAND;
-      p->_lbp = ASTNode::op_precedence[p->_type];
+      p->set_node_type(ASTType::BAND);
+      p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
       break;
     default:
       break;
   }
 
-  switch (p->_type) {
+  switch (p->get_node_type()) {
     case ASTType::MEMBER_ACCESS: {
       parse_member_access(left, p);
       break;
@@ -373,10 +373,10 @@ size_t ParserImpl::parse_node(const ASTNodePtr &left, const ASTNodePtr &p) {
     case ASTType::DIVIDE:
     case ASTType::MOD: {
       ++p->_end_index; /// skip operator
-      p->_children.push_back(left); /// lhs
-      auto n = next_expression(p->_end_index, p->_lbp);
+      p->append_child(left); /// lhs
+      auto n = next_expression(p->_end_index, p->get_lbp());
       if (!n) { error(p->_end_index, "Invalid operand"); }
-      p->_children.push_back(n);
+      p->append_child(n);
       break;
     }
     default:

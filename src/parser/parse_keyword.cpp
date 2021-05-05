@@ -16,7 +16,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_intrinsic(const ASTNodePtr &p) {
+size_t ParserImpl::parse_intrinsic(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "@"
   auto e = peek(p->_end_index);
   p->_end_index = parse_node(e);
@@ -24,11 +24,11 @@ size_t ParserImpl::parse_intrinsic(const ASTNodePtr &p) {
   if (e->_type != ASTType::ID && e->_type != ASTType::FUNC_CALL) {
     error(e->_end_index, "Unexpected token");
   }
-  p->_children.push_back(e);
+  p->append_child(e);
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_import(const ASTNodePtr &p) {
+size_t ParserImpl::parse_import(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "import"
   auto rhs = peek(p->_end_index);
   if (rhs->_type != ASTType::STRING_LITERAL) {
@@ -36,6 +36,6 @@ size_t ParserImpl::parse_import(const ASTNodePtr &p) {
   }
   p->_end_index = parse_node(rhs);
   str filename = std::get<str>(rhs->_value);
-  p->_name = filename;
+  p->set_value(filename);
   return p->_end_index;
 }

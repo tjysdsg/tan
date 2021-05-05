@@ -7,11 +7,13 @@ namespace tanlang {
 
 struct Scope;
 class ASTNode;
-using ASTNodePtr = std::shared_ptr<ASTNode>;
+using ASTNodePtr = ptr<ASTNode>;
+class ASTTy;
+using ASTTyPtr = ptr<ASTTy>;
 class ASTFunction;
-using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
+using ASTFunctionPtr = ptr<ASTFunction>;
 class FunctionTable;
-using FunctionTablePtr = std::shared_ptr<FunctionTable>;
+using FunctionTablePtr = ptr<FunctionTable>;
 class ASTLoop;
 
 /**
@@ -71,16 +73,28 @@ public:
   void add(const str &name, std::shared_ptr<ASTNode> value);
 
   /**
-   * \brief Set a named ASTNode
+   * \brief Register a variable
    * */
   void set(const str &name, std::shared_ptr<ASTNode> value);
 
   /**
-   * \brief Get a named ASTNode that is visible to the current scope
+   * \brief look up the variable table in the current and parent scopes
    * \details This function starts by searching the current scope. If the target is not found in current scope,
    * search the parent scope, repeat the process until found. Return nullptr if not found in all visible scopes.
    * */
-  std::shared_ptr<ASTNode> get(const str &name);
+  ASTNodePtr get(const str &name);
+
+  /**
+   * \brief Register a type
+   * */
+  void set_type(const str &name, ASTTyPtr value);
+
+  /**
+   * \brief Look up type table
+   * \param name typename
+   */
+  ASTTyPtr get_type(const str &name);
+
   LLVMContext *get_context();
   Module *get_module();
   void emit_object(const str &filename);
@@ -111,6 +125,8 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
+  umap<str, FunctionTablePtr> _type_table{};
+
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
   vector<std::shared_ptr<Scope>> _scope{}; // TODO: use tree for scope

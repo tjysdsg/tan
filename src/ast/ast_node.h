@@ -1,6 +1,10 @@
 #ifndef TAN_SRC_AST_ASTNODE_H_
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
+#include "src/ast/precedence.h"
+#include "src/ast/ast_type.h"
+#include "src/ast/parsable_ast_node.h"
+#include "src/ast/source_traceable.h"
 #include <variant>
 
 namespace llvm {
@@ -24,76 +28,7 @@ class Parser;
 struct Token;
 enum class Ty : uint64_t;
 
-enum PrecedenceLevel {
-  PREC_LOWEST = 0,        //
-  PREC_LITERAL = 10,      // "string" 1.0 2
-  PREC_ASSIGN = 90,       // = *= /= %= += -= <<= >>= &= ^= |=
-  PREC_LOGICAL_OR = 110,  // ||
-  PREC_LOGICAL_AND = 120, // &&
-  PREC_COMPARISON = 130,  // < <= > >= == != === !== ~=
-  PREC_RANGE = 135,       // ..< ...
-  PREC_TERM = 140,        // + - | ^
-  PREC_FACTOR = 150,      // * / % &
-  PREC_CAST = 155,        // as
-  PREC_SHIFT = 160,       // << >>
-  PREC_UNARY = 170,       // + - ! ~
-  PREC_CALL = 200,        // . ( [
-  PREC_HIGHEST = 500,
-};
-
-enum class ASTType {
-  PROGRAM,
-  FUNC_DECL,
-  FUNC_CALL,
-  ARG_DECL,
-  VAR_DECL,
-  STRUCT_DECL,
-  ENUM_DECL,
-  ENUM_VAL,
-  STATEMENT,   /// statement or compound statements
-  SUM,         /// +
-  SUBTRACT,    /// -
-  MULTIPLY,    /// *
-  DIVIDE,      /// /
-  MOD,         /// %
-  ASSIGN,      /// =
-  BAND,        /// binary and
-  LAND,        /// logical and
-  BOR,         /// binary or
-  LOR,         /// logical or
-  BNOT,        /// bitwise not
-  LNOT,        /// logical not
-  GT,          /// >
-  GE,          /// >=
-  LT,          /// <
-  LE,          /// <=
-  EQ,          /// ==
-  NE,          /// !=
-  XOR,         /// ^
-  ADDRESS_OF,  /// &
-  CAST,        /// as
-  ID,          /// identifiers
-  LOOP,        /// for, while, ...
-  CONTINUE,    /// continue
-  BREAK,       /// break
-  TY,          /// type name
-  PARENTHESIS, /// ()
-  RET,         /// return
-  IF,          /// if
-  ELSE,        /// else
-  IMPORT,      /// import
-
-  // types in tan
-  NUM_LITERAL,    /// int or float literal
-  CHAR_LITERAL,   /// 's'
-  STRING_LITERAL, /// "xxx"
-  ARRAY_LITERAL,  /// [1, 2, 3]
-  MEMBER_ACCESS,  /// struct.a
-  INTRINSIC, /// intrinsic functions, operators, qualifiers, etc.
-  INVALID,
-};
-
-class ASTNode {
+class ASTNode : public ParsableASTNode {
 public:
   /// string representation of ASTType
   static umap<ASTType, str> ast_type_names;
@@ -113,55 +48,46 @@ public:
    * */
   void printTree();
 
-  /**
-   * \brief Get the line number of this node, starting from 1
-   */
-  size_t get_line();
-
-  /**
-   * \brief Get the column number of this node, starting from 1
-   */
-  size_t get_col();
-
-  /**
-   * \brief Get the token of this node at idx
-   */
-  Token *get_token();
-
-  void set_token(Token *token);
-
-  str get_token_str();
-
-public:
   virtual str to_string(bool print_prefix = true);
+
+  ASTType get_node_type();
+  void set_node_type(ASTType node_type);
+  int get_lbp();
+  ptr<ParsableASTNode> get_child_at(size_t idx);
+  void set_child_at(size_t idx, ptr<ParsableASTNode> node);
+  void append_child(ptr<ParsableASTNode> node);
+  void set_value(str str_value) = 0;
+  void set_value(uint64_t int_value) = 0;
+  void set_value(double float_value) = 0;
+  uint64_t get_int_value();
+  str get_str_value();
+  double get_float_value();
 
 private:
   void printTree(const str &prefix, bool last_child);
 
-private:
-  Token *_token = nullptr;
-
 public:
   ASTType _type = ASTType::INVALID;
-  vector<ASTNodePtr> _children{};
-  int _lbp = 0;
-  llvm::Value *_llvm_value = nullptr;
   ASTTyPtr _ty = nullptr;
+  vector<ASTNodePtr> _children{};
+  ptr<Scope> _scope = nullptr;
   str _name;
+  std::variant<str, uint64_t, double> _value;
+
+  int _lbp = 0;
+  bool _parsed = false;
   bool _is_typed = false;
   bool _is_valued = false;
   bool _is_named = false;
-  bool _parsed = false;
   bool _is_external = false;
   bool _is_public = false;
-  size_t _start_index = 0;
-  size_t _end_index = 0;
-  ptr<Scope> _scope = nullptr;
-  std::variant<str, uint64_t, double> _value;
-  size_t _dominant_idx = 0;
+
+  llvm::Value *_llvm_value = nullptr;
 };
 
-template<typename T> std::shared_ptr<T> ast_cast(ASTNodePtr node) { return std::reinterpret_pointer_cast<T>(node); }
+template<typename T> std::shared_ptr<T> ast_cast(ptr<SourceTraceable> node) {
+  return std::reinterpret_pointer_cast<T>(node);
+}
 
 #undef AST_FWD_DECL
 

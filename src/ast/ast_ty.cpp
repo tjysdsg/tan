@@ -5,7 +5,7 @@
 
 using namespace tanlang;
 
-ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTNodePtr> &sub_tys, bool is_lvalue) {
+ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue) {
   auto find = ASTTy::_cache.find(t);
   if (find == ASTTy::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
@@ -14,8 +14,8 @@ ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTNodePtr> &sub_tys, bool is_lval
   if (sub_tys.size() != ret->_children.size()) { return nullptr; }
   size_t idx = 0;
   for (const auto &sub : sub_tys) {
-    auto t1 = ast_cast<ASTTy>(sub);
-    auto t2 = ast_cast<ASTTy>(ret->_children[idx]);
+    auto t1 = sub;
+    auto t2 = ret->_children[idx];
     if (t1->_tyty != t2->_tyty) { return nullptr; }
     if (t1->_is_lvalue != t2->_is_lvalue) { return nullptr; }
     ++idx;
@@ -42,9 +42,9 @@ bool ASTTy::operator==(const ASTTy &other) {
     size_t n = _children.size();
     if (n != other._children.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      auto lhs = ast_cast<ASTTy>(_children[i]);
+      auto lhs = _children.at(i);
       TAN_ASSERT(lhs);
-      auto rhs = ast_cast<ASTTy>(other._children[i]);
+      auto rhs = other._children.at(i);
       TAN_ASSERT(rhs);
       if (!lhs->operator==(*rhs)) { return false; }
     }
@@ -52,7 +52,14 @@ bool ASTTy::operator==(const ASTTy &other) {
   return true;
 }
 
-str ASTTy::to_string(bool print_prefix) { return ASTNode::to_string(print_prefix) + " " + _type_name; }
+str ASTTy::to_string(bool print_prefix) {
+  str ret = "";
+  if (print_prefix) {
+    ret += "Type: ";
+  }
+  ret += _type_name;
+  return ret;
+}
 
 bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
 

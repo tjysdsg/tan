@@ -16,7 +16,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_struct_decl(const ASTNodePtr &p) {
+size_t ParserImpl::parse_struct_decl(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "struct"
 
   /// struct name

@@ -16,7 +16,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_enum_decl(const ASTNodePtr &p) {
+size_t ParserImpl::parse_enum_decl(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "enum"
   auto name = peek(p->_end_index);
   if (name->_type != ASTType::ID) {
@@ -30,7 +30,7 @@ size_t ParserImpl::parse_enum_decl(const ASTNodePtr &p) {
   ++p->_end_index;
   while (!eof(p->_end_index) && at(p->_end_index)->value != "}") {
     auto e = ast_create_statement(_cs);
-    p->_children.push_back(e);
+    p->append_child(e);
     if (at(p->_end_index)->value == ",") { ++p->_end_index; }
   }
   ++p->_end_index; /// skip '}'

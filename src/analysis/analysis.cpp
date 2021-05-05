@@ -597,6 +597,11 @@ void analyze(CompilerSession *cs, const ASTNodePtr &p) {
       cs->add_function(p);
 
       // TODO: function type
+      //  auto ret_ty = ast_create_ty(_cs);
+      //  ret_ty->set_token(at(p->_end_index));
+      //  ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
+      //  p->_end_index = parse_ty(ret_ty); /// return type
+      //  p->_children[0] = ret_ty;
 
       /// add args to scope if function body exists
       size_t n = p->_children.size();

@@ -9,6 +9,8 @@
 namespace tanlang {
 
 class CompilerSession;
+class ParsableASTNode;
+using ParsableASTNodePtr = ptr<ParsableASTNode>;
 
 /**
  * \brief Parser
@@ -28,25 +30,26 @@ private:
   ASTNodePtr peek(size_t &index, TokenType type, const str &value);
   ASTNodePtr peek_keyword(Token *token, size_t &index);
   ASTNodePtr next_expression(size_t &index, int rbp = 0);
-  size_t parse_node(const ASTNodePtr &p);
-  size_t parse_node(const ASTNodePtr &left, const ASTNodePtr &p);
+  size_t parse_node(const ParsableASTNodePtr &p);
+  size_t parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
   void error(size_t i, const str &error_message) const;
-  size_t parse_ty(const ASTNodePtr &p);
+  size_t parse_intrinsic(const ParsableASTNodePtr &p);
+  size_t parse_import(const ParsableASTNodePtr &p);
+  size_t parse_if(const ParsableASTNodePtr &p);
+  size_t parse_else(const ParsableASTNodePtr &p);
+  size_t parse_loop(const ParsableASTNodePtr &p);
+  size_t parse_func_decl(const ParsableASTNodePtr &p);
+  size_t parse_func_call(const ParsableASTNodePtr &p);
+  size_t parse_array_literal(const ParsableASTNodePtr &p);
+  size_t parse_var_decl(const ParsableASTNodePtr &p);
+  size_t parse_arg_decl(const ParsableASTNodePtr &p);
+  size_t parse_struct_decl(const ParsableASTNodePtr &p);
+  size_t parse_enum_decl(const ParsableASTNodePtr &p);
+  size_t parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
+
+  size_t parse_ty(ASTTyPtr &p);
   size_t parse_ty_array(const ASTTyPtr &p);
   size_t parse_ty_struct(const ASTTyPtr &p);
-  size_t parse_intrinsic(const ASTNodePtr &p);
-  size_t parse_import(const ASTNodePtr &p);
-  size_t parse_if(const ASTNodePtr &p);
-  size_t parse_else(const ASTNodePtr &p);
-  size_t parse_loop(const ASTNodePtr &p);
-  size_t parse_func_decl(const ASTNodePtr &p);
-  size_t parse_func_call(const ASTNodePtr &p);
-  size_t parse_array_literal(const ASTNodePtr &p);
-  size_t parse_var_decl(const ASTNodePtr &p);
-  size_t parse_arg_decl(const ASTNodePtr &p);
-  size_t parse_struct_decl(const ASTNodePtr &p);
-  size_t parse_enum_decl(const ASTNodePtr &p);
-  size_t parse_member_access(const ASTNodePtr &left, const ASTNodePtr &p);
 
 private:
   vector<Token *> _tokens{};

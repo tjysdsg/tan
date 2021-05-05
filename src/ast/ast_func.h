@@ -41,6 +41,8 @@ public:
 
 public:
   llvm::Function *_func = nullptr;
+  bool _is_external = false;
+  bool _is_public = false;
 };
 
 } // namespace tanlang

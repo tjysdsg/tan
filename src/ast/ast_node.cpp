@@ -11,6 +11,56 @@ str ASTNode::to_string(bool print_prefix) {
   else { return ""; }
 }
 
+ptr<ParsableASTNode> ASTNode::get_child_at(size_t idx) {
+  TAN_ASSERT(_children.size() > idx);
+  return _children[idx];
+}
+
+void ASTNode::set_child_at(size_t idx, ptr<ParsableASTNode> node) {
+  TAN_ASSERT(_children.size() > idx);
+  _children[idx] = node;
+}
+
+void ASTNode::append_child(ptr<ParsableASTNode> node) {
+  _children.push_back(node);
+}
+
+void ASTNode::set_value(str str_value) {
+  _value = str_value;
+}
+
+void ASTNode::set_value(uint64_t int_value) {
+  _value = int_value;
+}
+
+void ASTNode::set_value(double float_value) {
+  _value = float_value;
+}
+
+uint64_t ASTNode::get_int_value() {
+  return std::get<uint64_t>(_value);
+}
+
+str ASTNode::get_str_value() {
+  return std::get<str>(_value);
+}
+
+double ASTNode::get_float_value() {
+  return std::get<double>(_value);
+}
+
+ASTType ASTNode::get_node_type() {
+  return _type;
+}
+
+void ASTNode::set_node_type(ASTType node_type) {
+  _type = node_type;
+}
+
+int ASTNode::get_lbp() {
+  return _lbp;
+}
+
 void ASTNode::printTree() {
   using std::cout;
   cout << this->to_string(true) << "\n";
@@ -34,26 +84,6 @@ void ASTNode::printTree(const str &prefix, bool last_child) {
 }
 
 ASTNode::ASTNode(ASTType op, int lbp) : _type(op), _lbp(lbp) {}
-
-size_t ASTNode::get_line() {
-  return get_token()->l + 1;
-}
-
-size_t ASTNode::get_col() {
-  return get_token()->c + 1;
-}
-
-Token *ASTNode::get_token() {
-  return _token;
-}
-
-str ASTNode::get_token_str() {
-  return _token->value;
-}
-
-void ASTNode::set_token(Token *token) {
-  _token = token;
-}
 
 /// other definitions
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}

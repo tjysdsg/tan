@@ -16,7 +16,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_array_literal(const ASTNodePtr &p) {
+size_t ParserImpl::parse_array_literal(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip '['
   if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
   auto element_type = ASTType::INVALID;
@@ -40,7 +40,7 @@ size_t ParserImpl::parse_array_literal(const ASTNodePtr &p) {
     if (is_ast_type_in(node->_type, TypeSystem::LiteralTypes)) {
       if (node->_type == ASTType::ARRAY_LITERAL) { ++p->_end_index; }
       p->_end_index = parse_node(node);
-      p->_children.push_back(node);
+      p->append_child(node);
     } else { error(p->_end_index, "Expect literals"); }
   }
 

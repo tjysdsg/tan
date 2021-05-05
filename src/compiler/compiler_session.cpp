@@ -92,6 +92,15 @@ ASTNodePtr CompilerSession::get(const str &name) {
   return result;
 }
 
+void CompilerSession::set_type(const str &name, ASTTyPtr ty) {
+  _type_table[name] = ty;
+}
+
+ASTTyPtr CompilerSession::get_type(const str &name) {
+  TAN_ASSERT(name != "");
+  return _type_table.at(name);
+}
+
 LLVMContext *CompilerSession::get_context() { return _context; }
 
 Module *CompilerSession::get_module() { return _module; }

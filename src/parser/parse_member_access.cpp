@@ -16,16 +16,16 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_member_access(const ASTNodePtr &left, const ASTNodePtr &p) {
+size_t ParserImpl::parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
   auto pma = ast_cast<ASTMemberAccess>(p);
   TAN_ASSERT(pma);
   if (at(p->_end_index)->value == "[") { pma->_access_type = MemberAccessType::MemberAccessBracket; }
 
   ++p->_end_index; /// skip "." or "["
-  p->_children.push_back(left); /// lhs
+  p->append_child(left); /// lhs
   auto right = peek(p->_end_index);
   p->_end_index = parse_node(right);
-  p->_children.push_back(right);
+  p->append_child(right);
 
   if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
     ++p->_end_index; /// skip ]

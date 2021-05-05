@@ -18,22 +18,23 @@ using namespace tanlang;
 
 // TODO: move scope checking to analysis phase
 
-size_t ParserImpl::parse_func_decl(const ASTNodePtr &p) {
+size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
+  auto pfn = ast_cast<ASTFunction>(p);
   if (at(p->_start_index)->value == "fn") {
     /// skip "fn"
     ++p->_end_index;
   } else if (at(p->_start_index)->value == "pub") {
-    p->_is_public = true;
+    pfn->_is_public = true;
     /// skip "pub fn"
     p->_end_index = p->_start_index + 2;
   } else if (at(p->_start_index)->value == "extern") {
-    p->_is_external = true;
+    pfn->_is_external = true;
     /// skip "pub fn"
     p->_end_index = p->_start_index + 2;
   } else { TAN_ASSERT(false); }
 
-  /// function return type, set later
-  p->_children.push_back(nullptr);
+  /// FIXME: function return type, set later
+  // p->append_child(nullptr);
 
   /// function name
   // Don't use peek since it look ahead and returns ASTType::FUNCTION when it finds "(",
@@ -57,7 +58,7 @@ size_t ParserImpl::parse_func_decl(const ASTNodePtr &p) {
       arg->set_token(at(p->_end_index));
       arg->_end_index = arg->_start_index = p->_end_index;
       p->_end_index = parse_node(arg); /// this will add args to the current scope
-      p->_children.push_back(arg);
+      p->append_child(arg);
       if (at(p->_end_index)->value == ",") {
         ++p->_end_index;
       } else { break; }
@@ -67,24 +68,19 @@ size_t ParserImpl::parse_func_decl(const ASTNodePtr &p) {
   ++p->_end_index;
   peek(p->_end_index, TokenType::PUNCTUATION, ":");
   ++p->_end_index;
-  auto ret_ty = ast_create_ty(_cs);
-  ret_ty->set_token(at(p->_end_index));
-  ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
-  p->_end_index = parse_node(ret_ty); /// return type
-  p->_children[0] = ret_ty;
 
   /// body
-  if (!p->_is_external) {
+  if (!pfn->_is_external) {
     auto body = peek(p->_end_index, TokenType::PUNCTUATION, "{");
     p->_end_index = parse_node(body);
-    p->_children.push_back(body);
+    p->append_child(body);
   }
   _cs->pop_scope(); /// pop function scope
 
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_func_call(const ASTNodePtr &p) {
+size_t ParserImpl::parse_func_call(const ParsableASTNodePtr &p) {
   /// function name
   p->_name = at(p->_end_index)->value;
   ++p->_end_index;
@@ -95,7 +91,7 @@ size_t ParserImpl::parse_func_call(const ASTNodePtr &p) {
 
   /// args
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
-    p->_children.push_back(next_expression(p->_end_index));
+    p->append_child(next_expression(p->_end_index));
     if (at(p->_end_index)->value == ",") { /// skip ,
       ++p->_end_index;
     } else { break; }

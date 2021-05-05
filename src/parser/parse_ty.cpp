@@ -99,44 +99,40 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_ty(const ASTNodePtr &p) {
+size_t ParserImpl::parse_ty(ASTTyPtr &p) {
   Token *token;
-  ASTTyPtr pt = ast_cast<ASTTy>(p);
-  TAN_ASSERT(pt);
   while (!eof(p->_end_index)) {
     token = at(p->_end_index);
     auto qb = ASTTy::basic_tys.find(token->value);
     auto qq = ASTTy::qualifier_tys.find(token->value);
     if (qb != ASTTy::basic_tys.end()) { /// base types
-      pt->_tyty = TY_OR(pt->_tyty, qb->second);
+      p->_tyty = TY_OR(p->_tyty, qb->second);
     } else if (qq != ASTTy::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        /// swap self and child
-        auto sub = std::make_shared<ASTTy>(*pt);
-        pt->_tyty = Ty::POINTER;
-        pt->_children.clear(); /// clear but memory stays
-        pt->_children.push_back(sub);
+        auto sub = std::make_shared<ASTTy>(*p);
+        // TODO: use factory to create pointer ty
+        p->_tyty = Ty::POINTER;
+        p->_children.clear();
+        p->_children.push_back(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
       // TODO: identify type aliases
-      pt->_type_name = token->value;
-      auto ty = ast_cast<ASTTy>(_cs->get(pt->_type_name));
-      if (ty) { *pt = *ty; }
-      else {
-        error(pt->_end_index, "Invalid type name");
+      p = _cs->get_type(token->value);
+      if (!p) {
+        error(p->_end_index, "Invalid type name");
       }
     } else if (token->value == "[") {
-      pt->_tyty = Ty::ARRAY;
-      pt->_end_index = parse_ty_array(pt);
+      p->_tyty = Ty::ARRAY;
+      p->_end_index = parse_ty_array(p);
       break;
     } else if (token->value == "struct") {
-      pt->_tyty = Ty::STRUCT;
-      pt->_end_index = parse_ty_struct(pt);
+      p->_tyty = Ty::STRUCT;
+      p->_end_index = parse_ty_struct(p);
       break;
     } else {
       break;
     }
-    ++pt->_end_index;
+    ++p->_end_index;
   }
-  return pt->_end_index;
+  return p->_end_index;
 }

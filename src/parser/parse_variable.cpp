@@ -16,12 +16,12 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_var_decl(const ASTNodePtr &p) {
+size_t ParserImpl::parse_var_decl(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip 'var'
   return parse_arg_decl(p);
 }
 
-size_t ParserImpl::parse_arg_decl(const ASTNodePtr &p) {
+size_t ParserImpl::parse_arg_decl(const ParsableASTNodePtr &p) {
   /// var name
   auto name_token = at(p->_end_index);
   p->_name = name_token->value;
@@ -34,7 +34,7 @@ size_t ParserImpl::parse_arg_decl(const ASTNodePtr &p) {
     ty->_end_index = ty->_start_index = p->_end_index;
     ty->_is_lvalue = true;
     p->_end_index = parse_node(ty);
-    p->_ty = ty;
+    // FIXME: p->_ty = ty;
   } else { p->_ty = nullptr; }
 
   return p->_end_index;
