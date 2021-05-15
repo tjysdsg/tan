@@ -35,9 +35,9 @@ public:
     _is_public = false;
   };
 
-  [[nodiscard]] ASTNodePtr get_ret() const { return _children[0]; }
-  [[nodiscard]] ASTNodePtr get_arg(size_t i) const { return _children[i + 1]; }
-  [[nodiscard]] size_t get_n_args() const { return _children.size() - 1; }
+  [[nodiscard]] ASTNodePtr get_ret() const { return ast_cast<ASTNode>(get_children()[0]); }
+  [[nodiscard]] ASTNodePtr get_arg(size_t i) const { return ast_cast<ASTNode>(get_children()[i + 1]); }
+  [[nodiscard]] size_t get_n_args() const { return get_children().size() - 1; }
 
 public:
   llvm::Function *_func = nullptr;

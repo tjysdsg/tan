@@ -20,16 +20,16 @@ class ParserImpl final {
 public:
   ParserImpl() = delete;
   ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs);
-  ASTNodePtr parse();
+  ParsableASTNodePtr parse();
   [[nodiscard]] str get_filename() const;
 
 private:
   [[nodiscard]] Token *at(const size_t idx) const;
   bool eof(size_t index) const;
-  ASTNodePtr peek(size_t &index);
-  ASTNodePtr peek(size_t &index, TokenType type, const str &value);
-  ASTNodePtr peek_keyword(Token *token, size_t &index);
-  ASTNodePtr next_expression(size_t &index, int rbp = 0);
+  ParsableASTNodePtr peek(size_t &index);
+  ParsableASTNodePtr peek(size_t &index, TokenType type, const str &value);
+  ParsableASTNodePtr peek_keyword(Token *token, size_t &index);
+  ParsableASTNodePtr next_expression(size_t &index, int rbp = 0);
   size_t parse_node(const ParsableASTNodePtr &p);
   size_t parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
   void error(size_t i, const str &error_message) const;
@@ -47,7 +47,7 @@ private:
   size_t parse_enum_decl(const ParsableASTNodePtr &p);
   size_t parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
 
-  size_t parse_ty(ASTTyPtr &p);
+  size_t parse_ty(ParsableASTNodePtr &p);
   size_t parse_ty_array(const ASTTyPtr &p);
   size_t parse_ty_struct(const ASTTyPtr &p);
 

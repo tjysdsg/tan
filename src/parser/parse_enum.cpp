@@ -19,7 +19,7 @@ using namespace tanlang;
 size_t ParserImpl::parse_enum_decl(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "enum"
   auto name = peek(p->_end_index);
-  if (name->_type != ASTType::ID) {
+  if (name->get_node_type() != ASTType::ID) {
     error(p->_end_index, "Expect an enum name");
   }
 

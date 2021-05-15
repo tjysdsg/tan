@@ -316,11 +316,7 @@ ASTNodePtr ast_create_func_call(CompilerSession *) {
 }
 
 ASTTyPtr ast_create_ty(CompilerSession *) {
-  auto ret = make_ptr<ASTTy>();
-  ret->_is_typed = true;
-  ret->_is_valued = true; /// every type has its default value
-  ret->_ty = ret;
-  return ret;
+  return make_ptr<ASTTy>();
 }
 
 ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {

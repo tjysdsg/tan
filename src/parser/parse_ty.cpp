@@ -22,7 +22,7 @@ size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
     error(p->_end_index, "The array type and size must be specified");
   } else {
     element = peek(p->_end_index);
-    if (element->_type != ASTType::TY) {
+    if (element->get_node_type() != ASTType::TY) {
       error(p->_end_index, "Expect a type");
     }
     p->_end_index = parse_node(element);
@@ -33,14 +33,14 @@ size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
   /// size
   ASTTyPtr ety = ast_cast<ASTTy>(element);
   TAN_ASSERT(ety);
-  auto size = peek(p->_end_index);
-  if (size->_type != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
+  ASTNodePtr size = peek(p->_end_index);
+  if (size->get_node_type() != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
   p->_end_index = parse_node(size);
   if (size->_ty->_is_float || static_cast<int64_t>(std::get<uint64_t>(size->_value)) < 0) {
     error(p->_end_index, "Expect an unsigned integer");
   }
   p->_array_size = std::get<uint64_t>(size->_value);
-  p->_children.push_back(ety);
+  p->append_child(ety);
   /// set _type_name to '[<element type>, <n_elements>]'
   p->_type_name = "[" + p->_type_name + ", " + std::to_string(p->_array_size) + "]";
   ++p->_end_index; /// skip "]"
@@ -51,7 +51,7 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   ++p->_end_index; /// skip "struct"
   /// struct typename
   auto id = peek(p->_end_index);
-  if (id->_type != ASTType::ID) {
+  if (id->get_node_type() != ASTType::ID) {
     error(p->_end_index, "Expecting a typename");
   }
   p->_type_name = id->_name;
@@ -67,27 +67,26 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   /// struct body
   if (at(p->_end_index)->value == "{") {
     auto comp_stmt = next_expression(p->_end_index);
-    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) {
+    if (!comp_stmt || comp_stmt->get_node_type() != ASTType::STATEMENT) {
       error(comp_stmt->_end_index, "Invalid struct body");
     }
 
     /// resolve_ty member names and types
-    auto members = comp_stmt->_children;
     ASTNodePtr var_decl = nullptr;
-    size_t n = comp_stmt->_children.size();
+    size_t n = comp_stmt->get_children_size();
     p->_member_names.reserve(n);
-    p->_children.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-      if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
-        var_decl = members[i];
-        p->_children.push_back(var_decl->_ty);
-      } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
-        var_decl = members[i]->_children[0];
-        auto initial_value = members[i]->_children[1];
+      auto member = comp_stmt->get_child_at(i);
+      if (member->get_node_type() == ASTType::VAR_DECL) { /// member variable without initial value
+        var_decl = member;
+        p->append_child(var_decl->_ty);
+      } else if (member->get_node_type() == ASTType::ASSIGN) { /// member variable with an initial value
+        var_decl = member->get_child_at(0);
+        ASTNodePtr initial_value = member->get_child_at(1);
         // TODO: check if value is compile-time known
-        p->_children.push_back(initial_value->_ty); /// initial value is set to ASTTy in ASTLiteral::get_ty()
+        p->append_child(initial_value->_ty); /// initial value is set to ASTTy in ASTLiteral::get_ty()
       } else {
-        error(members[i]->_end_index, "Invalid struct member");
+        error(member->_end_index, "Invalid struct member");
       }
       auto name = var_decl->_name;
       p->_member_names.push_back(name);
@@ -99,34 +98,37 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_ty(ASTTyPtr &p) {
+size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
+  ASTTyPtr pty = ast_cast<ASTTy>(p);
+  TAN_ASSERT(pty);
+
   Token *token;
   while (!eof(p->_end_index)) {
     token = at(p->_end_index);
     auto qb = ASTTy::basic_tys.find(token->value);
     auto qq = ASTTy::qualifier_tys.find(token->value);
     if (qb != ASTTy::basic_tys.end()) { /// base types
-      p->_tyty = TY_OR(p->_tyty, qb->second);
+      pty->_tyty = TY_OR(pty->_tyty, qb->second);
     } else if (qq != ASTTy::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
         auto sub = std::make_shared<ASTTy>(*p);
         // TODO: use factory to create pointer ty
-        p->_tyty = Ty::POINTER;
-        p->_children.clear();
-        p->_children.push_back(sub);
+        pty->_tyty = Ty::POINTER;
+        pty->clear_children();
+        pty->append_child(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
       // TODO: identify type aliases
-      p = _cs->get_type(token->value);
+      *p = *(_cs->get_type(token->value));
       if (!p) {
         error(p->_end_index, "Invalid type name");
       }
     } else if (token->value == "[") {
-      p->_tyty = Ty::ARRAY;
+      pty->_tyty = Ty::ARRAY;
       p->_end_index = parse_ty_array(p);
       break;
     } else if (token->value == "struct") {
-      p->_tyty = Ty::STRUCT;
+      pty->_tyty = Ty::STRUCT;
       p->_end_index = parse_ty_struct(p);
       break;
     } else {

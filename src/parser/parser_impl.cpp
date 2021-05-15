@@ -21,7 +21,7 @@ using tanlang::TokenType; // distinguish from the one in winnt.h
 ParserImpl::ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
 
-ASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
+ParsableASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
@@ -30,7 +30,7 @@ ASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   return peek(index);
 }
 
-ASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
+ParsableASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   ASTNodePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
@@ -80,7 +80,7 @@ ASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   return ret;
 }
 
-ASTNodePtr ParserImpl::peek(size_t &index) {
+ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
@@ -149,7 +149,7 @@ ASTNodePtr ParserImpl::peek(size_t &index) {
   return node;
 }
 
-ASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
+ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
   ASTNodePtr node = peek(index);
   ++index;
   if (!node) { return nullptr; }
@@ -158,7 +158,7 @@ ASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
   auto left = n;
   node = peek(index);
   if (!node) { return left; }
-  while (rbp < node->_lbp) {
+  while (rbp < node->get_lbp()) {
     node = peek(index);
     n = node;
     index = parse_node(left, n);
@@ -178,15 +178,15 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         p->set_node_type(ASTType::ADDRESS_OF);
-        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
+        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       case "!"_hs:
         p->set_node_type(ASTType::LNOT);
-        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
+        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       case "~"_hs:
         p->set_node_type(ASTType::BNOT);
-        p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
+        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       default:
         break;
@@ -347,7 +347,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTN
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
       p->set_node_type(ASTType::BAND);
-      p->set_lbp(ASTNode::op_precedence[p->get_node_type()]);
+      p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
       break;
     default:
       break;
@@ -385,7 +385,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTN
   return p->_end_index;
 }
 
-ASTNodePtr ParserImpl::parse() {
+ParsableASTNodePtr ParserImpl::parse() {
   _root = ast_create_program(_cs);
   parse_node(_root);
   return _root;

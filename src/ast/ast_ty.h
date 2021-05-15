@@ -1,7 +1,7 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
 #include <variant>
-#include "src/ast/source_traceable.h"
+#include "src/ast/parsable_ast_node.h"
 #include "base.h"
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
@@ -52,11 +52,8 @@ using ASTTyPtr = ptr<ASTTy>;
 
 /**
  * \brief Type of an ASTNode
- *
- * \details Globally unique (also for pointers), so you can compare two types by comparing two pointers
- * TODO: make it also immutable once created
  */
-class ASTTy : public SourceTraceable, public enable_ptr_from_this<ASTTy> {
+class ASTTy : public ParsableASTNode, public enable_ptr_from_this<ASTTy> {
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
@@ -80,9 +77,6 @@ public:
 
 public:
   Ty _tyty = Ty::INVALID;
-
-  vector<ASTTyPtr> _children{};
-
   // avoid name collision with _ty
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
@@ -107,6 +101,9 @@ public:
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
   bool _is_forward_decl = false;
+
+private:
+  vector<ASTTyPtr> _children{};
 };
 
 } // namespace tanlang
