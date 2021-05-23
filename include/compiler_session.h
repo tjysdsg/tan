@@ -44,25 +44,25 @@ public:
    * \brief Get current scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> get_current_scope();
+  ptr<Scope> get_current_scope();
 
   /**
    * \brief create_ty a new scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> push_scope();
+  ptr<Scope> push_scope();
 
   /**
    * \brief Set the current scope
    * \see Scope
    * */
-  void push_scope(std::shared_ptr<Scope>);
+  void push_scope(ptr<Scope>);
 
   /**
    * \brief Pop the current scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> pop_scope();
+  ptr<Scope> pop_scope();
   [[nodiscard]] DIScope *get_current_di_scope() const;
   void push_di_scope(DIScope *scope);
   void pop_di_scope();
@@ -70,12 +70,12 @@ public:
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
    * */
-  void add(const str &name, std::shared_ptr<ASTNode> value);
+  void add(const str &name, ptr<ASTNode> value);
 
   /**
    * \brief Register a variable
    * */
-  void set(const str &name, std::shared_ptr<ASTNode> value);
+  void set(const str &name, ptr<ASTNode> value);
 
   /**
    * \brief look up the variable table in the current and parent scopes
@@ -112,8 +112,8 @@ public:
    * */
   void add_function(ASTNodePtr func);
   vector<ASTFunctionPtr> get_functions(const str &name);
-  [[nodiscard]] std::shared_ptr<ASTLoop> get_current_loop() const;
-  void set_current_loop(std::shared_ptr<ASTLoop>);
+  [[nodiscard]] ptr<ASTLoop> get_current_loop() const;
+  void set_current_loop(ptr<ASTLoop>);
   [[nodiscard]] DIFile *get_di_file() const;
   [[nodiscard]] DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
@@ -129,7 +129,7 @@ private:
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
-  vector<std::shared_ptr<Scope>> _scope{}; // TODO: use tree for scope
+  vector<ptr<Scope>> _scope{}; // TODO: use tree for scope
   vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};
@@ -141,7 +141,7 @@ private:
   /**
    * The control flow in current scope, used by break and continue
    * */
-  std::shared_ptr<ASTLoop> _current_loop = nullptr;
+  ptr<ASTLoop> _current_loop = nullptr;
 
 private:
   void initialize_scope();

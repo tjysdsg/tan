@@ -57,12 +57,12 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   }
   p->_type_name = id->get_data<str>();
 
-  auto forward_decl = _cs->get(p->_type_name);
+  auto forward_decl = _cs->get_type(p->_type_name);
   if (!forward_decl) {
-    _cs->add(p->_type_name, p); /// add type to current scope
+    _cs->set_type(p->_type_name, p); /// add type to current scope
   } else {
     /// replace forward decl with p (even if p is a forward declaration too)
-    _cs->set(p->_type_name, p);
+    _cs->set_type(p->_type_name, p);
   }
 
   /// struct body

@@ -8,7 +8,7 @@
 using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
-  _scope = vector<std::shared_ptr<Scope>>();
+  _scope = vector<ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
@@ -37,17 +37,17 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
 
 CompilerSession::~CompilerSession() {}
 
-std::shared_ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
+ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
 
-std::shared_ptr<Scope> CompilerSession::push_scope() {
+ptr<Scope> CompilerSession::push_scope() {
   auto r = std::make_shared<Scope>();
   _scope.push_back(r);
   return r;
 }
 
-void CompilerSession::push_scope(std::shared_ptr<Scope> scope) { _scope.push_back(scope); }
+void CompilerSession::push_scope(ptr<Scope> scope) { _scope.push_back(scope); }
 
-std::shared_ptr<Scope> CompilerSession::pop_scope() {
+ptr<Scope> CompilerSession::pop_scope() {
   if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
   auto r = _scope.back();
   _scope.pop_back();
@@ -226,6 +226,6 @@ DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
-std::shared_ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
+ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
 
-void CompilerSession::set_current_loop(std::shared_ptr<ASTLoop> loop) { _current_loop = loop; }
+void CompilerSession::set_current_loop(ptr<ASTLoop> loop) { _current_loop = loop; }
