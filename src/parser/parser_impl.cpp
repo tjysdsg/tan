@@ -91,7 +91,7 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   // check if there are tokens after the comment
   if (index >= _tokens.size()) { return nullptr; }
 
-  ASTNodePtr node;
+  ParsableASTNodePtr node = nullptr;
   if (token->value == "@") { /// intrinsics
     node = ast_create_intrinsic(_cs);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
@@ -150,7 +150,7 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
 }
 
 ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
-  ASTNodePtr node = peek(index);
+  ParsableASTNodePtr node = peek(index);
   ++index;
   if (!node) { return nullptr; }
   auto n = node;

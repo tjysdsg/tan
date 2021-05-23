@@ -79,11 +79,11 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
     for (size_t i = 0; i < n; ++i) {
       auto member = comp_stmt->get_child_at(i);
       if (member->get_node_type() == ASTType::VAR_DECL) { /// member variable without initial value
-        var_decl = member;
+        var_decl = ast_cast<ASTNode>(member);
         p->append_child(var_decl->_ty);
       } else if (member->get_node_type() == ASTType::ASSIGN) { /// member variable with an initial value
-        var_decl = member->get_child_at(0);
-        ASTNodePtr initial_value = member->get_child_at(1);
+        var_decl = ast_cast<ASTNode>(member->get_child_at(0));
+        ASTNodePtr initial_value = ast_cast<ASTNode>(member->get_child_at(1));
         // TODO: check if value is compile-time known
         p->append_child(initial_value->_ty); /// initial value is set to ASTTy in ASTLiteral::get_ty()
       } else {
@@ -112,7 +112,7 @@ size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
       pty->_tyty = TY_OR(pty->_tyty, qb->second);
     } else if (qq != ASTTy::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        auto sub = std::make_shared<ASTTy>(*p);
+        auto sub = std::make_shared<ASTTy>(*pty);
         // TODO: use factory to create pointer ty
         pty->_tyty = Ty::POINTER;
         pty->clear_children();
@@ -126,11 +126,11 @@ size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
       }
     } else if (token->value == "[") {
       pty->_tyty = Ty::ARRAY;
-      p->_end_index = parse_ty_array(p);
+      p->_end_index = parse_ty_array(pty);
       break;
     } else if (token->value == "struct") {
       pty->_tyty = Ty::STRUCT;
-      p->_end_index = parse_ty_struct(p);
+      p->_end_index = parse_ty_struct(pty);
       break;
     } else {
       break;
