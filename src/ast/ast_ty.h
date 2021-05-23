@@ -97,7 +97,6 @@ public:
   bool _is_enum = false;
   bool _resolved = false;
   bool _is_lvalue = false;
-  size_t _dominant_idx = 0;
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
   bool _is_forward_decl = false;

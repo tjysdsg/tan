@@ -44,14 +44,10 @@ public:
   template<typename T> void set_data(T val);
   template<typename T> T get_data() const;
 
-  // bool _parsed = false;
-  // bool _is_typed = false;
-  // bool _is_valued = false;
-  // bool _is_named = false;
+  vector<ParsableASTNodePtr> get_children() const;
+  vector<ParsableASTNodePtr> &get_children();
 
 protected:
-  vector<ParsableASTNodePtr> &get_children();
-  vector<ParsableASTNodePtr> get_children() const;
   virtual str to_string(bool print_prefix = true);
 
 private:

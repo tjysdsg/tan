@@ -2,7 +2,7 @@
 #include "lexer.h"
 #include "token.h"
 #include "compiler_session.h"
-#include "src/analysis/analysis.h"
+#include "src/analysis/analyzer.h"
 #include "src/codegen/codegen.h"
 #include "intrinsic.h"
 #include "reader.h"
@@ -68,7 +68,8 @@ void Compiler::parse() {
 
   // TODO: separate parsing and analyzing phase
   Intrinsic::InitAnalysis(_compiler_session);
-  analyze(_compiler_session, _ast);
+  Analyzer analyzer(_compiler_session);
+  analyzer.analyze(_ast);
 }
 
 void Compiler::ParseFile(const str &filename) {

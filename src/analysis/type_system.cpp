@@ -101,7 +101,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
     return s1 >= s2 ? 0 : 1;
   } else if (t1->_is_array && t2->_is_array) { /// arrays
     /// array size must be the same
-    if (get_n_children(t1) != get_n_children(t2)) { return -1; }
+    if (t1->get_children_size() != t2->get_children_size()) { return -1; }
     /// the element type can be implicitly casted as long as the elements have the same size
     if (get_contained_ty(cs, t1)->_size_bits != get_contained_ty(cs, t2)->_size_bits) { return -1; }
     return CanImplicitCast(cs, get_contained_ty(cs, t1), get_contained_ty(cs, t2));
