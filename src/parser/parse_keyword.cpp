@@ -1,18 +1,6 @@
-#include "parser.h"
 #include "base.h"
-#include "compiler_session.h"
 #include "src/parser/parser_impl.h"
-#include "src/analysis/type_system.h"
-#include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_member_access.h"
-#include "src/parser/token_check.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
-#include "src/common.h"
-#include "intrinsic.h"
-#include "token.h"
-#include <memory>
-#include <utility>
+#include "src/ast/parsable_ast_node.h"
 
 using namespace tanlang;
 
@@ -21,7 +9,7 @@ size_t ParserImpl::parse_intrinsic(const ParsableASTNodePtr &p) {
   auto e = peek(p->_end_index);
   p->_end_index = parse_node(e);
   /// Only allow identifier or function call as valid intrinsic token
-  if (e->_type != ASTType::ID && e->_type != ASTType::FUNC_CALL) {
+  if (e->get_node_type() != ASTType::ID && e->get_node_type() != ASTType::FUNC_CALL) {
     error(e->_end_index, "Unexpected token");
   }
   p->append_child(e);
@@ -31,11 +19,11 @@ size_t ParserImpl::parse_intrinsic(const ParsableASTNodePtr &p) {
 size_t ParserImpl::parse_import(const ParsableASTNodePtr &p) {
   ++p->_end_index; /// skip "import"
   auto rhs = peek(p->_end_index);
-  if (rhs->_type != ASTType::STRING_LITERAL) {
+  if (rhs->get_node_type() != ASTType::STRING_LITERAL) {
     error(p->_end_index, "Invalid import statement");
   }
   p->_end_index = parse_node(rhs);
-  str filename = std::get<str>(rhs->_value);
-  p->set_value(filename);
+  str filename = rhs->get_data<str>();
+  p->set_data(filename);
   return p->_end_index;
 }

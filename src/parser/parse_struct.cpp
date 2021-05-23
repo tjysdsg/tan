@@ -1,18 +1,6 @@
-#include "parser.h"
 #include "base.h"
-#include "compiler_session.h"
 #include "src/parser/parser_impl.h"
-#include "src/analysis/type_system.h"
-#include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_member_access.h"
-#include "src/parser/token_check.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
-#include "src/common.h"
-#include "intrinsic.h"
-#include "token.h"
-#include <memory>
-#include <utility>
+#include "src/ast/parsable_ast_node.h"
 
 using namespace tanlang;
 
@@ -21,18 +9,23 @@ size_t ParserImpl::parse_struct_decl(const ParsableASTNodePtr &p) {
 
   /// struct name
   auto id = peek(p->_end_index);
-  if (id->_type != ASTType::ID) {
+  if (id->get_node_type() != ASTType::ID) {
     error(p->_end_index, "Expect struct name");
   }
-  p->_name = id->_name;
+  p->set_data(id->get_data<str>());
 
   /// struct body
   if (at(p->_end_index)->value == "{") {
     auto comp_stmt = next_expression(p->_end_index);
-    if (!comp_stmt || comp_stmt->_type != ASTType::STATEMENT) {
+    if (!comp_stmt || comp_stmt->get_node_type() != ASTType::STATEMENT) {
       error(comp_stmt->_end_index, "Invalid struct body");
     }
-    p->_children = comp_stmt->_children;
+
+    // copy children
+    size_t n_children = comp_stmt->get_children_size();
+    for (size_t i = 0; i < n_children; ++i) {
+      p->set_child_at(i, comp_stmt->get_child_at(i));
+    }
   }
 
   return p->_end_index;

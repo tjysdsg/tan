@@ -1,18 +1,7 @@
-#include "parser.h"
 #include "base.h"
-#include "compiler_session.h"
 #include "src/parser/parser_impl.h"
-#include "src/analysis/type_system.h"
-#include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_member_access.h"
-#include "src/parser/token_check.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
 #include "src/common.h"
-#include "intrinsic.h"
-#include "token.h"
-#include <memory>
-#include <utility>
 
 using namespace tanlang;
 
@@ -33,13 +22,13 @@ size_t ParserImpl::parse_member_access(const ParsableASTNodePtr &left, const Par
     /// pointer dereference
     pma->_access_type = MemberAccessType::MemberAccessDeref;
     ++p->_end_index; /// skip *
-  } else if (right->_type == ASTType::FUNC_CALL) { /// method call
+  } else if (right->get_node_type() == ASTType::FUNC_CALL) { /// method call
     pma->_access_type = MemberAccessType::MemberAccessMemberFunction;
   }
 
   if (!(pma->_access_type == MemberAccessType::MemberAccessMemberFunction /// method call
       || pma->_access_type == MemberAccessType::MemberAccessDeref /// pointer dereference
-      || right->_type == ASTType::ID /// member variable or enum
+      || right->get_node_type() == ASTType::ID /// member variable or enum
   )) {
     error(right->_end_index, "Invalid right-hand operand");
   }

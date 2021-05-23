@@ -4,12 +4,13 @@
 #include <memory>
 #include <stack>
 #include "token.h"
-#include "src/ast/ast_node.h"
 
 namespace tanlang {
 
 class CompilerSession;
 class ParsableASTNode;
+class ASTTy;
+using ASTTyPtr = ptr<ASTTy>;
 using ParsableASTNodePtr = ptr<ParsableASTNode>;
 
 /**
@@ -55,7 +56,7 @@ private:
   vector<Token *> _tokens{};
   str _filename = "";
   CompilerSession *_cs = nullptr;
-  std::shared_ptr<ASTNode> _root = nullptr;
+  ParsableASTNodePtr _root = nullptr;
 };
 
 } // namespace tanlang

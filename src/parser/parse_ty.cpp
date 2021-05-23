@@ -1,13 +1,9 @@
-#include "parser.h"
 #include "base.h"
-#include "compiler_session.h"
 #include "src/parser/parser_impl.h"
-#include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
-#include "src/common.h"
 #include "src/ast/ast_node.h"
-#include "token.h"
+#include "src/ast/parsable_ast_node.h"
+#include "compiler_session.h"
 
 using namespace tanlang;
 
@@ -16,7 +12,7 @@ using namespace tanlang;
 /// current token should be "[" when this is called
 size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
   ++p->_end_index; /// skip "["
-  ASTNodePtr element = nullptr;
+  ParsableASTNodePtr element = nullptr;
   /// element type
   if (at(p->_end_index)->value == "]") { /// empty
     error(p->_end_index, "The array type and size must be specified");
@@ -33,14 +29,19 @@ size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
   /// size
   ASTTyPtr ety = ast_cast<ASTTy>(element);
   TAN_ASSERT(ety);
-  ASTNodePtr size = peek(p->_end_index);
+
+  ParsableASTNodePtr size = peek(p->_end_index);
   if (size->get_node_type() != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
   p->_end_index = parse_node(size);
-  if (size->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
+
+  TAN_ASSERT(ast_cast<ASTNode>(size));
+  if (ast_cast<ASTNode>(size)->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
     error(p->_end_index, "Expect an unsigned integer");
   }
+
   p->_array_size = size->get_data<uint64_t>();
   p->append_child(ety);
+
   /// set _type_name to '[<element type>, <n_elements>]'
   p->_type_name = "[" + p->_type_name + ", " + std::to_string(p->_array_size) + "]";
   ++p->_end_index; /// skip "]"
