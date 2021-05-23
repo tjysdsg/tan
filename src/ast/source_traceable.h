@@ -13,17 +13,17 @@ public:
   /**
    * \brief Get the line number of this node, starting from 1
    */
-  size_t get_line();
+  size_t get_line() const;
 
   /**
    * \brief Get the column number of this node, starting from 1
    */
-  size_t get_col();
+  size_t get_col() const;
 
   /**
    * \brief Get the token of this node at idx
    */
-  Token *get_token();
+  Token *get_token() const;
 
   /**
    * \brief Set token
@@ -33,7 +33,7 @@ public:
   /**
    * \brief Get the string value of the token
    */
-  str get_token_str();
+  str get_token_str() const;
 
 public:
   size_t _start_index = 0;

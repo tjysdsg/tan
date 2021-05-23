@@ -8,6 +8,8 @@ namespace tanlang {
 
 class CompilerSession;
 class ParserImpl;
+class ASTNode;
+using ASTNodePtr = ptr<ASTNode>;
 struct Token;
 
 /**
@@ -18,7 +20,7 @@ class Parser final {
 public:
   Parser() = delete;
   Parser(vector<Token *> tokens, str filename, CompilerSession *cs);
-  ASTNodePtr parse();
+  ASTNodePtr parse(); // TODO: return ParsableASTNodePtr
   [[nodiscard]] str get_filename() const;
 
 private:

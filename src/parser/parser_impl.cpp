@@ -174,7 +174,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   // TODO: update _cs->_current_token
 
   /// special tokens that require whether p is led or nud to determine the node type
-  if (p->get_token() != nullptr) {
+  if (p->get_token() != nullptr) { // TODO: store this in a map
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         p->set_node_type(ASTType::ADDRESS_OF);
@@ -240,6 +240,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
           break;
         }
         // FIXME: multiple expressions in the parenthesis?
+
         /// NOTE: parenthesis without child expression inside are illegal (except function call)
         auto n = next_expression(p->_end_index, PREC_LOWEST);
         if (n) {
@@ -300,7 +301,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       break;
     }
     case ASTType::TY: {
-      parse_ty(p);
+      parse_ty(const_cast<ParsableASTNodePtr &>(p));
       break;
     }
       ////////////////////////// declarations /////////////////////////////////

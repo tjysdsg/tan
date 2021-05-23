@@ -77,6 +77,14 @@ str ParsableASTNode::to_string(bool print_prefix) {
   else { return ""; }
 }
 
+template<typename T> T ParsableASTNode::get_data() const {
+  return std::get<T>(_data);
+}
+
+template<typename T> void ParsableASTNode::set_data(T val) {
+  _data = val;
+}
+
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
 umap<ASTType, str>ParsableASTNode::ASTTypeNames =

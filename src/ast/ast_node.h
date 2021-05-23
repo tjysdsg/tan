@@ -45,8 +45,6 @@ public:
 public:
   ASTTyPtr _ty = nullptr;
   ptr<Scope> _scope = nullptr;
-  str _name;
-  std::variant<str, uint64_t, double> _value;
   bool _is_typed = false;
   bool _is_valued = false;
   bool _is_named = false;

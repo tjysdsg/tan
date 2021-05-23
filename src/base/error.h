@@ -9,8 +9,8 @@ namespace tanlang {
 
 struct Token;
 class CompilerSession;
-class ASTNode;
-using ASTNodePtr = std::shared_ptr<ASTNode>;
+class ParsableASTNode;
+using ParsableASTNodePtr = ptr<ParsableASTNode>;
 
 #define TAN_ASSERT(expr) (static_cast<bool>((expr)) ?  \
   void (0) :                                           \
@@ -19,7 +19,7 @@ using ASTNodePtr = std::shared_ptr<ASTNode>;
 [[noreturn]] void report_error(const str &error_message);
 [[noreturn]] void report_error(const str &source, size_t line, size_t col, const str &error_message);
 [[noreturn]] void report_error(const str &filename, Token *token, const str &error_message);
-[[noreturn]] void report_error(CompilerSession *cs, ASTNodePtr p, const str &message);
+[[noreturn]] void report_error(CompilerSession *cs, const ParsableASTNodePtr &p, const str &message);
 
 } // namespace tanlang
 

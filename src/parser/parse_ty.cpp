@@ -11,9 +11,9 @@
 
 using namespace tanlang;
 
-// TODO: double-check
+// TODO: move type resolving to analysis phase
 
-/// current token should be "[" when this is called.
+/// current token should be "[" when this is called
 size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
   ++p->_end_index; /// skip "["
   ASTNodePtr element = nullptr;
@@ -36,10 +36,10 @@ size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
   ASTNodePtr size = peek(p->_end_index);
   if (size->get_node_type() != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
   p->_end_index = parse_node(size);
-  if (size->_ty->_is_float || static_cast<int64_t>(std::get<uint64_t>(size->_value)) < 0) {
+  if (size->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
     error(p->_end_index, "Expect an unsigned integer");
   }
-  p->_array_size = std::get<uint64_t>(size->_value);
+  p->_array_size = size->get_data<uint64_t>();
   p->append_child(ety);
   /// set _type_name to '[<element type>, <n_elements>]'
   p->_type_name = "[" + p->_type_name + ", " + std::to_string(p->_array_size) + "]";
@@ -54,7 +54,7 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   if (id->get_node_type() != ASTType::ID) {
     error(p->_end_index, "Expecting a typename");
   }
-  p->_type_name = id->_name;
+  p->_type_name = id->get_data<str>();
 
   auto forward_decl = _cs->get(p->_type_name);
   if (!forward_decl) {
@@ -88,7 +88,7 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
       } else {
         error(member->_end_index, "Invalid struct member");
       }
-      auto name = var_decl->_name;
+      auto name = var_decl->get_data<str>();
       p->_member_names.push_back(name);
       p->_member_indices[name] = i;
     }

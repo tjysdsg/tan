@@ -4,6 +4,7 @@
 #include "src/ast/source_traceable.h"
 #include "src/ast/precedence.h"
 #include "src/ast/ast_type.h"
+#include <variant>
 
 namespace tanlang {
 
@@ -40,6 +41,9 @@ public:
   void set_lbp(int lbp);
   int get_lbp();
 
+  template<typename T> void set_data(T val);
+  template<typename T> T get_data() const;
+
   // bool _parsed = false;
   // bool _is_typed = false;
   // bool _is_valued = false;
@@ -57,6 +61,8 @@ private:
   vector<ParsableASTNodePtr> _children{};
   ASTType _type = ASTType::INVALID;
   int _lbp = 0;
+
+  std::variant<str, uint64_t, double> _data;
 };
 
 }

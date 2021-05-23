@@ -34,6 +34,9 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
     p->_end_index = p->_start_index + 2;
   } else { TAN_ASSERT(false); }
 
+  /// function return type, set later
+  p->append_child(nullptr);
+
   /// function name
   // Don't use peek since it look ahead and returns ASTType::FUNCTION when it finds "(",
   // but we only want the function name as an identifier
@@ -44,7 +47,7 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
 
   if (id->get_node_type() != ASTType::ID) { error(p->_end_index, "Invalid function name"); }
   p->_end_index = parse_node(id);
-  p->_name = id->_name;
+  p->set_data(id->get_data<str>()); /// name
 
   _cs->push_scope(); /// pop a new scope
   /// arguments
@@ -67,9 +70,10 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   peek(p->_end_index, TokenType::PUNCTUATION, ":");
   ++p->_end_index;
 
-  /// TODO: function return type
-  // auto ret_type = peek(p->_end_index);
-  // p->_end_index = parse_ty();
+  /// function return type
+  auto ret_type = peek(p->_end_index);
+  p->_end_index = parse_ty(ret_type);
+  p->set_child_at(0, ret_type);
 
   /// body
   if (!pfn->_is_external) {
@@ -83,8 +87,7 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
 }
 
 size_t ParserImpl::parse_func_call(const ParsableASTNodePtr &p) {
-  /// function name
-  p->_name = at(p->_end_index)->value;
+  p->set_data(at(p->_end_index)->value); /// function name
   ++p->_end_index;
 
   // No need to check since '(' is what distinguish a function call from an identifier at the first place

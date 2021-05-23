@@ -4,7 +4,7 @@
 #include "compiler_session.h"
 #include <fmt/core.h>
 #include <iostream>
-#include "src/ast/ast_node.h"
+#include "src/ast/parsable_ast_node.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -208,7 +208,7 @@ void report_error(const str &filename, Token *token, const str &error_message) {
   ABORT();
 }
 
-void report_error(CompilerSession *cs, ASTNodePtr p, const str &message) {
+void report_error(CompilerSession *cs, const ParsableASTNodePtr &p, const str &message) {
   report_error(cs->_filename, p->get_token(), message);
 }
 
