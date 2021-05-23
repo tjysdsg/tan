@@ -4,7 +4,12 @@
 
 using namespace tanlang;
 
-ptr<ParsableASTNode> ParsableASTNode::get_child_at(size_t idx) {
+template<typename T> ptr<T> ParsableASTNode::get_child_at(size_t idx) {
+  TAN_ASSERT(_children.size() > idx);
+  return ast_must_cast<T>(_children[idx]);
+}
+
+template<> ptr<ParsableASTNode> ParsableASTNode::get_child_at<ParsableASTNode>(size_t idx) {
   TAN_ASSERT(_children.size() > idx);
   return _children[idx];
 }

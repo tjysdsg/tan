@@ -31,7 +31,8 @@ public:
    * */
   void printTree();
 
-  ptr<ParsableASTNode> get_child_at(size_t idx);
+  // TODO: constraint T as a subclass of ParsableASTNode
+  template<typename T = ParsableASTNode> ptr<T> get_child_at(size_t idx);
   void set_child_at(size_t idx, ptr<ParsableASTNode> node);
   void append_child(ptr<ParsableASTNode> node);
   void clear_children();
@@ -60,6 +61,17 @@ private:
 
   std::variant<str, uint64_t, double> _data;
 };
+
+template<typename T> std::shared_ptr<T> ast_cast(ParsableASTNodePtr node) {
+  return std::reinterpret_pointer_cast<T>(node);
+}
+
+// TODO: replace some ast_cast calls with ast_must_cast if suitable
+template<typename T> std::shared_ptr<T> ast_must_cast(ParsableASTNodePtr node) {
+  auto ret = std::reinterpret_pointer_cast<T>(node);
+  TAN_ASSERT(ret);
+  return ret;
+}
 
 }
 

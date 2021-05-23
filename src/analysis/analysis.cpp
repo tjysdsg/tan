@@ -119,7 +119,7 @@ Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
     }
     case Ty::ARRAY:
     case Ty::POINTER: {
-      auto e = ast_cast<ASTTy>(p->get_child_at(0));
+      auto e = p->get_child_at<ASTTy>(0);
       auto *e_di_type = to_llvm_meta(cs, e);
       ret = cs->_di_builder
           ->createPointerType((DIType *) e_di_type,
@@ -142,7 +142,7 @@ ASTTyPtr get_contained_ty(CompilerSession *cs, const ASTTyPtr &p) {
     return create_ty(cs, Ty::CHAR, vector<ASTNodePtr>(), false);
   } else if (p->_is_ptr) {
     TAN_ASSERT(p->get_children_size());
-    auto ret = ast_cast<ASTTy>(p->get_child_at(0));
+    auto ret = p->get_child_at<ASTTy>(0);
     TAN_ASSERT(ret);
     return ret;
   } else {

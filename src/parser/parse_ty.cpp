@@ -82,8 +82,8 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
         var_decl = ast_cast<ASTNode>(member);
         p->append_child(var_decl->_ty);
       } else if (member->get_node_type() == ASTType::ASSIGN) { /// member variable with an initial value
-        var_decl = ast_cast<ASTNode>(member->get_child_at(0));
-        ASTNodePtr initial_value = ast_cast<ASTNode>(member->get_child_at(1));
+        var_decl = member->get_child_at<ASTNode>(0);
+        ASTNodePtr initial_value = member->get_child_at<ASTNode>(1);
         // TODO: check if value is compile-time known
         p->append_child(initial_value->_ty); /// initial value is set to ASTTy in ASTLiteral::get_ty()
       } else {

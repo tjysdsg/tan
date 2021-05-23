@@ -53,17 +53,6 @@ public:
   llvm::Value *_llvm_value = nullptr;
 };
 
-template<typename T> std::shared_ptr<T> ast_cast(ptr<SourceTraceable> node) {
-  return std::reinterpret_pointer_cast<T>(node);
-}
-
-// TODO: replace some ast_cast calls with ast_must_cast if suitable
-template<typename T> std::shared_ptr<T> ast_must_cast(ptr<SourceTraceable> node) {
-  auto ret = std::reinterpret_pointer_cast<T>(node);
-  TAN_ASSERT(ret);
-  return ret;
-}
-
 #undef AST_FWD_DECL
 
 } // namespace tanlang
