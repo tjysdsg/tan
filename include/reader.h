@@ -41,7 +41,7 @@ public:
    * \param start start of the string, inclusive
    * \param end end of the string, exclusive
    * */
-  str substr(const Cursor &start, Cursor end) const;
+  str substr(const Cursor &start, const Cursor &end) const;
 
   [[nodiscard]] Cursor begin() const;
   [[nodiscard]] Cursor end() const;
@@ -49,8 +49,11 @@ public:
   /// \brief Return a copy of code_ptr that points to the next character
   [[nodiscard]] Cursor forward(Cursor ptr);
 
+  str get_filename() const;
+
 private:
   vector<SourceLine> _lines{};
+  str _filename = "memory";
 };
 
 struct Cursor {

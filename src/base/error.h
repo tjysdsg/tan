@@ -17,9 +17,12 @@ using ParsableASTNodePtr = ptr<ParsableASTNode>;
   __tan_assert_fail(#expr, __FILE__, __LINE__))
 
 [[noreturn]] void report_error(const str &error_message);
-[[noreturn]] void report_error(const str &source, size_t line, size_t col, const str &error_message);
+[[noreturn]] void report_error(const str &filename,
+    const str &source,
+    size_t line,
+    size_t col,
+    const str &error_message);
 [[noreturn]] void report_error(const str &filename, Token *token, const str &error_message);
-[[noreturn]] void report_error(CompilerSession *cs, const ParsableASTNodePtr &p, const str &message);
 
 } // namespace tanlang
 

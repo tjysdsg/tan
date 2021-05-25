@@ -8,6 +8,8 @@ void Reader::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
   if (!ifs) { report_error("Cannot open file: " + filename); }
+  _filename = filename;
+
   /// read the whole file at once
   str content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   /// count the number of lines
@@ -44,7 +46,8 @@ void Reader::from_string(const str &code) {
   }
 }
 
-str Reader::substr(const Cursor &start, Cursor end) const {
+str Reader::substr(const Cursor &start, const Cursor &_end) const {
+  Cursor end(_end);
   TAN_ASSERT(start.l != (size_t) -1 && start.c != (size_t) -1);
   // if end can contain -1 only if l and c are both -1
   TAN_ASSERT(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
@@ -84,6 +87,10 @@ Cursor Reader::forward(Cursor ptr) {
     ++ptr.c;
   }
   return ptr;
+}
+
+str Reader::get_filename() const {
+  return _filename;
 }
 
 Cursor Reader::end() const {

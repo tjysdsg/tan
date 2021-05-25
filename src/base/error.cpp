@@ -1,10 +1,8 @@
 #include "base.h"
 #include "reader.h"
 #include "token.h"
-#include "compiler_session.h"
 #include <fmt/core.h>
 #include <iostream>
-#include "src/ast/parsable_ast_node.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -190,10 +188,9 @@ void report_error(const str &error_message) {
   ABORT();
 }
 
-void report_error(const str &source, size_t line, size_t col, const str &error_message) {
+void report_error(const str &filename, const str &source, size_t line, size_t col, const str &error_message) {
   str indent = col > 0 ? str(col - 1, ' ') : "";
-  std::cerr << "[ERROR] at LINE" << std::to_string(line) << " " << error_message << "\n" << source << "\n" << indent
-            << "^\n";
+  std::cerr << fmt::format("[ERROR] at {}:{} {}\n{}\n{}^\n", filename, line, error_message, source, indent);
   ABORT();
 }
 
@@ -206,10 +203,6 @@ void report_error(const str &filename, Token *token, const str &error_message) {
       token->line->code,
       indent);
   ABORT();
-}
-
-void report_error(CompilerSession *cs, const ParsableASTNodePtr &p, const str &message) {
-  report_error(cs->_filename, p->get_token(), message);
 }
 
 } // namespace tanlang

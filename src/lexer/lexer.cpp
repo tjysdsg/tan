@@ -16,6 +16,10 @@ namespace tanlang {
    x == '|' || x == '{' || x == '}' || x == '[' || x == ']' || x == '\'' ||    \
    x == '"' || x == ':')
 
+[[noreturn]] static void report_error(Reader *reader, Cursor c, const str &message) {
+  report_error(reader->get_filename(), reader->get_line(c.l).code, c.l + 1, c.c + 1, message);
+}
+
 Cursor skip_whitespace(Reader *reader, Cursor ptr) {
   const auto end = reader->end();
   while (ptr < end && (std::isspace(*ptr) || *ptr == '\0')) {
@@ -91,10 +95,10 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
       ++forward.l;
     }
     if (!t) {
-      report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid comments");
+      report_error(reader, start, "Invalid comments");
     }
   } else {
-    report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid comments");
+    report_error(reader, start, "Invalid comments");
   }
   return t;
 }
@@ -120,10 +124,7 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
     } else if (IS_DELIMITER(ch)) {
       break;
     } else {
-      report_error(reader->get_line(forward.l).code,
-          forward.l,
-          forward.c,
-          "Unexpected character within a number literal");
+      report_error(reader, forward, "Unexpected character within a number literal");
     }
     forward = (*reader).forward(forward);
   }
@@ -181,16 +182,16 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
   if (end <= forward) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno).code;
-    report_error(src, lineno, src.length() - 1, "Incomplete character literal");
+    report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete character literal");
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
       if (value.length() != 2) {
-        report_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
+        report_error(reader, forward, "Invalid character literal");
       }
       value = str(1, escape_char(value[1]));
     } else if (value.length() != 1) {
-      report_error(reader->get_line(forward.l).code, forward.l, forward.c, "Invalid character literal");
+      report_error(reader, forward, "Invalid character literal");
     }
     t = new Token(TokenType::CHAR, value, start, &reader->get_line(start.l));
     start = (*reader).forward(forward);
@@ -213,7 +214,7 @@ Token *tokenize_string(Reader *reader, Cursor &start) {
   if (end <= forward) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno).code;
-    report_error(src, lineno, src.length() - 1, "Incomplete string literal");
+    report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete string literal");
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the double quotes
     str escaped = "";
@@ -299,7 +300,7 @@ vector<Token *> tokenize(Reader *reader) {
         /// if this is not a keyword, probably an identifier
         new_token = tokenize_id(reader, start);
         if (!new_token) {
-          report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid identifier");
+          report_error(reader, start, "Invalid identifier");
         }
       }
       tokens.emplace_back(new_token);
@@ -307,25 +308,25 @@ vector<Token *> tokenize(Reader *reader) {
       /// start with an underscore, must be an identifier
       auto *new_token = tokenize_id(reader, start);
       if (!new_token) {
-        report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid identifier");
+        report_error(reader, start, "Invalid identifier");
       }
       tokens.emplace_back(new_token);
     } else if (std::isdigit(*start)) {
       /// number literal
       auto *new_token = tokenize_number(reader, start);
       if (!new_token) {
-        report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid number literal");
+        report_error(reader, start, "Invalid number literal");
       }
       tokens.emplace_back(new_token);
     } else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
       /// punctuations
       auto *new_token = tokenize_punctuation(reader, start);
       if (!new_token) {
-        report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid symbol(s)");
+        report_error(reader, start, "Invalid symbol(s)");
       }
       tokens.emplace_back(new_token);
     } else {
-      report_error(reader->get_line(start.l).code, start.l, start.c, "Invalid symbol(s)");
+      report_error(reader, start, "Invalid symbol(s)");
     }
     start = skip_whitespace(reader, start);
   }
