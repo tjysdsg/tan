@@ -770,4 +770,121 @@ Value *codegen(CompilerSession *cs, ASTNodePtr p) {
   return ret;
 }
 
+// FIXME:
+Type *to_llvm_type(CompilerSession *cs, const ASTTyPtr &p) {
+  auto *builder = cs->_builder;
+  resolve_ty(cs, p);
+  Ty base = TY_GET_BASE(p->_tyty);
+  llvm::Type *type = nullptr;
+  switch (base) {
+    case Ty::INT:
+      type = builder->getIntNTy((unsigned) p->_size_bits);
+      break;
+    case Ty::CHAR:
+      type = builder->getInt8Ty();
+      break;
+    case Ty::BOOL:
+      type = builder->getInt1Ty();
+      break;
+    case Ty::FLOAT:
+      type = builder->getFloatTy();
+      break;
+    case Ty::DOUBLE:
+      type = builder->getDoubleTy();
+      break;
+    case Ty::STRING:
+      type = builder->getInt8PtrTy(); /// str as char*
+      break;
+    case Ty::VOID:
+      type = builder->getVoidTy();
+      break;
+    case Ty::ENUM:
+      type = to_llvm_type(cs, get_ty(p->get_child_at(0)));
+      break;
+    case Ty::STRUCT: {
+      auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
+      vector<Type *> body{};
+      size_t n = p->get_children_size();
+      body.reserve(n);
+      for (size_t i = 1; i < n; ++i) {
+        body.push_back(to_llvm_type(cs, get_ty(p->get_child_at(i))));
+      }
+      struct_type->setBody(body);
+      type = struct_type;
+      break;
+    }
+    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
+    case Ty::POINTER: {
+      auto e_type = to_llvm_type(cs, get_ty(p->get_child_at(0)));
+      type = e_type->getPointerTo();
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return type;
+}
+
+// FIXME:
+Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
+  Ty base = TY_GET_BASE(p->_tyty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
+  DIType *ret = nullptr;
+  switch (base) {
+    case Ty::CHAR:
+    case Ty::INT:
+    case Ty::BOOL:
+    case Ty::FLOAT:
+    case Ty::VOID:
+    case Ty::DOUBLE:
+    case Ty::ENUM:
+      ret = cs->_di_builder->createBasicType(p->_type_name, p->_size_bits, p->_dwarf_encoding);
+      break;
+    case Ty::STRING: {
+      auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
+      ret = cs->_di_builder
+          ->createPointerType(e_di_type, p->_size_bits, (unsigned) p->_align_bits, llvm::None, p->_type_name);
+      break;
+    }
+    case Ty::STRUCT: {
+      DIFile *di_file = cs->get_di_file();
+      size_t n = p->get_children_size();
+      vector<Metadata *> elements(n);
+      for (size_t i = 1; i < n; ++i) {
+        auto e = p->get_child_at(i); // ASTVarDecl
+        elements.push_back(to_llvm_meta(cs, get_ty(e)));
+      }
+      ret = cs->_di_builder
+          ->createStructType(cs->get_current_di_scope(),
+              p->_type_name,
+              di_file,
+              (unsigned) p->get_line(),
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              DINode::DIFlags::FlagZero,
+              nullptr,
+              cs->_di_builder->getOrCreateArray(elements),
+              0,
+              nullptr,
+              p->_type_name);
+      break;
+    }
+    case Ty::ARRAY:
+    case Ty::POINTER: {
+      auto e = p->get_child_at<ASTTy>(0);
+      auto *e_di_type = to_llvm_meta(cs, e);
+      ret = cs->_di_builder
+          ->createPointerType((DIType *) e_di_type,
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              llvm::None,
+              p->_type_name);
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
+}
+
 } // namespace tanlang

@@ -16,11 +16,6 @@ class Metadata;
 
 namespace tanlang {
 
-/// \section Forward declarations
-#define AST_FWD_DECL(c)  \
-class c;                 \
-using c##Ptr = ptr<c>
-
 AST_FWD_DECL(ASTTy);
 AST_FWD_DECL(ASTNode);
 struct Scope;
@@ -52,8 +47,6 @@ public:
 
   llvm::Value *_llvm_value = nullptr;
 };
-
-#undef AST_FWD_DECL
 
 } // namespace tanlang
 

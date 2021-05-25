@@ -1,7 +1,6 @@
 #include "analyzer_impl.h"
 #include "src/ast/ast_ty.h"
 #include "compiler_session.h"
-#include "src/analysis/analysis.h"
 #include "src/ast/factory.h"
 #include "src/ast/parsable_ast_node.h"
 #include "src/analysis/type_system.h"
@@ -10,24 +9,10 @@
 
 using namespace tanlang;
 
-ASTNodePtr AnalyzerImpl::try_convert_to_ast_node(const ParsableASTNodePtr &p) const {
-  ASTNodePtr ret = nullptr;
-  if (p->get_node_type() != ASTType::TY) {
-    ret = ast_must_cast<ASTNode>(p);
-  }
-  return ret;
-}
-
-ASTTyPtr AnalyzerImpl::get_ty(const ParsableASTNodePtr &p) const {
-  ASTNodePtr np = ast_cast<ASTNode>(p);
-  TAN_ASSERT(np);
-  return np->_ty;
-}
-
-void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
+void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
   // TODO: p->_scope = _cs->get_current_scope();
   // TODO: update _cs->_current_token
-  ASTNodePtr np = try_convert_to_ast_node(p);
+  ASTNodePtr np = _h.try_convert_to_ast_node(p);
 
   if (p->get_node_type() == ASTType::FUNC_DECL) { /// children will not be automatically parsed for function declaration
     for (auto &sub: p->get_children()) {
@@ -42,7 +27,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
     case ASTType::SUBTRACT: {
       /// unary plus/minus
       if (p->get_children_size() == 1) {
-        np->_ty = get_ty(p->get_child_at(0));
+        np->_ty = _h._h.get_ty(p->get_child_at(0));
         break;
       }
     }
@@ -50,14 +35,14 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
     case ASTType::MULTIPLY:
     case ASTType::DIVIDE:
     case ASTType::MOD: {
-      int i = TypeSystem::CanImplicitCast(_cs, get_ty(p->get_child_at(0)), get_ty(p->get_child_at(1)));
+      int i = TypeSystem::CanImplicitCast(_cs, _h.get_ty(p->get_child_at(0)), _h.get_ty(p->get_child_at(1)));
       if (i == -1) {
         report_error(_cs, p, "Cannot perform implicit type conversion");
       }
 
       size_t dominant_idx = static_cast<size_t>(i);
       np->_dominant_idx = dominant_idx;
-      np->_ty = get_ty(p->get_child_at(dominant_idx));
+      np->_ty = _h.get_ty(p->get_child_at(dominant_idx));
       break;
     }
     case ASTType::GT:
@@ -69,16 +54,16 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
       np->_ty = create_ty(_cs, Ty::BOOL);
       break;
     case ASTType::ASSIGN: {
-      np->_ty = get_ty(p->get_child_at(0));
-      if (TypeSystem::CanImplicitCast(_cs, np->_ty, get_ty(p->get_child_at(1))) != 0) {
+      np->_ty = _h.get_ty(p->get_child_at(0));
+      if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(1))) != 0) {
         report_error(_cs, p, "Cannot perform implicit type conversion");
       }
       break;
     }
     case ASTType::CAST: {
-      np->_ty = make_ptr<ASTTy>(*get_ty(p->get_child_at(1)));
-      np->_ty->_is_lvalue = get_ty(p->get_child_at(0))->_is_lvalue;
-      if (TypeSystem::CanImplicitCast(_cs, np->_ty, get_ty(p->get_child_at(0))) != 0) {
+      np->_ty = make_ptr<ASTTy>(*_h.get_ty(p->get_child_at(1)));
+      np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
+      if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
         report_error(_cs, p, "Cannot perform implicit type conversion");
       }
       break;
@@ -94,22 +79,22 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
       np->_ty = create_ty(_cs, Ty::BOOL);
       break;
     case ASTType::BNOT:
-      np->_ty = get_ty(p->get_child_at(0));
+      np->_ty = _h.get_ty(p->get_child_at(0));
       break;
     case ASTType::ADDRESS_OF: {
-      if (!(np->_ty = get_ty(p->get_child_at(0)))) { report_error(_cs, p, "Invalid operand"); }
-      np->_ty = get_ptr_to(cs, np->_ty);
+      if (!(np->_ty = _h.get_ty(p->get_child_at(0)))) { report_error(_cs, p, "Invalid operand"); }
+      np->_ty = _h.get_ptr_to(np->_ty);
       break;
     }
     case ASTType::ID: {
-      auto referred = get_id_referred(cs, p);
+      auto referred = _h.get_id_referred(p);
       p->append_child(referred);
       np->_ty = referred->_ty;
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
     case ASTType::CHAR_LITERAL: {
-      np->_ty = create_ty(cs, Ty::CHAR, {});
+      np->_ty = create_ty(_cs, Ty::CHAR, {});
       np->_value = static_cast<uint64_t>(p->get_token()->value[0]);
       np->_ty->_default_value = std::get<uint64_t>(p->_value);
       break;
@@ -118,9 +103,9 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
       if (p->get_token()->type == TokenType::INT) {
         auto tyty = Ty::INT;
         if (p->get_token()->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
-        np->_ty = create_ty(cs, tyty);
+        np->_ty = create_ty(_cs, tyty);
       } else if (p->get_token()->type == TokenType::FLOAT) {
-        np->_ty = create_ty(cs, Ty::FLOAT);
+        np->_ty = create_ty(_cs, Ty::FLOAT);
       }
       break;
     }
@@ -130,13 +115,13 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
       std::for_each(p->_children.begin(), p->_children.end(), [&sub_tys](const ASTNodePtr &e) {
         sub_tys.push_back(e->_ty);
       });
-      np->_ty = create_ty(cs, Ty::ARRAY, sub_tys);
+      np->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);
       break;
     }
       ////////////////////////// keywords ///////////////////////////
     case ASTType::IF: {
       auto cond = p->get_child_at(0);
-      if (0 != TypeSystem::CanImplicitCast(cs, create_ty(cs, Ty::BOOL), cond->_ty)) {
+      if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), cond->_ty)) {
         report_error(cs, p, "Cannot convert type to bool");
       }
       break;
@@ -266,11 +251,10 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr& p) {
   }
 }
 
-AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs) {
-}
-
 void AnalyzerImpl::resolve_ty(const ASTTyPtr &p) const {
 
 }
 
+AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {
+}
 
