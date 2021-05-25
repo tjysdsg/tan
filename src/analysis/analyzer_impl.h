@@ -20,6 +20,7 @@ private:
   void analyze_char_literal(ParsableASTNodePtr &p);
   void analyze_num_literal(ParsableASTNodePtr &p);
   void analyze_array_literal(ParsableASTNodePtr &p);
+  void analyze_struct(ParsableASTNodePtr &p);
   void resolve_ty(const ASTTyPtr &p) const;
 
 private:

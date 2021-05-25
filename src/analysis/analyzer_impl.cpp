@@ -191,44 +191,9 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       cs->add(p->_name, p);
       break;
     }
-    case ASTType::STRUCT_DECL: {
-      str struct_name = p->get_child_at(0)->_name;
-      auto ty = ast_create_ty(cs);
-      ty->_tyty = Ty::STRUCT;
-
-      auto forward_decl = cs->get(struct_name);
-      // TODO: Check if struct name is in conflicts of variable/function names
-      if (!forward_decl) {
-        cs->add(struct_name, ty); /// add self to current scope
-      } else {
-        /// replace forward decl with self (even if this is a forward declaration too)
-        cs->set(struct_name, ty);
-      }
-
-      /// resolve member names and types
-      auto members = p->_children;
-      size_t n = p->get_children_size();
-      ty->_member_names.reserve(n);
-      ty->_children.reserve(n);
-      for (size_t i = 0; i < n; ++i) {
-        ASTNodePtr m = members[i];
-        if (members[i]->_type == ASTType::VAR_DECL) { /// member variable without initial value
-          ty->_children.push_back(m->_ty);
-        } else if (members[i]->_type == ASTType::ASSIGN) { /// member variable with an initial value
-          auto init_val = m->get_child_at(1);
-          m = m->get_child_at(0);
-          if (!is_ast_type_in(init_val->_type, TypeSystem::LiteralTypes)) {
-            report_error(cs, p, "Invalid initial value of the member variable");
-          }
-          ty->_children.push_back(init_val->_ty); /// init_val->_ty->_default_value is set to the initial value
-        } else { report_error(cs, p, "Invalid struct member"); }
-        ty->_member_names.push_back(m->_name);
-        ty->_member_indices[m->_name] = i;
-      }
-      resolve_ty(cs, ty);
-      np->_ty = ty;
+    case ASTType::STRUCT_DECL:
+      analyze_struct(p);
       break;
-    }
       /////////////////////// trivially analysed /////////////////////////////
     default:
       break;
