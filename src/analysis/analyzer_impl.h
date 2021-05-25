@@ -12,18 +12,18 @@ AST_FWD_DECL(ASTTy);
 class AnalyzerImpl {
 public:
   AnalyzerImpl(CompilerSession *cs);
-  void analyze(ParsableASTNodePtr &p);
+  void analyze(const ParsableASTNodePtr &p);
 
 private:
-  void analyze_member_access(ParsableASTNodePtr &p);
-  void analyze_intrinsic(ParsableASTNodePtr &p);
-  void analyze_char_literal(ParsableASTNodePtr &p);
-  void analyze_num_literal(ParsableASTNodePtr &p);
-  void analyze_array_literal(ParsableASTNodePtr &p);
-  void analyze_struct(ParsableASTNodePtr &p);
-  void analyze_func_decl(ParsableASTNodePtr &p);
-  void analyze_func_call(ParsableASTNodePtr &p);
-  void analyze_import(ParsableASTNodePtr &p);
+  void analyze_member_access(const ParsableASTNodePtr &p);
+  void analyze_intrinsic(const ParsableASTNodePtr &p);
+  void analyze_char_literal(const ParsableASTNodePtr &p);
+  void analyze_num_literal(const ParsableASTNodePtr &p);
+  void analyze_array_literal(const ParsableASTNodePtr &p);
+  void analyze_struct(const ParsableASTNodePtr &p);
+  void analyze_func_decl(const ParsableASTNodePtr &p);
+  void analyze_func_call(const ParsableASTNodePtr &p);
+  void analyze_import(const ParsableASTNodePtr &p);
   void resolve_ty(const ASTTyPtr &p) const;
   [[noreturn]] void report_error(const ParsableASTNodePtr &p, const str &message);
 

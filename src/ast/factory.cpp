@@ -232,7 +232,7 @@ ASTNodePtr ast_create_ampersand(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_address_of(CompilerSession *, ASTNodePtr p) {
+ASTNodePtr ast_create_address_of(CompilerSession *, ParsableASTNodePtr p) {
   auto ret = make_ptr<ASTNode>(ASTType::ADDRESS_OF, ASTNode::OpPrecedence[ASTType::ADDRESS_OF]);
   ret->_is_valued = true;
   ret->_is_typed = true;

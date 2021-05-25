@@ -5,10 +5,11 @@
 #include "src/ast/parsable_ast_node.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_member_access.h"
+#include <fmt/core.h>
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_member_access(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
   auto lhs = p->get_child_at(0);
@@ -24,21 +25,27 @@ void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
     auto rhs = p->get_child_at(1);
 
     ASTTyPtr ty = _h.get_ty(lhs);
-    if (!ty->_is_ptr) { report_error(_cs, p, "Expect a pointer or an array"); }
+    if (!ty->_is_ptr) {
+      report_error(p, "Expect a pointer or an array");
+    }
 
     ty = make_ptr<ASTTy>(*_h.get_contained_ty(ty));
     ty->_is_lvalue = true;
-    if (!ty) { report_error(_cs, p, "Unable to perform bracket access"); }
+    if (!ty) {
+      report_error(p, "Unable to perform bracket access");
+    }
 
     np->_ty = ty;
     if (rhs->get_node_type() == ASTType::NUM_LITERAL) {
-      if (!_h.get_ty(rhs)->_is_int) { report_error(_cs, p, "Expect an integer specifying array size"); }
+      if (!_h.get_ty(rhs)->_is_int) {
+        report_error(p, "Expect an integer specifying array size");
+      }
       auto size = rhs->get_data<uint64_t>(); // underflow is ok
       if (_h.get_ty(rhs)->_is_array && size >= _h.get_ty(lhs)->_array_size) {
-        report_error(_cs,
-            p,
-            "Index " + std::to_string(size) + " out of bound, the array size is "
-                + std::to_string(_h.get_ty(lhs)->_array_size));
+        report_error(p,
+            fmt::format("Index {} out of bound, the array size is {}",
+                std::to_string(size),
+                std::to_string(_h.get_ty(lhs)->_array_size)));
       }
     }
   } else if (p->get_child_at(1)->get_node_type() == ASTType::ID) { /// member variable or enum
@@ -48,7 +55,7 @@ void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
     } else {
       pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
       if (!_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
-        report_error(_cs, p, "Invalid left-hand operand");
+        report_error(p, "Invalid left-hand operand");
       }
 
       str m_name = rhs->get_data<str>();
@@ -67,11 +74,11 @@ void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
   } else if (pma->_access_type == MemberAccessType::MemberAccessMemberFunction) { /// method call
     auto rhs = p->get_child_at(1);
     if (!_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
-      report_error(_cs, p, "Method calls require left-hand operand to be an lvalue or a pointer");
+      report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
     }
     /// get address of the struct instance
     if (_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
-      auto tmp = ast_create_address_of(_cs, lhs);
+      ASTNodePtr tmp = ast_create_address_of(_cs, lhs);
       analyze(tmp);
       rhs->get_children().insert(rhs->get_children().begin(), tmp);
     } else {
@@ -81,6 +88,6 @@ void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
     analyze(rhs);
     np->_ty = _h.get_ty(rhs);
   } else {
-    report_error(_cs, p, "Invalid right-hand operand");
+    report_error(p, "Invalid right-hand operand");
   }
 }

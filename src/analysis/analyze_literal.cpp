@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_char_literal(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_char_literal(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
   np->_ty = create_ty(_cs, Ty::CHAR, {});
@@ -14,7 +14,7 @@ void AnalyzerImpl::analyze_char_literal(ParsableASTNodePtr &p) {
   np->_ty->_default_value = p->get_data<uint64_t>();
 }
 
-void AnalyzerImpl::analyze_num_literal(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_num_literal(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
   if (p->get_token()->type == TokenType::INT) {
@@ -28,12 +28,12 @@ void AnalyzerImpl::analyze_num_literal(ParsableASTNodePtr &p) {
   }
 }
 
-void AnalyzerImpl::analyze_array_literal(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_array_literal(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
   vector<ASTTyPtr> sub_tys{};
   sub_tys.reserve(p->get_children_size());
-  std::for_each(p->get_children().begin(), p->get_children().end(), [&sub_tys](const ParsableASTNodePtr &e) {
+  std::for_each(p->get_children().begin(), p->get_children().end(), [&sub_tys, this](const ParsableASTNodePtr &e) {
     sub_tys.push_back(_h.get_ty(e));
   });
   np->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);

@@ -8,7 +8,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_struct(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_struct(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
   str struct_name = p->get_child_at(0)->get_data<str>();
@@ -25,22 +25,23 @@ void AnalyzerImpl::analyze_struct(ParsableASTNodePtr &p) {
   }
 
   /// resolve member names and types
-  auto members = p->get_children();
   size_t n = p->get_children_size();
   ty->_member_names.reserve(n);
   ty->get_children().reserve(n);
   for (size_t i = 0; i < n; ++i) {
-    ASTNodePtr m = members[i];
-    if (members[i]->get_node_type() == ASTType::VAR_DECL) { /// member variable without initial value
+    ASTNodePtr m = p->get_child_at<ASTNode>(i);
+    if (m->get_node_type() == ASTType::VAR_DECL) { /// member variable without initial value
       ty->append_child(m->_ty);
-    } else if (members[i]->get_node_type() == ASTType::ASSIGN) { /// member variable with an initial value
+    } else if (m->get_node_type() == ASTType::ASSIGN) { /// member variable with an initial value
       auto init_val = m->get_child_at(1);
-      m = m->get_child_at(0);
+      m = m->get_child_at<ASTNode>(0);
       if (!is_ast_type_in(init_val->get_node_type(), TypeSystem::LiteralTypes)) {
-        report_error(_cs, p, "Invalid initial value of the member variable");
+        report_error(p, "Invalid initial value of the member variable");
       }
       ty->append_child(_h.get_ty(init_val)); /// init_val->_ty->_default_value is set to the initial value
-    } else { report_error(_cs, p, "Invalid struct member"); }
+    } else {
+      report_error(p, "Invalid struct member");
+    }
     ty->_member_names.push_back(m->get_data<str>());
     ty->_member_indices[m->get_data<str>()] = i;
   }

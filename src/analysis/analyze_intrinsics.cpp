@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_intrinsic(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_intrinsic(const ParsableASTNodePtr &p) {
   auto pi = ast_must_cast<Intrinsic>(p);
   TAN_ASSERT(p->get_children_size());
 

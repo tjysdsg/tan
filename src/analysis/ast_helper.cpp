@@ -19,7 +19,7 @@ ASTTyPtr ASTHelper::get_ptr_to(const ASTTyPtr &p) const {
 
 ASTTyPtr ASTHelper::get_contained_ty(const ASTTyPtr &p) const {
   if (p->_tyty == Ty::STRING) {
-    return create_ty(_cs, Ty::CHAR, vector<ASTNodePtr>(), false);
+    return create_ty(_cs, Ty::CHAR, {}, false);
   } else if (p->_is_ptr) {
     TAN_ASSERT(p->get_children_size());
     auto ret = p->get_child_at<ASTTy>(0);

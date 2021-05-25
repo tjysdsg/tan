@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
   // TODO: p->_scope = _cs->get_current_scope();
   // TODO: update _cs->_current_token
   ASTNodePtr np = _h.try_convert_to_ast_node(p);
@@ -89,7 +89,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       break;
     }
     case ASTType::ID: {
-      auto referred = _h.get_id_referred(p);
+      auto referred = _h.get_id_referred(ast_must_cast<ASTNode>(p));
       p->append_child(referred);
       np->_ty = referred->_ty;
       break;
@@ -143,8 +143,9 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       break;
     case ASTType::ARG_DECL:
     case ASTType::VAR_DECL: {
-      resolve_ty(_h.get_ty(p));
-      _cs->set_type(p->get_data<str>(), p);
+      ASTTyPtr ty = _h.get_ty(p);
+      resolve_ty(ty);
+      _cs->set_type(p->get_data<str>(), ty);
       break;
     }
     case ASTType::STRUCT_DECL:
