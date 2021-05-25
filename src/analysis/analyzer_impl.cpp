@@ -27,7 +27,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
     case ASTType::SUBTRACT: {
       /// unary plus/minus
       if (p->get_children_size() == 1) {
-        np->_ty = _h._h.get_ty(p->get_child_at(0));
+        np->_ty = _h.get_ty(p->get_child_at(0));
         break;
       }
     }
@@ -93,31 +93,15 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
-    case ASTType::CHAR_LITERAL: {
-      np->_ty = create_ty(_cs, Ty::CHAR, {});
-      np->_value = static_cast<uint64_t>(p->get_token()->value[0]);
-      np->_ty->_default_value = std::get<uint64_t>(p->_value);
+    case ASTType::CHAR_LITERAL:
+      analyze_char_literal(p);
       break;
-    }
-    case ASTType::NUM_LITERAL: {
-      if (p->get_token()->type == TokenType::INT) {
-        auto tyty = Ty::INT;
-        if (p->get_token()->is_unsigned) { tyty = TY_OR(tyty, Ty::UNSIGNED); }
-        np->_ty = create_ty(_cs, tyty);
-      } else if (p->get_token()->type == TokenType::FLOAT) {
-        np->_ty = create_ty(_cs, Ty::FLOAT);
-      }
+    case ASTType::NUM_LITERAL:
+      analyze_num_literal(p);
       break;
-    }
-    case ASTType::ARRAY_LITERAL: {
-      vector<ASTNodePtr> sub_tys{};
-      sub_tys.reserve(p->get_children_size());
-      std::for_each(p->_children.begin(), p->_children.end(), [&sub_tys](const ASTNodePtr &e) {
-        sub_tys.push_back(e->_ty);
-      });
-      np->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);
+    case ASTType::ARRAY_LITERAL:
+      analyze_array_literal(p);
       break;
-    }
       ////////////////////////// keywords ///////////////////////////
     case ASTType::IF: {
       auto cond = p->get_child_at(0);
