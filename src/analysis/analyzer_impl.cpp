@@ -132,7 +132,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
         imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
       }
       for (auto &f: imported_functions) {
-        cs->add_function(f);
+        _cs->add_function(f);
         p->_children.push_back(f);
       }
       break;
@@ -157,38 +157,13 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       // TODO: Analysis of enum types and values
       break;
     }
-    case ASTType::FUNC_DECL: {
-      /// add to function table
-      if (p->_is_public || p->_is_external) { CompilerSession::AddPublicFunction(cs->_filename, p); }
-      /// ...and to the internal function table
-      cs->add_function(p);
-
-      // TODO: function type
-      //  auto ret_ty = ast_create_ty(_cs);
-      //  ret_ty->set_token(at(p->_end_index));
-      //  ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
-      //  p->_end_index = parse_ty(ret_ty); /// return type
-      //  p->get_child_at(0) = ret_ty;
-
-      /// add args to scope if function body exists
-      size_t n = p->get_children_size();
-      size_t arg_end = n - 1 - !p->_is_external;
-      for (size_t i = 1; i < arg_end; ++i) {
-        if (!p->_is_external) { cs->add(p->get_child_at(i)->_name, p->get_child_at(i)); }
-      }
-      if (!p->_is_external) {
-        /// new scope for function body
-        auto f_body = p->_children[n - 1];
-        if (!p->_is_external) {
-          f_body->_scope = cs->push_scope();
-        }
-      }
+    case ASTType::FUNC_DECL:
+      analyze_func_decl(p);
       break;
-    }
     case ASTType::ARG_DECL:
     case ASTType::VAR_DECL: {
-      resolve_ty(cs, p->_ty);
-      cs->add(p->_name, p);
+      resolve_ty(_h.get_ty(p));
+      _cs->set_type(p->get_data<str>(), p);
       break;
     }
     case ASTType::STRUCT_DECL:

@@ -47,8 +47,7 @@ enum class Ty : uint64_t {
   BIT64 = 1u << 18u,
 };
 
-class ASTTy;
-using ASTTyPtr = ptr<ASTTy>;
+AST_FWD_DECL(ASTTy);
 
 /**
  * \brief Type of an ASTNode

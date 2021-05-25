@@ -9,8 +9,7 @@ class Function;
 
 namespace tanlang {
 
-class ASTFunction;
-using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
+AST_FWD_DECL(ASTFunction);
 
 /**
  * \brief Function prototype or definition

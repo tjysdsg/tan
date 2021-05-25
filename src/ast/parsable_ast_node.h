@@ -8,8 +8,8 @@
 
 namespace tanlang {
 
-class ParsableASTNode;
-using ParsableASTNodePtr = ptr<ParsableASTNode>;
+AST_FWD_DECL(ParsableASTNode)
+struct Scope;
 
 class ParsableASTNode : public SourceTraceable {
 
@@ -48,6 +48,9 @@ public:
   vector<ParsableASTNodePtr> get_children() const;
   vector<ParsableASTNodePtr> &get_children();
 
+  void set_scope(const ptr<Scope> &scope);
+  ptr<Scope> &get_scope() const;
+
 protected:
   virtual str to_string(bool print_prefix = true);
 
@@ -58,6 +61,7 @@ private:
   vector<ParsableASTNodePtr> _children{};
   ASTType _type = ASTType::INVALID;
   int _lbp = 0;
+  ptr<Scope> _scope = nullptr;
 
   std::variant<str, uint64_t, double> _data;
 };

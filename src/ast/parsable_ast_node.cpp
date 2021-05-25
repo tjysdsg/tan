@@ -90,6 +90,14 @@ template<typename T> void ParsableASTNode::set_data(T val) {
   _data = val;
 }
 
+void ParsableASTNode::set_scope(const ptr<Scope> &scope) {
+  _scope = scope;
+}
+
+ptr<Scope> &ParsableASTNode::get_scope() const {
+  return _scope;
+}
+
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTType::t, #t}
 
 umap<ASTType, str>ParsableASTNode::ASTTypeNames =

@@ -14,7 +14,7 @@ void AnalyzerImpl::analyze_intrinsic(ParsableASTNodePtr &p) {
   auto pi = ast_must_cast<Intrinsic>(p);
   TAN_ASSERT(p->get_children_size());
 
-  ASTNodePtr np = try_convert_to_ast_node(p);
+  ASTNodePtr np = _h.try_convert_to_ast_node(p);
 
   auto c = p->get_child_at<ASTNode>(0);
   TAN_ASSERT(c->_is_named);  // both function call and identifier have a name
