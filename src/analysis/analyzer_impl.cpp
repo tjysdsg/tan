@@ -37,7 +37,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
     case ASTType::MOD: {
       int i = TypeSystem::CanImplicitCast(_cs, _h.get_ty(p->get_child_at(0)), _h.get_ty(p->get_child_at(1)));
       if (i == -1) {
-        report_error(_cs, p, "Cannot perform implicit type conversion");
+        report_error(p, "Cannot perform implicit type conversion");
       }
 
       size_t dominant_idx = static_cast<size_t>(i);
@@ -56,7 +56,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
     case ASTType::ASSIGN: {
       np->_ty = _h.get_ty(p->get_child_at(0));
       if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(1))) != 0) {
-        report_error(_cs, p, "Cannot perform implicit type conversion");
+        report_error(p, "Cannot perform implicit type conversion");
       }
       break;
     }
@@ -64,7 +64,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       np->_ty = make_ptr<ASTTy>(*_h.get_ty(p->get_child_at(1)));
       np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
       if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
-        report_error(_cs, p, "Cannot perform implicit type conversion");
+        report_error(p, "Cannot perform implicit type conversion");
       }
       break;
     }
@@ -82,7 +82,9 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       np->_ty = _h.get_ty(p->get_child_at(0));
       break;
     case ASTType::ADDRESS_OF: {
-      if (!(np->_ty = _h.get_ty(p->get_child_at(0)))) { report_error(_cs, p, "Invalid operand"); }
+      if (!(np->_ty = _h.get_ty(p->get_child_at(0)))) {
+        report_error(p, "Invalid operand");
+      }
       np->_ty = _h.get_ptr_to(np->_ty);
       break;
     }
@@ -106,7 +108,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
     case ASTType::IF: {
       auto cond = p->get_child_at(0);
       if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), _h.get_ty(cond))) {
-        report_error(_cs, p, "Cannot convert type to bool");
+        report_error(p, "Cannot convert type to bool");
       }
       break;
     }
@@ -155,7 +157,7 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
 }
 
 void AnalyzerImpl::resolve_ty(const ASTTyPtr &p) const {
-
+  TypeSystem::ResolveTy(_cs, p);
 }
 
 AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {

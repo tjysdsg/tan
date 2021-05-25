@@ -1,6 +1,7 @@
 #include "src/analysis/type_system.h"
 #include "src/common.h"
 #include "compiler_session.h"
+#include "compiler.h"
 #include "src/ast/ast_ty.h"
 
 namespace tanlang {
@@ -106,6 +107,163 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
     return CanImplicitCast(cs, get_contained_ty(cs, t1), get_contained_ty(cs, t2));
   }
   return -1;
+}
+
+void TypeSystem::ResolveTy(CompilerSession *cs, ASTTyPtr p) {
+  Ty base = TY_GET_BASE(p->_tyty);
+  Ty qual = TY_GET_QUALIFIER(p->_tyty);
+  if (p->_resolved) {
+    if (base == Ty::STRUCT) {
+      if (!p->_is_forward_decl) { return; }
+    } else { return; }
+  }
+  /// resolve_ty children if they are ASTTy
+  for (const auto &c: p->get_children()) {
+    auto t = ast_cast<ASTTy>(c);
+    if (t && t->get_node_type() == ASTType::TY && !t->_resolved) {
+      TypeSystem::ResolveTy(cs, t);
+    }
+  }
+  auto *tm = Compiler::GetDefaultTargetMachine();
+  switch (base) {
+    case Ty::INT: {
+      p->_size_bits = 32;
+      p->_type_name = "i32";
+      p->_is_int = true;
+      p->_default_value.emplace<uint64_t>(0);
+      if (TY_IS(qual, Ty::BIT8)) {
+        p->_size_bits = 8;
+        p->_type_name = "i8";
+      } else if (TY_IS(qual, Ty::BIT16)) {
+        p->_size_bits = 16;
+        p->_type_name = "i16";
+      } else if (TY_IS(qual, Ty::BIT64)) {
+        p->_size_bits = 64;
+        p->_type_name = "i64";
+      }
+      if (TY_IS(qual, Ty::UNSIGNED)) {
+        p->_is_unsigned = true;
+        if (p->_size_bits == 8) {
+          p->_dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
+        } else {
+          p->_dwarf_encoding = llvm::dwarf::DW_ATE_unsigned;
+        }
+      } else {
+        if (p->_size_bits == 8) {
+          p->_dwarf_encoding = llvm::dwarf::DW_ATE_signed_char;
+        } else {
+          p->_dwarf_encoding = llvm::dwarf::DW_ATE_signed;
+        }
+      }
+      break;
+    }
+    case Ty::CHAR:
+      p->_type_name = "char";
+      p->_size_bits = 8;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
+      p->_is_unsigned = true;
+      p->_default_value.emplace<uint64_t>(0);
+      p->_is_int = true;
+      break;
+    case Ty::BOOL:
+      p->_type_name = "bool";
+      p->_size_bits = 1;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_boolean;
+      p->_default_value.emplace<uint64_t>(0);
+      p->_is_bool = true;
+      break;
+    case Ty::FLOAT:
+      p->_type_name = "float";
+      p->_size_bits = 32;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      p->_default_value.emplace<float>(0);
+      p->_is_float = true;
+      break;
+    case Ty::DOUBLE:
+      p->_type_name = "double";
+      p->_size_bits = 64;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_float;
+      p->_default_value.emplace<double>(0);
+      p->_is_float = true;
+      break;
+    case Ty::STRING:
+      p->_type_name = "u8*";
+      p->_size_bits = tm->getPointerSizeInBits(0);
+      p->_default_value.emplace<str>("");
+      p->_align_bits = 8;
+      p->_is_ptr = true;
+      break;
+    case Ty::VOID:
+      p->_type_name = "void";
+      p->_size_bits = 0;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_signed;
+      break;
+    case Ty::ENUM: {
+      auto sub = p->get_child_at<ASTTy>(0);
+      TAN_ASSERT(sub);
+      p->_size_bits = sub->_size_bits;
+      p->_align_bits = sub->_align_bits;
+      p->_dwarf_encoding = sub->_dwarf_encoding;
+      p->_default_value = sub->_default_value;
+      p->_is_unsigned = sub->_is_unsigned;
+      p->_is_int = sub->_is_int;
+      p->_is_enum = true;
+      /// _type_name, however, is set by ASTEnum::nud
+      break;
+    }
+    case Ty::STRUCT: {
+      /// align size is the max element size, if no element, 8 bits
+      /// size is the number of elements * align size
+      if (p->_is_forward_decl) {
+        auto real = ast_cast<ASTTy>(cs->get(p->_type_name));
+        if (!real) {
+          report_error(cs->_filename, p->get_token(), "Incomplete type");
+        }
+        *p = *real;
+        p->_is_forward_decl = false;
+      } else {
+        p->_align_bits = 8;
+        size_t n = p->get_children_size();
+        for (size_t i = 0; i < n; ++i) {
+          auto et = p->get_child_at<ASTTy>(i);
+          auto s = et->_size_bits;
+          if (s > p->_align_bits) { p->_align_bits = s; }
+        }
+        p->_size_bits = n * p->_align_bits;
+        p->_is_struct = true;
+      }
+      break;
+    }
+    case Ty::ARRAY: {
+      if (p->get_children_size() == 0) {
+        report_error(cs->_filename, p->get_token(), "Invalid type");
+      }
+      auto et = p->get_child_at<ASTTy>(0);
+      p->_type_name = "[" + et->_type_name + ", " + std::to_string(p->get_children_size()) + "]";
+      p->_is_ptr = true;
+      p->_is_array = true;
+      p->_size_bits = tm->getPointerSizeInBits(0);
+      p->_align_bits = et->_size_bits;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
+      break;
+    }
+    case Ty::POINTER: {
+      if (p->get_children_size() == 0) {
+        report_error(cs->_filename, p->get_token(), "Invalid type");
+      }
+      auto e = p->get_child_at<ASTTy>(0);
+      TypeSystem::ResolveTy(cs, e);
+      p->_type_name = e->_type_name + "*";
+      p->_size_bits = tm->getPointerSizeInBits(0);
+      p->_align_bits = e->_size_bits;
+      p->_is_ptr = true;
+      p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
+      break;
+    }
+    default:
+      report_error(cs->_filename, p->get_token(), "Invalid type");
+  }
+  p->_resolved = true;
 }
 
 } // namespace tanlang

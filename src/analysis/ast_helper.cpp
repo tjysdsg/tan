@@ -43,7 +43,7 @@ size_t ASTHelper::get_struct_member_index(const ASTTyPtr &p, const str &name) co
   return search->second;
 }
 
-str ASTHelper::get_source_location(ASTNodePtr p) const {
+str ASTHelper::get_source_location(SourceTraceablePtr p) const {
   return _cs->_filename + ":" + std::to_string(p->get_line());
 }
 

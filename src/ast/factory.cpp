@@ -3,7 +3,6 @@
 #include "src/ast/ast_member_access.h"
 #include "intrinsic.h"
 #include "src/ast/ast_control_flow.h"
-#include "src/analysis/analysis.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_ty.h"
 #include "src/ast/ast_func.h"
@@ -26,7 +25,7 @@ ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTy
   auto ret = ast_create_var_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
-  ret->_name = name;
+  ret->set_data(name);
   return ret;
 }
 
@@ -42,7 +41,7 @@ ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTy
   auto ret = ast_create_arg_decl(cs);
   ret->_ty = make_ptr<ASTTy>(*ty);
   ret->_ty->_is_lvalue = true;
-  ret->_name = name;
+  ret->set_data(name);
   return ret;
 }
 
@@ -67,7 +66,7 @@ ASTNodePtr ast_create_enum_decl(CompilerSession *) {
 /// \section Literals
 
 ASTNodePtr ast_create_string_literal(CompilerSession *cs) {
-  auto ret = make_ptr<ASTNode>(ASTType::STRING_LITERAL, ASTNode::op_precedence[ASTType::STRING_LITERAL]);
+  auto ret = make_ptr<ASTNode>(ASTType::STRING_LITERAL, ASTNode::OpPrecedence[ASTType::STRING_LITERAL]);
   ret->_is_valued = true;
   ret->_is_typed = true;
   ret->_ty = create_ty(cs, Ty::STRING);
@@ -77,7 +76,7 @@ ASTNodePtr ast_create_string_literal(CompilerSession *cs) {
 
 ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &s) {
   auto ret = ast_create_string_literal(cs);
-  ret->_value = s;
+  ret->set_data(s);
   return ret;
 }
 
@@ -105,7 +104,7 @@ ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is
     ty = create_ty(cs, TY_OR(Ty::INT, Ty::BIT32));
   }
   ty->_default_value = val;
-  ret->_value = val;
+  ret->set_data(val);
   ret->_ty = ty;
   return ret;
 }
@@ -115,7 +114,7 @@ ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val) {
   // TODO: float or double
   ASTTyPtr ty = create_ty(cs, Ty::FLOAT);
   ty->_default_value = val;
-  ret->_value = val;
+  ret->set_data(val);
   ret->_ty = ty;
   return ret;
 }
@@ -129,14 +128,14 @@ ASTNodePtr ast_create_char_literal(CompilerSession *) {
 
 ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c) {
   auto ret = ast_create_char_literal(cs);
-  ret->_value = static_cast<uint64_t>(c);
+  ret->set_data(static_cast<uint64_t>(c));
   return ret;
 }
 
 /// \section Ops
 
 ASTNodePtr ast_create_cast(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::CAST, ASTNode::op_precedence[ASTType::CAST]);
+  auto ret = make_ptr<ASTNode>(ASTType::CAST, ASTNode::OpPrecedence[ASTType::CAST]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
@@ -146,24 +145,24 @@ ASTNodePtr ast_create_arithmetic(CompilerSession *, const str &op) {
   auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0);
   switch (hashed_string{op.c_str()}) {
     case "+"_hs:
-      ret->_type = ASTType::SUM;
+      ret->set_node_type(ASTType::SUM);
       break;
     case "-"_hs:
-      ret->_type = ASTType::SUBTRACT;
+      ret->set_node_type(ASTType::SUBTRACT);
       break;
     case "*"_hs:
-      ret->_type = ASTType::MULTIPLY;
+      ret->set_node_type(ASTType::MULTIPLY);
       break;
     case "/"_hs:
-      ret->_type = ASTType::DIVIDE;
+      ret->set_node_type(ASTType::DIVIDE);
       break;
     case "%"_hs:
-      ret->_type = ASTType::MOD;
+      ret->set_node_type(ASTType::MOD);
       break;
     default:
       return nullptr;
   }
-  ret->_lbp = ASTNode::op_precedence[ret->_type];
+  ret->set_lbp(ASTNode::OpPrecedence[ret->get_node_type()]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
@@ -173,48 +172,48 @@ ASTNodePtr ast_create_comparison(CompilerSession *, const str &op) {
   auto ret = make_ptr<ASTNode>(ASTType::INVALID, 0);
   switch (hashed_string{op.c_str()}) {
     case ">"_hs:
-      ret->_type = ASTType::GT;
+      ret->set_node_type(ASTType::GT);
       break;
     case ">="_hs:
-      ret->_type = ASTType::GE;
+      ret->set_node_type(ASTType::GE);
       break;
     case "<"_hs:
-      ret->_type = ASTType::LT;
+      ret->set_node_type(ASTType::LT);
       break;
     case "<="_hs:
-      ret->_type = ASTType::LE;
+      ret->set_node_type(ASTType::LE);
       break;
     case "=="_hs:
-      ret->_type = ASTType::EQ;
+      ret->set_node_type(ASTType::EQ);
       break;
     case "!="_hs:
-      ret->_type = ASTType::NE;
+      ret->set_node_type(ASTType::NE);
       break;
     default:
       return nullptr;
   }
-  ret->_lbp = ASTNode::op_precedence[ret->_type];
+  ret->set_lbp(ASTNode::OpPrecedence[ret->get_node_type()]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
 }
 
 ASTNodePtr ast_create_assignment(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::ASSIGN, ASTNode::op_precedence[ASTType::ASSIGN]);
+  auto ret = make_ptr<ASTNode>(ASTType::ASSIGN, ASTNode::OpPrecedence[ASTType::ASSIGN]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
 }
 
 ASTNodePtr ast_create_member_access(CompilerSession *) {
-  auto ret = make_ptr<ASTMemberAccess>(ASTType::MEMBER_ACCESS, ASTNode::op_precedence[ASTType::MEMBER_ACCESS]);
+  auto ret = make_ptr<ASTMemberAccess>(ASTType::MEMBER_ACCESS, ASTNode::OpPrecedence[ASTType::MEMBER_ACCESS]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
 }
 
 ASTNodePtr ast_create_return(CompilerSession *) {
-  return make_ptr<ASTNode>(ASTType::RET, ASTNode::op_precedence[ASTType::RET]);
+  return make_ptr<ASTNode>(ASTType::RET, ASTNode::OpPrecedence[ASTType::RET]);
 }
 
 ASTNodePtr ast_create_not(CompilerSession *) {
@@ -234,22 +233,22 @@ ASTNodePtr ast_create_ampersand(CompilerSession *) {
 }
 
 ASTNodePtr ast_create_address_of(CompilerSession *, ASTNodePtr p) {
-  auto ret = make_ptr<ASTNode>(ASTType::ADDRESS_OF, ASTNode::op_precedence[ASTType::ADDRESS_OF]);
+  auto ret = make_ptr<ASTNode>(ASTType::ADDRESS_OF, ASTNode::OpPrecedence[ASTType::ADDRESS_OF]);
   ret->_is_valued = true;
   ret->_is_typed = true;
-  ret->_children.push_back(p);
+  ret->append_child(p);
   return ret;
 }
 
 /// \section Control flow
 
 ASTNodePtr ast_create_if(CompilerSession *) {
-  auto ret = make_ptr<ASTIf>(ASTType::IF, ASTNode::op_precedence[ASTType::IF]);
+  auto ret = make_ptr<ASTIf>(ASTType::IF, ASTNode::OpPrecedence[ASTType::IF]);
   return ret;
 }
 
 ASTNodePtr ast_create_else(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::ELSE, ASTNode::op_precedence[ASTType::ELSE]);
+  auto ret = make_ptr<ASTNode>(ASTType::ELSE, ASTNode::OpPrecedence[ASTType::ELSE]);
   return ret;
 }
 
@@ -296,12 +295,12 @@ ASTNodePtr ast_create_identifier(CompilerSession *) {
 
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name) {
   auto ret = ast_create_identifier(cs);
-  ret->_name = name;
+  ret->set_data(name);
   return ret;
 }
 
 ASTNodePtr ast_create_parenthesis(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTType::PARENTHESIS, ASTNode::op_precedence[ASTType::PARENTHESIS]);
+  auto ret = make_ptr<ASTNode>(ASTType::PARENTHESIS, ASTNode::OpPrecedence[ASTType::PARENTHESIS]);
   ret->_is_typed = true;
   ret->_is_valued = true;
   return ret;
@@ -319,13 +318,13 @@ ASTTyPtr ast_create_ty(CompilerSession *) {
   return make_ptr<ASTTy>();
 }
 
-ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys, bool is_lvalue) {
+ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTTyPtr> sub_tys, bool is_lvalue) {
   // TODO: cache
   auto ret = make_ptr<ASTTy>();
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
-  ret->_children.insert(ret->_children.begin(), sub_tys.begin(), sub_tys.end());
-  resolve_ty(cs, ret);
+  ret->get_children().insert(ret->get_children().begin(), sub_tys.begin(), sub_tys.end());
+  TypeSystem::ResolveTy(cs, ret);
   return ret;
 }
 

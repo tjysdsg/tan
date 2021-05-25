@@ -63,7 +63,7 @@ ASTTyPtr ast_create_ty(CompilerSession *cs);
 
 /// \section Types
 
-ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTNodePtr> sub_tys = {}, bool is_lvalue = false);
+ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTTyPtr> sub_tys = {}, bool is_lvalue = false);
 
 } // namespace tanlang
 

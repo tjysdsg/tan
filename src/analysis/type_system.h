@@ -23,6 +23,11 @@ public:
   static int CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2);
 
   /**
+   * \brief Set the fields of an ASTTy according to the type and target machine
+   */
+  static void ResolveTy(CompilerSession *cs, ASTTyPtr p);
+
+  /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
    * \param val Value to convert. This function automatically create a `load` instruction if orig is lvalue.

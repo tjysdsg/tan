@@ -47,12 +47,12 @@ void AnalyzerImpl::analyze_intrinsic(ParsableASTNodePtr &p) {
     case IntrinsicType::COMP_PRINT: {
       np->_ty = void_type;
       if (c->get_node_type() != ASTType::STRING_LITERAL) {
-        report_error(_cs, p, "Invalid call to compprint, one argument with type 'str' required");
+        report_error(p, "Invalid call to compprint, one argument with type 'str' required");
       }
       std::cout << "Message (" << _h.get_source_location(p) << "): " << c->get_data<str>() << "\n";
       break;
     }
     default:
-      report_error(_cs, p, "Unknown intrinsic");
+      report_error(p, "Unknown intrinsic");
   }
 }
