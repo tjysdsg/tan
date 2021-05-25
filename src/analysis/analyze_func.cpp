@@ -10,7 +10,12 @@ using namespace tanlang;
 void AnalyzerImpl::analyze_func_call(ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
-  std::vector<ASTNodePtr> args(p->get_children().begin(), p->get_children().end());
+  std::vector<ASTNodePtr> args;
+  args.reserve(p->get_children_size());
+  for (const auto &c : p->get_children()) {
+    args.push_back(ast_must_cast<ASTNode>(c));
+  }
+
   p->get_children().clear();
   p->append_child(ASTFunction::GetCallee(_cs, p->get_data<str>(), args));
   np->_ty = _h.get_ty(p->get_child_at(0));
@@ -20,9 +25,9 @@ void AnalyzerImpl::analyze_func_decl(ParsableASTNodePtr &p) {
   ASTFunctionPtr np = ast_must_cast<ASTFunction>(p);
 
   /// add to function table
-  if (np->_is_public || np->_is_external) { CompilerSession::AddPublicFunction(_cs->_filename, p); }
+  if (np->_is_public || np->_is_external) { CompilerSession::AddPublicFunction(_cs->_filename, np); }
   /// ...and to the internal function table
-  _cs->add_function(p);
+  _cs->add_function(np);
 
   // TODO: function type
   //  auto ret_ty = ast_create_ty(_cs);
@@ -35,7 +40,7 @@ void AnalyzerImpl::analyze_func_decl(ParsableASTNodePtr &p) {
   size_t n = p->get_children_size();
   size_t arg_end = n - 1 - !np->_is_external;
   for (size_t i = 1; i < arg_end; ++i) {
-    if (!np->_is_external) { _cs->set_type(p->get_child_at(i)->get_data<str>(), p->get_child_at(i)); }
+    if (!np->_is_external) { _cs->set_type(p->get_child_at(i)->get_data<str>(), _h.get_ty(p->get_child_at(i))); }
   }
   if (!np->_is_external) {
     /// new scope for function body

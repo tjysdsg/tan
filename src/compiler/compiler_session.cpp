@@ -192,14 +192,12 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, ASTNodePtr func) {
-  auto f = ast_cast<ASTFunction>(func);
-  TAN_ASSERT(f);
+void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
     pf[filename] = std::make_shared<FunctionTable>();
   }
-  pf[filename]->set(f);
+  pf[filename]->set(func);
 }
 
 vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
@@ -214,10 +212,8 @@ vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) 
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
 
-void CompilerSession::add_function(ASTNodePtr func) {
-  auto f = ast_cast<ASTFunction>(func);
-  TAN_ASSERT(f);
-  _function_table->set(f);
+void CompilerSession::add_function(ASTFunctionPtr func) {
+  _function_table->set(func);
 }
 
 vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }

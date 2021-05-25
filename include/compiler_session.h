@@ -6,15 +6,11 @@
 namespace tanlang {
 
 struct Scope;
-class ASTNode;
-using ASTNodePtr = ptr<ASTNode>;
-class ASTTy;
-using ASTTyPtr = ptr<ASTTy>;
-class ASTFunction;
-using ASTFunctionPtr = ptr<ASTFunction>;
-class FunctionTable;
-using FunctionTablePtr = ptr<FunctionTable>;
-class ASTLoop;
+AST_FWD_DECL(ASTNode);
+AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTFunction);
+AST_FWD_DECL(FunctionTable);
+AST_FWD_DECL(ASTLoop);
 
 /**
  * \class CompilerSession
@@ -22,7 +18,7 @@ class ASTLoop;
  * */
 class CompilerSession final {
 public:
-  static void AddPublicFunction(const str &filename, ASTNodePtr func);
+  static void AddPublicFunction(const str &filename, ASTFunctionPtr func);
   static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
 
 private:
@@ -110,7 +106,7 @@ public:
    * \details This will not add anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
    * */
-  void add_function(ASTNodePtr func);
+  void add_function(ASTFunctionPtr func);
   vector<ASTFunctionPtr> get_functions(const str &name);
   [[nodiscard]] ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(ptr<ASTLoop>);
