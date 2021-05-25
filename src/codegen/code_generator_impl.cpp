@@ -1,24 +1,131 @@
-#include "src/ast/factory.h"
-#include "src/ast/ast_member_access.h"
-#include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_func.h"
-#include "src/analysis/analysis.h"
-#include "src/codegen/codegen.h"
-#include "compiler_session.h"
 #include "src/llvm_include.h"
+#include "code_generator_impl.h"
+#include "src/ast/ast_node.h"
 #include "src/ast/ast_ty.h"
+#include "compiler_session.h"
+#include "src/ast/ast_member_access.h"
 #include "intrinsic.h"
-#include "src/analysis/type_system.h"
-#include "src/common.h"
-#include "token.h"
 
-namespace tanlang {
+using namespace tanlang;
 
-void set_current_debug_location(CompilerSession *cs, ASTNodePtr p) {
-  cs->set_current_debug_location(p->get_line(), p->get_col());
+CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *_cs) : _cs(_cs) {}
+
+Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
+  Value *ret = nullptr;
+  switch (p->get_node_type()) {
+    case ASTType::PROGRAM:
+    case ASTType::STATEMENT:
+      for (const auto &e : p->get_children()) {
+        codegen(e);
+      }
+      ret = nullptr;
+      break;
+      ///////////////////////// ops ///////////////////////////
+    case ASTType::SUM:
+    case ASTType::SUBTRACT:
+    case ASTType::MULTIPLY:
+    case ASTType::DIVIDE:
+    case ASTType::MOD:
+      ret = codegen_arithmetic(p);
+      break;
+    case ASTType::GT:
+    case ASTType::GE:
+    case ASTType::LT:
+    case ASTType::LE:
+    case ASTType::EQ:
+    case ASTType::NE:
+      ret = codegen_comparison(p);
+      break;
+    case ASTType::ASSIGN:
+      ret = codegen_assignment(p);
+      break;
+    case ASTType::CAST:
+      ret = codegen_cast(p);
+      break;
+    case ASTType::ADDRESS_OF:
+      ret = codegen_address_of(p);
+      break;
+    case ASTType::RET:
+      ret = codegen_return(p);
+      break;
+    case ASTType::LNOT:
+      ret = codegen_lnot(p);
+      break;
+    case ASTType::BNOT:
+      ret = codegen_bnot(p);
+      break;
+    case ASTType::IMPORT:
+      ret = codegen_import(p);
+      break;
+    case ASTType::MEMBER_ACCESS: {
+      auto pma = ast_cast<ASTMemberAccess>(p);
+      TAN_ASSERT(pma);
+      ret = codegen_member_access(pma);
+      break;
+    }
+      ////////////////////////////// literals ////////////////////////
+    case ASTType::ARRAY_LITERAL:
+    case ASTType::NUM_LITERAL:
+    case ASTType::CHAR_LITERAL:
+    case ASTType::STRING_LITERAL: {
+      ret = codegen_literals(p);
+      break;
+    }
+      ///////////////////////////// other ////////////////////////////
+    case ASTType::INTRINSIC: {
+      auto pi = ast_cast<Intrinsic>(p);
+      TAN_ASSERT(pi);
+      ret = codegen_intrinsic(pi);
+      break;
+    }
+    case ASTType::FUNC_DECL: {
+      auto pf = ast_cast<ASTFunction>(p);
+      TAN_ASSERT(pf);
+      ret = codegen_func_decl(pf);
+      break;
+    }
+    case ASTType::FUNC_CALL:
+      ret = codegen_func_call(p);
+      break;
+    case ASTType::IF:
+      ret = codegen_if(p);
+      break;
+    case ASTType::CONTINUE:
+    case ASTType::BREAK:
+      ret = codegen_break_continue(p);
+      break;
+    case ASTType::LOOP:
+      ret = codegen_loop(p);
+      break;
+    case ASTType::VAR_DECL:
+    case ASTType::ARG_DECL:
+      ret = codegen_var_arg_decl(p);
+      break;
+    case ASTType::TY:
+      ret = codegen_ty(ast_cast<ASTTy>(p));
+      break;
+    case ASTType::PARENTHESIS:
+      ret = codegen_parenthesis(p);
+      break;
+
+      /////////////////// trivial codegen /////////////////
+    case ASTType::ELSE:
+      set_current_debug_location(p);
+      // fallthrough
+    case ASTType::ID:
+      ret = codegen(p->get_child_at(0));
+      break;
+    default:
+      break;
+  }
+  return ret;
 }
 
-static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
+void CodeGeneratorImpl::set_current_debug_location(ASTNodePtr p) {
+  _cs->set_current_debug_location(p->get_line(), p->get_col());
+}
+
+Value *CodeGeneratorImpl::codegen_arithmetic(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   /// unary plus/minus
@@ -85,7 +192,16 @@ static Value *codegen_arithmetic(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_bnot(ASTNodePtr p) {
+  auto *builder = cs->_builder;
+  set_current_debug_location(cs, p);
+  auto *rhs = codegen(cs, p->_children[0]);
+  if (!rhs) { report_error(cs, p, "Invalid operand"); }
+  if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
+  return (p->_llvm_value = builder->CreateNot(rhs));
+}
+
+Value *CodeGeneratorImpl::codegen_lnot(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto *rhs = codegen(cs, p->_children[0]);
@@ -102,16 +218,7 @@ static Value *codegen_lnot(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_bnot(CompilerSession *cs, ASTNodePtr p) {
-  auto *builder = cs->_builder;
-  set_current_debug_location(cs, p);
-  auto *rhs = codegen(cs, p->_children[0]);
-  if (!rhs) { report_error(cs, p, "Invalid operand"); }
-  if (is_lvalue(p->_children[0])) { rhs = builder->CreateLoad(rhs); }
-  return (p->_llvm_value = builder->CreateNot(rhs));
-}
-
-static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_return(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto *result = codegen(cs, p->_children[0]);
@@ -120,7 +227,7 @@ static Value *codegen_return(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
-static Value *codegen_comparison(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_comparison(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
@@ -170,7 +277,7 @@ static Value *codegen_comparison(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_assignment(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   /// _codegen the rhs
@@ -188,7 +295,7 @@ static Value *codegen_assignment(CompilerSession *cs, ASTNodePtr p) {
   return to;
 }
 
-static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_cast(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
@@ -204,7 +311,7 @@ static Value *codegen_cast(CompilerSession *cs, ASTNodePtr p) {
   return ret;
 }
 
-static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
+Value *CodeGeneratorImpl::codegen_ty(ASTTyPtr p) {
   auto *builder = cs->_builder;
   TAN_ASSERT(p->_resolved);
   Ty base = TY_GET_BASE(p->_tyty);
@@ -257,7 +364,7 @@ static Value *codegen_ty(CompilerSession *cs, ASTTyPtr p) {
   return ret;
 }
 
-static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_var_arg_decl(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
 
@@ -288,7 +395,7 @@ static Value *codegen_var_arg_decl(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_address_of(ASTNodePtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto *val = codegen(cs, p->_children[0]);
@@ -301,14 +408,14 @@ static Value *codegen_address_of(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_parenthesis(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_parenthesis(ASTNodePtr p) {
   set_current_debug_location(cs, p);
   // FIXME: multiple expressions in the parenthesis?
   p->_llvm_value = codegen(cs, p->_children[0]);
   return p->_llvm_value;
 }
 
-static Value *codegen_break_continue(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_break_continue(ASTNodePtr p) {
   auto *builder = cs->_builder;
   auto loop = cs->get_current_loop();
   if (!loop) { report_error(cs, p, "Any break/continue statement must be inside loop"); }
@@ -322,7 +429,7 @@ static Value *codegen_break_continue(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
-static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_loop(ASTNodePtr p) {
   auto *builder = cs->_builder;
   auto prev_loop = cs->get_current_loop();
   auto pl = ast_cast<ASTLoop>(p);
@@ -378,7 +485,7 @@ static Value *codegen_loop(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
-static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_if(ASTNodePtr p) {
   // TODO: update cs->_current_token
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
@@ -427,7 +534,7 @@ static Value *codegen_if(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
-static Value *codegen_func_call(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_func_call(ASTNodePtr p) {
   size_t n = p->_children.size(); /// = n_args + 1
 
   auto callee = ast_cast<ASTFunction>(p->_children[0]);
@@ -448,7 +555,7 @@ static Value *codegen_func_call(CompilerSession *cs, ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-static Value *codegen_func_prototype(CompilerSession *cs, ASTFunctionPtr p, bool import = false) {
+Value *CodeGeneratorImpl::codegen_func_prototype(ASTFunctionPtr p, bool import) {
   Type *ret_type = to_llvm_type(cs, p->_children[0]->_ty);
   vector<Type *> arg_types{};
   /// set function arg types
@@ -480,7 +587,7 @@ static Value *codegen_func_prototype(CompilerSession *cs, ASTFunctionPtr p, bool
   return func;
 }
 
-static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
+Value *CodeGeneratorImpl::codegen_func_decl(ASTFunctionPtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
 
@@ -579,7 +686,7 @@ static Value *codegen_func_decl(CompilerSession *cs, ASTFunctionPtr p) {
   return nullptr;
 }
 
-static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_import(ASTNodePtr p) {
   set_current_debug_location(cs, p);
   for (auto &n: p->_children) {
     auto f = ast_cast<ASTFunction>(n);
@@ -590,13 +697,13 @@ static Value *codegen_import(CompilerSession *cs, ASTNodePtr p) {
   return nullptr;
 }
 
-static Value *codegen_literals(CompilerSession *cs, ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_literals(ASTNodePtr p) {
   /// Value of literals is set to p->_ty->_default_value, and to_llvm_value returns a type's default value
   set_current_debug_location(cs, p);
   return codegen_ty(cs, p->_ty);
 }
 
-static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
+Value *CodeGeneratorImpl::codegen_intrinsic(IntrinsicPtr p) {
   set_current_debug_location(cs, p);
 
   Value *ret = nullptr;
@@ -620,7 +727,7 @@ static Value *codegen_intrinsic(CompilerSession *cs, ptr<Intrinsic> p) {
   return ret;
 }
 
-static Value *codegen_member_access(CompilerSession *cs, ASTMemberAccessPtr p) {
+Value *CodeGeneratorImpl::codegen_member_access(ASTMemberAccessPtr p) {
   auto *builder = cs->_builder;
   set_current_debug_location(cs, p);
   auto lhs = p->_children[0];
@@ -661,230 +768,3 @@ static Value *codegen_member_access(CompilerSession *cs, ASTMemberAccessPtr p) {
   return ret;
 }
 
-Value *codegen(CompilerSession *cs, ASTNodePtr p) {
-  Value *ret = nullptr;
-  switch (p->_type) {
-    case ASTType::PROGRAM:
-    case ASTType::STATEMENT:
-      for (const auto &e : p->_children) { codegen(cs, e); }
-      ret = nullptr;
-      break;
-      ///////////////////////// ops ///////////////////////////
-    case ASTType::SUM:
-    case ASTType::SUBTRACT:
-    case ASTType::MULTIPLY:
-    case ASTType::DIVIDE:
-    case ASTType::MOD:
-      ret = codegen_arithmetic(cs, p);
-      break;
-    case ASTType::GT:
-    case ASTType::GE:
-    case ASTType::LT:
-    case ASTType::LE:
-    case ASTType::EQ:
-    case ASTType::NE:
-      ret = codegen_comparison(cs, p);
-      break;
-    case ASTType::ASSIGN:
-      ret = codegen_assignment(cs, p);
-      break;
-    case ASTType::CAST:
-      ret = codegen_cast(cs, p);
-      break;
-    case ASTType::ADDRESS_OF:
-      ret = codegen_address_of(cs, p);
-      break;
-    case ASTType::RET:
-      ret = codegen_return(cs, p);
-      break;
-    case ASTType::LNOT:
-      ret = codegen_lnot(cs, p);
-      break;
-    case ASTType::BNOT:
-      ret = codegen_bnot(cs, p);
-      break;
-    case ASTType::IMPORT:
-      ret = codegen_import(cs, p);
-      break;
-    case ASTType::MEMBER_ACCESS: {
-      auto pma = ast_cast<ASTMemberAccess>(p);
-      TAN_ASSERT(pma);
-      ret = codegen_member_access(cs, pma);
-      break;
-    }
-      ////////////////////////////// literals ////////////////////////
-    case ASTType::ARRAY_LITERAL:
-    case ASTType::NUM_LITERAL:
-    case ASTType::CHAR_LITERAL:
-    case ASTType::STRING_LITERAL: {
-      ret = codegen_literals(cs, p);
-      break;
-    }
-      ///////////////////////////// other ////////////////////////////
-    case ASTType::INTRINSIC: {
-      auto pi = ast_cast<Intrinsic>(p);
-      TAN_ASSERT(pi);
-      ret = codegen_intrinsic(cs, pi);
-      break;
-    }
-    case ASTType::FUNC_DECL: {
-      auto pf = ast_cast<ASTFunction>(p);
-      TAN_ASSERT(pf);
-      ret = codegen_func_decl(cs, pf);
-      break;
-    }
-    case ASTType::FUNC_CALL:
-      ret = codegen_func_call(cs, p);
-      break;
-    case ASTType::IF:
-      ret = codegen_if(cs, p);
-      break;
-    case ASTType::CONTINUE:
-    case ASTType::BREAK:
-      ret = codegen_break_continue(cs, p);
-      break;
-    case ASTType::LOOP:
-      ret = codegen_loop(cs, p);
-      break;
-    case ASTType::VAR_DECL:
-    case ASTType::ARG_DECL:
-      ret = codegen_var_arg_decl(cs, p);
-      break;
-    case ASTType::TY:
-      ret = codegen_ty(cs, ast_cast<ASTTy>(p));
-      break;
-    case ASTType::PARENTHESIS:
-      ret = codegen_parenthesis(cs, p);
-      break;
-
-      /////////////////// trivial codegen /////////////////
-    case ASTType::ELSE:
-      set_current_debug_location(cs, p);
-      // fallthrough
-    case ASTType::ID:
-      ret = codegen(cs, p->_children[0]);
-      break;
-    default:
-      break;
-  }
-  return ret;
-}
-
-// FIXME:
-Type *to_llvm_type(CompilerSession *cs, const ASTTyPtr &p) {
-  auto *builder = cs->_builder;
-  resolve_ty(cs, p);
-  Ty base = TY_GET_BASE(p->_tyty);
-  llvm::Type *type = nullptr;
-  switch (base) {
-    case Ty::INT:
-      type = builder->getIntNTy((unsigned) p->_size_bits);
-      break;
-    case Ty::CHAR:
-      type = builder->getInt8Ty();
-      break;
-    case Ty::BOOL:
-      type = builder->getInt1Ty();
-      break;
-    case Ty::FLOAT:
-      type = builder->getFloatTy();
-      break;
-    case Ty::DOUBLE:
-      type = builder->getDoubleTy();
-      break;
-    case Ty::STRING:
-      type = builder->getInt8PtrTy(); /// str as char*
-      break;
-    case Ty::VOID:
-      type = builder->getVoidTy();
-      break;
-    case Ty::ENUM:
-      type = to_llvm_type(cs, get_ty(p->get_child_at(0)));
-      break;
-    case Ty::STRUCT: {
-      auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
-      vector<Type *> body{};
-      size_t n = p->get_children_size();
-      body.reserve(n);
-      for (size_t i = 1; i < n; ++i) {
-        body.push_back(to_llvm_type(cs, get_ty(p->get_child_at(i))));
-      }
-      struct_type->setBody(body);
-      type = struct_type;
-      break;
-    }
-    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
-    case Ty::POINTER: {
-      auto e_type = to_llvm_type(cs, get_ty(p->get_child_at(0)));
-      type = e_type->getPointerTo();
-      break;
-    }
-    default:
-      TAN_ASSERT(false);
-  }
-  return type;
-}
-
-// FIXME:
-Metadata *to_llvm_meta(CompilerSession *cs, const ASTTyPtr &p) {
-  Ty base = TY_GET_BASE(p->_tyty);
-  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
-  DIType *ret = nullptr;
-  switch (base) {
-    case Ty::CHAR:
-    case Ty::INT:
-    case Ty::BOOL:
-    case Ty::FLOAT:
-    case Ty::VOID:
-    case Ty::DOUBLE:
-    case Ty::ENUM:
-      ret = cs->_di_builder->createBasicType(p->_type_name, p->_size_bits, p->_dwarf_encoding);
-      break;
-    case Ty::STRING: {
-      auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
-      ret = cs->_di_builder
-          ->createPointerType(e_di_type, p->_size_bits, (unsigned) p->_align_bits, llvm::None, p->_type_name);
-      break;
-    }
-    case Ty::STRUCT: {
-      DIFile *di_file = cs->get_di_file();
-      size_t n = p->get_children_size();
-      vector<Metadata *> elements(n);
-      for (size_t i = 1; i < n; ++i) {
-        auto e = p->get_child_at(i); // ASTVarDecl
-        elements.push_back(to_llvm_meta(cs, get_ty(e)));
-      }
-      ret = cs->_di_builder
-          ->createStructType(cs->get_current_di_scope(),
-              p->_type_name,
-              di_file,
-              (unsigned) p->get_line(),
-              p->_size_bits,
-              (unsigned) p->_align_bits,
-              DINode::DIFlags::FlagZero,
-              nullptr,
-              cs->_di_builder->getOrCreateArray(elements),
-              0,
-              nullptr,
-              p->_type_name);
-      break;
-    }
-    case Ty::ARRAY:
-    case Ty::POINTER: {
-      auto e = p->get_child_at<ASTTy>(0);
-      auto *e_di_type = to_llvm_meta(cs, e);
-      ret = cs->_di_builder
-          ->createPointerType((DIType *) e_di_type,
-              p->_size_bits,
-              (unsigned) p->_align_bits,
-              llvm::None,
-              p->_type_name);
-      break;
-    }
-    default:
-      TAN_ASSERT(false);
-  }
-  return ret;
-}
-
-} // namespace tanlang

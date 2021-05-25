@@ -3,8 +3,9 @@
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_ty.h"
+#include "src/llvm_include.h"
 
-namespace tanlang {
+using namespace tanlang;
 
 llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyPtr orig, ASTTyPtr dest) {
   auto *builder = cs->_builder;
@@ -25,27 +26,27 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyP
   if (*orig == *dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
-    return builder->CreateBitCast(loaded, to_llvm_type(cs, dest));
+    return builder->CreateBitCast(loaded, ToLLVMType(cs, dest));
   } else if ((orig->_is_enum && dest->_is_int) || (dest->_is_enum && orig->_is_int)) {
-    return builder->CreateZExtOrTrunc(loaded, to_llvm_type(cs, dest));
+    return builder->CreateZExtOrTrunc(loaded, ToLLVMType(cs, dest));
   } else if (orig->_is_int && dest->_is_int) {
-    return builder->CreateZExtOrTrunc(loaded, to_llvm_type(cs, dest));
+    return builder->CreateZExtOrTrunc(loaded, ToLLVMType(cs, dest));
   } else if (orig->_is_int && dest->_is_float) { /// int to float/double
     if (orig->_is_unsigned) {
-      return builder->CreateUIToFP(loaded, to_llvm_type(cs, dest));
+      return builder->CreateUIToFP(loaded, ToLLVMType(cs, dest));
     } else {
-      return builder->CreateSIToFP(loaded, to_llvm_type(cs, dest));
+      return builder->CreateSIToFP(loaded, ToLLVMType(cs, dest));
     }
   } else if (orig->_is_float && dest->_is_int) { /// float/double to int
     if (orig->_is_unsigned) {
-      return builder->CreateFPToUI(loaded, to_llvm_type(cs, dest));
+      return builder->CreateFPToUI(loaded, ToLLVMType(cs, dest));
     } else {
-      return builder->CreateFPToSI(loaded, to_llvm_type(cs, dest));
+      return builder->CreateFPToSI(loaded, ToLLVMType(cs, dest));
     }
   } else if (orig->_is_float && dest->_is_float) { /// float <-> double
-    return builder->CreateFPCast(loaded, to_llvm_type(cs, dest));
+    return builder->CreateFPCast(loaded, ToLLVMType(cs, dest));
   } else if (orig->_is_bool && dest->_is_int) { /// bool to int
-    return builder->CreateZExtOrTrunc(val, to_llvm_type(cs, dest));
+    return builder->CreateZExtOrTrunc(val, ToLLVMType(cs, dest));
   } else if (dest->_is_bool) { /// all types to bool, equivalent to val != 0
     if (orig->_is_float) {
       return builder->CreateFCmpONE(loaded, ConstantFP::get(builder->getFloatTy(), 0.0f));
@@ -266,4 +267,117 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTyPtr p) {
   p->_resolved = true;
 }
 
-} // namespace tanlang
+Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
+  auto *builder = cs->_builder;
+  resolve_ty(cs, p);
+  Ty base = TY_GET_BASE(p->_tyty);
+  llvm::Type *type = nullptr;
+  switch (base) {
+    case Ty::INT:
+      type = builder->getIntNTy((unsigned) p->_size_bits);
+      break;
+    case Ty::CHAR:
+      type = builder->getInt8Ty();
+      break;
+    case Ty::BOOL:
+      type = builder->getInt1Ty();
+      break;
+    case Ty::FLOAT:
+      type = builder->getFloatTy();
+      break;
+    case Ty::DOUBLE:
+      type = builder->getDoubleTy();
+      break;
+    case Ty::STRING:
+      type = builder->getInt8PtrTy(); /// str as char*
+      break;
+    case Ty::VOID:
+      type = builder->getVoidTy();
+      break;
+    case Ty::ENUM:
+      type = ToLLVMType(cs, get_ty(p->get_child_at(0)));
+      break;
+    case Ty::STRUCT: {
+      auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
+      vector<Type *> body{};
+      size_t n = p->get_children_size();
+      body.reserve(n);
+      for (size_t i = 1; i < n; ++i) {
+        body.push_back(ToLLVMType(cs, get_ty(p->get_child_at(i))));
+      }
+      struct_type->setBody(body);
+      type = struct_type;
+      break;
+    }
+    case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
+    case Ty::POINTER: {
+      auto e_type = ToLLVMType(cs, get_ty(p->get_child_at(0)));
+      type = e_type->getPointerTo();
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return type;
+}
+
+Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p) {
+  Ty base = TY_GET_BASE(p->_tyty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
+  DIType *ret = nullptr;
+  switch (base) {
+    case Ty::CHAR:
+    case Ty::INT:
+    case Ty::BOOL:
+    case Ty::FLOAT:
+    case Ty::VOID:
+    case Ty::DOUBLE:
+    case Ty::ENUM:
+      ret = cs->_di_builder->createBasicType(p->_type_name, p->_size_bits, p->_dwarf_encoding);
+      break;
+    case Ty::STRING: {
+      auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
+      ret = cs->_di_builder
+          ->createPointerType(e_di_type, p->_size_bits, (unsigned) p->_align_bits, llvm::None, p->_type_name);
+      break;
+    }
+    case Ty::STRUCT: {
+      DIFile *di_file = cs->get_di_file();
+      size_t n = p->get_children_size();
+      vector<Metadata *> elements(n);
+      for (size_t i = 1; i < n; ++i) {
+        auto e = p->get_child_at(i); // ASTVarDecl
+        elements.push_back(ToLLVMMeta(cs, get_ty(e)));
+      }
+      ret = cs->_di_builder
+          ->createStructType(cs->get_current_di_scope(),
+              p->_type_name,
+              di_file,
+              (unsigned) p->get_line(),
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              DINode::DIFlags::FlagZero,
+              nullptr,
+              cs->_di_builder->getOrCreateArray(elements),
+              0,
+              nullptr,
+              p->_type_name);
+      break;
+    }
+    case Ty::ARRAY:
+    case Ty::POINTER: {
+      auto e = p->get_child_at<ASTTy>(0);
+      auto *e_di_type = ToLLVMMeta(cs, e);
+      ret = cs->_di_builder
+          ->createPointerType((DIType *) e_di_type,
+              p->_size_bits,
+              (unsigned) p->_align_bits,
+              llvm::None,
+              p->_type_name);
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
+}

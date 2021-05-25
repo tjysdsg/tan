@@ -3,7 +3,7 @@
 #include "token.h"
 #include "compiler_session.h"
 #include "src/analysis/analyzer.h"
-#include "src/codegen/codegen.h"
+#include "src/codegen/code_generator.h"
 #include "intrinsic.h"
 #include "reader.h"
 #include "parser.h"
@@ -44,7 +44,8 @@ Value *Compiler::codegen() {
   TAN_ASSERT(_compiler_session);
   TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
-  auto *ret = ::codegen(_compiler_session, _ast);
+  CodeGenerator cg(_compiler_session);
+  auto *ret = cg.codegen(_compiler_session, _ast);
   return ret;
 }
 

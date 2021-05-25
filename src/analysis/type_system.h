@@ -1,16 +1,19 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
-#include "src/ast/ast_node.h"
+#include "base.h"
+#include "src/ast/ast_type.h"
 #include <array>
 
 namespace llvm {
 class DISubroutineType;
+class Type;
+class Metadata;
+class Value;
 }
 
 namespace tanlang {
 
-class ASTTy;
-using ASTTyPtr = std::shared_ptr<ASTTy>;
+AST_FWD_DECL(ASTTy);
 
 class TypeSystem {
 public:
@@ -37,8 +40,13 @@ public:
    * get an lvalue, create a temporary variable and store the value to it.
    * */
   static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTTyPtr orig, ASTTyPtr dest);
+
+  static llvm::Type *ToLLVMType(CompilerSession *cs, const ASTTyPtr &p);
+
+  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p);
 };
 
+// FIXME: where to put this, what uses this
 llvm::DISubroutineType *create_function_type(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 } // namespace
