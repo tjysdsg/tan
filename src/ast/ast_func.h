@@ -21,7 +21,7 @@ AST_FWD_DECL(ASTFunction);
  *  - Arg2, ASTArgDecl
  *  - ...
  * */
-class ASTFunction final : public ASTNode {
+class ASTFunction : public ASTNode {
 public:
   static ASTFunctionPtr CreateExtern(const str &name, vector<ASTTyPtr> types);
   static ASTFunctionPtr GetCallee(CompilerSession *cs, const str &name, const vector<ASTNodePtr> &args);

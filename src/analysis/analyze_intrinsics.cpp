@@ -20,7 +20,7 @@ void AnalyzerImpl::analyze_intrinsic(ParsableASTNodePtr &p) {
   auto void_type = create_ty(_cs, Ty::VOID);
   auto q = Intrinsic::intrinsics.find(c->get_data<str>());
   if (q == Intrinsic::intrinsics.end()) {
-    report_error(_cs, p, "Invalid intrinsic");
+    report_error(p, "Invalid intrinsic");
   }
   pi->_intrinsic_type = q->second;
   switch (pi->_intrinsic_type) {

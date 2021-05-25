@@ -66,12 +66,14 @@ private:
   std::variant<str, uint64_t, double> _data;
 };
 
-template<typename T> std::shared_ptr<T> ast_cast(ParsableASTNodePtr node) {
+template<typename T, typename C> std::shared_ptr<T> ast_cast(ptr<C> node) {
+  static_assert(std::is_base_of<ParsableASTNode, C>::value, "node can only be a subclass of ParsableASTNode");
   return std::reinterpret_pointer_cast<T>(node);
 }
 
 // TODO: replace some ast_cast calls with ast_must_cast if suitable
-template<typename T> std::shared_ptr<T> ast_must_cast(ParsableASTNodePtr node) {
+template<typename T, typename C> std::shared_ptr<T> ast_must_cast(ptr<C> node) {
+  static_assert(std::is_base_of<ParsableASTNode, C>::value, "node can only be a subclass of ParsableASTNode");
   auto ret = std::reinterpret_pointer_cast<T>(node);
   TAN_ASSERT(ret);
   return ret;
