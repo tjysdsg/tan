@@ -9,7 +9,7 @@
 using namespace tanlang;
 
 void AnalyzerImpl::analyze_member_access(ParsableASTNodePtr &p) {
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  auto np = ast_must_cast<ASTNode>(p);
 
   auto lhs = p->get_child_at(0);
   auto pma = ast_must_cast<ASTMemberAccess>(p);

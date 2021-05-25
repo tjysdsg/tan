@@ -1,7 +1,6 @@
 #include "analyzer_impl.h"
 #include "src/ast/ast_ty.h"
 #include "compiler_session.h"
-#include "src/analysis/analysis.h"
 #include "src/ast/factory.h"
 #include "src/ast/parsable_ast_node.h"
 #include "src/analysis/type_system.h"
@@ -50,7 +49,7 @@ void AnalyzerImpl::analyze_intrinsic(ParsableASTNodePtr &p) {
       if (c->get_node_type() != ASTType::STRING_LITERAL) {
         report_error(_cs, p, "Invalid call to compprint, one argument with type 'str' required");
       }
-      std::cout << "Message (" << get_source_location(_cs, p) << "): " << c->get_data<str>() << "\n";
+      std::cout << "Message (" << _h.get_source_location(p) << "): " << c->get_data<str>() << "\n";
       break;
     }
     default:

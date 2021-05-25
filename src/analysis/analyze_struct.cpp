@@ -9,7 +9,7 @@
 using namespace tanlang;
 
 void AnalyzerImpl::analyze_struct(ParsableASTNodePtr &p) {
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  auto np = ast_must_cast<ASTNode>(p);
 
   str struct_name = p->get_child_at(0)->get_data<str>();
   auto ty = ast_create_ty(_cs);

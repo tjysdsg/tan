@@ -7,6 +7,15 @@
 
 using namespace tanlang;
 
+void AnalyzerImpl::analyze_func_call(ParsableASTNodePtr &p) {
+  auto np = ast_must_cast<ASTNode>(p);
+
+  std::vector<ASTNodePtr> args(p->get_children().begin(), p->get_children().end());
+  p->get_children().clear();
+  p->append_child(ASTFunction::GetCallee(_cs, p->get_data<str>(), args));
+  np->_ty = _h.get_ty(p->get_child_at(0));
+}
+
 void AnalyzerImpl::analyze_func_decl(ParsableASTNodePtr &p) {
   ASTFunctionPtr np = ast_must_cast<ASTFunction>(p);
 

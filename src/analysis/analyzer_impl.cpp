@@ -140,16 +140,12 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
     case ASTType::PARENTHESIS:
       np->_ty = p->get_child_at(0)->_ty;
       break;
-    case ASTType::FUNC_CALL: {
-      std::vector<ASTNodePtr> args(p->_children.begin(), p->_children.end());
-      p->_children.clear();
-      p->_children.push_back(ASTFunction::GetCallee(cs, p->_name, args));
-      np->_ty = p->get_child_at(0)->_ty;
+    case ASTType::FUNC_CALL:
+      analyze_func_call(p);
       break;
-    }
     case ASTType::TY: {
       ASTTyPtr pt = ast_must_cast<ASTTy>(p);
-      resolve_ty(cs, pt);
+      resolve_ty(pt);
       break;
     }
       ////////////////////////// declarations ///////////////////////////

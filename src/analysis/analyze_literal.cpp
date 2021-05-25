@@ -7,7 +7,7 @@
 using namespace tanlang;
 
 void AnalyzerImpl::analyze_char_literal(ParsableASTNodePtr &p) {
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  auto np = ast_must_cast<ASTNode>(p);
 
   np->_ty = create_ty(_cs, Ty::CHAR, {});
   np->set_data(static_cast<uint64_t>(p->get_token()->value[0]));
@@ -15,7 +15,7 @@ void AnalyzerImpl::analyze_char_literal(ParsableASTNodePtr &p) {
 }
 
 void AnalyzerImpl::analyze_num_literal(ParsableASTNodePtr &p) {
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  auto np = ast_must_cast<ASTNode>(p);
 
   if (p->get_token()->type == TokenType::INT) {
     auto tyty = Ty::INT;
@@ -29,7 +29,7 @@ void AnalyzerImpl::analyze_num_literal(ParsableASTNodePtr &p) {
 }
 
 void AnalyzerImpl::analyze_array_literal(ParsableASTNodePtr &p) {
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  auto np = ast_must_cast<ASTNode>(p);
 
   vector<ASTNodePtr> sub_tys{};
   sub_tys.reserve(p->get_children_size());
