@@ -8,7 +8,7 @@
 
 namespace tanlang {
 
-AST_FWD_DECL(ParsableASTNode)
+AST_FWD_DECL(ParsableASTNode);
 struct Scope;
 
 class ParsableASTNode : public SourceTraceable {

@@ -105,8 +105,8 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       ////////////////////////// keywords ///////////////////////////
     case ASTType::IF: {
       auto cond = p->get_child_at(0);
-      if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), cond->_ty)) {
-        report_error(cs, p, "Cannot convert type to bool");
+      if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), _h.get_ty(cond))) {
+        report_error(_cs, p, "Cannot convert type to bool");
       }
       break;
     }
@@ -114,31 +114,14 @@ void AnalyzerImpl::analyze(ParsableASTNodePtr &p) {
       // TODO: cs->get_current_loop() // case ASTType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
     case ASTType::INTRINSIC: {
-      analyze_intrinsic(cs, p);
+      analyze_intrinsic(p);
       break;
     }
-    case ASTType::IMPORT: {
-      // TODO: determine whether to use class field or child ASTNode to store imported filename
-      // auto rhs = p->get_child_at(0);
-      // str file = std::get<str>(rhs->_value);
-      str file = p->_name;
-      auto imported = Compiler::resolve_import(cs->_filename, file);
-      if (imported.empty()) { report_error(cs, p, "Cannot import: " + file); }
-
-      /// it might be already parsed
-      vector<ASTFunctionPtr> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
-      if (imported_functions.empty()) {
-        Compiler::ParseFile(imported[0]);
-        imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
-      }
-      for (auto &f: imported_functions) {
-        _cs->add_function(f);
-        p->_children.push_back(f);
-      }
+    case ASTType::IMPORT:
+      analyze_import(p);
       break;
-    }
     case ASTType::PARENTHESIS:
-      np->_ty = p->get_child_at(0)->_ty;
+      np->_ty = _h.get_ty(p->get_child_at(0));
       break;
     case ASTType::FUNC_CALL:
       analyze_func_call(p);
