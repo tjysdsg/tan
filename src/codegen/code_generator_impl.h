@@ -47,6 +47,7 @@ private:
   Value *codegen_literals(ASTNodePtr p);
   Value *codegen_intrinsic(IntrinsicPtr p);
   Value *codegen_member_access(ASTMemberAccessPtr p);
+  [[noreturn]] void report_error(const ParsableASTNodePtr &p, const str &message);
 
 private:
   CompilerSession *_cs = nullptr;
