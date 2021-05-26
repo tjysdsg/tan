@@ -444,10 +444,23 @@ Value *CodeGeneratorImpl::codegen_import(const ASTNodePtr &p) {
 }
 
 Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
-  /// Value of literals is set to p->_ty->_default_value, and to_llvm_value returns a type's default value
-  // TODO: don't set literal value to type default value
   set_current_debug_location(p);
-  return codegen_ty(p->_ty);
+  Type *type = TypeSystem::ToLLVMType(_cs, p->_ty);
+  Value *ret = nullptr;
+  switch (p->_ty->_tyty) {
+    case Ty::INT:
+      ret = ConstantInt::get(type, p->get_data<uint64_t>());
+      break;
+    case Ty::STRING:
+      ret = _cs->_builder->CreateGlobalStringPtr(p->get_data<str>());
+      break;
+    case Ty::FLOAT:
+      ret = ConstantFP::get(type, p->get_data<double>());
+      break;
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
 }
 
 Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {

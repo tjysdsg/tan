@@ -68,9 +68,10 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
     case ASTType::CAST: {
       np->_ty = copy_ty(_h.get_ty(p->get_child_at(1)));
       np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
-      if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
-        report_error(p, "Cannot perform implicit type conversion");
-      }
+      // FIXME: check if can explicit cast
+      // if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
+      //   report_error(p, "Cannot perform implicit type conversion");
+      // }
       break;
     }
     case ASTType::MEMBER_ACCESS:
@@ -105,6 +106,9 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
+    case ASTType::STRING_LITERAL:
+      analyze_string_literal(p);
+      break;
     case ASTType::CHAR_LITERAL:
       analyze_char_literal(p);
       break;

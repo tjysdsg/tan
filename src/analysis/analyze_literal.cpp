@@ -6,6 +6,11 @@
 
 using namespace tanlang;
 
+void AnalyzerImpl::analyze_string_literal(const ParsableASTNodePtr &p) {
+  auto np = ast_must_cast<ASTNode>(p);
+  np->_ty = create_ty(_cs, Ty::STRING);
+}
+
 void AnalyzerImpl::analyze_char_literal(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 

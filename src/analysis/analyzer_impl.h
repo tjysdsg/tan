@@ -17,6 +17,7 @@ public:
 private:
   void analyze_member_access(const ParsableASTNodePtr &p);
   void analyze_intrinsic(const ParsableASTNodePtr &p);
+  void analyze_string_literal(const ParsableASTNodePtr &p);
   void analyze_char_literal(const ParsableASTNodePtr &p);
   void analyze_num_literal(const ParsableASTNodePtr &p);
   void analyze_array_literal(const ParsableASTNodePtr &p);
