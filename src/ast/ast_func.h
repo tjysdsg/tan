@@ -45,6 +45,16 @@ public:
   bool _is_public = false;
 };
 
+class ASTFunctionCall : public ASTNode {
+public:
+  ASTFunctionCall() : ASTNode(ASTType::FUNC_CALL, 0) {
+    _is_typed = true;
+    _is_valued = true;
+    _is_named = true;
+  }
+  ASTFunctionPtr _callee = nullptr;
+};
+
 } // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_FUNC_H__

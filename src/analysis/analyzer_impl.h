@@ -25,6 +25,7 @@ private:
   void analyze_func_call(const ParsableASTNodePtr &p);
   void analyze_import(const ParsableASTNodePtr &p);
   void resolve_ty(const ASTTyPtr &p) const;
+  ASTTyPtr copy_ty(const ASTTyPtr &p) const;
   [[noreturn]] void report_error(const ParsableASTNodePtr &p, const str &message);
 
 private:

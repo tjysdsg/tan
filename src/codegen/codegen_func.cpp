@@ -8,14 +8,14 @@
 using namespace tanlang;
 
 Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
-  size_t n = p->get_children_size(); /// = n_args + 1
+  ptr<ASTFunctionCall> f = ast_must_cast<ASTFunctionCall>(p);
 
-  auto callee = ast_cast<ASTFunction>(p->get_child_at<ASTNode>(0));
-  TAN_ASSERT(callee);
+  ASTFunctionPtr callee = f->_callee;
+  size_t n = callee->get_n_args();
 
   /// args
   vector<Value *> arg_vals;
-  for (size_t i = 1; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     auto *a = codegen(p->get_child_at<ASTNode>(i));
     if (!a) {
       report_error(p->get_child_at<ASTNode>(i), "Invalid function call argument");
@@ -160,4 +160,3 @@ Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
   _cs->pop_scope(); /// pop scope
   return nullptr;
 }
-

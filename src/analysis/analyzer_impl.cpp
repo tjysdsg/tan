@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-static ASTTyPtr copy_ty(const ASTTyPtr &p) {
+ASTTyPtr AnalyzerImpl::copy_ty(const ASTTyPtr &p) const {
   return make_ptr<ASTTy>(*p);
 }
 
@@ -178,4 +178,3 @@ AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {
 void AnalyzerImpl::report_error(const ParsableASTNodePtr &p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
 }
-
