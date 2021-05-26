@@ -456,12 +456,18 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
   Value *ret = nullptr;
   switch (p->_ty->_tyty) {
     case Ty::INT:
+    case Ty::CHAR:
+    case Ty::BOOL:
+    case Ty::ENUM:
       ret = ConstantInt::get(type, p->get_data<uint64_t>());
       break;
     case Ty::STRING:
       ret = _cs->_builder->CreateGlobalStringPtr(p->get_data<str>());
       break;
     case Ty::FLOAT:
+      ret = ConstantFP::get(type, p->get_data<double>());
+      break;
+    case Ty::DOUBLE:
       ret = ConstantFP::get(type, p->get_data<double>());
       break;
     default:

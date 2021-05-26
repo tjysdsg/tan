@@ -342,7 +342,6 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
 
 size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
   p->_end_index = p->_start_index;
-  // TODO: update _cs->_current_token
 
   /// special tokens that require whether p is led or nud to determine the node type
   switch (hashed_string{p->get_token_str().c_str()}) {

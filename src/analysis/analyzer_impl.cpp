@@ -17,7 +17,9 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
   p->set_scope(_cs->get_current_scope());
   ASTNodePtr np = _h.try_convert_to_ast_node(p);
 
-  if (p->get_node_type() != ASTType::FUNC_DECL) { /// children will not be automatically parsed for function declaration
+  /// children will not be automatically parsed for FUNC_DECL or ASSIGN
+  vector<ASTType> tmp = {ASTType::FUNC_DECL, ASTType::ASSIGN};
+  if (!std::any_of(tmp.begin(), tmp.end(), [p](ASTType i) { return i == p->get_node_type(); })) {
     for (auto &sub: p->get_children()) {
       analyze(sub);
     }
@@ -59,10 +61,18 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
       np->_ty = create_ty(_cs, Ty::BOOL);
       break;
     case ASTType::ASSIGN: {
-      np->_ty = _h.get_ty(p->get_child_at(0));
-      if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(1))) != 0) {
+      ASTNodePtr lhs = p->get_child_at<ASTNode>(0);
+      ASTNodePtr rhs = p->get_child_at<ASTNode>(1);
+      analyze(rhs);
+      if (!lhs->_ty) { /// the type of lhs is not set, we deduce it
+        lhs->_ty = copy_ty(rhs->_ty);
+      }
+      analyze(lhs);
+
+      if (TypeSystem::CanImplicitCast(_cs, lhs->_ty, rhs->_ty) != 0) {
         report_error(p, "Cannot perform implicit type conversion");
       }
+      np->_ty = lhs->_ty;
       break;
     }
     case ASTType::CAST: {
