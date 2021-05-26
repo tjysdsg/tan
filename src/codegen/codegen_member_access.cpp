@@ -1,27 +1,31 @@
 #include "src/codegen/code_generator_impl.h"
 #include "src/llvm_include.h"
+#include "src/ast/ast_member_access.h"
+#include "src/ast/ast_ty.h"
 #include "compiler_session.h"
 
 using namespace tanlang;
 
 Value *CodeGeneratorImpl::codegen_member_access(ASTMemberAccessPtr p) {
-  auto *builder = cs->_builder;
-  set_current_debug_location(cs, p);
-  auto lhs = p->_children[0];
+  auto *builder = _cs->_builder;
+  set_current_debug_location(p);
+  auto lhs = p->get_child_at<ASTNode>(0);
   ASTNodePtr rhs = nullptr;
-  if (p->_children.size() >= 2) { rhs = p->_children[1]; } /// pointer access only have 1 child node
-  auto *from = codegen(cs, lhs);
+  if (p->get_children_size() >= 2) {
+    rhs = p->get_child_at<ASTNode>(1);
+  } /// pointer access only have 1 child node
+  auto *from = codegen(lhs);
   Value *ret;
   switch (p->_access_type) {
     case MemberAccessType::MemberAccessBracket: {
       if (lhs->_ty->_is_lvalue) { from = builder->CreateLoad(from); }
-      auto *rhs_val = codegen(cs, rhs);
+      auto *rhs_val = codegen(rhs);
       if (rhs->_ty->_is_lvalue) { rhs_val = builder->CreateLoad(rhs_val); }
       ret = builder->CreateGEP(from, rhs_val, "bracket_access");
       break;
     }
     case MemberAccessType::MemberAccessMemberVariable: {
-      if (lhs->_ty->_is_lvalue && lhs->_ty->_is_ptr && get_contained_ty(cs, lhs->_ty)) {
+      if (lhs->_ty->_is_lvalue && lhs->_ty->_is_ptr && _h.get_contained_ty(lhs->_ty)) {
         /// auto dereference pointers
         from = builder->CreateLoad(from);
       }
@@ -32,7 +36,7 @@ Value *CodeGeneratorImpl::codegen_member_access(ASTMemberAccessPtr p) {
       ret = builder->CreateLoad(from);
       break;
     case MemberAccessType::MemberAccessMemberFunction:
-      ret = codegen(cs, p->_children[1]);
+      ret = codegen(p->get_child_at<ASTNode>(1));
       break;
     case MemberAccessType::MemberAccessEnumValue:
       ret = nullptr;

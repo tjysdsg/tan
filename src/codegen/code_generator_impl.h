@@ -1,5 +1,6 @@
 #ifndef __TAN_SRC_CODEGEN_CODE_GENERATOR_IMPL_H__
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_IMPL_H__
+#include "src/analysis/ast_helper.h"
 #include "base.h"
 
 namespace llvm {
@@ -51,6 +52,7 @@ private:
 
 private:
   CompilerSession *_cs = nullptr;
+  ASTHelper _h;
 };
 
 }

@@ -8,7 +8,7 @@
 
 using namespace tanlang;
 
-CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *_cs) : _cs(_cs) {}
+CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
 Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
   Value *ret = nullptr;
