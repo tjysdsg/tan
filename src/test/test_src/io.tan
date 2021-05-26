@@ -1,0 +1,6 @@
+import "runtime/print.tan";
+
+pub fn main(argc: int, argv: char**) : int {
+    print("Shit\n");
+    return 0;
+}

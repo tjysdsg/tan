@@ -56,6 +56,10 @@ static void failIfError(Error E, Twine Context = "") {
   });
 }
 
+static void failIfError(std::error_code E, Twine Context = "") {
+  failIfError(llvm::createStringError(E, "Runtime error"), Context);
+}
+
 static bool Symtab = true;                ///< 's' modifier
 static bool Deterministic = true;         ///< 'D' and 'U' modifiers
 
@@ -83,11 +87,10 @@ static bool comparePaths(StringRef Path1, StringRef Path2) {
    */
   #ifdef _WIN32
   SmallVector<wchar_t, 128> WPath1, WPath2;
-  failIfError(sys::windows::UTF8ToUTF16(normalizePath(Path1), WPath1));
-  failIfError(sys::windows::UTF8ToUTF16(normalizePath(Path2), WPath2));
+  failIfError(sys::path::widenPath(normalizePath(Path1), WPath1));
+  failIfError(sys::path::widenPath(normalizePath(Path2), WPath2));
 
-  return CompareStringOrdinal(WPath1.data(), WPath1.size(), WPath2.data(),
-                              WPath2.size(), true) == CSTR_EQUAL;
+  return CompareStringOrdinal(WPath1.data(), WPath1.size(), WPath2.data(), WPath2.size(), true) == CSTR_EQUAL;
   #else
   return normalizePath(Path1) == normalizePath(Path2);
   #endif

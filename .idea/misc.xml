@@ -10,9 +10,11 @@
       <file path="$PROJECT_DIR$/bin" />
       <file path="$PROJECT_DIR$/coverage" />
       <file path="$PROJECT_DIR$/dep/filesystem" />
+      <file path="$PROJECT_DIR$/dep/fmt" />
       <file path="$PROJECT_DIR$/dep/gflags" />
       <file path="$PROJECT_DIR$/dep/googletest" />
       <file path="$PROJECT_DIR$/dep/libbacktrace" />
+      <file path="$PROJECT_DIR$/dep/libunwind" />
       <file path="$PROJECT_DIR$/docs/html" />
       <file path="$PROJECT_DIR$/lib" />
     </excludeRoots>

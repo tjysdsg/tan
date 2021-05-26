@@ -1,5 +1,6 @@
-#ifndef TAN_SRC_AST_AST_FUNC_H_
-#define TAN_SRC_AST_AST_FUNC_H_
+#ifndef __TAN_SRC_AST_AST_FUNC_H__
+#define __TAN_SRC_AST_AST_FUNC_H__
+
 #include "src/ast/ast_node.h"
 
 namespace llvm {
@@ -8,9 +9,7 @@ class Function;
 
 namespace tanlang {
 
-struct Scope;
-class ASTFunction;
-using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
+AST_FWD_DECL(ASTFunction);
 
 /**
  * \brief Function prototype or definition
@@ -18,69 +17,44 @@ using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
  * \details
  * Children:
  *  - Return type, ASTTy
- *  - Function name, ASTIdentifier
  *  - Arg1, ASTArgDecl
  *  - Arg2, ASTArgDecl
  *  - ...
+ *  - [Optional] Function body, ASTNode
  * */
-class ASTFunction final : public ASTNode, public std::enable_shared_from_this<ASTFunction> {
+class ASTFunction : public ASTNode {
 public:
   static ASTFunctionPtr CreateExtern(const str &name, vector<ASTTyPtr> types);
+  static ASTFunctionPtr GetCallee(CompilerSession *cs, const str &name, const vector<ASTNodePtr> &args);
 
 public:
-  ASTFunction(Token *token, size_t token_index);
-  llvm::Value *codegen_prototype(CompilerSession *, bool import = false);
-  bool is_named() const override;
-  bool is_typed() const override;
-  // TODO: implement function type
+  ASTFunction() : ASTNode(ASTType::FUNC_DECL, 0) {
+    _is_named = true;
+    _is_typed = true;
+    _is_external = false;
+    _is_public = false;
+  };
 
-  ASTNodePtr get_ret() const;
-  ASTNodePtr get_arg(size_t i) const;
-  size_t get_n_args() const;
-  llvm::Function *get_func() const;
-  void set_func(llvm::Function *f);
+  [[nodiscard]] ASTTyPtr get_ret_ty() const;
+  [[nodiscard]] ASTNodePtr get_arg(size_t i) const;
+  [[nodiscard]] size_t get_n_args() const;
 
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t nud() override;
-
-private:
+public:
+  llvm::Function *_func = nullptr;
   bool _is_external = false;
   bool _is_public = false;
-  llvm::Function *_func = nullptr;
-  std::shared_ptr<Scope> _scope = nullptr;
 };
 
-/**
- * \brief Call to a known function (or intrinsic function)
- *
- * \details
- * Children:
- *  - Arg1, ASTNode, typed, valued
- *  - Arg2, ASTNode, typed, valued
- *  - ...
- * */
-class ASTFunctionCall final : public ASTNode {
+class ASTFunctionCall : public ASTNode {
 public:
-  ASTFunctionCall() = delete;
-  ASTFunctionCall(Token *token, size_t token_index);
-  bool is_named() const override;
-  bool is_lvalue() const override;
-  bool is_typed() const override;
-  void resolve();
-
-public:
-  bool _do_resolve = true;
-
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t nud() override;
-  ASTFunctionPtr get_callee() const;
-
-private:
-  mutable ASTFunctionPtr _callee = nullptr;
+  ASTFunctionCall() : ASTNode(ASTType::FUNC_CALL, 0) {
+    _is_typed = true;
+    _is_valued = true;
+    _is_named = true;
+  }
+  ASTFunctionPtr _callee = nullptr;
 };
 
 } // namespace tanlang
 
-#endif /* TAN_SRC_AST_AST_FUNC_H_ */
+#endif //__TAN_SRC_AST_AST_FUNC_H__

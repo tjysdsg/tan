@@ -6,7 +6,7 @@
 
 namespace tanlang {
 
-class ASTNode;
+AST_FWD_DECL(ParsableASTNode);
 class CompilerSession;
 
 /**
@@ -61,7 +61,7 @@ private:
 public:
   Compiler() = delete;
   /**
-   * \brief Create a Compiler instance with its relevant source file name/path
+   * \brief create_ty a Compiler instance with its relevant source file name/path
    * */
   explicit Compiler(const str &filename);
   ~Compiler();
@@ -94,7 +94,7 @@ public:
 
 private:
   CompilerSession *_compiler_session = nullptr; /// wrapper for various LLVM classes
-  std::shared_ptr<ASTNode> _ast = nullptr;
+  ParsableASTNodePtr _ast = nullptr;
   str _filename = "";
 };
 

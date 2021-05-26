@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="example_read_cmd_args_with_c" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="arg1 arg2 arg3" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="example_read_cmd_args_with_c" CONFIG_NAME="Debug-WSL LLVM" RUN_PATH="$PROJECT_DIR$/examples/read_cmd_args_with_c/read_cmd_args_with_c">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>

@@ -1,6 +1,7 @@
+include/config.h
 fuzzing/
 dep-build/
-build/
+build*/
 gtest-build/
 cmake-build*/
 .idea/workspace.xml

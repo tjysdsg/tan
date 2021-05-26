@@ -15,6 +15,10 @@ public:
     vector<const char *> cmd
         {"tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR), _filename.c_str(), "-lruntime",
             "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-o", "a.out"};
+    for (auto *c : cmd) {
+      std::cout << c << " ";
+    }
+    std::cout << '\n';
     int argc = static_cast<int>(cmd.size());
     auto *argv = c_cast(char**, cmd.data());
     EXPECT_EQ(0, cli_main(argc, argv));

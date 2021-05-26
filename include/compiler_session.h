@@ -6,13 +6,11 @@
 namespace tanlang {
 
 struct Scope;
-class ASTNode;
-using ASTNodePtr = std::shared_ptr<ASTNode>;
-class ASTFunction;
-using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
-class FunctionTable;
-using FunctionTablePtr = std::shared_ptr<FunctionTable>;
-class ASTLoop;
+AST_FWD_DECL(ASTNode);
+AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTFunction);
+AST_FWD_DECL(FunctionTable);
+AST_FWD_DECL(ASTLoop);
 
 /**
  * \class CompilerSession
@@ -20,7 +18,7 @@ class ASTLoop;
  * */
 class CompilerSession final {
 public:
-  static void AddPublicFunction(const str &filename, ASTNodePtr func);
+  static void AddPublicFunction(const str &filename, ASTFunctionPtr func);
   static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
 
 private:
@@ -42,45 +40,57 @@ public:
    * \brief Get current scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> get_current_scope();
+  ptr<Scope> get_current_scope();
 
   /**
-   * \brief Create a new scope
+   * \brief create_ty a new scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> push_scope();
+  ptr<Scope> push_scope();
 
   /**
    * \brief Set the current scope
    * \see Scope
    * */
-  void push_scope(std::shared_ptr<Scope>);
+  void push_scope(ptr<Scope>);
 
   /**
    * \brief Pop the current scope
    * \see Scope
    * */
-  std::shared_ptr<Scope> pop_scope();
-  DIScope *get_current_di_scope() const;
+  ptr<Scope> pop_scope();
+  [[nodiscard]] DIScope *get_current_di_scope() const;
   void push_di_scope(DIScope *scope);
   void pop_di_scope();
 
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
    * */
-  void add(const str &name, std::shared_ptr<ASTNode> value);
+  void add(const str &name, ptr<ASTNode> value);
 
   /**
-   * \brief Set a named ASTNode
+   * \brief Register a variable
    * */
-  void set(const str &name, std::shared_ptr<ASTNode> value);
+  void set(const str &name, ptr<ASTNode> value);
 
   /**
-   * \brief Get a named ASTNode that is visible to the current scope
+   * \brief look up the variable table in the current and parent scopes
    * \details This function starts by searching the current scope. If the target is not found in current scope,
    * search the parent scope, repeat the process until found. Return nullptr if not found in all visible scopes.
    * */
-  std::shared_ptr<ASTNode> get(const str &name);
+  ASTNodePtr get(const str &name);
+
+  /**
+   * \brief Register a type
+   * */
+  void set_type(const str &name, ASTTyPtr value);
+
+  /**
+   * \brief Look up type table
+   * \param name typename
+   */
+  ASTTyPtr get_type(const str &name);
+
   LLVMContext *get_context();
   Module *get_module();
   void emit_object(const str &filename);
@@ -89,35 +99,37 @@ public:
    * \brief Get the size of a pointer on the current machine
    * \details This is equivalent as llvm::TargetMachine->PointerSizeInBits()
    * */
-  unsigned get_ptr_size() const;
+  [[nodiscard]] unsigned get_ptr_size() const;
 
   /**
    * \brief Add a function AST to the current file's function table
    * \details This will not add anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
    * */
-  void add_function(ASTNodePtr func);
+  void add_function(ASTFunctionPtr func);
   vector<ASTFunctionPtr> get_functions(const str &name);
-  std::shared_ptr<ASTLoop> get_current_loop() const;
-  void set_current_loop(std::shared_ptr<ASTLoop>);
-  DIFile *get_di_file() const;
-  DICompileUnit *get_di_cu() const;
+  [[nodiscard]] ptr<ASTLoop> get_current_loop() const;
+  void set_current_loop(ptr<ASTLoop>);
+  [[nodiscard]] DIFile *get_di_file() const;
+  [[nodiscard]] DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
 
 public:
+  str _filename = "";
   IRBuilder<> *_builder = nullptr; /// IR builder
   DIBuilder *_di_builder = nullptr; /// Debug information builder
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
+  umap<str, ASTTyPtr> _type_table{};
+
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
-  vector<std::shared_ptr<Scope>> _scope{};
+  vector<ptr<Scope>> _scope{}; // TODO: use tree for scope
   vector<DIScope *> _di_scope{};
   std::unique_ptr<FunctionPassManager> _fpm{};
   std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;
-
   DICompileUnit *_di_cu = nullptr;
   DIFile *_di_file = nullptr;
   FunctionTablePtr _function_table = nullptr;
@@ -125,7 +137,7 @@ private:
   /**
    * The control flow in current scope, used by break and continue
    * */
-  std::shared_ptr<ASTLoop> _current_loop = nullptr;
+  ptr<ASTLoop> _current_loop = nullptr;
 
 private:
   void initialize_scope();

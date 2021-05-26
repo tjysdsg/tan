@@ -15,10 +15,13 @@ set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+# ==================== OPTIONS ====================
 option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
+
+# ==================== GENERAL CONFIGS ====================
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
 
@@ -49,6 +52,11 @@ endif (CCACHE_FOUND)
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 # others in dep/
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
+
+message(STATUS "DEP_INCLUDES ${DEP_INCLUDES}")
+message(STATUS "DEP_LIBS: ${DEP_LIBS}")
+message(STATUS "DEP_LIB_DIRS: ${DEP_LIB_DIRS}")
+
 include_directories(${DEP_INCLUDES})
 link_directories(${DEP_LIB_DIRS})
 # =================================================================================== #
@@ -83,9 +91,11 @@ endmacro()
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/analysis COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== target library tan =====

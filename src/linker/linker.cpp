@@ -28,7 +28,7 @@ bool Linker::link() {
   return !clang_main(static_cast<int>(cargs.size()), cargs.data());
 }
 
-void Linker::add_flag(str flag) {
+void Linker::add_flag(const str &flag) {
   _flags.push_back(flag);
 }
 
