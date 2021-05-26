@@ -117,6 +117,8 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
     node = ast_create_string_literal(_cs, token->value);
   } else if (token->type == TokenType::CHAR) { /// char literal
     node = ast_create_char_literal(_cs, token->value[0]);
+  } else if (check_typename_token(token)) { /// types, must be before ID
+    node = ast_create_ty(_cs);
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") {
@@ -131,8 +133,6 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
     if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = ast_create_member_access(_cs);
-  } else if (check_typename_token(token)) { /// types
-    node = ast_create_ty(_cs);
   } else if (token->value == "&") {
     node = ast_create_ampersand(_cs);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)

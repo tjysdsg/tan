@@ -20,5 +20,9 @@ bool is_string_in(std::string_view s, std::initializer_list<std::string_view> li
   return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
 }
 
+bool is_string_in(std::string_view s, const vector<str> &list) {
+  return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
+}
+
 } // namespace tanlang
 

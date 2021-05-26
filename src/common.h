@@ -19,6 +19,8 @@ bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list);
 
 bool is_string_in(std::string_view, std::initializer_list<std::string_view>);
 
+bool is_string_in(std::string_view s, const vector<str> &list);
+
 template<size_t N> bool is_ast_type_in(ASTType t, std::array<ASTType, N> list) {
   return std::any_of(list.begin(), list.end(), [t](ASTType i) { return i == t; });
 }

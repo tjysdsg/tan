@@ -4,8 +4,7 @@
 namespace tanlang {
 
 bool check_typename_token(Token *token) {
-  return token->type == TokenType::KEYWORD
-      && is_string_in(token->value, {"int", "float", "double", "i16", "u16", "i32", "u32", "i64", "u64"});
+  return is_string_in(token->value, TYPE_NAMES);
 }
 
 bool check_terminal_token(Token *token) {

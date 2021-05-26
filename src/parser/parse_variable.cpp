@@ -25,8 +25,10 @@ size_t ParserImpl::parse_arg_decl(const ParsableASTNodePtr &p) {
     ty->_end_index = ty->_start_index = p->_end_index;
     ty->_is_lvalue = true;
     p->_end_index = parse_node(ty);
-    ast_cast<ASTNode>(p)->_ty = ty;
-  } else { ast_cast<ASTNode>(p)->_ty = nullptr; }
+    ast_must_cast<ASTNode>(p)->_ty = ty;
+  } else {
+    ast_must_cast<ASTNode>(p)->_ty = nullptr;
+  }
 
   return p->_end_index;
 }

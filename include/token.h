@@ -25,6 +25,7 @@ enum class TokenType {
 
 extern umap<TokenType, str> token_type_names;
 extern const vector<str> KEYWORDS;
+extern const vector<str> TYPE_NAMES;
 extern const vector<char> PUNCTUATIONS;
 // any symbol in OP can both be an operator itself or the start of an operator
 extern const vector<char> OP;

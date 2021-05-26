@@ -62,7 +62,7 @@ private:
   static ASTTyPtr find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue);
 
 public:
-  ASTTy() {}
+  ASTTy();
 
   ASTTy(const ASTTy &) = default;
   ASTTy(ASTTy &&) = default;

@@ -10,18 +10,17 @@ using namespace tanlang;
 
 size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   auto pfn = ast_cast<ASTFunction>(p);
-  if (at(p->_start_index)->value == "fn") {
-    /// skip "fn"
+  if (at(p->_start_index)->value == "fn") { /// "fn"
     ++p->_end_index;
-  } else if (at(p->_start_index)->value == "pub") {
+  } else if (at(p->_start_index)->value == "pub") { /// "pub fn"
     pfn->_is_public = true;
-    /// skip "pub fn"
     p->_end_index = p->_start_index + 2;
-  } else if (at(p->_start_index)->value == "extern") {
+  } else if (at(p->_start_index)->value == "extern") { /// "extern"
     pfn->_is_external = true;
-    /// skip "pub fn"
     p->_end_index = p->_start_index + 2;
-  } else { TAN_ASSERT(false); }
+  } else {
+    TAN_ASSERT(false);
+  }
 
   /// function return type, set later
   p->append_child(nullptr);
@@ -33,12 +32,14 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   Token *id_token = at(p->_end_index);
   auto id = ast_create_identifier(_cs, id_token->value);
   id->_start_index = id->_end_index = p->_end_index;
-
-  if (id->get_node_type() != ASTType::ID) { error(p->_end_index, "Invalid function name"); }
+  if (id->get_node_type() != ASTType::ID) {
+    error(p->_end_index, "Invalid function name");
+  }
   p->_end_index = parse_node(id);
-  p->set_data(id->get_data<str>()); /// name
+  p->set_data(id->get_data<str>());
 
   _cs->push_scope(); /// pop a new scope
+
   /// arguments
   peek(p->_end_index, TokenType::PUNCTUATION, "(");
   ++p->_end_index;
@@ -51,7 +52,9 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
       p->append_child(arg);
       if (at(p->_end_index)->value == ",") {
         ++p->_end_index;
-      } else { break; }
+      } else {
+        break;
+      }
     }
   }
   peek(p->_end_index, TokenType::PUNCTUATION, ")");

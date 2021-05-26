@@ -72,3 +72,7 @@ umap<str, Ty>ASTTy::basic_tys =
         {"bool", Ty::BOOL},};
 
 umap<str, Ty> ASTTy::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+
+ASTTy::ASTTy() {
+  set_node_type(ASTType::TY);
+}
