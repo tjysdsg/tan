@@ -2,6 +2,7 @@
 #define TAN_SRC_AST_AST_TY_H_
 #include <variant>
 #include "src/ast/parsable_ast_node.h"
+#include "src/ast/ty.h"
 #include "base.h"
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
@@ -15,37 +16,6 @@ class Type;
 }
 
 namespace tanlang {
-
-#undef VOID
-#undef CONST
-
-enum class Ty : uint64_t {
-  INVALID = 0,
-  /// basic types 1->12 bits
-  #define TY_BASE_MASK 0xfffu
-  VOID = 1u,
-  INT = 2u,
-  FLOAT = 3u,
-  DOUBLE = 4u,
-  BOOL = 5u,
-  POINTER = 6u,
-  STRING = 7u,
-  CHAR = 8u,
-  FUNC_PTR = 9u, // TODO: function ptr
-  STRUCT = 10u,
-  ARRAY = 11u,
-  ENUM = 12u,
-
-  /// qualifiers 13->32 bits
-  #define TY_QUALIFIER_MASK 0xffffff000u
-
-  UNSIGNED = 1u << 13u,
-  CONST = 1u << 14u,
-  BIT8 = 1u << 15u,
-  BIT16 = 1u << 16u,
-  BIT32 = 1u << 17u,
-  BIT64 = 1u << 18u,
-};
 
 AST_FWD_DECL(ASTTy);
 

@@ -327,60 +327,6 @@ Value *CodeGeneratorImpl::codegen_cast(const ASTNodePtr &p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_ty(const ASTTyPtr &p) {
-  auto *builder = _cs->_builder;
-  TAN_ASSERT(p->_resolved);
-  Ty base = TY_GET_BASE(p->_tyty);
-  Value *ret = nullptr;
-  Type *type = TypeSystem::ToLLVMType(_cs, p);
-  switch (base) {
-    case Ty::INT:
-    case Ty::CHAR:
-    case Ty::BOOL:
-    case Ty::ENUM:
-      ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value));
-      break;
-    case Ty::FLOAT:
-      ret = ConstantFP::get(type, std::get<float>(p->_default_value));
-      break;
-    case Ty::DOUBLE:
-      ret = ConstantFP::get(type, std::get<double>(p->_default_value));
-      break;
-    case Ty::STRING:
-      ret = builder->CreateGlobalStringPtr(std::get<str>(p->_default_value));
-      break;
-    case Ty::VOID:
-      TAN_ASSERT(false);
-    case Ty::STRUCT: {
-      vector<llvm::Constant *> values{};
-      size_t n = p->get_children_size();
-      for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) codegen_ty(p->get_child_at<ASTNode>(i)->_ty));
-      }
-      ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
-      break;
-    }
-    case Ty::POINTER:
-      ret = ConstantPointerNull::get((PointerType *) type);
-      break;
-    case Ty::ARRAY: {
-      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_ty);
-      size_t n = p->get_children_size();
-      ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
-      for (size_t i = 0; i < n; ++i) {
-        auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = codegen_ty(p->get_child_at<ASTNode>(i)->_ty);
-        auto *e_ptr = builder->CreateGEP(ret, idx);
-        builder->CreateStore(e_val, e_ptr);
-      }
-      break;
-    }
-    default:
-      TAN_ASSERT(false);
-  }
-  return ret;
-}
-
 Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
@@ -450,6 +396,84 @@ Value *CodeGeneratorImpl::codegen_import(const ASTNodePtr &p) {
   return nullptr;
 }
 
+Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
+  set_current_debug_location(p);
+
+  Value *ret = nullptr;
+  switch (p->_intrinsic_type) {
+    /// trivial codegen
+    case IntrinsicType::GET_DECL:
+    case IntrinsicType::LINENO:
+    case IntrinsicType::NOOP:
+    case IntrinsicType::ABORT:
+    case IntrinsicType::FILENAME: {
+      ret = codegen(p->get_child_at<ASTNode>(0));
+      break;
+    }
+      /// others
+    case IntrinsicType::STACK_TRACE:
+      // TODO: codegen of stack trace
+      break;
+    default:
+      break;
+  }
+  return ret;
+}
+
+Value *CodeGeneratorImpl::codegen_ty(const ASTTyPtr &p) {
+  auto *builder = _cs->_builder;
+  TAN_ASSERT(p->_resolved);
+  Ty base = TY_GET_BASE(p->_tyty);
+  Value *ret = nullptr;
+  Type *type = TypeSystem::ToLLVMType(_cs, p);
+  switch (base) {
+    case Ty::INT:
+    case Ty::CHAR:
+    case Ty::BOOL:
+    case Ty::ENUM:
+      ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value));
+      break;
+    case Ty::FLOAT:
+      ret = ConstantFP::get(type, std::get<float>(p->_default_value));
+      break;
+    case Ty::DOUBLE:
+      ret = ConstantFP::get(type, std::get<double>(p->_default_value));
+      break;
+    case Ty::STRING:
+      ret = builder->CreateGlobalStringPtr(std::get<str>(p->_default_value));
+      break;
+    case Ty::VOID:
+      TAN_ASSERT(false);
+    case Ty::STRUCT: {
+      vector<llvm::Constant *> values{};
+      size_t n = p->get_children_size();
+      for (size_t i = 1; i < n; ++i) {
+        values.push_back((llvm::Constant *) codegen_ty(p->get_child_at<ASTNode>(i)->_ty));
+      }
+      ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
+      break;
+    }
+    case Ty::POINTER:
+      ret = ConstantPointerNull::get((PointerType *) type);
+      break;
+    case Ty::ARRAY: {
+      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_ty);
+      size_t n = p->get_children_size();
+      ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
+      for (size_t i = 0; i < n; ++i) {
+        auto *idx = builder->getInt32((unsigned) i);
+        auto *e_val = codegen_ty(p->get_child_at<ASTNode>(i)->_ty);
+        auto *e_ptr = builder->CreateGEP(ret, idx);
+        builder->CreateStore(e_val, e_ptr);
+      }
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+  }
+  return ret;
+}
+
 Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
   set_current_debug_location(p);
   Type *type = TypeSystem::ToLLVMType(_cs, p->_ty);
@@ -472,30 +496,6 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
       break;
     default:
       TAN_ASSERT(false);
-  }
-  return ret;
-}
-
-Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
-  set_current_debug_location(p);
-
-  Value *ret = nullptr;
-  switch (p->_intrinsic_type) {
-    /// trivial codegen
-    case IntrinsicType::GET_DECL:
-    case IntrinsicType::LINENO:
-    case IntrinsicType::NOOP:
-    case IntrinsicType::ABORT:
-    case IntrinsicType::FILENAME: {
-      ret = codegen(p->get_child_at<ASTNode>(0));
-      break;
-    }
-      /// others
-    case IntrinsicType::STACK_TRACE:
-      // TODO: codegen of stack trace
-      break;
-    default:
-      break;
   }
   return ret;
 }
