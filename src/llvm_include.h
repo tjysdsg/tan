@@ -169,6 +169,7 @@
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/BinaryFormat/Magic.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/Object/Archive.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Object/IRObjectFile.h>

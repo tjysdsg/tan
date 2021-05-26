@@ -31,7 +31,6 @@ public:
    * */
   void printTree();
 
-  // TODO: constraint T as a subclass of ParsableASTNode
   template<typename T = ParsableASTNode> ptr<T> get_child_at(size_t idx);
   void set_child_at(size_t idx, ptr<ParsableASTNode> node);
   void append_child(ptr<ParsableASTNode> node);
@@ -49,7 +48,7 @@ public:
   vector<ParsableASTNodePtr> &get_children();
 
   void set_scope(const ptr<Scope> &scope);
-  ptr<Scope> &get_scope() const;
+  ptr<Scope> get_scope() const;
 
 protected:
   virtual str to_string(bool print_prefix = true);

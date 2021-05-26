@@ -7,7 +7,7 @@
 
 using namespace tanlang;
 
-Value *CodeGeneratorImpl::codegen_func_call(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
   size_t n = p->get_children_size(); /// = n_args + 1
 
   auto callee = ast_cast<ASTFunction>(p->get_child_at<ASTNode>(0));
@@ -30,7 +30,7 @@ Value *CodeGeneratorImpl::codegen_func_call(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_func_prototype(ASTFunctionPtr p, bool import) {
+Value *CodeGeneratorImpl::codegen_func_prototype(const ASTFunctionPtr &p, bool import) {
   Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_ty);
   vector<Type *> arg_types{};
   /// set function arg types
@@ -62,7 +62,7 @@ Value *CodeGeneratorImpl::codegen_func_prototype(ASTFunctionPtr p, bool import) 
   return func;
 }
 
-Value *CodeGeneratorImpl::codegen_func_decl(ASTFunctionPtr p) {
+Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
@@ -91,7 +91,7 @@ Value *CodeGeneratorImpl::codegen_func_decl(ASTFunctionPtr p) {
     /// debug information
     DIScope *di_scope = _cs->get_current_di_scope();
     auto *di_file = _cs->get_di_file();
-    auto *di_func_t = create_function_type(_cs, ret_meta, arg_metas);
+    auto *di_func_t = TypeSystem::CreateFunctionDIType(_cs, ret_meta, arg_metas);
     DISubprogram *subprogram = _cs->_di_builder
         ->createFunction(di_scope,
             func_name,
@@ -140,7 +140,7 @@ Value *CodeGeneratorImpl::codegen_func_decl(ASTFunctionPtr p) {
         (unsigned) p->get_children().back()->get_col(),
         subprogram));
     /// generate function body
-    auto body = p->get_children().back();
+    auto body = ast_must_cast<ASTNode>(p->get_children().back());
     codegen(body);
 
     /// create a return instruction if there is none, the return value is the default value of the return type

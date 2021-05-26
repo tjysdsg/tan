@@ -8,8 +8,8 @@ CodeGenerator::CodeGenerator(CompilerSession *cs) {
   _impl = new CodeGeneratorImpl(cs);
 }
 
-llvm::Value *CodeGenerator::codegen(CompilerSession *cs, const ParsableASTNodePtr &p) {
-  return _impl->codegen(cs, p);
+llvm::Value *CodeGenerator::codegen(const ParsableASTNodePtr &p) {
+  return _impl->codegen(ast_must_cast<ASTNode>(p));
 }
 
 CodeGenerator::~CodeGenerator() {

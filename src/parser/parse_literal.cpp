@@ -1,6 +1,7 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/analysis/type_system.h"
+#include "src/ast/parsable_ast_node.h"
 #include "src/common.h"
 #include "token.h"
 

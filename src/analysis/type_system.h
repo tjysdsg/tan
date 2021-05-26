@@ -44,10 +44,9 @@ public:
   static llvm::Type *ToLLVMType(CompilerSession *cs, const ASTTyPtr &p);
 
   static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p);
-};
 
-// FIXME: where to put this, what uses this
-llvm::DISubroutineType *create_function_type(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
+  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
+};
 
 } // namespace
 

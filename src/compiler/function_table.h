@@ -1,7 +1,6 @@
 #ifndef __TAN_SRC_COMPILER_FUNCTION_TABLE_H__
 #define __TAN_SRC_COMPILER_FUNCTION_TABLE_H__
 #include "base.h"
-#include <memory>
 
 namespace tanlang {
 

@@ -45,7 +45,7 @@ Value *Compiler::codegen() {
   TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
   CodeGenerator cg(_compiler_session);
-  auto *ret = cg.codegen(_compiler_session, _ast);
+  auto *ret = cg.codegen(_ast);
   return ret;
 }
 

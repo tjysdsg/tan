@@ -19,7 +19,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
     case ASTType::PROGRAM:
     case ASTType::STATEMENT:
       for (const auto &e : p->get_children()) {
-        codegen(e);
+        codegen(ast_must_cast<ASTNode>(e));
       }
       ret = nullptr;
       break;
@@ -116,7 +116,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
       set_current_debug_location(p);
       // fallthrough
     case ASTType::ID:
-      ret = codegen(p->get_child_at(0));
+      ret = codegen(p->get_child_at<ASTNode>(0));
       break;
     default:
       break;
@@ -128,7 +128,7 @@ void CodeGeneratorImpl::set_current_debug_location(ASTNodePtr p) {
   _cs->set_current_debug_location(p->get_line(), p->get_col());
 }
 
-Value *CodeGeneratorImpl::codegen_arithmetic(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   /// unary plus/minus
@@ -195,7 +195,7 @@ Value *CodeGeneratorImpl::codegen_arithmetic(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_bnot(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_bnot(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto *rhs = codegen(p->get_child_at<ASTNode>(0));
@@ -206,7 +206,7 @@ Value *CodeGeneratorImpl::codegen_bnot(ASTNodePtr p) {
   return (p->_llvm_value = builder->CreateNot(rhs));
 }
 
-Value *CodeGeneratorImpl::codegen_lnot(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_lnot(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto *rhs = codegen(p->get_child_at<ASTNode>(0));
@@ -225,7 +225,7 @@ Value *CodeGeneratorImpl::codegen_lnot(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_return(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_return(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto *result = codegen(p->get_child_at<ASTNode>(0));
@@ -236,7 +236,7 @@ Value *CodeGeneratorImpl::codegen_return(ASTNodePtr p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_comparison(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_comparison(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto lhs = p->get_child_at<ASTNode>(0);
@@ -286,7 +286,7 @@ Value *CodeGeneratorImpl::codegen_comparison(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_assignment(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_assignment(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   /// _codegen the rhs
@@ -304,7 +304,7 @@ Value *CodeGeneratorImpl::codegen_assignment(ASTNodePtr p) {
   return to;
 }
 
-Value *CodeGeneratorImpl::codegen_cast(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_cast(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto lhs = p->get_child_at<ASTNode>(0);
@@ -320,7 +320,7 @@ Value *CodeGeneratorImpl::codegen_cast(ASTNodePtr p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_ty(ASTTyPtr p) {
+Value *CodeGeneratorImpl::codegen_ty(const ASTTyPtr &p) {
   auto *builder = _cs->_builder;
   TAN_ASSERT(p->_resolved);
   Ty base = TY_GET_BASE(p->_tyty);
@@ -374,7 +374,7 @@ Value *CodeGeneratorImpl::codegen_ty(ASTTyPtr p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_var_arg_decl(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
@@ -407,7 +407,7 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_address_of(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_address_of(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto *val = codegen(p->get_child_at<ASTNode>(0));
@@ -420,14 +420,14 @@ Value *CodeGeneratorImpl::codegen_address_of(ASTNodePtr p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_parenthesis(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_parenthesis(const ASTNodePtr &p) {
   set_current_debug_location(p);
   // FIXME: multiple expressions in the parenthesis?
   p->_llvm_value = codegen(p->get_child_at<ASTNode>(0));
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_import(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_import(const ASTNodePtr &p) {
   set_current_debug_location(p);
   for (auto &n: p->get_children()) {
     auto f = ast_must_cast<ASTFunction>(n);
@@ -442,14 +442,14 @@ Value *CodeGeneratorImpl::codegen_import(ASTNodePtr p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_literals(ASTNodePtr p) {
+Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
   /// Value of literals is set to p->_ty->_default_value, and to_llvm_value returns a type's default value
   // TODO: don't set literal value to type default value
   set_current_debug_location(p);
   return codegen_ty(p->_ty);
 }
 
-Value *CodeGeneratorImpl::codegen_intrinsic(IntrinsicPtr p) {
+Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
   set_current_debug_location(p);
 
   Value *ret = nullptr;

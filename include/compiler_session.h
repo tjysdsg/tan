@@ -121,7 +121,7 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
-  umap<str, FunctionTablePtr> _type_table{};
+  umap<str, ASTTyPtr> _type_table{};
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;

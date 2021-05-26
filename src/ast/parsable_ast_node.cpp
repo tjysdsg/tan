@@ -1,10 +1,16 @@
 #include "src/ast/parsable_ast_node.h"
 #include "src/ast/ast_type.h"
 #include <iostream>
+#include "src/ast/ast_node.h"
+#include "src/ast/ast_ty.h"
+#include "src/ast/ast_func.h"
+#include "src/ast/ast_member_access.h"
+#include "src/ast/ast_control_flow.h"
 
 using namespace tanlang;
 
 template<typename T> ptr<T> ParsableASTNode::get_child_at(size_t idx) {
+  static_assert(std::is_base_of_v<ParsableASTNode, T>, "Return type can only be a subclass of ParsableASTNode");
   TAN_ASSERT(_children.size() > idx);
   return ast_must_cast<T>(_children[idx]);
 }
@@ -83,10 +89,14 @@ str ParsableASTNode::to_string(bool print_prefix) {
 }
 
 template<typename T> T ParsableASTNode::get_data() const {
+  static_assert(std::is_same_v<uint64_t, T> || std::is_same_v<str, T> || std::is_same_v<double, T>,
+      "ParsableASTNode can only store double, uint64_t, or string");
   return std::get<T>(_data);
 }
 
 template<typename T> void ParsableASTNode::set_data(T val) {
+  static_assert(std::is_same_v<uint64_t, T> || std::is_same_v<str, T> || std::is_same_v<double, T>,
+      "ParsableASTNode can only store double, uint64_t, or string");
   _data = val;
 }
 
@@ -94,7 +104,7 @@ void ParsableASTNode::set_scope(const ptr<Scope> &scope) {
   _scope = scope;
 }
 
-ptr<Scope> &ParsableASTNode::get_scope() const {
+ptr<Scope> ParsableASTNode::get_scope() const {
   return _scope;
 }
 
@@ -130,3 +140,18 @@ umap<ASTType, int>ParsableASTNode::OpPrecedence =
         {ASTType::ELSE, PREC_LOWEST}, {ASTType::BNOT, PREC_UNARY}, {ASTType::LNOT, PREC_UNARY},
         {ASTType::LAND, PREC_LOGICAL_AND}, {ASTType::LOR, PREC_LOGICAL_OR}, {ASTType::NUM_LITERAL, PREC_LITERAL},
         {ASTType::STRING_LITERAL, PREC_LITERAL}, {ASTType::CAST, PREC_CAST}, {ASTType::ADDRESS_OF, PREC_UNARY}};
+
+// specialize templates
+template uint64_t ParsableASTNode::get_data<uint64_t>() const;
+template str ParsableASTNode::get_data<str>() const;
+template double ParsableASTNode::get_data<double>() const;
+template void ParsableASTNode::set_data(uint64_t val);
+template void ParsableASTNode::set_data(str val);
+template void ParsableASTNode::set_data(double val);
+
+template ptr<ASTNode> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTTy> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTFunction> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTMemberAccess> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTIf> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTLoop> ParsableASTNode::get_child_at(size_t idx);

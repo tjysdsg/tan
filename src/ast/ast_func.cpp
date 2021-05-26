@@ -54,16 +54,15 @@ ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, cons
 
 ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types) {
   TAN_ASSERT(!types.empty());
-  auto ret = std::make_shared<ASTFunction>();
-  ret->_name = name;
-  ret->_children.reserve(types.size() + 1);
-  ret->_children.push_back(types[0]);
+  auto ret = make_ptr<ASTFunction>();
+  ret->set_data(name);
+  ret->get_children().reserve(types.size() + 1);
+  ret->get_children().push_back(types[0]);
   if (types.size() > 1) {
-    ret->_children.insert(ret->_children.end(), types.begin() + 1, types.end());
+    ret->get_children().insert(ret->get_children().end(), types.begin() + 1, types.end());
   }
-  ret->_parsed = true;
   ret->_is_external = true;
   ret->_is_public = false;
-  ret->_name = name;
+  ret->set_data(name);
   return ret;
 }

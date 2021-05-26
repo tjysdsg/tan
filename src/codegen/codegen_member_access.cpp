@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-Value *CodeGeneratorImpl::codegen_member_access(ASTMemberAccessPtr p) {
+Value *CodeGeneratorImpl::codegen_member_access(const ASTMemberAccessPtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   auto lhs = p->get_child_at<ASTNode>(0);

@@ -5,7 +5,7 @@
 namespace tanlang {
 
 void FunctionTable::set(ASTFunctionPtr func) {
-  auto name = func->_name;
+  auto name = func->get_data<str>();
   if (_table.find(name) == _table.end()) { _table[name] = {}; }
   _table[name].push_back(func);
 }

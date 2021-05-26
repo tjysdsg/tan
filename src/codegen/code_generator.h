@@ -15,7 +15,7 @@ public:
   CodeGenerator() = delete;
   ~CodeGenerator();
   explicit CodeGenerator(CompilerSession *cs);
-  llvm::Value *codegen(CompilerSession *cs, const ParsableASTNodePtr &p);
+  llvm::Value *codegen(const ParsableASTNodePtr &p);
 
 private:
   CodeGeneratorImpl *_impl = nullptr;

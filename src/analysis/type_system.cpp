@@ -1,5 +1,6 @@
 #include "src/analysis/type_system.h"
 #include "src/common.h"
+#include "src/analysis/ast_helper.h"
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_ty.h"
@@ -66,15 +67,17 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyP
   }
 }
 
-DISubroutineType *create_function_type(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {
+DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {
   vector<Metadata *> types{ret};
   types.reserve(args.size());
   types.insert(types.begin() + 1, args.begin(), args.end());
-  return cs->_di_builder
-      ->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types), DINode::FlagZero, llvm::dwarf::DW_CC_normal);
+  //  return cs->_di_builder
+  //    ->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types), DINode::FlagZero, llvm::dwarf::DW_CC_normal);
+  return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
 int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
+  ASTHelper h(cs);
   TAN_ASSERT(t1);
   TAN_ASSERT(t2);
   if (t1.get() == t2.get()) { return 0; } /// since some ASTTy are cached, compare pointer and early return
@@ -82,7 +85,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
   size_t s1 = t1->_size_bits;
   size_t s2 = t2->_size_bits;
 
-  if (t1->_is_ptr && t2->_is_ptr && *get_contained_ty(cs, t1) == *get_contained_ty(cs, t2)) {
+  if (t1->_is_ptr && t2->_is_ptr && *h.get_contained_ty(t1) == *h.get_contained_ty(t2)) {
     return 0;
   } else if (t1->_is_bool) { return 0; }
   else if (t2->_is_bool) { return 1; }
@@ -104,8 +107,8 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
     /// array size must be the same
     if (t1->get_children_size() != t2->get_children_size()) { return -1; }
     /// the element type can be implicitly casted as long as the elements have the same size
-    if (get_contained_ty(cs, t1)->_size_bits != get_contained_ty(cs, t2)->_size_bits) { return -1; }
-    return CanImplicitCast(cs, get_contained_ty(cs, t1), get_contained_ty(cs, t2));
+    if (h.get_contained_ty(t1)->_size_bits != h.get_contained_ty(t2)->_size_bits) { return -1; }
+    return CanImplicitCast(cs, h.get_contained_ty(t1), h.get_contained_ty(t2));
   }
   return -1;
 }
@@ -216,7 +219,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTyPtr p) {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
-        auto real = ast_cast<ASTTy>(cs->get(p->_type_name));
+        auto real = cs->get_type(p->_type_name);
         if (!real) {
           report_error(cs->_filename, p->get_token(), "Incomplete type");
         }
@@ -268,8 +271,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTyPtr p) {
 }
 
 Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
+  TAN_ASSERT(p->_resolved);
+
+  ASTHelper h(cs);
   auto *builder = cs->_builder;
-  resolve_ty(cs, p);
   Ty base = TY_GET_BASE(p->_tyty);
   llvm::Type *type = nullptr;
   switch (base) {
@@ -295,7 +300,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
       type = builder->getVoidTy();
       break;
     case Ty::ENUM:
-      type = ToLLVMType(cs, get_ty(p->get_child_at(0)));
+      type = ToLLVMType(cs, h.get_ty(p->get_child_at(0)));
       break;
     case Ty::STRUCT: {
       auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
@@ -303,7 +308,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
       size_t n = p->get_children_size();
       body.reserve(n);
       for (size_t i = 1; i < n; ++i) {
-        body.push_back(ToLLVMType(cs, get_ty(p->get_child_at(i))));
+        body.push_back(ToLLVMType(cs, h.get_ty(p->get_child_at(i))));
       }
       struct_type->setBody(body);
       type = struct_type;
@@ -311,7 +316,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
-      auto e_type = ToLLVMType(cs, get_ty(p->get_child_at(0)));
+      auto e_type = ToLLVMType(cs, h.get_ty(p->get_child_at(0)));
       type = e_type->getPointerTo();
       break;
     }
@@ -322,6 +327,9 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTyPtr &p) {
 }
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p) {
+  TAN_ASSERT(p->_resolved);
+
+  ASTHelper h(cs);
   Ty base = TY_GET_BASE(p->_tyty);
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;
@@ -347,7 +355,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p) {
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
         auto e = p->get_child_at(i); // ASTVarDecl
-        elements.push_back(ToLLVMMeta(cs, get_ty(e)));
+        elements.push_back(ToLLVMMeta(cs, h.get_ty(e)));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
