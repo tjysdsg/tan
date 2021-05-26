@@ -112,13 +112,13 @@ Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
     builder->SetCurrentDebugLocation(DebugLoc());
 
     /// add all function arguments to scope
-    size_t i = 1;
+    size_t i = 0;
     for (auto &a : F->args()) {
-      auto arg_name = p->get_child_at<ASTNode>(i)->get_data<str>();
-      auto *arg_val = codegen(p->get_child_at<ASTNode>(i));
+      auto arg_name = p->get_arg(i)->get_data<str>();
+      auto *arg_val = codegen(p->get_arg(i));
       builder->CreateStore(&a, arg_val);
       /// create a debug descriptor for the arguments
-      auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_child_at<ASTNode>(i)->_ty);
+      auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_arg(i)->_ty);
       llvm::DILocalVariable *di_arg = _cs->_di_builder
           ->createParameterVariable(subprogram,
               arg_name,

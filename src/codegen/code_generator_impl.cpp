@@ -14,6 +14,10 @@ using namespace tanlang;
 CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
 Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
+  if (p->_llvm_value) {
+    return p->_llvm_value;
+  }
+
   Value *ret = nullptr;
   switch (p->get_node_type()) {
     case ASTType::PROGRAM:
@@ -105,7 +109,8 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
       ret = codegen_var_arg_decl(p);
       break;
     case ASTType::TY:
-      ret = codegen_ty(ast_cast<ASTTy>(p));
+      // FIXME:
+      //  ret = codegen_ty(ast_cast<ASTTy>(p));
       break;
     case ASTType::PARENTHESIS:
       ret = codegen_parenthesis(p);
@@ -121,6 +126,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
     default:
       break;
   }
+  p->_llvm_value = ret;
   return ret;
 }
 
@@ -382,13 +388,14 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTNodePtr &p) {
   if (!p->_ty->_resolved) {
     report_error(p, "Unknown type");
   }
-  codegen_ty(p->_ty);
   Type *type = TypeSystem::ToLLVMType(_cs, p->_ty);
   p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_data<str>());
-  if (p->get_node_type() == ASTType::VAR_DECL) { /// don't do this for arg_decl
-    auto *default_value = codegen_ty(p->_ty);
-    if (default_value) { builder->CreateStore(default_value, codegen_ty(p->_ty)); }
-  }
+
+  // FIXME: default value of var declaration
+  // if (p->get_node_type() == ASTType::VAR_DECL) { /// don't do this for arg_decl
+  //   auto *default_value = codegen_ty(p->_ty);
+  //   if (default_value) { builder->CreateStore(default_value, codegen_ty(p->_ty)); }
+  // }
   /// debug info
   {
     auto *di_builder = _cs->_di_builder;

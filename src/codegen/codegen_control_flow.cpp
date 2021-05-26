@@ -84,7 +84,6 @@ Value *CodeGeneratorImpl::codegen_loop(const ASTNodePtr &p) {
 }
 
 Value *CodeGeneratorImpl::codegen_if(const ASTNodePtr &p) {
-  // TODO: update cs->_current_token
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
