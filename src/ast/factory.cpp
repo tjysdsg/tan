@@ -68,7 +68,6 @@ ASTNodePtr ast_create_string_literal(CompilerSession *cs) {
   ret->_is_valued = true;
   ret->_is_typed = true;
   ret->_ty = create_ty(cs, Ty::STRING);
-  ret->_ty->_is_lvalue = true;
   return ret;
 }
 

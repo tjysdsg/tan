@@ -16,14 +16,15 @@ Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
   /// args
   vector<Value *> arg_vals;
   for (size_t i = 0; i < n; ++i) {
-    auto *a = codegen(p->get_child_at<ASTNode>(i));
+    ASTNodePtr actual_arg = p->get_child_at<ASTNode>(i);
+    auto *a = codegen(actual_arg);
     if (!a) {
-      report_error(p->get_child_at<ASTNode>(i), "Invalid function call argument");
+      report_error(actual_arg, "Invalid function call argument");
     }
 
     /// implicit cast
     auto expected_ty = callee->get_arg(i)->_ty;
-    a = TypeSystem::ConvertTo(_cs, a, p->get_child_at<ASTNode>(i)->_ty, expected_ty);
+    a = TypeSystem::ConvertTo(_cs, a, actual_arg->_ty, expected_ty);
     arg_vals.push_back(a);
   }
   p->_llvm_value = _cs->_builder->CreateCall(callee->_func, arg_vals);
