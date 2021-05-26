@@ -27,4 +27,9 @@
 #define p_cast(T, val) reinterpret_cast<T>(val)
 #define c_cast(T, val) const_cast<T>(val)
 
+/// helper for forward declarations
+#define AST_FWD_DECL(c)  \
+class c;                 \
+using c##Ptr = ptr<c>
+
 #endif // __TAN_SRC_BASE_MACRO_H__

@@ -12,6 +12,18 @@
 #ifdef __clang__
 #pragma clang system_header
 #endif
+#ifdef _MSC_VER
+
+/// fix bunch of errors caused by macros defined in windows.h
+#pragma warning(disable:4596)
+#include <windows.h>
+#include <DbgHelp.h>
+#undef min
+#undef max
+#undef OPTIONAL
+#undef CONST
+#undef VOID
+#endif
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/LLVMContext.h>
@@ -157,6 +169,7 @@
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/BinaryFormat/Magic.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/Object/Archive.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Object/IRObjectFile.h>

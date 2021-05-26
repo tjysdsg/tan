@@ -1,8 +1,11 @@
 `tan` programming language
 ===
 
+**The project is being overhauled**
+
 [![codecov](https://codecov.io/gh/tjysdsg/tan/branch/master/graph/badge.svg)](https://codecov.io/gh/tjysdsg/tan)
 [![CodeFactor](https://www.codefactor.io/repository/github/tjysdsg/tan/badge)](https://www.codefactor.io/repository/github/tjysdsg/tan)
+[![Code Inspector](https://www.code-inspector.com/project/8230/score/svg)](https://frontend.code-inspector.com/public/project/8230/tan/dashboard)
 
 *Work In Progress*
 
@@ -20,16 +23,30 @@
 
 - Make sure to clone this repository using `git clone --recursive`. Because there are some git submodules in [dep/](dep)
 - [CMake](https://cmake.org/download) >=3.0, other versions might work, but not tested (and won't be tested)
-- [LLVM-10 and Clang-10](https://releases.llvm.org/download.html), and their headers and libraries
-- [libunwind](https://www.nongnu.org/libunwind/)
+- [LLVM project 12.x](https://releases.llvm.org/download.html), and their headers and libraries
+- [libunwind](https://www.nongnu.org/libunwind/):
+
+```bash
+cd dep/libunwind
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+- Others:
+
+```bash
+sudo apt install libz-dev libxml2-dev lzma-dev libpthread-stubs0-dev libtinfo5
+```
 
 ## Optional Dependencies
 
 - Python and [gcovr](https://gcovr.com/en/stable/installation.html) for test coverage
 - Doxygen for building documentations
 
-
-Also, you can checkout this [Dockerfile](https://github.com/tjysdsg/tan/blob/docker/ubuntu/Dockerfile), used as the environment for the continuous integration of this project (based on Ubuntu-18.04)
+Also, you can checkout this [Dockerfile](https://github.com/tjysdsg/tan/blob/docker/ubuntu/Dockerfile), used as the
+environment for the continuous integration of this project (based on Ubuntu-18.04)
 
 ## Building
 
@@ -50,6 +67,7 @@ The resulted binaries are in `bin` and `lib` directories.
 
 There are a few options that you can specify when using `cmake` command:
 
+- `LLVM_CUSTOM_CONFIG_EXE_DIR`: String, the directory that contains `llvm-config` executable
 - `ENABLE_PRECOMPILED_HEADERS`: bool, Enable precompiled headers to speed up build, default ON
 - `ENABLE_COVERAGE`: bool Enable test coverage, default OFF
 - `BUILD_EXAMPLES`: bool, Build `tan` examples, default OFF
@@ -62,9 +80,11 @@ cmake .. -DENABLE_PRECOMPILED_HEADERS=OFF -DENABLE_COVERAGE=ON
 
 ### Note
 
-It's recommended to use `clang` to compile the project, since it is much faster than `gcc`. Also, use `gold` as linker if possible to speed up linking time.
+It's recommended to use `clang` to compile the project, since it is much faster than `gcc`. Also, use `gold` as linker
+if possible to speed up linking time.
 
-I am not sure what is causing the dramatic difference in the build time between `clang` and `gcc`, so I'm using LLVM toolchains for all current development.
+I am not sure what is causing the dramatic difference in the build time between `clang` and `gcc`, so I'm using LLVM
+toolchains for all current development.
 
 # Project Structure
 

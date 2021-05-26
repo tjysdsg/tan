@@ -4,35 +4,26 @@
 
 namespace tanlang {
 
+enum class MemberAccessType {
+  MemberAccessInvalid = 0,
+  MemberAccessBracket,
+  MemberAccessMemberVariable,
+  MemberAccessMemberFunction,
+  MemberAccessDeref,
+  MemberAccessEnumValue,
+};
+
 class ASTMemberAccess;
 using ASTMemberAccessPtr = std::shared_ptr<ASTMemberAccess>;
 
 class ASTMemberAccess final : public ASTNode {
 public:
-  static ASTMemberAccessPtr CreatePointerDeref(ASTNodePtr ptr);
+  ASTMemberAccess() = delete;
+  ASTMemberAccess(ASTType op, int lbp) : ASTNode(op, lbp) {}
 
 public:
-  ASTMemberAccess() = delete;
-  ASTMemberAccess(Token *token, size_t token_index);
-  bool is_lvalue() const override;
-  bool is_typed() const override;
-
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t led(const ASTNodePtr &left) override;
-
-private:
-  void resolve_ptr_deref(ASTNodePtr left);
-
-  enum MemberAccessType {
-    MemberAccessInvalid = 0,
-    MemberAccessBracket,
-    MemberAccessMemberVariable,
-    MemberAccessMemberFunction,
-    MemberAccessDeref,
-  };
-  MemberAccessType _access_type = MemberAccessInvalid;
-  size_t _access_idx = (size_t) -1;
+  MemberAccessType _access_type = MemberAccessType::MemberAccessInvalid;
+  size_t _access_idx = (size_t) -1; /// struct member variable index
 };
 
 } // namespace tanlang

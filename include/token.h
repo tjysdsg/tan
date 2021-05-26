@@ -25,6 +25,7 @@ enum class TokenType {
 
 extern umap<TokenType, str> token_type_names;
 extern const vector<str> KEYWORDS;
+extern const vector<str> TYPE_NAMES;
 extern const vector<char> PUNCTUATIONS;
 // any symbol in OP can both be an operator itself or the start of an operator
 extern const vector<char> OP;
@@ -33,7 +34,7 @@ extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 struct Token {
   TokenType type = TokenType::END;
-  str value = "";
+  str value;
   size_t l = 0, c = 0;
   SourceLine *line = nullptr;
   bool is_unsigned = false;

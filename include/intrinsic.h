@@ -45,32 +45,26 @@ enum class IntrinsicType {
   GET_DECL, STACK_TRACE,
 };
 
-class Intrinsic : public ASTNode {
+/**
+ * has type
+ * has value
+ * rvalue
+ */
+class Intrinsic final : public ASTNode {
 public:
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
-  static void Init(CompilerSession *);
+  static void InitAnalysis(CompilerSession *cs);
 
 public:
-  Intrinsic() = delete;
-  Intrinsic(Token *token, size_t token_index);
-  size_t led(const ASTNodePtr &left) override;
-  size_t nud() override;
-  str to_string(bool print_prefix = true) const override;
-  llvm::Value *_codegen(CompilerSession *) override;
-  bool is_lvalue() const override;
-  bool is_typed() const override;
+  Intrinsic() : ASTNode(ASTType::INTRINSIC, 0) {
+    _is_typed = true;
+    _is_valued = true;
+  }
 
-protected:
-  void resolve();
-  void parse_get_decl();
-
-protected:
+public:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
-  str _str_data = "";
-  bool _is_lvalue = false;
-  bool _is_typed = true;
 };
 
 } // namespace tanlang

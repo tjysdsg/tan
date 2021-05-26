@@ -1,0 +1,18 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+import "runtime/math.tan";
+
+enum E {
+    e1,
+    e2,
+    e3,
+}
+
+pub fn main(argc: int, argv: char**) : int {
+    var enum1 = E.e1;
+    // var enum2: E = 0; // this should raise compile error
+    var enum2: E = 0 as E; // but this should work
+    assert(enum1 == enum2);
+    print("SUCCESS");
+    return 0;
+}

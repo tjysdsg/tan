@@ -2,6 +2,8 @@
   <dictionary name="tjy">
     <words>
       <w>codegen</w>
+      <w>decl</w>
+      <w>prec</w>
       <w>tanc</w>
       <w>tanlang</w>
       <w>thirdparty</w>

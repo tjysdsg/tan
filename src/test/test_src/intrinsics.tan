@@ -6,7 +6,7 @@ pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");
     var a: i32 = 0;
     var b: i32 = 1;
-    var shit: i32 = !(a == b);
+    var shit: i32 = !(a == b) as i32;
     assert(shit);
     assert(@file);
     assert(@line);

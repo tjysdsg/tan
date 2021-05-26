@@ -5,7 +5,7 @@ struct Fuck;
 struct Useless;
 
 struct Useless {
-    var shit: i8 = 1;
+    var shit: i8 = 1 as i8;
     var f: float;
     var pfuck: Fuck*;
     var fuck: Fuck;
@@ -27,7 +27,7 @@ pub fn main(argc: int, argv: u8**) : i32 {
     assert(s.shit == 1);
     assert(s.fuck.val == 2);
     assert(s.pfuck.val == 2);
-    s.shit = 100;
+    s.shit = 100 as i8;
     s.f = 1.0;
     s.fuck.val = 11;
     s.pfuck.val = 12;

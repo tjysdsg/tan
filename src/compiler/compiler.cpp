@@ -1,6 +1,9 @@
 #include "compiler.h"
 #include "lexer.h"
+#include "token.h"
 #include "compiler_session.h"
+#include "src/analysis/analyzer.h"
+#include "src/codegen/code_generator.h"
 #include "intrinsic.h"
 #include "reader.h"
 #include "parser.h"
@@ -32,7 +35,6 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
   _compiler_session = new CompilerSession(filename, Compiler::target_machine);
-  Intrinsic::Init(_compiler_session);
 }
 
 void Compiler::emit_object(const str &filename) { _compiler_session->emit_object(filename); }
@@ -42,7 +44,8 @@ Value *Compiler::codegen() {
   TAN_ASSERT(_compiler_session);
   TAN_ASSERT(_compiler_session->get_module());
   Intrinsic::InitCodegen(_compiler_session);
-  auto *ret = _ast->codegen(_compiler_session);
+  CodeGenerator cg(_compiler_session);
+  auto *ret = cg.codegen(_ast);
   return ret;
 }
 
@@ -63,6 +66,11 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
+
+  // TODO: separate parsing and analyzing phase
+  Intrinsic::InitAnalysis(_compiler_session);
+  Analyzer analyzer(_compiler_session);
+  analyzer.analyze(_ast);
 }
 
 void Compiler::ParseFile(const str &filename) {

@@ -24,7 +24,7 @@
 #define END_TRY
 #endif
 
-static bool _link(vector<str> input_paths, TanCompilation *config) {
+static bool _link(const vector<str> &input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
     return !llvm_ar_create_static_lib(config->out_file, input_paths);

@@ -8,15 +8,16 @@
 using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
-  _scope = vector<std::shared_ptr<Scope>>();
+  _scope = vector<ptr<Scope>>();
   _scope.push_back(std::make_shared<Scope>()); // outer-est scope
 }
 
-CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm) : _target_machine(tm) {
+CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
+    : _filename(module_name), _target_machine(tm) {
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);
-  init_llvm();
+  init_llvm(); // FIXME: call this during codegen instead of now
 
   /// add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
@@ -36,17 +37,17 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm) : _t
 
 CompilerSession::~CompilerSession() {}
 
-std::shared_ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
+ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
 
-std::shared_ptr<Scope> CompilerSession::push_scope() {
+ptr<Scope> CompilerSession::push_scope() {
   auto r = std::make_shared<Scope>();
   _scope.push_back(r);
   return r;
 }
 
-void CompilerSession::push_scope(std::shared_ptr<Scope> scope) { _scope.push_back(scope); }
+void CompilerSession::push_scope(ptr<Scope> scope) { _scope.push_back(scope); }
 
-std::shared_ptr<Scope> CompilerSession::pop_scope() {
+ptr<Scope> CompilerSession::pop_scope() {
   if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
   auto r = _scope.back();
   _scope.pop_back();
@@ -54,7 +55,7 @@ std::shared_ptr<Scope> CompilerSession::pop_scope() {
 }
 
 void CompilerSession::add(const str &name, ASTNodePtr value) {
-  get_current_scope()->_named.insert(std::make_pair(name, value));
+  get_current_scope()->_named[name] = value;
 }
 
 void CompilerSession::set(const str &name, ASTNodePtr value) {
@@ -89,6 +90,15 @@ ASTNodePtr CompilerSession::get(const str &name) {
     --scope;
   }
   return result;
+}
+
+void CompilerSession::set_type(const str &name, ASTTyPtr ty) {
+  _type_table[name] = ty;
+}
+
+ASTTyPtr CompilerSession::get_type(const str &name) {
+  TAN_ASSERT(name != "");
+  return _type_table.at(name);
 }
 
 LLVMContext *CompilerSession::get_context() { return _context; }
@@ -182,14 +192,12 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, ASTNodePtr func) {
-  auto f = ast_cast<ASTFunction>(func);
-  TAN_ASSERT(f);
+void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
     pf[filename] = std::make_shared<FunctionTable>();
   }
-  pf[filename]->set(f);
+  pf[filename]->set(func);
 }
 
 vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
@@ -204,10 +212,8 @@ vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) 
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
 
-void CompilerSession::add_function(ASTNodePtr func) {
-  auto f = ast_cast<ASTFunction>(func);
-  TAN_ASSERT(f);
-  _function_table->set(f);
+void CompilerSession::add_function(ASTFunctionPtr func) {
+  _function_table->set(func);
 }
 
 vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
@@ -216,6 +222,6 @@ DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
-std::shared_ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
+ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
 
-void CompilerSession::set_current_loop(std::shared_ptr<ASTLoop> loop) { _current_loop = loop; }
+void CompilerSession::set_current_loop(ptr<ASTLoop> loop) { _current_loop = loop; }

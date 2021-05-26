@@ -1,42 +1,34 @@
-#ifndef TAN_SRC_AST_AST_CONTROL_FLOW_H_
-#define TAN_SRC_AST_AST_CONTROL_FLOW_H_
+#ifndef __TAN_SRC_AST_AST_CONTROL_FLOW_H__
+#define __TAN_SRC_AST_AST_CONTROL_FLOW_H__
 #include "src/ast/ast_node.h"
+
+namespace llvm {
+class BasicBlock;
+}
 
 namespace tanlang {
 
-class ASTIf final : public ASTNode {
+class ASTIf : public ASTNode {
 public:
   ASTIf() = delete;
-  ASTIf(Token *token, size_t token_index);
+  ASTIf(ASTType op, int lbp) : ASTNode(op, lbp) {}
 
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t nud() override;
-
-private:
+public:
   bool _has_else = false;
 };
 
-class ASTElse final : public ASTNode {
+enum class ASTLoopType { FOR, WHILE };
+
+class ASTLoop final : public ASTNode {
 public:
-  ASTElse() = delete;
-  ASTElse(Token *token, size_t token_index);
+  ASTLoop() : ASTNode(ASTType::LOOP, 0) {}
 
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t nud() override;
-};
-
-class ASTBreakContinue final : public ASTNode {
 public:
-  ASTBreakContinue() = delete;
-  ASTBreakContinue(Token *token, size_t token_index);
-
-protected:
-  llvm::Value *_codegen(CompilerSession *) override;
-  size_t nud() override;
+  ASTLoopType _loop_type = ASTLoopType::WHILE;
+  llvm::BasicBlock *_loop_start = nullptr;
+  llvm::BasicBlock *_loop_end = nullptr;
 };
 
 } // namespace tanlang
 
-#endif //TAN_SRC_AST_AST_CONTROL_FLOW_H_
+#endif //__TAN_SRC_AST_AST_CONTROL_FLOW_H__

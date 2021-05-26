@@ -14,6 +14,13 @@ macro(enable_tests)
     target_link_libraries(lexer_tests tan gtest ${DEP_LIBS})
     set_other_options(lexer_tests)
 
+    # parser tests
+    add_executable(parser_tests ${TEST_DIR}/parser_test.cpp)
+    target_include_directories(parser_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
+            ${PROJECT_SOURCE_DIR}/src/test)
+    target_link_libraries(parser_tests tan gtest ${DEP_LIBS})
+    set_other_options(parser_tests)
+
     # tanc tests
     file(GLOB TAN_TEST_SRCS ${TEST_DIR}/test_src/*.tan)
     set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})

@@ -3,40 +3,26 @@
 #include "base.h"
 #include <memory>
 #include <stack>
-#include <src/ast/ast_node.h>
 
 namespace tanlang {
 
-class ASTNode;
 class CompilerSession;
+class ParserImpl;
 struct Token;
-enum class TokenType;
-enum class ASTType;
 
-class Parser {
+/**
+ * \brief Parser
+ * \details Operator precedence parsing
+ * */
+class Parser final {
 public:
   Parser() = delete;
-  Parser(vector<Token *> tokens, const str &filename, CompilerSession *cs);
-  std::shared_ptr<ASTNode> peek(size_t &index);
-  std::shared_ptr<ASTNode> peek(size_t &index, TokenType type, const str &value);
-  std::shared_ptr<ASTNode> next_expression(size_t &index, int rbp = 0);
-  std::shared_ptr<ASTNode> parse();
-  bool eof(size_t index) const;
-  [[nodiscard]] Token *at(const size_t idx) const;
+  Parser(vector<Token *> tokens, str filename, CompilerSession *cs);
+  ParsableASTNodePtr parse();
   [[nodiscard]] str get_filename() const;
-  [[nodiscard]] std::shared_ptr<ASTNode> get_ast() const;
 
-public:
-  std::shared_ptr<ASTNode> _root = nullptr;
-
-protected:
-  vector<Token *> _tokens{};
-  str _filename = "";
-  CompilerSession *_cs = nullptr;
-
-public:
-  /// NOTE: nothing here, everything is defined in specialized template functions in parser.hpp
-  template<ASTType type> std::shared_ptr<ASTNode> parse(size_t &index, bool strict);
+private:
+  ParserImpl *_impl;
 };
 
 } // namespace tanlang

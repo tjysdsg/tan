@@ -1,7 +1,6 @@
 #ifndef __TAN_SRC_COMPILER_FUNCTION_TABLE_H__
 #define __TAN_SRC_COMPILER_FUNCTION_TABLE_H__
 #include "base.h"
-#include <memory>
 
 namespace tanlang {
 
@@ -13,7 +12,7 @@ public:
   FunctionTable() = default;
   void set(ASTFunctionPtr func);
   vector<ASTFunctionPtr> get(const str &name);
-  vector<ASTFunctionPtr> get_all() const;
+  [[nodiscard]] vector<ASTFunctionPtr> get_all() const;
 
 private:
   umap<str, vector<ASTFunctionPtr>> _table{};

@@ -17,7 +17,7 @@ using namespace clang::driver;
 using namespace llvm::opt;
 
 str GetExecutablePath(str name) {
-  auto clang_or_err = llvm::sys::findProgramByName(name, {__STR__(LLVM_BIN_DIR)});
+  auto clang_or_err = llvm::sys::findProgramByName(name, {}); // find executable in PATH
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
     exit(0);
@@ -26,7 +26,7 @@ str GetExecutablePath(str name) {
 }
 
 static const char *GetStableCStr(std::set<str> &SavedStrings, StringRef S) {
-  return SavedStrings.insert(S).first->c_str();
+  return SavedStrings.insert(std::string(S)).first->c_str();
 }
 
 static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
@@ -76,7 +76,7 @@ static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str 
   if (ExeBasename.equals_lower("cl")) {
     ExeBasename = "clang-cl";
   }
-  DiagClient->setPrefix(ExeBasename);
+  DiagClient->setPrefix(std::string(ExeBasename));
 }
 
 // this lets us create the DiagnosticsEngine with a properly-filled-out DiagnosticOptions instance
