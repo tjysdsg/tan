@@ -228,8 +228,9 @@ Value *CodeGeneratorImpl::codegen_lnot(const ASTNodePtr &p) {
 Value *CodeGeneratorImpl::codegen_return(const ASTNodePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *result = codegen(p->get_child_at<ASTNode>(0));
-  if (p->get_child_at<ASTNode>(0)->_ty->_is_lvalue) {
+  ASTNodePtr rhs = p->get_child_at<ASTNode>(0);
+  auto *result = codegen(rhs);
+  if (rhs->_ty->_is_lvalue) {
     result = builder->CreateLoad(result, "ret");
   }
   builder->CreateRet(result);

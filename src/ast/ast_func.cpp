@@ -66,3 +66,15 @@ ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types
   ret->set_data(name);
   return ret;
 }
+
+ASTTyPtr ASTFunction::get_ret_ty() const {
+  return get_child_at<ASTTy>(0);
+}
+
+ASTNodePtr ASTFunction::get_arg(size_t i) const {
+  return get_child_at<ASTNode>(i + 1);
+}
+
+size_t ASTFunction::get_n_args() const {
+  return get_children().size() - 1 - !_is_external;
+}

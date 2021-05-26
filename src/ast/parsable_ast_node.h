@@ -31,7 +31,7 @@ public:
    * */
   void printTree();
 
-  template<typename T = ParsableASTNode> ptr<T> get_child_at(size_t idx);
+  template<typename T = ParsableASTNode> ptr<T> get_child_at(size_t idx) const;
   void set_child_at(size_t idx, ptr<ParsableASTNode> node);
   void append_child(ptr<ParsableASTNode> node);
   void clear_children();

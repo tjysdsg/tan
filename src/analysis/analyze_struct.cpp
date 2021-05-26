@@ -15,14 +15,8 @@ void AnalyzerImpl::analyze_struct(const ParsableASTNodePtr &p) {
   auto ty = ast_create_ty(_cs);
   ty->_tyty = Ty::STRUCT;
 
-  ASTTyPtr forward_decl = _cs->get_type(struct_name);
   // TODO: Check if struct name is in conflicts of variable/function names
-  if (!forward_decl) {
-    _cs->set_type(struct_name, ty); /// add self to current scope
-  } else {
-    /// replace forward decl with self (even if this is a forward declaration too)
-    _cs->set_type(struct_name, ty);
-  }
+  _cs->set_type(struct_name, ty); /// add self to current scope
 
   /// resolve member names and types
   size_t n = p->get_children_size();

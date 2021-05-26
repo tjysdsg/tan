@@ -22,31 +22,35 @@ void AnalyzerImpl::analyze_func_call(const ParsableASTNodePtr &p) {
 }
 
 void AnalyzerImpl::analyze_func_decl(const ParsableASTNodePtr &p) {
+  /// NOTE: children will not be automatically parsed for function declaration
+
   ASTFunctionPtr np = ast_must_cast<ASTFunction>(p);
 
-  /// add to function table
-  if (np->_is_public || np->_is_external) { CompilerSession::AddPublicFunction(_cs->_filename, np); }
+  /// add to external function table
+  if (np->_is_public || np->_is_external) {
+    CompilerSession::AddPublicFunction(_cs->_filename, np);
+  }
   /// ...and to the internal function table
   _cs->add_function(np);
 
-  // TODO: function type
-  //  auto ret_ty = ast_create_ty(_cs);
-  //  ret_ty->set_token(at(p->_end_index));
-  //  ret_ty->_end_index = ret_ty->_start_index = p->_end_index;
-  //  p->_end_index = parse_ty(ret_ty); /// return type
-  //  p->get_child_at(0) = ret_ty;
+  /// analyze return type
+  resolve_ty(p->get_child_at<ASTTy>(0));
+
+  _cs->push_scope(); /// new scope
 
   /// add args to scope if function body exists
   size_t n = p->get_children_size();
-  size_t arg_end = n - 1 - !np->_is_external;
-  for (size_t i = 1; i < arg_end; ++i) {
-    if (!np->_is_external) { _cs->set_type(p->get_child_at(i)->get_data<str>(), _h.get_ty(p->get_child_at(i))); }
+  size_t n_args = np->get_n_args();
+  for (size_t i = 1; i < n_args + 1; ++i) {
+    ASTNodePtr child = p->get_child_at<ASTNode>(i);
+    analyze(child); /// args will be added to the scope here
   }
+
+  /// function body
   if (!np->_is_external) {
-    /// new scope for function body
-    auto f_body = np->get_child_at(n - 1);
-    if (!np->_is_external) {
-      f_body->set_scope(_cs->push_scope());
-    }
+    auto body = np->get_child_at(n - 1);
+    analyze(body);
   }
+
+  _cs->pop_scope(); /// pop scope
 }

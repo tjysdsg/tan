@@ -9,13 +9,13 @@
 
 using namespace tanlang;
 
-template<typename T> ptr<T> ParsableASTNode::get_child_at(size_t idx) {
+template<typename T> ptr<T> ParsableASTNode::get_child_at(size_t idx) const {
   static_assert(std::is_base_of_v<ParsableASTNode, T>, "Return type can only be a subclass of ParsableASTNode");
   TAN_ASSERT(_children.size() > idx);
   return ast_must_cast<T>(_children[idx]);
 }
 
-template<> ptr<ParsableASTNode> ParsableASTNode::get_child_at<ParsableASTNode>(size_t idx) {
+template<> ptr<ParsableASTNode> ParsableASTNode::get_child_at<ParsableASTNode>(size_t idx) const {
   TAN_ASSERT(_children.size() > idx);
   return _children[idx];
 }
@@ -149,9 +149,9 @@ template void ParsableASTNode::set_data(uint64_t val);
 template void ParsableASTNode::set_data(str val);
 template void ParsableASTNode::set_data(double val);
 
-template ptr<ASTNode> ParsableASTNode::get_child_at(size_t idx);
-template ptr<ASTTy> ParsableASTNode::get_child_at(size_t idx);
-template ptr<ASTFunction> ParsableASTNode::get_child_at(size_t idx);
-template ptr<ASTMemberAccess> ParsableASTNode::get_child_at(size_t idx);
-template ptr<ASTIf> ParsableASTNode::get_child_at(size_t idx);
-template ptr<ASTLoop> ParsableASTNode::get_child_at(size_t idx);
+template ptr<ASTNode> ParsableASTNode::get_child_at(size_t idx) const;
+template ptr<ASTTy> ParsableASTNode::get_child_at(size_t idx) const;
+template ptr<ASTFunction> ParsableASTNode::get_child_at(size_t idx) const;
+template ptr<ASTMemberAccess> ParsableASTNode::get_child_at(size_t idx) const;
+template ptr<ASTIf> ParsableASTNode::get_child_at(size_t idx) const;
+template ptr<ASTLoop> ParsableASTNode::get_child_at(size_t idx) const;

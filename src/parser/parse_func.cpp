@@ -6,8 +6,6 @@
 
 using namespace tanlang;
 
-// TODO: move scope checking to analysis phase
-
 size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   auto pfn = ast_cast<ASTFunction>(p);
   if (at(p->_start_index)->value == "fn") { /// "fn"
@@ -38,8 +36,6 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   p->_end_index = parse_node(id);
   p->set_data(id->get_data<str>());
 
-  _cs->push_scope(); /// pop a new scope
-
   /// arguments
   peek(p->_end_index, TokenType::PUNCTUATION, "(");
   ++p->_end_index;
@@ -48,7 +44,7 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
       auto arg = ast_create_arg_decl(_cs);
       arg->set_token(at(p->_end_index));
       arg->_end_index = arg->_start_index = p->_end_index;
-      p->_end_index = parse_node(arg); /// this will add args to the current scope
+      p->_end_index = parse_node(arg);
       p->append_child(arg);
       if (at(p->_end_index)->value == ",") {
         ++p->_end_index;
@@ -73,7 +69,6 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
     p->_end_index = parse_node(body);
     p->append_child(body);
   }
-  _cs->pop_scope(); /// pop function scope
 
   return p->_end_index;
 }

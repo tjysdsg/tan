@@ -55,7 +55,7 @@ ptr<Scope> CompilerSession::pop_scope() {
 }
 
 void CompilerSession::add(const str &name, ASTNodePtr value) {
-  get_current_scope()->_named.insert(std::make_pair(name, value));
+  get_current_scope()->_named[name] = value;
 }
 
 void CompilerSession::set(const str &name, ASTNodePtr value) {

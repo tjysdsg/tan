@@ -20,6 +20,7 @@ AST_FWD_DECL(ASTFunction);
  *  - Arg1, ASTArgDecl
  *  - Arg2, ASTArgDecl
  *  - ...
+ *  - [Optional] Function body, ASTNode
  * */
 class ASTFunction : public ASTNode {
 public:
@@ -34,9 +35,9 @@ public:
     _is_public = false;
   };
 
-  [[nodiscard]] ASTNodePtr get_ret() const { return ast_cast<ASTNode>(get_children()[0]); }
-  [[nodiscard]] ASTNodePtr get_arg(size_t i) const { return ast_cast<ASTNode>(get_children()[i + 1]); }
-  [[nodiscard]] size_t get_n_args() const { return get_children().size() - 1; }
+  [[nodiscard]] ASTTyPtr get_ret_ty() const;
+  [[nodiscard]] ASTNodePtr get_arg(size_t i) const;
+  [[nodiscard]] size_t get_n_args() const;
 
 public:
   llvm::Function *_func = nullptr;

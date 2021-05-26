@@ -9,12 +9,15 @@
 
 using namespace tanlang;
 
+static ASTTyPtr copy_ty(const ASTTyPtr &p) {
+  return make_ptr<ASTTy>(*p);
+}
+
 void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
-  // TODO: p->_scope = _cs->get_current_scope();
-  // TODO: update _cs->_current_token
+  p->set_scope(_cs->get_current_scope());
   ASTNodePtr np = _h.try_convert_to_ast_node(p);
 
-  if (p->get_node_type() == ASTType::FUNC_DECL) { /// children will not be automatically parsed for function declaration
+  if (p->get_node_type() != ASTType::FUNC_DECL) { /// children will not be automatically parsed for function declaration
     for (auto &sub: p->get_children()) {
       analyze(sub);
     }
@@ -27,7 +30,8 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
     case ASTType::SUBTRACT: {
       /// unary plus/minus
       if (p->get_children_size() == 1) {
-        np->_ty = _h.get_ty(p->get_child_at(0));
+        np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
+        np->_ty->_is_lvalue = false;
         break;
       }
     }
@@ -42,7 +46,8 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
 
       size_t dominant_idx = static_cast<size_t>(i);
       np->_dominant_idx = dominant_idx;
-      np->_ty = _h.get_ty(p->get_child_at(dominant_idx));
+      np->_ty = copy_ty(_h.get_ty(p->get_child_at(dominant_idx)));
+      np->_ty->_is_lvalue = false;
       break;
     }
     case ASTType::GT:
@@ -61,7 +66,7 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
       break;
     }
     case ASTType::CAST: {
-      np->_ty = make_ptr<ASTTy>(*_h.get_ty(p->get_child_at(1)));
+      np->_ty = copy_ty(_h.get_ty(p->get_child_at(1)));
       np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
       if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
         report_error(p, "Cannot perform implicit type conversion");
@@ -79,10 +84,11 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
       np->_ty = create_ty(_cs, Ty::BOOL);
       break;
     case ASTType::BNOT:
-      np->_ty = _h.get_ty(p->get_child_at(0));
+      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
       break;
     case ASTType::ADDRESS_OF: {
-      if (!(np->_ty = _h.get_ty(p->get_child_at(0)))) {
+      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
+      if (!np->_ty) {
         report_error(p, "Invalid operand");
       }
       np->_ty = _h.get_ptr_to(np->_ty);
@@ -90,8 +96,12 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
     }
     case ASTType::ID: {
       auto referred = _h.get_id_referred(ast_must_cast<ASTNode>(p));
+      if (!referred) {
+        report_error(p, "Unknown identifier");
+      }
       p->append_child(referred);
-      np->_ty = referred->_ty;
+      np->_ty = copy_ty(referred->_ty);
+      np->_ty->_is_lvalue = true;
       break;
     }
       //////////////////////// literals ///////////////////////////////////////
@@ -123,7 +133,7 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
       analyze_import(p);
       break;
     case ASTType::PARENTHESIS:
-      np->_ty = _h.get_ty(p->get_child_at(0));
+      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
       break;
     case ASTType::FUNC_CALL:
       analyze_func_call(p);
@@ -144,8 +154,9 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
     case ASTType::ARG_DECL:
     case ASTType::VAR_DECL: {
       ASTTyPtr ty = _h.get_ty(p);
+      ty->_is_lvalue = true;
       resolve_ty(ty);
-      _cs->set_type(p->get_data<str>(), ty);
+      _cs->add(p->get_data<str>(), ast_must_cast<ASTNode>(p));
       break;
     }
     case ASTType::STRUCT_DECL:
