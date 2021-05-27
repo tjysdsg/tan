@@ -36,10 +36,14 @@ void AnalyzerImpl::analyze_num_literal(const ParsableASTNodePtr &p) {
 void AnalyzerImpl::analyze_array_literal(const ParsableASTNodePtr &p) {
   auto np = ast_must_cast<ASTNode>(p);
 
+  // TODO: restrict array element type to be the same
   vector<ASTTyPtr> sub_tys{};
   sub_tys.reserve(p->get_children_size());
   std::for_each(p->get_children().begin(), p->get_children().end(), [&sub_tys, this](const ParsableASTNodePtr &e) {
     sub_tys.push_back(_h.get_ty(e));
   });
-  np->_ty = create_ty(_cs, Ty::ARRAY, sub_tys);
+
+  ASTTyPtr ty = create_ty(_cs, Ty::ARRAY, sub_tys);
+  ty->_array_size = p->get_children_size();
+  np->_ty = ty;
 }

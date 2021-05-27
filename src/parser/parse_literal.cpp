@@ -29,10 +29,11 @@ size_t ParserImpl::parse_array_literal(const ParsableASTNodePtr &p) {
       }
     }
     if (is_ast_type_in(node->get_node_type(), TypeSystem::LiteralTypes)) {
-      if (node->get_node_type() == ASTType::ARRAY_LITERAL) { ++p->_end_index; }
       p->_end_index = parse_node(node);
       p->append_child(node);
-    } else { error(p->_end_index, "Expect literals"); }
+    } else {
+      error(p->_end_index, "Expect literals");
+    }
   }
 
   return p->_end_index;

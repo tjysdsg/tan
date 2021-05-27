@@ -86,6 +86,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
   size_t s1 = t1->_size_bits;
   size_t s2 = t2->_size_bits;
 
+  // TODO: support implicit cast of different pointer types
   if (t1->_is_ptr && t2->_is_ptr && *h.get_contained_ty(t1) == *h.get_contained_ty(t2)) {
     return 0;
   } else if (t1->_is_bool) { return 0; }
@@ -104,9 +105,9 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2) {
     return 1;
   } else if (t1->_is_float && t2->_is_float) { /// float/double and float/double
     return s1 >= s2 ? 0 : 1;
-  } else if (t1->_is_array && t2->_is_array) { /// arrays
+  } else if (t1->_is_array && t2->_is_array) { /// arrays, FIXME: move this to before the _is_ptr check
     /// array size must be the same
-    if (t1->get_children_size() != t2->get_children_size()) { return -1; }
+    if (t1->_array_size != t2->_array_size) { return -1; }
     /// the element type can be implicitly casted as long as the elements have the same size
     if (h.get_contained_ty(t1)->_size_bits != h.get_contained_ty(t2)->_size_bits) { return -1; }
     return CanImplicitCast(cs, h.get_contained_ty(t1), h.get_contained_ty(t2));
