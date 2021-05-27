@@ -108,7 +108,6 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
   const auto end = reader->end();
   bool is_float = false;
   bool is_unsigned = false;
-  auto *t = new Token;
   bool contains_digit = false;
   auto start_digit_i = start;
   while (forward < end) {
@@ -128,10 +127,11 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
     }
     forward = (*reader).forward(forward);
   }
-  t->type = is_float ? TokenType::FLOAT : TokenType::INT;
-  t->value = reader->substr(start, forward);
-  t->l = start.l;
-  t->c = start.c;
+
+  auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT,
+      reader->substr(start, forward),
+      start,
+      &reader->get_line(start.l));
   t->is_unsigned = is_unsigned;
   start = forward;
   return t;
