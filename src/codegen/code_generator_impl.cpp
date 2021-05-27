@@ -474,11 +474,15 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTyPtr &p) {
   return ret;
 }
 
+// TODO: merge some of the code with codegen_ty()
 Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
   set_current_debug_location(p);
+  auto *builder = _cs->_builder;
+
   Type *type = TypeSystem::ToLLVMType(_cs, p->_ty);
   Value *ret = nullptr;
-  switch (p->_ty->_tyty) {
+  Ty t = TY_GET_BASE(p->_ty->_tyty);
+  switch (t) {
     case Ty::INT:
     case Ty::CHAR:
     case Ty::BOOL:
@@ -486,14 +490,24 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
       ret = ConstantInt::get(type, p->get_data<uint64_t>());
       break;
     case Ty::STRING:
-      ret = _cs->_builder->CreateGlobalStringPtr(p->get_data<str>());
+      ret = builder->CreateGlobalStringPtr(p->get_data<str>());
       break;
     case Ty::FLOAT:
-      ret = ConstantFP::get(type, p->get_data<double>());
-      break;
     case Ty::DOUBLE:
       ret = ConstantFP::get(type, p->get_data<double>());
       break;
+    case Ty::ARRAY: {
+      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_ty);
+      size_t n = p->get_children_size();
+      ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
+      for (size_t i = 0; i < n; ++i) {
+        auto *idx = builder->getInt32((unsigned) i);
+        auto *e_val = codegen(p->get_child_at<ASTNode>(i));
+        auto *e_ptr = builder->CreateGEP(ret, idx);
+        builder->CreateStore(e_val, e_ptr);
+      }
+      break;
+    }
     default:
       TAN_ASSERT(false);
   }
