@@ -5,45 +5,38 @@
 #include "src/ast/parsable_ast_node.h"
 #include "src/ast/factory.h"
 #include "compiler_session.h"
+#include <fmt/core.h>
 
 using namespace tanlang;
 
 /// current token should be "[" when this is called
 size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
+  ASTTyPtr sub = make_ptr<ASTTy>(*p);
+  p->_tyty = Ty::ARRAY;
+
   ++p->_end_index; /// skip "["
-  ParsableASTNodePtr element = nullptr;
-  /// element type
-  if (at(p->_end_index)->value == "]") { /// empty
-    error(p->_end_index, "The array type and size must be specified");
-  } else {
-    element = peek(p->_end_index);
-    if (element->get_node_type() != ASTType::TY) {
-      error(p->_end_index, "Expect a type");
-    }
-    p->_end_index = parse_node(element);
-  }
-  peek(p->_end_index, TokenType::PUNCTUATION, ",");
-  ++p->_end_index; /// skip ","
 
   /// size
-  ASTTyPtr ety = ast_cast<ASTTy>(element);
-  TAN_ASSERT(ety);
+  ParsableASTNodePtr _size = peek(p->_end_index);
+  if (_size->get_node_type() != ASTType::NUM_LITERAL) {
+    error(p->_end_index, "Expect an unsigned integer as the array size");
+  }
+  p->_end_index = parse_node(_size);
 
-  ParsableASTNodePtr size = peek(p->_end_index);
-  if (size->get_node_type() != ASTType::NUM_LITERAL) { error(p->_end_index, "Expect an unsigned integer"); }
-  p->_end_index = parse_node(size);
-
-  TAN_ASSERT(ast_cast<ASTNode>(size));
-  if (ast_cast<ASTNode>(size)->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
-    error(p->_end_index, "Expect an unsigned integer");
+  ASTNodePtr size = ast_must_cast<ASTNode>(_size);
+  if (size->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
+    error(p->_end_index, "Expect an unsigned integer as the array size");
   }
 
   p->_array_size = size->get_data<uint64_t>();
-  p->append_child(ety);
+  p->append_child(sub);
 
-  /// set _type_name to '[<element type>, <n_elements>]'
-  p->_type_name = "[" + p->_type_name + ", " + std::to_string(p->_array_size) + "]";
-  ++p->_end_index; /// skip "]"
+  /// set _type_name to '<element type>[<n_elements>]'
+  p->_type_name = fmt::format("{}[{}]", p->_type_name, std::to_string(p->_array_size));
+
+  /// skip "]"
+  peek(p->_end_index, TokenType::PUNCTUATION, "]");
+  ++p->_end_index;
   return p->_end_index;
 }
 
@@ -112,11 +105,10 @@ size_t ParserImpl::parse_ty(const ASTTyPtr &p) {
       if (!p) {
         error(p->_end_index, "Invalid type name");
       }
-    } else if (token->value == "[") {
-      p->_tyty = Ty::ARRAY;
+    } else if (token->value == "[") { /// array
       p->_end_index = parse_ty_array(p);
       break;
-    } else if (token->value == "struct") {
+    } else if (token->value == "struct") { /// struct declaration, TODO: make a parse_decl function
       p->_tyty = Ty::STRUCT;
       p->_end_index = parse_ty_struct(p);
       break;
