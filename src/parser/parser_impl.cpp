@@ -171,7 +171,6 @@ ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
 
 size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   p->_end_index = p->_start_index;
-  // TODO: update _cs->_current_token
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_token() != nullptr) { // TODO: store this in a map
@@ -301,7 +300,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       break;
     }
     case ASTType::TY: {
-      parse_ty(const_cast<ParsableASTNodePtr &>(p));
+      parse_ty(ast_must_cast<ASTTy>(p));
       break;
     }
       ////////////////////////// declarations /////////////////////////////////

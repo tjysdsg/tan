@@ -60,7 +60,10 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
 
   /// function return type
   auto ret_type = peek(p->_end_index);
-  p->_end_index = parse_ty(ret_type);
+  if (ret_type->get_node_type() != ASTType::TY) {
+    error(p->_end_index, "Expect a type");
+  }
+  p->_end_index = parse_node(ret_type);
   p->set_child_at(0, ret_type);
 
   /// body

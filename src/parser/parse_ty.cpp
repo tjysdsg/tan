@@ -3,11 +3,10 @@
 #include "src/ast/ast_ty.h"
 #include "src/ast/ast_node.h"
 #include "src/ast/parsable_ast_node.h"
+#include "src/ast/factory.h"
 #include "compiler_session.h"
 
 using namespace tanlang;
-
-// TODO: move type resolving to analysis phase
 
 /// current token should be "[" when this is called
 size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
@@ -91,10 +90,7 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
-  ASTTyPtr pty = ast_cast<ASTTy>(p);
-  TAN_ASSERT(pty);
-
+size_t ParserImpl::parse_ty(const ASTTyPtr &p) {
   Token *token;
   while (!eof(p->_end_index)) {
     token = at(p->_end_index);
@@ -102,14 +98,13 @@ size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
     auto qq = ASTTy::qualifier_tys.find(token->value);
 
     if (qb != ASTTy::basic_tys.end()) { /// base types
-      pty->_tyty = TY_OR(pty->_tyty, qb->second);
+      p->_tyty = TY_OR(p->_tyty, qb->second);
     } else if (qq != ASTTy::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        auto sub = std::make_shared<ASTTy>(*pty);
-        // TODO: use factory to create pointer ty
-        pty->_tyty = Ty::POINTER;
-        pty->clear_children();
-        pty->append_child(sub);
+        auto sub = std::make_shared<ASTTy>(*p);
+        p->_tyty = Ty::POINTER;
+        p->clear_children();
+        p->append_child(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
       // TODO: identify type aliases
@@ -118,12 +113,12 @@ size_t ParserImpl::parse_ty(ParsableASTNodePtr &p) {
         error(p->_end_index, "Invalid type name");
       }
     } else if (token->value == "[") {
-      pty->_tyty = Ty::ARRAY;
-      p->_end_index = parse_ty_array(pty);
+      p->_tyty = Ty::ARRAY;
+      p->_end_index = parse_ty_array(p);
       break;
     } else if (token->value == "struct") {
-      pty->_tyty = Ty::STRUCT;
-      p->_end_index = parse_ty_struct(pty);
+      p->_tyty = Ty::STRUCT;
+      p->_end_index = parse_ty_struct(p);
       break;
     } else {
       break;

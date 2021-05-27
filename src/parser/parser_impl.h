@@ -48,7 +48,7 @@ private:
   size_t parse_enum_decl(const ParsableASTNodePtr &p);
   size_t parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
 
-  size_t parse_ty(ParsableASTNodePtr &p);
+  size_t parse_ty(const ASTTyPtr &p);
   size_t parse_ty_array(const ASTTyPtr &p);
   size_t parse_ty_struct(const ASTTyPtr &p);
 
