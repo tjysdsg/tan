@@ -11,11 +11,11 @@ ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
   auto ret = find->second;
 
-  if (sub_tys.size() != ret->_children.size()) { return nullptr; }
+  if (sub_tys.size() != ret->get_children_size()) { return nullptr; }
   size_t idx = 0;
   for (const auto &sub : sub_tys) {
     auto t1 = sub;
-    auto t2 = ret->_children[idx];
+    auto t2 = ret->get_child_at<ASTTy>(idx);
     if (t1->_tyty != t2->_tyty) { return nullptr; }
     if (t1->_is_lvalue != t2->_is_lvalue) { return nullptr; }
     ++idx;
@@ -38,13 +38,13 @@ bool ASTTy::operator==(const ASTTy &other) {
   CHECK(_is_enum);
   #undef CHECK
 
-  if (!_children.empty()) {
-    size_t n = _children.size();
-    if (n != other._children.size()) { return false; }
+  if (get_children_size() > 0) {
+    size_t n = get_children_size();
+    if (n != other.get_children_size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      auto lhs = _children.at(i);
+      auto lhs = get_child_at<ASTTy>(i);
       TAN_ASSERT(lhs);
-      auto rhs = other._children.at(i);
+      auto rhs = other.get_child_at<ASTTy>(i);
       TAN_ASSERT(rhs);
       if (!lhs->operator==(*rhs)) { return false; }
     }

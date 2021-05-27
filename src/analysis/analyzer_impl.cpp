@@ -60,21 +60,9 @@ void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
     case ASTType::NE:
       np->_ty = create_ty(_cs, Ty::BOOL);
       break;
-    case ASTType::ASSIGN: {
-      ASTNodePtr lhs = p->get_child_at<ASTNode>(0);
-      ASTNodePtr rhs = p->get_child_at<ASTNode>(1);
-      analyze(rhs);
-      if (!lhs->_ty) { /// the type of lhs is not set, we deduce it
-        lhs->_ty = copy_ty(rhs->_ty);
-      }
-      analyze(lhs);
-
-      if (TypeSystem::CanImplicitCast(_cs, lhs->_ty, rhs->_ty) != 0) {
-        report_error(p, "Cannot perform implicit type conversion");
-      }
-      np->_ty = lhs->_ty;
+    case ASTType::ASSIGN:
+      analyze_assignment(p);
       break;
-    }
     case ASTType::CAST: {
       np->_ty = copy_ty(_h.get_ty(p->get_child_at(1)));
       np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;

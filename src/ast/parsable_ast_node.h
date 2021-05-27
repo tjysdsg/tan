@@ -35,11 +35,11 @@ public:
   void set_child_at(size_t idx, ptr<ParsableASTNode> node);
   void append_child(ptr<ParsableASTNode> node);
   void clear_children();
-  size_t get_children_size();
-  ASTType get_node_type();
+  size_t get_children_size() const;
+  ASTType get_node_type() const;
   void set_node_type(ASTType node_type);
   void set_lbp(int lbp);
-  int get_lbp();
+  int get_lbp() const;
 
   template<typename T> void set_data(T val);
   template<typename T> T get_data() const;

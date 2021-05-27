@@ -69,9 +69,6 @@ public:
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
   bool _is_forward_decl = false;
-
-private:
-  vector<ASTTyPtr> _children{};
 };
 
 } // namespace tanlang

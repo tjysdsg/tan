@@ -33,7 +33,7 @@ void ParsableASTNode::clear_children() {
   _children.clear();
 }
 
-size_t ParsableASTNode::get_children_size() {
+size_t ParsableASTNode::get_children_size() const {
   return _children.size();
 }
 
@@ -45,7 +45,7 @@ vector<ParsableASTNodePtr> ParsableASTNode::get_children() const {
   return _children;
 }
 
-ASTType ParsableASTNode::get_node_type() {
+ASTType ParsableASTNode::get_node_type() const {
   return _type;
 }
 
@@ -57,7 +57,7 @@ void ParsableASTNode::set_lbp(int lbp) {
   _lbp = lbp;
 }
 
-int ParsableASTNode::get_lbp() {
+int ParsableASTNode::get_lbp() const {
   return _lbp;
 }
 

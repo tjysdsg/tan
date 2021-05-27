@@ -9,34 +9,41 @@
 
 using namespace tanlang;
 
-/// current token should be "[" when this is called
 size_t ParserImpl::parse_ty_array(const ASTTyPtr &p) {
-  ASTTyPtr sub = make_ptr<ASTTy>(*p);
-  p->_tyty = Ty::ARRAY;
+  bool done = false;
+  while (!done) {
+    /// current token should be "[" right now
+    ++p->_end_index; /// skip "["
 
-  ++p->_end_index; /// skip "["
+    /// subtype
+    ASTTyPtr sub = make_ptr<ASTTy>(*p);
+    p->_tyty = Ty::ARRAY;
+    p->clear_children();
+    p->append_child(sub);
 
-  /// size
-  ParsableASTNodePtr _size = peek(p->_end_index);
-  if (_size->get_node_type() != ASTType::NUM_LITERAL) {
-    error(p->_end_index, "Expect an unsigned integer as the array size");
+    /// size
+    ParsableASTNodePtr _size = peek(p->_end_index);
+    if (_size->get_node_type() != ASTType::NUM_LITERAL) {
+      error(p->_end_index, "Expect an unsigned integer as the array size");
+    }
+    p->_end_index = parse_node(_size);
+
+    ASTNodePtr size = ast_must_cast<ASTNode>(_size);
+    if (size->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
+      error(p->_end_index, "Expect an unsigned integer as the array size");
+    }
+
+    p->_array_size = size->get_data<uint64_t>();
+
+    /// skip "]"
+    peek(p->_end_index, TokenType::PUNCTUATION, "]");
+    ++p->_end_index;
+
+    /// if followed by a "[", this is a multi-dimension array
+    if (at(p->_end_index)->value != "[") {
+      done = true;
+    }
   }
-  p->_end_index = parse_node(_size);
-
-  ASTNodePtr size = ast_must_cast<ASTNode>(_size);
-  if (size->_ty->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
-    error(p->_end_index, "Expect an unsigned integer as the array size");
-  }
-
-  p->_array_size = size->get_data<uint64_t>();
-  p->append_child(sub);
-
-  /// set _type_name to '<element type>[<n_elements>]'
-  p->_type_name = fmt::format("{}[{}]", p->_type_name, std::to_string(p->_array_size));
-
-  /// skip "]"
-  peek(p->_end_index, TokenType::PUNCTUATION, "]");
-  ++p->_end_index;
   return p->_end_index;
 }
 
@@ -84,9 +91,8 @@ size_t ParserImpl::parse_ty_struct(const ASTTyPtr &p) {
 }
 
 size_t ParserImpl::parse_ty(const ASTTyPtr &p) {
-  Token *token;
   while (!eof(p->_end_index)) {
-    token = at(p->_end_index);
+    Token *token = at(p->_end_index);
     auto qb = ASTTy::basic_tys.find(token->value);
     auto qq = ASTTy::qualifier_tys.find(token->value);
 
@@ -100,22 +106,23 @@ size_t ParserImpl::parse_ty(const ASTTyPtr &p) {
         p->append_child(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
-      // TODO: identify type aliases
       *p = *(_cs->get_type(token->value));
       if (!p) {
         error(p->_end_index, "Invalid type name");
       }
-    } else if (token->value == "[") { /// array
-      p->_end_index = parse_ty_array(p);
-      break;
-    } else if (token->value == "struct") { /// struct declaration, TODO: make a parse_decl function
-      p->_tyty = Ty::STRUCT;
-      p->_end_index = parse_ty_struct(p);
-      break;
     } else {
       break;
     }
     ++p->_end_index;
+  }
+
+  /// composite types
+  Token *token = at(p->_end_index);
+  if (token->value == "[") { /// array
+    p->_end_index = parse_ty_array(p);
+  } else if (token->value == "struct") { /// struct declaration, TODO: make a parse_decl function
+    p->_tyty = Ty::STRUCT;
+    p->_end_index = parse_ty_struct(p);
   }
   return p->_end_index;
 }

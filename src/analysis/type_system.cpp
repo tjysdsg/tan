@@ -5,6 +5,7 @@
 #include "compiler.h"
 #include "src/ast/ast_ty.h"
 #include "src/llvm_include.h"
+#include <fmt/core.h>
 
 using namespace tanlang;
 
@@ -243,8 +244,9 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTyPtr p) {
         report_error(cs->_filename, p->get_token(), "Invalid type");
       }
       auto et = p->get_child_at<ASTTy>(0);
-      p->_type_name = "[" + et->_type_name + ", " + std::to_string(p->get_children_size()) + "]";
-      p->_is_ptr = true;
+      /// typename = "<element type>[<n_elements>]"
+      p->_type_name = fmt::format("{}[{}]", et->_type_name, std::to_string(p->_array_size));
+      p->_is_ptr = true; /// FIXME: remove _is_ptr field
       p->_is_array = true;
       p->_size_bits = tm->getPointerSizeInBits(0);
       p->_align_bits = et->_size_bits;
