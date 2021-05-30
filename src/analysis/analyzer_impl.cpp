@@ -1,8 +1,9 @@
 #include "analyzer_impl.h"
 #include "src/ast/ast_type.h"
-#include "compiler_session.h"
 #include "src/ast/ast_base.h"
+#include "src/ast/expr.h"
 #include "src/analysis/type_system.h"
+#include "compiler_session.h"
 #include "src/common.h"
 #include "token.h"
 
@@ -14,7 +15,6 @@ ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
 
 void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   p->set_scope(_cs->get_current_scope());
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
 
   /// children will not be automatically parsed for FUNC_DECL or ASSIGN
   vector<ASTNodeType> tmp = {ASTNodeType::FUNC_DECL, ASTNodeType::ASSIGN};
@@ -28,6 +28,8 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     /////////////////////////// binary ops ///////////////////////////////////
     case ASTNodeType::BOP:
       analyze_bop(p);
+    case ASTNodeType::UOP:
+      analyze_uop(p);
     case ASTNodeType::SUM:
     case ASTNodeType::SUBTRACT: {
       /// unary plus/minus
@@ -41,20 +43,6 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::RET:
       // TODO: check if return type can be implicitly cast to function return type
       break;
-    case ASTNodeType::LNOT:
-      np->_type = create_ty(_cs, Ty::BOOL);
-      break;
-    case ASTNodeType::BNOT:
-      np->_type = copy_ty(_h.get_ty(p->get_child_at(0)));
-      break;
-    case ASTNodeType::ADDRESS_OF: {
-      np->_type = copy_ty(_h.get_ty(p->get_child_at(0)));
-      if (!np->_type) {
-        report_error(p, "Invalid operand");
-      }
-      np->_type = _h.get_ptr_to(np->_type);
-      break;
-    }
     case ASTNodeType::ID: {
       auto referred = _h.get_id_referred(ast_must_cast<ASTNode>(p));
       if (!referred) {
@@ -141,4 +129,27 @@ AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {
 
 void AnalyzerImpl::report_error(const ASTBasePtr &p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
+}
+
+void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+  auto rhs = p->get_rhs();
+  analyze(rhs);
+
+  switch (p->get_op()) {
+    case UnaryOpKind::LNOT:
+      p->set_type(ASTType::Create(_cs, Ty::BOOL));
+      break;
+    case UnaryOpKind::BNOT:
+      p->set_type(copy_ty(rhs->get_type()));
+      break;
+    case UnaryOpKind::ADDRESS_OF: {
+      auto ty = copy_ty(rhs->get_type());
+      p->set_type(_h.get_ptr_to(ty));
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
 }

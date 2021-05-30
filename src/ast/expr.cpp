@@ -108,6 +108,10 @@ ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op, const ptr<Expr> &rhs) {
   return ret;
 }
 
+UnaryOpKind UnaryOperator::get_op() const { return _op; }
+
+ptr<Expr> void UnaryOperator::get_rhs() const { return _rhs; }
+
 /// \section Parenthesis
 
 ptr<Parenthesis> Parenthesis::Create() { return make_ptr<Parenthesis>(); }

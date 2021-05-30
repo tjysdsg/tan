@@ -22,6 +22,11 @@ void AnalyzerImpl::analyze_assignment(const BinaryOperatorPtr &p) {
 
 void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
   auto p = ast_must_cast<BinaryOperator>(_p);
+  ptr<Expr> lhs = p->get_lhs();
+  ptr<Expr> rhs = p->get_rhs();
+
+  /// NOTE: do not analyze lhs and rhs just yet, because analyze_assignment
+  /// and analyze_member_access have their own ways of analyzing
 
   switch (p->get_op()) {
     case BinaryOpKind::ASSIGN:
@@ -32,8 +37,8 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
     case BinaryOpKind::MULTIPLY:
     case BinaryOpKind::DIVIDE:
     case BinaryOpKind::MOD: {
-      ptr<Expr> lhs = p->get_lhs();
-      ptr<Expr> rhs = p->get_rhs();
+      analyze(lhs);
+      analyze(rhs);
 
       int i = TypeSystem::CanImplicitCast(_cs, lhs->get_type(), rhs->get_type());
       if (i == -1) {
@@ -47,17 +52,29 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
       p->set_type(ty);
       break;
     }
+    case BinaryOpKind::BAND:
+    case BinaryOpKind::LAND:
+    case BinaryOpKind::BOR:
+    case BinaryOpKind::LOR:
+    case BinaryOpKind::XOR:
+      // TODO: implement the analysis of the above operators
+      TAN_ASSERT(false);
+      break;
     case BinaryOpKind::GT:
     case BinaryOpKind::GE:
     case BinaryOpKind::LT:
     case BinaryOpKind::LE:
     case BinaryOpKind::EQ:
     case BinaryOpKind::NE:
+      analyze(lhs);
+      analyze(rhs);
+
       p->set_type(ASTType::Create(_cs, Ty::BOOL));
       break;
     case BinaryOpKind::CAST: {
-      ptr<Expr> lhs = p->get_lhs();
-      ptr<Expr> rhs = p->get_rhs();
+      analyze(lhs);
+      analyze(rhs);
+
       auto ty = copy_ty(rhs->get_type());
       ty->_is_lvalue = lhs->get_type()->_is_lvalue;
       p->set_type(ty);

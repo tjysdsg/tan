@@ -28,6 +28,7 @@ private:
   void analyze_import(const ASTBasePtr &p);
   void analyze_assignment(const BinaryOperatorPtr &p);
   void analyze_bop(const ASTBasePtr &p);
+  void analyze_uop(const ASTBasePtr &p);
   void resolve_ty(const ASTTypePtr &p) const;
   ASTTypePtr copy_ty(const ASTTypePtr &p) const;
   [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);
