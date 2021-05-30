@@ -123,6 +123,12 @@ void FunctionDecl::set_arg_names(const vector<str> &names) { _arg_names = names;
 
 void FunctionDecl::set_arg_types(const vector<ASTTypePtr> &types) { _arg_types = types; }
 
+bool FunctionDecl::is_public() const { return _is_public; }
+
+bool FunctionDecl::is_external() const { return _is_external; }
+
+StmtPtr FunctionDecl::get_body() const { return _body; }
+
 /// \section StructDecl
 
 StructDecl::StructDecl() : ASTBase(ASTNodeType::STRUCT_DECL, 0) {}

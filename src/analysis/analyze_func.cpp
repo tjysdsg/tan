@@ -23,29 +23,26 @@ void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &_p) {
   FunctionDeclPtr p = ast_must_cast<FunctionDecl>(_p);
 
   /// add to external function table
-  if (np->_is_public || np->_is_external) {
-    CompilerSession::AddPublicFunction(_cs->_filename, np);
+  if (p->is_public() || p->is_external()) {
+    CompilerSession::AddPublicFunction(_cs->_filename, p);
   }
   /// ...and to the internal function table
-  _cs->add_function(np);
+  _cs->add_function(p);
 
   /// analyze return type
-  resolve_ty(p->get_child_at<ASTType>(0));
+  analyze(p->get_ret_ty());
 
   _cs->push_scope(); /// new scope
 
-  /// add args to scope if function body exists
-  size_t n = p->get_children_size();
-  size_t n_args = np->get_n_args();
-  for (size_t i = 1; i < n_args + 1; ++i) {
-    ASTNodePtr child = p->get_child_at<ASTNode>(i);
-    analyze(child); /// args will be added to the scope here
+  /// analyze args
+  size_t n = p->get_n_args();
+  for (size_t i = 0; i < n; ++i) {
+    analyze(p->get_arg_type(i)); /// args will be added to the scope here
   }
 
   /// function body
-  if (!np->_is_external) {
-    auto body = np->get_child_at(n - 1);
-    analyze(body);
+  if (!p->is_external()) {
+    analyze(p->get_body());
   }
 
   _cs->pop_scope(); /// pop scope

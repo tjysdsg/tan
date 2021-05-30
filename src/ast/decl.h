@@ -50,9 +50,12 @@ public:
   [[nodiscard]] ASTTypePtr get_arg_type(size_t i) const;
   [[nodiscard]] size_t get_n_args() const;
   void set_body(StmtPtr body);
+  StmtPtr get_body() const;
   void set_ret_type(ASTTypePtr type);
   void set_arg_names(const vector<str> &names);
   void set_arg_types(const vector<ASTTypePtr> &types);
+  bool is_public() const;
+  bool is_external() const;
 
 private:
   bool _is_external = false;
