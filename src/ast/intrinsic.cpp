@@ -40,7 +40,13 @@ ptr<Intrinsic> Intrinsic::Create() { return make_ptr<Intrinsic>(); }
 
 Intrinsic::Intrinsic() : ASTBase(ASTNodeType::INTRINSIC, 0) {}
 
-void Intrinsic::set_sub(ExprPtr sub) { _sub = sub; }
+void Intrinsic::set_sub(ASTNamedPtr sub) { _sub = sub; }
+
+ASTNamedPtr Intrinsic::get_sub() const { return _sub; }
+
+IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
+
+void Intrinsic::set_intrinsic_type(IntrinsicType intrinsic_type) { _intrinsic_type = intrinsic_type; }
 
 static void init_abort(CompilerSession *cs) {
   Function *abort_func = cs->get_module()->getFunction("abort");
