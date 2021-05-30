@@ -8,8 +8,12 @@
 namespace tanlang {
 
 AST_FWD_DECL(ASTType);
+AST_FWD_DECL(Decl);
 
-class VarDecl : public ASTBase, public ASTNamed, public Typed {
+class Decl : public ASTBase, public ASTNamed, public Typed {
+};
+
+class VarDecl : public Decl {
 public:
   static ptr<VarDecl> Create();
   static ptr<VarDecl> Create(str_view name, const ASTTypePtr &ty);
@@ -21,7 +25,7 @@ private:
   ASTBasePtr _value = nullptr;
 };
 
-class ArgDecl : public ASTBase, public ASTNamed, public Typed {
+class ArgDecl : public Decl {
 public:
   static ptr<ArgDecl> Create();
   static ptr<ArgDecl> Create(str_view name, const ASTTypePtr &ty);
@@ -34,7 +38,7 @@ AST_FWD_DECL(FunctionDecl);
 AST_FWD_DECL(Stmt);
 AST_FWD_DECL(Expr);
 
-class FunctionDecl : public ASTBase, public ASTNamed {
+class FunctionDecl : public Decl {
 public:
   static FunctionDeclPtr Create();
   static FunctionDeclPtr Create(const str &name,
@@ -68,15 +72,19 @@ private:
 
 AST_FWD_DECL(ASTStruct);
 
-class StructDecl : public ASTBase, public ASTNamed {
+class StructDecl : public Decl {
 public:
   static ptr<StructDecl> Create();
   StructDecl();
-  void set_member_decls(const vector<StmtPtr> &member_decls);
+  const vector<DeclPtr> & get_member_decls() const;
+  void set_member_decls(const vector<DeclPtr> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
+  bool is_forward_decl() const;
 
 private:
-  vector<StmtPtr> _member_decls;
+  vector<DeclPtr> _member_decls;
+
+private:
   ASTStructPtr _struct = nullptr;
   bool _is_forward_decl = false;
 };

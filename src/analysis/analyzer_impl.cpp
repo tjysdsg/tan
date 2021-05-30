@@ -80,7 +80,7 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       analyze_var_decl(p);
       break;
     case ASTNodeType::STRUCT_DECL:
-      analyze_struct(p);
+      analyze_struct_decl(p);
       break;
       /////////////////////// trivially analysed /////////////////////////////
     default:

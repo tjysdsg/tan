@@ -137,8 +137,10 @@ ptr<StructDecl> StructDecl::Create() {
   return make_ptr<StructDecl>();
 }
 
-void StructDecl::set_member_decls(const vector<StmtPtr> &member_decls) { _member_decls = member_decls; }
+void StructDecl::set_member_decls(const vector<DeclPtr> &member_decls) { _member_decls = member_decls; }
 
-void StructDecl::set_is_forward_decl(bool is_forward_decl) {
-  _is_forward_decl = is_forward_decl;
-}
+const vector<DeclPtr> & StructDecl::get_member_decls() const { return _member_decls; }
+
+void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
+
+bool StructDecl::is_forward_decl() const { return _is_forward_decl; }

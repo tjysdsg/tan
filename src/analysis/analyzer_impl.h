@@ -23,7 +23,7 @@ private:
   void analyze_integer_literal(const ASTBasePtr &p);
   void analyze_float_literal(const ASTBasePtr &p);
   void analyze_array_literal(const ASTBasePtr &p);
-  void analyze_struct(const ASTBasePtr &p);
+  void analyze_struct_decl(const ASTBasePtr &p);
   void analyze_func_decl(const ASTBasePtr &p);
   void analyze_func_call(const ASTBasePtr &p);
   void analyze_import(const ASTBasePtr &p);

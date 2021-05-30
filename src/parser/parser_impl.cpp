@@ -366,3 +366,11 @@ StmtPtr ParserImpl::expect_stmt(const ASTBasePtr &p) {
   }
   return ret;
 }
+
+DeclPtr ParserImpl::expect_decl(const ASTBasePtr &p) {
+  DeclPtr ret = nullptr;
+  if (!(ret = ast_cast<Decl>(p))) {
+    error(p->_end_index, "Expect a declaration");
+  }
+  return ret;
+}

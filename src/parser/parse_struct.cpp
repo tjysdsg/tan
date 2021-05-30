@@ -30,9 +30,9 @@ size_t ParserImpl::parse_struct_decl(const ASTBasePtr &_p) {
 
     /// copy member declarations
     auto children = comp_stmt->get_children();
-    vector<StmtPtr> member_decls{};
+    vector<DeclPtr> member_decls{};
     for (const auto& c : children) {
-      member_decls.push_back(expect_stmt(c));
+      member_decls.push_back(expect_decl(c));
     }
     p->set_member_decls(member_decls);
   } else {

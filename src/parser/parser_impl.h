@@ -11,6 +11,7 @@ class CompilerSession;
 AST_FWD_DECL(ASTBase);
 AST_FWD_DECL(ASTType);
 AST_FWD_DECL(Expr);
+AST_FWD_DECL(Decl);
 AST_FWD_DECL(Stmt);
 AST_FWD_DECL(MemberAccess);
 
@@ -32,17 +33,18 @@ private:
   ASTBasePtr peek(size_t &index, TokenType type, const str &value);
   ASTBasePtr peek_keyword(Token *token, size_t &index);
   ASTBasePtr next_expression(size_t &index, int rbp);
-  ExprPtr expect_expression(const ASTBasePtr &p);
-  StmtPtr expect_stmt(const ASTBasePtr &p);
   size_t parse_node(const ASTBasePtr &p);
   size_t parse_node(const ASTBasePtr &left, const ASTBasePtr &p);
+
+  ExprPtr expect_expression(const ASTBasePtr &p);
+  StmtPtr expect_stmt(const ASTBasePtr &p);
+  DeclPtr expect_decl(const ASTBasePtr &p);
 
   size_t parse_program(const ASTBasePtr &p);
   size_t parse_stmt(const ASTBasePtr &p);
   size_t parse_intrinsic(const ASTBasePtr &p);
   size_t parse_import(const ASTBasePtr &p);
   size_t parse_if(const ASTBasePtr &p);
-  size_t parse_else(const ASTBasePtr &p);
   size_t parse_loop(const ASTBasePtr &p);
   size_t parse_func_decl(const ASTBasePtr &p);
   size_t parse_func_call(const ASTBasePtr &p);
@@ -50,7 +52,7 @@ private:
   size_t parse_var_decl(const ASTBasePtr &p);
   size_t parse_arg_decl(const ASTBasePtr &p);
   size_t parse_struct_decl(const ASTBasePtr &p);
-  size_t parse_enum_decl(const ASTBasePtr &p);
+  // size_t parse_enum_decl(const ASTBasePtr &p);
   size_t parse_uop(const ASTBasePtr &p);
   size_t parse_return(const ASTBasePtr &p);
   size_t parse_parenthesis(const ASTBasePtr &p);
