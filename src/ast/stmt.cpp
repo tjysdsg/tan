@@ -67,3 +67,13 @@ BreakContinue::BreakContinue(ASTNodeType type) {
 ptr<Break> Break::Create() { return make_ptr<Break>(); }
 
 ptr<Continue> Continue::Create() { return make_ptr<Continue>(); }
+
+/// \section Loop
+
+ptr<Loop> Loop::Create() { return make_ptr<Loop>(); }
+
+Loop::Loop() : ASTBase(ASTNodeType::LOOP, 0) {}
+
+void Loop::set_body(StmtPtr body) { _body = body; }
+
+void Loop::set_predicate(ExprPtr pred) { _predicate = pred; }

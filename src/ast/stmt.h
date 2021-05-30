@@ -80,14 +80,20 @@ public:
   Continue() : BreakContinue(ASTNodeType::CONTINUE) {}
 };
 
-class ASTLoop final : public ASTBase {
-public:
-  ASTLoop() : ASTBase(ASTNodeType::LOOP, 0) {}
+enum ASTLoopType { FOR, WHILE };
 
-  enum ASTLoopType { FOR, WHILE };
+class Loop final : public ASTBase {
+public:
+  static ptr<Loop> Create();
+  Loop();
+
+  void set_predicate(ExprPtr pred);
+  void set_body(StmtPtr body);
 
 public:
   ASTLoopType _loop_type = ASTLoopType::WHILE;
+  ExprPtr _predicate = nullptr;
+  StmtPtr _body = nullptr;
   // llvm::BasicBlock *_loop_start = nullptr;
   // llvm::BasicBlock *_loop_end = nullptr;
 };

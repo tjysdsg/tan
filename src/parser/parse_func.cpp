@@ -103,7 +103,7 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
     auto _arg = next_expression(p->_end_index, p->get_lbp());
     ptr<Expr> arg = nullptr;
-    if (!_arg || !(arg = ast_cast<Expr>(_arg))) {
+    if (!(arg = ast_cast<Expr>(_arg))) {
       error(p->_end_index, "Expect an expression");
     }
     args.push_back(arg);

@@ -1,6 +1,6 @@
 #include "base.h"
-#include "src/ast/ast_control_flow.h"
 #include "src/parser/parser_impl.h"
+#include "src/ast/stmt.h"
 
 using namespace tanlang;
 
@@ -36,24 +36,37 @@ size_t ParserImpl::parse_else(const ASTBasePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_loop(const ASTBasePtr &p) {
-  auto pl = ast_cast<ASTLoop>(p);
-  TAN_ASSERT(pl);
+size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Loop>(_p);
+
   if (at(p->_end_index)->value == "for") {
     // TODO: implement for loop
-    pl->_loop_type = ASTLoopType::FOR;
+    p->_loop_type = ASTLoopType::FOR;
   } else if (at(p->_end_index)->value == "while") {
-    pl->_loop_type = ASTLoopType::WHILE;
+    p->_loop_type = ASTLoopType::WHILE;
   } else {
     TAN_ASSERT(false);
   }
   ++p->_end_index; /// skip while/for
-  switch (pl->_loop_type) {
+  switch (p->_loop_type) {
     case ASTLoopType::WHILE:
+      /// predicate
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
-      p->append_child(next_expression(p->_end_index)); /// condition
+      auto _pred = next_expression(p->_end_index, p->get_lbp());
+      ExprPtr pred = nullptr;
+      if (!(pred = ast_cast<Expr>(_pred))) {
+        error(p->_end_index, "Expect an expression");
+      }
+      p->set_predicate(pred);
       peek(p->_end_index, TokenType::PUNCTUATION, "{");
-      p->append_child(next_expression(p->_end_index)); /// loop body
+
+      /// loop body
+      auto _body = next_expression(p->_end_index, p->get_lbp());
+      StmtPtr body = nullptr;
+      if (!(body = ast_cast<Stmt>(_body))) {
+        error(p->_end_index, "Expect an expression");
+      }
+      p->set_body(body);
       break;
     case ASTLoopType::FOR:
       // TODO: implement for loop

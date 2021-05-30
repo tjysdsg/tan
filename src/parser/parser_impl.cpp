@@ -60,7 +60,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       break;
     case "while"_hs:
     case "for"_hs:
-      ret = ast_create_loop(_cs);
+      ret = Loop::Create();
       break;
     case "struct"_hs:
       ret = StructDecl::Create();

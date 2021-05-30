@@ -103,7 +103,7 @@ size_t ParserImpl::parse_parenthesis(const ASTBasePtr &_p) {
     /// NOTE: parenthesis without child expression inside are illegal (except function call)
     auto _sub = next_expression(p->_end_index, PREC_LOWEST);
     ptr<Expr> sub = nullptr;
-    if (_sub && (sub = ast_cast<Expr>(_sub))) {
+    if (sub = ast_cast<Expr>(_sub)) {
       p->set_sub(sub);
     } else {
       error(p->_end_index, "Expect an expression");
