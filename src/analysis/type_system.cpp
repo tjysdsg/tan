@@ -66,6 +66,8 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyP
     // TODO: move this outside
     report_error("Invalid type conversion");
   }
+  TAN_ASSERT(false);
+  return nullptr;
 }
 
 DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {
