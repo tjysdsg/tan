@@ -74,25 +74,27 @@ public:
   Identifier();
 };
 
+/// make sure to sync this with BinaryOperator::BOPPrecedence
 enum BinaryOpKind {
-  INVALID, ///
-  SUM,         /// +
-  SUBTRACT,    /// -
-  MULTIPLY,    /// *
-  DIVIDE,      /// /
-  MOD,         /// %
-  ASSIGN,      /// =
-  BAND,        /// binary and
-  LAND,        /// logical and
-  BOR,         /// binary or
-  LOR,         /// logical or
-  GT,          /// >
-  GE,          /// >=
-  LT,          /// <
-  LE,          /// <=
-  EQ,          /// ==
-  NE,          /// !=
-  XOR,         /// ^
+  INVALID,      ///
+  SUM,          /// +
+  SUBTRACT,     /// -
+  MULTIPLY,     /// *
+  DIVIDE,       /// /
+  MOD,          /// %
+  ASSIGN,       /// =
+  BAND,         /// binary and
+  LAND,         /// logical and
+  BOR,          /// binary or
+  LOR,          /// logical or
+  GT,           /// >
+  GE,           /// >=
+  LT,           /// <
+  LE,           /// <=
+  EQ,           /// ==
+  NE,           /// !=
+  XOR,          /// ^
+  MemberAccess, /// . or []
 };
 
 class BinaryOperator : public Expr {
@@ -114,6 +116,24 @@ protected:
   ptr<Expr> _rhs = nullptr;
 };
 
+class MemberAccess : public BinaryOperator {
+public:
+  static ptr<MemberAccess> Create();
+  MemberAccess() : BinaryOperator(BinaryOpKind::MemberAccess) {}
+
+public:
+  enum {
+    MemberAccessInvalid = 0,
+    MemberAccessBracket,
+    MemberAccessMemberVariable,
+    MemberAccessMemberFunction,
+    MemberAccessDeref,
+    MemberAccessEnumValue,
+  } _access_type = MemberAccessInvalid;
+  size_t _access_idx = (size_t) -1; /// struct member variable index
+};
+
+/// make sure to sync this with UnaryOperator::UOPPrecedence
 enum UnaryOpKind {
   INVALID,     ///
   BNOT,        /// bitwise not

@@ -63,7 +63,8 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::MOD, PREC_FACTOR}, {BinaryOpKind::BAND, PREC_FACTOR}, {BinaryOpKind::GT, PREC_COMPARISON},
         {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
         {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON}, {BinaryOpKind::ASSIGN, PREC_ASSIGN},
-        {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR}};
+        {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
+        {BinaryOpKind::MemberAccess, PREC_HIGHEST},};
 
 ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
   return make_ptr<BinaryOperator>(op);
@@ -106,3 +107,9 @@ ptr<Parenthesis> Parenthesis::Create() { return make_ptr<Parenthesis>(); }
 Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
 
 void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }
+
+/// \section MemberAccess operator
+
+ptr<MemberAccess> MemberAccess::Create() {
+  return make_ptr<MemberAccess>();
+}

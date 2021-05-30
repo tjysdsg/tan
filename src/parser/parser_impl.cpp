@@ -6,7 +6,6 @@
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_member_access.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_type.h"
 #include "src/common.h"
@@ -109,7 +108,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
       node = ArrayLiteral::Create();
     } else {
       /// otherwise bracket access
-      node = ast_create_member_access(_cs);
+      node = MemberAccess::Create();
     }
   } else if (token->type == TokenType::RELOP) { /// comparisons
     BinaryOpKind op = BinaryOpKind::INVALID;
@@ -154,12 +153,12 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
       node = Identifier::Create(token->value);
     }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
-    node = ast_create_parenthesis(_cs);
+    node = Parenthesis::Create();
   } else if (token->type == TokenType::KEYWORD) { /// keywords
     node = peek_keyword(token, index);
     if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
-    node = ast_create_member_access(_cs);
+    node = MemberAccess::Create();
   } else if (token->value == "&") {
     /// BOP or UOP? ambiguous
     node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
@@ -331,9 +330,6 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   }
 
   switch (p->get_node_type()) {
-    case ASTNodeType::MEMBER_ACCESS:
-      parse_member_access(left, p);
-      break;
     case ASTNodeType::BOP:
       parse_bop(left, p);
       break;

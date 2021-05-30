@@ -34,7 +34,6 @@ enum class ASTNodeType {
   CHAR_LITERAL,    /// 's'
   STRING_LITERAL,  /// "xxx"
   ARRAY_LITERAL,   /// [1, 2, 3]
-  MEMBER_ACCESS,   /// struct.a
   INTRINSIC,       /// intrinsic functions, operators, qualifiers, etc.
   INVALID,
 };

@@ -10,6 +10,8 @@ namespace tanlang {
 class CompilerSession;
 AST_FWD_DECL(ASTBase);
 AST_FWD_DECL(ASTType);
+AST_FWD_DECL(Expr);
+AST_FWD_DECL(MemberAccess);
 
 /**
  * \brief Parser
@@ -50,7 +52,7 @@ private:
   size_t parse_return(const ASTBasePtr &p);
   size_t parse_parenthesis(const ASTBasePtr &p);
 
-  size_t parse_member_access(const ASTBasePtr &left, const ASTBasePtr &p);
+  size_t parse_member_access(const ptr<Expr> &left, const ptr<MemberAccess> &p);
   size_t parse_bop(const ASTBasePtr &left, const ASTBasePtr &p);
 
   size_t parse_ty(const ASTTypePtr &p);
