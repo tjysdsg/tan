@@ -38,7 +38,8 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
       break;
       ////////////////////////////// literals ////////////////////////
     case ASTNodeType::ARRAY_LITERAL:
-    case ASTNodeType::NUM_LITERAL:
+    case ASTNodeType::INTEGER_LITERAL:
+    case ASTNodeType::FLOAT_LITERAL:
     case ASTNodeType::CHAR_LITERAL:
     case ASTNodeType::STRING_LITERAL: {
       ret = codegen_literals(p);
@@ -261,9 +262,9 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
       TAN_ASSERT(false);
     case Ty::STRUCT: {
       vector<llvm::Constant *> values{};
-      size_t n = p->get_children_size();
+      size_t n = p->_sub_types.size();
       for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) codegen_ty(p->get_child_at<ASTBase>(i)->_type));
+        values.push_back((llvm::Constant *) codegen(p->_sub_types[i]));
       }
       ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
       break;
@@ -272,12 +273,12 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
       ret = ConstantPointerNull::get((PointerType *) type);
       break;
     case Ty::ARRAY: {
-      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTBase>(0)->_type);
-      size_t n = p->get_children_size();
+      auto *e_type = TypeSystem::ToLLVMType(_cs, p->_sub_types[0]);
+      size_t n = p->_sub_types.size();
       ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
       for (size_t i = 0; i < n; ++i) {
         auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = codegen_ty(p->get_child_at<ASTBase>(i)->_type);
+        auto *e_val = codegen_ty(p->_sub_types[i]);
         auto *e_ptr = builder->CreateGEP(ret, idx);
         builder->CreateStore(e_val, e_ptr);
       }
@@ -290,34 +291,44 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
 }
 
 // TODO: merge some of the code with codegen_ty()
-Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Literal>(_p);
+
   set_current_debug_location(p);
   auto *builder = _cs->_builder;
 
-  Type *type = TypeSystem::ToLLVMType(_cs, p->_type);
+  Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
   Value *ret = nullptr;
-  Ty t = TY_GET_BASE(p->_type->_tyty);
+  Ty t = TY_GET_BASE(p->get_type()->_tyty);
   switch (t) {
-    case Ty::INT:
     case Ty::CHAR:
+      ret = ConstantInt::get(type, ast_must_cast<CharLiteral>(p)->get_value());
+      break;
+    case Ty::INT:
     case Ty::BOOL:
     case Ty::ENUM:
-      ret = ConstantInt::get(type, p->get_data<uint64_t>());
+      ret = ConstantInt::get(type, ast_must_cast<IntegerLiteral>(p)->get_value());
       break;
     case Ty::STRING:
-      ret = builder->CreateGlobalStringPtr(p->get_data<str>());
+      ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
       break;
     case Ty::FLOAT:
     case Ty::DOUBLE:
-      ret = ConstantFP::get(type, p->get_data<double>());
+      ret = ConstantFP::get(type, ast_must_cast<FloatLiteral>(p)->get_value());
       break;
     case Ty::ARRAY: {
-      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTBase>(0)->_type);
-      size_t n = p->get_children_size();
+      auto arr = ast_must_cast<ArrayLiteral>(p);
+
+      /// element type
+      auto elements = arr->get_elements();
+      auto *e_type = TypeSystem::ToLLVMType(_cs, elements[0]->get_type());
+
+      /// codegen element values
+      size_t n = elements.size();
       ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
       for (size_t i = 0; i < n; ++i) {
         auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = codegen(p->get_child_at<ASTBase>(i));
+        auto *e_val = codegen(elements[i]);
         auto *e_ptr = builder->CreateGEP(ret, idx);
         builder->CreateStore(e_val, e_ptr);
       }

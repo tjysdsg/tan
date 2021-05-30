@@ -36,6 +36,8 @@ class FloatLiteral : public Literal {
 public:
   static ptr<FloatLiteral> Create(double val);
   FloatLiteral() : Literal(ASTNodeType::FLOAT_LITERAL, 0) {}
+  double get_value() const;
+  void set_value(double value);
 
 private:
   double _value = 0;

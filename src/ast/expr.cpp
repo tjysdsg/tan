@@ -17,6 +17,10 @@ ptr<FloatLiteral> FloatLiteral::Create(double val) {
   return ret;
 }
 
+double FloatLiteral::get_value() const { return _value; }
+
+void FloatLiteral::set_value(double value) { _value = value; }
+
 ptr<StringLiteral> StringLiteral::Create(str_view val) {
   auto ret = make_ptr<StringLiteral>();
   ret->_value = val;
