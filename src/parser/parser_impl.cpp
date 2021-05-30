@@ -21,7 +21,7 @@ using tanlang::TokenType; // distinguish from the one in winnt.h
 ParserImpl::ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
 
-ParsableASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
+ASTBasePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
@@ -30,7 +30,7 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &va
   return peek(index);
 }
 
-ParsableASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
+ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   ASTNodePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
@@ -80,7 +80,7 @@ ParsableASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   return ret;
 }
 
-ParsableASTNodePtr ParserImpl::peek(size_t &index) {
+ASTBasePtr ParserImpl::peek(size_t &index) {
   if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
@@ -91,7 +91,7 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   // check if there are tokens after the comment
   if (index >= _tokens.size()) { return nullptr; }
 
-  ParsableASTNodePtr node = nullptr;
+  ASTBasePtr node = nullptr;
   if (token->value == "@") { /// intrinsics
     node = ast_create_intrinsic(_cs);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
@@ -149,8 +149,8 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   return node;
 }
 
-ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
-  ParsableASTNodePtr node = peek(index);
+ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
+  ASTBasePtr node = peek(index);
   ++index;
   if (!node) { return nullptr; }
   auto n = node;
@@ -169,22 +169,22 @@ ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_token() != nullptr) { // TODO: store this in a map
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        p->set_node_type(ASTType::ADDRESS_OF);
+        p->set_node_type(ASTNodeType::ADDRESS_OF);
         p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       case "!"_hs:
-        p->set_node_type(ASTType::LNOT);
+        p->set_node_type(ASTNodeType::LNOT);
         p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       case "~"_hs:
-        p->set_node_type(ASTType::BNOT);
+        p->set_node_type(ASTNodeType::BNOT);
         p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
         break;
       default:
@@ -193,7 +193,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   }
 
   switch (p->get_node_type()) {
-    case ASTType::PROGRAM: {
+    case ASTNodeType::PROGRAM: {
       while (!eof(p->_end_index)) {
         auto stmt = ast_create_statement(_cs);
         stmt->set_token(at(p->_end_index));
@@ -203,7 +203,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       }
       break;
     }
-    case ASTType::STATEMENT: {
+    case ASTNodeType::STATEMENT: {
       if (at(p->_end_index)->value == "{") { /// compound statement
         ++p->_end_index; /// skip "{"
         while (!eof(p->_end_index)) {
@@ -228,7 +228,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       }
       break;
     }
-    case ASTType::PARENTHESIS: {
+    case ASTNodeType::PARENTHESIS: {
       ++p->_end_index; /// skip "("
       while (true) {
         auto *t = at(p->_end_index);
@@ -250,38 +250,38 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       }
       break;
     }
-    case ASTType::IMPORT: {
+    case ASTNodeType::IMPORT: {
       parse_import(p);
       break;
     }
-    case ASTType::INTRINSIC: {
+    case ASTNodeType::INTRINSIC: {
       parse_intrinsic(p);
       break;
     }
       ////////////////////////// control flow ////////////////////////////////
-    case ASTType::IF: {
+    case ASTNodeType::IF: {
       parse_if(p);
       break;
     }
-    case ASTType::ELSE: {
+    case ASTNodeType::ELSE: {
       parse_else(p);
       break;
     }
-    case ASTType::LOOP: {
+    case ASTNodeType::LOOP: {
       parse_loop(p);
       break;
     }
       ////////////////////////// prefix ////////////////////////////////
-    case ASTType::ADDRESS_OF:
-    case ASTType::LNOT:
-    case ASTType::BNOT:
-    case ASTType::RET: {
+    case ASTNodeType::ADDRESS_OF:
+    case ASTNodeType::LNOT:
+    case ASTNodeType::BNOT:
+    case ASTNodeType::RET: {
       ++p->_end_index;
       p->append_child(next_expression(p->_end_index));
       break;
     }
-    case ASTType::SUM: /// unary +
-    case ASTType::SUBTRACT: { /// unary -
+    case ASTNodeType::SUM: /// unary +
+    case ASTNodeType::SUBTRACT: { /// unary -
       ++p->_end_index; /// skip "-" or "+"
       /// higher precedence than infix plus/minus
       p->set_lbp(PREC_UNARY);
@@ -291,46 +291,46 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
       break;
     }
       ////////////////////////// others /////////////////////////////////
-    case ASTType::FUNC_CALL: {
+    case ASTNodeType::FUNC_CALL: {
       parse_func_call(p);
       break;
     }
-    case ASTType::ARRAY_LITERAL: {
+    case ASTNodeType::ARRAY_LITERAL: {
       parse_array_literal(p);
       break;
     }
-    case ASTType::TY: {
-      parse_ty(ast_must_cast<ASTTy>(p));
+    case ASTNodeType::TY: {
+      parse_ty(ast_must_cast<ASTType>(p));
       break;
     }
       ////////////////////////// declarations /////////////////////////////////
-    case ASTType::STRUCT_DECL: {
+    case ASTNodeType::STRUCT_DECL: {
       parse_struct_decl(p);
       break;
     }
-    case ASTType::VAR_DECL: {
+    case ASTNodeType::VAR_DECL: {
       parse_var_decl(p);
       break;
     }
-    case ASTType::ARG_DECL: {
+    case ASTNodeType::ARG_DECL: {
       parse_arg_decl(p);
       break;
     }
-    case ASTType::FUNC_DECL: {
+    case ASTNodeType::FUNC_DECL: {
       parse_func_decl(p);
       break;
     }
-    case ASTType::ENUM_DECL: {
+    case ASTNodeType::ENUM_DECL: {
       parse_enum_decl(p);
       break;
     }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
-    case ASTType::BREAK:
-    case ASTType::CONTINUE:
-    case ASTType::ID:
-    case ASTType::NUM_LITERAL:
-    case ASTType::CHAR_LITERAL:
-    case ASTType::STRING_LITERAL:
+    case ASTNodeType::BREAK:
+    case ASTNodeType::CONTINUE:
+    case ASTNodeType::ID:
+    case ASTNodeType::NUM_LITERAL:
+    case ASTNodeType::CHAR_LITERAL:
+    case ASTNodeType::STRING_LITERAL:
       ++p->_end_index;
       break;
     default:
@@ -339,13 +339,13 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
-      p->set_node_type(ASTType::BAND);
+      p->set_node_type(ASTNodeType::BAND);
       p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
       break;
     default:
@@ -353,24 +353,24 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTN
   }
 
   switch (p->get_node_type()) {
-    case ASTType::MEMBER_ACCESS: {
+    case ASTNodeType::MEMBER_ACCESS: {
       parse_member_access(left, p);
       break;
     }
-    case ASTType::BAND:
-    case ASTType::CAST:
-    case ASTType::ASSIGN:
-    case ASTType::GT:
-    case ASTType::GE:
-    case ASTType::LT:
-    case ASTType::LE:
-    case ASTType::EQ:
-    case ASTType::NE:
-    case ASTType::SUM:
-    case ASTType::SUBTRACT:
-    case ASTType::MULTIPLY:
-    case ASTType::DIVIDE:
-    case ASTType::MOD: {
+    case ASTNodeType::BAND:
+    case ASTNodeType::CAST:
+    case ASTNodeType::ASSIGN:
+    case ASTNodeType::GT:
+    case ASTNodeType::GE:
+    case ASTNodeType::LT:
+    case ASTNodeType::LE:
+    case ASTNodeType::EQ:
+    case ASTNodeType::NE:
+    case ASTNodeType::SUM:
+    case ASTNodeType::SUBTRACT:
+    case ASTNodeType::MULTIPLY:
+    case ASTNodeType::DIVIDE:
+    case ASTNodeType::MOD: {
       ++p->_end_index; /// skip operator
       p->append_child(left); /// lhs
       auto n = next_expression(p->_end_index, p->get_lbp());
@@ -384,7 +384,7 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTN
   return p->_end_index;
 }
 
-ParsableASTNodePtr ParserImpl::parse() {
+ASTBasePtr ParserImpl::parse() {
   _root = ast_create_program(_cs);
   parse_node(_root);
   return _root;

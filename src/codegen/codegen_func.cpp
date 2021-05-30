@@ -23,8 +23,8 @@ Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
     }
 
     /// implicit cast
-    auto expected_ty = callee->get_arg(i)->_ty;
-    a = TypeSystem::ConvertTo(_cs, a, actual_arg->_ty, expected_ty);
+    auto expected_ty = callee->get_arg(i)->_type;
+    a = TypeSystem::ConvertTo(_cs, a, actual_arg->_type, expected_ty);
     arg_vals.push_back(a);
   }
   p->_llvm_value = _cs->_builder->CreateCall(callee->_func, arg_vals);
@@ -32,11 +32,11 @@ Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
 }
 
 Value *CodeGeneratorImpl::codegen_func_prototype(const ASTFunctionPtr &p, bool import) {
-  Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_ty);
+  Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_type);
   vector<Type *> arg_types{};
   /// set function arg types
   for (size_t i = 1; i < p->get_children_size() - !p->_is_external; ++i) {
-    arg_types.push_back(TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(i)->_ty));
+    arg_types.push_back(TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(i)->_type));
   }
   /// create function prototype
   FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
@@ -67,7 +67,7 @@ Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
-  auto ret_ty = p->get_child_at<ASTNode>(0)->_ty;
+  auto ret_ty = p->get_child_at<ASTNode>(0)->_type;
   Metadata *ret_meta = TypeSystem::ToLLVMMeta(_cs, ret_ty);
 
   /// generate prototype
@@ -77,7 +77,7 @@ Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
   /// set function arg types
   vector<Metadata *> arg_metas;
   for (size_t i = 1; i < p->get_children_size() - !p->_is_external; ++i) {
-    auto ty = p->get_child_at<ASTNode>(i)->_ty;
+    auto ty = p->get_child_at<ASTNode>(i)->_type;
     arg_metas.push_back(TypeSystem::ToLLVMMeta(_cs, ty));
   }
 
@@ -118,7 +118,7 @@ Value *CodeGeneratorImpl::codegen_func_decl(const ASTFunctionPtr &p) {
       auto *arg_val = codegen(p->get_arg(i));
       builder->CreateStore(&a, arg_val);
       /// create a debug descriptor for the arguments
-      auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_arg(i)->_ty);
+      auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_arg(i)->_type);
       llvm::DILocalVariable *di_arg = _cs->_di_builder
           ->createParameterVariable(subprogram,
               arg_name,

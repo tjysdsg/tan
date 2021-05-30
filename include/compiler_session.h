@@ -7,7 +7,7 @@ namespace tanlang {
 
 struct Scope;
 AST_FWD_DECL(ASTNode);
-AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTType);
 AST_FWD_DECL(ASTFunction);
 AST_FWD_DECL(FunctionTable);
 AST_FWD_DECL(ASTLoop);
@@ -83,13 +83,13 @@ public:
   /**
    * \brief Register a type
    * */
-  void set_type(const str &name, ASTTyPtr value);
+  void set_type(const str &name, ASTTypePtr value);
 
   /**
    * \brief Look up type table
    * \param name typename
    */
-  ASTTyPtr get_type(const str &name);
+  ASTTypePtr get_type(const str &name);
 
   LLVMContext *get_context();
   Module *get_module();
@@ -121,7 +121,7 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
-  umap<str, ASTTyPtr> _type_table{};
+  umap<str, ASTTypePtr> _type_table{};
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;

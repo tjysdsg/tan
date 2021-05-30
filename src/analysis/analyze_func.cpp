@@ -1,5 +1,5 @@
 #include "src/analysis/analyzer_impl.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_base.h"
 #include "src/ast/ast_ty.h"
 #include "src/ast/factory.h"
 #include "compiler_session.h"
@@ -7,7 +7,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_func_call(const ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_func_call(const ASTBasePtr &p) {
   auto f = ast_must_cast<ASTFunctionCall>(p);
 
   std::vector<ASTNodePtr> args;
@@ -18,10 +18,10 @@ void AnalyzerImpl::analyze_func_call(const ParsableASTNodePtr &p) {
 
   ASTFunctionPtr callee = ASTFunction::GetCallee(_cs, p->get_data<str>(), args);
   f->_callee = callee;
-  f->_ty = copy_ty(callee->get_ret_ty());
+  f->_type = copy_ty(callee->get_ret_ty());
 }
 
-void AnalyzerImpl::analyze_func_decl(const ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &p) {
   /// NOTE: children will not be automatically parsed for function declaration
 
   ASTFunctionPtr np = ast_must_cast<ASTFunction>(p);
@@ -34,7 +34,7 @@ void AnalyzerImpl::analyze_func_decl(const ParsableASTNodePtr &p) {
   _cs->add_function(np);
 
   /// analyze return type
-  resolve_ty(p->get_child_at<ASTTy>(0));
+  resolve_ty(p->get_child_at<ASTType>(0));
 
   _cs->push_scope(); /// new scope
 

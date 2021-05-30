@@ -18,7 +18,7 @@ class Parser final {
 public:
   Parser() = delete;
   Parser(vector<Token *> tokens, str filename, CompilerSession *cs);
-  ParsableASTNodePtr parse();
+  ASTBasePtr parse();
   [[nodiscard]] str get_filename() const;
 
 private:

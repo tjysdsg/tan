@@ -5,9 +5,9 @@
 
 using namespace tanlang;
 
-ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue) {
-  auto find = ASTTy::_cache.find(t);
-  if (find == ASTTy::_cache.end()) { return nullptr; }
+ASTTypePtr ASTType::find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue) {
+  auto find = ASTType::_cache.find(t);
+  if (find == ASTType::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
   auto ret = find->second;
 
@@ -15,7 +15,7 @@ ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue
   size_t idx = 0;
   for (const auto &sub : sub_tys) {
     auto t1 = sub;
-    auto t2 = ret->get_child_at<ASTTy>(idx);
+    auto t2 = ret->get_child_at<ASTType>(idx);
     if (t1->_tyty != t2->_tyty) { return nullptr; }
     if (t1->_is_lvalue != t2->_is_lvalue) { return nullptr; }
     ++idx;
@@ -23,7 +23,7 @@ ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue
   return ret;
 }
 
-bool ASTTy::operator==(const ASTTy &other) {
+bool ASTType::operator==(const ASTType &other) {
   #define CHECK(val) if (this->val != other.val) { return false; }
   CHECK(_size_bits)
   CHECK(_align_bits)
@@ -42,9 +42,9 @@ bool ASTTy::operator==(const ASTTy &other) {
     size_t n = get_children_size();
     if (n != other.get_children_size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      auto lhs = get_child_at<ASTTy>(i);
+      auto lhs = get_child_at<ASTType>(i);
       TAN_ASSERT(lhs);
-      auto rhs = other.get_child_at<ASTTy>(i);
+      auto rhs = other.get_child_at<ASTType>(i);
       TAN_ASSERT(rhs);
       if (!lhs->operator==(*rhs)) { return false; }
     }
@@ -52,7 +52,7 @@ bool ASTTy::operator==(const ASTTy &other) {
   return true;
 }
 
-str ASTTy::to_string(bool print_prefix) {
+str ASTType::to_string(bool print_prefix) {
   str ret = "";
   if (print_prefix) {
     ret += "Type: ";
@@ -61,9 +61,9 @@ str ASTTy::to_string(bool print_prefix) {
   return ret;
 }
 
-bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
+bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-umap<str, Ty>ASTTy::basic_tys =
+umap<str, Ty>ASTType::basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
         {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
@@ -71,8 +71,8 @@ umap<str, Ty>ASTTy::basic_tys =
         {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
         {"bool", Ty::BOOL},};
 
-umap<str, Ty> ASTTy::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTTy::ASTTy() {
-  set_node_type(ASTType::TY);
+ASTType::ASTType() {
+  set_node_type(ASTNodeType::TY);
 }

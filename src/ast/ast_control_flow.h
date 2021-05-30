@@ -11,7 +11,7 @@ namespace tanlang {
 class ASTIf : public ASTNode {
 public:
   ASTIf() = delete;
-  ASTIf(ASTType op, int lbp) : ASTNode(op, lbp) {}
+  ASTIf(ASTNodeType op, int lbp) : ASTNode(op, lbp) {}
 
 public:
   bool _has_else = false;
@@ -21,7 +21,7 @@ enum class ASTLoopType { FOR, WHILE };
 
 class ASTLoop final : public ASTNode {
 public:
-  ASTLoop() : ASTNode(ASTType::LOOP, 0) {}
+  ASTLoop() : ASTNode(ASTNodeType::LOOP, 0) {}
 
 public:
   ASTLoopType _loop_type = ASTLoopType::WHILE;

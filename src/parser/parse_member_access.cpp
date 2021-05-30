@@ -5,7 +5,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_member_access(const ASTBasePtr &left, const ASTBasePtr &p) {
   auto pma = ast_cast<ASTMemberAccess>(p);
   TAN_ASSERT(pma);
   if (at(p->_end_index)->value == "[") {
@@ -24,14 +24,14 @@ size_t ParserImpl::parse_member_access(const ParsableASTNodePtr &left, const Par
       && right->get_token_str() == "*") { /// pointer dereference
     pma->_access_type = MemberAccessType::MemberAccessDeref;
     ++p->_end_index; // skip *
-  } else if (right->get_node_type() == ASTType::FUNC_CALL) { /// method call
+  } else if (right->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
     pma->_access_type = MemberAccessType::MemberAccessMemberFunction;
   }
 
   if (!(pma->_access_type == MemberAccessType::MemberAccessBracket
       || pma->_access_type == MemberAccessType::MemberAccessMemberFunction
       || pma->_access_type == MemberAccessType::MemberAccessDeref /// pointer dereference
-      || right->get_node_type() == ASTType::ID /// member variable or enum
+      || right->get_node_type() == ASTNodeType::ID /// member variable or enum
   )) {
     error(right->_end_index, "Invalid right-hand operand");
   }

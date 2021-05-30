@@ -2,14 +2,14 @@
 #include "src/ast/ast_ty.h"
 #include "compiler_session.h"
 #include "src/ast/factory.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_base.h"
 #include "src/analysis/type_system.h"
 #include "intrinsic.h"
 #include <iostream>
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_intrinsic(const ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &p) {
   auto pi = ast_must_cast<Intrinsic>(p);
   TAN_ASSERT(p->get_children_size());
 
@@ -27,7 +27,7 @@ void AnalyzerImpl::analyze_intrinsic(const ParsableASTNodePtr &p) {
     case IntrinsicType::STACK_TRACE:
     case IntrinsicType::ABORT:
     case IntrinsicType::NOOP: {
-      np->_ty = void_type;
+      np->_type = void_type;
       break;
     }
     case IntrinsicType::LINENO: {
@@ -39,14 +39,14 @@ void AnalyzerImpl::analyze_intrinsic(const ParsableASTNodePtr &p) {
       break;
     }
     case IntrinsicType::GET_DECL: {
-      np->_ty = create_ty(_cs, Ty::STRING);
-      TAN_ASSERT(c->get_node_type() == ASTType::STRING_LITERAL);
+      np->_type = create_ty(_cs, Ty::STRING);
+      TAN_ASSERT(c->get_node_type() == ASTNodeType::STRING_LITERAL);
       // TODO: set p->_value to the source code of p
       break;
     }
     case IntrinsicType::COMP_PRINT: {
-      np->_ty = void_type;
-      if (c->get_node_type() != ASTType::STRING_LITERAL) {
+      np->_type = void_type;
+      if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
         report_error(p, "Invalid call to compprint, one argument with type 'str' required");
       }
       std::cout << "Message (" << _h.get_source_location(p) << "): " << c->get_data<str>() << "\n";

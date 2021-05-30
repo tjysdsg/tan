@@ -17,9 +17,9 @@ Value *CodeGeneratorImpl::codegen_break_continue(const ASTNodePtr &p) {
   }
   auto s = loop->_loop_start;
   auto e = loop->_loop_end;
-  if (p->get_node_type() == ASTType::BREAK) {
+  if (p->get_node_type() == ASTNodeType::BREAK) {
     builder->CreateBr(e);
-  } else if (p->get_node_type() == ASTType::CONTINUE) {
+  } else if (p->get_node_type() == ASTNodeType::CONTINUE) {
     builder->CreateBr(s);
   } else { TAN_ASSERT(false); }
   return nullptr;
@@ -65,7 +65,7 @@ Value *CodeGeneratorImpl::codegen_loop(const ASTNodePtr &p) {
     if (!cond) {
       report_error(p, "Expected a condition expression");
     }
-    cond = TypeSystem::ConvertTo(_cs, cond, p->get_child_at<ASTNode>(0)->_ty, create_ty(_cs, Ty::BOOL));
+    cond = TypeSystem::ConvertTo(_cs, cond, p->get_child_at<ASTNode>(0)->_type, create_ty(_cs, Ty::BOOL));
     builder->CreateCondBr(cond, loop_body, pl->_loop_end);
 
     /// loop body
@@ -93,7 +93,7 @@ Value *CodeGeneratorImpl::codegen_if(const ASTNodePtr &p) {
   }
 
   /// convert to bool if not
-  condition = TypeSystem::ConvertTo(_cs, condition, p->get_child_at<ASTNode>(0)->_ty, create_ty(_cs, Ty::BOOL));
+  condition = TypeSystem::ConvertTo(_cs, condition, p->get_child_at<ASTNode>(0)->_type, create_ty(_cs, Ty::BOOL));
 
   /// create_ty blocks for the then (and else) clause
   Function *func = builder->GetInsertBlock()->getParent();

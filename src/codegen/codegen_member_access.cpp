@@ -18,14 +18,14 @@ Value *CodeGeneratorImpl::codegen_member_access(const ASTMemberAccessPtr &p) {
   Value *ret;
   switch (p->_access_type) {
     case MemberAccessType::MemberAccessBracket: {
-      if (lhs->_ty->_is_lvalue) { from = builder->CreateLoad(from); }
+      if (lhs->_type->_is_lvalue) { from = builder->CreateLoad(from); }
       auto *rhs_val = codegen(rhs);
-      if (rhs->_ty->_is_lvalue) { rhs_val = builder->CreateLoad(rhs_val); }
+      if (rhs->_type->_is_lvalue) { rhs_val = builder->CreateLoad(rhs_val); }
       ret = builder->CreateGEP(from, rhs_val, "bracket_access");
       break;
     }
     case MemberAccessType::MemberAccessMemberVariable: {
-      if (lhs->_ty->_is_lvalue && lhs->_ty->_is_ptr && _h.get_contained_ty(lhs->_ty)) {
+      if (lhs->_type->_is_lvalue && lhs->_type->_is_ptr && _h.get_contained_ty(lhs->_type)) {
         /// auto dereference pointers
         from = builder->CreateLoad(from);
       }

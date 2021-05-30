@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-ASTNode::ASTNode(ASTType op, int lbp) {
+ASTNode::ASTNode(ASTNodeType op, int lbp) {
   set_node_type(op);
   set_lbp(lbp);
 }

@@ -25,8 +25,8 @@ ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, cons
       TAN_ASSERT(arg->_is_typed);
       auto actual_arg = args[i];
       /// allow implicit cast from actual_arg to arg, but not in reverse
-      auto t1 = arg->_ty;
-      auto t2 = actual_arg->_ty;
+      auto t1 = arg->_type;
+      auto t2 = actual_arg->_type;
       if (*t1 != *t2) {
         if (0 != TypeSystem::CanImplicitCast(cs, t1, t2)) {
           good = false;
@@ -52,7 +52,7 @@ ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, cons
   return ret;
 }
 
-ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types) {
+ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTypePtr> types) {
   TAN_ASSERT(!types.empty());
   auto ret = make_ptr<ASTFunction>();
   ret->set_data(name);
@@ -67,8 +67,8 @@ ASTFunctionPtr ASTFunction::CreateExtern(const str &name, vector<ASTTyPtr> types
   return ret;
 }
 
-ASTTyPtr ASTFunction::get_ret_ty() const {
-  return get_child_at<ASTTy>(0);
+ASTTypePtr ASTFunction::get_ret_ty() const {
+  return get_child_at<ASTType>(0);
 }
 
 ASTNodePtr ASTFunction::get_arg(size_t i) const {

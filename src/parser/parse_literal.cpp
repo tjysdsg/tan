@@ -1,16 +1,16 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_base.h"
 #include "src/common.h"
 #include "token.h"
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_array_literal(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_array_literal(const ASTBasePtr &p) {
   ++p->_end_index; /// skip '['
   if (at(p->_end_index)->value == "]") { error(p->_end_index, "Empty array"); }
-  auto element_type = ASTType::INVALID;
+  auto element_type = ASTNodeType::INVALID;
   while (!eof(p->_end_index)) {
     if (at(p->_end_index)->value == ",") {
       ++p->_end_index;
@@ -22,7 +22,7 @@ size_t ParserImpl::parse_array_literal(const ParsableASTNodePtr &p) {
     auto node = peek(p->_end_index);
     if (!node) { error(p->_end_index, "Unexpected token"); }
     /// check whether element types are the same
-    if (element_type == ASTType::INVALID) { element_type = node->get_node_type(); }
+    if (element_type == ASTNodeType::INVALID) { element_type = node->get_node_type(); }
     else {
       if (element_type != node->get_node_type()) {
         error(p->_end_index, "All elements in an array must have the same type");

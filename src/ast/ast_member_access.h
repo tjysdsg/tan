@@ -19,7 +19,7 @@ using ASTMemberAccessPtr = std::shared_ptr<ASTMemberAccess>;
 class ASTMemberAccess final : public ASTNode {
 public:
   ASTMemberAccess() = delete;
-  ASTMemberAccess(ASTType op, int lbp) : ASTNode(op, lbp) {}
+  ASTMemberAccess(ASTNodeType op, int lbp) : ASTNode(op, lbp) {}
 
 public:
   MemberAccessType _access_type = MemberAccessType::MemberAccessInvalid;

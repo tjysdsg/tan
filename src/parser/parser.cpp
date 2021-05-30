@@ -10,7 +10,7 @@ Parser::Parser(vector<Token *> tokens, str filename, CompilerSession *cs) : _imp
     cs)) {
 }
 
-ParsableASTNodePtr Parser::parse() {
+ASTBasePtr Parser::parse() {
   return _impl->parse();
 }
 

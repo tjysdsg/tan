@@ -11,8 +11,8 @@ class Function;
 namespace tanlang {
 
 class CompilerSession;
-class ASTTy;
-using ASTTyPtr = std::shared_ptr<ASTTy>;
+class ASTType;
+using ASTTypePtr = std::shared_ptr<ASTType>;
 
 enum class IntrinsicType {
   INVALID = 0, ABORT, /// abort
@@ -58,7 +58,7 @@ public:
   static void InitAnalysis(CompilerSession *cs);
 
 public:
-  Intrinsic() : ASTNode(ASTType::INTRINSIC, 0) {
+  Intrinsic() : ASTNode(ASTNodeType::INTRINSIC, 0) {
     _is_typed = true;
     _is_valued = true;
   }

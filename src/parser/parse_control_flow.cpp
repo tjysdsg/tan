@@ -4,7 +4,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_if(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_if(const ASTBasePtr &p) {
   auto pif = ast_cast<ASTIf>(p);
   TAN_ASSERT(pif);
   ++pif->_end_index; /// skip "if"
@@ -28,7 +28,7 @@ size_t ParserImpl::parse_if(const ParsableASTNodePtr &p) {
   return pif->_end_index;
 }
 
-size_t ParserImpl::parse_else(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_else(const ASTBasePtr &p) {
   ++p->_end_index; /// skip "else"
   auto else_clause = peek(p->_end_index);
   p->_end_index = parse_node(else_clause);
@@ -36,7 +36,7 @@ size_t ParserImpl::parse_else(const ParsableASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_loop(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_loop(const ASTBasePtr &p) {
   auto pl = ast_cast<ASTLoop>(p);
   TAN_ASSERT(pl);
   if (at(p->_end_index)->value == "for") {

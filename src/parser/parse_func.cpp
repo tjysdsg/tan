@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_func_decl(const ASTBasePtr &p) {
   auto pfn = ast_cast<ASTFunction>(p);
   if (at(p->_start_index)->value == "fn") { /// "fn"
     ++p->_end_index;
@@ -24,13 +24,13 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   p->append_child(nullptr);
 
   /// function name
-  // Don't use peek since it look ahead and returns ASTType::FUNCTION when it finds "(",
+  // Don't use peek since it look ahead and returns ASTNodeType::FUNCTION when it finds "(",
   // but we only want the function name as an identifier
   // auto id = peek(p->_end_index);
   Token *id_token = at(p->_end_index);
   auto id = ast_create_identifier(_cs, id_token->value);
   id->_start_index = id->_end_index = p->_end_index;
-  if (id->get_node_type() != ASTType::ID) {
+  if (id->get_node_type() != ASTNodeType::ID) {
     error(p->_end_index, "Invalid function name");
   }
   p->_end_index = parse_node(id);
@@ -60,7 +60,7 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
 
   /// function return type
   auto ret_type = peek(p->_end_index);
-  if (ret_type->get_node_type() != ASTType::TY) {
+  if (ret_type->get_node_type() != ASTNodeType::TY) {
     error(p->_end_index, "Expect a type");
   }
   p->_end_index = parse_node(ret_type);
@@ -76,7 +76,7 @@ size_t ParserImpl::parse_func_decl(const ParsableASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_func_call(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_func_call(const ASTBasePtr &p) {
   p->set_data(at(p->_end_index)->value); /// function name
   ++p->_end_index;
 

@@ -10,8 +10,8 @@ namespace tanlang {
 
 ASTNodePtr ast_create_arg_decl(CompilerSession *cs);
 ASTNodePtr ast_create_var_decl(CompilerSession *cs);
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty);
-ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTyPtr &ty);
+ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty);
+ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty);
 ASTNodePtr ast_create_func_decl(CompilerSession *cs);
 ASTNodePtr ast_create_struct_decl(CompilerSession *cs);
 ASTNodePtr ast_create_enum_decl(CompilerSession *cs);
@@ -34,7 +34,7 @@ ASTNodePtr ast_create_comparison(CompilerSession *cs, const str &op);
 ASTNodePtr ast_create_assignment(CompilerSession *cs);
 ASTNodePtr ast_create_member_access(CompilerSession *cs);
 ASTNodePtr ast_create_return(CompilerSession *cs);
-ASTNodePtr ast_create_address_of(CompilerSession *cs, ParsableASTNodePtr p);
+ASTNodePtr ast_create_address_of(CompilerSession *cs, ASTBasePtr p);
 
 /// \section Ambiguous ops
 /// The type of these operators/expression is undetermined before parsing
@@ -59,11 +59,11 @@ ASTNodePtr ast_create_identifier(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
 ASTNodePtr ast_create_parenthesis(CompilerSession *cs);
 ASTNodePtr ast_create_func_call(CompilerSession *cs);
-ASTTyPtr ast_create_ty(CompilerSession *cs);
+ASTTypePtr ast_create_ty(CompilerSession *cs);
 
 /// \section Types
 
-ASTTyPtr create_ty(CompilerSession *cs, Ty t, vector<ASTTyPtr> sub_tys = {}, bool is_lvalue = false);
+ASTTypePtr create_ty(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys = {}, bool is_lvalue = false);
 
 } // namespace tanlang
 

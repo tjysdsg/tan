@@ -1,9 +1,9 @@
-#ifndef __TAN_SRC_AST_AST_TYPE_H__
-#define __TAN_SRC_AST_AST_TYPE_H__
+#ifndef __TAN_SRC_AST_AST_NODE_TYPE_H__
+#define __TAN_SRC_AST_AST_NODE_TYPE_H__
 
 namespace tanlang {
 
-enum class ASTType {
+enum class ASTNodeType {
   PROGRAM,
   FUNC_DECL,
   FUNC_CALL,
@@ -57,4 +57,4 @@ enum class ASTType {
 
 }
 
-#endif //__TAN_SRC_AST_AST_TYPE_H__
+#endif //__TAN_SRC_AST_AST_NODE_TYPE_H__

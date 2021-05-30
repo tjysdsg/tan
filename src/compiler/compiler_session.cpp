@@ -92,11 +92,11 @@ ASTNodePtr CompilerSession::get(const str &name) {
   return result;
 }
 
-void CompilerSession::set_type(const str &name, ASTTyPtr ty) {
+void CompilerSession::set_type(const str &name, ASTTypePtr ty) {
   _type_table[name] = ty;
 }
 
-ASTTyPtr CompilerSession::get_type(const str &name) {
+ASTTypePtr CompilerSession::get_type(const str &name) {
   TAN_ASSERT(name != "");
   return _type_table.at(name);
 }

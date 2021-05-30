@@ -11,9 +11,9 @@ class Value;
 namespace tanlang {
 
 class CompilerSession;
-AST_FWD_DECL(ParsableASTNode);
+AST_FWD_DECL(ASTBase);
 AST_FWD_DECL(ASTNode);
-AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTType);
 AST_FWD_DECL(ASTFunction);
 AST_FWD_DECL(ASTMemberAccess);
 AST_FWD_DECL(Intrinsic);
@@ -35,7 +35,7 @@ private:
   Value *codegen_comparison(const ASTNodePtr &p);
   Value *codegen_assignment(const ASTNodePtr &p);
   Value *codegen_cast(const ASTNodePtr &p);
-  Value *codegen_ty(const ASTTyPtr &p);
+  Value *codegen_ty(const ASTTypePtr &p);
   Value *codegen_var_arg_decl(const ASTNodePtr &p);
   Value *codegen_address_of(const ASTNodePtr &p);
   Value *codegen_parenthesis(const ASTNodePtr &p);
@@ -49,7 +49,7 @@ private:
   Value *codegen_literals(const ASTNodePtr &p);
   Value *codegen_intrinsic(const IntrinsicPtr &p);
   Value *codegen_member_access(const ASTMemberAccessPtr &p);
-  [[noreturn]] void report_error(const ParsableASTNodePtr &p, const str &message);
+  [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);
 
 private:
   CompilerSession *_cs = nullptr;

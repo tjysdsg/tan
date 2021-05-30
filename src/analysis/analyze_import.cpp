@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_import(const ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze_import(const ASTBasePtr &p) {
   // TODO: determine whether to use class field or child ASTNode to store imported filename
   // auto rhs = p->get_child_at(0);
   // str file = std::get<str>(rhs->_value);

@@ -2,8 +2,8 @@
 #define TAN_SRC_AST_ASTNODE_H_
 #include "base.h"
 #include "src/ast/precedence.h"
-#include "src/ast/ast_type.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_node_type.h"
+#include "src/ast/ast_base.h"
 #include "src/ast/source_traceable.h"
 #include <variant>
 
@@ -15,21 +15,20 @@ class Metadata;
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTType);
 AST_FWD_DECL(ASTNode);
 class CompilerSession;
 class Parser;
 struct Token;
 enum class Ty : uint64_t;
 
-class ASTNode : public ParsableASTNode {
+class ASTNode : public ASTBase {
 public:
   ASTNode() = delete;
-  ASTNode(ASTType op, int lbp);
+  ASTNode(ASTNodeType op, int lbp);
   virtual ~ASTNode() = default;
 
 public:
-  ASTTyPtr _ty = nullptr;
   bool _is_typed = false;
   bool _is_valued = false;
   bool _is_named = false;

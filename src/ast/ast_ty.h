@@ -1,7 +1,7 @@
 #ifndef TAN_SRC_AST_AST_TY_H_
 #define TAN_SRC_AST_AST_TY_H_
 #include <variant>
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_base.h"
 #include "src/ast/ty.h"
 #include "base.h"
 
@@ -17,36 +17,36 @@ class Type;
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTType);
 
 /**
  * \brief Type of an ASTNode
  */
-class ASTTy : public ParsableASTNode, public enable_ptr_from_this<ASTTy> {
+class ASTType : public ASTBase, public enable_ptr_from_this<ASTType> {
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
 
 private:
-  static inline umap<Ty, ASTTyPtr> _cache{};
-  static ASTTyPtr find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue);
+  static inline umap<Ty, ASTTypePtr> _cache{};
+  static ASTTypePtr find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue);
 
 public:
-  ASTTy();
+  ASTType();
 
-  ASTTy(const ASTTy &) = default;
-  ASTTy(ASTTy &&) = default;
-  ASTTy &operator=(const ASTTy &) = default;
-  ASTTy &operator=(ASTTy &&) = default;
+  ASTType(const ASTType &) = default;
+  ASTType(ASTType &&) = default;
+  ASTType &operator=(const ASTType &) = default;
+  ASTType &operator=(ASTType &&) = default;
 
-  bool operator==(const ASTTy &other);
-  bool operator!=(const ASTTy &other);
+  bool operator==(const ASTType &other);
+  bool operator!=(const ASTType &other);
 
   virtual str to_string(bool print_prefix = true);
 
 public:
   Ty _tyty = Ty::INVALID;
-  // avoid name collision with _ty
+  // avoid name collision with _type
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
   str _type_name = "";

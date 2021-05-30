@@ -16,7 +16,7 @@ AST_FWD_DECL(ASTFunction);
  *
  * \details
  * Children:
- *  - Return type, ASTTy
+ *  - Return type, ASTTypepe
  *  - Arg1, ASTArgDecl
  *  - Arg2, ASTArgDecl
  *  - ...
@@ -24,18 +24,18 @@ AST_FWD_DECL(ASTFunction);
  * */
 class ASTFunction : public ASTNode {
 public:
-  static ASTFunctionPtr CreateExtern(const str &name, vector<ASTTyPtr> types);
+  static ASTFunctionPtr CreateExtern(const str &name, vector<ASTTypePtr> types);
   static ASTFunctionPtr GetCallee(CompilerSession *cs, const str &name, const vector<ASTNodePtr> &args);
 
 public:
-  ASTFunction() : ASTNode(ASTType::FUNC_DECL, 0) {
+  ASTFunction() : ASTNode(ASTNodeType::FUNC_DECL, 0) {
     _is_named = true;
     _is_typed = true;
     _is_external = false;
     _is_public = false;
   };
 
-  [[nodiscard]] ASTTyPtr get_ret_ty() const;
+  [[nodiscard]] ASTTypePtr get_ret_ty() const;
   [[nodiscard]] ASTNodePtr get_arg(size_t i) const;
   [[nodiscard]] size_t get_n_args() const;
 
@@ -47,7 +47,7 @@ public:
 
 class ASTFunctionCall : public ASTNode {
 public:
-  ASTFunctionCall() : ASTNode(ASTType::FUNC_CALL, 0) {
+  ASTFunctionCall() : ASTNode(ASTNodeType::FUNC_CALL, 0) {
     _is_typed = true;
     _is_valued = true;
     _is_named = true;
