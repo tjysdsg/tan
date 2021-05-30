@@ -72,6 +72,7 @@ public:
 };
 
 enum BinaryOpKind {
+  INVALID, ///
   SUM,         /// +
   SUBTRACT,    /// -
   MULTIPLY,    /// *
@@ -97,10 +98,14 @@ class BinaryOperator : public Expr {
 public:
   static ptr<BinaryOperator> Create(BinaryOpKind op);
   static ptr<BinaryOperator> Create(BinaryOpKind op, const ptr<Expr> &lhs, const ptr<Expr> &rhs);
-  BinaryOperator(BinaryOpKind op);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
+
+  BinaryOperator(BinaryOpKind op);
+
+  void set_lhs(const ptr<Expr> &lhs);
+  void set_rhs(const ptr<Expr> &rhs);
 
 protected:
   BinaryOpKind _op;

@@ -98,7 +98,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   if (token->value == "@") { /// intrinsics
     node = ast_create_intrinsic(_cs);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
-    node = ast_create_assignment(_cs);
+    node = BinaryOperator::Create(BinaryOpKind::ASSIGN);
   } else if (token->value == "!" || token->value == "~") {
     node = ast_create_not(_cs);
   } else if (token->value == "[") {
@@ -111,7 +111,30 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
       node = ast_create_member_access(_cs);
     }
   } else if (token->type == TokenType::RELOP) { /// comparisons
-    node = ast_create_comparison(_cs, token->value);
+    BinaryOpKind op = BinaryOpKind::INVALID;
+    switch (hashed_string{token->value.c_str()}) {
+      case ">"_hs:
+        op = BinaryOpKind::GT;
+        break;
+      case ">="_hs:
+        op = BinaryOpKind::GE;
+        break;
+      case "<"_hs:
+        op = BinaryOpKind::LT;
+        break;
+      case "<="_hs:
+        op = BinaryOpKind::LE;
+        break;
+      case "=="_hs:
+        op = BinaryOpKind::EQ;
+        break;
+      case "!="_hs:
+        op = BinaryOpKind::NE;
+        break;
+      default:
+        return nullptr;
+    }
+    node = BinaryOperator::Create(op);
   } else if (token->type == TokenType::INT) {
     node = IntegerLiteral::Create((uint64_t) std::stol(token->value), token->is_unsigned);
   } else if (token->type == TokenType::FLOAT) {
@@ -141,7 +164,27 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = Stmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
-    node = ast_create_arithmetic(_cs, token->value);
+    BinaryOpKind op = BinaryOpKind::INVALID;
+    switch (hashed_string{token->value.c_str()}) {
+      case "+"_hs:
+        op = BinaryOpKind::SUM;
+        break;
+      case "-"_hs:
+        op = BinaryOpKind::SUBTRACT;
+        break;
+      case "*"_hs:
+        op = BinaryOpKind::MULTIPLY;
+        break;
+      case "/"_hs:
+        op = BinaryOpKind::DIVIDE;
+        break;
+      case "%"_hs:
+        op = BinaryOpKind::MOD;
+        break;
+      default:
+        return nullptr;
+    }
+    node = BinaryOperator::Create(op);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {
@@ -315,24 +358,13 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   }
 
   switch (p->get_node_type()) {
-    case ASTNodeType::MEMBER_ACCESS: {
+    case ASTNodeType::MEMBER_ACCESS:
       parse_member_access(left, p);
       break;
-    }
-    case ASTNodeType::BAND:
-    case ASTNodeType::CAST:
-    case ASTNodeType::ASSIGN:
-    case ASTNodeType::GT:
-    case ASTNodeType::GE:
-    case ASTNodeType::LT:
-    case ASTNodeType::LE:
-    case ASTNodeType::EQ:
-    case ASTNodeType::NE:
-    case ASTNodeType::SUM:
-    case ASTNodeType::SUBTRACT:
-    case ASTNodeType::MULTIPLY:
-    case ASTNodeType::DIVIDE:
-    case ASTNodeType::MOD: {
+    case ASTNodeType::BOP:
+      parse_bop(left, p);
+      break;
+    case ASTNodeType::CAST: {
       ++p->_end_index; /// skip operator
       p->append_child(left); /// lhs
       auto n = next_expression(p->_end_index, p->get_lbp());
@@ -362,3 +394,21 @@ str ParserImpl::get_filename() const { return _filename; }
 bool ParserImpl::eof(size_t index) const { return index >= _tokens.size(); }
 
 void ParserImpl::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
+
+size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
+  ptr<Expr> lhs = ast_must_cast<Expr>(_lhs);
+  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
+
+  ++p->_end_index; /// skip the operator
+
+  p->set_lhs(lhs); /// lhs
+
+  /// rhs
+  auto rhs = next_expression(p->_end_index, p->get_lbp());
+  if (!rhs) {
+    error(p->_end_index, "Invalid operand");
+  }
+  p->set_rhs(rhs);
+
+  return p->_end_index;
+}

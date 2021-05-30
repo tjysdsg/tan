@@ -76,3 +76,7 @@ ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op, const ptr<Expr> &lhs
   ret->_rhs = rhs;
   return ret;
 }
+
+void BinaryOperator::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
+
+void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _lhs = rhs; }
