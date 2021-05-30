@@ -7,7 +7,7 @@ namespace tanlang {
 
 struct Scope;
 AST_FWD_DECL(ASTType);
-AST_FWD_DECL(ASTFunction);
+AST_FWD_DECL(FunctionDecl);
 AST_FWD_DECL(FunctionTable);
 AST_FWD_DECL(ASTLoop);
 
@@ -17,8 +17,8 @@ AST_FWD_DECL(ASTLoop);
  * */
 class CompilerSession final {
 public:
-  static void AddPublicFunction(const str &filename, ASTFunctionPtr func);
-  static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
+  static void AddPublicFunction(const str &filename, FunctionDeclPtr func);
+  static vector<FunctionDeclPtr> GetPublicFunctions(const str &filename);
 
 private:
   /**
@@ -105,8 +105,8 @@ public:
    * \details This will not add anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
    * */
-  void add_function(ASTFunctionPtr func);
-  vector<ASTFunctionPtr> get_functions(const str &name);
+  void add_function(FunctionDeclPtr func);
+  vector<FunctionDeclPtr> get_functions(const str &name);
   [[nodiscard]] ptr<ASTLoop> get_current_loop() const;
   void set_current_loop(ptr<ASTLoop>);
   [[nodiscard]] DIFile *get_di_file() const;

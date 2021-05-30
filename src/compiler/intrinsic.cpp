@@ -24,7 +24,11 @@ static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(CompilerSession *cs) {
-  cs->add_function(ASTFunction::CreateExtern("compprint", {create_ty(cs, Ty::VOID), create_ty(cs, Ty::STRING)}));
+  cs->add_function(ASTFunction::Create("compprint",
+      create_ty(cs, Ty::VOID),
+      {create_ty(cs, Ty::STRING),},
+      true,
+      false));
 }
 
 /// add _codegen for function definition if a new function-like intrinsic is added

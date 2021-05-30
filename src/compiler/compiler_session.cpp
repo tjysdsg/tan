@@ -192,7 +192,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func) {
+void CompilerSession::AddPublicFunction(const str &filename, FunctionDeclPtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
     pf[filename] = std::make_shared<FunctionTable>();
@@ -200,7 +200,7 @@ void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func
   pf[filename]->set(func);
 }
 
-vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
+vector<FunctionDeclPtr> CompilerSession::GetPublicFunctions(const str &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
@@ -212,11 +212,11 @@ vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) 
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
 
-void CompilerSession::add_function(ASTFunctionPtr func) {
+void CompilerSession::add_function(FunctionDeclPtr func) {
   _function_table->set(func);
 }
 
-vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
+vector<FunctionDeclPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 

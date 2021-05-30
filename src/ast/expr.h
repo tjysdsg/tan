@@ -3,17 +3,15 @@
 #include "base.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_named.h"
+#include "src/ast/typed.h"
 
 namespace tanlang {
 
 AST_FWD_DECL(ASTType);
 
-class Expr : public ASTBase {
+class Expr : public ASTBase, public Typed {
 public:
   Expr(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
-
-private:
-  ASTTypePtr _type = nullptr;
 };
 
 class Literal : public Expr {
