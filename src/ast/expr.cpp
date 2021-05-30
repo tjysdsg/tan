@@ -128,6 +128,8 @@ Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedenc
 
 void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }
 
+ptr<Expr> Parenthesis::get_sub() const { return _sub; }
+
 /// \section MEMBER_ACCESS operator
 
 ptr<MemberAccess> MemberAccess::Create() { return make_ptr<MemberAccess>(); }

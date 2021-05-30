@@ -189,6 +189,7 @@ public:
   Parenthesis();
 
   void set_sub(const ptr<Expr> &sub);
+  ptr<Expr> get_sub() const;
 
 private:
   ptr<Expr> _sub = nullptr;

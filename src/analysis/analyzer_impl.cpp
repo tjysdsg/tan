@@ -63,21 +63,17 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       analyze_import(p);
       break;
     case ASTNodeType::PARENTHESIS:
-      np->_type = copy_ty(_h.get_ty(p->get_child_at(0)));
+      analyze_parenthesis(p);
       break;
     case ASTNodeType::FUNC_CALL:
       analyze_func_call(p);
       break;
-    case ASTNodeType::TY: {
-      ASTTypePtr pt = ast_must_cast<ASTType>(p);
-      resolve_ty(pt);
+    case ASTNodeType::TY:
+      resolve_ty(ast_must_cast<ASTType>(p));
       break;
-    }
-      ////////////////////////// declarations ///////////////////////////
-    case ASTNodeType::ENUM_DECL: {
+    case ASTNodeType::ENUM_DECL:
       // TODO: Analysis of enum types and values
       break;
-    }
     case ASTNodeType::FUNC_DECL:
       analyze_func_decl(p);
       break;
@@ -156,4 +152,9 @@ void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
   auto ty = copy_ty(typed->get_type());
   ty->_is_lvalue = true;
   p->set_type(ty);
+}
+
+void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Parenthesis>(_p);
+  p->set_type(copy_ty(p->get_sub()->get_type()));
 }
