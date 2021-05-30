@@ -207,16 +207,17 @@ Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Import>(_p);
+
   set_current_debug_location(p);
-  for (auto &n: p->get_children()) {
-    auto f = ast_must_cast<FunctionDecl>(n);
+  for (const FunctionDeclPtr &f: p->get_imported_funcs()) {
     /// do nothing for already defined intrinsics
-    auto *func = _cs->get_module()->getFunction(f->get_data<str>());
+    auto *func = _cs->get_module()->getFunction(f->get_name());
     if (!func) {
       codegen_func_prototype(f);
     } else {
-      f->_func = func;
+      f->_llvm_value = func;
     }
   }
   return nullptr;
