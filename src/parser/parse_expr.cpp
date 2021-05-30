@@ -49,3 +49,35 @@ size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
   p->set_elements(elements);
   return p->_end_index;
 }
+
+size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
+  ptr<Expr> lhs = ast_must_cast<Expr>(_lhs);
+  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
+
+  ++p->_end_index; /// skip the operator
+
+  p->set_lhs(lhs); /// lhs
+
+  /// rhs
+  auto rhs = next_expression(p->_end_index, p->get_lbp());
+  if (!rhs) {
+    error(p->_end_index, "Invalid operand");
+  }
+  p->set_rhs(rhs);
+
+  return p->_end_index;
+}
+
+size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
+  ptr<UnaryOperator> p = ast_must_cast<UnaryOperator>(_p);
+
+  /// rhs
+  ++p->_end_index;
+  auto rhs = ast_cast<Expr>(next_expression(p->_end_index, p->get_lbp()));
+  if (!rhs) {
+    error(p->_end_index, "Invalid operand");
+  }
+  p->set_rhs(rhs);
+
+  return p->_end_index;
+}

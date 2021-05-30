@@ -402,35 +402,3 @@ str ParserImpl::get_filename() const { return _filename; }
 bool ParserImpl::eof(size_t index) const { return index >= _tokens.size(); }
 
 void ParserImpl::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
-
-size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
-  ptr<Expr> lhs = ast_must_cast<Expr>(_lhs);
-  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
-
-  ++p->_end_index; /// skip the operator
-
-  p->set_lhs(lhs); /// lhs
-
-  /// rhs
-  auto rhs = next_expression(p->_end_index, p->get_lbp());
-  if (!rhs) {
-    error(p->_end_index, "Invalid operand");
-  }
-  p->set_rhs(rhs);
-
-  return p->_end_index;
-}
-
-size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
-  ptr<UnaryOperator> p = ast_must_cast<UnaryOperator>(_p);
-
-  /// rhs
-  ++p->_end_index;
-  auto rhs = ast_cast<Expr>(next_expression(p->_end_index, p->get_lbp()));
-  if (!rhs) {
-    error(p->_end_index, "Invalid operand");
-  }
-  p->set_rhs(rhs);
-
-  return p->_end_index;
-}
