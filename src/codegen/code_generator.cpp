@@ -9,7 +9,7 @@ CodeGenerator::CodeGenerator(CompilerSession *cs) {
 }
 
 llvm::Value *CodeGenerator::codegen(const ASTBasePtr &p) {
-  return _impl->codegen(ast_must_cast<ASTNode>(p));
+  return _impl->codegen(p);
 }
 
 CodeGenerator::~CodeGenerator() {

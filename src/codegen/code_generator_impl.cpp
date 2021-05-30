@@ -1,19 +1,19 @@
-#include "src/llvm_include.h"
 #include "code_generator_impl.h"
-#include "src/ast/ast_node.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/ast_func.h"
-#include "compiler_session.h"
-#include "src/ast/ast_member_access.h"
 #include "src/ast/intrinsic.h"
-#include "src/common.h"
+#include "src/ast/expr.h"
+#include "src/ast/stmt.h"
+#include "src/ast/decl.h"
 #include "src/analysis/type_system.h"
+#include "compiler_session.h"
+#include "src/common.h"
+#include "src/llvm_include.h"
 
 using namespace tanlang;
 
 CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
-Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
   if (p->_llvm_value) {
     return p->_llvm_value;
   }
@@ -23,7 +23,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
     case ASTNodeType::PROGRAM:
     case ASTNodeType::STATEMENT:
       for (const auto &e : p->get_children()) {
-        codegen(ast_must_cast<ASTNode>(e));
+        codegen(ast_must_cast<ASTBase>(e));
       }
       ret = nullptr;
       break;
@@ -86,7 +86,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
       break;
     }
     case ASTNodeType::FUNC_DECL: {
-      auto pf = ast_cast<ASTFunction>(p);
+      auto pf = ast_cast<FunctionDecl>(p);
       TAN_ASSERT(pf);
       ret = codegen_func_decl(pf);
       break;
@@ -121,7 +121,7 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
       set_current_debug_location(p);
       // fallthrough
     case ASTNodeType::ID:
-      ret = codegen(p->get_child_at<ASTNode>(0));
+      ret = codegen(p->get_child_at<ASTBase>(0));
       break;
     default:
       break;
@@ -130,11 +130,11 @@ Value *CodeGeneratorImpl::codegen(const ASTNodePtr &p) {
   return ret;
 }
 
-void CodeGeneratorImpl::set_current_debug_location(ASTNodePtr p) {
+void CodeGeneratorImpl::set_current_debug_location(ASTBasePtr p) {
   _cs->set_current_debug_location(p->get_line(), p->get_col());
 }
 
-Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   /// unary plus/minus
@@ -142,20 +142,20 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
     if (!is_ast_type_in(p->get_node_type(), {ASTNodeType::SUM, ASTNodeType::SUBTRACT})) {
       report_error(p, "Invalid unary operation");
     }
-    if (p->get_node_type() == ASTNodeType::SUM) { return codegen(p->get_child_at<ASTNode>(0)); }
+    if (p->get_node_type() == ASTNodeType::SUM) { return codegen(p->get_child_at<ASTBase>(0)); }
     else {
-      auto *r = codegen(p->get_child_at<ASTNode>(0));
-      if (p->get_child_at<ASTNode>(0)->_type->_is_lvalue) { r = builder->CreateLoad(r); }
+      auto *r = codegen(p->get_child_at<ASTBase>(0));
+      if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) { r = builder->CreateLoad(r); }
       if (r->getType()->isFloatingPointTy()) { return builder->CreateFNeg(r); }
       return builder->CreateNeg(r);
     }
   }
 
   /// binary operator
-  auto lhs = p->get_child_at<ASTNode>(0);
-  auto rhs = p->get_child_at<ASTNode>(1);
-  Value *l = codegen(p->get_child_at<ASTNode>(0));
-  Value *r = codegen(p->get_child_at<ASTNode>(1));
+  auto lhs = p->get_child_at<ASTBase>(0);
+  auto rhs = p->get_child_at<ASTBase>(1);
+  Value *l = codegen(p->get_child_at<ASTBase>(0));
+  Value *r = codegen(p->get_child_at<ASTBase>(1));
   TAN_ASSERT(l && r);
   TAN_ASSERT(p->get_children_size() > p->_dominant_idx);
 
@@ -185,7 +185,7 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
     if (p->get_node_type() == ASTNodeType::MULTIPLY) {
       p->_llvm_value = builder->CreateMul(l, r, "mul_tmp");
     } else if (p->get_node_type() == ASTNodeType::DIVIDE) {
-      auto ty = p->get_child_at<ASTNode>(0)->_type;
+      auto ty = p->get_child_at<ASTBase>(0)->_type;
       if (ty->_is_unsigned) { p->_llvm_value = builder->CreateUDiv(l, r, "div_tmp"); }
       else { p->_llvm_value = builder->CreateSDiv(l, r, "div_tmp"); }
     } else if (p->get_node_type() == ASTNodeType::SUM) {
@@ -193,7 +193,7 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
     } else if (p->get_node_type() == ASTNodeType::SUBTRACT) {
       p->_llvm_value = builder->CreateSub(l, r, "sub_tmp");
     } else if (p->get_node_type() == ASTNodeType::MOD) {
-      auto ty = p->get_child_at<ASTNode>(0)->_type;
+      auto ty = p->get_child_at<ASTBase>(0)->_type;
       if (ty->_is_unsigned) { p->_llvm_value = builder->CreateURem(l, r, "mod_tmp"); }
       else { p->_llvm_value = builder->CreateSRem(l, r, "mod_tmp"); }
     } else { TAN_ASSERT(false); }
@@ -201,23 +201,23 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTNodePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_bnot(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *rhs = codegen(p->get_child_at<ASTNode>(0));
+  auto *rhs = codegen(p->get_child_at<ASTBase>(0));
   if (!rhs) { report_error(p, "Invalid operand"); }
-  if (p->get_child_at<ASTNode>(0)->_type->_is_lvalue) {
+  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) {
     rhs = builder->CreateLoad(rhs);
   }
   return (p->_llvm_value = builder->CreateNot(rhs));
 }
 
-Value *CodeGeneratorImpl::codegen_lnot(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *rhs = codegen(p->get_child_at<ASTNode>(0));
+  auto *rhs = codegen(p->get_child_at<ASTBase>(0));
   if (!rhs) { report_error(p, "Invalid operand"); }
-  if (p->get_child_at<ASTNode>(0)->_type->_is_lvalue) {
+  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) {
     rhs = builder->CreateLoad(rhs);
   }
   /// get value size in bits
@@ -231,10 +231,10 @@ Value *CodeGeneratorImpl::codegen_lnot(const ASTNodePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_return(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  ASTNodePtr rhs = p->get_child_at<ASTNode>(0);
+  ASTBasePtr rhs = p->get_child_at<ASTBase>(0);
   auto *result = codegen(rhs);
   if (rhs->_type->_is_lvalue) {
     result = builder->CreateLoad(result, "ret");
@@ -243,11 +243,11 @@ Value *CodeGeneratorImpl::codegen_return(const ASTNodePtr &p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_comparison(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto lhs = p->get_child_at<ASTNode>(0);
-  auto rhs = p->get_child_at<ASTNode>(1);
+  auto lhs = p->get_child_at<ASTBase>(0);
+  auto rhs = p->get_child_at<ASTBase>(1);
   Value *l = codegen(lhs);
   Value *r = codegen(rhs);
   TAN_ASSERT(l && r);
@@ -293,12 +293,12 @@ Value *CodeGeneratorImpl::codegen_comparison(const ASTNodePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_assignment(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
   /// _codegen the rhs
-  auto lhs = p->get_child_at<ASTNode>(0);
-  auto rhs = p->get_child_at<ASTNode>(1);
+  auto lhs = p->get_child_at<ASTBase>(0);
+  auto rhs = p->get_child_at<ASTBase>(1);
   Value *from = codegen(rhs);
   Value *to = codegen(lhs);
   if (!from) { report_error(lhs, "Invalid expression for right-hand operand of the assignment"); }
@@ -311,14 +311,14 @@ Value *CodeGeneratorImpl::codegen_assignment(const ASTNodePtr &p) {
   return to;
 }
 
-Value *CodeGeneratorImpl::codegen_cast(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto lhs = p->get_child_at<ASTNode>(0);
-  auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(1)->_type);
+  auto lhs = p->get_child_at<ASTBase>(0);
+  auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTBase>(1)->_type);
   Value *val = codegen(lhs);
   Value *ret = nullptr;
-  val = TypeSystem::ConvertTo(_cs, val, lhs->_type, p->get_child_at<ASTNode>(1)->_type);
+  val = TypeSystem::ConvertTo(_cs, val, lhs->_type, p->get_child_at<ASTBase>(1)->_type);
   if (lhs->_type->_is_lvalue) {
     ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
     builder->CreateStore(val, ret);
@@ -327,7 +327,7 @@ Value *CodeGeneratorImpl::codegen_cast(const ASTNodePtr &p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
@@ -361,11 +361,11 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTNodePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_address_of(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *val = codegen(p->get_child_at<ASTNode>(0));
-  if (p->get_child_at<ASTNode>(0)->_type->_is_lvalue) { /// lvalue, the val itself is a pointer to real value
+  auto *val = codegen(p->get_child_at<ASTBase>(0));
+  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) { /// lvalue, the val itself is a pointer to real value
     p->_llvm_value = val;
   } else { /// rvalue, create an anonymous variable, and get address of it
     p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
@@ -374,17 +374,17 @@ Value *CodeGeneratorImpl::codegen_address_of(const ASTNodePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_parenthesis(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &p) {
   set_current_debug_location(p);
   // FIXME: multiple expressions in the parenthesis?
-  p->_llvm_value = codegen(p->get_child_at<ASTNode>(0));
+  p->_llvm_value = codegen(p->get_child_at<ASTBase>(0));
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_import(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &p) {
   set_current_debug_location(p);
   for (auto &n: p->get_children()) {
-    auto f = ast_must_cast<ASTFunction>(n);
+    auto f = ast_must_cast<FunctionDecl>(n);
     /// do nothing for already defined intrinsics
     auto *func = _cs->get_module()->getFunction(f->get_data<str>());
     if (!func) {
@@ -407,7 +407,7 @@ Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
     case IntrinsicType::NOOP:
     case IntrinsicType::ABORT:
     case IntrinsicType::FILENAME: {
-      ret = codegen(p->get_child_at<ASTNode>(0));
+      ret = codegen(p->get_child_at<ASTBase>(0));
       break;
     }
       /// others
@@ -448,7 +448,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
       vector<llvm::Constant *> values{};
       size_t n = p->get_children_size();
       for (size_t i = 1; i < n; ++i) {
-        values.push_back((llvm::Constant *) codegen_ty(p->get_child_at<ASTNode>(i)->_type));
+        values.push_back((llvm::Constant *) codegen_ty(p->get_child_at<ASTBase>(i)->_type));
       }
       ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
       break;
@@ -457,12 +457,12 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
       ret = ConstantPointerNull::get((PointerType *) type);
       break;
     case Ty::ARRAY: {
-      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_type);
+      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTBase>(0)->_type);
       size_t n = p->get_children_size();
       ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
       for (size_t i = 0; i < n; ++i) {
         auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = codegen_ty(p->get_child_at<ASTNode>(i)->_type);
+        auto *e_val = codegen_ty(p->get_child_at<ASTBase>(i)->_type);
         auto *e_ptr = builder->CreateGEP(ret, idx);
         builder->CreateStore(e_val, e_ptr);
       }
@@ -475,7 +475,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
 }
 
 // TODO: merge some of the code with codegen_ty()
-Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &p) {
   set_current_debug_location(p);
   auto *builder = _cs->_builder;
 
@@ -497,12 +497,12 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
       ret = ConstantFP::get(type, p->get_data<double>());
       break;
     case Ty::ARRAY: {
-      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTNode>(0)->_type);
+      auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_child_at<ASTBase>(0)->_type);
       size_t n = p->get_children_size();
       ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
       for (size_t i = 0; i < n; ++i) {
         auto *idx = builder->getInt32((unsigned) i);
-        auto *e_val = codegen(p->get_child_at<ASTNode>(i));
+        auto *e_val = codegen(p->get_child_at<ASTBase>(i));
         auto *e_ptr = builder->CreateGEP(ret, idx);
         builder->CreateStore(e_val, e_ptr);
       }
@@ -514,7 +514,7 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTNodePtr &p) {
   return ret;
 }
 
-// FIXME: write an ASTNodeError class
+// FIXME: write an ASTBaseError class
 void CodeGeneratorImpl::report_error(const ASTBasePtr &p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
 }

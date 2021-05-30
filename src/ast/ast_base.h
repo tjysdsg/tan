@@ -6,6 +6,10 @@
 #include "src/ast/ast_node_type.h"
 #include <variant>
 
+namespace llvm {
+class Value;
+}
+
 namespace tanlang {
 
 AST_FWD_DECL(ASTBase);
@@ -35,6 +39,9 @@ public:
 
 protected:
   virtual str to_string(bool print_prefix = true);
+
+public:
+  llvm::Value *_llvm_value = nullptr;
 
 private:
   ASTNodeType _node_type = ASTNodeType::INVALID;

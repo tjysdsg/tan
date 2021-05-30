@@ -43,6 +43,7 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
   /// arguments
   vector<str> arg_names{};
   vector<ASTTypePtr> arg_types{};
+  vector<ptr<ArgDecl>> arg_decls{};
   if (at(p->_end_index)->value != ")") {
     while (!eof(p->_end_index)) {
       auto arg = ArgDecl::Create();
@@ -52,6 +53,7 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
 
       arg_names.push_back(arg->get_name());
       arg_types.push_back(arg->get_type());
+      arg_decls.push_back(arg);
 
       if (at(p->_end_index)->value == ",") {
         ++p->_end_index;
@@ -62,11 +64,13 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
   }
   peek(p->_end_index, TokenType::PUNCTUATION, ")");
   ++p->_end_index;
-  peek(p->_end_index, TokenType::PUNCTUATION, ":");
-  ++p->_end_index;
 
   p->set_arg_names(arg_names);
   p->set_arg_types(arg_types);
+  p->set_arg_decls(arg_decls);
+
+  peek(p->_end_index, TokenType::PUNCTUATION, ":");
+  ++p->_end_index;
 
   /// function return type
   auto ret_type = peek(p->_end_index);

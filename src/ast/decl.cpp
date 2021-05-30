@@ -137,6 +137,10 @@ void FunctionDecl::set_external(bool is_external) { _is_external = is_external; 
 
 void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
 
+const vector<ptr<ArgDecl>> &FunctionDecl::get_arg_decls() const { return _arg_decls; }
+
+void FunctionDecl::set_arg_decls(const vector<ptr<ArgDecl>> &arg_decls) { _arg_decls = arg_decls; }
+
 /// \section StructDecl
 
 StructDecl::StructDecl() : Decl(ASTNodeType::STRUCT_DECL, 0) {}

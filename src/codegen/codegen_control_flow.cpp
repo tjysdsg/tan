@@ -9,7 +9,7 @@
 
 using namespace tanlang;
 
-Value *CodeGeneratorImpl::codegen_break_continue(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_break_continue(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   auto loop = _cs->get_current_loop();
   if (!loop) {
@@ -25,7 +25,7 @@ Value *CodeGeneratorImpl::codegen_break_continue(const ASTNodePtr &p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_loop(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_loop(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   auto prev_loop = _cs->get_current_loop();
   auto pl = ast_cast<ASTLoop>(p);
@@ -83,7 +83,7 @@ Value *CodeGeneratorImpl::codegen_loop(const ASTNodePtr &p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_if(const ASTNodePtr &p) {
+Value *CodeGeneratorImpl::codegen_if(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
