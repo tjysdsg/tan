@@ -356,3 +356,19 @@ str ParserImpl::get_filename() const { return _filename; }
 bool ParserImpl::eof(size_t index) const { return index >= _tokens.size(); }
 
 void ParserImpl::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
+
+ExprPtr ParserImpl::expect_expression(const ASTBasePtr &p) {
+  ExprPtr ret = nullptr;
+  if (!(ret = ast_cast<Expr>(p))) {
+    error(p->_end_index, "Expect an expression");
+  }
+  return ret;
+}
+
+StmtPtr ParserImpl::expect_stmt(const ASTBasePtr &p) {
+  StmtPtr ret = nullptr;
+  if (!(ret = ast_cast<Stmt>(p))) {
+    error(p->_end_index, "Expect a statement");
+  }
+  return ret;
+}

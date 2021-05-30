@@ -4,28 +4,30 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_if(const ASTBasePtr &p) {
-  auto pif = ast_cast<ASTIf>(p);
-  TAN_ASSERT(pif);
-  ++pif->_end_index; /// skip "if"
-  /// condition
-  auto condition = peek(pif->_end_index, TokenType::PUNCTUATION, "(");
-  pif->_end_index = parse_node(condition);
-  pif->append_child(condition);
-  /// if clause
-  auto if_clause = peek(pif->_end_index, TokenType::PUNCTUATION, "{");
-  pif->_end_index = parse_node(if_clause);
-  pif->append_child(if_clause);
+size_t ParserImpl::parse_if(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<If>(_p);
+
+  ++p->_end_index; /// skip "if"
+
+  /// predicate
+  auto _pred = peek(p->_end_index, TokenType::PUNCTUATION, "(");
+  p->_end_index = parse_node(_pred);
+  ExprPtr pred = expect_expression(_pred);
+  p->set_predicate(pred);
+
+  /// then clause
+  auto then_clause = peek(p->_end_index, TokenType::PUNCTUATION, "{");
+  p->_end_index = parse_node(then_clause);
+  p->set_then(expect_stmt(then_clause));
 
   /// else clause, if any
-  auto *token = at(pif->_end_index);
+  auto *token = at(p->_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
-    auto else_clause = peek(pif->_end_index);
-    pif->_end_index = parse_node(else_clause);
-    pif->append_child(else_clause);
-    pif->_has_else = true;
+    auto else_clause = peek(p->_end_index);
+    p->_end_index = parse_node(else_clause);
+    p->set_else(expect_stmt(else_clause));
   }
-  return pif->_end_index;
+  return p->_end_index;
 }
 
 size_t ParserImpl::parse_else(const ASTBasePtr &p) {
@@ -53,19 +55,13 @@ size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
       /// predicate
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
       auto _pred = next_expression(p->_end_index, p->get_lbp());
-      ExprPtr pred = nullptr;
-      if (!(pred = ast_cast<Expr>(_pred))) {
-        error(p->_end_index, "Expect an expression");
-      }
+      ExprPtr pred = expect_expression(_pred);
       p->set_predicate(pred);
       peek(p->_end_index, TokenType::PUNCTUATION, "{");
 
       /// loop body
       auto _body = next_expression(p->_end_index, p->get_lbp());
-      StmtPtr body = nullptr;
-      if (!(body = ast_cast<Stmt>(_body))) {
-        error(p->_end_index, "Expect an expression");
-      }
+      StmtPtr body = expect_stmt(_body);
       p->set_body(body);
       break;
     case ASTLoopType::FOR:

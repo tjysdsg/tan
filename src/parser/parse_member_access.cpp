@@ -17,10 +17,7 @@ size_t ParserImpl::parse_member_access(const ptr<Expr> &left, const ptr<MemberAc
 
   /// rhs
   auto _right = peek(p->_end_index);
-  ptr<Expr> right = nullptr;
-  if (!_right || !(right = ast_cast<Expr>(_right))) {
-    error(p->_end_index, "Expect an expression");
-  }
+  ptr<Expr> right = expect_expression(_right);
   p->_end_index = parse_node(right);
   p->set_rhs(right);
 

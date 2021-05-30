@@ -48,11 +48,7 @@ size_t ParserImpl::parse_return(const ASTBasePtr &_p) {
   ++p->_end_index;
 
   auto _rhs = next_expression(p->_end_index, p->get_lbp());
-  ptr<Expr> rhs = nullptr;
-  if (!(rhs = ast_cast<Expr>(_rhs))) {
-    error(p->_end_index, "Expect an expression");
-  }
-
+  ptr<Expr> rhs = expect_expression(_rhs);
   p->set_rhs(rhs);
   return p->_end_index;
 }

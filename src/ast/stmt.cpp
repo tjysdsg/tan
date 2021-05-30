@@ -72,8 +72,21 @@ ptr<Continue> Continue::Create() { return make_ptr<Continue>(); }
 
 ptr<Loop> Loop::Create() { return make_ptr<Loop>(); }
 
-Loop::Loop() : ASTBase(ASTNodeType::LOOP, 0) {}
+Loop::Loop() { set_node_type(ASTNodeType::LOOP); }
 
 void Loop::set_body(StmtPtr body) { _body = body; }
 
 void Loop::set_predicate(ExprPtr pred) { _predicate = pred; }
+
+/// \section If-else
+
+If::If() { set_node_type(ASTNodeType::IF); }
+
+ptr<If> If::Create() { return make_ptr<If>(); }
+
+void If::set_predicate(ExprPtr pred) { _predicate = pred; }
+
+void If::set_then(StmtPtr body) { _then = body; }
+
+void If::set_else(StmtPtr body) { _else = body; }
+

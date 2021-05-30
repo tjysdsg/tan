@@ -102,10 +102,7 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
   vector<ptr<Expr>> args{};
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
     auto _arg = next_expression(p->_end_index, p->get_lbp());
-    ptr<Expr> arg = nullptr;
-    if (!(arg = ast_cast<Expr>(_arg))) {
-      error(p->_end_index, "Expect an expression");
-    }
+    ptr<Expr> arg = expect_expression(_arg);
     args.push_back(arg);
 
     if (at(p->_end_index)->value == ",") { /// skip ,
