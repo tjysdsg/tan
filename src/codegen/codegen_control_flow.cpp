@@ -21,19 +21,21 @@ Value *CodeGeneratorImpl::codegen_break_continue(const ASTBasePtr &p) {
     builder->CreateBr(e);
   } else if (p->get_node_type() == ASTNodeType::CONTINUE) {
     builder->CreateBr(s);
-  } else { TAN_ASSERT(false); }
+  } else {
+    TAN_ASSERT(false);
+  }
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_loop(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_loop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Loop>(_p);
+
   auto *builder = _cs->_builder;
   auto prev_loop = _cs->get_current_loop();
-  auto pl = ast_cast<ASTLoop>(p);
-  TAN_ASSERT(pl);
 
   set_current_debug_location(p);
-  _cs->set_current_loop(pl);
-  if (pl->_loop_type == ASTLoopType::WHILE) {
+  _cs->set_current_loop(p);
+  if (p->_loop_type == ASTLoopType::WHILE) {
     /*
      * Results should like this:
      *
@@ -51,34 +53,41 @@ Value *CodeGeneratorImpl::codegen_loop(const ASTBasePtr &p) {
 
     /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
     /// use these two (get_loop_start() and get_loop_end())
-    pl->_loop_start = BasicBlock::Create(*_cs->get_context(), "loop", func);
+    p->_loop_start = BasicBlock::Create(*_cs->get_context(), "loop", func);
     BasicBlock *loop_body = BasicBlock::Create(*_cs->get_context(), "loop_body", func);
-    pl->_loop_end = BasicBlock::Create(*_cs->get_context(), "after_loop", func);
+    p->_loop_end = BasicBlock::Create(*_cs->get_context(), "after_loop", func);
 
     /// start loop
     // create a br instruction if there is no terminator instruction at the end of this block
-    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(pl->_loop_start); }
+    if (!builder->GetInsertBlock()->back().isTerminator()) {
+      builder->CreateBr(p->_loop_start);
+    }
 
     /// condition
-    builder->SetInsertPoint(pl->_loop_start);
-    auto *cond = codegen(p->get_child_at<ASTNode>(0));
+    builder->SetInsertPoint(p->_loop_start);
+    auto *cond = codegen(p->get_predicate());
     if (!cond) {
       report_error(p, "Expected a condition expression");
     }
-    cond = TypeSystem::ConvertTo(_cs, cond, p->get_child_at<ASTNode>(0)->_type, create_ty(_cs, Ty::BOOL));
-    builder->CreateCondBr(cond, loop_body, pl->_loop_end);
+    cond = TypeSystem::ConvertTo(_cs, cond, p->get_predicate()->get_type(), ASTType::Create(_cs, Ty::BOOL));
+    builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
     /// loop body
     builder->SetInsertPoint(loop_body);
-    codegen(p->get_child_at<ASTNode>(1));
+    codegen(p->get_body());
 
     /// go back to the start of the loop
     // create a br instruction if there is no terminator instruction at the end of this block
-    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(pl->_loop_start); }
+    if (!builder->GetInsertBlock()->back().isTerminator()) {
+      builder->CreateBr(p->_loop_start);
+    }
 
     /// end loop
-    builder->SetInsertPoint(pl->_loop_end);
-  } else { TAN_ASSERT(false); }
+    builder->SetInsertPoint(p->_loop_end);
+  } else {
+    TAN_ASSERT(false);
+  }
+
   _cs->set_current_loop(prev_loop); /// restore the outer loop
   return nullptr;
 }

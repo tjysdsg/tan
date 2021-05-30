@@ -3,6 +3,10 @@
 #include "base.h"
 #include "src/ast/ast_base.h"
 
+namespace llvm {
+class BasicBlock;
+}
+
 namespace tanlang {
 
 AST_FWD_DECL(Stmt);
@@ -89,13 +93,17 @@ public:
 
   void set_predicate(ExprPtr pred);
   void set_body(StmtPtr body);
+  const ExprPtr &get_predicate() const;
+  const StmtPtr &get_body() const;
 
 public:
   ASTLoopType _loop_type = ASTLoopType::WHILE;
+  llvm::BasicBlock *_loop_start = nullptr;
+  llvm::BasicBlock *_loop_end = nullptr;
+
+private:
   ExprPtr _predicate = nullptr;
   StmtPtr _body = nullptr;
-  // llvm::BasicBlock *_loop_start = nullptr;
-  // llvm::BasicBlock *_loop_end = nullptr;
 };
 
 class If : public Stmt {

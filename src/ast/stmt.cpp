@@ -88,6 +88,10 @@ void Loop::set_body(StmtPtr body) { _body = body; }
 
 void Loop::set_predicate(ExprPtr pred) { _predicate = pred; }
 
+const ExprPtr &Loop::get_predicate() const { return _predicate; }
+
+const StmtPtr &Loop::get_body() const { return _body; }
+
 /// \section If-else
 
 If::If() : Stmt(ASTNodeType::IF) {}
