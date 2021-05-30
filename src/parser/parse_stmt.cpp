@@ -6,7 +6,7 @@ using namespace tanlang;
 size_t ParserImpl::parse_program(const ASTBasePtr &_p) {
   ptr<Program> p = ast_must_cast<Program>(_p);
   while (!eof(p->_end_index)) {
-    auto stmt = Stmt::Create();
+    auto stmt = CompoundStmt::Create();
     stmt->set_token(at(p->_end_index));
     stmt->_start_index = p->_end_index;
     p->_end_index = parse_node(stmt);
@@ -16,7 +16,7 @@ size_t ParserImpl::parse_program(const ASTBasePtr &_p) {
 }
 
 size_t ParserImpl::parse_stmt(const ASTBasePtr &_p) {
-  StmtPtr p = ast_must_cast<Stmt>(_p);
+  auto p = ast_must_cast<CompoundStmt>(_p);
   if (at(p->_end_index)->value == "{") { /// compound statement
     ++p->_end_index; /// skip "{"
     while (!eof(p->_end_index)) {

@@ -161,7 +161,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
     /// BOP or UOP? ambiguous
     node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
-    node = Stmt::Create();
+    node = CompoundStmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
     switch (hashed_string{token->value.c_str()}) {
       case "*"_hs:
@@ -284,7 +284,8 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       parse_func_decl(p);
       break;
     case ASTNodeType::ENUM_DECL:
-      parse_enum_decl(p);
+      // parse_enum_decl(p);
+      TAN_ASSERT(false);
       break;
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTNodeType::BREAK:

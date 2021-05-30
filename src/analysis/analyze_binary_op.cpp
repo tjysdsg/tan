@@ -85,7 +85,7 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
       break;
     }
     case BinaryOpKind::MEMBER_ACCESS:
-      analyze_member_access(p);
+      analyze_member_access(ast_must_cast<MemberAccess>(p));
       break;
     default:
       TAN_ASSERT(false);

@@ -9,10 +9,14 @@ AST_FWD_DECL(Stmt);
 
 class Stmt : public ASTBase {
 public:
-  static ptr<Stmt> Create();
-  Stmt();
+  Stmt(ASTNodeType type);
+};
 
+class CompoundStmt : public Stmt {
 public:
+  static ptr<CompoundStmt> Create();
+  CompoundStmt();
+
   void set_child_at(size_t idx, ASTBasePtr node);
   void append_child(ASTBasePtr node);
   void clear_children();
@@ -25,7 +29,7 @@ protected:
   vector<ASTBasePtr> _children{};
 };
 
-class Program : public Stmt {
+class Program : public CompoundStmt {
 public:
   static ptr<Program> Create();
   Program();
@@ -38,6 +42,7 @@ public:
   static ptr<Return> Create();
   Return();
   void set_rhs(ExprPtr rhs);
+  const ExprPtr &get_rhs() const;
 
 private:
   ExprPtr _rhs = nullptr;

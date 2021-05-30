@@ -175,7 +175,7 @@ public:
   UnaryOperator(UnaryOpKind op);
 
   UnaryOpKind get_op() const;
-  ptr<Expr> void get_rhs() const;
+  ptr<Expr> get_rhs() const;
   void set_rhs(const ptr<Expr> &rhs);
 
 protected:

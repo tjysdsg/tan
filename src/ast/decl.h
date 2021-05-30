@@ -60,6 +60,8 @@ public:
   void set_arg_types(const vector<ASTTypePtr> &types);
   bool is_public() const;
   bool is_external() const;
+  void set_external(bool is_external);
+  void set_public(bool is_public);
 
 private:
   bool _is_external = false;

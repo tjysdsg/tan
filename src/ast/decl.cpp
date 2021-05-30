@@ -129,6 +129,10 @@ bool FunctionDecl::is_external() const { return _is_external; }
 
 StmtPtr FunctionDecl::get_body() const { return _body; }
 
+void FunctionDecl::set_external(bool is_external) { _is_external = is_external; }
+
+void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
+
 /// \section StructDecl
 
 StructDecl::StructDecl() : ASTBase(ASTNodeType::STRUCT_DECL, 0) {}
@@ -139,7 +143,7 @@ ptr<StructDecl> StructDecl::Create() {
 
 void StructDecl::set_member_decls(const vector<DeclPtr> &member_decls) { _member_decls = member_decls; }
 
-const vector<DeclPtr> & StructDecl::get_member_decls() const { return _member_decls; }
+const vector<DeclPtr> &StructDecl::get_member_decls() const { return _member_decls; }
 
 void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
 

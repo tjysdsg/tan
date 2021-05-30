@@ -2,6 +2,7 @@
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/expr.h"
+#include "src/ast/stmt.h"
 #include "src/ast/decl.h"
 #include "compiler_session.h"
 

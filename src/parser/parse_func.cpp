@@ -83,6 +83,8 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
     p->set_body(expect_stmt(body));
   }
 
+  p->set_public(is_public);
+  p->set_external(is_external);
   return p->_end_index;
 }
 

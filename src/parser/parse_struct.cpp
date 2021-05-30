@@ -26,7 +26,7 @@ size_t ParserImpl::parse_struct_decl(const ASTBasePtr &_p) {
     if (!_comp_stmt || _comp_stmt->get_node_type() == ASTNodeType::STATEMENT) {
       error(_comp_stmt->_end_index, "Invalid struct body");
     }
-    auto comp_stmt = ast_must_cast<Stmt>(_comp_stmt);
+    auto comp_stmt = ast_must_cast<CompoundStmt>(_comp_stmt);
 
     /// copy member declarations
     auto children = comp_stmt->get_children();
