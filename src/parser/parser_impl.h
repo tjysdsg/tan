@@ -47,6 +47,7 @@ private:
   size_t parse_struct_decl(const ASTBasePtr &p);
   size_t parse_enum_decl(const ASTBasePtr &p);
   size_t parse_uop(const ASTBasePtr &p);
+  size_t parse_return(const ASTBasePtr &p);
 
   size_t parse_member_access(const ASTBasePtr &left, const ASTBasePtr &p);
   size_t parse_bop(const ASTBasePtr &left, const ASTBasePtr &p);

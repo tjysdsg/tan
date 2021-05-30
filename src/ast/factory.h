@@ -9,7 +9,6 @@ namespace tanlang {
 
 ASTNodePtr ast_create_cast(CompilerSession *cs);
 ASTNodePtr ast_create_member_access(CompilerSession *cs);
-ASTNodePtr ast_create_return(CompilerSession *cs);
 
 /// \section Control flow
 ASTNodePtr ast_create_if(CompilerSession *cs);

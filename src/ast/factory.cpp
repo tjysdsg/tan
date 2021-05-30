@@ -35,10 +35,6 @@ ASTNodePtr ast_create_member_access(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_return(CompilerSession *) {
-  return make_ptr<ASTNode>(ASTNodeType::RET, ASTNode::OpPrecedence[ASTNodeType::RET]);
-}
-
 /// \section Control flow
 
 ASTNodePtr ast_create_if(CompilerSession *) {

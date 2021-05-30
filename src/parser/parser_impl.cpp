@@ -56,7 +56,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = ast_create_else(_cs);
       break;
     case "return"_hs:
-      ret = ast_create_return(_cs);
+      ret = Return::Create();
       break;
     case "while"_hs:
     case "for"_hs:
@@ -271,7 +271,6 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     case ASTNodeType::INTRINSIC:
       parse_intrinsic(p);
       break;
-      ////////////////////////// control flow ////////////////////////////////
     case ASTNodeType::IF:
       parse_if(p);
       break;
@@ -281,16 +280,12 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     case ASTNodeType::LOOP:
       parse_loop(p);
       break;
-      ////////////////////////// prefix ////////////////////////////////
     case ASTNodeType::UOP:
       parse_uop(p);
       break;
-    case ASTNodeType::RET: {
-      ++p->_end_index;
-      p->append_child(next_expression(p->_end_index));
+    case ASTNodeType::RET:
+      parse_return(p);
       break;
-    }
-      ////////////////////////// others /////////////////////////////////
     case ASTNodeType::FUNC_CALL:
       parse_func_call(p);
       break;

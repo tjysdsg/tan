@@ -38,3 +38,13 @@ Stmt::Stmt() : ASTBase(ASTNodeType::STATEMENT, 0) {}
 ptr<Program> Program::Create() { return make_ptr<Program>(); }
 
 Program::Program() { set_node_type(ASTNodeType::PROGRAM); }
+
+ptr<Return> Return::Create() {
+  return make_ptr<Return>();
+}
+
+Return::Return() {
+  set_node_type(ASTNodeType::RET);
+}
+
+void Return::set_rhs(ExprPtr rhs) { _rhs = rhs; }

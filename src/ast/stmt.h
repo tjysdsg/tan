@@ -41,6 +41,18 @@ public:
   Program();
 };
 
+AST_FWD_DECL(Expr);
+
+class Return : public Stmt {
+public:
+  static ptr<Return> Create();
+  Return();
+  void set_rhs(ExprPtr rhs);
+
+private:
+  ExprPtr _rhs = nullptr;
+};
+
 }
 
 #endif //__TAN_SRC_AST_STMT_H__
