@@ -4,7 +4,7 @@
 #include "compiler_session.h"
 #include "src/analysis/analyzer.h"
 #include "src/codegen/code_generator.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
 #include "reader.h"
 #include "parser.h"
 

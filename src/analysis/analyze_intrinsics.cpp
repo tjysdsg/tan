@@ -4,7 +4,7 @@
 #include "src/ast/factory.h"
 #include "src/ast/ast_base.h"
 #include "src/analysis/type_system.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
 #include <iostream>
 
 using namespace tanlang;

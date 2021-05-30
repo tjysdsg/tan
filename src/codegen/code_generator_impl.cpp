@@ -5,7 +5,7 @@
 #include "src/ast/ast_func.h"
 #include "compiler_session.h"
 #include "src/ast/ast_member_access.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
 #include "src/common.h"
 #include "src/analysis/type_system.h"
 

@@ -9,7 +9,8 @@
 #include "src/parser/token_check.h"
 #include "src/ast/ast_type.h"
 #include "src/common.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
+#include "src/ast/ast_base.h"
 #include "token.h"
 #include <memory>
 #include <utility>
@@ -94,7 +95,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
 
   ASTBasePtr node = nullptr;
   if (token->value == "@") { /// intrinsics
-    node = ast_create_intrinsic(_cs);
+    node = Intrinsic::Create();
   } else if (token->value == "=" && token->type == TokenType::BOP) {
     node = BinaryOperator::Create(BinaryOpKind::ASSIGN);
   } else if (token->value == "!") { /// logical not

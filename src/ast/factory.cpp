@@ -11,30 +11,6 @@
 
 namespace tanlang {
 
-/// \section Ops
-
-ASTNodePtr ast_create_arithmetic(CompilerSession *, const str &op) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::INVALID, 0);
-  ret->set_lbp(ASTNode::OpPrecedence[ret->get_node_type()]);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_cast(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::CAST, ASTNode::OpPrecedence[ASTNodeType::CAST]);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_member_access(CompilerSession *) {
-  auto ret = make_ptr<ASTMemberAccess>(ASTNodeType::MEMBER_ACCESS, ASTNode::OpPrecedence[ASTNodeType::MEMBER_ACCESS]);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
 /// \section Control flow
 
 ASTNodePtr ast_create_if(CompilerSession *) {
@@ -67,11 +43,6 @@ ASTNodePtr ast_create_continue(CompilerSession *) {
 ASTNodePtr ast_create_import(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTNodeType::IMPORT, 0);
   ret->_is_named = true; /// name is the file imported
-  return ret;
-}
-
-ASTNodePtr ast_create_intrinsic(CompilerSession *) {
-  auto ret = make_ptr<Intrinsic>();
   return ret;
 }
 

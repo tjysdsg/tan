@@ -1,6 +1,6 @@
 #ifndef __TAN_INCLUDE_INTRINSIC_H__
 #define __TAN_INCLUDE_INTRINSIC_H__
-#include "src/ast/ast_node.h"
+#include "src/ast/ast_base.h"
 #include <memory>
 
 namespace llvm {
@@ -11,8 +11,7 @@ class Function;
 namespace tanlang {
 
 class CompilerSession;
-class ASTType;
-using ASTTypePtr = std::shared_ptr<ASTType>;
+AST_FWD_DECL(Expr);
 
 enum class IntrinsicType {
   INVALID = 0, ABORT, /// abort
@@ -50,21 +49,21 @@ enum class IntrinsicType {
  * has value
  * rvalue
  */
-class Intrinsic final : public ASTNode {
+class Intrinsic : public ASTBase {
 public:
+  static ptr<Intrinsic> Create();
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
   static void InitAnalysis(CompilerSession *cs);
 
 public:
-  Intrinsic() : ASTNode(ASTNodeType::INTRINSIC, 0) {
-    _is_typed = true;
-    _is_valued = true;
-  }
+  Intrinsic();
+  void set_sub(ExprPtr sub);
 
-public:
+private:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
+  ExprPtr _sub = nullptr;
 };
 
 } // namespace tanlang
