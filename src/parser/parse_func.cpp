@@ -105,7 +105,7 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
   /// args
   vector<ptr<Expr>> args{};
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
-    auto _arg = next_expression(p->_end_index, p->get_lbp());
+    auto _arg = next_expression(p->_end_index, PREC_LOWEST);
     ptr<Expr> arg = expect_expression(_arg);
     args.push_back(arg);
 

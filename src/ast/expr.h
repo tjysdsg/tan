@@ -52,7 +52,7 @@ public:
   void set_value(str val) { _value = val; }
 
 private:
-  str _value = 0;
+  str _value;
 };
 
 class CharLiteral : public Literal {

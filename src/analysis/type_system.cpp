@@ -276,9 +276,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
 }
 
 Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
-  TAN_ASSERT(p->_resolved);
+  if (!p->_resolved) {
+    TypeSystem::ResolveTy(cs, p);
+  }
 
-  ASTHelper h(cs);
   auto *builder = cs->_builder;
   Ty base = TY_GET_BASE(p->_tyty);
   llvm::Type *type = nullptr;
@@ -332,9 +333,10 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
 }
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
-  TAN_ASSERT(p->_resolved);
+  if (!p->_resolved) {
+    TypeSystem::ResolveTy(cs, p);
+  }
 
-  ASTHelper h(cs);
   Ty base = TY_GET_BASE(p->_tyty);
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
   DIType *ret = nullptr;

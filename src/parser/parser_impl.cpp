@@ -174,9 +174,12 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
         node = BinaryOperator::Create(BinaryOpKind::MOD);
         break;
       case "+"_hs:
+        /// BOP or UOP? ambiguous
+        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        break;
       case "-"_hs:
         /// BOP or UOP? ambiguous
-        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
+        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         return nullptr;
@@ -216,7 +219,11 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-    auto &pp = const_cast<ASTBasePtr &>(p); // hack
+    // hack
+    size_t start_index = p->_start_index;
+    size_t end_index = p->_end_index;
+    Token *token = p->get_token();
+    auto &pp = const_cast<ASTBasePtr &>(p);
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         pp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
@@ -231,6 +238,9 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
         TAN_ASSERT(false);
         break;
     }
+    pp->_start_index = start_index;
+    pp->_end_index = end_index;
+    pp->set_token(token);
   }
 
   switch (p->get_node_type()) {
@@ -308,7 +318,11 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-    auto &pp = const_cast<ASTBasePtr &>(p); // hack
+    // hack
+    size_t start_index = p->_start_index;
+    size_t end_index = p->_end_index;
+    Token *token = p->get_token();
+    auto &pp = const_cast<ASTBasePtr &>(p);
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         pp = BinaryOperator::Create(BinaryOpKind::BAND);
@@ -323,6 +337,9 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
         TAN_ASSERT(false);
         break;
     }
+    pp->_start_index = start_index;
+    pp->_end_index = end_index;
+    pp->set_token(token);
   }
 
   switch (p->get_node_type()) {

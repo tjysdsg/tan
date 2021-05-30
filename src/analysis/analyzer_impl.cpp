@@ -19,6 +19,10 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   p->set_scope(_cs->get_current_scope());
 
   switch (p->get_node_type()) {
+    case ASTNodeType::PROGRAM:
+    case ASTNodeType::STATEMENT:
+      analyze_stmt(p);
+      break;
     case ASTNodeType::BOP:
       analyze_bop(p);
       break;
@@ -82,8 +86,11 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::STRUCT_DECL:
       analyze_struct_decl(p);
       break;
-      /////////////////////// trivially analysed /////////////////////////////
+    case ASTNodeType::CONTINUE:
+    case ASTNodeType::BREAK:
+      break;
     default:
+      TAN_ASSERT(false);
       break;
   }
 }
@@ -189,4 +196,11 @@ void AnalyzerImpl::analyze_ret(const ASTBasePtr &_p) {
   // TODO: check if return type can be implicitly cast to function return type
   auto p = ast_must_cast<Return>(_p);
   analyze(p->get_rhs());
+}
+
+void AnalyzerImpl::analyze_stmt(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<CompoundStmt>(_p);
+  for (const auto &c: p->get_children()) {
+    analyze(c);
+  }
 }

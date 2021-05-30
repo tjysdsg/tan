@@ -16,6 +16,7 @@ public:
   void analyze(const ASTBasePtr &p);
 
 private:
+  void analyze_stmt(const ASTBasePtr &p);
   void analyze_member_access(const MemberAccessPtr &p);
   void analyze_intrinsic(const ASTBasePtr &p);
   void analyze_string_literal(const ASTBasePtr &p);

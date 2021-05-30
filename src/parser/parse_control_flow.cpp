@@ -47,13 +47,13 @@ size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
     case ASTLoopType::WHILE: {
       /// predicate
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
-      auto _pred = next_expression(p->_end_index, p->get_lbp());
+      auto _pred = next_expression(p->_end_index, PREC_LOWEST);
       ExprPtr pred = expect_expression(_pred);
       p->set_predicate(pred);
       peek(p->_end_index, TokenType::PUNCTUATION, "{");
 
       /// loop body
-      auto _body = next_expression(p->_end_index, p->get_lbp());
+      auto _body = next_expression(p->_end_index, PREC_LOWEST);
       StmtPtr body = expect_stmt(_body);
       p->set_body(body);
       break;
