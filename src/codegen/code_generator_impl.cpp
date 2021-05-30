@@ -1,7 +1,7 @@
 #include "src/llvm_include.h"
 #include "code_generator_impl.h"
 #include "src/ast/ast_node.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/ast_func.h"
 #include "compiler_session.h"
 #include "src/ast/ast_member_access.h"

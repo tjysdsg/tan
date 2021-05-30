@@ -1,7 +1,7 @@
 #include "src/analysis/analyzer_impl.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_base.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/factory.h"
 #include "src/common.h"
 #include "compiler_session.h"

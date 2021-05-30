@@ -48,11 +48,6 @@ ASTNodePtr ast_create_identifier(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
 ASTNodePtr ast_create_parenthesis(CompilerSession *cs);
 ASTNodePtr ast_create_func_call(CompilerSession *cs);
-ASTTypePtr ast_create_ty(CompilerSession *cs);
-
-/// \section Types
-
-ASTTypePtr create_ty(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys = {}, bool is_lvalue = false);
 
 } // namespace tanlang
 

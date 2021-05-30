@@ -1,7 +1,7 @@
 #include "src/analysis/ast_helper.h"
 #include "src/ast/ast_node.h"
 #include "src/ast/ast_base.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/factory.h"
 #include "compiler_session.h"
 

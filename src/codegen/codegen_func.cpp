@@ -2,7 +2,7 @@
 #include "src/llvm_include.h"
 #include "compiler_session.h"
 #include "src/ast/ast_func.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/analysis/type_system.h"
 
 using namespace tanlang;

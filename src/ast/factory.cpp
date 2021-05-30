@@ -4,7 +4,7 @@
 #include "intrinsic.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/ast_func.h"
 #include "compiler_session.h"
 #include "token.h"
@@ -255,20 +255,6 @@ ASTNodePtr ast_create_parenthesis(CompilerSession *) {
 
 ASTNodePtr ast_create_func_call(CompilerSession *) {
   return make_ptr<ASTFunctionCall>();
-}
-
-ASTTypePtr ast_create_ty(CompilerSession *) {
-  return make_ptr<ASTType>();
-}
-
-ASTTypePtr create_ty(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys, bool is_lvalue) {
-  // TODO: cache
-  auto ret = make_ptr<ASTType>();
-  ret->_tyty = t;
-  ret->_is_lvalue = is_lvalue;
-  ret->get_children().insert(ret->get_children().begin(), sub_tys.begin(), sub_tys.end());
-  TypeSystem::ResolveTy(cs, ret);
-  return ret;
 }
 
 } // namespace tanlang

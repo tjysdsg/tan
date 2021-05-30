@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_AST_FUNC_H__
 #define __TAN_SRC_AST_AST_FUNC_H__
 #include "base.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 
 namespace llvm {
 class Function;

@@ -1,5 +1,5 @@
 #include "src/ast/ast_func.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/analysis/type_system.h"
 #include "parser.h"
 #include "reader.h"

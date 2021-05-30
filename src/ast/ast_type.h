@@ -24,6 +24,10 @@ AST_FWD_DECL(ASTType);
  */
 class ASTType : public ASTBase, public enable_ptr_from_this<ASTType> {
 public:
+  static ASTTypePtr Create();
+  static ASTTypePtr Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys = {}, bool is_lvalue = false);
+
+public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
 

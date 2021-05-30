@@ -5,7 +5,7 @@
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_member_access.h"
 #include "src/parser/token_check.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/factory.h"
 #include "src/common.h"
 #include "intrinsic.h"

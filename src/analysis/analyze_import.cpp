@@ -1,6 +1,6 @@
 #include "src/analysis/analyzer_impl.h"
 #include "src/ast/ast_func.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "compiler_session.h"
 #include "compiler.h"
 

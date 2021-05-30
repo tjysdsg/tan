@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "src/ast/factory.h"
 #include "src/ast/ast_func.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/compiler/stack_trace.h"
 #include "token.h"
 #include <iostream>

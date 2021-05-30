@@ -3,7 +3,7 @@
 #include "src/analysis/ast_helper.h"
 #include "compiler_session.h"
 #include "compiler.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/llvm_include.h"
 #include <fmt/core.h>
 

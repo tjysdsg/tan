@@ -1,4 +1,4 @@
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "parser.h"
 #include "token.h"
 #include "compiler_session.h"
@@ -73,6 +73,16 @@ umap<str, Ty>ASTType::basic_tys =
 
 umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTType::ASTType() {
-  set_node_type(ASTNodeType::TY);
+ASTType::ASTType() : ASTBase(ASTNodeType::TY, 0) {}
+
+ASTTypePtr ASTType::Create() { return make_ptr<ASTType>(); }
+
+ASTTypePtr ASTType::Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys, bool is_lvalue) {
+  // TODO: cache
+  auto ret = make_ptr<ASTType>();
+  ret->_tyty = t;
+  ret->_is_lvalue = is_lvalue;
+  ret->get_children().insert(ret->get_children().begin(), sub_tys.begin(), sub_tys.end());
+  TypeSystem::ResolveTy(cs, ret);
+  return ret;
 }

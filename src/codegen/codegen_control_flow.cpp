@@ -1,7 +1,7 @@
 #include "src/codegen/code_generator_impl.h"
 #include "src/llvm_include.h"
 #include "src/ast/ast_node.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_type.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/factory.h"
