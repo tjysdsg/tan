@@ -154,5 +154,8 @@ void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
 
 void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
   auto p = ast_must_cast<Parenthesis>(_p);
+
+  analyze(p->get_sub());
+
   p->set_type(copy_ty(p->get_sub()->get_type()));
 }

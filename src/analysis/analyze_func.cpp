@@ -10,15 +10,17 @@ using namespace tanlang;
 void AnalyzerImpl::analyze_func_call(const ASTBasePtr &_p) {
   auto p = ast_must_cast<FunctionCall>(_p);
 
+  for (const auto &a: p->_args) {
+    analyze(a);
+  }
+
   FunctionDeclPtr callee = FunctionDecl::GetCallee(_cs, p->get_name(), p->_args);
   p->_callee = callee;
   p->set_type(copy_ty(callee->get_ret_ty()));
 }
 
-void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &p) {
-  /// NOTE: children will not be automatically parsed for function declaration
-
-  ASTFunctionPtr np = ast_must_cast<ASTFunction>(p);
+void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &_p) {
+  FunctionDeclPtr p = ast_must_cast<FunctionDecl>(_p);
 
   /// add to external function table
   if (np->_is_public || np->_is_external) {
