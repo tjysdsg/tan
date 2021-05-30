@@ -21,7 +21,6 @@ ASTNodePtr ast_create_continue(CompilerSession *cs);
 
 ASTNodePtr ast_create_import(CompilerSession *cs);
 ASTNodePtr ast_create_intrinsic(CompilerSession *cs);
-ASTNodePtr ast_create_parenthesis(CompilerSession *cs);
 ASTNodePtr ast_create_func_call(CompilerSession *cs);
 
 } // namespace tanlang

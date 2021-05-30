@@ -243,28 +243,9 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     case ASTNodeType::STATEMENT:
       parse_stmt(p);
       break;
-    case ASTNodeType::PARENTHESIS: {
-      ++p->_end_index; /// skip "("
-      while (true) {
-        auto *t = at(p->_end_index);
-        if (!t) {
-          error(p->_end_index - 1, "Unexpected EOF");
-        } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
-          ++p->_end_index;
-          break;
-        }
-        // FIXME: multiple expressions in the parenthesis?
-
-        /// NOTE: parenthesis without child expression inside are illegal (except function call)
-        auto n = next_expression(p->_end_index, PREC_LOWEST);
-        if (n) {
-          p->append_child(n);
-        } else {
-          error(p->_end_index, "Unexpected " + t->to_string());
-        }
-      }
+    case ASTNodeType::PARENTHESIS:
+      parse_parenthesis(p);
       break;
-    }
     case ASTNodeType::IMPORT:
       parse_import(p);
       break;

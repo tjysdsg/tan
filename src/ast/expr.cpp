@@ -98,3 +98,11 @@ ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op, const ptr<Expr> &rhs) {
   ret->_rhs = rhs;
   return ret;
 }
+
+/// \section Parenthesis
+
+ptr<Parenthesis> Parenthesis::Create() { return make_ptr<Parenthesis>(); }
+
+Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
+
+void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }

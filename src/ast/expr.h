@@ -141,6 +141,17 @@ protected:
   ptr<Expr> _rhs = nullptr;
 };
 
+class Parenthesis : public Expr {
+public:
+  static ptr<Parenthesis> Create();
+  Parenthesis();
+
+  void set_sub(const ptr<Expr> &sub);
+
+private:
+  ptr<Expr> _sub = nullptr;
+};
+
 }
 
 #endif //__TAN_SRC_AST_EXPR_H__

@@ -7,7 +7,7 @@
 
 using namespace tanlang;
 
-// TODO: move type checking of elements to analysis phase
+// TODO: move type checking of array elements to analysis phase
 size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
   ptr<ArrayLiteral> p = ast_must_cast<ArrayLiteral>(_p);
 
@@ -80,4 +80,30 @@ size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
   p->set_rhs(rhs);
 
   return p->_end_index;
+}
+
+size_t ParserImpl::parse_parenthesis(const ASTBasePtr &_p) {
+  ptr<Parenthesis> p = ast_must_cast<Parenthesis>(_p);
+
+  ++p->_end_index; /// skip "("
+  while (true) {
+    auto *t = at(p->_end_index);
+    if (!t) {
+      error(p->_end_index - 1, "Unexpected EOF");
+    } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
+      ++p->_end_index;
+      break;
+    }
+    // FIXME: multiple expressions in the parenthesis?
+
+    /// NOTE: parenthesis without child expression inside are illegal (except function call)
+    auto _sub = next_expression(p->_end_index, PREC_LOWEST);
+    ptr<Expr> sub = nullptr;
+    if (_sub && (sub = ast_cast<Expr>(_sub))) {
+      p->set_sub(sub);
+    } else {
+      error(p->_end_index, "Expect an expression");
+    }
+  }
+  return 0;
 }

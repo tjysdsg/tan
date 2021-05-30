@@ -75,13 +75,6 @@ ASTNodePtr ast_create_intrinsic(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_parenthesis(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::PARENTHESIS, ASTNode::OpPrecedence[ASTNodeType::PARENTHESIS]);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
 ASTNodePtr ast_create_func_call(CompilerSession *) {
   return make_ptr<ASTFunctionCall>();
 }

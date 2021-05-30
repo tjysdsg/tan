@@ -54,5 +54,5 @@ size_t ParserImpl::parse_return(const ASTBasePtr &_p) {
   }
 
   p->set_rhs(rhs);
-  return 0;
+  return p->_end_index;
 }
