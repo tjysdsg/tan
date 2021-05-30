@@ -29,15 +29,17 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::ID:
       analyze_id(p);
       break;
-      //////////////////////// literals ///////////////////////////////////////
     case ASTNodeType::STRING_LITERAL:
       analyze_string_literal(p);
       break;
     case ASTNodeType::CHAR_LITERAL:
       analyze_char_literal(p);
       break;
-    case ASTNodeType::NUM_LITERAL:
-      analyze_num_literal(p);
+    case ASTNodeType::INTEGER_LITERAL:
+      analyze_integer_literal(p);
+      break;
+    case ASTNodeType::FLOAT_LITERAL:
+      analyze_float_literal(p);
       break;
     case ASTNodeType::ARRAY_LITERAL:
       analyze_array_literal(p);

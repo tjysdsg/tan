@@ -44,9 +44,10 @@ private:
 class StringLiteral : public Literal {
 public:
   static ptr<StringLiteral> Create(str_view val);
-  StringLiteral() : Literal(ASTNodeType::STRING_LITERAL, 0) {}
+  StringLiteral();
 
-  str get_value();
+  str get_value() const;
+  void set_value(str_view val) { _value = val; }
 
 private:
   str _value = 0;
@@ -56,6 +57,9 @@ class CharLiteral : public Literal {
 public:
   static ptr<CharLiteral> Create(uint8_t val);
   CharLiteral() : Literal(ASTNodeType::CHAR_LITERAL, 0) {}
+
+  void set_value(uint8_t val);
+  uint8_t get_value() const;
 
 private:
   uint8_t _value = 0;
@@ -68,6 +72,7 @@ public:
   ArrayLiteral() : Literal(ASTNodeType::ARRAY_LITERAL, 0) {}
 
   void set_elements(const vector<ptr<Literal>> &elements);
+  vector<ptr<Literal>> get_elements() const;
 
 private:
   vector<ptr<Literal>> _elements{};
@@ -79,7 +84,7 @@ public:
   Identifier();
 
 public:
-  ASTBasePtr _referred = nullptr
+  ASTBasePtr _referred = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence

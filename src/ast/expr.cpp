@@ -23,13 +23,19 @@ ptr<StringLiteral> StringLiteral::Create(str_view val) {
   return ret;
 }
 
-str StringLiteral::get_value() { return _value; }
+str StringLiteral::get_value() const { return _value; }
+
+StringLiteral::StringLiteral() : Literal(ASTNodeType::STRING_LITERAL, 0) {}
 
 ptr<CharLiteral> CharLiteral::Create(uint8_t val) {
   auto ret = make_ptr<CharLiteral>();
   ret->_value = val;
   return ret;
 }
+
+void CharLiteral::set_value(uint8_t val) { _value = val; }
+
+uint8_t CharLiteral::get_value() const { return _value; }
 
 ptr<ArrayLiteral> ArrayLiteral::Create(vector<ptr<Literal>> val) {
   auto ret = make_ptr<ArrayLiteral>();
@@ -44,6 +50,8 @@ void ArrayLiteral::set_elements(const vector<ptr<Literal>> &elements) {
 ptr<ArrayLiteral> ArrayLiteral::Create() {
   return make_ptr<ArrayLiteral>();
 }
+
+vector<ptr<Literal>> ArrayLiteral::get_elements() const { return _elements; }
 
 /// \section Identifier
 

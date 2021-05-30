@@ -20,7 +20,8 @@ private:
   void analyze_intrinsic(const ASTBasePtr &p);
   void analyze_string_literal(const ASTBasePtr &p);
   void analyze_char_literal(const ASTBasePtr &p);
-  void analyze_num_literal(const ASTBasePtr &p);
+  void analyze_integer_literal(const ASTBasePtr &p);
+  void analyze_float_literal(const ASTBasePtr &p);
   void analyze_array_literal(const ASTBasePtr &p);
   void analyze_struct(const ASTBasePtr &p);
   void analyze_func_decl(const ASTBasePtr &p);
