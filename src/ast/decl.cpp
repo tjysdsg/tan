@@ -6,9 +6,13 @@
 
 using namespace tanlang;
 
+/// \section Decl
+
+Decl::Decl(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
+
 /// \section ArgDecl
 
-ArgDecl::ArgDecl() : ASTBase(ASTNodeType::ARG_DECL, 0) {}
+ArgDecl::ArgDecl() : Decl(ASTNodeType::ARG_DECL, 0) {}
 
 ptr<ArgDecl> ArgDecl::Create() { return make_ptr<ArgDecl>(); }
 
@@ -21,7 +25,7 @@ ptr<ArgDecl> ArgDecl::Create(str_view name, const ASTTypePtr &ty) {
 
 /// \section VarDecl
 
-VarDecl::VarDecl() : ASTBase(ASTNodeType::VAR_DECL, 0) {}
+VarDecl::VarDecl() : Decl(ASTNodeType::VAR_DECL, 0) {}
 
 ptr<VarDecl> VarDecl::Create() { return make_ptr<VarDecl>(); }
 
@@ -34,7 +38,7 @@ ptr<VarDecl> VarDecl::Create(str_view name, const ASTTypePtr &ty) {
 
 /// \section FunctionDecl
 
-FunctionDecl::FunctionDecl() : ASTBase(ASTNodeType::FUNC_DECL, 0) {}
+FunctionDecl::FunctionDecl() : Decl(ASTNodeType::FUNC_DECL, 0) {}
 
 // TODO: move this to analysis
 FunctionDeclPtr FunctionDecl::GetCallee(CompilerSession *cs, const str &name, const vector<ptr<Expr>> &args) {
@@ -93,7 +97,7 @@ FunctionDeclPtr FunctionDecl::Create(const str &name,
   ret->set_name(name);
 
   /// return type
-  ret->_ret_type = arg_types[0];
+  ret->_ret_type = ret_type;
 
   /// args
   ret->_arg_types.reserve(arg_types.size());
@@ -135,7 +139,7 @@ void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
 
 /// \section StructDecl
 
-StructDecl::StructDecl() : ASTBase(ASTNodeType::STRUCT_DECL, 0) {}
+StructDecl::StructDecl() : Decl(ASTNodeType::STRUCT_DECL, 0) {}
 
 ptr<StructDecl> StructDecl::Create() {
   return make_ptr<StructDecl>();

@@ -1,7 +1,6 @@
 #include "src/ast/intrinsic.h"
 #include "compiler_session.h"
 #include "parser.h"
-#include "src/ast/factory.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_type.h"
 #include "src/compiler/stack_trace.h"

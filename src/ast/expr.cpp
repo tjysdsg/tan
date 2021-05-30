@@ -118,7 +118,7 @@ ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op, const ptr<Expr> &rhs) {
 
 UnaryOpKind UnaryOperator::get_op() const { return _op; }
 
-ptr<Expr> void UnaryOperator::get_rhs() const { return _rhs; }
+ptr<Expr> UnaryOperator::get_rhs() const { return _rhs; }
 
 /// \section Parenthesis
 

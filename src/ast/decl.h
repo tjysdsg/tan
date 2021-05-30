@@ -11,6 +11,8 @@ AST_FWD_DECL(ASTType);
 AST_FWD_DECL(Decl);
 
 class Decl : public ASTBase, public ASTNamed, public Typed {
+public:
+  Decl(ASTNodeType type, int lbp);
 };
 
 class VarDecl : public Decl {
@@ -78,7 +80,7 @@ class StructDecl : public Decl {
 public:
   static ptr<StructDecl> Create();
   StructDecl();
-  const vector<DeclPtr> & get_member_decls() const;
+  const vector<DeclPtr> &get_member_decls() const;
   void set_member_decls(const vector<DeclPtr> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
   bool is_forward_decl() const;
