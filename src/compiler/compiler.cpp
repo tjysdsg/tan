@@ -57,7 +57,8 @@ void Compiler::dump_ir() const {
 
 void Compiler::dump_ast() const {
   TAN_ASSERT(_ast);
-  _ast->printTree();
+  // TODO: fix print tree
+  // _ast->printTree();
 }
 
 void Compiler::parse() {

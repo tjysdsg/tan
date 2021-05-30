@@ -26,7 +26,7 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       analyze_uop(p);
       break;
     case ASTNodeType::RET:
-      // TODO: check if return type can be implicitly cast to function return type
+      analyze_ret(p);
       break;
     case ASTNodeType::ID:
       analyze_id(p);
@@ -183,4 +183,10 @@ void AnalyzerImpl::analyze_arg_decl(const ASTBasePtr &_p) {
   ty->_is_lvalue = true;
   analyze(ty);
   _cs->add(p->get_name(), p);
+}
+
+void AnalyzerImpl::analyze_ret(const ASTBasePtr &_p) {
+  // TODO: check if return type can be implicitly cast to function return type
+  auto p = ast_must_cast<Return>(_p);
+  analyze(p->get_rhs());
 }

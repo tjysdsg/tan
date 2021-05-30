@@ -21,8 +21,10 @@ void AnalyzerImpl::analyze_import(const ASTBasePtr &_p) {
     Compiler::ParseFile(imported[0]);
     imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
   }
+
+  /// import functions
+  p->set_imported_funcs(imported_functions);
   for (FunctionDeclPtr f: imported_functions) {
     _cs->add_function(f);
-    p->append_child(f);
   }
 }

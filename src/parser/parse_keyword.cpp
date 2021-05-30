@@ -17,7 +17,7 @@ size_t ParserImpl::parse_intrinsic(const ASTBasePtr &_p) {
   if (e->get_node_type() != ASTNodeType::ID && e->get_node_type() != ASTNodeType::FUNC_CALL) {
     error(e->_end_index, "Unexpected token");
   }
-  p->set_sub(ast_must_cast<ASTNamed>(e));
+  p->set_sub(e);
   return p->_end_index;
 }
 

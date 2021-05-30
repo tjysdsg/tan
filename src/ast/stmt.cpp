@@ -64,6 +64,10 @@ void Import::set_filename(str_view s) { _filename = s; }
 
 const str &Import::get_filename() const { return _filename; }
 
+const vector<FunctionDeclPtr> &Import::get_imported_funcs() const { return _imported_funcs; }
+
+void Import::set_imported_funcs(const vector<FunctionDeclPtr> &imported_funcs) { _imported_funcs = imported_funcs; }
+
 /// \section Break or continue statement
 
 BreakContinue::BreakContinue(ASTNodeType type) : Stmt(type) {

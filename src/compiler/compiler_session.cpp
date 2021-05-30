@@ -77,7 +77,7 @@ ASTBasePtr CompilerSession::get(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  ASTNodePtr result = nullptr;
+  ASTBasePtr result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {

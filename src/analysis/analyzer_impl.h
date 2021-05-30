@@ -27,6 +27,7 @@ private:
   void analyze_func_decl(const ASTBasePtr &p);
   void analyze_func_call(const ASTBasePtr &p);
   void analyze_import(const ASTBasePtr &p);
+  void analyze_ret(const ASTBasePtr &p);
   void analyze_parenthesis(const ASTBasePtr &p);
   void analyze_if(const ASTBasePtr &p);
   void analyze_assignment(const BinaryOperatorPtr &p);

@@ -12,8 +12,8 @@ using namespace tanlang;
 
 void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &_p) {
   auto p = ast_must_cast<Intrinsic>(_p);
-  auto c = p->get_sub();
-  auto pc = ast_must_cast<ASTBase>(c);
+  auto pc = p->get_sub();
+  auto c = ast_must_cast<ASTNamed>(pc);
 
   /// name
   p->set_name(c->get_name());

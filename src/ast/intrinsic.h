@@ -61,14 +61,14 @@ public:
 
 public:
   Intrinsic();
-  void set_sub(ASTNamedPtr sub);
-  ASTNamedPtr get_sub() const;
   IntrinsicType get_intrinsic_type() const;
   void set_intrinsic_type(IntrinsicType intrinsic_type);
+  const ASTBasePtr &get_sub() const;
+  void set_sub(const ASTBasePtr &sub);
 
 private:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
-  ASTNamedPtr _sub = nullptr;
+  ASTBasePtr _sub = nullptr;
 };
 
 } // namespace tanlang

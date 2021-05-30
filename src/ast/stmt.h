@@ -6,6 +6,7 @@
 namespace tanlang {
 
 AST_FWD_DECL(Stmt);
+AST_FWD_DECL(FunctionDecl);
 
 class Stmt : public ASTBase {
 public:
@@ -54,9 +55,12 @@ public:
   Import();
   void set_filename(str_view s);
   const str &get_filename() const;
+  const vector<FunctionDeclPtr> &get_imported_funcs() const;
+  void set_imported_funcs(const vector<FunctionDeclPtr> &imported_funcs);
 
 private:
   str _filename;
+  vector<FunctionDeclPtr> _imported_funcs{};
 };
 
 class BreakContinue : public Stmt {
