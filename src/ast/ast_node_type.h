@@ -13,25 +13,7 @@ enum class ASTNodeType {
   ENUM_DECL,
   ENUM_VAL,
   STATEMENT,   /// statement or compound statements
-  SUM,         /// +
-  SUBTRACT,    /// -
-  MULTIPLY,    /// *
-  DIVIDE,      /// /
-  MOD,         /// %
-  ASSIGN,      /// =
-  BAND,        /// binary and
-  LAND,        /// logical and
-  BOR,         /// binary or
-  LOR,         /// logical or
-  BNOT,        /// bitwise not
-  LNOT,        /// logical not
-  GT,          /// >
-  GE,          /// >=
-  LT,          /// <
-  LE,          /// <=
-  EQ,          /// ==
-  NE,          /// !=
-  XOR,         /// ^
+  BOP,         /// binary operators, see BinaryOpKind
   ADDRESS_OF,  /// &
   CAST,        /// as
   ID,          /// identifiers

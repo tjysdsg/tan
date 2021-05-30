@@ -1,6 +1,5 @@
 #include "src/analysis/analyzer_impl.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/ast_node.h"
 
 using namespace tanlang;
 

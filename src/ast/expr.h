@@ -71,6 +71,43 @@ public:
   Identifier();
 };
 
+enum BinaryOpKind {
+  SUM,         /// +
+  SUBTRACT,    /// -
+  MULTIPLY,    /// *
+  DIVIDE,      /// /
+  MOD,         /// %
+  ASSIGN,      /// =
+  BAND,        /// binary and
+  LAND,        /// logical and
+  BOR,         /// binary or
+  LOR,         /// logical or
+  BNOT,        /// bitwise not
+  LNOT,        /// logical not
+  GT,          /// >
+  GE,          /// >=
+  LT,          /// <
+  LE,          /// <=
+  EQ,          /// ==
+  NE,          /// !=
+  XOR,         /// ^
+};
+
+class BinaryOperator : public Expr {
+public:
+  static ptr<BinaryOperator> Create(BinaryOpKind op);
+  static ptr<BinaryOperator> Create(BinaryOpKind op, const ptr<Expr> &lhs, const ptr<Expr> &rhs);
+  BinaryOperator(BinaryOpKind op);
+
+  /// binary operator precedence
+  static umap<BinaryOpKind, int> BOPPrecedence;
+
+protected:
+  BinaryOpKind _op;
+  ptr<Expr> _lhs = nullptr;
+  ptr<Expr> _rhs = nullptr;
+};
+
 }
 
 #endif //__TAN_SRC_AST_EXPR_H__
