@@ -126,7 +126,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
     } else { return; }
   }
   /// resolve_ty children if they are ASTType
-  for (const auto &c: p->get_children()) {
+  for (const auto &c: p->_sub_types) {
     auto t = ast_cast<ASTType>(c);
     if (t && t->get_node_type() == ASTNodeType::TY && !t->_resolved) {
       TypeSystem::ResolveTy(cs, t);
@@ -207,7 +207,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_signed;
       break;
     case Ty::ENUM: {
-      auto sub = p->get_child_at<ASTType>(0);
+      auto sub = p->_sub_types[0];
       TAN_ASSERT(sub);
       p->_size_bits = sub->_size_bits;
       p->_align_bits = sub->_align_bits;
@@ -231,9 +231,9 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
         p->_is_forward_decl = false;
       } else {
         p->_align_bits = 8;
-        size_t n = p->get_children_size();
+        size_t n = p->_sub_types.size();
         for (size_t i = 0; i < n; ++i) {
-          auto et = p->get_child_at<ASTType>(i);
+          auto et = p->_sub_types[i];
           auto s = et->_size_bits;
           if (s > p->_align_bits) { p->_align_bits = s; }
         }
@@ -243,10 +243,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       break;
     }
     case Ty::ARRAY: {
-      if (p->get_children_size() == 0) {
+      if (p->_sub_types.size() == 0) {
         report_error(cs->_filename, p->get_token(), "Invalid type");
       }
-      auto et = p->get_child_at<ASTType>(0);
+      auto et = p->_sub_types[0];
       /// typename = "<element type>[<n_elements>]"
       p->_type_name = fmt::format("{}[{}]", et->_type_name, std::to_string(p->_array_size));
       p->_is_ptr = true; /// FIXME: remove _is_ptr field
@@ -257,10 +257,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       break;
     }
     case Ty::POINTER: {
-      if (p->get_children_size() == 0) {
+      if (p->_sub_types.size() == 0) {
         report_error(cs->_filename, p->get_token(), "Invalid type");
       }
-      auto e = p->get_child_at<ASTType>(0);
+      auto e = p->_sub_types[0];
       TypeSystem::ResolveTy(cs, e);
       p->_type_name = e->_type_name + "*";
       p->_size_bits = tm->getPointerSizeInBits(0);
@@ -305,15 +305,15 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
       type = builder->getVoidTy();
       break;
     case Ty::ENUM:
-      type = ToLLVMType(cs, h.get_ty(p->get_child_at(0)));
+      type = ToLLVMType(cs, h.get_ty(p->_sub_types[0]));
       break;
     case Ty::STRUCT: {
       auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
       vector<Type *> body{};
-      size_t n = p->get_children_size();
+      size_t n = p->_sub_types.size();
       body.reserve(n);
       for (size_t i = 1; i < n; ++i) {
-        body.push_back(ToLLVMType(cs, h.get_ty(p->get_child_at(i))));
+        body.push_back(ToLLVMType(cs, h.get_ty(p->_sub_types[i])));
       }
       struct_type->setBody(body);
       type = struct_type;
@@ -321,7 +321,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
-      auto e_type = ToLLVMType(cs, h.get_ty(p->get_child_at(0)));
+      auto e_type = ToLLVMType(cs, h.get_ty(p->_sub_types[0]));
       type = e_type->getPointerTo();
       break;
     }
@@ -356,10 +356,10 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
     }
     case Ty::STRUCT: {
       DIFile *di_file = cs->get_di_file();
-      size_t n = p->get_children_size();
+      size_t n = p->_sub_types.size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        auto e = p->get_child_at(i); // VarDecl
+        auto e = p->_sub_types[i]; // VarDecl
         elements.push_back(ToLLVMMeta(cs, h.get_ty(e)));
       }
       ret = cs->_di_builder
@@ -379,7 +379,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
     }
     case Ty::ARRAY:
     case Ty::POINTER: {
-      auto e = p->get_child_at<ASTType>(0);
+      auto e = p->_sub_types[0];
       auto *e_di_type = ToLLVMMeta(cs, e);
       ret = cs->_di_builder
           ->createPointerType((DIType *) e_di_type,
