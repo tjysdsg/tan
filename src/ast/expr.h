@@ -77,6 +77,9 @@ class Identifier : public Expr, public ASTNamed {
 public:
   static ptr<Identifier> Create(str_view name);
   Identifier();
+
+public:
+  ASTBasePtr _referred = nullptr
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence

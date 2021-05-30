@@ -19,21 +19,16 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   switch (p->get_node_type()) {
     case ASTNodeType::BOP:
       analyze_bop(p);
+      break;
     case ASTNodeType::UOP:
       analyze_uop(p);
+      break;
     case ASTNodeType::RET:
       // TODO: check if return type can be implicitly cast to function return type
       break;
-    case ASTNodeType::ID: {
-      auto referred = _h.get_id_referred(ast_must_cast<ASTNode>(p));
-      if (!referred) {
-        report_error(p, "Unknown identifier");
-      }
-      p->append_child(referred);
-      np->_type = copy_ty(referred->_type);
-      np->_type->_is_lvalue = true;
+    case ASTNodeType::ID:
+      analyze_id(p);
       break;
-    }
       //////////////////////// literals ///////////////////////////////////////
     case ASTNodeType::STRING_LITERAL:
       analyze_string_literal(p);
@@ -141,4 +136,22 @@ void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
       TAN_ASSERT(false);
       break;
   }
+}
+
+void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Identifier>(_p);
+  auto referred = _cs->get(p->get_name());
+  if (!referred) {
+    report_error(p, "Unknown identifier");
+  }
+
+  auto typed = std::reinterpret_pointer_cast<Typed>(referred);
+  if (!typed) {
+    report_error(p, "Invalid identifier");
+  }
+
+  p->_referred = referred;
+  auto ty = copy_ty(typed->get_type());
+  ty->_is_lvalue = true;
+  p->set_type(ty);
 }
