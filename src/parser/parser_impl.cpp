@@ -105,7 +105,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
     auto prev = this->at(index - 1);
     if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
       /// array literal if there is no identifier, "]", or ")" before
-      node = ast_create_array_literal(_cs);
+      node = ArrayLiteral::Create();
     } else {
       /// otherwise bracket access
       node = ast_create_member_access(_cs);
@@ -127,7 +127,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
     if (next->value == "(") {
       node = ast_create_func_call(_cs);
     } else {
-      node = ast_create_identifier(_cs, token->value);
+      node = Identifier::Create(token->value);
     }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
     node = ast_create_parenthesis(_cs);
@@ -199,9 +199,9 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     case ASTNodeType::PROGRAM:
       parse_program(p);
       break;
-    case ASTNodeType::STATEMENT: {
+    case ASTNodeType::STATEMENT:
+      parse_stmt(p);
       break;
-    }
     case ASTNodeType::PARENTHESIS: {
       ++p->_end_index; /// skip "("
       while (true) {
@@ -224,27 +224,22 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       }
       break;
     }
-    case ASTNodeType::IMPORT: {
+    case ASTNodeType::IMPORT:
       parse_import(p);
       break;
-    }
-    case ASTNodeType::INTRINSIC: {
+    case ASTNodeType::INTRINSIC:
       parse_intrinsic(p);
       break;
-    }
       ////////////////////////// control flow ////////////////////////////////
-    case ASTNodeType::IF: {
+    case ASTNodeType::IF:
       parse_if(p);
       break;
-    }
-    case ASTNodeType::ELSE: {
+    case ASTNodeType::ELSE:
       parse_else(p);
       break;
-    }
-    case ASTNodeType::LOOP: {
+    case ASTNodeType::LOOP:
       parse_loop(p);
       break;
-    }
       ////////////////////////// prefix ////////////////////////////////
     case ASTNodeType::ADDRESS_OF:
     case ASTNodeType::LNOT:
@@ -265,39 +260,31 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       break;
     }
       ////////////////////////// others /////////////////////////////////
-    case ASTNodeType::FUNC_CALL: {
+    case ASTNodeType::FUNC_CALL:
       parse_func_call(p);
       break;
-    }
-    case ASTNodeType::ARRAY_LITERAL: {
+    case ASTNodeType::ARRAY_LITERAL:
       parse_array_literal(p);
       break;
-    }
-    case ASTNodeType::TY: {
+    case ASTNodeType::TY:
       parse_ty(ast_must_cast<ASTType>(p));
       break;
-    }
       ////////////////////////// declarations /////////////////////////////////
-    case ASTNodeType::STRUCT_DECL: {
+    case ASTNodeType::STRUCT_DECL:
       parse_struct_decl(p);
       break;
-    }
-    case ASTNodeType::VAR_DECL: {
+    case ASTNodeType::VAR_DECL:
       parse_var_decl(p);
       break;
-    }
-    case ASTNodeType::ARG_DECL: {
+    case ASTNodeType::ARG_DECL:
       parse_arg_decl(p);
       break;
-    }
-    case ASTNodeType::FUNC_DECL: {
+    case ASTNodeType::FUNC_DECL:
       parse_func_decl(p);
       break;
-    }
-    case ASTNodeType::ENUM_DECL: {
+    case ASTNodeType::ENUM_DECL:
       parse_enum_decl(p);
       break;
-    }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTNodeType::BREAK:
     case ASTNodeType::CONTINUE:

@@ -2,6 +2,7 @@
 #define __TAN_SRC_AST_EXPR_H__
 #include "base.h"
 #include "src/ast/ast_base.h"
+#include "src/ast/ast_named.h"
 
 namespace tanlang {
 
@@ -55,12 +56,19 @@ private:
 class ArrayLiteral : public Literal {
 public:
   static ptr<ArrayLiteral> Create(vector<ptr<Literal>> val);
+  static ptr<ArrayLiteral> Create();
   ArrayLiteral() : Literal(ASTNodeType::ARRAY_LITERAL, 0) {}
 
   void set_elements(const vector<ptr<Literal>> &elements);
 
 private:
   vector<ptr<Literal>> _elements{};
+};
+
+class Identifier : public Expr, public ASTNamed {
+public:
+  static ptr<Identifier> Create(str_view name);
+  Identifier();
 };
 
 }

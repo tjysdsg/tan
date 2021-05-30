@@ -2,6 +2,8 @@
 
 using namespace tanlang;
 
+/// \section Literals
+
 ptr<IntegerLiteral> IntegerLiteral::Create(uint64_t val, bool is_unsigned) {
   auto ret = make_ptr<IntegerLiteral>();
   ret->_value = val;
@@ -35,4 +37,18 @@ ptr<ArrayLiteral> ArrayLiteral::Create(vector<ptr<Literal>> val) {
 
 void ArrayLiteral::set_elements(const vector<ptr<Literal>> &elements) {
   _elements = elements;
+}
+
+ptr<ArrayLiteral> ArrayLiteral::Create() {
+  return make_ptr<ArrayLiteral>();
+}
+
+/// \section Identifier
+
+Identifier::Identifier() : Expr(ASTNodeType::ID, 0) {}
+
+ptr<Identifier> Identifier::Create(str_view name) {
+  auto ret = make_ptr<Identifier>();
+  ret->set_name(name);
+  return ret;
 }

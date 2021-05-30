@@ -159,18 +159,6 @@ ASTNodePtr ast_create_intrinsic(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_identifier(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::ID, 0);
-  ret->_is_named = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name) {
-  auto ret = ast_create_identifier(cs);
-  ret->set_data(name);
-  return ret;
-}
-
 ASTNodePtr ast_create_parenthesis(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTNodeType::PARENTHESIS, ASTNode::OpPrecedence[ASTNodeType::PARENTHESIS]);
   ret->_is_typed = true;
