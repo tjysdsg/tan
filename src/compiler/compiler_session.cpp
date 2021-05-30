@@ -3,7 +3,6 @@
 #include "src/compiler/function_table.h"
 #include "compiler.h"
 #include "base.h"
-#include "src/ast/ast_node.h"
 
 using namespace tanlang;
 
@@ -54,11 +53,11 @@ ptr<Scope> CompilerSession::pop_scope() {
   return r;
 }
 
-void CompilerSession::add(const str &name, ASTNodePtr value) {
+void CompilerSession::add(const str &name, ASTBasePtr value) {
   get_current_scope()->_named[name] = value;
 }
 
-void CompilerSession::set(const str &name, ASTNodePtr value) {
+void CompilerSession::set(const str &name, ASTBasePtr value) {
   auto scope = _scope.end();
   bool found = false;
   --scope;
@@ -74,7 +73,7 @@ void CompilerSession::set(const str &name, ASTNodePtr value) {
   else { report_error("Cannot set the value of " + name); }
 }
 
-ASTNodePtr CompilerSession::get(const str &name) {
+ASTBasePtr CompilerSession::get(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
@@ -222,6 +221,6 @@ DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
-ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
+LoopPtr CompilerSession::get_current_loop() const { return _current_loop; }
 
-void CompilerSession::set_current_loop(ptr<ASTLoop> loop) { _current_loop = loop; }
+void CompilerSession::set_current_loop(LoopPtr loop) { _current_loop = loop; }

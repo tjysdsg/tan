@@ -5,6 +5,7 @@
 #include "src/ast/stmt.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_base.h"
+#include "compiler_session.h"
 #include <fmt/core.h>
 
 using namespace tanlang;
