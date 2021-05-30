@@ -80,7 +80,7 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
       ret = codegen_parenthesis(p);
       break;
     case ASTNodeType::ID:
-      ret = codegen(p->get_child_at<ASTBase>(0));
+      ret = codegen_identifier(p);
       break;
     default:
       break;
@@ -671,3 +671,7 @@ Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &_p) {
   return p->_llvm_value = ret;
 }
 
+Value *CodeGeneratorImpl::codegen_identifier(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Identifier>(_p);
+  return p->_llvm_value = codegen(p->_referred);
+}

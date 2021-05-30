@@ -47,6 +47,7 @@ private:
   Value *codegen_func_call(const ASTBasePtr &p);
   Value *codegen_import(const ASTBasePtr &p);
   Value *codegen_literals(const ASTBasePtr &p);
+  Value *codegen_identifier(const ASTBasePtr &p);
 
   Value *codegen_ty(const ASTTypePtr &p);
   Value *codegen_func_prototype(const FunctionDeclPtr &p, bool import = false);
