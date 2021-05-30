@@ -46,6 +46,8 @@ public:
   static ptr<StringLiteral> Create(str_view val);
   StringLiteral() : Literal(ASTNodeType::STRING_LITERAL, 0) {}
 
+  str get_value();
+
 private:
   str _value = 0;
 };

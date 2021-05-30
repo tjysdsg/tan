@@ -47,7 +47,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = FunctionDecl::Create();
       break;
     case "import"_hs:
-      ret = ast_create_import(_cs);
+      ret = Import::Create();
       break;
     case "if"_hs:
       ret = ast_create_if(_cs);

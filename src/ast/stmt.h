@@ -53,6 +53,16 @@ private:
   ExprPtr _rhs = nullptr;
 };
 
+class Import : public Stmt {
+public:
+  static ptr<Import> Create();
+  Import();
+  void set_filename(str_view s);
+
+private:
+  str _filename;
+};
+
 }
 
 #endif //__TAN_SRC_AST_STMT_H__

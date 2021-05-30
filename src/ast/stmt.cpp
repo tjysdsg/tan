@@ -48,3 +48,11 @@ Return::Return() {
 }
 
 void Return::set_rhs(ExprPtr rhs) { _rhs = rhs; }
+
+/// \section Import
+
+ptr<Import> Import::Create() { return make_ptr<Import>(); }
+
+Import::Import() { set_node_type(ASTNodeType::IMPORT); }
+
+void Import::set_filename(str_view s) { _filename = s; }

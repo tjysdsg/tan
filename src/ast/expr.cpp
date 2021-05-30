@@ -23,6 +23,8 @@ ptr<StringLiteral> StringLiteral::Create(str_view val) {
   return ret;
 }
 
+str StringLiteral::get_value() { return _value; }
+
 ptr<CharLiteral> CharLiteral::Create(uint8_t val) {
   auto ret = make_ptr<CharLiteral>();
   ret->_value = val;
