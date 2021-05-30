@@ -24,7 +24,6 @@ enum class ASTNodeType {
   PARENTHESIS, /// ()
   RET,         /// return
   IF,          /// if
-  ELSE,        /// else
   IMPORT,      /// import
 
   // types in tan

@@ -5,7 +5,6 @@
 #include "src/ast/stmt.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
-#include "src/ast/ast_control_flow.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_type.h"
 #include "src/common.h"
@@ -50,11 +49,9 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = Import::Create();
       break;
     case "if"_hs:
-      ret = ast_create_if(_cs);
+      ret = If::Create();
       break;
-    case "else"_hs:
-      ret = ast_create_else(_cs);
-      break;
+      /// else clause should be covered by If statement
     case "return"_hs:
       ret = Return::Create();
       break;
@@ -254,9 +251,6 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       break;
     case ASTNodeType::IF:
       parse_if(p);
-      break;
-    case ASTNodeType::ELSE:
-      parse_else(p);
       break;
     case ASTNodeType::LOOP:
       parse_loop(p);

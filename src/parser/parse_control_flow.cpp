@@ -23,18 +23,11 @@ size_t ParserImpl::parse_if(const ASTBasePtr &_p) {
   /// else clause, if any
   auto *token = at(p->_end_index);
   if (token->type == TokenType::KEYWORD && token->value == "else") {
+    ++p->_end_index; /// skip "else"
     auto else_clause = peek(p->_end_index);
     p->_end_index = parse_node(else_clause);
     p->set_else(expect_stmt(else_clause));
   }
-  return p->_end_index;
-}
-
-size_t ParserImpl::parse_else(const ASTBasePtr &p) {
-  ++p->_end_index; /// skip "else"
-  auto else_clause = peek(p->_end_index);
-  p->_end_index = parse_node(else_clause);
-  p->append_child(else_clause);
   return p->_end_index;
 }
 
