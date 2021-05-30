@@ -1,3 +1,4 @@
+#include "src/analysis/type_system.h"
 #include "src/ast/ast_type.h"
 #include "parser.h"
 #include "token.h"
@@ -5,13 +6,14 @@
 
 using namespace tanlang;
 
+/*
 ASTTypePtr ASTType::find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue) {
   auto find = ASTType::_cache.find(t);
   if (find == ASTType::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
   auto ret = find->second;
 
-  if (sub_tys.size() != ret->get_children_size()) { return nullptr; }
+  if (sub_tys.size() != ret->_sub_types.size()) { return nullptr; }
   size_t idx = 0;
   for (const auto &sub : sub_tys) {
     auto t1 = sub;
@@ -22,6 +24,7 @@ ASTTypePtr ASTType::find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_
   }
   return ret;
 }
+ */
 
 bool ASTType::operator==(const ASTType &other) {
   #define CHECK(val) if (this->val != other.val) { return false; }
@@ -38,14 +41,12 @@ bool ASTType::operator==(const ASTType &other) {
   CHECK(_is_enum);
   #undef CHECK
 
-  if (get_children_size() > 0) {
-    size_t n = get_children_size();
-    if (n != other.get_children_size()) { return false; }
+  if (_sub_types.size() > 0) {
+    size_t n = _sub_types.size();
+    if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      auto lhs = get_child_at<ASTType>(i);
-      TAN_ASSERT(lhs);
-      auto rhs = other.get_child_at<ASTType>(i);
-      TAN_ASSERT(rhs);
+      ASTTypePtr lhs = _sub_types[i];
+      ASTTypePtr rhs = other._sub_types[i];
       if (!lhs->operator==(*rhs)) { return false; }
     }
   }
@@ -82,7 +83,7 @@ ASTTypePtr ASTType::Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys
   auto ret = make_ptr<ASTType>();
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
-  ret->get_children().insert(ret->get_children().begin(), sub_tys.begin(), sub_tys.end());
+  ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
   TypeSystem::ResolveTy(cs, ret);
   return ret;
 }

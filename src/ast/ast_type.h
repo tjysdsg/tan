@@ -22,7 +22,7 @@ AST_FWD_DECL(ASTType);
 /**
  * \brief Type of an ASTNode
  */
-class ASTType : public ASTBase, public enable_ptr_from_this<ASTType> {
+class ASTType : public ASTBase {
 public:
   static ASTTypePtr Create();
   static ASTTypePtr Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys = {}, bool is_lvalue = false);
@@ -33,7 +33,7 @@ public:
 
 private:
   static inline umap<Ty, ASTTypePtr> _cache{};
-  static ASTTypePtr find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue);
+  // TODO: static ASTTypePtr find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue);
 
 public:
   ASTType();
@@ -49,8 +49,7 @@ public:
   virtual str to_string(bool print_prefix = true);
 
 public:
-  Ty _tyty = Ty::INVALID;
-  // avoid name collision with _type
+  Ty _tyty = Ty::INVALID; // FIXME: fix this goddamn name
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
   str _type_name = "";
@@ -60,7 +59,6 @@ public:
   unsigned _dwarf_encoding = 0;
   bool _is_ptr = false;
   bool _is_float = false;
-  // TODO: size bits for float
   bool _is_array = false;
   size_t _array_size = 0;
   bool _is_int = false;
@@ -70,9 +68,10 @@ public:
   bool _is_enum = false;
   bool _resolved = false;
   bool _is_lvalue = false;
-  umap<str, size_t> _member_indices{};
-  vector<str> _member_names{};
   bool _is_forward_decl = false;
+
+private:
+  vector<ASTTypePtr> _sub_types;
 };
 
 } // namespace tanlang
