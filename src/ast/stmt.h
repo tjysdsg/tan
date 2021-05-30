@@ -57,7 +57,7 @@ class Import : public Stmt {
 public:
   static ptr<Import> Create();
   Import();
-  void set_filename(str_view s);
+  void set_filename(const str& s);
   const str &get_filename() const;
   const vector<FunctionDeclPtr> &get_imported_funcs() const;
   void set_imported_funcs(const vector<FunctionDeclPtr> &imported_funcs);

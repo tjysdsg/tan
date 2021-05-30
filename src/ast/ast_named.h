@@ -6,7 +6,7 @@ namespace tanlang {
 class ASTNamed {
 public:
   str get_name() const;
-  void set_name(str_view name);
+  void set_name(const str &name);
 
 private:
   str _name;

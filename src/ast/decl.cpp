@@ -16,7 +16,7 @@ ArgDecl::ArgDecl() : Decl(ASTNodeType::ARG_DECL, 0) {}
 
 ptr<ArgDecl> ArgDecl::Create() { return make_ptr<ArgDecl>(); }
 
-ptr<ArgDecl> ArgDecl::Create(str_view name, const ASTTypePtr &ty) {
+ptr<ArgDecl> ArgDecl::Create(const str &name, const ASTTypePtr &ty) {
   auto ret = make_ptr<ArgDecl>();
   ret->set_name(name);
   ret->set_type(ty);
@@ -29,7 +29,7 @@ VarDecl::VarDecl() : Decl(ASTNodeType::VAR_DECL, 0) {}
 
 ptr<VarDecl> VarDecl::Create() { return make_ptr<VarDecl>(); }
 
-ptr<VarDecl> VarDecl::Create(str_view name, const ASTTypePtr &ty) {
+ptr<VarDecl> VarDecl::Create(const str &name, const ASTTypePtr &ty) {
   auto ret = make_ptr<VarDecl>();
   ret->set_name(name);
   ret->set_type(ty);

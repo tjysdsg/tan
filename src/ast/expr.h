@@ -45,11 +45,11 @@ private:
 
 class StringLiteral : public Literal {
 public:
-  static ptr<StringLiteral> Create(str_view val);
+  static ptr<StringLiteral> Create(const str &val);
   StringLiteral();
 
   str get_value() const;
-  void set_value(str_view val) { _value = val; }
+  void set_value(str val) { _value = val; }
 
 private:
   str _value = 0;
@@ -82,7 +82,7 @@ private:
 
 class Identifier : public Expr, public ASTNamed {
 public:
-  static ptr<Identifier> Create(str_view name);
+  static ptr<Identifier> Create(const str &name);
   Identifier();
 
 public:

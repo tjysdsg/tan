@@ -21,7 +21,7 @@ double FloatLiteral::get_value() const { return _value; }
 
 void FloatLiteral::set_value(double value) { _value = value; }
 
-ptr<StringLiteral> StringLiteral::Create(str_view val) {
+ptr<StringLiteral> StringLiteral::Create(const str &val) {
   auto ret = make_ptr<StringLiteral>();
   ret->_value = val;
   return ret;
@@ -61,7 +61,7 @@ vector<ptr<Literal>> ArrayLiteral::get_elements() const { return _elements; }
 
 Identifier::Identifier() : Expr(ASTNodeType::ID, 0) {}
 
-ptr<Identifier> Identifier::Create(str_view name) {
+ptr<Identifier> Identifier::Create(const str &name) {
   auto ret = make_ptr<Identifier>();
   ret->set_name(name);
   return ret;

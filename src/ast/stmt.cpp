@@ -60,7 +60,7 @@ ptr<Import> Import::Create() { return make_ptr<Import>(); }
 
 Import::Import() : Stmt(ASTNodeType::IMPORT) {}
 
-void Import::set_filename(str_view s) { _filename = s; }
+void Import::set_filename(const str& s) { _filename = s; }
 
 const str &Import::get_filename() const { return _filename; }
 

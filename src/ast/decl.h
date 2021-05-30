@@ -22,7 +22,7 @@ public:
 class VarDecl : public Decl {
 public:
   static ptr<VarDecl> Create();
-  static ptr<VarDecl> Create(str_view name, const ASTTypePtr &ty);
+  static ptr<VarDecl> Create(const str &name, const ASTTypePtr &ty);
 
 public:
   VarDecl();
@@ -34,7 +34,7 @@ private:
 class ArgDecl : public Decl {
 public:
   static ptr<ArgDecl> Create();
-  static ptr<ArgDecl> Create(str_view name, const ASTTypePtr &ty);
+  static ptr<ArgDecl> Create(const str &name, const ASTTypePtr &ty);
 
 public:
   ArgDecl();
