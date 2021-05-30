@@ -150,15 +150,17 @@ Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &_p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Decl>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
-  if (!p->_type->_resolved) {
+  if (!p->get_type()->_resolved) {
     report_error(p, "Unknown type");
   }
-  Type *type = TypeSystem::ToLLVMType(_cs, p->_type);
-  p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_data<str>());
+  Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
+  p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
 
   // FIXME: default value of var declaration
   // if (p->get_node_type() == ASTNodeType::VAR_DECL) { /// don't do this for arg_decl
@@ -169,9 +171,9 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &p) {
   {
     auto *di_builder = _cs->_di_builder;
     auto *curr_di_scope = _cs->get_current_di_scope();
-    auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->_type);
+    auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_type());
     auto *di_arg = di_builder->createAutoVariable(curr_di_scope,
-        p->get_data<str>(),
+        p->get_name(),
         _cs->get_di_file(),
         (unsigned) p->get_line(),
         (DIType *) arg_meta);
