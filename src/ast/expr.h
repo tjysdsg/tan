@@ -99,7 +99,7 @@ enum class BinaryOpKind {
   EQ,           /// ==
   NE,           /// !=
   XOR,          /// ^
-  MemberAccess, /// . or []
+  MEMBER_ACCESS, /// . or []
   CAST,         /// as
 };
 
@@ -115,17 +115,23 @@ public:
 
   void set_lhs(const ptr<Expr> &lhs);
   void set_rhs(const ptr<Expr> &rhs);
+  ptr<Expr> get_lhs() const;
+  ptr<Expr> get_rhs() const;
+  BinaryOpKind get_op() const;
+  size_t get_dominant_idx() const { return _dominant_idx; }
+  void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
 
 protected:
   BinaryOpKind _op;
   ptr<Expr> _lhs = nullptr;
   ptr<Expr> _rhs = nullptr;
+  size_t _dominant_idx = 0;
 };
 
 class MemberAccess : public BinaryOperator {
 public:
   static ptr<MemberAccess> Create();
-  MemberAccess() : BinaryOperator(BinaryOpKind::MemberAccess) {}
+  MemberAccess() : BinaryOperator(BinaryOpKind::MEMBER_ACCESS) {}
 
 public:
   enum {
@@ -185,7 +191,7 @@ public:
   static ptr<FunctionCall> Create();
   FunctionCall();
 
-private:
+public:
   vector<ptr<Expr>> _args{};
   FunctionDeclPtr _callee = nullptr;
 };

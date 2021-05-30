@@ -12,6 +12,13 @@ ArgDecl::ArgDecl() : ASTBase(ASTNodeType::ARG_DECL, 0) {}
 
 ptr<ArgDecl> ArgDecl::Create() { return make_ptr<ArgDecl>(); }
 
+ptr<ArgDecl> ArgDecl::Create(str_view name, const ASTTypePtr &ty) {
+  auto ret = make_ptr<ArgDecl>();
+  ret->set_name(name);
+  ret->set_type(ty);
+  return ret;
+}
+
 /// \section VarDecl
 
 VarDecl::VarDecl() : ASTBase(ASTNodeType::VAR_DECL, 0) {}

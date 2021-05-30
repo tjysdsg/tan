@@ -1,7 +1,6 @@
 #include "analyzer_impl.h"
 #include "src/ast/ast_type.h"
 #include "compiler_session.h"
-#include "src/ast/factory.h"
 #include "src/ast/ast_base.h"
 #include "src/analysis/type_system.h"
 #include "src/common.h"
@@ -9,7 +8,7 @@
 
 using namespace tanlang;
 
-ASTTypepePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
+ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
   return make_ptr<ASTType>(*p);
 }
 
@@ -27,7 +26,8 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
 
   switch (p->get_node_type()) {
     /////////////////////////// binary ops ///////////////////////////////////
-    // TODO: create a new ASTNodeType for unary plus and minus
+    case ASTNodeType::BOP:
+      analyze_bop(p);
     case ASTNodeType::SUM:
     case ASTNodeType::SUBTRACT: {
       /// unary plus/minus
@@ -37,44 +37,6 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
         break;
       }
     }
-      // fallthrough
-    case ASTNodeType::MULTIPLY:
-    case ASTNodeType::DIVIDE:
-    case ASTNodeType::MOD: {
-      int i = TypeSystem::CanImplicitCast(_cs, _h.get_ty(p->get_child_at(0)), _h.get_ty(p->get_child_at(1)));
-      if (i == -1) {
-        report_error(p, "Cannot perform implicit type conversion");
-      }
-
-      size_t dominant_idx = static_cast<size_t>(i);
-      np->_dominant_idx = dominant_idx;
-      np->_type = copy_ty(_h.get_ty(p->get_child_at(dominant_idx)));
-      np->_type->_is_lvalue = false;
-      break;
-    }
-    case ASTNodeType::GT:
-    case ASTNodeType::GE:
-    case ASTNodeType::LT:
-    case ASTNodeType::LE:
-    case ASTNodeType::EQ:
-    case ASTNodeType::NE:
-      np->_type = create_ty(_cs, Ty::BOOL);
-      break;
-    case ASTNodeType::ASSIGN:
-      analyze_assignment(p);
-      break;
-    case ASTNodeType::CAST: {
-      np->_type = copy_ty(_h.get_ty(p->get_child_at(1)));
-      np->_type->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
-      // FIXME: check if can explicit cast
-      // if (TypeSystem::CanImplicitCast(_cs, np->_type, _h.get_ty(p->get_child_at(0))) != 0) {
-      //   report_error(p, "Cannot perform implicit type conversion");
-      // }
-      break;
-    }
-    case ASTNodeType::MEMBER_ACCESS:
-      analyze_member_access(p);
-      break;
       /////////////////////////// unary ops ////////////////////////////////////
     case ASTNodeType::RET:
       // TODO: check if return type can be implicitly cast to function return type

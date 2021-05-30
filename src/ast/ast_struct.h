@@ -6,7 +6,7 @@
 namespace tanlang {
 
 class ASTStruct : public ASTType {
-private:
+public:
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
 };

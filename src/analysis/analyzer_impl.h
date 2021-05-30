@@ -6,8 +6,9 @@
 namespace tanlang {
 
 AST_FWD_DECL(ASTBase);
-AST_FWD_DECL(ASTNode);
 AST_FWD_DECL(ASTType);
+AST_FWD_DECL(BinaryOperator);
+AST_FWD_DECL(MemberAccess);
 
 class AnalyzerImpl {
 public:
@@ -15,7 +16,7 @@ public:
   void analyze(const ASTBasePtr &p);
 
 private:
-  void analyze_member_access(const ASTBasePtr &p);
+  void analyze_member_access(const MemberAccessPtr &p);
   void analyze_intrinsic(const ASTBasePtr &p);
   void analyze_string_literal(const ASTBasePtr &p);
   void analyze_char_literal(const ASTBasePtr &p);
@@ -25,7 +26,8 @@ private:
   void analyze_func_decl(const ASTBasePtr &p);
   void analyze_func_call(const ASTBasePtr &p);
   void analyze_import(const ASTBasePtr &p);
-  void analyze_assignment(const ASTBasePtr &p);
+  void analyze_assignment(const BinaryOperatorPtr &p);
+  void analyze_bop(const ASTBasePtr &p);
   void resolve_ty(const ASTTypePtr &p) const;
   ASTTypePtr copy_ty(const ASTTypePtr &p) const;
   [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);

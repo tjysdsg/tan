@@ -66,7 +66,7 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
         {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON}, {BinaryOpKind::ASSIGN, PREC_ASSIGN},
         {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
-        {BinaryOpKind::MemberAccess, PREC_HIGHEST}, {BinaryOpKind::CAST, PREC_CAST}};
+        {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}, {BinaryOpKind::CAST, PREC_CAST}};
 
 ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
   return make_ptr<BinaryOperator>(op);
@@ -82,6 +82,12 @@ ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op, const ptr<Expr> &lhs
 void BinaryOperator::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
 
 void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+
+ptr<Expr> BinaryOperator::get_lhs() const { return _lhs; }
+
+ptr<Expr> BinaryOperator::get_rhs() const { return _rhs; }
+
+BinaryOpKind BinaryOperator::get_op() const { return _op; }
 
 /// \section Unary operators
 
@@ -110,7 +116,7 @@ Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedenc
 
 void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }
 
-/// \section MemberAccess operator
+/// \section MEMBER_ACCESS operator
 
 ptr<MemberAccess> MemberAccess::Create() { return make_ptr<MemberAccess>(); }
 

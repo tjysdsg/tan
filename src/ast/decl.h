@@ -24,6 +24,7 @@ private:
 class ArgDecl : public ASTBase, public ASTNamed, public Typed {
 public:
   static ptr<ArgDecl> Create();
+  static ptr<ArgDecl> Create(str_view name, const ASTTypePtr &ty);
 
 public:
   ArgDecl();
