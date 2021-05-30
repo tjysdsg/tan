@@ -196,39 +196,10 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   }
 
   switch (p->get_node_type()) {
-    case ASTNodeType::PROGRAM: {
-      while (!eof(p->_end_index)) {
-        auto stmt = Stmt::Create();
-        stmt->set_token(at(p->_end_index));
-        stmt->_start_index = p->_end_index;
-        p->_end_index = parse_node(stmt);
-        p->append_child(stmt);
-      }
+    case ASTNodeType::PROGRAM:
+      parse_program(p);
       break;
-    }
     case ASTNodeType::STATEMENT: {
-      if (at(p->_end_index)->value == "{") { /// compound statement
-        ++p->_end_index; /// skip "{"
-        while (!eof(p->_end_index)) {
-          auto node = peek(p->_end_index);
-          while (node) { /// stops at a terminal token
-            p->append_child(next_expression(p->_end_index, PREC_LOWEST));
-            node = peek(p->_end_index);
-          }
-          if (at(p->_end_index)->value == "}") {
-            ++p->_end_index; /// skip "}"
-            break;
-          }
-          ++p->_end_index;
-        }
-      } else { /// single statement
-        auto node = peek(p->_end_index);
-        while (node) { /// stops at a terminal token
-          p->append_child(next_expression(p->_end_index, PREC_LOWEST));
-          node = peek(p->_end_index);
-        }
-        ++p->_end_index; /// skip ';'
-      }
       break;
     }
     case ASTNodeType::PARENTHESIS: {

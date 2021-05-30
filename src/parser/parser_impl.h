@@ -31,7 +31,9 @@ private:
   ASTBasePtr next_expression(size_t &index, int rbp = 0);
   size_t parse_node(const ASTBasePtr &p);
   size_t parse_node(const ASTBasePtr &left, const ASTBasePtr &p);
-  void error(size_t i, const str &error_message) const;
+
+  size_t parse_program(const ASTBasePtr &p);
+  size_t parse_stmt(const ASTBasePtr &p);
   size_t parse_intrinsic(const ASTBasePtr &p);
   size_t parse_import(const ASTBasePtr &p);
   size_t parse_if(const ASTBasePtr &p);
@@ -49,6 +51,8 @@ private:
   size_t parse_ty(const ASTTypePtr &p);
   size_t parse_ty_array(const ASTTypePtr &p);
   size_t parse_ty_struct(const ASTTypePtr &p);
+
+  void error(size_t i, const str &error_message) const;
 
 private:
   vector<Token *> _tokens{};
