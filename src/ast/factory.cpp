@@ -76,7 +76,7 @@ ASTNodePtr ast_create_intrinsic(CompilerSession *) {
 }
 
 ASTNodePtr ast_create_func_call(CompilerSession *) {
-  return make_ptr<ASTFunctionCall>();
+  return make_ptr<FunctionCall>();
 }
 
 } // namespace tanlang

@@ -8,7 +8,7 @@
 using namespace tanlang;
 
 void AnalyzerImpl::analyze_func_call(const ASTBasePtr &p) {
-  auto f = ast_must_cast<ASTFunctionCall>(p);
+  auto f = ast_must_cast<FunctionCall>(p);
 
   std::vector<ASTNodePtr> args;
   args.reserve(p->get_children_size());

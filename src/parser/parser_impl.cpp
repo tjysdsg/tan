@@ -148,7 +148,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") {
-      node = ast_create_func_call(_cs);
+      node = FunctionCall::Create();
     } else {
       node = Identifier::Create(token->value);
     }

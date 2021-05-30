@@ -6,9 +6,14 @@
 
 namespace tanlang {
 
+AST_FWD_DECL(ASTType);
+
 class Expr : public ASTBase {
 public:
   Expr(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
+
+private:
+  ASTTypePtr _type = nullptr;
 };
 
 class Literal : public Expr {
@@ -171,6 +176,18 @@ public:
 
 private:
   ptr<Expr> _sub = nullptr;
+};
+
+AST_FWD_DECL(ASTFunction);
+
+class FunctionCall : public Expr, public ASTNamed {
+public:
+  static ptr<FunctionCall> Create();
+  FunctionCall();
+
+private:
+  vector<ptr<Expr>> _args{};
+  ASTFunctionPtr _callee = nullptr;
 };
 
 }

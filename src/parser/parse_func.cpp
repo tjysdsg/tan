@@ -1,6 +1,7 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/ast/ast_func.h"
+#include "src/ast/expr.h"
 #include "src/ast/factory.h"
 #include "compiler_session.h"
 
@@ -76,8 +77,10 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_func_call(const ASTBasePtr &p) {
-  p->set_data(at(p->_end_index)->value); /// function name
+size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
+  ptr<FunctionCall> p = ast_must_cast<FunctionCall>(_p);
+
+  p->set_name(at(p->_end_index)->value); /// function name
   ++p->_end_index;
 
   // No need to check since '(' is what distinguish a function call from an identifier at the first place
@@ -85,12 +88,22 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &p) {
   ++p->_end_index; /// skip (
 
   /// args
+  vector<ptr<Expr>> args{};
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
-    p->append_child(next_expression(p->_end_index));
+    auto _arg = next_expression(p->_end_index, p->get_lbp());
+    ptr<Expr> arg = nullptr;
+    if (!_arg || !(arg = ast_cast<Expr>(_arg))) {
+      error(p->_end_index, "Expect an expression");
+    }
+    args.push_back(arg);
+
     if (at(p->_end_index)->value == ",") { /// skip ,
       ++p->_end_index;
-    } else { break; }
+    } else { // TODO: remove this else?
+      break;
+    }
   }
+
   peek(p->_end_index, TokenType::PUNCTUATION, ")");
   ++p->_end_index;
 

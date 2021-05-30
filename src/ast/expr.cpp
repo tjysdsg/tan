@@ -110,6 +110,10 @@ void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }
 
 /// \section MemberAccess operator
 
-ptr<MemberAccess> MemberAccess::Create() {
-  return make_ptr<MemberAccess>();
-}
+ptr<MemberAccess> MemberAccess::Create() { return make_ptr<MemberAccess>(); }
+
+/// \section Function call
+
+ptr<FunctionCall> FunctionCall::Create() { return make_ptr<FunctionCall>(); }
+
+FunctionCall::FunctionCall() : Expr(ASTNodeType::FUNC_CALL, PREC_LOWEST) {}

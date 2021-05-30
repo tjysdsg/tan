@@ -8,7 +8,7 @@
 using namespace tanlang;
 
 Value *CodeGeneratorImpl::codegen_func_call(const ASTNodePtr &p) {
-  ptr<ASTFunctionCall> f = ast_must_cast<ASTFunctionCall>(p);
+  ptr<FunctionCall> f = ast_must_cast<FunctionCall>(p);
 
   ASTFunctionPtr callee = f->_callee;
   size_t n = callee->get_n_args();
