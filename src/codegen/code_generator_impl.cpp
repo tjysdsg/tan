@@ -96,23 +96,35 @@ void CodeGeneratorImpl::set_current_debug_location(ASTBasePtr p) {
   _cs->set_current_debug_location(p->get_line(), p->get_col());
 }
 
-Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *rhs = codegen(p->get_child_at<ASTBase>(0));
-  if (!rhs) { report_error(p, "Invalid operand"); }
-  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) {
+
+  auto *rhs = codegen(p->get_rhs());
+  if (!rhs) {
+    report_error(p, "Invalid operand");
+  }
+  if (p->get_rhs()->get_type()->_is_lvalue) {
     rhs = builder->CreateLoad(rhs);
   }
-  return (p->_llvm_value = builder->CreateNot(rhs));
+  return p->_llvm_value = builder->CreateNot(rhs);
 }
 
-Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *rhs = codegen(p->get_child_at<ASTBase>(0));
-  if (!rhs) { report_error(p, "Invalid operand"); }
-  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) {
+
+  auto *rhs = codegen(p->get_rhs());
+
+  if (!rhs) {
+    report_error(p, "Invalid operand");
+  }
+
+  if (p->get_rhs()->get_type()->_is_lvalue) {
     rhs = builder->CreateLoad(rhs);
   }
   /// get value size in bits
