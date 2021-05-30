@@ -2,11 +2,12 @@
 #include "compiler_session.h"
 #include "src/parser/parser_impl.h"
 #include "src/analysis/type_system.h"
+#include "src/ast/stmt.h"
+#include "src/ast/decl.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_member_access.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/factory.h"
 #include "src/common.h"
 #include "intrinsic.h"
 #include "token.h"
@@ -31,18 +32,19 @@ ASTBasePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
 }
 
 ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
-  ASTNodePtr ret = nullptr;
+  ASTBasePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
-      ret = ast_create_var_decl(_cs);
+      ret = VarDecl::Create();
       break;
     case "enum"_hs:
-      ret = ast_create_enum_decl(_cs);
+      // TODO: implement enum
+      TAN_ASSERT(false);
       break;
     case "fn"_hs:
     case "pub"_hs:
     case "extern"_hs:
-      ret = ast_create_func_decl(_cs);
+      ret = FunctionDecl::Create();
       break;
     case "import"_hs:
       ret = ast_create_import(_cs);
@@ -61,7 +63,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = ast_create_loop(_cs);
       break;
     case "struct"_hs:
-      ret = ast_create_struct_decl(_cs);
+      ret = StructDecl::Create();
       break;
     case "break"_hs:
       ret = ast_create_break(_cs);
@@ -118,7 +120,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::CHAR) { /// char literal
     node = ast_create_char_literal(_cs, token->value[0]);
   } else if (check_typename_token(token)) { /// types, must be before ID
-    node = ast_create_ty(_cs);
+    node = ASTType::Create();
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") {
@@ -136,7 +138,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->value == "&") {
     node = ast_create_ampersand(_cs);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
-    node = ast_create_statement(_cs);
+    node = Stmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
     node = ast_create_arithmetic(_cs, token->value);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
@@ -177,15 +179,15 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         p->set_node_type(ASTNodeType::ADDRESS_OF);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
         break;
       case "!"_hs:
         p->set_node_type(ASTNodeType::LNOT);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
         break;
       case "~"_hs:
         p->set_node_type(ASTNodeType::BNOT);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
         break;
       default:
         break;
@@ -195,7 +197,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM: {
       while (!eof(p->_end_index)) {
-        auto stmt = ast_create_statement(_cs);
+        auto stmt = Stmt::Create();
         stmt->set_token(at(p->_end_index));
         stmt->_start_index = p->_end_index;
         p->_end_index = parse_node(stmt);
@@ -346,7 +348,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
       p->set_node_type(ASTNodeType::BAND);
-      p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+      p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
       break;
     default:
       break;
@@ -385,7 +387,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
 }
 
 ASTBasePtr ParserImpl::parse() {
-  _root = ast_create_program(_cs);
+  _root = Program::Create();
   parse_node(_root);
   return _root;
 }

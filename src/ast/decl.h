@@ -14,11 +14,9 @@ public:
   static ptr<VarDecl> Create(str_view name, const ASTTypePtr &ty);
 
 public:
+  VarDecl();
   ASTTypePtr get_type() const { return _type; }
   void set_type(const ASTTypePtr &type) { _type = type; }
-
-private:
-  VarDecl();
 
 private:
   ASTTypePtr _type = nullptr;
@@ -30,11 +28,9 @@ public:
   static ptr<ArgDecl> Create();
 
 public:
+  ArgDecl();
   ASTTypePtr get_type() const { return _type; }
   void set_type(const ASTTypePtr &type) { _type = type; }
-
-private:
-  ArgDecl();
 
 private:
   ASTTypePtr _type = nullptr;
@@ -45,8 +41,6 @@ AST_FWD_DECL(ASTFunction);
 class FunctionDecl : public ASTBase, public ASTNamed {
 public:
   static ptr<FunctionDecl> Create();
-
-private:
   FunctionDecl();
 
 private:
@@ -58,8 +52,6 @@ AST_FWD_DECL(ASTStruct);
 class StructDecl : public ASTBase, public ASTNamed {
 public:
   static ptr<StructDecl> Create();
-
-private:
   StructDecl();
 
 private:

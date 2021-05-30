@@ -8,10 +8,8 @@
 namespace tanlang {
 
 class CompilerSession;
-class ASTBase;
-class ASTType;
-using ASTTypePtr = ptr<ASTType>;
-using ASTBasePtr = ptr<ASTBase>;
+AST_FWD_DECL(ASTBase);
+AST_FWD_DECL(ASTType);
 
 /**
  * \brief Parser

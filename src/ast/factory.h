@@ -40,10 +40,8 @@ ASTNodePtr ast_create_continue(CompilerSession *cs);
 
 /// \section Others
 
-ASTNodePtr ast_create_program(CompilerSession *cs);
 ASTNodePtr ast_create_import(CompilerSession *cs);
 ASTNodePtr ast_create_intrinsic(CompilerSession *cs);
-ASTNodePtr ast_create_statement(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs);
 ASTNodePtr ast_create_identifier(CompilerSession *cs, const str &name);
 ASTNodePtr ast_create_parenthesis(CompilerSession *cs);

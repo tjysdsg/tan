@@ -6,7 +6,6 @@
 namespace tanlang {
 
 struct Scope;
-AST_FWD_DECL(ASTNode);
 AST_FWD_DECL(ASTType);
 AST_FWD_DECL(ASTFunction);
 AST_FWD_DECL(FunctionTable);

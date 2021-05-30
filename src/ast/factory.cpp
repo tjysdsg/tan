@@ -216,11 +216,6 @@ ASTNodePtr ast_create_continue(CompilerSession *) {
 
 /// \section Others
 
-ASTNodePtr ast_create_program(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::PROGRAM, 0);
-  return ret;
-}
-
 ASTNodePtr ast_create_import(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTNodeType::IMPORT, 0);
   ret->_is_named = true; /// name is the file imported
@@ -231,8 +226,6 @@ ASTNodePtr ast_create_intrinsic(CompilerSession *) {
   auto ret = make_ptr<Intrinsic>();
   return ret;
 }
-
-ASTNodePtr ast_create_statement(CompilerSession *) { return make_ptr<ASTNode>(ASTNodeType::STATEMENT, 0); }
 
 ASTNodePtr ast_create_identifier(CompilerSession *) {
   auto ret = make_ptr<ASTNode>(ASTNodeType::ID, 0);
