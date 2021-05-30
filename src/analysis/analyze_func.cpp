@@ -38,7 +38,7 @@ void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &_p) {
   /// analyze args
   size_t n = p->get_n_args();
   for (size_t i = 0; i < n; ++i) {
-    analyze(p->get_arg_type(i)); /// args will be added to the scope here
+    analyze(p->get_arg_decls()[i]); /// args will be added to the scope here
   }
 
   /// function body
