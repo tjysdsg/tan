@@ -43,10 +43,9 @@ FunctionDeclPtr FunctionDecl::GetCallee(CompilerSession *cs, const str &name, co
     bool good = true;
     size_t c = 0;
     for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
-      auto arg = f->get_arg_name(i);
       auto actual_arg = args[i];
       /// allow implicit cast from actual_arg to arg, but not in reverse
-      auto t1 = arg->get_type();
+      auto t1 = f->get_arg_type(i);
       auto t2 = actual_arg->get_type();
       if (*t1 != *t2) {
         if (0 != TypeSystem::CanImplicitCast(cs, t1, t2)) {

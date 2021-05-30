@@ -176,7 +176,7 @@ private:
   ptr<Expr> _sub = nullptr;
 };
 
-AST_FWD_DECL(ASTFunction);
+AST_FWD_DECL(FunctionDecl);
 
 class FunctionCall : public Expr, public ASTNamed {
 public:
@@ -185,7 +185,7 @@ public:
 
 private:
   vector<ptr<Expr>> _args{};
-  ASTFunctionPtr _callee = nullptr;
+  FunctionDeclPtr _callee = nullptr;
 };
 
 }
