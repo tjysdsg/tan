@@ -103,15 +103,14 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
   ++p->_end_index; /// skip (
 
   /// args
-  vector<ptr<Expr>> args{};
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
     auto _arg = next_expression(p->_end_index, PREC_LOWEST);
     ptr<Expr> arg = expect_expression(_arg);
-    args.push_back(arg);
+    p->_args.push_back(arg);
 
     if (at(p->_end_index)->value == ",") { /// skip ,
       ++p->_end_index;
-    } else { // TODO: remove this else?
+    } else {
       break;
     }
   }
