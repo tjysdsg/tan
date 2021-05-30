@@ -18,7 +18,6 @@
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
 
-// TODO: move type resolving to analysis phase
 
 ParserImpl::ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
@@ -162,33 +161,29 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = ast_create_member_access(_cs);
   } else if (token->value == "&") {
-    // TODO: handle ambiguous node
-    node = ast_create_ampersand(_cs);
+    /// BOP or UOP? ambiguous
+    node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = Stmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
-    // FIXME: BOP or UOP? ambiguous
-    BinaryOpKind op = BinaryOpKind::INVALID;
     switch (hashed_string{token->value.c_str()}) {
-      case "+"_hs:
-        op = BinaryOpKind::SUM;
-        break;
-      case "-"_hs:
-        op = BinaryOpKind::SUBTRACT;
-        break;
       case "*"_hs:
-        op = BinaryOpKind::MULTIPLY;
+        node = BinaryOperator::Create(BinaryOpKind::MULTIPLY);
         break;
       case "/"_hs:
-        op = BinaryOpKind::DIVIDE;
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE);
         break;
       case "%"_hs:
-        op = BinaryOpKind::MOD;
+        node = BinaryOperator::Create(BinaryOpKind::MOD);
+        break;
+      case "+"_hs:
+      case "-"_hs:
+        /// BOP or UOP? ambiguous
+        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
         break;
       default:
         return nullptr;
     }
-    node = BinaryOperator::Create(op);
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {
@@ -222,14 +217,21 @@ ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
 size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
-  // FIXME: special tokens that require whether p is led or nud to determine the node type
-  if (p->get_token() != nullptr) {
+  /// special tokens that require whether p is led or nud to determine the node type
+  if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
+    auto &pp = const_cast<ASTBasePtr &>(p); // hack
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        p->set_node_type(ASTNodeType::ADDRESS_OF);
-        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
+        pp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
+        break;
+      case "+"_hs:
+        pp = UnaryOperator::Create(UnaryOpKind::PLUS);
+        break;
+      case "-"_hs:
+        pp = UnaryOperator::Create(UnaryOpKind::MINUS);
         break;
       default:
+        TAN_ASSERT(false);
         break;
     }
   }
@@ -344,14 +346,23 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
 size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
-  // FIXME: special tokens that require whether p is led or nud to determine the node type
-  switch (hashed_string{p->get_token_str().c_str()}) {
-    case "&"_hs:
-      p->set_node_type(ASTNodeType::BAND);
-      p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
-      break;
-    default:
-      break;
+  /// special tokens that require whether p is led or nud to determine the node type
+  if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
+    auto &pp = const_cast<ASTBasePtr &>(p); // hack
+    switch (hashed_string{p->get_token_str().c_str()}) {
+      case "&"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::BAND);
+        break;
+      case "+"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::SUM);
+        break;
+      case "-"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::SUBTRACT);
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
   }
 
   switch (p->get_node_type()) {

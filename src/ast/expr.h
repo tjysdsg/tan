@@ -115,6 +115,9 @@ enum UnaryOpKind {
   INVALID,     ///
   BNOT,        /// bitwise not
   LNOT,        /// logical not
+  PLUS,        /// +
+  MINUS,       /// -
+  ADDRESS_OF,  /// var v: int; &v
   // TODO: other unary operators
 };
 

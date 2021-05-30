@@ -82,7 +82,8 @@ void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
 
 /// \section Unary operators
 
-umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence = {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}};
+umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
+    {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}, {UnaryOpKind::ADDRESS_OF, PREC_UNARY}};
 
 UnaryOperator::UnaryOperator(UnaryOpKind op) : Expr(ASTNodeType::UOP, UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
