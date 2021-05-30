@@ -1,6 +1,5 @@
 #include "src/codegen/code_generator_impl.h"
 #include "src/llvm_include.h"
-#include "src/ast/ast_member_access.h"
 #include "src/ast/ast_type.h"
 #include "compiler_session.h"
 
@@ -48,4 +47,3 @@ Value *CodeGeneratorImpl::codegen_member_access(const ASTMemberAccessPtr &p) {
   p->_llvm_value = ret;
   return ret;
 }
-

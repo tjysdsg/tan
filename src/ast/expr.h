@@ -129,11 +129,13 @@ public:
   size_t get_dominant_idx() const { return _dominant_idx; }
   void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
 
+public:
+  size_t _dominant_idx = 0;
+
 protected:
   BinaryOpKind _op;
   ptr<Expr> _lhs = nullptr;
   ptr<Expr> _rhs = nullptr;
-  size_t _dominant_idx = 0;
 };
 
 class MemberAccess : public BinaryOperator {

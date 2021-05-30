@@ -22,54 +22,20 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
   switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM:
     case ASTNodeType::STATEMENT:
-      for (const auto &e : p->get_children()) {
-        codegen(ast_must_cast<ASTBase>(e));
-      }
-      ret = nullptr;
+      ret = codegen_stmt(p);
       break;
-      ///////////////////////// ops ///////////////////////////
-    case ASTNodeType::SUM:
-    case ASTNodeType::SUBTRACT:
-    case ASTNodeType::MULTIPLY:
-    case ASTNodeType::DIVIDE:
-    case ASTNodeType::MOD:
-      ret = codegen_arithmetic(p);
+    case ASTNodeType::BOP:
+      codegen_bop(p);
       break;
-    case ASTNodeType::GT:
-    case ASTNodeType::GE:
-    case ASTNodeType::LT:
-    case ASTNodeType::LE:
-    case ASTNodeType::EQ:
-    case ASTNodeType::NE:
-      ret = codegen_comparison(p);
-      break;
-    case ASTNodeType::ASSIGN:
-      ret = codegen_assignment(p);
-      break;
-    case ASTNodeType::CAST:
-      ret = codegen_cast(p);
-      break;
-    case ASTNodeType::ADDRESS_OF:
-      ret = codegen_address_of(p);
+    case ASTNodeType::UOP:
+      codegen_uop(p);
       break;
     case ASTNodeType::RET:
       ret = codegen_return(p);
       break;
-    case ASTNodeType::LNOT:
-      ret = codegen_lnot(p);
-      break;
-    case ASTNodeType::BNOT:
-      ret = codegen_bnot(p);
-      break;
     case ASTNodeType::IMPORT:
       ret = codegen_import(p);
       break;
-    case ASTNodeType::MEMBER_ACCESS: {
-      auto pma = ast_cast<ASTMemberAccess>(p);
-      TAN_ASSERT(pma);
-      ret = codegen_member_access(pma);
-      break;
-    }
       ////////////////////////////// literals ////////////////////////
     case ASTNodeType::ARRAY_LITERAL:
     case ASTNodeType::NUM_LITERAL:
@@ -132,73 +98,6 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
 
 void CodeGeneratorImpl::set_current_debug_location(ASTBasePtr p) {
   _cs->set_current_debug_location(p->get_line(), p->get_col());
-}
-
-Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &p) {
-  auto *builder = _cs->_builder;
-  set_current_debug_location(p);
-  /// unary plus/minus
-  if (p->get_children_size() == 1) {
-    if (!is_ast_type_in(p->get_node_type(), {ASTNodeType::SUM, ASTNodeType::SUBTRACT})) {
-      report_error(p, "Invalid unary operation");
-    }
-    if (p->get_node_type() == ASTNodeType::SUM) { return codegen(p->get_child_at<ASTBase>(0)); }
-    else {
-      auto *r = codegen(p->get_child_at<ASTBase>(0));
-      if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) { r = builder->CreateLoad(r); }
-      if (r->getType()->isFloatingPointTy()) { return builder->CreateFNeg(r); }
-      return builder->CreateNeg(r);
-    }
-  }
-
-  /// binary operator
-  auto lhs = p->get_child_at<ASTBase>(0);
-  auto rhs = p->get_child_at<ASTBase>(1);
-  Value *l = codegen(p->get_child_at<ASTBase>(0));
-  Value *r = codegen(p->get_child_at<ASTBase>(1));
-  TAN_ASSERT(l && r);
-  TAN_ASSERT(p->get_children_size() > p->_dominant_idx);
-
-  if (p->_dominant_idx == 0) {
-    r = TypeSystem::ConvertTo(_cs, r, rhs->_type, lhs->_type);
-    l = TypeSystem::ConvertTo(_cs, l, lhs->_type, lhs->_type);
-  } else {
-    l = TypeSystem::ConvertTo(_cs, l, lhs->_type, rhs->_type);
-    r = TypeSystem::ConvertTo(_cs, r, rhs->_type, rhs->_type);
-  }
-
-  if (l->getType()->isFloatingPointTy()) {
-    /// float arithmetic
-    if (p->get_node_type() == ASTNodeType::MULTIPLY) {
-      p->_llvm_value = builder->CreateFMul(l, r, "mul_tmp");
-    } else if (p->get_node_type() == ASTNodeType::DIVIDE) {
-      p->_llvm_value = builder->CreateFDiv(l, r, "div_tmp");
-    } else if (p->get_node_type() == ASTNodeType::SUM) {
-      p->_llvm_value = builder->CreateFAdd(l, r, "sum_tmp");
-    } else if (p->get_node_type() == ASTNodeType::SUBTRACT) {
-      p->_llvm_value = builder->CreateFSub(l, r, "sub_tmp");
-    } else if (p->get_node_type() == ASTNodeType::MOD) {
-      p->_llvm_value = builder->CreateFRem(l, r, "mod_tmp");
-    } else { TAN_ASSERT(false); }
-  } else {
-    /// integer arithmetic
-    if (p->get_node_type() == ASTNodeType::MULTIPLY) {
-      p->_llvm_value = builder->CreateMul(l, r, "mul_tmp");
-    } else if (p->get_node_type() == ASTNodeType::DIVIDE) {
-      auto ty = p->get_child_at<ASTBase>(0)->_type;
-      if (ty->_is_unsigned) { p->_llvm_value = builder->CreateUDiv(l, r, "div_tmp"); }
-      else { p->_llvm_value = builder->CreateSDiv(l, r, "div_tmp"); }
-    } else if (p->get_node_type() == ASTNodeType::SUM) {
-      p->_llvm_value = builder->CreateAdd(l, r, "sum_tmp");
-    } else if (p->get_node_type() == ASTNodeType::SUBTRACT) {
-      p->_llvm_value = builder->CreateSub(l, r, "sub_tmp");
-    } else if (p->get_node_type() == ASTNodeType::MOD) {
-      auto ty = p->get_child_at<ASTBase>(0)->_type;
-      if (ty->_is_unsigned) { p->_llvm_value = builder->CreateURem(l, r, "mod_tmp"); }
-      else { p->_llvm_value = builder->CreateSRem(l, r, "mod_tmp"); }
-    } else { TAN_ASSERT(false); }
-  }
-  return p->_llvm_value;
 }
 
 Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &p) {
@@ -291,24 +190,6 @@ Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &p) {
     }
   }
   return p->_llvm_value;
-}
-
-Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &p) {
-  auto *builder = _cs->_builder;
-  set_current_debug_location(p);
-  /// _codegen the rhs
-  auto lhs = p->get_child_at<ASTBase>(0);
-  auto rhs = p->get_child_at<ASTBase>(1);
-  Value *from = codegen(rhs);
-  Value *to = codegen(lhs);
-  if (!from) { report_error(lhs, "Invalid expression for right-hand operand of the assignment"); }
-  if (!to) { report_error(rhs, "Invalid left-hand operand of the assignment"); }
-  if (!lhs->_type->_is_lvalue) { report_error(lhs, "Value can only be assigned to lvalue"); }
-
-  from = TypeSystem::ConvertTo(_cs, from, rhs->_type, lhs->_type);
-  builder->CreateStore(from, to);
-  p->_llvm_value = to;
-  return to;
 }
 
 Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &p) {
@@ -518,3 +399,217 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &p) {
 void CodeGeneratorImpl::report_error(const ASTBasePtr &p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
 }
+
+Value *CodeGeneratorImpl::codegen_stmt(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<CompoundStmt>(_p);
+
+  for (const auto &e : p->get_children()) {
+    codegen(e);
+  }
+  return nullptr;
+}
+
+Value *CodeGeneratorImpl::codegen_uop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+  Value *ret = nullptr;
+
+  auto *builder = _cs->_builder;
+  set_current_debug_location(p);
+
+  auto rhs = p->get_rhs();
+  switch (p->get_op()) {
+    case UnaryOpKind::LNOT:
+      ret = codegen_lnot(p);
+      break;
+    case UnaryOpKind::BNOT:
+      ret = codegen_bnot(p);
+      break;
+    case UnaryOpKind::ADDRESS_OF:
+      ret = codegen_address_of(p);
+      break;
+    case UnaryOpKind::PLUS:
+      ret = codegen(rhs);
+      break;
+    case UnaryOpKind::MINUS: {
+      auto *r = codegen(rhs);
+      if (rhs->get_type()->_is_lvalue) {
+        r = builder->CreateLoad(r);
+      }
+      if (r->getType()->isFloatingPointTy()) {
+        ret = builder->CreateFNeg(r);
+      } else {
+        ret = builder->CreateNeg(r);
+      }
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
+  return ret;
+}
+
+Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<BinaryOperator>(_p);
+  Value *ret = nullptr;
+
+  switch (p->get_op()) {
+    case BinaryOpKind::ASSIGN:
+      ret = codegen_assignment(p);
+      break;
+    case BinaryOpKind::SUM:
+    case BinaryOpKind::SUBTRACT:
+    case BinaryOpKind::MULTIPLY:
+    case BinaryOpKind::DIVIDE:
+    case BinaryOpKind::MOD:
+      ret = codegen_arithmetic(p);
+      break;
+    case BinaryOpKind::BAND:
+    case BinaryOpKind::LAND:
+    case BinaryOpKind::BOR:
+    case BinaryOpKind::LOR:
+    case BinaryOpKind::XOR:
+      // TODO: implement codegen of the above operators
+      TAN_ASSERT(false);
+      break;
+    case BinaryOpKind::GT:
+    case BinaryOpKind::GE:
+    case BinaryOpKind::LT:
+    case BinaryOpKind::LE:
+    case BinaryOpKind::EQ:
+    case BinaryOpKind::NE:
+      ret = codegen_comparison(p);
+      break;
+    case BinaryOpKind::CAST:
+      ret = codegen_cast(p);
+      break;
+    case BinaryOpKind::MEMBER_ACCESS:
+      ret = codegen_member_access(ast_must_cast<MemberAccess>(p));
+      break;
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
+
+  return ret;
+}
+
+Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<BinaryOperator>(_p);
+
+  auto *builder = _cs->_builder;
+  set_current_debug_location(p);
+
+  /// _codegen the lhs and rhs
+  auto lhs = p->get_lhs();
+  auto rhs = p->get_rhs();
+  Value *from = codegen(rhs);
+  Value *to = codegen(lhs);
+  if (!from) { report_error(lhs, "Invalid expression for right-hand operand of the assignment"); }
+  if (!to) { report_error(rhs, "Invalid left-hand operand of the assignment"); }
+  if (!lhs->get_type()->_is_lvalue) { report_error(lhs, "Value can only be assigned to lvalue"); }
+
+  from = TypeSystem::ConvertTo(_cs, from, rhs->get_type(), lhs->get_type());
+  builder->CreateStore(from, to);
+  p->_llvm_value = to;
+  return to;
+}
+
+Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<BinaryOperator>(_p);
+
+  auto *builder = _cs->_builder;
+  set_current_debug_location(p);
+
+  /// binary operator
+  auto lhs = p->get_lhs();
+  auto rhs = p->get_rhs();
+  Value *l = codegen(lhs);
+  Value *r = codegen(rhs);
+  if (!lhs) { report_error(lhs, "Invalid expression for right-hand operand"); }
+  if (!rhs) { report_error(rhs, "Invalid expression for left-hand operand"); }
+
+  if (p->_dominant_idx == 0) {
+    r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
+    l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
+  } else {
+    l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
+    r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
+  }
+
+  switch (p->get_op()) {
+    case BinaryOpKind::MULTIPLY:
+      break;
+    case BinaryOpKind::DIVIDE:
+      break;
+    case BinaryOpKind::SUM:
+      break;
+    case BinaryOpKind::SUBTRACT:
+      break;
+    case BinaryOpKind::MOD:
+      break;
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
+
+  if (l->getType()->isFloatingPointTy()) {
+    /// float arithmetic
+    switch (p->get_op()) {
+      case BinaryOpKind::MULTIPLY:
+        p->_llvm_value = builder->CreateFMul(l, r, "mul_tmp");
+        break;
+      case BinaryOpKind::DIVIDE:
+        p->_llvm_value = builder->CreateFDiv(l, r, "div_tmp");
+        break;
+      case BinaryOpKind::SUM:
+        p->_llvm_value = builder->CreateFAdd(l, r, "sum_tmp");
+        break;
+      case BinaryOpKind::SUBTRACT:
+        p->_llvm_value = builder->CreateFSub(l, r, "sub_tmp");
+        break;
+      case BinaryOpKind::MOD:
+        p->_llvm_value = builder->CreateFRem(l, r, "mod_tmp");
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+  } else {
+    /// integer arithmetic
+    switch (p->get_op()) {
+      case BinaryOpKind::MULTIPLY:
+        p->_llvm_value = builder->CreateMul(l, r, "mul_tmp");
+        break;
+      case BinaryOpKind::DIVIDE: {
+        auto ty = lhs->get_type();
+        if (ty->_is_unsigned) {
+          p->_llvm_value = builder->CreateUDiv(l, r, "div_tmp");
+        } else {
+          p->_llvm_value = builder->CreateSDiv(l, r, "div_tmp");
+        }
+        break;
+      }
+      case BinaryOpKind::SUM:
+        p->_llvm_value = builder->CreateAdd(l, r, "sum_tmp");
+        break;
+      case BinaryOpKind::SUBTRACT:
+        p->_llvm_value = builder->CreateSub(l, r, "sub_tmp");
+        break;
+      case BinaryOpKind::MOD: {
+        auto ty = lhs->get_type();
+        if (ty->_is_unsigned) {
+          p->_llvm_value = builder->CreateURem(l, r, "mod_tmp");
+        } else {
+          p->_llvm_value = builder->CreateSRem(l, r, "mod_tmp");
+        }
+        break;
+      }
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+  }
+  return p->_llvm_value;
+}
+

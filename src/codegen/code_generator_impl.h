@@ -27,6 +27,10 @@ public:
 
 private:
   void set_current_debug_location(ASTBasePtr p);
+
+  Value *codegen_stmt(const ASTBasePtr &p);
+  Value *codegen_bop(const ASTBasePtr &p);
+  Value *codegen_uop(const ASTBasePtr &p);
   Value *codegen_arithmetic(const ASTBasePtr &p);
   Value *codegen_lnot(const ASTBasePtr &p);
   Value *codegen_bnot(const ASTBasePtr &p);
