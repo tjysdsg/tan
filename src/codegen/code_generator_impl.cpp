@@ -227,14 +227,14 @@ Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
   set_current_debug_location(p);
 
   Value *ret = nullptr;
-  switch (p->_intrinsic_type) {
+  switch (p->get_intrinsic_type()) {
     /// trivial codegen
     case IntrinsicType::GET_DECL:
     case IntrinsicType::LINENO:
     case IntrinsicType::NOOP:
     case IntrinsicType::ABORT:
     case IntrinsicType::FILENAME: {
-      ret = codegen(p->get_child_at<ASTBase>(0));
+      ret = codegen(p->get_sub());
       break;
     }
       /// others
