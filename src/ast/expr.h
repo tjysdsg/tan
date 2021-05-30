@@ -8,6 +8,7 @@
 namespace tanlang {
 
 AST_FWD_DECL(ASTType);
+AST_FWD_DECL(Decl);
 
 class Expr : public ASTBase, public Typed {
 public:
@@ -86,7 +87,7 @@ public:
   Identifier();
 
 public:
-  ASTBasePtr _referred = nullptr;
+  DeclPtr _referred = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence

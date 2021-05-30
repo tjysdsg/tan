@@ -143,13 +143,13 @@ void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
     report_error(p, "Unknown identifier");
   }
 
-  auto typed = std::reinterpret_pointer_cast<Typed>(referred);
-  if (!typed) {
+  auto declared = ast_cast<Decl>(referred);
+  if (!declared) {
     report_error(p, "Invalid identifier");
   }
 
-  p->_referred = referred;
-  auto ty = copy_ty(typed->get_type());
+  p->_referred = declared;
+  auto ty = copy_ty(declared->get_type());
   ty->_is_lvalue = true;
   p->set_type(ty);
 }
