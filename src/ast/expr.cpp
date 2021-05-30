@@ -64,7 +64,7 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
         {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON}, {BinaryOpKind::ASSIGN, PREC_ASSIGN},
         {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
-        {BinaryOpKind::MemberAccess, PREC_HIGHEST},};
+        {BinaryOpKind::MemberAccess, PREC_HIGHEST}, {BinaryOpKind::CAST, PREC_CAST}};
 
 ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
   return make_ptr<BinaryOperator>(op);

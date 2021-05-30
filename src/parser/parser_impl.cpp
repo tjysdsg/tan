@@ -71,7 +71,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = ast_create_continue(_cs);
       break;
     case "as"_hs:
-      ret = ast_create_cast(_cs);
+      ret = BinaryOperator::Create(BinaryOpKind::CAST);
       break;
     default:
       return nullptr;
@@ -333,14 +333,6 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
     case ASTNodeType::BOP:
       parse_bop(left, p);
       break;
-    case ASTNodeType::CAST: {
-      ++p->_end_index; /// skip operator
-      p->append_child(left); /// lhs
-      auto n = next_expression(p->_end_index, p->get_lbp());
-      if (!n) { error(p->_end_index, "Invalid operand"); }
-      p->append_child(n);
-      break;
-    }
     default:
       break;
   }

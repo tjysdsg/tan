@@ -95,6 +95,7 @@ enum BinaryOpKind {
   NE,           /// !=
   XOR,          /// ^
   MemberAccess, /// . or []
+  CAST,         /// as
 };
 
 class BinaryOperator : public Expr {
