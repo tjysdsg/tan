@@ -1,24 +1,18 @@
 #include "src/analysis/analyzer_impl.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/factory.h"
+#include "src/ast/expr.h"
+#include "src/ast/decl.h"
 #include "compiler_session.h"
-#include "src/ast/ast_func.h"
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_func_call(const ASTBasePtr &p) {
-  auto f = ast_must_cast<FunctionCall>(p);
+void AnalyzerImpl::analyze_func_call(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<FunctionCall>(_p);
 
-  std::vector<ASTNodePtr> args;
-  args.reserve(p->get_children_size());
-  for (const auto &c : p->get_children()) {
-    args.push_back(ast_must_cast<ASTNode>(c));
-  }
-
-  ASTFunctionPtr callee = ASTFunction::GetCallee(_cs, p->get_data<str>(), args);
-  f->_callee = callee;
-  f->_type = copy_ty(callee->get_ret_ty());
+  FunctionDeclPtr callee = FunctionDecl::GetCallee(_cs, p->get_name(), p->_args);
+  p->_callee = callee;
+  p->set_type(copy_ty(callee->get_ret_ty()));
 }
 
 void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &p) {

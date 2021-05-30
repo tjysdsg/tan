@@ -44,7 +44,6 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::ARRAY_LITERAL:
       analyze_array_literal(p);
       break;
-      ////////////////////////// keywords ///////////////////////////
     case ASTNodeType::IF: {
       auto cond = p->get_child_at(0);
       if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), _h.get_ty(cond))) {
@@ -55,10 +54,9 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       // TODO: cs->set_current_loop(pl) // case ASTNodeType::LOOP:
       // TODO: cs->get_current_loop() // case ASTNodeType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
-    case ASTNodeType::INTRINSIC: {
+    case ASTNodeType::INTRINSIC:
       analyze_intrinsic(p);
       break;
-    }
     case ASTNodeType::IMPORT:
       analyze_import(p);
       break;
