@@ -35,6 +35,7 @@ AST_FWD_DECL(Expr);
 
 class FunctionDecl : public ASTBase, public ASTNamed {
 public:
+  static FunctionDeclPtr Create();
   static FunctionDeclPtr Create(const str &name,
       const ASTTypePtr &ret_type,
       vector<ASTTypePtr> arg_types,

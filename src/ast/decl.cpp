@@ -72,7 +72,8 @@ FunctionDeclPtr FunctionDecl::GetCallee(CompilerSession *cs, const str &name, co
   return ret;
 }
 
-// TODO: use a separate argument for the return type
+FunctionDeclPtr FunctionDecl::Create() { return make_ptr<FunctionDecl>(); }
+
 FunctionDeclPtr FunctionDecl::Create(const str &name,
     const ASTTypePtr &ret_type,
     vector<ASTTypePtr> arg_types,
