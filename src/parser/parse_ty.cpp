@@ -1,6 +1,7 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/expr.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/factory.h"
 #include "compiler_session.h"
@@ -17,22 +18,23 @@ size_t ParserImpl::parse_ty_array(const ASTTypePtr &p) {
     /// subtype
     ASTTypePtr sub = make_ptr<ASTType>(*p);
     p->_tyty = Ty::ARRAY;
-    p->clear_children();
-    p->append_child(sub);
+    p->_sub_types.clear();
+    p->_sub_types.push_back(sub);
 
     /// size
     ASTBasePtr _size = peek(p->_end_index);
-    if (_size->get_node_type() != ASTNodeType::NUM_LITERAL) {
+    if (_size->get_node_type() != ASTNodeType::INTEGER_LITERAL) {
       error(p->_end_index, "Expect an unsigned integer as the array size");
     }
     p->_end_index = parse_node(_size);
 
-    ASTNodePtr size = ast_must_cast<ASTNode>(_size);
-    if (size->_type->_is_float || static_cast<int64_t>(size->get_data<uint64_t>()) < 0) {
+    auto size = ast_must_cast<IntegerLiteral>(_size);
+    size_t array_size = size->get_value();
+    if (static_cast<int64_t>(array_size) < 0) {
       error(p->_end_index, "Expect an unsigned integer as the array size");
     }
 
-    p->_array_size = size->get_data<uint64_t>();
+    p->_array_size = array_size;
 
     /// skip "]"
     peek(p->_end_index, TokenType::PUNCTUATION, "]");

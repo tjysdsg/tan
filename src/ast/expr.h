@@ -21,6 +21,9 @@ public:
   static ptr<IntegerLiteral> Create(uint64_t val, bool is_unsigned = false);
   IntegerLiteral() : Literal(ASTNodeType::INTEGER_LITERAL, 0) {}
 
+  uint64_t get_value() const { return _value; }
+  bool is_unsigned() const { return _is_unsigned; }
+
 private:
   uint64_t _value = 0;
   bool _is_unsigned = false;

@@ -70,7 +70,7 @@ public:
   bool _is_lvalue = false;
   bool _is_forward_decl = false;
 
-private:
+public:
   vector<ASTTypePtr> _sub_types;
 };
 
