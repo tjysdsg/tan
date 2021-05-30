@@ -48,6 +48,7 @@ public:
   static ptr<Import> Create();
   Import();
   void set_filename(str_view s);
+  const str &get_filename() const;
 
 private:
   str _filename;

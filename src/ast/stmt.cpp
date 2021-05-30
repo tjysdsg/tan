@@ -56,6 +56,8 @@ Import::Import() { set_node_type(ASTNodeType::IMPORT); }
 
 void Import::set_filename(str_view s) { _filename = s; }
 
+const str &Import::get_filename() const { return _filename; }
+
 /// \section Break or continue statement
 
 BreakContinue::BreakContinue(ASTNodeType type) {
