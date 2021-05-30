@@ -3,6 +3,7 @@
 #include "src/ast/ast_base.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
+#include "src/ast/decl.h"
 #include "src/analysis/type_system.h"
 #include "compiler_session.h"
 #include "src/common.h"
@@ -73,13 +74,11 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       analyze_func_decl(p);
       break;
     case ASTNodeType::ARG_DECL:
-    case ASTNodeType::VAR_DECL: {
-      ASTTypePtr ty = _h.get_ty(p);
-      ty->_is_lvalue = true;
-      resolve_ty(ty);
-      _cs->add(p->get_data<str>(), ast_must_cast<ASTNode>(p));
+      analyze_arg_decl(p);
       break;
-    }
+    case ASTNodeType::VAR_DECL:
+      analyze_var_decl(p);
+      break;
     case ASTNodeType::STRUCT_DECL:
       analyze_struct(p);
       break;
@@ -168,4 +167,20 @@ void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
   if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
     report_error(p, "Cannot convert type to bool");
   }
+}
+
+void AnalyzerImpl::analyze_var_decl(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<VarDecl>(_p);
+  ASTTypePtr ty = p->get_type();
+  ty->_is_lvalue = true;
+  analyze(ty);
+  _cs->add(p->get_name(), p);
+}
+
+void AnalyzerImpl::analyze_arg_decl(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<ArgDecl>(_p);
+  ASTTypePtr ty = p->get_type();
+  ty->_is_lvalue = true;
+  analyze(ty);
+  _cs->add(p->get_name(), p);
 }

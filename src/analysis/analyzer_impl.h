@@ -33,6 +33,8 @@ private:
   void analyze_bop(const ASTBasePtr &p);
   void analyze_uop(const ASTBasePtr &p);
   void analyze_id(const ASTBasePtr &p);
+  void analyze_var_decl(const ASTBasePtr &p);
+  void analyze_arg_decl(const ASTBasePtr &p);
   void resolve_ty(const ASTTypePtr &p) const;
   ASTTypePtr copy_ty(const ASTTypePtr &p) const;
   [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);
