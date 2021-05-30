@@ -142,56 +142,6 @@ Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &p) {
-  auto *builder = _cs->_builder;
-  set_current_debug_location(p);
-  auto lhs = p->get_child_at<ASTBase>(0);
-  auto rhs = p->get_child_at<ASTBase>(1);
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
-  TAN_ASSERT(l && r);
-  TAN_ASSERT(p->get_children_size() > p->_dominant_idx);
-
-  if (p->_dominant_idx == 0) {
-    r = TypeSystem::ConvertTo(_cs, r, rhs->_type, lhs->_type);
-    l = TypeSystem::ConvertTo(_cs, l, lhs->_type, lhs->_type);
-  } else {
-    l = TypeSystem::ConvertTo(_cs, l, lhs->_type, rhs->_type);
-    r = TypeSystem::ConvertTo(_cs, r, rhs->_type, rhs->_type);
-  }
-
-  if (l->getType()->isFloatingPointTy()) {
-    if (p->get_node_type() == ASTNodeType::EQ) {
-      p->_llvm_value = builder->CreateFCmpOEQ(l, r, "eq");
-    } else if (p->get_node_type() == ASTNodeType::NE) {
-      p->_llvm_value = builder->CreateFCmpONE(l, r, "ne");
-    } else if (p->get_node_type() == ASTNodeType::GT) {
-      p->_llvm_value = builder->CreateFCmpOGT(l, r, "gt");
-    } else if (p->get_node_type() == ASTNodeType::GE) {
-      p->_llvm_value = builder->CreateFCmpOGE(l, r, "ge");
-    } else if (p->get_node_type() == ASTNodeType::LT) {
-      p->_llvm_value = builder->CreateFCmpOLT(l, r, "lt");
-    } else if (p->get_node_type() == ASTNodeType::LE) {
-      p->_llvm_value = builder->CreateFCmpOLE(l, r, "le");
-    }
-  } else {
-    if (p->get_node_type() == ASTNodeType::EQ) {
-      p->_llvm_value = builder->CreateICmpEQ(l, r, "eq");
-    } else if (p->get_node_type() == ASTNodeType::NE) {
-      p->_llvm_value = builder->CreateICmpNE(l, r, "ne");
-    } else if (p->get_node_type() == ASTNodeType::GT) {
-      p->_llvm_value = builder->CreateICmpUGT(l, r, "gt");
-    } else if (p->get_node_type() == ASTNodeType::GE) {
-      p->_llvm_value = builder->CreateICmpUGE(l, r, "ge");
-    } else if (p->get_node_type() == ASTNodeType::LT) {
-      p->_llvm_value = builder->CreateICmpULT(l, r, "lt");
-    } else if (p->get_node_type() == ASTNodeType::LE) {
-      p->_llvm_value = builder->CreateICmpULE(l, r, "le");
-    }
-  }
-  return p->_llvm_value;
-}
-
 Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
@@ -526,8 +476,8 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
   auto rhs = p->get_rhs();
   Value *l = codegen(lhs);
   Value *r = codegen(rhs);
-  if (!lhs) { report_error(lhs, "Invalid expression for right-hand operand"); }
-  if (!rhs) { report_error(rhs, "Invalid expression for left-hand operand"); }
+  if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
+  if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
   if (p->_dominant_idx == 0) {
     r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
@@ -613,3 +563,75 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
+Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<BinaryOperator>(_p);
+
+  auto *builder = _cs->_builder;
+  set_current_debug_location(p);
+
+  auto lhs = p->get_lhs();
+  auto rhs = p->get_rhs();
+  Value *l = codegen(lhs);
+  Value *r = codegen(rhs);
+  if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
+  if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
+
+  if (p->_dominant_idx == 0) {
+    r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
+    l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
+  } else {
+    l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
+    r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
+  }
+
+  if (l->getType()->isFloatingPointTy()) {
+    switch (p->get_op()) {
+      case BinaryOpKind::EQ:
+        p->_llvm_value = builder->CreateFCmpOEQ(l, r, "eq");
+        break;
+      case BinaryOpKind::NE:
+        p->_llvm_value = builder->CreateFCmpONE(l, r, "ne");
+        break;
+      case BinaryOpKind::GT:
+        p->_llvm_value = builder->CreateFCmpOGT(l, r, "gt");
+        break;
+      case BinaryOpKind::GE:
+        p->_llvm_value = builder->CreateFCmpOGE(l, r, "ge");
+        break;
+      case BinaryOpKind::LT:
+        p->_llvm_value = builder->CreateFCmpOLT(l, r, "lt");
+        break;
+      case BinaryOpKind::LE:
+        p->_llvm_value = builder->CreateFCmpOLE(l, r, "le");
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+  } else {
+    switch (p->get_op()) {
+      case BinaryOpKind::EQ:
+        p->_llvm_value = builder->CreateICmpEQ(l, r, "eq");
+        break;
+      case BinaryOpKind::NE:
+        p->_llvm_value = builder->CreateICmpNE(l, r, "ne");
+        break;
+      case BinaryOpKind::GT:
+        p->_llvm_value = builder->CreateICmpUGT(l, r, "gt");
+        break;
+      case BinaryOpKind::GE:
+        p->_llvm_value = builder->CreateICmpUGE(l, r, "ge");
+        break;
+      case BinaryOpKind::LT:
+        p->_llvm_value = builder->CreateICmpULT(l, r, "lt");
+        break;
+      case BinaryOpKind::LE:
+        p->_llvm_value = builder->CreateICmpULE(l, r, "le");
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+  }
+  return p->_llvm_value;
+}
