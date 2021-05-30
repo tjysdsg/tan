@@ -1,10 +1,11 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/ast/ast_base.h"
-#include "src/ast/factory.h"
 
 using namespace tanlang;
 
+// TODO: implement enum
+/*
 size_t ParserImpl::parse_enum_decl(const ASTBasePtr &p) {
   ++p->_end_index; /// skip "enum"
   auto name = peek(p->_end_index);
@@ -26,3 +27,4 @@ size_t ParserImpl::parse_enum_decl(const ASTBasePtr &p) {
 
   return p->_end_index;
 }
+*/

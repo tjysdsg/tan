@@ -44,7 +44,7 @@ size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
   }
   ++p->_end_index; /// skip while/for
   switch (p->_loop_type) {
-    case ASTLoopType::WHILE:
+    case ASTLoopType::WHILE: {
       /// predicate
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
       auto _pred = next_expression(p->_end_index, p->get_lbp());
@@ -57,6 +57,7 @@ size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
       StmtPtr body = expect_stmt(_body);
       p->set_body(body);
       break;
+    }
     case ASTLoopType::FOR:
       // TODO: implement for loop
       TAN_ASSERT(false);

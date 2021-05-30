@@ -52,22 +52,19 @@ size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
 
 size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
   ptr<Expr> lhs = ast_must_cast<Expr>(_lhs);
-  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
 
   if (_p->get_token_str() == "." || _p->get_token_str() == "[") { /// delegate to parse_member_access
-    return parse_member_access(lhs, p);
+    return parse_member_access(lhs, ast_must_cast<MemberAccess>(_p));
   }
 
+  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
   ++p->_end_index; /// skip the operator
 
   p->set_lhs(lhs); /// lhs
 
   /// rhs
   auto rhs = next_expression(p->_end_index, p->get_lbp());
-  if (!rhs) {
-    error(p->_end_index, "Invalid operand");
-  }
-  p->set_rhs(rhs);
+  p->set_rhs(expect_expression(rhs));
 
   return p->_end_index;
 }

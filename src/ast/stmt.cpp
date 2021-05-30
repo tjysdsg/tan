@@ -4,32 +4,33 @@ using namespace tanlang;
 
 /// \section Stmt
 
-void Stmt::set_child_at(size_t idx, ptr<Stmt> node) {
+void Stmt::set_child_at(size_t idx, ASTBasePtr node) {
   TAN_ASSERT(_children.size() > idx);
   _children[idx] = node;
 }
 
-void Stmt::append_child(ptr<Stmt> node) {
-  _children.push_back(node);
+void Stmt::append_child(ASTBasePtr node) { _children.push_back(node); }
+
+void Stmt::clear_children() { _children.clear(); }
+
+size_t Stmt::get_children_size() const { return _children.size(); }
+
+vector<ASTBasePtr> &Stmt::get_children() { return _children; }
+
+template<typename T> ptr<T> Stmt::get_child_at(size_t idx) const {
+  static_assert(std::is_base_of_v<Stmt, T>, "Return type can only be a subclass of Stmt");
+  TAN_ASSERT(_children.size() > idx);
+  return ast_must_cast<T>(_children[idx]);
 }
 
-void Stmt::clear_children() {
-  _children.clear();
+template<> ptr<Stmt> Stmt::get_child_at<Stmt>(size_t idx) const {
+  TAN_ASSERT(_children.size() > idx);
+  return _children[idx];
 }
 
-size_t Stmt::get_children_size() const {
-  return _children.size();
-}
+vector<ASTBasePtr> Stmt::get_children() const { return _children; }
 
-vector<StmtPtr> &Stmt::get_children() {
-  return _children;
-}
-
-vector<StmtPtr> Stmt::get_children() const {
-  return _children;
-}
-
-StmtPtr Stmt::Create() { return make_ptr<Stmt>(); }
+ptr<Stmt> Stmt::Create() { return make_ptr<Stmt>(); }
 
 Stmt::Stmt() : ASTBase(ASTNodeType::STATEMENT, 0) {}
 
@@ -37,15 +38,13 @@ Stmt::Stmt() : ASTBase(ASTNodeType::STATEMENT, 0) {}
 
 ptr<Program> Program::Create() { return make_ptr<Program>(); }
 
-Program::Program() { set_node_type(ASTNodeType::PROGRAM); }
+Program::Program() : ASTBase(ASTNodeType::PROGRAM, PREC_LOWEST) {}
 
-ptr<Return> Return::Create() {
-  return make_ptr<Return>();
-}
+ptr<Return> Return::Create() { return make_ptr<Return>(); }
 
-Return::Return() {
-  set_node_type(ASTNodeType::RET);
-}
+/// \section Return
+
+Return::Return() { set_node_type(ASTNodeType::RET); }
 
 void Return::set_rhs(ExprPtr rhs) { _rhs = rhs; }
 

@@ -9,30 +9,20 @@ AST_FWD_DECL(Stmt);
 
 class Stmt : public ASTBase {
 public:
-  static StmtPtr Create();
+  static ptr<Stmt> Create();
   Stmt();
 
 public:
-  void set_child_at(size_t idx, StmtPtr node);
-  void append_child(StmtPtr node);
+  void set_child_at(size_t idx, ASTBasePtr node);
+  void append_child(ASTBasePtr node);
   void clear_children();
   size_t get_children_size() const;
-  vector<StmtPtr> get_children() const;
-  vector<StmtPtr> &get_children();
-
-  template<typename T> ptr<T> get_child_at(size_t idx) const {
-    static_assert(std::is_base_of_v<Stmt, T>, "Return type can only be a subclass of Stmt");
-    TAN_ASSERT(_children.size() > idx);
-    return ast_must_cast<T>(_children[idx]);
-  }
-
-  template<> ptr<Stmt> get_child_at<Stmt>(size_t idx) const {
-    TAN_ASSERT(_children.size() > idx);
-    return _children[idx];
-  }
+  vector<ASTBasePtr> get_children() const;
+  vector<ASTBasePtr> &get_children();
+  template<typename T = ASTBase> ptr<T> get_child_at(size_t idx) const;
 
 protected:
-  vector<StmtPtr> _children{};
+  vector<ASTBasePtr> _children{};
 };
 
 class Program : public Stmt {

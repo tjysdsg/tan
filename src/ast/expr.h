@@ -80,7 +80,7 @@ public:
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
-enum BinaryOpKind {
+enum class BinaryOpKind {
   INVALID,      ///
   SUM,          /// +
   SUBTRACT,     /// -
@@ -140,7 +140,7 @@ public:
 };
 
 /// make sure to sync this with UnaryOperator::UOPPrecedence
-enum UnaryOpKind {
+enum class UnaryOpKind {
   INVALID,     ///
   BNOT,        /// bitwise not
   LNOT,        /// logical not

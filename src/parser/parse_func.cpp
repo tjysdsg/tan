@@ -2,8 +2,6 @@
 #include "src/parser/parser_impl.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
-#include "src/ast/factory.h"
-#include "compiler_session.h"
 
 using namespace tanlang;
 
@@ -76,13 +74,13 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
     error(p->_end_index, "Expect a type");
   }
   p->_end_index = parse_node(ret_type);
-  p->set_ret_type(ret_type);
+  p->set_ret_type(ast_must_cast<ASTType>(ret_type));
 
   /// body
   if (!is_external) {
     auto body = peek(p->_end_index, TokenType::PUNCTUATION, "{");
     p->_end_index = parse_node(body);
-    p->set_body(body);
+    p->set_body(expect_stmt(body));
   }
 
   return p->_end_index;
