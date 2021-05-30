@@ -16,30 +16,11 @@ ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
 void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   p->set_scope(_cs->get_current_scope());
 
-  /// children will not be automatically parsed for FUNC_DECL or ASSIGN
-  vector<ASTNodeType> tmp = {ASTNodeType::FUNC_DECL, ASTNodeType::ASSIGN};
-  if (!std::any_of(tmp.begin(), tmp.end(), [p](ASTNodeType i) { return i == p->get_node_type(); })) {
-    for (auto &sub: p->get_children()) {
-      analyze(sub);
-    }
-  }
-
   switch (p->get_node_type()) {
-    /////////////////////////// binary ops ///////////////////////////////////
     case ASTNodeType::BOP:
       analyze_bop(p);
     case ASTNodeType::UOP:
       analyze_uop(p);
-    case ASTNodeType::SUM:
-    case ASTNodeType::SUBTRACT: {
-      /// unary plus/minus
-      if (p->get_children_size() == 1) {
-        np->_type = copy_ty(_h.get_ty(p->get_child_at(0)));
-        np->_type->_is_lvalue = false;
-        break;
-      }
-    }
-      /////////////////////////// unary ops ////////////////////////////////////
     case ASTNodeType::RET:
       // TODO: check if return type can be implicitly cast to function return type
       break;
@@ -146,6 +127,14 @@ void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
     case UnaryOpKind::ADDRESS_OF: {
       auto ty = copy_ty(rhs->get_type());
       p->set_type(_h.get_ptr_to(ty));
+      break;
+    }
+    case UnaryOpKind::PLUS:
+    case UnaryOpKind::MINUS: {
+      /// unary plus/minus
+      auto ty = copy_ty(rhs->get_type());
+      ty->_is_lvalue = false;
+      p->set_type(ty);
       break;
     }
     default:
