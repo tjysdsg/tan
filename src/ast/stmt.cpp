@@ -37,4 +37,4 @@ Stmt::Stmt() : ASTBase(ASTNodeType::STATEMENT, 0) {}
 
 ptr<Program> Program::Create() { return make_ptr<Program>(); }
 
-Program::Program() : ASTBase(ASTNodeType::PROGRAM, 0) {}
+Program::Program() { set_node_type(ASTNodeType::PROGRAM); }

@@ -3,6 +3,7 @@
 #include "src/parser/parser_impl.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/stmt.h"
+#include "src/ast/expr.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_control_flow.h"
 #include "src/ast/ast_member_access.h"
@@ -112,13 +113,13 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::RELOP) { /// comparisons
     node = ast_create_comparison(_cs, token->value);
   } else if (token->type == TokenType::INT) {
-    node = ast_create_numeric_literal(_cs, (uint64_t) std::stol(token->value), token->is_unsigned);
+    node = IntegerLiteral::Create((uint64_t) std::stol(token->value), token->is_unsigned);
   } else if (token->type == TokenType::FLOAT) {
-    node = ast_create_numeric_literal(_cs, std::stod(token->value));
+    node = FloatLiteral::Create(std::stod(token->value));
   } else if (token->type == TokenType::STRING) { /// string literal
-    node = ast_create_string_literal(_cs, token->value);
+    node = StringLiteral::Create(token->value);
   } else if (token->type == TokenType::CHAR) { /// char literal
-    node = ast_create_char_literal(_cs, token->value[0]);
+    node = CharLiteral::Create(static_cast<uint8_t>(token->value[0]));
   } else if (check_typename_token(token)) { /// types, must be before ID
     node = ASTType::Create();
   } else if (token->type == TokenType::ID) {
@@ -330,7 +331,8 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     case ASTNodeType::BREAK:
     case ASTNodeType::CONTINUE:
     case ASTNodeType::ID:
-    case ASTNodeType::NUM_LITERAL:
+    case ASTNodeType::INTEGER_LITERAL:
+    case ASTNodeType::FLOAT_LITERAL:
     case ASTNodeType::CHAR_LITERAL:
     case ASTNodeType::STRING_LITERAL:
       ++p->_end_index;

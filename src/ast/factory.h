@@ -5,16 +5,6 @@
 
 namespace tanlang {
 
-/// \section Literals
-
-ASTNodePtr ast_create_string_literal(CompilerSession *cs);
-ASTNodePtr ast_create_string_literal(CompilerSession *cs, const str &);
-ASTNodePtr ast_create_array_literal(CompilerSession *cs);
-ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, uint64_t val, bool is_unsigned = false);
-ASTNodePtr ast_create_numeric_literal(CompilerSession *cs, double val);
-ASTNodePtr ast_create_char_literal(CompilerSession *cs);
-ASTNodePtr ast_create_char_literal(CompilerSession *cs, char c);
-
 /// \section Ops
 
 ASTNodePtr ast_create_cast(CompilerSession *cs);
