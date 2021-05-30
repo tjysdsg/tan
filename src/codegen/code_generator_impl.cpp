@@ -199,11 +199,12 @@ Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Parenthesis>(_p);
+
   set_current_debug_location(p);
-  // FIXME: multiple expressions in the parenthesis?
-  p->_llvm_value = codegen(p->get_child_at<ASTBase>(0));
-  return p->_llvm_value;
+
+  return p->_llvm_value = codegen(p->get_sub());
 }
 
 Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &_p) {
