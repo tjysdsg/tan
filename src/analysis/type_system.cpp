@@ -359,7 +359,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
       size_t n = p->get_children_size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        auto e = p->get_child_at(i); // ASTVarDecl
+        auto e = p->get_child_at(i); // VarDecl
         elements.push_back(ToLLVMMeta(cs, h.get_ty(e)));
       }
       ret = cs->_di_builder

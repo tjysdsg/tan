@@ -1,13 +1,9 @@
-#include "src/ast/ast_base.h"
 #include "src/ast/ast_node_type.h"
-#include <iostream>
-#include "src/ast/ast_node.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/ast_func.h"
-#include "src/ast/ast_member_access.h"
-#include "src/ast/ast_control_flow.h"
+#include "src/ast/ast_base.h"
 
 using namespace tanlang;
+
+ASTBase::ASTBase(ASTNodeType node_type, int lbp) : _node_type(node_type), _lbp(lbp) {}
 
 ASTNodeType ASTBase::get_node_type() const {
   return _node_type;

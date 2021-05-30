@@ -11,56 +11,6 @@
 
 namespace tanlang {
 
-/// \section Declarations
-
-ASTNodePtr ast_create_var_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::VAR_DECL, 0);
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  ret->_is_named = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty) {
-  auto ret = ast_create_var_decl(cs);
-  ret->_type = make_ptr<ASTType>(*ty);
-  ret->_type->_is_lvalue = true;
-  ret->set_data(name);
-  return ret;
-}
-
-ASTNodePtr ast_create_arg_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::ARG_DECL, 0);
-  ret->_is_named = true;
-  ret->_is_typed = true;
-  ret->_is_valued = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty) {
-  auto ret = ast_create_arg_decl(cs);
-  ret->_type = make_ptr<ASTType>(*ty);
-  ret->_type->_is_lvalue = true;
-  ret->set_data(name);
-  return ret;
-}
-
-ASTNodePtr ast_create_func_decl(CompilerSession *) {
-  return make_ptr<ASTFunction>();
-}
-
-ASTNodePtr ast_create_struct_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::STRUCT_DECL, 0);
-  ret->_is_named = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_enum_decl(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::ENUM_DECL, 0);
-  ret->_is_named = true;
-  return ret;
-}
-
 /// \section Literals
 
 ASTNodePtr ast_create_string_literal(CompilerSession *cs) {

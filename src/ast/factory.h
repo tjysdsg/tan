@@ -2,19 +2,8 @@
 #define __TAN_SRC_AST_FACTORY_H__
 
 #include "base.h"
-#include "src/ast/ast_node.h"
 
 namespace tanlang {
-
-/// \section Declarations
-
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs);
-ASTNodePtr ast_create_var_decl(CompilerSession *cs);
-ASTNodePtr ast_create_arg_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty);
-ASTNodePtr ast_create_var_decl(CompilerSession *cs, const str &name, const ASTTypePtr &ty);
-ASTNodePtr ast_create_func_decl(CompilerSession *cs);
-ASTNodePtr ast_create_struct_decl(CompilerSession *cs);
-ASTNodePtr ast_create_enum_decl(CompilerSession *cs);
 
 /// \section Literals
 

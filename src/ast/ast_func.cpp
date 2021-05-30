@@ -8,7 +8,7 @@
 
 using namespace tanlang;
 
-ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, const vector<ASTNodePtr> &args) {
+ASTFunctionPtr ASTFunction::GetCallee(CompilerSession *cs, const str &name, const vector<ASTBasePtr> &args) {
   ASTFunctionPtr ret = nullptr;
   auto func_candidates = cs->get_functions(name);
   /// always prefer the function with lowest cost if multiple candidates are callable

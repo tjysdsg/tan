@@ -9,7 +9,6 @@
 namespace tanlang {
 
 AST_FWD_DECL(ASTBase);
-AST_FWD_DECL(ASTType);
 struct Scope;
 
 class ASTBase : public SourceTraceable {
@@ -21,6 +20,8 @@ public:
   static umap<ASTNodeType, int> OpPrecedence;
 
 public:
+  ASTBase() = delete;
+  ASTBase(ASTNodeType node_type, int lbp);;
   virtual ~ASTBase() = default;
 
 public:
@@ -37,7 +38,6 @@ protected:
 
 private:
   ASTNodeType _node_type = ASTNodeType::INVALID;
-  ASTTypePtr _type = nullptr;
   int _lbp = 0;
   ptr<Scope> _scope = nullptr;
 };
