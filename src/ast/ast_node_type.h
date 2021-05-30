@@ -14,6 +14,7 @@ enum class ASTNodeType {
   ENUM_VAL,
   STATEMENT,   /// statement or compound statements
   BOP,         /// binary operators, see BinaryOpKind
+  UOP,         /// unary operators, see UnaryOpKind
   ADDRESS_OF,  /// &
   CAST,        /// as
   ID,          /// identifiers

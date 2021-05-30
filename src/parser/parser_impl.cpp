@@ -99,8 +99,10 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
     node = ast_create_intrinsic(_cs);
   } else if (token->value == "=" && token->type == TokenType::BOP) {
     node = BinaryOperator::Create(BinaryOpKind::ASSIGN);
-  } else if (token->value == "!" || token->value == "~") {
-    node = ast_create_not(_cs);
+  } else if (token->value == "!") { /// logical not
+    node = UnaryOperator::Create(UnaryOpKind::LNOT);
+  } else if (token->value == "~") { /// binary not
+    node = UnaryOperator::Create(UnaryOpKind::BNOT);
   } else if (token->value == "[") {
     auto prev = this->at(index - 1);
     if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
@@ -160,10 +162,12 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
     node = ast_create_member_access(_cs);
   } else if (token->value == "&") {
+    // TODO: handle ambiguous node
     node = ast_create_ampersand(_cs);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = Stmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
+    // FIXME: BOP or UOP? ambiguous
     BinaryOpKind op = BinaryOpKind::INVALID;
     switch (hashed_string{token->value.c_str()}) {
       case "+"_hs:
@@ -218,19 +222,11 @@ ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
 size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
-  /// special tokens that require whether p is led or nud to determine the node type
-  if (p->get_token() != nullptr) { // TODO: store this in a map
+  // FIXME: special tokens that require whether p is led or nud to determine the node type
+  if (p->get_token() != nullptr) {
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         p->set_node_type(ASTNodeType::ADDRESS_OF);
-        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
-        break;
-      case "!"_hs:
-        p->set_node_type(ASTNodeType::LNOT);
-        p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
-        break;
-      case "~"_hs:
-        p->set_node_type(ASTNodeType::BNOT);
         p->set_lbp(ASTBase::OpPrecedence[p->get_node_type()]);
         break;
       default:
@@ -285,8 +281,9 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       break;
       ////////////////////////// prefix ////////////////////////////////
     case ASTNodeType::ADDRESS_OF:
-    case ASTNodeType::LNOT:
-    case ASTNodeType::BNOT:
+    case ASTNodeType::UOP:
+      parse_uop(p);
+      break;
     case ASTNodeType::RET: {
       ++p->_end_index;
       p->append_child(next_expression(p->_end_index));
@@ -347,7 +344,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
 size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
-  /// special tokens that require whether p is led or nud to determine the node type
+  // FIXME: special tokens that require whether p is led or nud to determine the node type
   switch (hashed_string{p->get_token_str().c_str()}) {
     case "&"_hs:
       p->set_node_type(ASTNodeType::BAND);
@@ -405,6 +402,20 @@ size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
 
   /// rhs
   auto rhs = next_expression(p->_end_index, p->get_lbp());
+  if (!rhs) {
+    error(p->_end_index, "Invalid operand");
+  }
+  p->set_rhs(rhs);
+
+  return p->_end_index;
+}
+
+size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
+  ptr<UnaryOperator> p = ast_must_cast<UnaryOperator>(_p);
+
+  /// rhs
+  ++p->_end_index;
+  auto rhs = ast_cast<Expr>(next_expression(p->_end_index, p->get_lbp()));
   if (!rhs) {
     error(p->_end_index, "Invalid operand");
   }

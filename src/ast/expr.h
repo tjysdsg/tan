@@ -83,8 +83,6 @@ enum BinaryOpKind {
   LAND,        /// logical and
   BOR,         /// binary or
   LOR,         /// logical or
-  BNOT,        /// bitwise not
-  LNOT,        /// logical not
   GT,          /// >
   GE,          /// >=
   LT,          /// <
@@ -110,6 +108,30 @@ public:
 protected:
   BinaryOpKind _op;
   ptr<Expr> _lhs = nullptr;
+  ptr<Expr> _rhs = nullptr;
+};
+
+enum UnaryOpKind {
+  INVALID,     ///
+  BNOT,        /// bitwise not
+  LNOT,        /// logical not
+  // TODO: other unary operators
+};
+
+class UnaryOperator : public Expr {
+public:
+  static ptr<UnaryOperator> Create(UnaryOpKind op);
+  static ptr<UnaryOperator> Create(UnaryOpKind op, const ptr<Expr> &rhs);
+
+  /// binary operator precedence
+  static umap<UnaryOpKind, int> UOPPrecedence;
+
+  UnaryOperator(UnaryOpKind op);
+
+  void set_rhs(const ptr<Expr> &rhs);
+
+protected:
+  UnaryOpKind _op;
   ptr<Expr> _rhs = nullptr;
 };
 

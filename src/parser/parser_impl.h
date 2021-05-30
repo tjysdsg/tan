@@ -28,7 +28,7 @@ private:
   ASTBasePtr peek(size_t &index);
   ASTBasePtr peek(size_t &index, TokenType type, const str &value);
   ASTBasePtr peek_keyword(Token *token, size_t &index);
-  ASTBasePtr next_expression(size_t &index, int rbp = 0);
+  ASTBasePtr next_expression(size_t &index, int rbp);
   size_t parse_node(const ASTBasePtr &p);
   size_t parse_node(const ASTBasePtr &left, const ASTBasePtr &p);
 
@@ -46,6 +46,7 @@ private:
   size_t parse_arg_decl(const ASTBasePtr &p);
   size_t parse_struct_decl(const ASTBasePtr &p);
   size_t parse_enum_decl(const ASTBasePtr &p);
+  size_t parse_uop(const ASTBasePtr &p);
 
   size_t parse_member_access(const ASTBasePtr &left, const ASTBasePtr &p);
   size_t parse_bop(const ASTBasePtr &left, const ASTBasePtr &p);

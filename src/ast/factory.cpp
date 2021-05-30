@@ -39,22 +39,6 @@ ASTNodePtr ast_create_return(CompilerSession *) {
   return make_ptr<ASTNode>(ASTNodeType::RET, ASTNode::OpPrecedence[ASTNodeType::RET]);
 }
 
-ASTNodePtr ast_create_not(CompilerSession *) {
-  /// logical not or bitwise not
-  auto ret = make_ptr<ASTNode>(ASTNodeType::INVALID, 0);
-  ret->_is_valued = true;
-  ret->_is_typed = true;
-  return ret;
-}
-
-ASTNodePtr ast_create_ampersand(CompilerSession *) {
-  /// address_of or binary and
-  auto ret = make_ptr<ASTNode>(ASTNodeType::INVALID, 0);
-  ret->_is_valued = true;
-  ret->_is_typed = true;
-  return ret;
-}
-
 ASTNodePtr ast_create_address_of(CompilerSession *, ASTBasePtr p) {
   auto ret = make_ptr<ASTNode>(ASTNodeType::ADDRESS_OF, ASTNode::OpPrecedence[ASTNodeType::ADDRESS_OF]);
   ret->_is_valued = true;

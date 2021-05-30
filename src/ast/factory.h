@@ -12,12 +12,6 @@ ASTNodePtr ast_create_member_access(CompilerSession *cs);
 ASTNodePtr ast_create_return(CompilerSession *cs);
 ASTNodePtr ast_create_address_of(CompilerSession *cs, ASTBasePtr p);
 
-/// \section Ambiguous ops
-/// The type of these operators/expression is undetermined before parsing
-
-ASTNodePtr ast_create_ampersand(CompilerSession *cs);
-ASTNodePtr ast_create_not(CompilerSession *cs);
-
 /// \section Control flow
 ASTNodePtr ast_create_if(CompilerSession *cs);
 ASTNodePtr ast_create_else(CompilerSession *cs);

@@ -63,8 +63,7 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::MOD, PREC_FACTOR}, {BinaryOpKind::BAND, PREC_FACTOR}, {BinaryOpKind::GT, PREC_COMPARISON},
         {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
         {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON}, {BinaryOpKind::ASSIGN, PREC_ASSIGN},
-        {BinaryOpKind::BNOT, PREC_UNARY}, {BinaryOpKind::LNOT, PREC_UNARY}, {BinaryOpKind::LAND, PREC_LOGICAL_AND},
-        {BinaryOpKind::LOR, PREC_LOGICAL_OR}};
+        {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR}};
 
 ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
   return make_ptr<BinaryOperator>(op);
@@ -79,4 +78,22 @@ ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op, const ptr<Expr> &lhs
 
 void BinaryOperator::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
 
-void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _lhs = rhs; }
+void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+
+/// \section Unary operators
+
+umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence = {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}};
+
+UnaryOperator::UnaryOperator(UnaryOpKind op) : Expr(ASTNodeType::UOP, UnaryOperator::UOPPrecedence[op]), _op(op) {}
+
+void UnaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+
+ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op) {
+  return make_ptr<UnaryOperator>(op);
+}
+
+ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op, const ptr<Expr> &rhs) {
+  auto ret = make_ptr<UnaryOperator>(op);
+  ret->_rhs = rhs;
+  return ret;
+}
