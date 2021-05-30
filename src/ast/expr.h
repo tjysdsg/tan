@@ -57,6 +57,8 @@ public:
   static ptr<ArrayLiteral> Create(vector<ptr<Literal>> val);
   ArrayLiteral() : Literal(ASTNodeType::ARRAY_LITERAL, 0) {}
 
+  void set_elements(const vector<ptr<Literal>> &elements);
+
 private:
   vector<ptr<Literal>> _elements{};
 };

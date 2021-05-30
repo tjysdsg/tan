@@ -17,7 +17,9 @@ AST_FWD_DECL(ASTType);
 
 class TypeSystem {
 public:
-  static constexpr std::array LiteralTypes = {ASTNodeType::NUM_LITERAL, ASTNodeType::STRING_LITERAL, ASTNodeType::ARRAY_LITERAL,};
+  static constexpr std::array LiteralTypes =
+      {ASTNodeType::INTEGER_LITERAL, ASTNodeType::FLOAT_LITERAL, ASTNodeType::STRING_LITERAL,
+          ASTNodeType::ARRAY_LITERAL};
 
   /**
    * \brief Find out which type should a value be implicitly cast to.
@@ -45,7 +47,9 @@ public:
 
   static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p);
 
-  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
+  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *,
+      llvm::Metadata *ret,
+      vector<llvm::Metadata *> args);
 };
 
 } // namespace

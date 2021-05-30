@@ -32,3 +32,7 @@ ptr<ArrayLiteral> ArrayLiteral::Create(vector<ptr<Literal>> val) {
   ret->_elements = val;
   return ret;
 }
+
+void ArrayLiteral::set_elements(const vector<ptr<Literal>> &elements) {
+  _elements = elements;
+}
