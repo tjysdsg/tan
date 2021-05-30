@@ -305,7 +305,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
       type = builder->getVoidTy();
       break;
     case Ty::ENUM:
-      type = ToLLVMType(cs, h.get_ty(p->_sub_types[0]));
+      type = ToLLVMType(cs, p->_sub_types[0]);
       break;
     case Ty::STRUCT: {
       auto *struct_type = StructType::create(*cs->get_context(), p->_type_name);
@@ -313,7 +313,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
       size_t n = p->_sub_types.size();
       body.reserve(n);
       for (size_t i = 1; i < n; ++i) {
-        body.push_back(ToLLVMType(cs, h.get_ty(p->_sub_types[i])));
+        body.push_back(ToLLVMType(cs, p->_sub_types[i]));
       }
       struct_type->setBody(body);
       type = struct_type;
@@ -321,7 +321,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
-      auto e_type = ToLLVMType(cs, h.get_ty(p->_sub_types[0]));
+      auto e_type = ToLLVMType(cs, p->_sub_types[0]);
       type = e_type->getPointerTo();
       break;
     }
@@ -359,8 +359,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
       size_t n = p->_sub_types.size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        auto e = p->_sub_types[i]; // VarDecl
-        elements.push_back(ToLLVMMeta(cs, h.get_ty(e)));
+        elements.push_back(ToLLVMMeta(cs, p->_sub_types[i]));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
