@@ -186,11 +186,14 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  auto *val = codegen(p->get_child_at<ASTBase>(0));
-  if (p->get_child_at<ASTBase>(0)->_type->_is_lvalue) { /// lvalue, the val itself is a pointer to real value
+
+  auto *val = codegen(p->get_rhs());
+  if (p->get_rhs()->get_type()->_is_lvalue) { /// lvalue, the val itself is a pointer to real value
     p->_llvm_value = val;
   } else { /// rvalue, create an anonymous variable, and get address of it
     p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
