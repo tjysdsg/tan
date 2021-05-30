@@ -2,6 +2,7 @@
 #include "src/ast/ast_type.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/expr.h"
+#include "src/ast/stmt.h"
 #include "src/analysis/type_system.h"
 #include "compiler_session.h"
 #include "src/common.h"
@@ -44,13 +45,9 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::ARRAY_LITERAL:
       analyze_array_literal(p);
       break;
-    case ASTNodeType::IF: {
-      auto cond = p->get_child_at(0);
-      if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), _h.get_ty(cond))) {
-        report_error(p, "Cannot convert type to bool");
-      }
+    case ASTNodeType::IF:
+      analyze_if(p);
       break;
-    }
       // TODO: cs->set_current_loop(pl) // case ASTNodeType::LOOP:
       // TODO: cs->get_current_loop() // case ASTNodeType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
@@ -96,8 +93,7 @@ void AnalyzerImpl::resolve_ty(const ASTTypePtr &p) const {
   TypeSystem::ResolveTy(_cs, p);
 }
 
-AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {
-}
+AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
 void AnalyzerImpl::report_error(const ASTBasePtr &p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
@@ -158,4 +154,18 @@ void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
   analyze(p->get_sub());
 
   p->set_type(copy_ty(p->get_sub()->get_type()));
+}
+
+void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<If>(_p);
+
+  auto cond = p->get_predicate();
+  analyze(cond);
+
+  analyze(p->get_then());
+  analyze(p->get_else());
+
+  if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
+    report_error(p, "Cannot convert type to bool");
+  }
 }

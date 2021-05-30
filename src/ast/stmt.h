@@ -95,6 +95,9 @@ public:
   void set_predicate(ExprPtr pred);
   void set_then(StmtPtr body);
   void set_else(StmtPtr body);
+  ExprPtr get_predicate() const { return _predicate; }
+  StmtPtr get_then() { return _then; }
+  StmtPtr get_else() { return _else; }
 
 private:
   ExprPtr _predicate = nullptr;
