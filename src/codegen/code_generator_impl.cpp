@@ -82,11 +82,6 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
     case ASTNodeType::PARENTHESIS:
       ret = codegen_parenthesis(p);
       break;
-
-      /////////////////// trivial codegen /////////////////
-    case ASTNodeType::ELSE:
-      set_current_debug_location(p);
-      // fallthrough
     case ASTNodeType::ID:
       ret = codegen(p->get_child_at<ASTBase>(0));
       break;
@@ -131,12 +126,15 @@ Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Return>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
-  ASTBasePtr rhs = p->get_child_at<ASTBase>(0);
+
+  auto rhs = p->get_rhs();
   auto *result = codegen(rhs);
-  if (rhs->_type->_is_lvalue) {
+  if (rhs->get_type()->_is_lvalue) {
     result = builder->CreateLoad(result, "ret");
   }
   builder->CreateRet(result);
