@@ -52,12 +52,9 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
       ret = codegen_intrinsic(pi);
       break;
     }
-    case ASTNodeType::FUNC_DECL: {
-      auto pf = ast_cast<FunctionDecl>(p);
-      TAN_ASSERT(pf);
-      ret = codegen_func_decl(pf);
+    case ASTNodeType::FUNC_DECL:
+      ret = codegen_func_decl(ast_must_cast<FunctionDecl>(p));
       break;
-    }
     case ASTNodeType::FUNC_CALL:
       ret = codegen_func_call(p);
       break;

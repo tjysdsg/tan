@@ -1,10 +1,10 @@
 #include "src/codegen/code_generator_impl.h"
 #include "src/llvm_include.h"
-#include "src/ast/ast_node.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/ast_control_flow.h"
+#include "src/ast/decl.h"
+#include "src/ast/expr.h"
+#include "src/ast/stmt.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/factory.h"
 #include "compiler_session.h"
 
 using namespace tanlang;
@@ -83,17 +83,19 @@ Value *CodeGeneratorImpl::codegen_loop(const ASTBasePtr &p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_if(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen_if(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<If>(_p);
+
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
-  Value *condition = codegen(p->get_child_at<ASTNode>(0));
+  Value *condition = codegen(p->get_predicate());
   if (!condition) {
     report_error(p, "Invalid condition expression ");
   }
 
   /// convert to bool if not
-  condition = TypeSystem::ConvertTo(_cs, condition, p->get_child_at<ASTNode>(0)->_type, create_ty(_cs, Ty::BOOL));
+  condition = TypeSystem::ConvertTo(_cs, condition, p->get_predicate()->get_type(), ASTType::Create(_cs, Ty::BOOL));
 
   /// create_ty blocks for the then (and else) clause
   Function *func = builder->GetInsertBlock()->getParent();
@@ -101,24 +103,25 @@ Value *CodeGeneratorImpl::codegen_if(const ASTBasePtr &p) {
   BasicBlock *else_bb = BasicBlock::Create(*_cs->get_context(), "else");
   BasicBlock *merge_bb = BasicBlock::Create(*_cs->get_context(), "fi");
 
-  auto pif = ast_cast<ASTIf>(p);
-  TAN_ASSERT(pif);
-  if (pif->_has_else) { builder->CreateCondBr(condition, then_bb, else_bb); }
-  else { builder->CreateCondBr(condition, then_bb, merge_bb); }
+  if (p->get_else()) {
+    builder->CreateCondBr(condition, then_bb, else_bb);
+  } else {
+    builder->CreateCondBr(condition, then_bb, merge_bb);
+  }
 
   /// emit then value
   builder->SetInsertPoint(then_bb);
-  codegen(p->get_child_at<ASTNode>(1));
+  codegen(p->get_then());
   /// create a br instruction if there is no terminator instruction at the end of then
   if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
   builder->SetInsertPoint(then_bb);
   if (!then_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
 
   /// emit else block
-  if (pif->_has_else) {
+  if (p->get_else()) {
     func->getBasicBlockList().push_back(else_bb);
     builder->SetInsertPoint(else_bb);
-    codegen(p->get_child_at<ASTNode>(2));
+    codegen(p->get_else());
     /// create a br instruction if there is no terminator instruction at the end of else
     if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
     builder->SetInsertPoint(else_bb);
