@@ -26,14 +26,4 @@ ASTNodePtr ast_create_loop(CompilerSession *) {
   return ret;
 }
 
-ASTNodePtr ast_create_break(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::BREAK, 0);
-  return ret;
-}
-
-ASTNodePtr ast_create_continue(CompilerSession *) {
-  auto ret = make_ptr<ASTNode>(ASTNodeType::CONTINUE, 0);
-  return ret;
-}
-
 } // namespace tanlang

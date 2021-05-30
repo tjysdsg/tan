@@ -56,3 +56,14 @@ ptr<Import> Import::Create() { return make_ptr<Import>(); }
 Import::Import() { set_node_type(ASTNodeType::IMPORT); }
 
 void Import::set_filename(str_view s) { _filename = s; }
+
+/// \section Break or continue statement
+
+BreakContinue::BreakContinue(ASTNodeType type) {
+  TAN_ASSERT(type == ASTNodeType::BREAK || type == ASTNodeType::CONTINUE);
+  set_node_type(type);
+}
+
+ptr<Break> Break::Create() { return make_ptr<Break>(); }
+
+ptr<Continue> Continue::Create() { return make_ptr<Continue>(); }

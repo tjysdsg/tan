@@ -63,6 +63,35 @@ private:
   str _filename;
 };
 
+class BreakContinue : public Stmt {
+public:
+  BreakContinue(ASTNodeType type);
+};
+
+class Break : public BreakContinue {
+public:
+  static ptr<Break> Create();
+  Break() : BreakContinue(ASTNodeType::BREAK) {}
+};
+
+class Continue : public BreakContinue {
+public:
+  static ptr<Continue> Create();
+  Continue() : BreakContinue(ASTNodeType::CONTINUE) {}
+};
+
+class ASTLoop final : public ASTBase {
+public:
+  ASTLoop() : ASTBase(ASTNodeType::LOOP, 0) {}
+
+  enum ASTLoopType { FOR, WHILE };
+
+public:
+  ASTLoopType _loop_type = ASTLoopType::WHILE;
+  // llvm::BasicBlock *_loop_start = nullptr;
+  // llvm::BasicBlock *_loop_end = nullptr;
+};
+
 }
 
 #endif //__TAN_SRC_AST_STMT_H__

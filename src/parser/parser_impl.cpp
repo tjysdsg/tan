@@ -66,10 +66,10 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = StructDecl::Create();
       break;
     case "break"_hs:
-      ret = ast_create_break(_cs);
+      ret = Break::Create();
       break;
     case "continue"_hs:
-      ret = ast_create_continue(_cs);
+      ret = Continue::Create();
       break;
     case "as"_hs:
       ret = BinaryOperator::Create(BinaryOpKind::CAST);
