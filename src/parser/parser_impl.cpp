@@ -282,23 +282,12 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       parse_loop(p);
       break;
       ////////////////////////// prefix ////////////////////////////////
-    case ASTNodeType::ADDRESS_OF:
     case ASTNodeType::UOP:
       parse_uop(p);
       break;
     case ASTNodeType::RET: {
       ++p->_end_index;
       p->append_child(next_expression(p->_end_index));
-      break;
-    }
-    case ASTNodeType::SUM: /// unary +
-    case ASTNodeType::SUBTRACT: { /// unary -
-      ++p->_end_index; /// skip "-" or "+"
-      /// higher precedence than infix plus/minus
-      p->set_lbp(PREC_UNARY);
-      auto rhs = next_expression(p->_end_index, p->get_lbp());
-      if (!rhs) { error(p->_end_index, "Invalid operand"); }
-      p->append_child(rhs);
       break;
     }
       ////////////////////////// others /////////////////////////////////

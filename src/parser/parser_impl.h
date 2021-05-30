@@ -53,7 +53,6 @@ private:
 
   size_t parse_ty(const ASTTypePtr &p);
   size_t parse_ty_array(const ASTTypePtr &p);
-  size_t parse_ty_struct(const ASTTypePtr &p);
 
   void error(size_t i, const str &error_message) const;
 

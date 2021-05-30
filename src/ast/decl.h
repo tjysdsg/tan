@@ -48,14 +48,19 @@ private:
 };
 
 AST_FWD_DECL(ASTStruct);
+AST_FWD_DECL(Stmt);
 
 class StructDecl : public ASTBase, public ASTNamed {
 public:
   static ptr<StructDecl> Create();
   StructDecl();
+  void set_member_decls(const vector<StmtPtr> &member_decls);
+  void set_is_forward_decl(bool is_forward_decl);
 
 private:
+  vector<StmtPtr> _member_decls;
   ASTStructPtr _struct = nullptr;
+  bool _is_forward_decl = false;
 };
 
 } // namespace tanlang
