@@ -1,23 +1,95 @@
 #include "src/ast/expr.h"
+#include "src/ast/decl.h"
 #include "src/ast/ast_type.h"
 #include "src/analysis/analyzer_impl.h"
 #include "src/analysis/type_system.h"
+#include "compiler_session.h"
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_assignment(const BinaryOperatorPtr &p) {
+void AnalyzerImpl::analyze_cast(const CastPtr &p) {
   ptr<Expr> lhs = p->get_lhs();
+  ASTBasePtr rhs = p->get_rhs();
+  analyze(lhs);
+  analyze(rhs);
+
+  ASTTypePtr ty = nullptr;
+  switch (rhs->get_node_type()) {
+    case ASTNodeType::ID:
+      ty = _cs->get_type(ast_must_cast<Identifier>(rhs)->get_name());
+      if (!ty) {
+        report_error(rhs, "Unknown type");
+      }
+      break;
+    case ASTNodeType::TY:
+      ty = ast_must_cast<ASTType>(rhs);
+      break;
+    default:
+      report_error(lhs, "Invalid right-hand operand");
+      break;
+  }
+
+  ty = copy_ty(ty);
+  ty->_is_lvalue = lhs->get_type()->_is_lvalue;
+  p->set_type(ty);
+  // FIXME: check if can explicit cast
+  // if (TypeSystem::CanImplicitCast(_cs, np->_type, _h.get_ty(p->get_child_at(0))) != 0) {
+  //   report_error(p, "Cannot perform implicit type conversion");
+  // }
+}
+
+void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
   ptr<Expr> rhs = p->get_rhs();
   analyze(rhs);
-  if (!lhs->get_type()) { /// the type of lhs is not set, we deduce it
-    lhs->set_type(copy_ty(rhs->get_type()));
+
+  auto lhs = p->get_lhs();
+  ASTTypePtr lhs_type = nullptr;
+  /// if the type of lhs is not set, we deduce it
+  switch (lhs->get_node_type()) {
+    case ASTNodeType::ID:
+      lhs_type = _cs->get_type(ast_must_cast<Identifier>(rhs)->get_name());
+      break;
+    case ASTNodeType::STRUCT_DECL:
+    case ASTNodeType::VAR_DECL:
+      lhs_type = ast_must_cast<VarDecl>(rhs)->get_type();
+      break;
+    case ASTNodeType::ARG_DECL:
+    case ASTNodeType::ENUM_DECL:
+      // TODO: implement this
+      TAN_ASSERT(false);
+      break;
+    default:
+      report_error(lhs, "Invalid left-hand operand");
+  }
+
+  if (!lhs_type) {
+    lhs_type = copy_ty(rhs->get_type());
+
+    /// set type of lhs
+    switch (lhs->get_node_type()) {
+      case ASTNodeType::ID:
+        _cs->set_type(ast_must_cast<Identifier>(rhs)->get_name(), lhs_type);
+        break;
+      case ASTNodeType::STRUCT_DECL:
+      case ASTNodeType::VAR_DECL:
+        ast_must_cast<VarDecl>(rhs)->set_type(lhs_type);
+        break;
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::ENUM_DECL:
+        // TODO: implement this
+        TAN_ASSERT(false);
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
   }
   analyze(lhs);
 
-  if (TypeSystem::CanImplicitCast(_cs, lhs->get_type(), rhs->get_type()) != 0) {
+  if (TypeSystem::CanImplicitCast(_cs, lhs_type, rhs->get_type()) != 0) {
     report_error(p, "Cannot perform implicit type conversion");
   }
-  p->set_type(lhs->get_type());
+  p->set_type(lhs_type);
 }
 
 void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
@@ -29,9 +101,6 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
   /// and analyze_member_access have their own ways of analyzing
 
   switch (p->get_op()) {
-    case BinaryOpKind::ASSIGN:
-      analyze_assignment(p);
-      break;
     case BinaryOpKind::SUM:
     case BinaryOpKind::SUBTRACT:
     case BinaryOpKind::MULTIPLY:
@@ -71,19 +140,6 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
 
       p->set_type(ASTType::Create(_cs, Ty::BOOL));
       break;
-    case BinaryOpKind::CAST: {
-      analyze(lhs);
-      analyze(rhs);
-
-      auto ty = copy_ty(rhs->get_type());
-      ty->_is_lvalue = lhs->get_type()->_is_lvalue;
-      p->set_type(ty);
-      // FIXME: check if can explicit cast
-      // if (TypeSystem::CanImplicitCast(_cs, np->_type, _h.get_ty(p->get_child_at(0))) != 0) {
-      //   report_error(p, "Cannot perform implicit type conversion");
-      // }
-      break;
-    }
     case BinaryOpKind::MEMBER_ACCESS:
       analyze_member_access(ast_must_cast<MemberAccess>(p));
       break;

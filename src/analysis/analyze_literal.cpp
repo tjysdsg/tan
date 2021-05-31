@@ -41,6 +41,7 @@ void AnalyzerImpl::analyze_array_literal(const ASTBasePtr &_p) {
   auto elements = p->get_elements();
   sub_tys.reserve(elements.size());
   std::for_each(elements.begin(), elements.end(), [&sub_tys, this](const ptr<Expr> &e) {
+    analyze(e);
     sub_tys.push_back(e->get_type());
   });
 

@@ -9,6 +9,8 @@ AST_FWD_DECL(ASTBase);
 AST_FWD_DECL(ASTType);
 AST_FWD_DECL(BinaryOperator);
 AST_FWD_DECL(MemberAccess);
+AST_FWD_DECL(Assignment);
+AST_FWD_DECL(Cast);
 
 class AnalyzerImpl {
 public:
@@ -31,7 +33,8 @@ private:
   void analyze_ret(const ASTBasePtr &p);
   void analyze_parenthesis(const ASTBasePtr &p);
   void analyze_if(const ASTBasePtr &p);
-  void analyze_assignment(const BinaryOperatorPtr &p);
+  void analyze_assignment(const AssignmentPtr &p);
+  void analyze_cast(const CastPtr &p);
   void analyze_bop(const ASTBasePtr &p);
   void analyze_uop(const ASTBasePtr &p);
   void analyze_id(const ASTBasePtr &p);

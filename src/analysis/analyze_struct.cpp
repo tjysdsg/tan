@@ -33,9 +33,8 @@ void AnalyzerImpl::analyze_struct_decl(const ASTBasePtr &_p) {
       ty->_sub_types.push_back(m->get_type());
     }
       /// member variable with an initial value
-    else if (m->get_node_type() == ASTNodeType::BOP
-        && ast_must_cast<BinaryOperator>(m)->get_op() == BinaryOpKind::ASSIGN) {
-      auto bm = ast_must_cast<BinaryOperator>(m);
+    else if (m->get_node_type() == ASTNodeType::ASSIGN) {
+      auto bm = ast_must_cast<Assignment>(m);
       auto init_val = bm->get_rhs();
 
       m = ast_cast<Decl>(bm->get_lhs());
@@ -43,7 +42,7 @@ void AnalyzerImpl::analyze_struct_decl(const ASTBasePtr &_p) {
         report_error(bm, "Expect a declaration");
       }
 
-      /// TODO: support any coompile-time known initial values
+      /// TODO: support any compile-time known initial values
       if (!is_ast_type_in(init_val->get_node_type(), TypeSystem::LiteralTypes)) {
         report_error(p, "Invalid initial value of the member variable");
       }

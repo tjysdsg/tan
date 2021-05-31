@@ -25,6 +25,12 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
     case ASTNodeType::STATEMENT:
       ret = codegen_stmt(p);
       break;
+    case ASTNodeType::ASSIGN:
+      ret = codegen_assignment(p);
+      break;
+    case ASTNodeType::CAST:
+      ret = codegen_cast(p);
+      break;
     case ASTNodeType::BOP:
       ret = codegen_bop(p);
       break;
@@ -411,9 +417,6 @@ Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
   Value *ret = nullptr;
 
   switch (p->get_op()) {
-    case BinaryOpKind::ASSIGN:
-      ret = codegen_assignment(p);
-      break;
     case BinaryOpKind::SUM:
     case BinaryOpKind::SUBTRACT:
     case BinaryOpKind::MULTIPLY:
@@ -437,9 +440,6 @@ Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
     case BinaryOpKind::NE:
       ret = codegen_comparison(p);
       break;
-    case BinaryOpKind::CAST:
-      ret = codegen_cast(p);
-      break;
     case BinaryOpKind::MEMBER_ACCESS:
       ret = codegen_member_access(ast_must_cast<MemberAccess>(p));
       break;
@@ -452,7 +452,7 @@ Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
 }
 
 Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
-  auto p = ast_must_cast<BinaryOperator>(_p);
+  auto p = ast_must_cast<Assignment>(_p);
 
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
@@ -464,9 +464,11 @@ Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
   Value *to = codegen(lhs);
   if (!from) { report_error(lhs, "Invalid expression for right-hand operand of the assignment"); }
   if (!to) { report_error(rhs, "Invalid left-hand operand of the assignment"); }
-  if (!lhs->get_type()->_is_lvalue) { report_error(lhs, "Value can only be assigned to lvalue"); }
 
-  from = TypeSystem::ConvertTo(_cs, from, rhs->get_type(), lhs->get_type());
+  // type of lhs is the same as type of the assignment
+  if (!p->get_type()->_is_lvalue) { report_error(lhs, "Value can only be assigned to lvalue"); }
+
+  from = TypeSystem::ConvertTo(_cs, from, rhs->get_type(), p->get_type());
   builder->CreateStore(from, to);
   p->_llvm_value = to;
   return to;
@@ -628,20 +630,20 @@ Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &_p) {
 }
 
 Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &_p) {
-  auto p = ast_must_cast<BinaryOperator>(_p);
+  auto p = ast_must_cast<Cast>(_p);
 
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
-  auto *dest_type = TypeSystem::ToLLVMType(_cs, rhs->get_type());
+  auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_dest_type());
 
   Value *val = codegen(lhs);
   if (!val) { report_error(lhs, "Invalid expression for left-hand operand"); }
 
   Value *ret = nullptr;
-  val = TypeSystem::ConvertTo(_cs, val, lhs->get_type(), rhs->get_type());
+  val = TypeSystem::ConvertTo(_cs, val, lhs->get_type(), p->get_dest_type());
 
   if (lhs->get_type()->_is_lvalue) {
     ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");

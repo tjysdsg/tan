@@ -11,9 +11,7 @@
 
 using namespace tanlang;
 
-ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
-  return make_ptr<ASTType>(*p);
-}
+ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const { return make_ptr<ASTType>(*p); }
 
 void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   p->set_scope(_cs->get_current_scope());
@@ -22,6 +20,12 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
     case ASTNodeType::PROGRAM:
     case ASTNodeType::STATEMENT:
       analyze_stmt(p);
+      break;
+    case ASTNodeType::ASSIGN:
+      analyze_assignment(ast_must_cast<Assignment>(p));
+      break;
+    case ASTNodeType::CAST:
+      analyze_cast(ast_must_cast<Cast>(p));
       break;
     case ASTNodeType::BOP:
       analyze_bop(p);
@@ -55,7 +59,6 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
       break;
       // TODO: cs->set_current_loop(pl) // case ASTNodeType::LOOP:
       // TODO: cs->get_current_loop() // case ASTNodeType::BREAK (or CONTINUE):
-      ////////////////////////// others ///////////////////////////
     case ASTNodeType::INTRINSIC:
       analyze_intrinsic(p);
       break;

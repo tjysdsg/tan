@@ -98,7 +98,6 @@ enum class BinaryOpKind {
   MULTIPLY,     /// *
   DIVIDE,       /// /
   MOD,          /// %
-  ASSIGN,       /// =
   BAND,         /// binary and
   LAND,         /// logical and
   BOR,          /// binary or
@@ -111,7 +110,6 @@ enum class BinaryOpKind {
   NE,           /// !=
   XOR,          /// ^
   MEMBER_ACCESS, /// . or []
-  CAST,         /// as
 };
 
 class BinaryOperator : public Expr {
@@ -210,6 +208,38 @@ public:
 public:
   vector<ptr<Expr>> _args{};
   FunctionDeclPtr _callee = nullptr;
+};
+
+class Assignment : public Expr {
+public:
+  static ptr<Assignment> Create();
+  Assignment();
+  const ASTBasePtr &get_lhs() const;
+  void set_lhs(const ASTBasePtr &lhs);
+  const ptr<Expr> &get_rhs() const;
+  void set_rhs(const ptr<Expr> &rhs);
+
+protected:
+  ASTBasePtr _lhs = nullptr; /// lhs can be decl or expr (identifier)
+  ptr<Expr> _rhs = nullptr;
+};
+
+class Cast : public Expr {
+public:
+  static ptr<Cast> Create();
+  Cast();
+  const ptr<Expr> &get_lhs() const;
+  void set_lhs(const ptr<Expr> &lhs);
+  const ptr<ASTBase> &get_rhs() const;
+  void set_rhs(const ptr<ASTBase> &rhs);
+
+  const ASTTypePtr &get_dest_type() const;
+  void set_dest_type(const ASTTypePtr &dest_type);
+
+protected:
+  ptr<Expr> _lhs = nullptr;
+  ASTBasePtr _rhs = nullptr;
+  ASTTypePtr _dest_type = nullptr;
 };
 
 }

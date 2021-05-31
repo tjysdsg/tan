@@ -76,9 +76,9 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::XOR, PREC_TERM}, {BinaryOpKind::MULTIPLY, PREC_FACTOR}, {BinaryOpKind::DIVIDE, PREC_FACTOR},
         {BinaryOpKind::MOD, PREC_FACTOR}, {BinaryOpKind::BAND, PREC_FACTOR}, {BinaryOpKind::GT, PREC_COMPARISON},
         {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
-        {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON}, {BinaryOpKind::ASSIGN, PREC_ASSIGN},
+        {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON},
         {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
-        {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}, {BinaryOpKind::CAST, PREC_CAST}};
+        {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}};
 
 ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
   return make_ptr<BinaryOperator>(op);
@@ -95,6 +95,7 @@ void BinaryOperator::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
 
 void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
 
+// FIXME: lhs can also be a declaration
 ptr<Expr> BinaryOperator::get_lhs() const { return _lhs; }
 
 ptr<Expr> BinaryOperator::get_rhs() const { return _rhs; }
@@ -144,3 +145,35 @@ ptr<MemberAccess> MemberAccess::Create() { return make_ptr<MemberAccess>(); }
 ptr<FunctionCall> FunctionCall::Create() { return make_ptr<FunctionCall>(); }
 
 FunctionCall::FunctionCall() : Expr(ASTNodeType::FUNC_CALL, PREC_LOWEST) {}
+
+/// \section Assignment
+
+const ptr<Expr> &Assignment::get_rhs() const { return _rhs; }
+
+void Assignment::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+
+ptr<Assignment> Assignment::Create() { return make_ptr<Assignment>(); }
+
+Assignment::Assignment() : Expr(ASTNodeType::ASSIGN, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
+
+const ASTBasePtr &Assignment::get_lhs() const { return _lhs; }
+
+void Assignment::set_lhs(const ASTBasePtr &lhs) { _lhs = lhs; }
+
+/// \section Cast
+
+const ptr<Expr> &Cast::get_lhs() const { return _lhs; }
+
+void Cast::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
+
+const ASTTypePtr &Cast::get_dest_type() const { return _dest_type; }
+
+void Cast::set_dest_type(const ASTTypePtr &dest_type) { _dest_type = dest_type; }
+
+ptr<Cast> Cast::Create() { return make_ptr<Cast>(); }
+
+Cast::Cast() : Expr(ASTNodeType::CAST, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
+
+const ASTBasePtr &Cast::get_rhs() const { return _rhs; }
+
+void Cast::set_rhs(const ASTBasePtr &rhs) { _rhs = rhs; }

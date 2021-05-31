@@ -11,15 +11,18 @@ using namespace tanlang;
 
 void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
   ptr<Expr> lhs = p->get_lhs();
+  analyze(lhs);
   ptr<Expr> rhs = p->get_rhs();
 
   if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
+    analyze(rhs);
     auto ty = lhs->get_type();
     TAN_ASSERT(ty->_is_ptr);
     ty = copy_ty(_h.get_contained_ty(ty));
     ty->_is_lvalue = true;
     p->set_type(ty);
   } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
+    analyze(rhs);
     auto ty = lhs->get_type();
     if (!ty->_is_ptr) {
       report_error(p, "Expect a pointer or an array");
@@ -41,10 +44,9 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
                 std::to_string(size),
                 std::to_string(lhs->get_type()->_array_size)));
       }
-    } else {
-      report_error(p, "Expect an integer specifying array size");
     }
   } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
+    analyze(rhs);
     if (lhs->get_type()->_is_enum) {
       // TODO: Member access of enums
       TAN_ASSERT(false);

@@ -16,6 +16,8 @@ enum class ASTNodeType {
   BOP,         /// binary operators, see BinaryOpKind
   UOP,         /// unary operators, see UnaryOpKind
   BOP_OR_UOP,  /// a special type, denoting a node that we cannot determine whether it's a BOP or an UOP
+  ASSIGN,      /// =
+  CAST,        /// as
   ID,          /// identifiers
   LOOP,        /// for, while, ...
   CONTINUE,    /// continue

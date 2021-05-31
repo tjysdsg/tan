@@ -69,7 +69,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
       ret = Continue::Create();
       break;
     case "as"_hs:
-      ret = BinaryOperator::Create(BinaryOpKind::CAST);
+      ret = Cast::Create();
       break;
     default:
       return nullptr;
@@ -94,7 +94,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   if (token->value == "@") { /// intrinsics
     node = Intrinsic::Create();
   } else if (token->value == "=" && token->type == TokenType::BOP) {
-    node = BinaryOperator::Create(BinaryOpKind::ASSIGN);
+    node = Assignment::Create();
   } else if (token->value == "!") { /// logical not
     node = UnaryOperator::Create(UnaryOpKind::LNOT);
   } else if (token->value == "~") { /// binary not
@@ -297,7 +297,6 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       // parse_enum_decl(p);
       TAN_ASSERT(false);
       break;
-      /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
     case ASTNodeType::BREAK:
     case ASTNodeType::CONTINUE:
     case ASTNodeType::ID:
@@ -308,6 +307,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
       ++p->_end_index;
       break;
     default:
+      TAN_ASSERT(false);
       break;
   }
   return p->_end_index;
@@ -346,7 +346,14 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
     case ASTNodeType::BOP:
       parse_bop(left, p);
       break;
+    case ASTNodeType::ASSIGN:
+      parse_assignment(left, p);
+      break;
+    case ASTNodeType::CAST:
+      parse_cast(left, p);
+      break;
     default:
+      TAN_ASSERT(false);
       break;
   }
   return p->_end_index;
@@ -391,4 +398,39 @@ DeclPtr ParserImpl::expect_decl(const ASTBasePtr &p) {
     error(p->_end_index, "Expect a declaration");
   }
   return ret;
+}
+
+size_t ParserImpl::parse_assignment(const ASTBasePtr &left, const ASTBasePtr &_p) {
+  auto lhs = ast_must_cast<Decl>(left);
+  auto p = ast_must_cast<Assignment>(_p);
+
+  ++p->_end_index; /// skip =
+
+  /// lhs
+  p->set_lhs(lhs);
+
+  /// rhs
+  auto rhs = next_expression(p->_end_index, p->get_lbp());
+  p->set_rhs(expect_expression(rhs));
+
+  return p->_end_index;
+}
+
+size_t ParserImpl::parse_cast(const ASTBasePtr &left, const ASTBasePtr &_p) {
+  auto lhs = ast_must_cast<Expr>(left);
+  auto p = ast_must_cast<Cast>(_p);
+
+  ++p->_end_index; /// skip as
+
+  /// lhs
+  p->set_lhs(lhs);
+
+  /// rhs
+  auto rhs = next_expression(p->_end_index, p->get_lbp());
+  if (rhs->get_node_type() != ASTNodeType::TY) {
+    error(rhs->_end_index, "Expect a type");
+  }
+  p->set_dest_type(ast_must_cast<ASTType>(rhs));
+
+  return p->_end_index;
 }

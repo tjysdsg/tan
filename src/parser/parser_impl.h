@@ -58,6 +58,8 @@ private:
   size_t parse_parenthesis(const ASTBasePtr &p);
 
   size_t parse_member_access(const ptr<Expr> &left, const ptr<MemberAccess> &p);
+  size_t parse_cast(const ASTBasePtr &left, const ASTBasePtr &p);
+  size_t parse_assignment(const ASTBasePtr &left, const ASTBasePtr &p);
   size_t parse_bop(const ASTBasePtr &left, const ASTBasePtr &p);
 
   size_t parse_ty(const ASTTypePtr &p);
