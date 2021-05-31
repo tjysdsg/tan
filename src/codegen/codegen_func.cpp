@@ -164,6 +164,8 @@ Value *CodeGeneratorImpl::codegen_func_decl(const FunctionDeclPtr &p) {
     /// restore parent code block
     builder->SetInsertPoint(main_block);
   }
+
   _cs->pop_scope(); /// pop scope
-  return nullptr;
+
+  return p->_llvm_value = F;
 }

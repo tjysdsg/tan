@@ -25,10 +25,10 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
       ret = codegen_stmt(p);
       break;
     case ASTNodeType::BOP:
-      codegen_bop(p);
+      ret = codegen_bop(p);
       break;
     case ASTNodeType::UOP:
-      codegen_uop(p);
+      ret = codegen_uop(p);
       break;
     case ASTNodeType::RET:
       ret = codegen_return(p);
@@ -41,17 +41,12 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
     case ASTNodeType::INTEGER_LITERAL:
     case ASTNodeType::FLOAT_LITERAL:
     case ASTNodeType::CHAR_LITERAL:
-    case ASTNodeType::STRING_LITERAL: {
+    case ASTNodeType::STRING_LITERAL:
       ret = codegen_literals(p);
       break;
-    }
-      ///////////////////////////// other ////////////////////////////
-    case ASTNodeType::INTRINSIC: {
-      auto pi = ast_cast<Intrinsic>(p);
-      TAN_ASSERT(pi);
-      ret = codegen_intrinsic(pi);
+    case ASTNodeType::INTRINSIC:
+      ret = codegen_intrinsic(ast_must_cast<Intrinsic>(p));
       break;
-    }
     case ASTNodeType::FUNC_DECL:
       ret = codegen_func_decl(ast_must_cast<FunctionDecl>(p));
       break;
@@ -275,7 +270,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
     case Ty::VOID:
       TAN_ASSERT(false);
     case Ty::STRUCT: {
-      vector<llvm::Constant *> values{};
+      vector < llvm::Constant * > values{};
       size_t n = p->_sub_types.size();
       for (size_t i = 1; i < n; ++i) {
         values.push_back((llvm::Constant *) codegen(p->_sub_types[i]));
@@ -450,7 +445,7 @@ Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
       break;
   }
 
-  return ret;
+  return p->_llvm_value = ret;
 }
 
 Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
@@ -494,22 +489,6 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
   } else {
     l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
     r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
-  }
-
-  switch (p->get_op()) {
-    case BinaryOpKind::MULTIPLY:
-      break;
-    case BinaryOpKind::DIVIDE:
-      break;
-    case BinaryOpKind::SUM:
-      break;
-    case BinaryOpKind::SUBTRACT:
-      break;
-    case BinaryOpKind::MOD:
-      break;
-    default:
-      TAN_ASSERT(false);
-      break;
   }
 
   if (l->getType()->isFloatingPointTy()) {
