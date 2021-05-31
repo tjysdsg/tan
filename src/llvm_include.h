@@ -206,6 +206,7 @@ using llvm::StringRef;
 using llvm::Value;
 using llvm::AllocaInst;
 using llvm::Type;
+using llvm::Constant;
 using llvm::ConstantFP;
 using llvm::ConstantInt;
 using llvm::APFloat;
