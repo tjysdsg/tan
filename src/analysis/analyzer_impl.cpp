@@ -169,7 +169,7 @@ void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
   analyze(cond);
 
   analyze(p->get_then());
-  analyze(p->get_else());
+  if (p->get_else()) { analyze(p->get_else()); }
 
   if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
     report_error(p, "Cannot convert type to bool");
