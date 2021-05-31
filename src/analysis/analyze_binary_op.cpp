@@ -47,11 +47,11 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
   /// if the type of lhs is not set, we deduce it
   switch (lhs->get_node_type()) {
     case ASTNodeType::ID:
-      lhs_type = _cs->get_type(ast_must_cast<Identifier>(rhs)->get_name());
+      lhs_type = _cs->get_type(ast_must_cast<Identifier>(lhs)->get_name());
       break;
     case ASTNodeType::STRUCT_DECL:
     case ASTNodeType::VAR_DECL:
-      lhs_type = ast_must_cast<VarDecl>(rhs)->get_type();
+      lhs_type = ast_must_cast<VarDecl>(lhs)->get_type();
       break;
     case ASTNodeType::ARG_DECL:
     case ASTNodeType::ENUM_DECL:

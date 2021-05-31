@@ -431,6 +431,7 @@ size_t ParserImpl::parse_cast(const ASTBasePtr &left, const ASTBasePtr &_p) {
     error(rhs->_end_index, "Expect a type");
   }
   p->set_dest_type(ast_must_cast<ASTType>(rhs));
+  p->set_rhs(rhs);
 
   return p->_end_index;
 }
