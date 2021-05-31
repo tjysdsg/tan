@@ -1,5 +1,6 @@
 #include "code_generator_impl.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/ty.h"
 #include "src/ast/intrinsic.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
@@ -256,7 +257,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
     case Ty::CHAR:
     case Ty::BOOL:
     case Ty::ENUM:
-      ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value));
+      ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value), !p->_is_unsigned);
       break;
     case Ty::FLOAT:
       ret = ConstantFP::get(type, std::get<float>(p->_default_value));
@@ -270,7 +271,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
     case Ty::VOID:
       TAN_ASSERT(false);
     case Ty::STRUCT: {
-      vector < llvm::Constant * > values{};
+      vector<Constant *> values{};
       size_t n = p->_sub_types.size();
       for (size_t i = 1; i < n; ++i) {
         values.push_back((llvm::Constant *) codegen(p->_sub_types[i]));
@@ -315,9 +316,11 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &_p) {
       break;
     case Ty::INT:
     case Ty::BOOL:
-    case Ty::ENUM:
-      ret = ConstantInt::get(type, ast_must_cast<IntegerLiteral>(p)->get_value());
+    case Ty::ENUM: {
+      auto pp = ast_must_cast<IntegerLiteral>(p);
+      ret = ConstantInt::get(type, pp->get_value(), !pp->is_unsigned());
       break;
+    }
     case Ty::STRING:
       ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
       break;
