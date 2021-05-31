@@ -8,10 +8,12 @@
 namespace tanlang {
 
 class CompilerSession;
-class ParsableASTNode;
-class ASTTy;
-using ASTTyPtr = ptr<ASTTy>;
-using ParsableASTNodePtr = ptr<ParsableASTNode>;
+AST_FWD_DECL(ASTBase);
+AST_FWD_DECL(ASTType);
+AST_FWD_DECL(Expr);
+AST_FWD_DECL(Decl);
+AST_FWD_DECL(Stmt);
+AST_FWD_DECL(MemberAccess);
 
 /**
  * \brief Parser
@@ -21,42 +23,53 @@ class ParserImpl final {
 public:
   ParserImpl() = delete;
   ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs);
-  ParsableASTNodePtr parse();
+  ASTBasePtr parse();
   [[nodiscard]] str get_filename() const;
 
 private:
   [[nodiscard]] Token *at(const size_t idx) const;
   bool eof(size_t index) const;
-  ParsableASTNodePtr peek(size_t &index);
-  ParsableASTNodePtr peek(size_t &index, TokenType type, const str &value);
-  ParsableASTNodePtr peek_keyword(Token *token, size_t &index);
-  ParsableASTNodePtr next_expression(size_t &index, int rbp = 0);
-  size_t parse_node(const ParsableASTNodePtr &p);
-  size_t parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
-  void error(size_t i, const str &error_message) const;
-  size_t parse_intrinsic(const ParsableASTNodePtr &p);
-  size_t parse_import(const ParsableASTNodePtr &p);
-  size_t parse_if(const ParsableASTNodePtr &p);
-  size_t parse_else(const ParsableASTNodePtr &p);
-  size_t parse_loop(const ParsableASTNodePtr &p);
-  size_t parse_func_decl(const ParsableASTNodePtr &p);
-  size_t parse_func_call(const ParsableASTNodePtr &p);
-  size_t parse_array_literal(const ParsableASTNodePtr &p);
-  size_t parse_var_decl(const ParsableASTNodePtr &p);
-  size_t parse_arg_decl(const ParsableASTNodePtr &p);
-  size_t parse_struct_decl(const ParsableASTNodePtr &p);
-  size_t parse_enum_decl(const ParsableASTNodePtr &p);
-  size_t parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p);
+  ASTBasePtr peek(size_t &index);
+  ASTBasePtr peek(size_t &index, TokenType type, const str &value);
+  ASTBasePtr peek_keyword(Token *token, size_t &index);
+  ASTBasePtr next_expression(size_t &index, int rbp);
+  size_t parse_node(const ASTBasePtr &p);
+  size_t parse_node(const ASTBasePtr &left, const ASTBasePtr &p);
 
-  size_t parse_ty(const ASTTyPtr &p);
-  size_t parse_ty_array(const ASTTyPtr &p);
-  size_t parse_ty_struct(const ASTTyPtr &p);
+  ExprPtr expect_expression(const ASTBasePtr &p);
+  StmtPtr expect_stmt(const ASTBasePtr &p);
+  DeclPtr expect_decl(const ASTBasePtr &p);
+
+  size_t parse_program(const ASTBasePtr &p);
+  size_t parse_stmt(const ASTBasePtr &p);
+  size_t parse_intrinsic(const ASTBasePtr &p);
+  size_t parse_import(const ASTBasePtr &p);
+  size_t parse_if(const ASTBasePtr &p);
+  size_t parse_loop(const ASTBasePtr &p);
+  size_t parse_func_decl(const ASTBasePtr &p);
+  size_t parse_func_call(const ASTBasePtr &p);
+  size_t parse_array_literal(const ASTBasePtr &p);
+  size_t parse_var_decl(const ASTBasePtr &p);
+  size_t parse_arg_decl(const ASTBasePtr &p);
+  size_t parse_struct_decl(const ASTBasePtr &p);
+  // size_t parse_enum_decl(const ASTBasePtr &p);
+  size_t parse_uop(const ASTBasePtr &p);
+  size_t parse_return(const ASTBasePtr &p);
+  size_t parse_parenthesis(const ASTBasePtr &p);
+
+  size_t parse_member_access(const ptr<Expr> &left, const ptr<MemberAccess> &p);
+  size_t parse_bop(const ASTBasePtr &left, const ASTBasePtr &p);
+
+  size_t parse_ty(const ASTTypePtr &p);
+  size_t parse_ty_array(const ASTTypePtr &p);
+
+  void error(size_t i, const str &error_message) const;
 
 private:
   vector<Token *> _tokens{};
   str _filename = "";
   CompilerSession *_cs = nullptr;
-  ParsableASTNodePtr _root = nullptr;
+  ASTBasePtr _root = nullptr;
 };
 
 } // namespace tanlang

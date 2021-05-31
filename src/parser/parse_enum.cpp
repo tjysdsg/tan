@@ -1,14 +1,15 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
-#include "src/ast/parsable_ast_node.h"
-#include "src/ast/factory.h"
+#include "src/ast/ast_base.h"
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_enum_decl(const ParsableASTNodePtr &p) {
+// TODO: implement enum
+/*
+size_t ParserImpl::parse_enum_decl(const ASTBasePtr &p) {
   ++p->_end_index; /// skip "enum"
   auto name = peek(p->_end_index);
-  if (name->get_node_type() != ASTType::ID) {
+  if (name->get_node_type() != ASTNodeType::ID) {
     error(p->_end_index, "Expect an enum name");
   }
 
@@ -26,3 +27,4 @@ size_t ParserImpl::parse_enum_decl(const ParsableASTNodePtr &p) {
 
   return p->_end_index;
 }
+*/

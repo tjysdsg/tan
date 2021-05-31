@@ -4,18 +4,17 @@
 
 namespace tanlang {
 
-class ASTFunction;
-using ASTFunctionPtr = std::shared_ptr<ASTFunction>;
+AST_FWD_DECL(FunctionDecl);
 
 class FunctionTable final {
 public:
   FunctionTable() = default;
-  void set(ASTFunctionPtr func);
-  vector<ASTFunctionPtr> get(const str &name);
-  [[nodiscard]] vector<ASTFunctionPtr> get_all() const;
+  void set(FunctionDeclPtr func);
+  vector<FunctionDeclPtr> get(const str &name);
+  [[nodiscard]] vector<FunctionDeclPtr> get_all() const;
 
 private:
-  umap<str, vector<ASTFunctionPtr>> _table{};
+  umap<str, vector<FunctionDeclPtr>> _table{};
 };
 
 using FunctionTablePtr = std::shared_ptr<FunctionTable>;

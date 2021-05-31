@@ -1,55 +1,70 @@
 #include "analyzer_impl.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/ast_base.h"
+#include "src/ast/ast_type.h"
 #include "compiler_session.h"
-#include "src/ast/factory.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/expr.h"
 #include "src/analysis/type_system.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
+#include <fmt/core.h>
 #include <iostream>
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_intrinsic(const ParsableASTNodePtr &p) {
-  auto pi = ast_must_cast<Intrinsic>(p);
-  TAN_ASSERT(p->get_children_size());
+void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Intrinsic>(_p);
+  auto c = p->get_sub();
 
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
+  /// name
+  str name;
+  switch (c->get_node_type()) {
+    case ASTNodeType::FUNC_CALL:
+      name = ast_must_cast<FunctionCall>(c)->get_name();
+      break;
+    case ASTNodeType::ID:
+      name = ast_must_cast<Identifier>(c)->get_name();
+      break;
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
 
-  auto c = p->get_child_at<ASTNode>(0);
-  TAN_ASSERT(c->_is_named);  // both function call and identifier have a name
-  auto void_type = create_ty(_cs, Ty::VOID);
-  auto q = Intrinsic::intrinsics.find(c->get_data<str>());
+  /// search for the intrinsic type
+  auto q = Intrinsic::intrinsics.find(name);
   if (q == Intrinsic::intrinsics.end()) {
     report_error(p, "Invalid intrinsic");
   }
-  pi->_intrinsic_type = q->second;
-  switch (pi->_intrinsic_type) {
+  p->set_intrinsic_type(q->second);
+
+  auto void_type = ASTType::Create(_cs, Ty::VOID);
+  switch (p->get_intrinsic_type()) {
     case IntrinsicType::STACK_TRACE:
     case IntrinsicType::ABORT:
     case IntrinsicType::NOOP: {
-      np->_ty = void_type;
+      p->set_type(void_type);
       break;
     }
     case IntrinsicType::LINENO: {
-      p->set_child_at(0, ast_create_numeric_literal(_cs, c->get_line()));
+      p->set_sub(IntegerLiteral::Create(_p->get_line(), true));
       break;
     }
     case IntrinsicType::FILENAME: {
-      p->set_child_at(0, ast_create_string_literal(_cs, _cs->_filename));
+      p->set_sub(StringLiteral::Create(_cs->_filename));
       break;
     }
     case IntrinsicType::GET_DECL: {
-      np->_ty = create_ty(_cs, Ty::STRING);
-      TAN_ASSERT(c->get_node_type() == ASTType::STRING_LITERAL);
+      p->set_type(ASTType::Create(_cs, Ty::STRING));
+      if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
+        report_error(c, "Expect a string argument");
+      }
       // TODO: set p->_value to the source code of p
       break;
     }
     case IntrinsicType::COMP_PRINT: {
-      np->_ty = void_type;
-      if (c->get_node_type() != ASTType::STRING_LITERAL) {
+      p->set_type(void_type);
+      if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
         report_error(p, "Invalid call to compprint, one argument with type 'str' required");
       }
-      std::cout << "Message (" << _h.get_source_location(p) << "): " << c->get_data<str>() << "\n";
+      std::cout << fmt::format("Message ({}): {}\n", _h.get_source_location(p), name);
       break;
     }
     default:

@@ -12,8 +12,8 @@ AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, cons
   }
 }
 
-bool is_ast_type_in(ASTType t, std::initializer_list<ASTType> list) {
-  return std::any_of(list.begin(), list.end(), [t](ASTType i) { return i == t; });
+bool is_ast_type_in(ASTNodeType t, std::initializer_list<ASTNodeType> list) {
+  return std::any_of(list.begin(), list.end(), [t](ASTNodeType i) { return i == t; });
 }
 
 bool is_string_in(std::string_view s, std::initializer_list<std::string_view> list) {

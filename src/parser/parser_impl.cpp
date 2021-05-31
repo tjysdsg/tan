@@ -2,13 +2,14 @@
 #include "compiler_session.h"
 #include "src/parser/parser_impl.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/ast_control_flow.h"
-#include "src/ast/ast_member_access.h"
+#include "src/ast/stmt.h"
+#include "src/ast/expr.h"
+#include "src/ast/decl.h"
 #include "src/parser/token_check.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
+#include "src/ast/ast_type.h"
 #include "src/common.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
+#include "src/ast/ast_base.h"
 #include "token.h"
 #include <memory>
 #include <utility>
@@ -16,12 +17,11 @@
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
 
-// TODO: move type resolving to analysis phase
 
 ParserImpl::ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
 
-ParsableASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
+ASTBasePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
@@ -30,47 +30,46 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index, TokenType type, const str &va
   return peek(index);
 }
 
-ParsableASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
-  ASTNodePtr ret = nullptr;
+ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
+  ASTBasePtr ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
-      ret = ast_create_var_decl(_cs);
+      ret = VarDecl::Create();
       break;
     case "enum"_hs:
-      ret = ast_create_enum_decl(_cs);
+      // TODO: implement enum
+      TAN_ASSERT(false);
       break;
     case "fn"_hs:
     case "pub"_hs:
     case "extern"_hs:
-      ret = ast_create_func_decl(_cs);
+      ret = FunctionDecl::Create();
       break;
     case "import"_hs:
-      ret = ast_create_import(_cs);
+      ret = Import::Create();
       break;
     case "if"_hs:
-      ret = ast_create_if(_cs);
+      ret = If::Create();
       break;
-    case "else"_hs:
-      ret = ast_create_else(_cs);
-      break;
+      /// else clause should be covered by If statement
     case "return"_hs:
-      ret = ast_create_return(_cs);
+      ret = Return::Create();
       break;
     case "while"_hs:
     case "for"_hs:
-      ret = ast_create_loop(_cs);
+      ret = Loop::Create();
       break;
     case "struct"_hs:
-      ret = ast_create_struct_decl(_cs);
+      ret = StructDecl::Create();
       break;
     case "break"_hs:
-      ret = ast_create_break(_cs);
+      ret = Break::Create();
       break;
     case "continue"_hs:
-      ret = ast_create_continue(_cs);
+      ret = Continue::Create();
       break;
     case "as"_hs:
-      ret = ast_create_cast(_cs);
+      ret = BinaryOperator::Create(BinaryOpKind::CAST);
       break;
     default:
       return nullptr;
@@ -80,7 +79,7 @@ ParsableASTNodePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   return ret;
 }
 
-ParsableASTNodePtr ParserImpl::peek(size_t &index) {
+ASTBasePtr ParserImpl::peek(size_t &index) {
   if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
@@ -91,54 +90,100 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   // check if there are tokens after the comment
   if (index >= _tokens.size()) { return nullptr; }
 
-  ParsableASTNodePtr node = nullptr;
+  ASTBasePtr node = nullptr;
   if (token->value == "@") { /// intrinsics
-    node = ast_create_intrinsic(_cs);
+    node = Intrinsic::Create();
   } else if (token->value == "=" && token->type == TokenType::BOP) {
-    node = ast_create_assignment(_cs);
-  } else if (token->value == "!" || token->value == "~") {
-    node = ast_create_not(_cs);
+    node = BinaryOperator::Create(BinaryOpKind::ASSIGN);
+  } else if (token->value == "!") { /// logical not
+    node = UnaryOperator::Create(UnaryOpKind::LNOT);
+  } else if (token->value == "~") { /// binary not
+    node = UnaryOperator::Create(UnaryOpKind::BNOT);
   } else if (token->value == "[") {
     auto prev = this->at(index - 1);
     if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
       /// array literal if there is no identifier, "]", or ")" before
-      node = ast_create_array_literal(_cs);
+      node = ArrayLiteral::Create();
     } else {
       /// otherwise bracket access
-      node = ast_create_member_access(_cs);
+      node = MemberAccess::Create();
     }
   } else if (token->type == TokenType::RELOP) { /// comparisons
-    node = ast_create_comparison(_cs, token->value);
+    BinaryOpKind op = BinaryOpKind::INVALID;
+    switch (hashed_string{token->value.c_str()}) {
+      case ">"_hs:
+        op = BinaryOpKind::GT;
+        break;
+      case ">="_hs:
+        op = BinaryOpKind::GE;
+        break;
+      case "<"_hs:
+        op = BinaryOpKind::LT;
+        break;
+      case "<="_hs:
+        op = BinaryOpKind::LE;
+        break;
+      case "=="_hs:
+        op = BinaryOpKind::EQ;
+        break;
+      case "!="_hs:
+        op = BinaryOpKind::NE;
+        break;
+      default:
+        return nullptr;
+    }
+    node = BinaryOperator::Create(op);
   } else if (token->type == TokenType::INT) {
-    node = ast_create_numeric_literal(_cs, (uint64_t) std::stol(token->value), token->is_unsigned);
+    node = IntegerLiteral::Create((uint64_t) std::stol(token->value), token->is_unsigned);
   } else if (token->type == TokenType::FLOAT) {
-    node = ast_create_numeric_literal(_cs, std::stod(token->value));
+    node = FloatLiteral::Create(std::stod(token->value));
   } else if (token->type == TokenType::STRING) { /// string literal
-    node = ast_create_string_literal(_cs, token->value);
+    node = StringLiteral::Create(token->value);
   } else if (token->type == TokenType::CHAR) { /// char literal
-    node = ast_create_char_literal(_cs, token->value[0]);
+    node = CharLiteral::Create(static_cast<uint8_t>(token->value[0]));
   } else if (check_typename_token(token)) { /// types, must be before ID
-    node = ast_create_ty(_cs);
+    node = ASTType::Create();
   } else if (token->type == TokenType::ID) {
     Token *next = _tokens[index + 1];
     if (next->value == "(") {
-      node = ast_create_func_call(_cs);
+      node = FunctionCall::Create();
     } else {
-      node = ast_create_identifier(_cs, token->value);
+      node = Identifier::Create(token->value);
     }
   } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
-    node = ast_create_parenthesis(_cs);
+    node = Parenthesis::Create();
   } else if (token->type == TokenType::KEYWORD) { /// keywords
     node = peek_keyword(token, index);
     if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
   } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
-    node = ast_create_member_access(_cs);
+    node = MemberAccess::Create();
   } else if (token->value == "&") {
-    node = ast_create_ampersand(_cs);
+    /// BOP or UOP? ambiguous
+    node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
-    node = ast_create_statement(_cs);
+    node = CompoundStmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
-    node = ast_create_arithmetic(_cs, token->value);
+    switch (hashed_string{token->value.c_str()}) {
+      case "*"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::MULTIPLY);
+        break;
+      case "/"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE);
+        break;
+      case "%"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::MOD);
+        break;
+      case "+"_hs:
+        /// BOP or UOP? ambiguous
+        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        break;
+      case "-"_hs:
+        /// BOP or UOP? ambiguous
+        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        break;
+      default:
+        return nullptr;
+    }
   } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
     return nullptr;
   } else {
@@ -149,8 +194,8 @@ ParsableASTNodePtr ParserImpl::peek(size_t &index) {
   return node;
 }
 
-ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
-  ParsableASTNodePtr node = peek(index);
+ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
+  ASTBasePtr node = peek(index);
   ++index;
   if (!node) { return nullptr; }
   auto n = node;
@@ -169,168 +214,97 @@ ParsableASTNodePtr ParserImpl::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
-  if (p->get_token() != nullptr) { // TODO: store this in a map
+  if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
+    // hack
+    size_t start_index = p->_start_index;
+    size_t end_index = p->_end_index;
+    Token *token = p->get_token();
+    auto &pp = const_cast<ASTBasePtr &>(p);
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        p->set_node_type(ASTType::ADDRESS_OF);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+        pp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
         break;
-      case "!"_hs:
-        p->set_node_type(ASTType::LNOT);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+      case "+"_hs:
+        pp = UnaryOperator::Create(UnaryOpKind::PLUS);
         break;
-      case "~"_hs:
-        p->set_node_type(ASTType::BNOT);
-        p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
+      case "-"_hs:
+        pp = UnaryOperator::Create(UnaryOpKind::MINUS);
         break;
       default:
+        TAN_ASSERT(false);
         break;
     }
+    pp->_start_index = start_index;
+    pp->_end_index = end_index;
+    pp->set_token(token);
   }
 
   switch (p->get_node_type()) {
-    case ASTType::PROGRAM: {
-      while (!eof(p->_end_index)) {
-        auto stmt = ast_create_statement(_cs);
-        stmt->set_token(at(p->_end_index));
-        stmt->_start_index = p->_end_index;
-        p->_end_index = parse_node(stmt);
-        p->append_child(stmt);
-      }
+    case ASTNodeType::PROGRAM:
+      parse_program(p);
       break;
-    }
-    case ASTType::STATEMENT: {
-      if (at(p->_end_index)->value == "{") { /// compound statement
-        ++p->_end_index; /// skip "{"
-        while (!eof(p->_end_index)) {
-          auto node = peek(p->_end_index);
-          while (node) { /// stops at a terminal token
-            p->append_child(next_expression(p->_end_index, PREC_LOWEST));
-            node = peek(p->_end_index);
-          }
-          if (at(p->_end_index)->value == "}") {
-            ++p->_end_index; /// skip "}"
-            break;
-          }
-          ++p->_end_index;
-        }
-      } else { /// single statement
-        auto node = peek(p->_end_index);
-        while (node) { /// stops at a terminal token
-          p->append_child(next_expression(p->_end_index, PREC_LOWEST));
-          node = peek(p->_end_index);
-        }
-        ++p->_end_index; /// skip ';'
-      }
+    case ASTNodeType::STATEMENT:
+      parse_stmt(p);
       break;
-    }
-    case ASTType::PARENTHESIS: {
-      ++p->_end_index; /// skip "("
-      while (true) {
-        auto *t = at(p->_end_index);
-        if (!t) {
-          error(p->_end_index - 1, "Unexpected EOF");
-        } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
-          ++p->_end_index;
-          break;
-        }
-        // FIXME: multiple expressions in the parenthesis?
-
-        /// NOTE: parenthesis without child expression inside are illegal (except function call)
-        auto n = next_expression(p->_end_index, PREC_LOWEST);
-        if (n) {
-          p->append_child(n);
-        } else {
-          error(p->_end_index, "Unexpected " + t->to_string());
-        }
-      }
+    case ASTNodeType::PARENTHESIS:
+      parse_parenthesis(p);
       break;
-    }
-    case ASTType::IMPORT: {
+    case ASTNodeType::IMPORT:
       parse_import(p);
       break;
-    }
-    case ASTType::INTRINSIC: {
+    case ASTNodeType::INTRINSIC:
       parse_intrinsic(p);
       break;
-    }
-      ////////////////////////// control flow ////////////////////////////////
-    case ASTType::IF: {
+    case ASTNodeType::IF:
       parse_if(p);
       break;
-    }
-    case ASTType::ELSE: {
-      parse_else(p);
-      break;
-    }
-    case ASTType::LOOP: {
+    case ASTNodeType::LOOP:
       parse_loop(p);
       break;
-    }
-      ////////////////////////// prefix ////////////////////////////////
-    case ASTType::ADDRESS_OF:
-    case ASTType::LNOT:
-    case ASTType::BNOT:
-    case ASTType::RET: {
-      ++p->_end_index;
-      p->append_child(next_expression(p->_end_index));
+    case ASTNodeType::UOP:
+      parse_uop(p);
       break;
-    }
-    case ASTType::SUM: /// unary +
-    case ASTType::SUBTRACT: { /// unary -
-      ++p->_end_index; /// skip "-" or "+"
-      /// higher precedence than infix plus/minus
-      p->set_lbp(PREC_UNARY);
-      auto rhs = next_expression(p->_end_index, p->get_lbp());
-      if (!rhs) { error(p->_end_index, "Invalid operand"); }
-      p->append_child(rhs);
+    case ASTNodeType::RET:
+      parse_return(p);
       break;
-    }
-      ////////////////////////// others /////////////////////////////////
-    case ASTType::FUNC_CALL: {
+    case ASTNodeType::FUNC_CALL:
       parse_func_call(p);
       break;
-    }
-    case ASTType::ARRAY_LITERAL: {
+    case ASTNodeType::ARRAY_LITERAL:
       parse_array_literal(p);
       break;
-    }
-    case ASTType::TY: {
-      parse_ty(ast_must_cast<ASTTy>(p));
+    case ASTNodeType::TY:
+      parse_ty(ast_must_cast<ASTType>(p));
       break;
-    }
       ////////////////////////// declarations /////////////////////////////////
-    case ASTType::STRUCT_DECL: {
+    case ASTNodeType::STRUCT_DECL:
       parse_struct_decl(p);
       break;
-    }
-    case ASTType::VAR_DECL: {
+    case ASTNodeType::VAR_DECL:
       parse_var_decl(p);
       break;
-    }
-    case ASTType::ARG_DECL: {
+    case ASTNodeType::ARG_DECL:
       parse_arg_decl(p);
       break;
-    }
-    case ASTType::FUNC_DECL: {
+    case ASTNodeType::FUNC_DECL:
       parse_func_decl(p);
       break;
-    }
-    case ASTType::ENUM_DECL: {
-      parse_enum_decl(p);
+    case ASTNodeType::ENUM_DECL:
+      // parse_enum_decl(p);
+      TAN_ASSERT(false);
       break;
-    }
       /////////////////////////////// trivially parsed ASTs ///////////////////////////////////
-    case ASTType::BREAK:
-    case ASTType::CONTINUE:
-    case ASTType::ID:
-    case ASTType::NUM_LITERAL:
-    case ASTType::CHAR_LITERAL:
-    case ASTType::STRING_LITERAL:
+    case ASTNodeType::BREAK:
+    case ASTNodeType::CONTINUE:
+    case ASTNodeType::ID:
+    case ASTNodeType::INTEGER_LITERAL:
+    case ASTNodeType::FLOAT_LITERAL:
+    case ASTNodeType::CHAR_LITERAL:
+    case ASTNodeType::STRING_LITERAL:
       ++p->_end_index;
       break;
     default:
@@ -339,53 +313,47 @@ size_t ParserImpl::parse_node(const ParsableASTNodePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_node(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
+size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
-  switch (hashed_string{p->get_token_str().c_str()}) {
-    case "&"_hs:
-      p->set_node_type(ASTType::BAND);
-      p->set_lbp(ASTNode::OpPrecedence[p->get_node_type()]);
-      break;
-    default:
-      break;
+  if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
+    // hack
+    size_t start_index = p->_start_index;
+    size_t end_index = p->_end_index;
+    Token *token = p->get_token();
+    auto &pp = const_cast<ASTBasePtr &>(p);
+    switch (hashed_string{p->get_token_str().c_str()}) {
+      case "&"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::BAND);
+        break;
+      case "+"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::SUM);
+        break;
+      case "-"_hs:
+        pp = BinaryOperator::Create(BinaryOpKind::SUBTRACT);
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+    pp->_start_index = start_index;
+    pp->_end_index = end_index;
+    pp->set_token(token);
   }
 
   switch (p->get_node_type()) {
-    case ASTType::MEMBER_ACCESS: {
-      parse_member_access(left, p);
+    case ASTNodeType::BOP:
+      parse_bop(left, p);
       break;
-    }
-    case ASTType::BAND:
-    case ASTType::CAST:
-    case ASTType::ASSIGN:
-    case ASTType::GT:
-    case ASTType::GE:
-    case ASTType::LT:
-    case ASTType::LE:
-    case ASTType::EQ:
-    case ASTType::NE:
-    case ASTType::SUM:
-    case ASTType::SUBTRACT:
-    case ASTType::MULTIPLY:
-    case ASTType::DIVIDE:
-    case ASTType::MOD: {
-      ++p->_end_index; /// skip operator
-      p->append_child(left); /// lhs
-      auto n = next_expression(p->_end_index, p->get_lbp());
-      if (!n) { error(p->_end_index, "Invalid operand"); }
-      p->append_child(n);
-      break;
-    }
     default:
       break;
   }
   return p->_end_index;
 }
 
-ParsableASTNodePtr ParserImpl::parse() {
-  _root = ast_create_program(_cs);
+ASTBasePtr ParserImpl::parse() {
+  _root = Program::Create();
   parse_node(_root);
   return _root;
 }
@@ -400,3 +368,27 @@ str ParserImpl::get_filename() const { return _filename; }
 bool ParserImpl::eof(size_t index) const { return index >= _tokens.size(); }
 
 void ParserImpl::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
+
+ExprPtr ParserImpl::expect_expression(const ASTBasePtr &p) {
+  ExprPtr ret = nullptr;
+  if (!(ret = ast_cast<Expr>(p))) {
+    error(p->_end_index, "Expect an expression");
+  }
+  return ret;
+}
+
+StmtPtr ParserImpl::expect_stmt(const ASTBasePtr &p) {
+  StmtPtr ret = nullptr;
+  if (!(ret = ast_cast<Stmt>(p))) {
+    error(p->_end_index, "Expect a statement");
+  }
+  return ret;
+}
+
+DeclPtr ParserImpl::expect_decl(const ASTBasePtr &p) {
+  DeclPtr ret = nullptr;
+  if (!(ret = ast_cast<Decl>(p))) {
+    error(p->_end_index, "Expect a declaration");
+  }
+  return ret;
+}

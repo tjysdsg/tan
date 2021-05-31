@@ -4,10 +4,10 @@
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTNode);
+AST_FWD_DECL(ASTBase);
 
 struct Scope {
-  umap<str, ASTNodePtr> _named{}; /// named identifiers in this scope
+  umap<str, ASTBasePtr> _named{}; /// named identifiers in this scope
 };
 
 } // namespace tanlang

@@ -1,9 +1,8 @@
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
 #include "compiler_session.h"
 #include "parser.h"
-#include "src/ast/factory.h"
-#include "src/ast/ast_func.h"
-#include "src/ast/ast_ty.h"
+#include "src/ast/decl.h"
+#include "src/ast/ast_type.h"
 #include "src/compiler/stack_trace.h"
 #include "token.h"
 #include <iostream>
@@ -24,14 +23,29 @@ static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(CompilerSession *cs) {
-  cs->add_function(ASTFunction::CreateExtern("compprint", {create_ty(cs, Ty::VOID), create_ty(cs, Ty::STRING)}));
+  cs->add_function(FunctionDecl::Create("compprint",
+      ASTType::Create(cs, Ty::VOID),
+      {ASTType::Create(cs, Ty::STRING),},
+      true,
+      false));
 }
 
-/// add _codegen for function definition if a new function-like intrinsic is added
 void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_noop(cs);
   init_abort(cs);
 }
+
+ptr<Intrinsic> Intrinsic::Create() { return make_ptr<Intrinsic>(); }
+
+Intrinsic::Intrinsic() : ASTBase(ASTNodeType::INTRINSIC, 0) {}
+
+IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
+
+void Intrinsic::set_intrinsic_type(IntrinsicType intrinsic_type) { _intrinsic_type = intrinsic_type; }
+
+const ASTBasePtr &Intrinsic::get_sub() const { return _sub; }
+
+void Intrinsic::set_sub(const ASTBasePtr &sub) { _sub = sub; }
 
 static void init_abort(CompilerSession *cs) {
   Function *abort_func = cs->get_module()->getFunction("abort");

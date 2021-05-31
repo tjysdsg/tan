@@ -1,29 +1,32 @@
-#include "src/ast/ast_ty.h"
+#include "src/analysis/type_system.h"
+#include "src/ast/ast_type.h"
 #include "parser.h"
 #include "token.h"
 #include "compiler_session.h"
 
 using namespace tanlang;
 
-ASTTyPtr ASTTy::find_cache(Ty t, const vector<ASTTyPtr> &sub_tys, bool is_lvalue) {
-  auto find = ASTTy::_cache.find(t);
-  if (find == ASTTy::_cache.end()) { return nullptr; }
+/*
+ASTTypePtr ASTType::find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue) {
+  auto find = ASTType::_cache.find(t);
+  if (find == ASTType::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
   auto ret = find->second;
 
-  if (sub_tys.size() != ret->get_children_size()) { return nullptr; }
+  if (sub_tys.size() != ret->_sub_types.size()) { return nullptr; }
   size_t idx = 0;
   for (const auto &sub : sub_tys) {
     auto t1 = sub;
-    auto t2 = ret->get_child_at<ASTTy>(idx);
+    auto t2 = ret->get_child_at<ASTType>(idx);
     if (t1->_tyty != t2->_tyty) { return nullptr; }
     if (t1->_is_lvalue != t2->_is_lvalue) { return nullptr; }
     ++idx;
   }
   return ret;
 }
+ */
 
-bool ASTTy::operator==(const ASTTy &other) {
+bool ASTType::operator==(const ASTType &other) {
   #define CHECK(val) if (this->val != other.val) { return false; }
   CHECK(_size_bits)
   CHECK(_align_bits)
@@ -38,21 +41,19 @@ bool ASTTy::operator==(const ASTTy &other) {
   CHECK(_is_enum);
   #undef CHECK
 
-  if (get_children_size() > 0) {
-    size_t n = get_children_size();
-    if (n != other.get_children_size()) { return false; }
+  if (_sub_types.size() > 0) {
+    size_t n = _sub_types.size();
+    if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      auto lhs = get_child_at<ASTTy>(i);
-      TAN_ASSERT(lhs);
-      auto rhs = other.get_child_at<ASTTy>(i);
-      TAN_ASSERT(rhs);
+      ASTTypePtr lhs = _sub_types[i];
+      ASTTypePtr rhs = other._sub_types[i];
       if (!lhs->operator==(*rhs)) { return false; }
     }
   }
   return true;
 }
 
-str ASTTy::to_string(bool print_prefix) {
+str ASTType::to_string(bool print_prefix) {
   str ret = "";
   if (print_prefix) {
     ret += "Type: ";
@@ -61,9 +62,9 @@ str ASTTy::to_string(bool print_prefix) {
   return ret;
 }
 
-bool ASTTy::operator!=(const ASTTy &other) { return !this->operator==(other); }
+bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-umap<str, Ty>ASTTy::basic_tys =
+umap<str, Ty>ASTType::basic_tys =
     {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
         {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
         {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
@@ -71,8 +72,18 @@ umap<str, Ty>ASTTy::basic_tys =
         {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
         {"bool", Ty::BOOL},};
 
-umap<str, Ty> ASTTy::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTTy::ASTTy() {
-  set_node_type(ASTType::TY);
+ASTType::ASTType() : ASTBase(ASTNodeType::TY, 0) {}
+
+ASTTypePtr ASTType::Create() { return make_ptr<ASTType>(); }
+
+ASTTypePtr ASTType::Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys, bool is_lvalue) {
+  // TODO: cache
+  auto ret = make_ptr<ASTType>();
+  ret->_tyty = t;
+  ret->_is_lvalue = is_lvalue;
+  ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
+  TypeSystem::ResolveTy(cs, ret);
+  return ret;
 }

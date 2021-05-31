@@ -3,7 +3,7 @@
 
 using namespace tanlang;
 
-void Analyzer::analyze(ParsableASTNodePtr p) {
+void Analyzer::analyze(ASTBasePtr p) {
   _analyzer_impl->analyze(p);
 }
 

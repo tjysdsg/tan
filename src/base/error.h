@@ -9,8 +9,8 @@ namespace tanlang {
 
 struct Token;
 class CompilerSession;
-class ParsableASTNode;
-using ParsableASTNodePtr = ptr<ParsableASTNode>;
+class ASTBase;
+using ASTBasePtr = ptr<ASTBase>;
 
 #ifdef DEBUG
 #define TAN_ASSERT(expr) (static_cast<bool>((expr)) ?  \

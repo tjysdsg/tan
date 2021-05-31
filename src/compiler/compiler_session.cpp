@@ -3,7 +3,6 @@
 #include "src/compiler/function_table.h"
 #include "compiler.h"
 #include "base.h"
-#include "src/ast/ast_node.h"
 
 using namespace tanlang;
 
@@ -54,11 +53,11 @@ ptr<Scope> CompilerSession::pop_scope() {
   return r;
 }
 
-void CompilerSession::add(const str &name, ASTNodePtr value) {
+void CompilerSession::add(const str &name, ASTBasePtr value) {
   get_current_scope()->_named[name] = value;
 }
 
-void CompilerSession::set(const str &name, ASTNodePtr value) {
+void CompilerSession::set(const str &name, ASTBasePtr value) {
   auto scope = _scope.end();
   bool found = false;
   --scope;
@@ -74,11 +73,11 @@ void CompilerSession::set(const str &name, ASTNodePtr value) {
   else { report_error("Cannot set the value of " + name); }
 }
 
-ASTNodePtr CompilerSession::get(const str &name) {
+ASTBasePtr CompilerSession::get(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  ASTNodePtr result = nullptr;
+  ASTBasePtr result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {
@@ -92,11 +91,11 @@ ASTNodePtr CompilerSession::get(const str &name) {
   return result;
 }
 
-void CompilerSession::set_type(const str &name, ASTTyPtr ty) {
+void CompilerSession::set_type(const str &name, ASTTypePtr ty) {
   _type_table[name] = ty;
 }
 
-ASTTyPtr CompilerSession::get_type(const str &name) {
+ASTTypePtr CompilerSession::get_type(const str &name) {
   TAN_ASSERT(name != "");
   return _type_table.at(name);
 }
@@ -192,7 +191,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func) {
+void CompilerSession::AddPublicFunction(const str &filename, FunctionDeclPtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
     pf[filename] = std::make_shared<FunctionTable>();
@@ -200,7 +199,7 @@ void CompilerSession::AddPublicFunction(const str &filename, ASTFunctionPtr func
   pf[filename]->set(func);
 }
 
-vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) {
+vector<FunctionDeclPtr> CompilerSession::GetPublicFunctions(const str &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
@@ -212,16 +211,16 @@ vector<ASTFunctionPtr> CompilerSession::GetPublicFunctions(const str &filename) 
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
 
-void CompilerSession::add_function(ASTFunctionPtr func) {
+void CompilerSession::add_function(FunctionDeclPtr func) {
   _function_table->set(func);
 }
 
-vector<ASTFunctionPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
+vector<FunctionDeclPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
-ptr<ASTLoop> CompilerSession::get_current_loop() const { return _current_loop; }
+LoopPtr CompilerSession::get_current_loop() const { return _current_loop; }
 
-void CompilerSession::set_current_loop(ptr<ASTLoop> loop) { _current_loop = loop; }
+void CompilerSession::set_current_loop(LoopPtr loop) { _current_loop = loop; }

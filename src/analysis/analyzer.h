@@ -4,15 +4,15 @@
 
 namespace tanlang {
 
-class ParsableASTNode;
-using ParsableASTNodePtr = ptr<ParsableASTNode>;
+class ASTBase;
+using ASTBasePtr = ptr<ASTBase>;
 class AnalyzerImpl;
 
 class Analyzer {
 public:
   Analyzer(CompilerSession *cs);
   ~Analyzer();
-  void analyze(ParsableASTNodePtr p);
+  void analyze(ASTBasePtr p);
 
 private:
   AnalyzerImpl *_analyzer_impl = nullptr;

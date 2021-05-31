@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
 #include "base.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/ast_node_type.h"
 #include <array>
 
 namespace llvm {
@@ -13,22 +13,24 @@ class Value;
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTTy);
+AST_FWD_DECL(ASTType);
 
 class TypeSystem {
 public:
-  static constexpr std::array LiteralTypes = {ASTType::NUM_LITERAL, ASTType::STRING_LITERAL, ASTType::ARRAY_LITERAL,};
+  static constexpr std::array LiteralTypes =
+      {ASTNodeType::INTEGER_LITERAL, ASTNodeType::FLOAT_LITERAL, ASTNodeType::STRING_LITERAL,
+          ASTNodeType::ARRAY_LITERAL};
 
   /**
    * \brief Find out which type should a value be implicitly cast to.
    * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
    * */
-  static int CanImplicitCast(CompilerSession *cs, ASTTyPtr t1, ASTTyPtr t2);
+  static int CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t2);
 
   /**
-   * \brief Set the fields of an ASTTy according to the type and target machine
+   * \brief Set the fields of an ASTType according to the type and target machine
    */
-  static void ResolveTy(CompilerSession *cs, ASTTyPtr p);
+  static void ResolveTy(CompilerSession *cs, ASTTypePtr p);
 
   /**
    * \brief Convert a value to from orig type to dest type.
@@ -39,13 +41,15 @@ public:
    * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
    * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTTyPtr orig, ASTTyPtr dest);
+  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTTypePtr orig, ASTTypePtr dest);
 
-  static llvm::Type *ToLLVMType(CompilerSession *cs, const ASTTyPtr &p);
+  static llvm::Type *ToLLVMType(CompilerSession *cs, const ASTTypePtr &p);
 
-  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTyPtr &p);
+  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p);
 
-  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *, llvm::Metadata *ret, vector<llvm::Metadata *> args);
+  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *,
+      llvm::Metadata *ret,
+      vector<llvm::Metadata *> args);
 };
 
 } // namespace

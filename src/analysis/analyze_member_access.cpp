@@ -1,92 +1,101 @@
 #include "analyzer_impl.h"
-#include "src/ast/ast_ty.h"
-#include "compiler_session.h"
-#include "src/ast/factory.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_type.h"
+#include "src/ast/expr.h"
+#include "src/ast/decl.h"
+#include "src/ast/ast_struct.h"
 #include "src/analysis/type_system.h"
-#include "src/ast/ast_member_access.h"
+#include "compiler_session.h"
 #include <fmt/core.h>
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_member_access(const ParsableASTNodePtr &p) {
-  auto np = ast_must_cast<ASTNode>(p);
+void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
+  ptr<Expr> lhs = p->get_lhs();
+  ptr<Expr> rhs = p->get_rhs();
 
-  auto lhs = p->get_child_at(0);
-  auto pma = ast_must_cast<ASTMemberAccess>(p);
-
-  if (pma->_access_type == MemberAccessType::MemberAccessDeref) { /// pointer dereference
-    auto ty = _h.get_ty(lhs);
+  if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
+    auto ty = lhs->get_type();
     TAN_ASSERT(ty->_is_ptr);
-    ty = make_ptr<ASTTy>(*_h.get_contained_ty(ty));
+    ty = copy_ty(_h.get_contained_ty(ty));
     ty->_is_lvalue = true;
-    np->_ty = ty;
-  } else if (pma->_access_type == MemberAccessType::MemberAccessBracket) {
-    auto rhs = p->get_child_at(1);
-
-    ASTTyPtr ty = _h.get_ty(lhs);
+    p->set_type(ty);
+  } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
+    auto ty = lhs->get_type();
     if (!ty->_is_ptr) {
       report_error(p, "Expect a pointer or an array");
     }
 
-    ty = make_ptr<ASTTy>(*_h.get_contained_ty(ty));
+    ty = copy_ty(_h.get_contained_ty(ty));
     ty->_is_lvalue = true;
     if (!ty) {
       report_error(p, "Unable to perform bracket access");
     }
 
-    np->_ty = ty;
-    if (rhs->get_node_type() == ASTType::NUM_LITERAL) {
-      if (!_h.get_ty(rhs)->_is_int) {
-        report_error(p, "Expect an integer specifying array size");
-      }
-      auto size = rhs->get_data<uint64_t>(); // underflow is ok
-      if (_h.get_ty(rhs)->_is_array && size >= _h.get_ty(lhs)->_array_size) {
+    p->set_type(ty);
+    if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
+      auto size_node = ast_must_cast<IntegerLiteral>(rhs);
+      auto size = size_node->get_value(); // underflow is ok
+      if (rhs->get_type()->_is_array && size >= lhs->get_type()->_array_size) {
         report_error(p,
             fmt::format("Index {} out of bound, the array size is {}",
                 std::to_string(size),
-                std::to_string(_h.get_ty(lhs)->_array_size)));
+                std::to_string(lhs->get_type()->_array_size)));
       }
-    }
-  } else if (p->get_child_at(1)->get_node_type() == ASTType::ID) { /// member variable or enum
-    auto rhs = p->get_child_at(1);
-    if (_h.get_ty(lhs)->_is_enum) {
-      // TODO: Member access of enums
     } else {
-      pma->_access_type = MemberAccessType::MemberAccessMemberVariable;
-      if (!_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
+      report_error(p, "Expect an integer specifying array size");
+    }
+  } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
+    if (lhs->get_type()->_is_enum) {
+      // TODO: Member access of enums
+      TAN_ASSERT(false);
+    } else {
+      p->_access_type = MemberAccess::MemberAccessMemberVariable;
+      if (!lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
         report_error(p, "Invalid left-hand operand");
       }
 
-      str m_name = rhs->get_data<str>();
-      std::shared_ptr<ASTTy> struct_ast = nullptr;
+      str m_name = ast_must_cast<Identifier>(rhs)->get_name();
+      ASTTypePtr _struct_ast = nullptr;
+      ASTStructPtr struct_ast = nullptr;
       /// auto dereference pointers
-      if (_h.get_ty(lhs)->_is_ptr) {
-        struct_ast = _cs->get_type(_h.get_contained_ty(_h.get_ty(lhs))->_type_name);
+      if (lhs->get_type()->_is_ptr) {
+        _struct_ast = _cs->get_type(_h.get_contained_ty(lhs->get_type())->_type_name);
       } else {
-        struct_ast = _cs->get_type(_h.get_ty(lhs)->_type_name);
+        _struct_ast = _cs->get_type(lhs->get_type()->_type_name);
       }
-      TAN_ASSERT(struct_ast);
-      pma->_access_idx = _h.get_struct_member_index(struct_ast, m_name);
-      np->_ty = make_ptr<ASTTy>(*_h.get_struct_member_ty(struct_ast, pma->_access_idx));
-      np->_ty->_is_lvalue = true;
+      if (!(struct_ast = ast_cast<ASTStruct>(_struct_ast))) {
+        report_error(_struct_ast, "Expect a struct type");
+      }
+      p->_access_idx = _h.get_struct_member_index(struct_ast, m_name);
+      auto ty = copy_ty(_h.get_struct_member_ty(struct_ast, p->_access_idx));
+      ty->_is_lvalue = true;
+      p->set_type(ty);
     }
-  } else if (pma->_access_type == MemberAccessType::MemberAccessMemberFunction) { /// method call
-    auto rhs = p->get_child_at(1);
-    if (!_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
+  } else if (p->_access_type == MemberAccess::MemberAccessMemberFunction) { /// method call
+    if (!lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
       report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
     }
-    /// get address of the struct instance
-    if (_h.get_ty(lhs)->_is_lvalue && !_h.get_ty(lhs)->_is_ptr) {
-      ASTNodePtr tmp = ast_create_address_of(_cs, lhs);
-      analyze(tmp);
-      rhs->get_children().insert(rhs->get_children().begin(), tmp);
-    } else {
-      rhs->get_children().insert(rhs->get_children().begin(), lhs);
+    auto func_call = ast_cast<FunctionCall>(rhs);
+    if (!func_call) {
+      report_error(rhs, "Expect a function call");
     }
-    /// TODO: postpone analysis of FUNC_CALL until now
+
+    /// get address of the struct instance
+    if (lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
+      ptr<Expr> tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs);
+      tmp->_start_index = lhs->_start_index;
+      tmp->_end_index = lhs->_end_index;
+      tmp->set_token(lhs->get_token());
+      analyze(tmp);
+
+      func_call->_args.push_back(tmp);
+    } else {
+      func_call->_args.push_back(lhs);
+    }
+
+    /// postpone analysis of FUNC_CALL until now
     analyze(rhs);
-    np->_ty = _h.get_ty(rhs);
+    p->set_type(copy_ty(rhs->get_type()));
   } else {
     report_error(p, "Invalid right-hand operand");
   }

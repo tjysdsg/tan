@@ -1,182 +1,206 @@
 #include "analyzer_impl.h"
-#include "src/ast/ast_ty.h"
-#include "compiler_session.h"
-#include "src/ast/factory.h"
-#include "src/ast/parsable_ast_node.h"
+#include "src/ast/ast_type.h"
+#include "src/ast/ast_base.h"
+#include "src/ast/expr.h"
+#include "src/ast/stmt.h"
+#include "src/ast/decl.h"
 #include "src/analysis/type_system.h"
+#include "compiler_session.h"
 #include "src/common.h"
 #include "token.h"
 
 using namespace tanlang;
 
-ASTTyPtr AnalyzerImpl::copy_ty(const ASTTyPtr &p) const {
-  return make_ptr<ASTTy>(*p);
+ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const {
+  return make_ptr<ASTType>(*p);
 }
 
-void AnalyzerImpl::analyze(const ParsableASTNodePtr &p) {
+void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   p->set_scope(_cs->get_current_scope());
-  ASTNodePtr np = _h.try_convert_to_ast_node(p);
-
-  /// children will not be automatically parsed for FUNC_DECL or ASSIGN
-  vector<ASTType> tmp = {ASTType::FUNC_DECL, ASTType::ASSIGN};
-  if (!std::any_of(tmp.begin(), tmp.end(), [p](ASTType i) { return i == p->get_node_type(); })) {
-    for (auto &sub: p->get_children()) {
-      analyze(sub);
-    }
-  }
 
   switch (p->get_node_type()) {
-    /////////////////////////// binary ops ///////////////////////////////////
-    // TODO: create a new ASTType for unary plus and minus
-    case ASTType::SUM:
-    case ASTType::SUBTRACT: {
-      /// unary plus/minus
-      if (p->get_children_size() == 1) {
-        np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
-        np->_ty->_is_lvalue = false;
-        break;
-      }
-    }
-      // fallthrough
-    case ASTType::MULTIPLY:
-    case ASTType::DIVIDE:
-    case ASTType::MOD: {
-      int i = TypeSystem::CanImplicitCast(_cs, _h.get_ty(p->get_child_at(0)), _h.get_ty(p->get_child_at(1)));
-      if (i == -1) {
-        report_error(p, "Cannot perform implicit type conversion");
-      }
-
-      size_t dominant_idx = static_cast<size_t>(i);
-      np->_dominant_idx = dominant_idx;
-      np->_ty = copy_ty(_h.get_ty(p->get_child_at(dominant_idx)));
-      np->_ty->_is_lvalue = false;
+    case ASTNodeType::PROGRAM:
+    case ASTNodeType::STATEMENT:
+      analyze_stmt(p);
       break;
-    }
-    case ASTType::GT:
-    case ASTType::GE:
-    case ASTType::LT:
-    case ASTType::LE:
-    case ASTType::EQ:
-    case ASTType::NE:
-      np->_ty = create_ty(_cs, Ty::BOOL);
+    case ASTNodeType::BOP:
+      analyze_bop(p);
       break;
-    case ASTType::ASSIGN:
-      analyze_assignment(p);
+    case ASTNodeType::UOP:
+      analyze_uop(p);
       break;
-    case ASTType::CAST: {
-      np->_ty = copy_ty(_h.get_ty(p->get_child_at(1)));
-      np->_ty->_is_lvalue = _h.get_ty(p->get_child_at(0))->_is_lvalue;
-      // FIXME: check if can explicit cast
-      // if (TypeSystem::CanImplicitCast(_cs, np->_ty, _h.get_ty(p->get_child_at(0))) != 0) {
-      //   report_error(p, "Cannot perform implicit type conversion");
-      // }
+    case ASTNodeType::RET:
+      analyze_ret(p);
       break;
-    }
-    case ASTType::MEMBER_ACCESS:
-      analyze_member_access(p);
+    case ASTNodeType::ID:
+      analyze_id(p);
       break;
-      /////////////////////////// unary ops ////////////////////////////////////
-    case ASTType::RET:
-      // TODO: check if return type can be implicitly cast to function return type
-      break;
-    case ASTType::LNOT:
-      np->_ty = create_ty(_cs, Ty::BOOL);
-      break;
-    case ASTType::BNOT:
-      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
-      break;
-    case ASTType::ADDRESS_OF: {
-      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
-      if (!np->_ty) {
-        report_error(p, "Invalid operand");
-      }
-      np->_ty = _h.get_ptr_to(np->_ty);
-      break;
-    }
-    case ASTType::ID: {
-      auto referred = _h.get_id_referred(ast_must_cast<ASTNode>(p));
-      if (!referred) {
-        report_error(p, "Unknown identifier");
-      }
-      p->append_child(referred);
-      np->_ty = copy_ty(referred->_ty);
-      np->_ty->_is_lvalue = true;
-      break;
-    }
-      //////////////////////// literals ///////////////////////////////////////
-    case ASTType::STRING_LITERAL:
+    case ASTNodeType::STRING_LITERAL:
       analyze_string_literal(p);
       break;
-    case ASTType::CHAR_LITERAL:
+    case ASTNodeType::CHAR_LITERAL:
       analyze_char_literal(p);
       break;
-    case ASTType::NUM_LITERAL:
-      analyze_num_literal(p);
+    case ASTNodeType::INTEGER_LITERAL:
+      analyze_integer_literal(p);
       break;
-    case ASTType::ARRAY_LITERAL:
+    case ASTNodeType::FLOAT_LITERAL:
+      analyze_float_literal(p);
+      break;
+    case ASTNodeType::ARRAY_LITERAL:
       analyze_array_literal(p);
       break;
-      ////////////////////////// keywords ///////////////////////////
-    case ASTType::IF: {
-      auto cond = p->get_child_at(0);
-      if (0 != TypeSystem::CanImplicitCast(_cs, create_ty(_cs, Ty::BOOL), _h.get_ty(cond))) {
-        report_error(p, "Cannot convert type to bool");
-      }
+    case ASTNodeType::IF:
+      analyze_if(p);
       break;
-    }
-      // TODO: cs->set_current_loop(pl) // case ASTType::LOOP:
-      // TODO: cs->get_current_loop() // case ASTType::BREAK (or CONTINUE):
+      // TODO: cs->set_current_loop(pl) // case ASTNodeType::LOOP:
+      // TODO: cs->get_current_loop() // case ASTNodeType::BREAK (or CONTINUE):
       ////////////////////////// others ///////////////////////////
-    case ASTType::INTRINSIC: {
+    case ASTNodeType::INTRINSIC:
       analyze_intrinsic(p);
       break;
-    }
-    case ASTType::IMPORT:
+    case ASTNodeType::IMPORT:
       analyze_import(p);
       break;
-    case ASTType::PARENTHESIS:
-      np->_ty = copy_ty(_h.get_ty(p->get_child_at(0)));
+    case ASTNodeType::PARENTHESIS:
+      analyze_parenthesis(p);
       break;
-    case ASTType::FUNC_CALL:
+    case ASTNodeType::FUNC_CALL:
       analyze_func_call(p);
       break;
-    case ASTType::TY: {
-      ASTTyPtr pt = ast_must_cast<ASTTy>(p);
-      resolve_ty(pt);
+    case ASTNodeType::TY:
+      resolve_ty(ast_must_cast<ASTType>(p));
       break;
-    }
-      ////////////////////////// declarations ///////////////////////////
-    case ASTType::ENUM_DECL: {
+    case ASTNodeType::ENUM_DECL:
       // TODO: Analysis of enum types and values
       break;
-    }
-    case ASTType::FUNC_DECL:
+    case ASTNodeType::FUNC_DECL:
       analyze_func_decl(p);
       break;
-    case ASTType::ARG_DECL:
-    case ASTType::VAR_DECL: {
-      ASTTyPtr ty = _h.get_ty(p);
-      ty->_is_lvalue = true;
-      resolve_ty(ty);
-      _cs->add(p->get_data<str>(), ast_must_cast<ASTNode>(p));
+    case ASTNodeType::ARG_DECL:
+      analyze_arg_decl(p);
       break;
-    }
-    case ASTType::STRUCT_DECL:
-      analyze_struct(p);
+    case ASTNodeType::VAR_DECL:
+      analyze_var_decl(p);
       break;
-      /////////////////////// trivially analysed /////////////////////////////
+    case ASTNodeType::STRUCT_DECL:
+      analyze_struct_decl(p);
+      break;
+    case ASTNodeType::CONTINUE:
+    case ASTNodeType::BREAK:
+      break;
     default:
+      TAN_ASSERT(false);
       break;
   }
 }
 
-void AnalyzerImpl::resolve_ty(const ASTTyPtr &p) const {
+void AnalyzerImpl::resolve_ty(const ASTTypePtr &p) const {
   TypeSystem::ResolveTy(_cs, p);
 }
 
-AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {
+AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
+
+void AnalyzerImpl::report_error(const ASTBasePtr &p, const str &message) {
+  ::report_error(_cs->_filename, p->get_token(), message);
 }
 
-void AnalyzerImpl::report_error(const ParsableASTNodePtr &p, const str &message) {
-  ::report_error(_cs->_filename, p->get_token(), message);
+void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<UnaryOperator>(_p);
+  auto rhs = p->get_rhs();
+  analyze(rhs);
+
+  switch (p->get_op()) {
+    case UnaryOpKind::LNOT:
+      p->set_type(ASTType::Create(_cs, Ty::BOOL));
+      break;
+    case UnaryOpKind::BNOT:
+      p->set_type(copy_ty(rhs->get_type()));
+      break;
+    case UnaryOpKind::ADDRESS_OF: {
+      auto ty = copy_ty(rhs->get_type());
+      p->set_type(_h.get_ptr_to(ty));
+      break;
+    }
+    case UnaryOpKind::PLUS:
+    case UnaryOpKind::MINUS: {
+      /// unary plus/minus
+      auto ty = copy_ty(rhs->get_type());
+      ty->_is_lvalue = false;
+      p->set_type(ty);
+      break;
+    }
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
+}
+
+void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Identifier>(_p);
+  auto referred = _cs->get(p->get_name());
+  if (!referred) {
+    report_error(p, "Unknown identifier");
+  }
+
+  auto declared = ast_cast<Decl>(referred);
+  if (!declared) {
+    report_error(p, "Invalid identifier");
+  }
+
+  p->_referred = declared;
+  auto ty = copy_ty(declared->get_type());
+  ty->_is_lvalue = true;
+  p->set_type(ty);
+}
+
+void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<Parenthesis>(_p);
+
+  analyze(p->get_sub());
+
+  p->set_type(copy_ty(p->get_sub()->get_type()));
+}
+
+void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<If>(_p);
+
+  auto cond = p->get_predicate();
+  analyze(cond);
+
+  analyze(p->get_then());
+  if (p->get_else()) { analyze(p->get_else()); }
+
+  if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
+    report_error(p, "Cannot convert type to bool");
+  }
+}
+
+void AnalyzerImpl::analyze_var_decl(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<VarDecl>(_p);
+  ASTTypePtr ty = p->get_type();
+  ty->_is_lvalue = true;
+  analyze(ty);
+  _cs->add(p->get_name(), p);
+}
+
+void AnalyzerImpl::analyze_arg_decl(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<ArgDecl>(_p);
+  ASTTypePtr ty = p->get_type();
+  ty->_is_lvalue = true;
+  analyze(ty);
+  _cs->add(p->get_name(), p);
+}
+
+void AnalyzerImpl::analyze_ret(const ASTBasePtr &_p) {
+  // TODO: check if return type can be implicitly cast to function return type
+  auto p = ast_must_cast<Return>(_p);
+  analyze(p->get_rhs());
+}
+
+void AnalyzerImpl::analyze_stmt(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<CompoundStmt>(_p);
+  for (const auto &c: p->get_children()) {
+    analyze(c);
+  }
 }

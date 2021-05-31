@@ -1,37 +1,40 @@
 #include "base.h"
 #include "src/parser/parser_impl.h"
-#include "src/ast/ast_member_access.h"
+#include "src/ast/expr.h"
 #include "src/common.h"
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_member_access(const ParsableASTNodePtr &left, const ParsableASTNodePtr &p) {
-  auto pma = ast_cast<ASTMemberAccess>(p);
-  TAN_ASSERT(pma);
+size_t ParserImpl::parse_member_access(const ptr<Expr> &left, const ptr<MemberAccess> &p) {
   if (at(p->_end_index)->value == "[") {
-    pma->_access_type = MemberAccessType::MemberAccessBracket;
+    p->_access_type = MemberAccess::MemberAccessBracket;
   }
 
   ++p->_end_index; /// skip "." or "["
-  p->append_child(left); /// lhs
-  auto right = peek(p->_end_index);
-  p->_end_index = parse_node(right);
-  p->append_child(right);
 
-  if (pma->_access_type == MemberAccessType::MemberAccessBracket) { /// bracket access
+  /// lhs
+  p->set_lhs(left);
+
+  /// rhs
+  auto _right = peek(p->_end_index);
+  ptr<Expr> right = expect_expression(_right);
+  p->_end_index = parse_node(right);
+  p->set_rhs(right);
+
+  if (p->_access_type == MemberAccess::MemberAccessBracket) { /// bracket access
     ++p->_end_index; /// skip ]
-  } else if (pma->_access_type != MemberAccessType::MemberAccessBracket
+  } else if (p->_access_type != MemberAccess::MemberAccessBracket
       && right->get_token_str() == "*") { /// pointer dereference
-    pma->_access_type = MemberAccessType::MemberAccessDeref;
+    p->_access_type = MemberAccess::MemberAccessDeref;
     ++p->_end_index; // skip *
-  } else if (right->get_node_type() == ASTType::FUNC_CALL) { /// method call
-    pma->_access_type = MemberAccessType::MemberAccessMemberFunction;
+  } else if (right->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
+    p->_access_type = MemberAccess::MemberAccessMemberFunction;
   }
 
-  if (!(pma->_access_type == MemberAccessType::MemberAccessBracket
-      || pma->_access_type == MemberAccessType::MemberAccessMemberFunction
-      || pma->_access_type == MemberAccessType::MemberAccessDeref /// pointer dereference
-      || right->get_node_type() == ASTType::ID /// member variable or enum
+  if (!(p->_access_type == MemberAccess::MemberAccessBracket
+      || p->_access_type == MemberAccess::MemberAccessMemberFunction
+      || p->_access_type == MemberAccess::MemberAccessDeref /// pointer dereference
+      || right->get_node_type() == ASTNodeType::ID /// member variable or enum
   )) {
     error(right->_end_index, "Invalid right-hand operand");
   }

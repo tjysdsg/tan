@@ -6,11 +6,10 @@
 namespace tanlang {
 
 struct Scope;
-AST_FWD_DECL(ASTNode);
-AST_FWD_DECL(ASTTy);
-AST_FWD_DECL(ASTFunction);
+AST_FWD_DECL(ASTType);
+AST_FWD_DECL(FunctionDecl);
 AST_FWD_DECL(FunctionTable);
-AST_FWD_DECL(ASTLoop);
+AST_FWD_DECL(Loop);
 
 /**
  * \class CompilerSession
@@ -18,8 +17,8 @@ AST_FWD_DECL(ASTLoop);
  * */
 class CompilerSession final {
 public:
-  static void AddPublicFunction(const str &filename, ASTFunctionPtr func);
-  static vector<ASTFunctionPtr> GetPublicFunctions(const str &filename);
+  static void AddPublicFunction(const str &filename, FunctionDeclPtr func);
+  static vector<FunctionDeclPtr> GetPublicFunctions(const str &filename);
 
 private:
   /**
@@ -66,30 +65,30 @@ public:
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
    * */
-  void add(const str &name, ptr<ASTNode> value);
+  void add(const str &name, ptr<ASTBase> value);
 
   /**
    * \brief Register a variable
    * */
-  void set(const str &name, ptr<ASTNode> value);
+  void set(const str &name, ASTBasePtr value);
 
   /**
    * \brief look up the variable table in the current and parent scopes
    * \details This function starts by searching the current scope. If the target is not found in current scope,
    * search the parent scope, repeat the process until found. Return nullptr if not found in all visible scopes.
    * */
-  ASTNodePtr get(const str &name);
+  ASTBasePtr get(const str &name);
 
   /**
    * \brief Register a type
    * */
-  void set_type(const str &name, ASTTyPtr value);
+  void set_type(const str &name, ASTTypePtr value);
 
   /**
    * \brief Look up type table
    * \param name typename
    */
-  ASTTyPtr get_type(const str &name);
+  ASTTypePtr get_type(const str &name);
 
   LLVMContext *get_context();
   Module *get_module();
@@ -106,10 +105,10 @@ public:
    * \details This will not add anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
    * */
-  void add_function(ASTFunctionPtr func);
-  vector<ASTFunctionPtr> get_functions(const str &name);
-  [[nodiscard]] ptr<ASTLoop> get_current_loop() const;
-  void set_current_loop(ptr<ASTLoop>);
+  void add_function(FunctionDeclPtr func);
+  vector<FunctionDeclPtr> get_functions(const str &name);
+  [[nodiscard]] ptr<Loop> get_current_loop() const;
+  void set_current_loop(LoopPtr);
   [[nodiscard]] DIFile *get_di_file() const;
   [[nodiscard]] DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
@@ -121,7 +120,7 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
-  umap<str, ASTTyPtr> _type_table{};
+  umap<str, ASTTypePtr> _type_table{};
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
@@ -137,7 +136,7 @@ private:
   /**
    * The control flow in current scope, used by break and continue
    * */
-  ptr<ASTLoop> _current_loop = nullptr;
+  LoopPtr _current_loop = nullptr;
 
 private:
   void initialize_scope();

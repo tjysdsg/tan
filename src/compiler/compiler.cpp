@@ -4,7 +4,7 @@
 #include "compiler_session.h"
 #include "src/analysis/analyzer.h"
 #include "src/codegen/code_generator.h"
-#include "intrinsic.h"
+#include "src/ast/intrinsic.h"
 #include "reader.h"
 #include "parser.h"
 
@@ -57,7 +57,8 @@ void Compiler::dump_ir() const {
 
 void Compiler::dump_ast() const {
   TAN_ASSERT(_ast);
-  _ast->printTree();
+  // TODO: fix print tree
+  // _ast->printTree();
 }
 
 void Compiler::parse() {

@@ -1,49 +1,50 @@
 #include "src/analysis/analyzer_impl.h"
-#include "src/ast/parsable_ast_node.h"
-#include "src/ast/ast_ty.h"
-#include "src/ast/factory.h"
+#include "src/ast/ast_base.h"
+#include "src/ast/ast_type.h"
+#include "src/ast/expr.h"
 #include "token.h"
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_string_literal(const ParsableASTNodePtr &p) {
-  auto np = ast_must_cast<ASTNode>(p);
-  np->_ty = create_ty(_cs, Ty::STRING);
+void AnalyzerImpl::analyze_string_literal(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<StringLiteral>(_p);
+  p->set_value(p->get_token_str());
+  p->set_type(ASTType::Create(_cs, Ty::STRING));
 }
 
-void AnalyzerImpl::analyze_char_literal(const ParsableASTNodePtr &p) {
-  auto np = ast_must_cast<ASTNode>(p);
+void AnalyzerImpl::analyze_char_literal(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<CharLiteral>(_p);
 
-  np->_ty = create_ty(_cs, Ty::CHAR, {});
-  np->set_data(static_cast<uint64_t>(p->get_token()->value[0]));
-  np->_ty->_default_value = p->get_data<uint64_t>();
+  p->set_type(ASTType::Create(_cs, Ty::CHAR, {}));
+  p->set_value(static_cast<uint8_t>(p->get_token_str()[0]));
 }
 
-void AnalyzerImpl::analyze_num_literal(const ParsableASTNodePtr &p) {
-  auto np = ast_must_cast<ASTNode>(p);
-
-  if (p->get_token()->type == TokenType::INT) {
-    auto tyty = Ty::INT;
-    if (p->get_token()->is_unsigned) {
-      tyty = TY_OR(tyty, Ty::UNSIGNED);
-    }
-    np->_ty = create_ty(_cs, tyty);
-  } else if (p->get_token()->type == TokenType::FLOAT) {
-    np->_ty = create_ty(_cs, Ty::FLOAT);
+void AnalyzerImpl::analyze_integer_literal(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<IntegerLiteral>(_p);
+  auto tyty = Ty::INT;
+  if (p->get_token()->is_unsigned) {
+    tyty = TY_OR(tyty, Ty::UNSIGNED);
   }
+  p->set_type(ASTType::Create(_cs, tyty));
 }
 
-void AnalyzerImpl::analyze_array_literal(const ParsableASTNodePtr &p) {
-  auto np = ast_must_cast<ASTNode>(p);
+void AnalyzerImpl::analyze_float_literal(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<FloatLiteral>(_p);
+  p->set_type(ASTType::Create(_cs, Ty::FLOAT));
+}
+
+void AnalyzerImpl::analyze_array_literal(const ASTBasePtr &_p) {
+  auto p = ast_must_cast<ArrayLiteral>(_p);
 
   // TODO: restrict array element type to be the same
-  vector<ASTTyPtr> sub_tys{};
-  sub_tys.reserve(p->get_children_size());
-  std::for_each(p->get_children().begin(), p->get_children().end(), [&sub_tys, this](const ParsableASTNodePtr &e) {
-    sub_tys.push_back(_h.get_ty(e));
+  vector<ASTTypePtr> sub_tys{};
+  auto elements = p->get_elements();
+  sub_tys.reserve(elements.size());
+  std::for_each(elements.begin(), elements.end(), [&sub_tys, this](const ptr<Expr> &e) {
+    sub_tys.push_back(e->get_type());
   });
 
-  ASTTyPtr ty = create_ty(_cs, Ty::ARRAY, sub_tys);
-  ty->_array_size = p->get_children_size();
-  np->_ty = ty;
+  ASTTypePtr ty = ASTType::Create(_cs, Ty::ARRAY, sub_tys);
+  ty->_array_size = elements.size();
+  p->set_type(ty);
 }

@@ -18,10 +18,10 @@ using tanlang::CompilerSession;
 using tanlang::tokenize;
 using tanlang::TokenType;
 using tanlang::ASTNodePtr;
-using tanlang::ParsableASTNodePtr;
-using tanlang::ASTType;
+using tanlang::ASTBasePtr;
+using tanlang::ASTNodeType;
 
-ParsableASTNodePtr parse_string(str code) {
+ASTBasePtr parse_string(str code) {
   Reader reader;
   reader.from_string(code);
   auto result = tokenize(&reader);
@@ -42,7 +42,7 @@ TEST(parser, function_decl) {
   EXPECT_EQ(1, node->get_children_size());
   auto statement = node->get_child_at(0);
   EXPECT_EQ(1, statement->get_children_size());
-  EXPECT_EQ(ASTType::FUNC_DECL, statement->get_child_at(0)->get_node_type());
+  EXPECT_EQ(ASTNodeType::FUNC_DECL, statement->get_child_at(0)->get_node_type());
 }
 
 #endif /* TAN_LEXER_TEST_H */
