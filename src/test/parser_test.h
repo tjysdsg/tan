@@ -1,5 +1,5 @@
-#ifndef TAN_LEXER_TEST_H
-#define TAN_LEXER_TEST_H
+#ifndef TAN_PARSER_TEST_H
+#define TAN_PARSER_TEST_H
 
 #include "lexer.h"
 #include "token.h"
@@ -7,19 +7,13 @@
 #include "compiler.h"
 #include "reader.h"
 #include "parser.h"
-#include "src/ast/ast_node.h"
+#include "src/ast/ast_base.h"
+#include "src/ast/ast_node_type.h"
+#include "src/ast/stmt.h"
 #include <gtest/gtest.h>
 #include <iostream>
 
-using tanlang::Reader;
-using tanlang::Parser;
-using tanlang::Compiler;
-using tanlang::CompilerSession;
-using tanlang::tokenize;
-using tanlang::TokenType;
-using tanlang::ASTNodePtr;
-using tanlang::ASTBasePtr;
-using tanlang::ASTNodeType;
+using namespace tanlang;
 
 ASTBasePtr parse_string(str code) {
   Reader reader;
@@ -39,10 +33,12 @@ TEST(parser, function_decl) {
              "  return 666;"
              "}";
   auto node = parse_string(code);
-  EXPECT_EQ(1, node->get_children_size());
-  auto statement = node->get_child_at(0);
+  EXPECT_EQ(ASTNodeType::PROGRAM, node->get_node_type());
+  auto program = ast_must_cast<Program>(node);
+  EXPECT_EQ(1, program->get_children_size());
+  auto statement = ast_must_cast<CompoundStmt>(program->get_child_at(0));
   EXPECT_EQ(1, statement->get_children_size());
   EXPECT_EQ(ASTNodeType::FUNC_DECL, statement->get_child_at(0)->get_node_type());
 }
 
-#endif /* TAN_LEXER_TEST_H */
+#endif /* TAN_PARSER_TEST_H */
