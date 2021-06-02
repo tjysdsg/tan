@@ -44,14 +44,34 @@ void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &_p) {
       break;
     }
     case IntrinsicType::LINENO: {
-      p->set_sub(IntegerLiteral::Create(_p->get_line(), true));
+      auto sub = IntegerLiteral::Create(_p->get_line(), true);
+
+      // TODO: make a "copy_source_location()" function
+      sub->_start_index = p->_start_index;
+      sub->_end_index = p->_end_index;
+      sub->set_token(p->get_token());
+
+      auto type = ASTType::Create(_cs, TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
+      sub->set_type(type);
+      p->set_type(type);
+      p->set_sub(sub);
       break;
     }
     case IntrinsicType::FILENAME: {
-      p->set_sub(StringLiteral::Create(_cs->_filename));
+      auto sub = StringLiteral::Create(_cs->_filename);
+
+      sub->_start_index = p->_start_index;
+      sub->_end_index = p->_end_index;
+      sub->set_token(p->get_token());
+
+      auto type = ASTType::Create(_cs, Ty::STRING);
+      sub->set_type(type);
+      p->set_type(type);
+      p->set_sub(sub);
       break;
     }
     case IntrinsicType::GET_DECL: {
+      // FIXME:
       p->set_type(ASTType::Create(_cs, Ty::STRING));
       if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
         report_error(c, "Expect a string argument");
@@ -61,10 +81,15 @@ void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &_p) {
     }
     case IntrinsicType::COMP_PRINT: {
       p->set_type(void_type);
-      if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
+
+      auto func_call = ast_must_cast<FunctionCall>(c);
+      auto args = func_call->_args;
+
+      if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
         report_error(p, "Invalid call to compprint, one argument with type 'str' required");
       }
-      std::cout << fmt::format("Message ({}): {}\n", _h.get_source_location(p), name);
+      str msg = ast_must_cast<StringLiteral>(args[0])->get_value();
+      std::cout << fmt::format("Message ({}): {}\n", _h.get_source_location(p), msg);
       break;
     }
     default:

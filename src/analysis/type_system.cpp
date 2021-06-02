@@ -276,6 +276,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
 }
 
 Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
+  TAN_ASSERT(p);
   if (!p->_resolved) {
     TypeSystem::ResolveTy(cs, p);
   }

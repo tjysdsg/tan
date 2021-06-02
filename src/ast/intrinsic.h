@@ -1,7 +1,6 @@
 #ifndef __TAN_INCLUDE_INTRINSIC_H__
 #define __TAN_INCLUDE_INTRINSIC_H__
-#include "src/ast/ast_base.h"
-#include "src/ast/typed.h"
+#include "src/ast/expr.h"
 #include "src/ast/ast_named.h"
 #include <memory>
 
@@ -51,7 +50,7 @@ enum class IntrinsicType {
  * has value
  * rvalue
  */
-class Intrinsic : public ASTBase, public Typed, public ASTNamed {
+class Intrinsic : public Expr, public ASTNamed {
 public:
   static ptr<Intrinsic> Create();
   static inline llvm::Function *abort_function = nullptr;

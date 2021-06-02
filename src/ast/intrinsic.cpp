@@ -37,7 +37,7 @@ void Intrinsic::InitCodegen(CompilerSession *cs) {
 
 ptr<Intrinsic> Intrinsic::Create() { return make_ptr<Intrinsic>(); }
 
-Intrinsic::Intrinsic() : ASTBase(ASTNodeType::INTRINSIC, 0) {}
+Intrinsic::Intrinsic() : Expr(ASTNodeType::INTRINSIC, 0) {}
 
 IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
 
