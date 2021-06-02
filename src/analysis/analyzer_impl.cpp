@@ -183,8 +183,12 @@ void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
 void AnalyzerImpl::analyze_var_decl(const ASTBasePtr &_p) {
   auto p = ast_must_cast<VarDecl>(_p);
   ASTTypePtr ty = p->get_type();
-  ty->_is_lvalue = true;
-  analyze(ty);
+
+  if (ty) { /// analyze type if specified
+    ty->_is_lvalue = true;
+    analyze(ty);
+  }
+
   _cs->add(p->get_name(), p);
 }
 

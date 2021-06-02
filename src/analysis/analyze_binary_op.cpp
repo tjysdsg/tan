@@ -54,6 +54,7 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
     case ASTNodeType::VAR_DECL:
     case ASTNodeType::ARG_DECL:
     case ASTNodeType::ENUM_DECL:
+      analyze(lhs);
       lhs_type = ast_must_cast<Decl>(lhs)->get_type();
       break;
     default:
@@ -77,8 +78,7 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
         TAN_ASSERT(false);
         break;
     }
-    /// already analyzed if lhs is identifier, so put this here to
-    /// avoid analyzing twice
+    /// analyze again just to make sure
     analyze(lhs);
   }
 

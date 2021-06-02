@@ -2,6 +2,11 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
+    var typed: int = 1;
+    var typed_f: float = 1.0;
+    assert(typed == 1);
+    assert(typed_f == 1.0);
+
     var shit = 10; // int
     var wat = 0 - 600; // int
     var f = 1.0; // float
