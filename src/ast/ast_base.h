@@ -5,6 +5,9 @@
 #include "src/ast/precedence.h"
 #include "src/ast/ast_node_type.h"
 #include <variant>
+#ifdef DEBUG
+#include <typeinfo>
+#endif
 
 namespace llvm {
 class Value;
@@ -51,12 +54,21 @@ private:
 
 template<typename T, typename C> std::shared_ptr<T> ast_cast(ptr<C> node) {
   static_assert(std::is_base_of<ASTBase, C>::value, "node can only be a subclass of ASTBase");
-  return std::reinterpret_pointer_cast<T>(node);
+  #ifdef DEBUG
+  auto ret = std::dynamic_pointer_cast<T>(node);
+  #else
+  auto ret = std::reinterpret_pointer_cast<T>(node);
+  #endif
+  return ret;
 }
 
 template<typename T, typename C> std::shared_ptr<T> ast_must_cast(ptr<C> node) {
   static_assert(std::is_base_of<ASTBase, C>::value, "node can only be a subclass of ASTBase");
+  #ifdef DEBUG
+  auto ret = std::dynamic_pointer_cast<T>(node);
+  #else
   auto ret = std::reinterpret_pointer_cast<T>(node);
+  #endif
   TAN_ASSERT(ret);
   return ret;
 }

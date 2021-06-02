@@ -72,7 +72,7 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
         break;
       case ASTNodeType::STRUCT_DECL:
       case ASTNodeType::VAR_DECL:
-        ast_must_cast<VarDecl>(rhs)->set_type(lhs_type);
+        ast_must_cast<VarDecl>(lhs)->set_type(lhs_type);
         break;
       case ASTNodeType::ARG_DECL:
       case ASTNodeType::ENUM_DECL:

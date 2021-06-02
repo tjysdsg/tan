@@ -2,6 +2,7 @@
 #include "src/parser/parser_impl.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
+#include "src/ast/ast_type.h"
 
 using namespace tanlang;
 
