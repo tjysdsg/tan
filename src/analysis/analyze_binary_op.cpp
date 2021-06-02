@@ -4,6 +4,7 @@
 #include "src/analysis/analyzer_impl.h"
 #include "src/analysis/type_system.h"
 #include "compiler_session.h"
+#include "src/common.h"
 
 using namespace tanlang;
 
@@ -44,47 +45,42 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
 
   auto lhs = p->get_lhs();
   ASTTypePtr lhs_type = nullptr;
-  /// if the type of lhs is not set, we deduce it
   switch (lhs->get_node_type()) {
     case ASTNodeType::ID:
-      lhs_type = _cs->get_type(ast_must_cast<Identifier>(lhs)->get_name());
+      analyze(lhs);
+      lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
       break;
     case ASTNodeType::STRUCT_DECL:
     case ASTNodeType::VAR_DECL:
-      lhs_type = ast_must_cast<VarDecl>(lhs)->get_type();
-      break;
     case ASTNodeType::ARG_DECL:
     case ASTNodeType::ENUM_DECL:
-      // TODO: implement this
-      TAN_ASSERT(false);
+      lhs_type = ast_must_cast<Decl>(lhs)->get_type();
       break;
     default:
       report_error(lhs, "Invalid left-hand operand");
   }
 
+  /// if the type of lhs is not set, we deduce it
+  /// NOTE: we only allow type deduction for declarations
   if (!lhs_type) {
     lhs_type = copy_ty(rhs->get_type());
 
     /// set type of lhs
     switch (lhs->get_node_type()) {
-      case ASTNodeType::ID:
-        _cs->set_type(ast_must_cast<Identifier>(rhs)->get_name(), lhs_type);
-        break;
       case ASTNodeType::STRUCT_DECL:
       case ASTNodeType::VAR_DECL:
-        ast_must_cast<VarDecl>(lhs)->set_type(lhs_type);
-        break;
       case ASTNodeType::ARG_DECL:
       case ASTNodeType::ENUM_DECL:
-        // TODO: implement this
-        TAN_ASSERT(false);
+        ast_must_cast<Decl>(lhs)->set_type(lhs_type);
         break;
       default:
         TAN_ASSERT(false);
         break;
     }
+    /// already analyzed if lhs is identifier, so put this here to
+    /// avoid analyzing twice
+    analyze(lhs);
   }
-  analyze(lhs);
 
   if (TypeSystem::CanImplicitCast(_cs, lhs_type, rhs->get_type()) != 0) {
     report_error(p, "Cannot perform implicit type conversion");

@@ -4,6 +4,7 @@
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_named.h"
 #include "src/ast/typed.h"
+#include "src/ast/expr.h"
 
 namespace tanlang {
 
@@ -14,7 +15,7 @@ AST_FWD_DECL(FunctionDecl);
 AST_FWD_DECL(Stmt);
 AST_FWD_DECL(Expr);
 
-class Decl : public ASTBase, public ASTNamed, public Typed {
+class Decl : public Expr, public ASTNamed {
 public:
   Decl(ASTNodeType type, int lbp);
 };

@@ -3,11 +3,10 @@ import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     var shit = 10; // int
-    var wat; // valid declaration as long as the initial value is specified __
-    var f = 1.0; // float                                                    |
-    wat = 600; // int  <------------------------------------------------------
+    var wat = 0 - 600; // int
+    var f = 1.0; // float
     assert(shit == 10);
-    assert(wat == 600);
+    assert(wat == -600);
     assert(f == 1.0);
 
     var a = var b = 1.0;

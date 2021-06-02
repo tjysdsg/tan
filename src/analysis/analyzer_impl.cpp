@@ -14,6 +14,7 @@ using namespace tanlang;
 ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const { return make_ptr<ASTType>(*p); }
 
 void AnalyzerImpl::analyze(const ASTBasePtr &p) {
+  TAN_ASSERT(p);
   p->set_scope(_cs->get_current_scope());
 
   switch (p->get_node_type()) {

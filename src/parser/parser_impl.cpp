@@ -401,16 +401,15 @@ DeclPtr ParserImpl::expect_decl(const ASTBasePtr &p) {
 }
 
 size_t ParserImpl::parse_assignment(const ASTBasePtr &left, const ASTBasePtr &_p) {
-  auto lhs = ast_must_cast<Decl>(left);
   auto p = ast_must_cast<Assignment>(_p);
 
   ++p->_end_index; /// skip =
 
   /// lhs
-  p->set_lhs(lhs);
+  p->set_lhs(left);
 
   /// rhs
-  auto rhs = next_expression(p->_end_index, p->get_lbp());
+  auto rhs = next_expression(p->_end_index, PREC_LOWEST);
   p->set_rhs(expect_expression(rhs));
 
   return p->_end_index;

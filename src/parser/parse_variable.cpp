@@ -6,7 +6,7 @@
 using namespace tanlang;
 
 size_t ParserImpl::parse_var_decl(const ASTBasePtr &_p) {
-  ptr<ArgDecl> p = ast_must_cast<ArgDecl>(_p);
+  ptr<VarDecl> p = ast_must_cast<VarDecl>(_p);
 
   ++p->_end_index; /// skip 'var'
 

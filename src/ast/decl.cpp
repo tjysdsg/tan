@@ -8,7 +8,7 @@ using namespace tanlang;
 
 /// \section Decl
 
-Decl::Decl(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
+Decl::Decl(ASTNodeType type, int lbp) : Expr(type, lbp) {}
 
 /// \section ArgDecl
 
