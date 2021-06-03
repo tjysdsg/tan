@@ -145,14 +145,12 @@ void FunctionDecl::set_arg_decls(const vector<ptr<ArgDecl>> &arg_decls) { _arg_d
 
 StructDecl::StructDecl() : Decl(ASTNodeType::STRUCT_DECL, 0) {}
 
-ptr<StructDecl> StructDecl::Create() {
-  return make_ptr<StructDecl>();
-}
-
-void StructDecl::set_member_decls(const vector<DeclPtr> &member_decls) { _member_decls = member_decls; }
-
-const vector<DeclPtr> &StructDecl::get_member_decls() const { return _member_decls; }
+ptr<StructDecl> StructDecl::Create() { return make_ptr<StructDecl>(); }
 
 void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
 
 bool StructDecl::is_forward_decl() const { return _is_forward_decl; }
+
+const vector<ExprPtr> &StructDecl::get_member_decls() const { return _member_decls; }
+
+void StructDecl::set_member_decls(const vector<ExprPtr> &member_decls) { _member_decls = member_decls; }

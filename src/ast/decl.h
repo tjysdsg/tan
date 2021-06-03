@@ -41,6 +41,7 @@ public:
   ArgDecl();
 };
 
+// TODO: function type itself
 class FunctionDecl : public Decl {
 public:
   static FunctionDeclPtr Create();
@@ -63,8 +64,8 @@ public:
   [[nodiscard]] ASTTypePtr get_arg_type(size_t i) const;
   void set_arg_names(const vector<str> &names);
   void set_arg_types(const vector<ASTTypePtr> &types);
-  const vector<ptr<tanlang::ArgDecl>> &get_arg_decls() const;
-  void set_arg_decls(const vector<ptr<tanlang::ArgDecl>> &arg_decls);
+  const vector<ptr<ArgDecl>> &get_arg_decls() const;
+  void set_arg_decls(const vector<ptr<ArgDecl>> &arg_decls);
 
   bool is_public() const;
   bool is_external() const;
@@ -90,13 +91,13 @@ class StructDecl : public Decl {
 public:
   static ptr<StructDecl> Create();
   StructDecl();
-  const vector<DeclPtr> &get_member_decls() const;
-  void set_member_decls(const vector<DeclPtr> &member_decls);
+  const vector<ExprPtr> &get_member_decls() const;
+  void set_member_decls(const vector<ExprPtr> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
   bool is_forward_decl() const;
 
 private:
-  vector<DeclPtr> _member_decls;
+  vector<ExprPtr> _member_decls{};
 
 private:
   ASTStructPtr _struct = nullptr;

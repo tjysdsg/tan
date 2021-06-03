@@ -11,7 +11,7 @@ class ASTStruct : public ASTType {
 public:
   umap<str, size_t> _member_indices{};
   vector<str> _member_names{};
-  vector<ExprPtr> _initial_values{};
+  umap<str, ExprPtr> _initial_values{};
 };
 
 }

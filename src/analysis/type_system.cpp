@@ -268,6 +268,14 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
+    case Ty::INVALID: {
+      auto type = cs->get_type(p->get_token_str());
+      if (!type) {
+        report_error(cs->_filename, p->get_token(), "Invalid type name");
+      }
+      *p = *type;
+      break;
+    }
     default:
       report_error(cs->_filename, p->get_token(), "Invalid type");
   }

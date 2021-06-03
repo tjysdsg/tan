@@ -65,10 +65,8 @@ size_t ParserImpl::parse_ty(const ASTTypePtr &p) {
         p->_sub_types.push_back(sub);
       }
     } else if (token->type == TokenType::ID) { /// struct or enum
-      *p = *(_cs->get_type(token->value));
-      if (!p) {
-        error(p->_end_index, "Invalid type name");
-      }
+      /// type is resolved in analysis phase
+      p->_tyty = Ty::INVALID;
     } else {
       break;
     }

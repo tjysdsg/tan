@@ -95,9 +95,14 @@ void CompilerSession::set_type(const str &name, ASTTypePtr ty) {
   _type_table[name] = ty;
 }
 
+// TODO: return std::optional<ASTTypePtr>
 ASTTypePtr CompilerSession::get_type(const str &name) {
   TAN_ASSERT(name != "");
-  return _type_table.at(name);
+  auto q = _type_table.find(name);
+  if (q != _type_table.end()) {
+    return q->second;
+  }
+  return nullptr;
 }
 
 LLVMContext *CompilerSession::get_context() { return _context; }

@@ -65,7 +65,7 @@ private:
   size_t parse_ty(const ASTTypePtr &p);
   size_t parse_ty_array(const ASTTypePtr &p);
 
-  void error(size_t i, const str &error_message) const;
+  [[noreturn]] void error(size_t i, const str &error_message) const;
 
 private:
   vector<Token *> _tokens{};
