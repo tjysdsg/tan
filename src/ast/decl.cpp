@@ -154,3 +154,18 @@ bool StructDecl::is_forward_decl() const { return _is_forward_decl; }
 const vector<ExprPtr> &StructDecl::get_member_decls() const { return _member_decls; }
 
 void StructDecl::set_member_decls(const vector<ExprPtr> &member_decls) { _member_decls = member_decls; }
+
+ASTTypePtr StructDecl::get_struct_member_ty(size_t i) const {
+  TAN_ASSERT(i < _member_decls.size());
+  return _member_decls[i]->get_type();
+}
+
+size_t StructDecl::get_struct_member_index(const str &name) const {
+  auto search = _member_indices.find(name);
+  if (search == _member_indices.end()) {
+    return (size_t) (-1);
+  }
+  return search->second;
+}
+
+void StructDecl::set_member_index(const str &name, size_t idx) { _member_indices[name] = idx; }

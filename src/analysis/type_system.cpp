@@ -4,6 +4,7 @@
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/decl.h"
 #include "src/llvm_include.h"
 #include <fmt/core.h>
 
@@ -116,7 +117,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t
   return -1;
 }
 
-void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
+void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
   Ty base = TY_GET_BASE(p->_tyty);
   Ty qual = TY_GET_QUALIFIER(p->_tyty);
   if (p->_resolved) {
@@ -219,10 +220,11 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       break;
     }
     case Ty::STRUCT: {
+      TAN_ASSERT(p->_type_name != "");
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
-        auto real = cs->get_type(p->_type_name);
+        ASTTypePtr real = cs->get_type_decl(p->_type_name)->get_type();
         if (!real) {
           report_error(cs->_filename, p->get_token(), "Incomplete type");
         }
@@ -259,7 +261,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       if (p->_sub_types.size() == 0) {
         report_error(cs->_filename, p->get_token(), "Invalid type");
       }
-      auto e = p->_sub_types[0];
+      auto &e = p->_sub_types[0];
       TypeSystem::ResolveTy(cs, e);
       p->_type_name = e->_type_name + "*";
       p->_size_bits = tm->getPointerSizeInBits(0);
@@ -269,11 +271,11 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr p) {
       break;
     }
     case Ty::INVALID: {
-      auto type = cs->get_type(p->get_token_str());
-      if (!type) {
+      DeclPtr decl = cs->get_type_decl(p->get_token_str());
+      if (!decl) {
         report_error(cs->_filename, p->get_token(), "Invalid type name");
       }
-      *p = *type;
+      *p = *decl->get_type();
       break;
     }
     default:

@@ -1,7 +1,6 @@
 #include "src/analysis/ast_helper.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/ast_struct.h"
 #include "compiler_session.h"
 
 using namespace tanlang;
@@ -23,18 +22,6 @@ ASTTypePtr ASTHelper::get_contained_ty(const ASTTypePtr &p) const {
   } else {
     return nullptr;
   }
-}
-
-ASTTypePtr ASTHelper::get_struct_member_ty(const ASTStructPtr &p, size_t i) const {
-  return p->_sub_types[i];
-}
-
-size_t ASTHelper::get_struct_member_index(const ASTStructPtr &p, const str &name) const {
-  auto search = p->_member_indices.find(name);
-  if (search == p->_member_indices.end()) {
-    return (size_t) (-1);
-  }
-  return search->second;
 }
 
 str ASTHelper::get_source_location(SourceTraceablePtr p) const {

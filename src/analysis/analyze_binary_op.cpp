@@ -17,7 +17,7 @@ void AnalyzerImpl::analyze_cast(const CastPtr &p) {
   ASTTypePtr ty = nullptr;
   switch (rhs->get_node_type()) {
     case ASTNodeType::ID:
-      ty = _cs->get_type(ast_must_cast<Identifier>(rhs)->get_name());
+      ty = _cs->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
       if (!ty) {
         report_error(rhs, "Unknown type");
       }
@@ -54,8 +54,9 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
     case ASTNodeType::VAR_DECL:
     case ASTNodeType::ARG_DECL:
     case ASTNodeType::ENUM_DECL:
+    case ASTNodeType::BOP:
       analyze(lhs);
-      lhs_type = ast_must_cast<Decl>(lhs)->get_type();
+      lhs_type = ast_must_cast<Expr>(lhs)->get_type();
       break;
     default:
       report_error(lhs, "Invalid left-hand operand");

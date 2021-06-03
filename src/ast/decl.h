@@ -85,8 +85,6 @@ private:
   StmtPtr _body = nullptr;
 };
 
-AST_FWD_DECL(ASTStruct);
-
 class StructDecl : public Decl {
 public:
   static ptr<StructDecl> Create();
@@ -95,12 +93,13 @@ public:
   void set_member_decls(const vector<ExprPtr> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
   bool is_forward_decl() const;
+  ASTTypePtr get_struct_member_ty(size_t i) const;
+  size_t get_struct_member_index(const str &name) const;
+  void set_member_index(const str &name, size_t idx);
 
 private:
   vector<ExprPtr> _member_decls{};
-
-private:
-  ASTStructPtr _struct = nullptr;
+  umap<str, size_t> _member_indices{};
   bool _is_forward_decl = false;
 };
 

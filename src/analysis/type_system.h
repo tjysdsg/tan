@@ -30,7 +30,7 @@ public:
   /**
    * \brief Set the fields of an ASTType according to the type and target machine
    */
-  static void ResolveTy(CompilerSession *cs, ASTTypePtr p);
+  static void ResolveTy(CompilerSession *cs, ASTTypePtr const &p);
 
   /**
    * \brief Convert a value to from orig type to dest type.

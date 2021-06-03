@@ -91,12 +91,12 @@ ASTBasePtr CompilerSession::get(const str &name) {
   return result;
 }
 
-void CompilerSession::set_type(const str &name, ASTTypePtr ty) {
+void CompilerSession::add_type_decl(const str &name, DeclPtr ty) {
   _type_table[name] = ty;
 }
 
-// TODO: return std::optional<ASTTypePtr>
-ASTTypePtr CompilerSession::get_type(const str &name) {
+// TODO: return std::optional
+DeclPtr CompilerSession::get_type_decl(const str &name) {
   TAN_ASSERT(name != "");
   auto q = _type_table.find(name);
   if (q != _type_table.end()) {

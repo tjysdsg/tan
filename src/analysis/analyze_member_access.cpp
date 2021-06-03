@@ -2,7 +2,6 @@
 #include "src/ast/ast_type.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
-#include "src/ast/ast_struct.h"
 #include "src/analysis/type_system.h"
 #include "compiler_session.h"
 #include <fmt/core.h>
@@ -30,9 +29,6 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
 
     ty = copy_ty(_h.get_contained_ty(ty));
     ty->_is_lvalue = true;
-    if (!ty) {
-      report_error(p, "Unable to perform bracket access");
-    }
 
     p->set_type(ty);
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
@@ -57,19 +53,20 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
       }
 
       str m_name = ast_must_cast<Identifier>(rhs)->get_name();
-      ASTTypePtr _struct_ast = nullptr;
-      ASTStructPtr struct_ast = nullptr;
+      ASTTypePtr struct_ast = nullptr;
       /// auto dereference pointers
       if (lhs->get_type()->_is_ptr) {
-        _struct_ast = _cs->get_type(_h.get_contained_ty(lhs->get_type())->_type_name);
+        struct_ast = _h.get_contained_ty(lhs->get_type());
       } else {
-        _struct_ast = _cs->get_type(lhs->get_type()->_type_name);
+        struct_ast = lhs->get_type();
       }
-      if (!(struct_ast = ast_cast<ASTStruct>(_struct_ast))) {
-        report_error(_struct_ast, "Expect a struct type");
+      if (struct_ast->_tyty != Ty::STRUCT) {
+        report_error(lhs, "Expect a struct type");
       }
-      p->_access_idx = _h.get_struct_member_index(struct_ast, m_name);
-      auto ty = copy_ty(_h.get_struct_member_ty(struct_ast, p->_access_idx));
+
+      ptr<StructDecl> struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->_type_name));
+      p->_access_idx = struct_decl->get_struct_member_index(m_name);
+      auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
       ty->_is_lvalue = true;
       p->set_type(ty);
     }

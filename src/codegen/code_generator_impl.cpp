@@ -636,7 +636,6 @@ Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &_p) {
   set_current_debug_location(p);
 
   auto lhs = p->get_lhs();
-  auto rhs = p->get_rhs();
   auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_dest_type());
 
   Value *val = codegen(lhs);

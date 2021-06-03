@@ -10,6 +10,7 @@ AST_FWD_DECL(ASTType);
 AST_FWD_DECL(FunctionDecl);
 AST_FWD_DECL(FunctionTable);
 AST_FWD_DECL(Loop);
+AST_FWD_DECL(Decl);
 
 /**
  * \class CompilerSession
@@ -82,13 +83,13 @@ public:
   /**
    * \brief Register a type
    * */
-  void set_type(const str &name, ASTTypePtr value);
+  void add_type_decl(const str &name, DeclPtr value);
 
   /**
    * \brief Look up type table
    * \param name typename
    */
-  ASTTypePtr get_type(const str &name);
+  DeclPtr get_type_decl(const str &name);
 
   LLVMContext *get_context();
   Module *get_module();
@@ -120,7 +121,7 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
-  umap<str, ASTTypePtr> _type_table{};
+  umap<str, DeclPtr> _type_table{};
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
