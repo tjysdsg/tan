@@ -52,23 +52,13 @@ private:
   ptr<Scope> _scope = nullptr;
 };
 
-template<typename T, typename C> std::shared_ptr<T> ast_cast(ptr<C> node) {
-  static_assert(std::is_base_of<ASTBase, C>::value, "node can only be a subclass of ASTBase");
-  #ifdef DEBUG
-  auto ret = std::dynamic_pointer_cast<T>(node);
-  #else
-  auto ret = std::reinterpret_pointer_cast<T>(node);
-  #endif
-  return ret;
+template<typename To, typename From> ptr<To> ast_cast(ptr<From> node) {
+  static_assert(std::is_base_of<ASTBase, From>::value, "node can only be a subclass of ASTBase");
+  return cast_ptr<To, From>(node);
 }
 
-template<typename T, typename C> std::shared_ptr<T> ast_must_cast(ptr<C> node) {
-  static_assert(std::is_base_of<ASTBase, C>::value, "node can only be a subclass of ASTBase");
-  #ifdef DEBUG
-  auto ret = std::dynamic_pointer_cast<T>(node);
-  #else
-  auto ret = std::reinterpret_pointer_cast<T>(node);
-  #endif
+template<typename To, typename From> ptr<To> ast_must_cast(ptr<From> node) {
+  auto ret = ast_cast<To, From>(node);
   TAN_ASSERT(ret);
   return ret;
 }

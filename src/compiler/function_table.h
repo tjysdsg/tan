@@ -17,7 +17,7 @@ private:
   umap<str, vector<FunctionDeclPtr>> _table{};
 };
 
-using FunctionTablePtr = std::shared_ptr<FunctionTable>;
+using FunctionTablePtr = ptr<FunctionTable>;
 
 } // namespace tanlang
 

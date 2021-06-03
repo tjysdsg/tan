@@ -8,7 +8,7 @@ using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
   _scope = vector<ptr<Scope>>();
-  _scope.push_back(std::make_shared<Scope>()); // outer-est scope
+  _scope.push_back(make_ptr<Scope>()); // outer-est scope
 }
 
 CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
@@ -28,7 +28,7 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
 
-  _function_table = std::make_shared<FunctionTable>();
+  _function_table = make_ptr<FunctionTable>();
 
   /// scopes
   initialize_scope();
@@ -39,7 +39,7 @@ CompilerSession::~CompilerSession() {}
 ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
 
 ptr<Scope> CompilerSession::push_scope() {
-  auto r = std::make_shared<Scope>();
+  auto r = make_ptr<Scope>();
   _scope.push_back(r);
   return r;
 }
@@ -194,7 +194,7 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
 void CompilerSession::AddPublicFunction(const str &filename, FunctionDeclPtr func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
-    pf[filename] = std::make_shared<FunctionTable>();
+    pf[filename] = make_ptr<FunctionTable>();
   }
   pf[filename]->set(func);
 }

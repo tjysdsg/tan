@@ -3,7 +3,6 @@
 #include "src/analysis/type_system.h"
 #include "src/ast/expr.h"
 #include "src/common.h"
-#include "token.h"
 
 using namespace tanlang;
 

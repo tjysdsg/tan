@@ -55,7 +55,7 @@ private:
    * \brief Compiler instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
    * */
-  static inline vector<std::shared_ptr<Compiler>> sub_compilers{};
+  static inline vector<ptr<Compiler>> sub_compilers{};
   static inline TargetMachine *target_machine = nullptr;
 
 public:

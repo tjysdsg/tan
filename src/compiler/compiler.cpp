@@ -75,7 +75,7 @@ void Compiler::parse() {
 }
 
 void Compiler::ParseFile(const str &filename) {
-  auto compiler = std::make_shared<Compiler>(filename);
+  auto compiler = make_ptr<Compiler>(filename);
   compiler->parse();
   Compiler::sub_compilers.push_back(compiler);
 }

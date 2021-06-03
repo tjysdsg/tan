@@ -59,7 +59,7 @@ size_t ParserImpl::parse_ty(const ASTTypePtr &p) {
       p->_tyty = TY_OR(p->_tyty, qb->second);
     } else if (qq != ASTType::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        auto sub = std::make_shared<ASTType>(*p);
+        auto sub = make_ptr<ASTType>(*p);
         p->_tyty = Ty::POINTER;
         p->_sub_types.clear();
         p->_sub_types.push_back(sub);

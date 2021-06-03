@@ -83,7 +83,6 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t
   ASTHelper h(cs);
   TAN_ASSERT(t1);
   TAN_ASSERT(t2);
-  if (t1.get() == t2.get()) { return 0; } /// since some ASTType are cached, compare pointer and early return
   if (*t1 == *t2) { return 0; }
   size_t s1 = t1->_size_bits;
   size_t s2 = t2->_size_bits;
