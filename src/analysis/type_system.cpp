@@ -270,12 +270,12 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
       p->_dwarf_encoding = llvm::dwarf::DW_ATE_address;
       break;
     }
-    case Ty::INVALID: {
+    case Ty::INVALID: { /// find the true type that p refers to
       DeclPtr decl = cs->get_type_decl(p->get_token_str());
       if (!decl) {
         report_error(cs->_filename, p->get_token(), "Invalid type name");
       }
-      *p = *decl->get_type();
+      *p = *decl->get_type(); // FIXME: what if p is a subclass of ASTType?
       break;
     }
     default:
