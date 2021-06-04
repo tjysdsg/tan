@@ -171,3 +171,49 @@ Cast::Cast() : Expr(ASTNodeType::CAST, ASTBase::OpPrecedence[ASTNodeType::CAST])
 ASTBase *Cast::get_rhs() const { return _rhs; }
 
 void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
+
+BinaryOrUnary::BinaryOrUnary(int lbp) : Expr(ASTNodeType::BOP_OR_UOP, lbp) {}
+
+BinaryOrUnary *BinaryOrUnary::Create(int lbp) { return new BinaryOrUnary(lbp); }
+
+BinaryOrUnary::BinaryOrUnaryKind BinaryOrUnary::get_kind() const { return _kind; }
+
+BinaryOperator *BinaryOrUnary::get_bop() const {
+  TAN_ASSERT(_kind == BINARY);
+  return _bop;
+}
+
+void BinaryOrUnary::set_bop(BinaryOperator *bop) {
+  TAN_ASSERT(_kind == UNKNOWN); /// prevent setting this twice
+  _kind = BINARY;
+  _bop = bop;
+}
+
+UnaryOperator *BinaryOrUnary::get_uop() const {
+  TAN_ASSERT(_kind == UNARY);
+  return _uop;
+}
+
+void BinaryOrUnary::set_uop(UnaryOperator *uop) {
+  TAN_ASSERT(_kind == UNKNOWN); /// prevent setting this twice
+  _kind = UNARY;
+  _uop = uop;
+}
+
+Expr *BinaryOrUnary::get_generic_ptr() const {
+  switch (_kind) {
+    case BINARY:
+      return _bop;
+    case UNARY:
+      return _uop;
+    default:
+      TAN_ASSERT(false);
+      break;
+  }
+}
+
+ASTBase *BinaryOrUnary::get() const { return get_generic_ptr(); }
+
+ASTType *BinaryOrUnary::get_type() const { return get_generic_ptr()->get_type(); }
+
+void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type); }

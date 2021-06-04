@@ -34,6 +34,7 @@ private:
   void analyze_id(ASTBase *p);
   void analyze_var_decl(ASTBase *p);
   void analyze_arg_decl(ASTBase *p);
+  void analyze_bop_or_uop(ASTBase *p);
   void resolve_ty(ASTType *p) const;
   ASTType *copy_ty(ASTType *p) const;
   [[noreturn]] void report_error(ASTBase *p, const str &message);

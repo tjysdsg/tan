@@ -12,17 +12,12 @@ AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, cons
   }
 }
 
-bool is_ast_type_in(ASTNodeType t, std::initializer_list<ASTNodeType> list) {
-  return std::any_of(list.begin(), list.end(), [t](ASTNodeType i) { return i == t; });
+bool is_ast_type_in(ASTNodeType t, const vector<ASTNodeType> &list) {
+  return std::find(list.begin(), list.end(), t) != list.end();
 }
 
-bool is_string_in(std::string_view s, std::initializer_list<std::string_view> list) {
-  return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
-}
-
-bool is_string_in(std::string_view s, const vector<str> &list) {
-  return std::any_of(list.begin(), list.end(), [s](std::string_view i) { return i == s; });
+bool is_string_in(const str &s, const vector<str> &list) {
+  return std::find(list.begin(), list.end(), s) != list.end();
 }
 
 } // namespace tanlang
-

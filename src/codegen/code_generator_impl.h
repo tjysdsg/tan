@@ -42,6 +42,7 @@ private:
   Value *codegen_import(ASTBase *p);
   Value *codegen_literals(ASTBase *p);
   Value *codegen_identifier(ASTBase *p);
+  Value *codegen_binary_or_unary(ASTBase *p);
 
   Value *codegen_ty(ASTType *p);
   Value *codegen_func_prototype(FunctionDecl *p, bool import = false);

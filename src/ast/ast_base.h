@@ -38,7 +38,13 @@ public:
 protected:
   virtual str to_string(bool print_prefix = true);
 
+  /**
+   * \brief Get the "actual" this. Used for implementing proxy classes.
+   */
+  virtual ASTBase *get() const;
+
 public:
+  // TODO: make this private
   llvm::Value *_llvm_value = nullptr;
 
 private:

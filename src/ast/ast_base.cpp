@@ -46,13 +46,11 @@ str ASTBase::to_string(bool print_prefix) {
   else { return ""; }
 }
 
-void ASTBase::set_scope(Scope *scope) {
-  _scope = scope;
-}
+void ASTBase::set_scope(Scope *scope) { get()->_scope = scope; }
 
-Scope *ASTBase::get_scope() const {
-  return _scope;
-}
+Scope *ASTBase::get_scope() const { return get()->_scope; }
+
+ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
 
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTNodeType::t, #t}
 

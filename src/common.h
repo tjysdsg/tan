@@ -15,11 +15,9 @@ namespace tanlang {
  */
 AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size = 1, const str &name = "");
 
-bool is_ast_type_in(ASTNodeType t, std::initializer_list<ASTNodeType> list);
+bool is_ast_type_in(ASTNodeType t, const vector<ASTNodeType> &list);
 
-bool is_string_in(std::string_view, std::initializer_list<std::string_view>);
-
-bool is_string_in(std::string_view s, const vector<str> &list);
+bool is_string_in(const str &s, const vector<str> &list);
 
 template<size_t N> bool is_ast_type_in(ASTNodeType t, std::array<ASTNodeType, N> list) {
   return std::any_of(list.begin(), list.end(), [t](ASTNodeType i) { return i == t; });

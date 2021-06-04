@@ -159,7 +159,7 @@ ASTBase *ParserImpl::peek(size_t &index) {
     node = MemberAccess::Create();
   } else if (token->value == "&") {
     /// BOP or UOP? ambiguous
-    node = new Expr(ASTNodeType::BOP_OR_UOP, 0);
+    node = BinaryOrUnary::Create(PREC_LOWEST);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = CompoundStmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
@@ -175,11 +175,11 @@ ASTBase *ParserImpl::peek(size_t &index) {
         break;
       case "+"_hs:
         /// BOP or UOP? ambiguous
-        node = new Expr(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        node = BinaryOrUnary::Create(BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
       case "-"_hs:
         /// BOP or UOP? ambiguous
-        node = new Expr(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        node = BinaryOrUnary::Create(BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         return nullptr;
@@ -219,28 +219,26 @@ size_t ParserImpl::parse_node(ASTBase *p) {
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-    // hack
-    size_t start_index = p->_start_index;
-    size_t end_index = p->_end_index;
-    Token *token = p->get_token();
-    auto &pp = const_cast<ASTBase *&>(p);
+    BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+    UnaryOperator *actual = nullptr;
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        pp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
+        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
         break;
       case "+"_hs:
-        pp = UnaryOperator::Create(UnaryOpKind::PLUS);
+        actual = UnaryOperator::Create(UnaryOpKind::PLUS);
         break;
       case "-"_hs:
-        pp = UnaryOperator::Create(UnaryOpKind::MINUS);
+        actual = UnaryOperator::Create(UnaryOpKind::MINUS);
         break;
       default:
         TAN_ASSERT(false);
         break;
     }
-    pp->_start_index = start_index;
-    pp->_end_index = end_index;
-    pp->set_token(token);
+    actual->_start_index = p->_start_index;
+    actual->_end_index = p->_end_index;
+    actual->set_token(p->get_token());
+    pp->set_uop(actual);
   }
 
   switch (p->get_node_type()) {
@@ -280,7 +278,6 @@ size_t ParserImpl::parse_node(ASTBase *p) {
     case ASTNodeType::TY:
       parse_ty(ast_must_cast<ASTType>(p));
       break;
-      ////////////////////////// declarations /////////////////////////////////
     case ASTNodeType::STRUCT_DECL:
       parse_struct_decl(p);
       break;
@@ -306,6 +303,12 @@ size_t ParserImpl::parse_node(ASTBase *p) {
     case ASTNodeType::STRING_LITERAL:
       ++p->_end_index;
       break;
+    case ASTNodeType::BOP_OR_UOP: {
+      BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+      TAN_ASSERT(pp->get_kind() == BinaryOrUnary::UNARY);
+      p->_end_index = parse_node(pp->get_generic_ptr());
+      break;
+    }
     default:
       TAN_ASSERT(false);
       break;
@@ -318,28 +321,26 @@ size_t ParserImpl::parse_node(ASTBase *left, ASTBase *p) {
 
   /// special tokens that require whether p is led or nud to determine the node type
   if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-    // hack
-    size_t start_index = p->_start_index;
-    size_t end_index = p->_end_index;
-    Token *token = p->get_token();
-    auto &pp = const_cast<ASTBase *&>(p);
+    BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+    BinaryOperator *actual = nullptr;
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
-        pp = BinaryOperator::Create(BinaryOpKind::BAND);
+        actual = BinaryOperator::Create(BinaryOpKind::BAND);
         break;
       case "+"_hs:
-        pp = BinaryOperator::Create(BinaryOpKind::SUM);
+        actual = BinaryOperator::Create(BinaryOpKind::SUM);
         break;
       case "-"_hs:
-        pp = BinaryOperator::Create(BinaryOpKind::SUBTRACT);
+        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT);
         break;
       default:
         TAN_ASSERT(false);
         break;
     }
-    pp->_start_index = start_index;
-    pp->_end_index = end_index;
-    pp->set_token(token);
+    actual->_start_index = p->_start_index;
+    actual->_end_index = p->_end_index;
+    actual->set_token(p->get_token());
+    pp->set_bop(actual);
   }
 
   switch (p->get_node_type()) {
@@ -352,6 +353,12 @@ size_t ParserImpl::parse_node(ASTBase *left, ASTBase *p) {
     case ASTNodeType::CAST:
       parse_cast(left, p);
       break;
+    case ASTNodeType::BOP_OR_UOP: {
+      BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+      TAN_ASSERT(pp->get_kind() == BinaryOrUnary::BINARY);
+      p->_end_index = parse_node(left, pp->get_generic_ptr());
+      break;
+    }
     default:
       TAN_ASSERT(false);
       break;

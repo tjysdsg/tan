@@ -93,6 +93,9 @@ void AnalyzerImpl::analyze(ASTBase *p) {
     case ASTNodeType::CONTINUE:
     case ASTNodeType::BREAK:
       break;
+    case ASTNodeType::BOP_OR_UOP:
+      analyze_bop_or_uop(p);
+      break;
     default:
       TAN_ASSERT(false);
       break;
@@ -211,4 +214,9 @@ void AnalyzerImpl::analyze_stmt(ASTBase *_p) {
   for (const auto &c: p->get_children()) {
     analyze(c);
   }
+}
+
+void AnalyzerImpl::analyze_bop_or_uop(ASTBase *_p) {
+  auto p = ast_must_cast<BinaryOrUnary>(_p);
+  analyze(p->get_generic_ptr());
 }

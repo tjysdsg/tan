@@ -7,8 +7,9 @@ namespace tanlang {
 
 class Typed {
 public:
-  ASTType *get_type() const;
-  void set_type(ASTType *type);
+  virtual ASTType *get_type() const;
+  virtual void set_type(ASTType *type);
+  virtual ~Typed() = default;
 
 private:
   ASTType *_type = nullptr;

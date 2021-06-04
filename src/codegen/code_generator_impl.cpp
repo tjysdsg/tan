@@ -43,7 +43,6 @@ Value *CodeGeneratorImpl::codegen(ASTBase *p) {
     case ASTNodeType::IMPORT:
       ret = codegen_import(p);
       break;
-      ////////////////////////////// literals ////////////////////////
     case ASTNodeType::ARRAY_LITERAL:
     case ASTNodeType::INTEGER_LITERAL:
     case ASTNodeType::FLOAT_LITERAL:
@@ -83,6 +82,9 @@ Value *CodeGeneratorImpl::codegen(ASTBase *p) {
       break;
     case ASTNodeType::ID:
       ret = codegen_identifier(p);
+      break;
+    case ASTNodeType::BOP_OR_UOP:
+      ret = codegen_binary_or_unary(p);
       break;
     default:
       break;
@@ -656,5 +658,12 @@ Value *CodeGeneratorImpl::codegen_cast(ASTBase *_p) {
 
 Value *CodeGeneratorImpl::codegen_identifier(ASTBase *_p) {
   auto p = ast_must_cast<Identifier>(_p);
+  set_current_debug_location(p);
   return p->_llvm_value = codegen(p->_referred);
+}
+
+Value *CodeGeneratorImpl::codegen_binary_or_unary(ASTBase *_p) {
+  auto p = ast_must_cast<BinaryOrUnary>(_p);
+  set_current_debug_location(p);
+  return p->_llvm_value = codegen(p->get_generic_ptr());
 }

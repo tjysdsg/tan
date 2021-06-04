@@ -184,6 +184,38 @@ protected:
   Expr *_rhs = nullptr;
 };
 
+/**
+ * \note Once BinaryOrUnary::set_bop() or BinaryOrUnary::set_uop() is called,
+ * the object is not allowed to change anymore
+ */
+class BinaryOrUnary : public Expr {
+public:
+  BinaryOrUnary(int lbp);
+  static BinaryOrUnary *Create(int lbp);
+
+  enum BinaryOrUnaryKind {
+    UNKNOWN, BINARY, UNARY,
+  };
+
+  BinaryOrUnaryKind get_kind() const;
+  BinaryOperator *get_bop() const;
+  void set_bop(BinaryOperator *bop);
+  UnaryOperator *get_uop() const;
+  void set_uop(UnaryOperator *uop);
+
+  Expr *get_generic_ptr() const;
+  ASTBase *get() const override;
+  ASTType *get_type() const override;
+  void set_type(ASTType *type) override;
+
+private:
+  BinaryOrUnaryKind _kind = UNKNOWN;
+  union {
+    BinaryOperator *_bop;
+    UnaryOperator *_uop;
+  };
+};
+
 class Parenthesis : public Expr {
 public:
   static Parenthesis *Create();
