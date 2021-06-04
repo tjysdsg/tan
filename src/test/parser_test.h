@@ -15,7 +15,7 @@
 
 using namespace tanlang;
 
-ASTBasePtr parse_string(str code) {
+ASTBase *parse_string(str code) {
   Reader reader;
   reader.from_string(code);
   auto result = tokenize(&reader);
