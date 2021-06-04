@@ -6,7 +6,7 @@ using namespace tanlang;
 
 // TODO: implement enum
 /*
-size_t ParserImpl::parse_enum_decl(const ASTBasePtr &p) {
+size_t ParserImpl::parse_enum_decl(const ASTBase * &p) {
   ++p->_end_index; /// skip "enum"
   auto name = peek(p->_end_index);
   if (name->get_node_type() != ASTNodeType::ID) {

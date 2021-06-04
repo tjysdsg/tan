@@ -8,13 +8,6 @@
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTType);
-AST_FWD_DECL(Decl);
-AST_FWD_DECL(CompoundStmt);
-AST_FWD_DECL(FunctionDecl);
-AST_FWD_DECL(Stmt);
-AST_FWD_DECL(Expr);
-
 class Decl : public Expr, public ASTNamed {
 public:
   Decl(ASTNodeType type, int lbp);
@@ -22,20 +15,20 @@ public:
 
 class VarDecl : public Decl {
 public:
-  static ptr<VarDecl> Create();
-  static ptr<VarDecl> Create(const str &name, const ASTTypePtr &ty);
+  static VarDecl *Create();
+  static VarDecl *Create(const str &name, ASTType *ty);
 
 public:
   VarDecl();
 
 private:
-  ASTBasePtr _value = nullptr;
+  ASTBase *_value = nullptr;
 };
 
 class ArgDecl : public Decl {
 public:
-  static ptr<ArgDecl> Create();
-  static ptr<ArgDecl> Create(const str &name, const ASTTypePtr &ty);
+  static ArgDecl *Create();
+  static ArgDecl *Create(const str &name, ASTType *ty);
 
 public:
   ArgDecl();
@@ -44,28 +37,28 @@ public:
 // TODO: function type itself
 class FunctionDecl : public Decl {
 public:
-  static FunctionDeclPtr Create();
-  static FunctionDeclPtr Create(const str &name,
-      const ASTTypePtr &ret_type,
-      vector<ASTTypePtr> arg_types,
+  static FunctionDecl *Create();
+  static FunctionDecl *Create(const str &name,
+      ASTType *ret_type,
+      vector<ASTType *> arg_types,
       bool is_external,
       bool is_public);
-  static FunctionDeclPtr GetCallee(CompilerSession *cs, const str &name, const vector<ExprPtr> &args);
+  static FunctionDecl *GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args);
   FunctionDecl();
 
-  [[nodiscard]] ASTTypePtr get_ret_ty() const;
-  void set_ret_type(ASTTypePtr type);
+  [[nodiscard]] ASTType *get_ret_ty() const;
+  void set_ret_type(ASTType *type);
 
-  void set_body(StmtPtr body);
-  StmtPtr get_body() const;
+  void set_body(Stmt *body);
+  Stmt *get_body() const;
 
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] str get_arg_name(size_t i) const;
-  [[nodiscard]] ASTTypePtr get_arg_type(size_t i) const;
+  [[nodiscard]] ASTType *get_arg_type(size_t i) const;
   void set_arg_names(const vector<str> &names);
-  void set_arg_types(const vector<ASTTypePtr> &types);
-  const vector<ptr<ArgDecl>> &get_arg_decls() const;
-  void set_arg_decls(const vector<ptr<ArgDecl>> &arg_decls);
+  void set_arg_types(const vector<ASTType *> &types);
+  const vector<ArgDecl *> &get_arg_decls() const;
+  void set_arg_decls(const vector<ArgDecl *> &arg_decls);
 
   bool is_public() const;
   bool is_external() const;
@@ -76,29 +69,29 @@ private:
   bool _is_external = false;
   bool _is_public = false;
 
-  ASTTypePtr _ret_type = nullptr;
+  ASTType *_ret_type = nullptr;
 
   vector<str> _arg_names{};
-  vector<ASTTypePtr> _arg_types{};
-  vector<ptr<ArgDecl>> _arg_decls{};
+  vector<ASTType *> _arg_types{};
+  vector<ArgDecl *> _arg_decls{};
 
-  StmtPtr _body = nullptr;
+  Stmt *_body = nullptr;
 };
 
 class StructDecl : public Decl {
 public:
-  static ptr<StructDecl> Create();
+  static StructDecl *Create();
   StructDecl();
-  const vector<ExprPtr> &get_member_decls() const;
-  void set_member_decls(const vector<ExprPtr> &member_decls);
+  const vector<Expr *> &get_member_decls() const;
+  void set_member_decls(const vector<Expr *> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
   bool is_forward_decl() const;
-  ASTTypePtr get_struct_member_ty(size_t i) const;
+  ASTType *get_struct_member_ty(size_t i) const;
   size_t get_struct_member_index(const str &name) const;
   void set_member_index(const str &name, size_t idx);
 
 private:
-  vector<ExprPtr> _member_decls{};
+  vector<Expr *> _member_decls{};
   umap<str, size_t> _member_indices{};
   bool _is_forward_decl = false;
 };

@@ -14,10 +14,10 @@ Decl::Decl(ASTNodeType type, int lbp) : Expr(type, lbp) {}
 
 ArgDecl::ArgDecl() : Decl(ASTNodeType::ARG_DECL, 0) {}
 
-ptr<ArgDecl> ArgDecl::Create() { return make_ptr<ArgDecl>(); }
+ArgDecl *ArgDecl::Create() { return new ArgDecl; }
 
-ptr<ArgDecl> ArgDecl::Create(const str &name, const ASTTypePtr &ty) {
-  auto ret = make_ptr<ArgDecl>();
+ArgDecl *ArgDecl::Create(const str &name, ASTType *ty) {
+  auto ret = new ArgDecl;
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
@@ -27,10 +27,10 @@ ptr<ArgDecl> ArgDecl::Create(const str &name, const ASTTypePtr &ty) {
 
 VarDecl::VarDecl() : Decl(ASTNodeType::VAR_DECL, 0) {}
 
-ptr<VarDecl> VarDecl::Create() { return make_ptr<VarDecl>(); }
+VarDecl *VarDecl::Create() { return new VarDecl; }
 
-ptr<VarDecl> VarDecl::Create(const str &name, const ASTTypePtr &ty) {
-  auto ret = make_ptr<VarDecl>();
+VarDecl *VarDecl::Create(const str &name, ASTType *ty) {
+  auto ret = new VarDecl;
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
@@ -41,8 +41,8 @@ ptr<VarDecl> VarDecl::Create(const str &name, const ASTTypePtr &ty) {
 FunctionDecl::FunctionDecl() : Decl(ASTNodeType::FUNC_DECL, 0) {}
 
 // TODO: move this to analysis
-FunctionDeclPtr FunctionDecl::GetCallee(CompilerSession *cs, const str &name, const vector<ptr<Expr>> &args) {
-  FunctionDeclPtr ret = nullptr;
+FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args) {
+  FunctionDecl *ret = nullptr;
   auto func_candidates = cs->get_functions(name);
   /// always prefer the function with lowest cost if multiple candidates are callable
   /// one implicit cast -> +1 cost
@@ -83,15 +83,15 @@ FunctionDeclPtr FunctionDecl::GetCallee(CompilerSession *cs, const str &name, co
   return ret;
 }
 
-FunctionDeclPtr FunctionDecl::Create() { return make_ptr<FunctionDecl>(); }
+FunctionDecl *FunctionDecl::Create() { return new FunctionDecl; }
 
-FunctionDeclPtr FunctionDecl::Create(const str &name,
-    const ASTTypePtr &ret_type,
-    vector<ASTTypePtr> arg_types,
+FunctionDecl *FunctionDecl::Create(const str &name,
+    ASTType *ret_type,
+    vector<ASTType *> arg_types,
     bool is_external,
     bool is_public) {
   TAN_ASSERT(!arg_types.empty());
-  auto ret = make_ptr<FunctionDecl>();
+  auto ret = new FunctionDecl;
 
   /// name
   ret->set_name(name);
@@ -111,51 +111,51 @@ FunctionDeclPtr FunctionDecl::Create(const str &name,
   return ret;
 }
 
-ASTTypePtr FunctionDecl::get_ret_ty() const { return _ret_type; }
+ASTType *FunctionDecl::get_ret_ty() const { return _ret_type; }
 
 str FunctionDecl::get_arg_name(size_t i) const { return _arg_names[i]; }
 
-ASTTypePtr FunctionDecl::get_arg_type(size_t i) const { return _arg_types[i]; }
+ASTType *FunctionDecl::get_arg_type(size_t i) const { return _arg_types[i]; }
 
 size_t FunctionDecl::get_n_args() const { return _arg_names.size(); }
 
-void FunctionDecl::set_body(StmtPtr body) { _body = body; }
+void FunctionDecl::set_body(Stmt *body) { _body = body; }
 
-void FunctionDecl::set_ret_type(ASTTypePtr type) { _ret_type = type; }
+void FunctionDecl::set_ret_type(ASTType *type) { _ret_type = type; }
 
 void FunctionDecl::set_arg_names(const vector<str> &names) { _arg_names = names; }
 
-void FunctionDecl::set_arg_types(const vector<ASTTypePtr> &types) { _arg_types = types; }
+void FunctionDecl::set_arg_types(const vector<ASTType *> &types) { _arg_types = types; }
 
 bool FunctionDecl::is_public() const { return _is_public; }
 
 bool FunctionDecl::is_external() const { return _is_external; }
 
-StmtPtr FunctionDecl::get_body() const { return _body; }
+Stmt *FunctionDecl::get_body() const { return _body; }
 
 void FunctionDecl::set_external(bool is_external) { _is_external = is_external; }
 
 void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
 
-const vector<ptr<ArgDecl>> &FunctionDecl::get_arg_decls() const { return _arg_decls; }
+const vector<ArgDecl *> &FunctionDecl::get_arg_decls() const { return _arg_decls; }
 
-void FunctionDecl::set_arg_decls(const vector<ptr<ArgDecl>> &arg_decls) { _arg_decls = arg_decls; }
+void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decls = arg_decls; }
 
 /// \section StructDecl
 
 StructDecl::StructDecl() : Decl(ASTNodeType::STRUCT_DECL, 0) {}
 
-ptr<StructDecl> StructDecl::Create() { return make_ptr<StructDecl>(); }
+StructDecl *StructDecl::Create() { return new StructDecl; }
 
 void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
 
 bool StructDecl::is_forward_decl() const { return _is_forward_decl; }
 
-const vector<ExprPtr> &StructDecl::get_member_decls() const { return _member_decls; }
+const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decls; }
 
-void StructDecl::set_member_decls(const vector<ExprPtr> &member_decls) { _member_decls = member_decls; }
+void StructDecl::set_member_decls(const vector<Expr *> &member_decls) { _member_decls = member_decls; }
 
-ASTTypePtr StructDecl::get_struct_member_ty(size_t i) const {
+ASTType *StructDecl::get_struct_member_ty(size_t i) const {
   TAN_ASSERT(i < _member_decls.size());
   return _member_decls[i]->get_type();
 }

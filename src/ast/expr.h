@@ -4,11 +4,9 @@
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_named.h"
 #include "src/ast/typed.h"
+#include "src/ast/fwd.h"
 
 namespace tanlang {
-
-AST_FWD_DECL(ASTType);
-AST_FWD_DECL(Decl);
 
 class Expr : public ASTBase, public Typed {
 public:
@@ -22,7 +20,7 @@ public:
 
 class IntegerLiteral : public Literal {
 public:
-  static ptr<IntegerLiteral> Create(uint64_t val, bool is_unsigned = false);
+  static IntegerLiteral *Create(uint64_t val, bool is_unsigned = false);
   IntegerLiteral() : Literal(ASTNodeType::INTEGER_LITERAL, 0) {}
 
   uint64_t get_value() const { return _value; }
@@ -35,7 +33,7 @@ private:
 
 class FloatLiteral : public Literal {
 public:
-  static ptr<FloatLiteral> Create(double val);
+  static FloatLiteral *Create(double val);
   FloatLiteral() : Literal(ASTNodeType::FLOAT_LITERAL, 0) {}
   double get_value() const;
   void set_value(double value);
@@ -46,7 +44,7 @@ private:
 
 class StringLiteral : public Literal {
 public:
-  static ptr<StringLiteral> Create(const str &val);
+  static StringLiteral *Create(const str &val);
   StringLiteral();
 
   str get_value() const;
@@ -58,7 +56,7 @@ private:
 
 class CharLiteral : public Literal {
 public:
-  static ptr<CharLiteral> Create(uint8_t val);
+  static CharLiteral *Create(uint8_t val);
   CharLiteral() : Literal(ASTNodeType::CHAR_LITERAL, 0) {}
 
   void set_value(uint8_t val);
@@ -70,24 +68,24 @@ private:
 
 class ArrayLiteral : public Literal {
 public:
-  static ptr<ArrayLiteral> Create(vector<ptr<Literal>> val);
-  static ptr<ArrayLiteral> Create();
+  static ArrayLiteral *Create(vector<Literal *> val);
+  static ArrayLiteral *Create();
   ArrayLiteral() : Literal(ASTNodeType::ARRAY_LITERAL, 0) {}
 
-  void set_elements(const vector<ptr<Literal>> &elements);
-  vector<ptr<Literal>> get_elements() const;
+  void set_elements(const vector<Literal *> &elements);
+  vector<Literal *> get_elements() const;
 
 private:
-  vector<ptr<Literal>> _elements{};
+  vector<Literal *> _elements{};
 };
 
 class Identifier : public Expr, public ASTNamed {
 public:
-  static ptr<Identifier> Create(const str &name);
+  static Identifier *Create(const str &name);
   Identifier();
 
 public:
-  DeclPtr _referred = nullptr;
+  Decl *_referred = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
@@ -114,18 +112,18 @@ enum class BinaryOpKind {
 
 class BinaryOperator : public Expr {
 public:
-  static ptr<BinaryOperator> Create(BinaryOpKind op);
-  static ptr<BinaryOperator> Create(BinaryOpKind op, const ptr<Expr> &lhs, const ptr<Expr> &rhs);
+  static BinaryOperator *Create(BinaryOpKind op);
+  static BinaryOperator *Create(BinaryOpKind op, Expr *lhs, Expr *rhs);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
 
   BinaryOperator(BinaryOpKind op);
 
-  void set_lhs(const ptr<Expr> &lhs);
-  void set_rhs(const ptr<Expr> &rhs);
-  ptr<Expr> get_lhs() const;
-  ptr<Expr> get_rhs() const;
+  void set_lhs(Expr *lhs);
+  void set_rhs(Expr *rhs);
+  Expr *get_lhs() const;
+  Expr *get_rhs() const;
   BinaryOpKind get_op() const;
   size_t get_dominant_idx() const { return _dominant_idx; }
   void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
@@ -135,13 +133,13 @@ public:
 
 protected:
   BinaryOpKind _op;
-  ptr<Expr> _lhs = nullptr;
-  ptr<Expr> _rhs = nullptr;
+  Expr *_lhs = nullptr;
+  Expr *_rhs = nullptr;
 };
 
 class MemberAccess : public BinaryOperator {
 public:
-  static ptr<MemberAccess> Create();
+  static MemberAccess *Create();
   MemberAccess() : BinaryOperator(BinaryOpKind::MEMBER_ACCESS) {}
 
 public:
@@ -169,8 +167,8 @@ enum class UnaryOpKind {
 
 class UnaryOperator : public Expr {
 public:
-  static ptr<UnaryOperator> Create(UnaryOpKind op);
-  static ptr<UnaryOperator> Create(UnaryOpKind op, const ptr<Expr> &rhs);
+  static UnaryOperator *Create(UnaryOpKind op);
+  static UnaryOperator *Create(UnaryOpKind op, Expr *rhs);
 
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
@@ -178,68 +176,66 @@ public:
   UnaryOperator(UnaryOpKind op);
 
   UnaryOpKind get_op() const;
-  ptr<Expr> get_rhs() const;
-  void set_rhs(const ptr<Expr> &rhs);
+  Expr *get_rhs() const;
+  void set_rhs(Expr *rhs);
 
 protected:
   UnaryOpKind _op;
-  ptr<Expr> _rhs = nullptr;
+  Expr *_rhs = nullptr;
 };
 
 class Parenthesis : public Expr {
 public:
-  static ptr<Parenthesis> Create();
+  static Parenthesis *Create();
   Parenthesis();
 
-  void set_sub(const ptr<Expr> &sub);
-  ptr<Expr> get_sub() const;
+  void set_sub(Expr *sub);
+  Expr *get_sub() const;
 
 private:
-  ptr<Expr> _sub = nullptr;
+  Expr *_sub = nullptr;
 };
-
-AST_FWD_DECL(FunctionDecl);
 
 class FunctionCall : public Expr, public ASTNamed {
 public:
-  static ptr<FunctionCall> Create();
+  static FunctionCall *Create();
   FunctionCall();
 
 public:
-  vector<ptr<Expr>> _args{};
-  FunctionDeclPtr _callee = nullptr;
+  vector<Expr *> _args{};
+  FunctionDecl *_callee = nullptr;
 };
 
 class Assignment : public Expr {
 public:
-  static ptr<Assignment> Create();
+  static Assignment *Create();
   Assignment();
-  const ASTBasePtr &get_lhs() const;
-  void set_lhs(const ASTBasePtr &lhs);
-  const ptr<Expr> &get_rhs() const;
-  void set_rhs(const ptr<Expr> &rhs);
+  ASTBase *get_lhs() const;
+  void set_lhs(ASTBase *lhs);
+  Expr *get_rhs() const;
+  void set_rhs(Expr *rhs);
 
 protected:
-  ASTBasePtr _lhs = nullptr; /// lhs can be decl or expr (identifier)
-  ptr<Expr> _rhs = nullptr;
+  ASTBase *_lhs = nullptr; /// lhs can be decl or expr (identifier)
+  Expr *_rhs = nullptr;
 };
 
 class Cast : public Expr {
 public:
-  static ptr<Cast> Create();
+  static Cast *Create();
   Cast();
-  const ptr<Expr> &get_lhs() const;
-  void set_lhs(const ptr<Expr> &lhs);
-  const ptr<ASTBase> &get_rhs() const;
-  void set_rhs(const ptr<ASTBase> &rhs);
+  Expr *get_lhs() const;
+  void set_lhs(Expr *lhs);
+  ASTBase *get_rhs() const;
+  void set_rhs(ASTBase *rhs);
 
-  const ASTTypePtr &get_dest_type() const;
-  void set_dest_type(const ASTTypePtr &dest_type);
+  ASTType *get_dest_type() const;
+  void set_dest_type(ASTType *dest_type);
 
 protected:
-  ptr<Expr> _lhs = nullptr;
-  ASTBasePtr _rhs = nullptr;
-  ASTTypePtr _dest_type = nullptr;
+  Expr *_lhs = nullptr;
+  ASTBase *_rhs = nullptr;
+  ASTType *_dest_type = nullptr;
 };
 
 }

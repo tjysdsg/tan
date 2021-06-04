@@ -10,20 +10,20 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_ty_array(const ASTTypePtr &p) {
+size_t ParserImpl::parse_ty_array(ASTType *p) {
   bool done = false;
   while (!done) {
     /// current token should be "[" right now
     ++p->_end_index; /// skip "["
 
     /// subtype
-    ASTTypePtr sub = make_ptr<ASTType>(*p);
+    ASTType *sub = new ASTType(*p);
     p->_tyty = Ty::ARRAY;
     p->_sub_types.clear();
     p->_sub_types.push_back(sub);
 
     /// size
-    ASTBasePtr _size = peek(p->_end_index);
+    ASTBase *_size = peek(p->_end_index);
     if (_size->get_node_type() != ASTNodeType::INTEGER_LITERAL) {
       error(p->_end_index, "Expect an unsigned integer as the array size");
     }
@@ -49,7 +49,7 @@ size_t ParserImpl::parse_ty_array(const ASTTypePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_ty(const ASTTypePtr &p) {
+size_t ParserImpl::parse_ty(ASTType *p) {
   while (!eof(p->_end_index)) {
     Token *token = at(p->_end_index);
     auto qb = ASTType::basic_tys.find(token->value);
@@ -59,7 +59,7 @@ size_t ParserImpl::parse_ty(const ASTTypePtr &p) {
       p->_tyty = TY_OR(p->_tyty, qb->second);
     } else if (qq != ASTType::qualifier_tys.end()) { /// TODO: qualifiers
       if (token->value == "*") { /// pointer
-        auto sub = make_ptr<ASTType>(*p);
+        auto sub = new ASTType(*p);
         p->_tyty = Ty::POINTER;
         p->_sub_types.clear();
         p->_sub_types.push_back(sub);

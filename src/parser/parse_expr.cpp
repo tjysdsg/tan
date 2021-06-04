@@ -7,8 +7,8 @@
 using namespace tanlang;
 
 // TODO: move type checking of array elements to analysis phase
-size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
-  ptr<ArrayLiteral> p = ast_must_cast<ArrayLiteral>(_p);
+size_t ParserImpl::parse_array_literal(ASTBase *_p) {
+  ArrayLiteral *p = ast_must_cast<ArrayLiteral>(_p);
 
   ++p->_end_index; /// skip '['
 
@@ -18,7 +18,7 @@ size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
   }
 
   auto element_type = ASTNodeType::INVALID;
-  vector<ptr<Literal>> elements{};
+  vector<Literal *> elements{};
   while (!eof(p->_end_index)) {
     if (at(p->_end_index)->value == ",") { /// skip ","
       ++p->_end_index;
@@ -49,14 +49,14 @@ size_t ParserImpl::parse_array_literal(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
-  ptr<Expr> lhs = ast_must_cast<Expr>(_lhs);
+size_t ParserImpl::parse_bop(ASTBase *_lhs, ASTBase *_p) {
+  Expr *lhs = ast_must_cast<Expr>(_lhs);
 
   if (_p->get_token_str() == "." || _p->get_token_str() == "[") { /// delegate to parse_member_access
     return parse_member_access(lhs, ast_must_cast<MemberAccess>(_p));
   }
 
-  ptr<BinaryOperator> p = ast_must_cast<BinaryOperator>(_p);
+  BinaryOperator *p = ast_must_cast<BinaryOperator>(_p);
   ++p->_end_index; /// skip the operator
 
   p->set_lhs(lhs); /// lhs
@@ -68,8 +68,8 @@ size_t ParserImpl::parse_bop(const ASTBasePtr &_lhs, const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
-  ptr<UnaryOperator> p = ast_must_cast<UnaryOperator>(_p);
+size_t ParserImpl::parse_uop(ASTBase *_p) {
+  UnaryOperator *p = ast_must_cast<UnaryOperator>(_p);
 
   /// rhs
   ++p->_end_index;
@@ -82,8 +82,8 @@ size_t ParserImpl::parse_uop(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_parenthesis(const ASTBasePtr &_p) {
-  ptr<Parenthesis> p = ast_must_cast<Parenthesis>(_p);
+size_t ParserImpl::parse_parenthesis(ASTBase *_p) {
+  Parenthesis *p = ast_must_cast<Parenthesis>(_p);
 
   ++p->_end_index; /// skip "("
   while (true) {
@@ -98,7 +98,7 @@ size_t ParserImpl::parse_parenthesis(const ASTBasePtr &_p) {
 
     /// NOTE: parenthesis without child expression inside are illegal (except function call)
     auto _sub = next_expression(p->_end_index, PREC_LOWEST);
-    ptr<Expr> sub = expect_expression(_sub);
+    Expr *sub = expect_expression(_sub);
     p->set_sub(sub);
   }
   return 0;

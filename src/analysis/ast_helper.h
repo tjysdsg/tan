@@ -1,19 +1,17 @@
 #ifndef __TAN_SRC_ANALYSIS_AST_HELPER_H__
 #define __TAN_SRC_ANALYSIS_AST_HELPER_H__
 #include "base.h"
+#include "src/ast/fwd.h"
 
 namespace tanlang {
-
-AST_FWD_DECL(ASTType);
-AST_FWD_DECL(SourceTraceable);
 
 class ASTHelper {
 public:
   ASTHelper(CompilerSession *cs);
 
-  str get_source_location(SourceTraceablePtr p) const;
-  ASTTypePtr get_contained_ty(const ASTTypePtr &p) const;
-  ASTTypePtr get_ptr_to(const ASTTypePtr &p) const;
+  str get_source_location(SourceTraceable *p) const;
+  ASTType *get_contained_ty(ASTType *p) const;
+  ASTType *get_ptr_to(ASTType *p) const;
 
 private:
   CompilerSession *_cs = nullptr;

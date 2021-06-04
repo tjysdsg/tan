@@ -3,11 +3,9 @@
 #include "base.h"
 #include "src/llvm_include.h"
 #include "libtanc.h"
+#include "src/ast/fwd.h"
 
 namespace tanlang {
-
-AST_FWD_DECL(ASTBase);
-class CompilerSession;
 
 /**
  * \class Compiler
@@ -55,7 +53,7 @@ private:
    * \brief Compiler instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
    * */
-  static inline vector<ptr<Compiler>> sub_compilers{};
+  static inline vector<Compiler *> sub_compilers{};
   static inline TargetMachine *target_machine = nullptr;
 
 public:
@@ -94,7 +92,7 @@ public:
 
 private:
   CompilerSession *_compiler_session = nullptr; /// wrapper for various LLVM classes
-  ASTBasePtr _ast = nullptr;
+  ASTBase *_ast = nullptr;
   str _filename = "";
 };
 

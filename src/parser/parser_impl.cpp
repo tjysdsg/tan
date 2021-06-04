@@ -21,7 +21,7 @@ using tanlang::TokenType; // distinguish from the one in winnt.h
 ParserImpl::ParserImpl(vector<Token *> tokens, str filename, CompilerSession *cs)
     : _tokens(std::move(tokens)), _filename(std::move(filename)), _cs(cs) {}
 
-ASTBasePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
+ASTBase *ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
   Token *token = _tokens[index];
   if (token->type != type || token->value != value) {
@@ -30,8 +30,8 @@ ASTBasePtr ParserImpl::peek(size_t &index, TokenType type, const str &value) {
   return peek(index);
 }
 
-ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
-  ASTBasePtr ret = nullptr;
+ASTBase *ParserImpl::peek_keyword(Token *token, size_t &index) {
+  ASTBase *ret = nullptr;
   switch (hashed_string{token->value.c_str()}) {
     case "var"_hs:
       ret = VarDecl::Create();
@@ -79,7 +79,7 @@ ASTBasePtr ParserImpl::peek_keyword(Token *token, size_t &index) {
   return ret;
 }
 
-ASTBasePtr ParserImpl::peek(size_t &index) {
+ASTBase *ParserImpl::peek(size_t &index) {
   if (index >= _tokens.size()) { return nullptr; }
   Token *token = _tokens[index];
   /// skip comments
@@ -90,7 +90,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   // check if there are tokens after the comment
   if (index >= _tokens.size()) { return nullptr; }
 
-  ASTBasePtr node = nullptr;
+  ASTBase *node = nullptr;
   if (token->value == "@") { /// intrinsics
     node = Intrinsic::Create();
   } else if (token->value == "=" && token->type == TokenType::BOP) {
@@ -159,7 +159,7 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
     node = MemberAccess::Create();
   } else if (token->value == "&") {
     /// BOP or UOP? ambiguous
-    node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, 0);
+    node = new Expr(ASTNodeType::BOP_OR_UOP, 0);
   } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
     node = CompoundStmt::Create();
   } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
@@ -175,11 +175,11 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
         break;
       case "+"_hs:
         /// BOP or UOP? ambiguous
-        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        node = new Expr(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
       case "-"_hs:
         /// BOP or UOP? ambiguous
-        node = make_ptr<Expr>(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        node = new Expr(ASTNodeType::BOP_OR_UOP, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         return nullptr;
@@ -194,8 +194,8 @@ ASTBasePtr ParserImpl::peek(size_t &index) {
   return node;
 }
 
-ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
-  ASTBasePtr node = peek(index);
+ASTBase *ParserImpl::next_expression(size_t &index, int rbp) {
+  ASTBase *node = peek(index);
   ++index;
   if (!node) { return nullptr; }
   auto n = node;
@@ -214,7 +214,7 @@ ASTBasePtr ParserImpl::next_expression(size_t &index, int rbp) {
   return left;
 }
 
-size_t ParserImpl::parse_node(const ASTBasePtr &p) {
+size_t ParserImpl::parse_node(ASTBase *p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
@@ -223,7 +223,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
     size_t start_index = p->_start_index;
     size_t end_index = p->_end_index;
     Token *token = p->get_token();
-    auto &pp = const_cast<ASTBasePtr &>(p);
+    auto &pp = const_cast<ASTBase *&>(p);
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         pp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
@@ -313,7 +313,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
+size_t ParserImpl::parse_node(ASTBase *left, ASTBase *p) {
   p->_end_index = p->_start_index;
 
   /// special tokens that require whether p is led or nud to determine the node type
@@ -322,7 +322,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
     size_t start_index = p->_start_index;
     size_t end_index = p->_end_index;
     Token *token = p->get_token();
-    auto &pp = const_cast<ASTBasePtr &>(p);
+    auto &pp = const_cast<ASTBase *&>(p);
     switch (hashed_string{p->get_token_str().c_str()}) {
       case "&"_hs:
         pp = BinaryOperator::Create(BinaryOpKind::BAND);
@@ -359,7 +359,7 @@ size_t ParserImpl::parse_node(const ASTBasePtr &left, const ASTBasePtr &p) {
   return p->_end_index;
 }
 
-ASTBasePtr ParserImpl::parse() {
+ASTBase *ParserImpl::parse() {
   _root = Program::Create();
   parse_node(_root);
   return _root;
@@ -376,31 +376,31 @@ bool ParserImpl::eof(size_t index) const { return index >= _tokens.size(); }
 
 void ParserImpl::error(size_t i, const str &error_message) const { report_error(get_filename(), at(i), error_message); }
 
-ExprPtr ParserImpl::expect_expression(const ASTBasePtr &p) {
-  ExprPtr ret = nullptr;
+Expr *ParserImpl::expect_expression(ASTBase *p) {
+  Expr *ret = nullptr;
   if (!(ret = ast_cast<Expr>(p))) {
     error(p->_end_index, "Expect an expression");
   }
   return ret;
 }
 
-StmtPtr ParserImpl::expect_stmt(const ASTBasePtr &p) {
-  StmtPtr ret = nullptr;
+Stmt *ParserImpl::expect_stmt(ASTBase *p) {
+  Stmt *ret = nullptr;
   if (!(ret = ast_cast<Stmt>(p))) {
     error(p->_end_index, "Expect a statement");
   }
   return ret;
 }
 
-DeclPtr ParserImpl::expect_decl(const ASTBasePtr &p) {
-  DeclPtr ret = nullptr;
+Decl *ParserImpl::expect_decl(ASTBase *p) {
+  Decl *ret = nullptr;
   if (!(ret = ast_cast<Decl>(p))) {
     error(p->_end_index, "Expect a declaration");
   }
   return ret;
 }
 
-size_t ParserImpl::parse_assignment(const ASTBasePtr &left, const ASTBasePtr &_p) {
+size_t ParserImpl::parse_assignment(ASTBase *left, ASTBase *_p) {
   auto p = ast_must_cast<Assignment>(_p);
 
   ++p->_end_index; /// skip =
@@ -415,7 +415,7 @@ size_t ParserImpl::parse_assignment(const ASTBasePtr &left, const ASTBasePtr &_p
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_cast(const ASTBasePtr &left, const ASTBasePtr &_p) {
+size_t ParserImpl::parse_cast(ASTBase *left, ASTBase *_p) {
   auto lhs = ast_must_cast<Expr>(left);
   auto p = ast_must_cast<Cast>(_p);
 

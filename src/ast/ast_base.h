@@ -4,19 +4,14 @@
 #include "src/ast/source_traceable.h"
 #include "src/ast/precedence.h"
 #include "src/ast/ast_node_type.h"
-#include <variant>
-#ifdef DEBUG
+#include "src/ast/fwd.h"
 #include <typeinfo>
-#endif
 
 namespace llvm {
 class Value;
 }
 
 namespace tanlang {
-
-AST_FWD_DECL(ASTBase);
-struct Scope;
 
 class ASTBase : public SourceTraceable {
 public:
@@ -37,8 +32,8 @@ public:
   void set_lbp(int lbp);
   int get_lbp() const;
 
-  void set_scope(const ptr<Scope> &scope);
-  ptr<Scope> get_scope() const;
+  void set_scope(Scope *scope);
+  Scope *get_scope() const;
 
 protected:
   virtual str to_string(bool print_prefix = true);
@@ -49,15 +44,15 @@ public:
 private:
   ASTNodeType _node_type = ASTNodeType::INVALID;
   int _lbp = 0;
-  ptr<Scope> _scope = nullptr;
+  Scope *_scope = nullptr;
 };
 
-template<typename To, typename From> ptr<To> ast_cast(ptr<From> node) {
+template<typename To, typename From> To *ast_cast(From *node) {
   static_assert(std::is_base_of<ASTBase, From>::value, "node can only be a subclass of ASTBase");
   return cast_ptr<To, From>(node);
 }
 
-template<typename To, typename From> ptr<To> ast_must_cast(ptr<From> node) {
+template<typename To, typename From> To *ast_must_cast(From *node) {
   auto ret = ast_cast<To, From>(node);
   TAN_ASSERT(ret);
   return ret;

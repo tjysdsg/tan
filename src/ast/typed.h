@@ -1,18 +1,17 @@
 #ifndef __TAN_SRC_AST_TYPED_H__
 #define __TAN_SRC_AST_TYPED_H__
 #include "base.h"
+#include "src/ast/fwd.h"
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTType);
-
 class Typed {
 public:
-  ASTTypePtr get_type() const;
-  void set_type(const ASTTypePtr &type);
+  ASTType *get_type() const;
+  void set_type(ASTType *type);
 
 private:
-  ASTTypePtr _type = nullptr;
+  ASTType *_type = nullptr;
 };
 
 }

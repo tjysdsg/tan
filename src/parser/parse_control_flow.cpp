@@ -4,7 +4,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_if(const ASTBasePtr &_p) {
+size_t ParserImpl::parse_if(ASTBase *_p) {
   auto p = ast_must_cast<If>(_p);
 
   ++p->_end_index; /// skip "if"
@@ -12,7 +12,7 @@ size_t ParserImpl::parse_if(const ASTBasePtr &_p) {
   /// predicate
   auto _pred = peek(p->_end_index, TokenType::PUNCTUATION, "(");
   p->_end_index = parse_node(_pred);
-  ExprPtr pred = expect_expression(_pred);
+  Expr *pred = expect_expression(_pred);
   p->set_predicate(pred);
 
   /// then clause
@@ -31,7 +31,7 @@ size_t ParserImpl::parse_if(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
+size_t ParserImpl::parse_loop(ASTBase *_p) {
   auto p = ast_must_cast<Loop>(_p);
 
   if (at(p->_end_index)->value == "for") {
@@ -48,13 +48,13 @@ size_t ParserImpl::parse_loop(const ASTBasePtr &_p) {
       /// predicate
       peek(p->_end_index, TokenType::PUNCTUATION, "(");
       auto _pred = next_expression(p->_end_index, PREC_LOWEST);
-      ExprPtr pred = expect_expression(_pred);
+      Expr *pred = expect_expression(_pred);
       p->set_predicate(pred);
       peek(p->_end_index, TokenType::PUNCTUATION, "{");
 
       /// loop body
       auto _body = next_expression(p->_end_index, PREC_LOWEST);
-      StmtPtr body = expect_stmt(_body);
+      Stmt *body = expect_stmt(_body);
       p->set_body(body);
       break;
     }

@@ -8,16 +8,16 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_struct_decl(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_struct_decl(ASTBase *_p) {
   auto p = ast_must_cast<StructDecl>(_p);
 
-  ASTTypePtr ty = nullptr;
+  ASTType *ty = nullptr;
   str struct_name = p->get_name();
   _cs->add_type_decl(struct_name, p);
 
   /// check if struct name is in conflicts of variable/function names
   /// or if there's a forward declaration
-  ASTTypePtr prev = _cs->get_type_decl(struct_name)->get_type();
+  ASTType *prev = _cs->get_type_decl(struct_name)->get_type();
   if (prev) {
     if (prev->get_node_type() != ASTNodeType::STRUCT_DECL) { /// fwd decl
       ty = std::move(prev);
@@ -36,7 +36,7 @@ void AnalyzerImpl::analyze_struct_decl(const ASTBasePtr &_p) {
   size_t n = member_decls.size();
   ty->_sub_types.reserve(n);
   for (size_t i = 0; i < n; ++i) {
-    ExprPtr m = member_decls[i];
+    Expr *m = member_decls[i];
     analyze(m);
 
     if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value

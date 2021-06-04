@@ -2,6 +2,6 @@
 
 using namespace tanlang;
 
-ASTTypePtr Typed::get_type() const { return _type; }
+ASTType *Typed::get_type() const { return _type; }
 
-void Typed::set_type(const ASTTypePtr &type) { _type = type; }
+void Typed::set_type(ASTType *type) { _type = type; }

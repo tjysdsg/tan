@@ -7,10 +7,9 @@ using namespace tanlang;
 
 Parser::Parser(vector<Token *> tokens, str filename, CompilerSession *cs) : _impl(new ParserImpl(tokens,
     filename,
-    cs)) {
-}
+    cs)) {}
 
-ASTBasePtr Parser::parse() {
+ASTBase *Parser::parse() {
   return _impl->parse();
 }
 

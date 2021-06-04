@@ -10,7 +10,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_intrinsic(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_intrinsic(ASTBase *_p) {
   auto p = ast_must_cast<Intrinsic>(_p);
   auto c = p->get_sub();
 

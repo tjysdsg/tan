@@ -4,13 +4,9 @@
 
 using namespace tanlang;
 
-CodeGenerator::CodeGenerator(CompilerSession *cs) {
-  _impl = new CodeGeneratorImpl(cs);
-}
+CodeGenerator::CodeGenerator(CompilerSession *cs) { _impl = new CodeGeneratorImpl(cs); }
 
-llvm::Value *CodeGenerator::codegen(const ASTBasePtr &p) {
-  return _impl->codegen(p);
-}
+llvm::Value *CodeGenerator::codegen(ASTBase *p) { return _impl->codegen(p); }
 
 CodeGenerator::~CodeGenerator() {
   delete _impl;

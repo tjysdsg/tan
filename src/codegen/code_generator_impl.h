@@ -3,6 +3,7 @@
 #include "compiler_session.h"
 #include "base.h"
 #include "src/analysis/ast_helper.h"
+#include "src/ast/fwd.h"
 
 namespace llvm {
 class Value;
@@ -10,52 +11,45 @@ class Value;
 
 namespace tanlang {
 
-class CompilerSession;
-AST_FWD_DECL(ASTBase);
-AST_FWD_DECL(ASTType);
-AST_FWD_DECL(FunctionDecl);
-AST_FWD_DECL(Intrinsic);
-AST_FWD_DECL(MemberAccess);
-
 using llvm::Value;
 
 class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
   explicit CodeGeneratorImpl(CompilerSession *cs);
-  Value *codegen(const ASTBasePtr &p);
+  Value *codegen(ASTBase *p);
 
 private:
-  void set_current_debug_location(ASTBasePtr p);
+  void set_current_debug_location(ASTBase *p);
 
-  Value *codegen_stmt(const ASTBasePtr &p);
-  Value *codegen_bop(const ASTBasePtr &p);
-  Value *codegen_uop(const ASTBasePtr &p);
-  Value *codegen_arithmetic(const ASTBasePtr &p);
-  Value *codegen_lnot(const ASTBasePtr &p);
-  Value *codegen_bnot(const ASTBasePtr &p);
-  Value *codegen_return(const ASTBasePtr &p);
-  Value *codegen_comparison(const ASTBasePtr &p);
-  Value *codegen_assignment(const ASTBasePtr &p);
-  Value *codegen_cast(const ASTBasePtr &p);
-  Value *codegen_var_arg_decl(const ASTBasePtr &p);
-  Value *codegen_address_of(const ASTBasePtr &p);
-  Value *codegen_parenthesis(const ASTBasePtr &p);
-  Value *codegen_break_continue(const ASTBasePtr &p);
-  Value *codegen_loop(const ASTBasePtr &p);
-  Value *codegen_if(const ASTBasePtr &p);
-  Value *codegen_func_call(const ASTBasePtr &p);
-  Value *codegen_import(const ASTBasePtr &p);
-  Value *codegen_literals(const ASTBasePtr &p);
-  Value *codegen_identifier(const ASTBasePtr &p);
+  Value *codegen_stmt(ASTBase *p);
+  Value *codegen_bop(ASTBase *p);
+  Value *codegen_uop(ASTBase *p);
+  Value *codegen_arithmetic(ASTBase *p);
+  Value *codegen_lnot(ASTBase *p);
+  Value *codegen_bnot(ASTBase *p);
+  Value *codegen_return(ASTBase *p);
+  Value *codegen_comparison(ASTBase *p);
+  Value *codegen_assignment(ASTBase *p);
+  Value *codegen_cast(ASTBase *p);
+  Value *codegen_var_arg_decl(ASTBase *p);
+  Value *codegen_address_of(ASTBase *p);
+  Value *codegen_parenthesis(ASTBase *p);
+  Value *codegen_break_continue(ASTBase *p);
+  Value *codegen_loop(ASTBase *p);
+  Value *codegen_if(ASTBase *p);
+  Value *codegen_func_call(ASTBase *p);
+  Value *codegen_import(ASTBase *p);
+  Value *codegen_literals(ASTBase *p);
+  Value *codegen_identifier(ASTBase *p);
 
-  Value *codegen_ty(const ASTTypePtr &p);
-  Value *codegen_func_prototype(const FunctionDeclPtr &p, bool import = false);
-  Value *codegen_func_decl(const FunctionDeclPtr &p);
-  Value *codegen_intrinsic(const IntrinsicPtr &p);
-  Value *codegen_member_access(const MemberAccessPtr &p);
+  Value *codegen_ty(ASTType *p);
+  Value *codegen_func_prototype(FunctionDecl *p, bool import = false);
+  Value *codegen_func_decl(FunctionDecl *p);
+  Value *codegen_intrinsic(Intrinsic *p);
+  Value *codegen_member_access(MemberAccess *p);
 
-  [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);
+  [[noreturn]] void report_error(ASTBase *p, const str &message);
 
 private:
   CompilerSession *_cs = nullptr;

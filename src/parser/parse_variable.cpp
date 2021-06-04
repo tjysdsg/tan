@@ -5,8 +5,8 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_var_decl(const ASTBasePtr &_p) {
-  ptr<VarDecl> p = ast_must_cast<VarDecl>(_p);
+size_t ParserImpl::parse_var_decl(ASTBase *_p) {
+  VarDecl *p = ast_must_cast<VarDecl>(_p);
 
   ++p->_end_index; /// skip 'var'
 
@@ -18,7 +18,7 @@ size_t ParserImpl::parse_var_decl(const ASTBasePtr &_p) {
   /// type
   if (at(p->_end_index)->value == ":") {
     ++p->_end_index;
-    ASTTypePtr ty = ASTType::Create();
+    ASTType *ty = ASTType::Create();
     ty->set_token(at(p->_end_index));
     ty->_end_index = ty->_start_index = p->_end_index;
     ty->_is_lvalue = true;
@@ -29,8 +29,8 @@ size_t ParserImpl::parse_var_decl(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_arg_decl(const ASTBasePtr &_p) {
-  ptr<ArgDecl> p = ast_must_cast<ArgDecl>(_p);
+size_t ParserImpl::parse_arg_decl(ASTBase *_p) {
+  ArgDecl *p = ast_must_cast<ArgDecl>(_p);
 
   /// name
   auto name_token = at(p->_end_index);
@@ -43,7 +43,7 @@ size_t ParserImpl::parse_arg_decl(const ASTBasePtr &_p) {
   ++p->_end_index;
 
   /// type
-  ASTTypePtr ty = ASTType::Create();
+  ASTType *ty = ASTType::Create();
   ty->set_token(at(p->_end_index));
   ty->_end_index = ty->_start_index = p->_end_index;
   ty->_is_lvalue = true;

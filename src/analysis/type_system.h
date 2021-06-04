@@ -2,6 +2,7 @@
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
 #include "base.h"
 #include "src/ast/ast_node_type.h"
+#include "src/ast/fwd.h"
 #include <array>
 
 namespace llvm {
@@ -13,8 +14,6 @@ class Value;
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTType);
-
 class TypeSystem {
 public:
   static constexpr std::array LiteralTypes =
@@ -25,12 +24,12 @@ public:
    * \brief Find out which type should a value be implicitly cast to.
    * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
    * */
-  static int CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t2);
+  static int CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2);
 
   /**
    * \brief Set the fields of an ASTType according to the type and target machine
    */
-  static void ResolveTy(CompilerSession *cs, ASTTypePtr const &p);
+  static void ResolveTy(CompilerSession *cs, ASTType *const &p);
 
   /**
    * \brief Convert a value to from orig type to dest type.
@@ -41,11 +40,11 @@ public:
    * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
    * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTTypePtr orig, ASTTypePtr dest);
+  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTType *orig, ASTType *dest);
 
-  static llvm::Type *ToLLVMType(CompilerSession *cs, const ASTTypePtr &p);
+  static llvm::Type *ToLLVMType(CompilerSession *cs, ASTType *p);
 
-  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p);
+  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, ASTType *p);
 
   static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *,
       llvm::Metadata *ret,

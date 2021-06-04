@@ -11,9 +11,9 @@
 
 using namespace tanlang;
 
-ASTTypePtr AnalyzerImpl::copy_ty(const ASTTypePtr &p) const { return make_ptr<ASTType>(*p); }
+ASTType *AnalyzerImpl::copy_ty(ASTType *p) const { return new ASTType(*p); }
 
-void AnalyzerImpl::analyze(const ASTBasePtr &p) {
+void AnalyzerImpl::analyze(ASTBase *p) {
   TAN_ASSERT(p);
   p->set_scope(_cs->get_current_scope());
 
@@ -99,17 +99,17 @@ void AnalyzerImpl::analyze(const ASTBasePtr &p) {
   }
 }
 
-void AnalyzerImpl::resolve_ty(const ASTTypePtr &p) const {
+void AnalyzerImpl::resolve_ty(ASTType *p) const {
   TypeSystem::ResolveTy(_cs, p);
 }
 
 AnalyzerImpl::AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
-void AnalyzerImpl::report_error(const ASTBasePtr &p, const str &message) {
+void AnalyzerImpl::report_error(ASTBase *p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
 }
 
-void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_uop(ASTBase *_p) {
   auto p = ast_must_cast<UnaryOperator>(_p);
   auto rhs = p->get_rhs();
   analyze(rhs);
@@ -140,7 +140,7 @@ void AnalyzerImpl::analyze_uop(const ASTBasePtr &_p) {
   }
 }
 
-void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_id(ASTBase *_p) {
   auto p = ast_must_cast<Identifier>(_p);
   auto referred = _cs->get(p->get_name());
   if (!referred) {
@@ -158,7 +158,7 @@ void AnalyzerImpl::analyze_id(const ASTBasePtr &_p) {
   p->set_type(ty);
 }
 
-void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_parenthesis(ASTBase *_p) {
   auto p = ast_must_cast<Parenthesis>(_p);
 
   analyze(p->get_sub());
@@ -166,7 +166,7 @@ void AnalyzerImpl::analyze_parenthesis(const ASTBasePtr &_p) {
   p->set_type(copy_ty(p->get_sub()->get_type()));
 }
 
-void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_if(ASTBase *_p) {
   auto p = ast_must_cast<If>(_p);
 
   auto cond = p->get_predicate();
@@ -180,9 +180,9 @@ void AnalyzerImpl::analyze_if(const ASTBasePtr &_p) {
   }
 }
 
-void AnalyzerImpl::analyze_var_decl(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_var_decl(ASTBase *_p) {
   auto p = ast_must_cast<VarDecl>(_p);
-  ASTTypePtr ty = p->get_type();
+  ASTType *ty = p->get_type();
 
   if (ty) { /// analyze type if specified
     ty->_is_lvalue = true;
@@ -192,21 +192,21 @@ void AnalyzerImpl::analyze_var_decl(const ASTBasePtr &_p) {
   _cs->add(p->get_name(), p);
 }
 
-void AnalyzerImpl::analyze_arg_decl(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_arg_decl(ASTBase *_p) {
   auto p = ast_must_cast<ArgDecl>(_p);
-  ASTTypePtr ty = p->get_type();
+  ASTType *ty = p->get_type();
   ty->_is_lvalue = true;
   analyze(ty);
   _cs->add(p->get_name(), p);
 }
 
-void AnalyzerImpl::analyze_ret(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_ret(ASTBase *_p) {
   // TODO: check if return type can be implicitly cast to function return type
   auto p = ast_must_cast<Return>(_p);
   analyze(p->get_rhs());
 }
 
-void AnalyzerImpl::analyze_stmt(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_stmt(ASTBase *_p) {
   auto p = ast_must_cast<CompoundStmt>(_p);
   for (const auto &c: p->get_children()) {
     analyze(c);

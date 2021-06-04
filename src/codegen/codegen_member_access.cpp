@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-Value *CodeGeneratorImpl::codegen_member_access(const MemberAccessPtr &p) {
+Value *CodeGeneratorImpl::codegen_member_access(MemberAccess *p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 

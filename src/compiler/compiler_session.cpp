@@ -1,5 +1,6 @@
 #include "compiler_session.h"
 #include "src/scope.h"
+#include "src/ast/ast_base.h"
 #include "src/compiler/function_table.h"
 #include "compiler.h"
 #include "base.h"
@@ -7,8 +8,8 @@
 using namespace tanlang;
 
 void CompilerSession::initialize_scope() {
-  _scope = vector<ptr<Scope>>();
-  _scope.push_back(make_ptr<Scope>()); // outer-est scope
+  _scope = vector<Scope *>();
+  _scope.push_back(new Scope); // outer-est scope
 }
 
 CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
@@ -28,7 +29,7 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
 
-  _function_table = make_ptr<FunctionTable>();
+  _function_table = new FunctionTable;
 
   /// scopes
   initialize_scope();
@@ -36,28 +37,28 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
 
 CompilerSession::~CompilerSession() {}
 
-ptr<Scope> CompilerSession::get_current_scope() { return _scope.back(); }
+Scope *CompilerSession::get_current_scope() { return _scope.back(); }
 
-ptr<Scope> CompilerSession::push_scope() {
-  auto r = make_ptr<Scope>();
+Scope *CompilerSession::push_scope() {
+  auto r = new Scope;
   _scope.push_back(r);
   return r;
 }
 
-void CompilerSession::push_scope(ptr<Scope> scope) { _scope.push_back(scope); }
+void CompilerSession::push_scope(Scope *scope) { _scope.push_back(scope); }
 
-ptr<Scope> CompilerSession::pop_scope() {
+Scope *CompilerSession::pop_scope() {
   if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
   auto r = _scope.back();
   _scope.pop_back();
   return r;
 }
 
-void CompilerSession::add(const str &name, ASTBasePtr value) {
+void CompilerSession::add(const str &name, ASTBase *value) {
   get_current_scope()->_named[name] = value;
 }
 
-void CompilerSession::set(const str &name, ASTBasePtr value) {
+void CompilerSession::set(const str &name, ASTBase *value) {
   auto scope = _scope.end();
   bool found = false;
   --scope;
@@ -73,11 +74,11 @@ void CompilerSession::set(const str &name, ASTBasePtr value) {
   else { report_error("Cannot set the value of " + name); }
 }
 
-ASTBasePtr CompilerSession::get(const str &name) {
+ASTBase *CompilerSession::get(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  ASTBasePtr result = nullptr;
+  ASTBase *result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {
@@ -91,12 +92,12 @@ ASTBasePtr CompilerSession::get(const str &name) {
   return result;
 }
 
-void CompilerSession::add_type_decl(const str &name, DeclPtr ty) {
+void CompilerSession::add_type_decl(const str &name, Decl *ty) {
   _type_table[name] = ty;
 }
 
 // TODO: return std::optional
-DeclPtr CompilerSession::get_type_decl(const str &name) {
+Decl *CompilerSession::get_type_decl(const str &name) {
   TAN_ASSERT(name != "");
   auto q = _type_table.find(name);
   if (q != _type_table.end()) {
@@ -196,15 +197,15 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, FunctionDeclPtr func) {
+void CompilerSession::AddPublicFunction(const str &filename, FunctionDecl *func) {
   auto &pf = CompilerSession::public_func;
   if (pf.find(filename) == pf.end()) {
-    pf[filename] = make_ptr<FunctionTable>();
+    pf[filename] = new FunctionTable;
   }
   pf[filename]->set(func);
 }
 
-vector<FunctionDeclPtr> CompilerSession::GetPublicFunctions(const str &filename) {
+vector<FunctionDecl *> CompilerSession::GetPublicFunctions(const str &filename) {
   auto &pf = CompilerSession::public_func;
   auto funcs = pf.find(filename);
   if (funcs != pf.end()) {
@@ -216,16 +217,14 @@ vector<FunctionDeclPtr> CompilerSession::GetPublicFunctions(const str &filename)
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
 
-void CompilerSession::add_function(FunctionDeclPtr func) {
-  _function_table->set(func);
-}
+void CompilerSession::add_function(FunctionDecl *func) { _function_table->set(func); }
 
-vector<FunctionDeclPtr> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
+vector<FunctionDecl *> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 
-LoopPtr CompilerSession::get_current_loop() const { return _current_loop; }
+Loop *CompilerSession::get_current_loop() const { return _current_loop; }
 
-void CompilerSession::set_current_loop(LoopPtr loop) { _current_loop = loop; }
+void CompilerSession::set_current_loop(Loop *loop) { _current_loop = loop; }

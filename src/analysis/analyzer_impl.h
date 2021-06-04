@@ -2,47 +2,41 @@
 #define __TAN_SRC_ANALYSIS_ANALYZER_IMPL_H__
 #include "base.h"
 #include "src/analysis/ast_helper.h"
+#include "src/ast/fwd.h"
 
 namespace tanlang {
-
-AST_FWD_DECL(ASTBase);
-AST_FWD_DECL(ASTType);
-AST_FWD_DECL(BinaryOperator);
-AST_FWD_DECL(MemberAccess);
-AST_FWD_DECL(Assignment);
-AST_FWD_DECL(Cast);
 
 class AnalyzerImpl {
 public:
   AnalyzerImpl(CompilerSession *cs);
-  void analyze(const ASTBasePtr &p);
+  void analyze(ASTBase *p);
 
 private:
-  void analyze_stmt(const ASTBasePtr &p);
-  void analyze_member_access(const MemberAccessPtr &p);
-  void analyze_intrinsic(const ASTBasePtr &p);
-  void analyze_string_literal(const ASTBasePtr &p);
-  void analyze_char_literal(const ASTBasePtr &p);
-  void analyze_integer_literal(const ASTBasePtr &p);
-  void analyze_float_literal(const ASTBasePtr &p);
-  void analyze_array_literal(const ASTBasePtr &p);
-  void analyze_struct_decl(const ASTBasePtr &p);
-  void analyze_func_decl(const ASTBasePtr &p);
-  void analyze_func_call(const ASTBasePtr &p);
-  void analyze_import(const ASTBasePtr &p);
-  void analyze_ret(const ASTBasePtr &p);
-  void analyze_parenthesis(const ASTBasePtr &p);
-  void analyze_if(const ASTBasePtr &p);
-  void analyze_assignment(const AssignmentPtr &p);
-  void analyze_cast(const CastPtr &p);
-  void analyze_bop(const ASTBasePtr &p);
-  void analyze_uop(const ASTBasePtr &p);
-  void analyze_id(const ASTBasePtr &p);
-  void analyze_var_decl(const ASTBasePtr &p);
-  void analyze_arg_decl(const ASTBasePtr &p);
-  void resolve_ty(const ASTTypePtr &p) const;
-  ASTTypePtr copy_ty(const ASTTypePtr &p) const;
-  [[noreturn]] void report_error(const ASTBasePtr &p, const str &message);
+  void analyze_stmt(ASTBase *p);
+  void analyze_member_access(MemberAccess *p);
+  void analyze_intrinsic(ASTBase *p);
+  void analyze_string_literal(ASTBase *p);
+  void analyze_char_literal(ASTBase *p);
+  void analyze_integer_literal(ASTBase *p);
+  void analyze_float_literal(ASTBase *p);
+  void analyze_array_literal(ASTBase *p);
+  void analyze_struct_decl(ASTBase *p);
+  void analyze_func_decl(ASTBase *p);
+  void analyze_func_call(ASTBase *p);
+  void analyze_import(ASTBase *p);
+  void analyze_ret(ASTBase *p);
+  void analyze_parenthesis(ASTBase *p);
+  void analyze_if(ASTBase *p);
+  void analyze_assignment(Assignment *p);
+  void analyze_cast(Cast *p);
+  void analyze_bop(ASTBase *p);
+  void analyze_uop(ASTBase *p);
+  void analyze_id(ASTBase *p);
+  void analyze_var_decl(ASTBase *p);
+  void analyze_arg_decl(ASTBase *p);
+  void resolve_ty(ASTType *p) const;
+  ASTType *copy_ty(ASTType *p) const;
+  [[noreturn]] void report_error(ASTBase *p, const str &message);
 
 private:
   CompilerSession *_cs = nullptr;

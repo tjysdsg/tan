@@ -85,13 +85,13 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
 
   /// Compiler instances
-  vector<ptr<Compiler>> compilers{};
+  vector<Compiler *> compilers{};
   compilers.reserve(n_files);
 
   /// parse all files before generating IR code
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
-    auto compiler = make_ptr<Compiler>(files[i]);
+    auto compiler = new Compiler(files[i]);
     compilers.push_back(compiler);
     compiler->parse();
     if (print_ast) { compiler->dump_ast(); }

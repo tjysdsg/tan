@@ -6,8 +6,8 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
-  ptr<FunctionDecl> p = ast_cast<FunctionDecl>(_p);
+size_t ParserImpl::parse_func_decl(ASTBase *_p) {
+  FunctionDecl *p = ast_cast<FunctionDecl>(_p);
 
   bool is_public = false;
   bool is_external = false;
@@ -43,8 +43,8 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
 
   /// arguments
   vector<str> arg_names{};
-  vector<ASTTypePtr> arg_types{};
-  vector<ptr<ArgDecl>> arg_decls{};
+  vector<ASTType *> arg_types{};
+  vector<ArgDecl *> arg_decls{};
   if (at(p->_end_index)->value != ")") {
     while (!eof(p->_end_index)) {
       auto arg = ArgDecl::Create();
@@ -93,8 +93,8 @@ size_t ParserImpl::parse_func_decl(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
-  ptr<FunctionCall> p = ast_must_cast<FunctionCall>(_p);
+size_t ParserImpl::parse_func_call(ASTBase *_p) {
+  FunctionCall *p = ast_must_cast<FunctionCall>(_p);
 
   p->set_name(at(p->_end_index)->value); /// function name
   ++p->_end_index;
@@ -106,7 +106,7 @@ size_t ParserImpl::parse_func_call(const ASTBasePtr &_p) {
   /// args
   while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
     auto _arg = next_expression(p->_end_index, PREC_LOWEST);
-    ptr<Expr> arg = expect_expression(_arg);
+    Expr *arg = expect_expression(_arg);
     p->_args.push_back(arg);
 
     if (at(p->_end_index)->value == ",") { /// skip ,

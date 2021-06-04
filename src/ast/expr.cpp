@@ -4,15 +4,15 @@ using namespace tanlang;
 
 /// \section Literals
 
-ptr<IntegerLiteral> IntegerLiteral::Create(uint64_t val, bool is_unsigned) {
-  auto ret = make_ptr<IntegerLiteral>();
+IntegerLiteral *IntegerLiteral::Create(uint64_t val, bool is_unsigned) {
+  auto ret = new IntegerLiteral;
   ret->_value = val;
   ret->_is_unsigned = is_unsigned;
   return ret;
 }
 
-ptr<FloatLiteral> FloatLiteral::Create(double val) {
-  auto ret = make_ptr<FloatLiteral>();
+FloatLiteral *FloatLiteral::Create(double val) {
+  auto ret = new FloatLiteral;
   ret->_value = val;
   return ret;
 }
@@ -21,8 +21,8 @@ double FloatLiteral::get_value() const { return _value; }
 
 void FloatLiteral::set_value(double value) { _value = value; }
 
-ptr<StringLiteral> StringLiteral::Create(const str &val) {
-  auto ret = make_ptr<StringLiteral>();
+StringLiteral *StringLiteral::Create(const str &val) {
+  auto ret = new StringLiteral;
   ret->_value = val;
   return ret;
 }
@@ -31,8 +31,8 @@ str StringLiteral::get_value() const { return _value; }
 
 StringLiteral::StringLiteral() : Literal(ASTNodeType::STRING_LITERAL, 0) {}
 
-ptr<CharLiteral> CharLiteral::Create(uint8_t val) {
-  auto ret = make_ptr<CharLiteral>();
+CharLiteral *CharLiteral::Create(uint8_t val) {
+  auto ret = new CharLiteral;
   ret->_value = val;
   return ret;
 }
@@ -41,28 +41,26 @@ void CharLiteral::set_value(uint8_t val) { _value = val; }
 
 uint8_t CharLiteral::get_value() const { return _value; }
 
-ptr<ArrayLiteral> ArrayLiteral::Create(vector<ptr<Literal>> val) {
-  auto ret = make_ptr<ArrayLiteral>();
+ArrayLiteral *ArrayLiteral::Create(vector<Literal *> val) {
+  auto ret = new ArrayLiteral;
   ret->_elements = val;
   return ret;
 }
 
-void ArrayLiteral::set_elements(const vector<ptr<Literal>> &elements) {
-  _elements = elements;
+void ArrayLiteral::set_elements(const vector<Literal *> &elements) { _elements = elements; }
+
+ArrayLiteral *ArrayLiteral::Create() {
+  return new ArrayLiteral;
 }
 
-ptr<ArrayLiteral> ArrayLiteral::Create() {
-  return make_ptr<ArrayLiteral>();
-}
-
-vector<ptr<Literal>> ArrayLiteral::get_elements() const { return _elements; }
+vector<Literal *> ArrayLiteral::get_elements() const { return _elements; }
 
 /// \section Identifier
 
 Identifier::Identifier() : Expr(ASTNodeType::ID, 0) {}
 
-ptr<Identifier> Identifier::Create(const str &name) {
-  auto ret = make_ptr<Identifier>();
+Identifier *Identifier::Create(const str &name) {
+  auto ret = new Identifier;
   ret->set_name(name);
   return ret;
 }
@@ -80,25 +78,23 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
         {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}};
 
-ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op) {
-  return make_ptr<BinaryOperator>(op);
-}
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op) { return new BinaryOperator(op); }
 
-ptr<BinaryOperator> BinaryOperator::Create(BinaryOpKind op, const ptr<Expr> &lhs, const ptr<Expr> &rhs) {
-  auto ret = make_ptr<BinaryOperator>(op);
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op, Expr *lhs, Expr *rhs) {
+  auto ret = new BinaryOperator(op);
   ret->_lhs = lhs;
   ret->_rhs = rhs;
   return ret;
 }
 
-void BinaryOperator::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
+void BinaryOperator::set_lhs(Expr *lhs) { _lhs = lhs; }
 
-void BinaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+void BinaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
 // FIXME: lhs can also be a declaration
-ptr<Expr> BinaryOperator::get_lhs() const { return _lhs; }
+Expr *BinaryOperator::get_lhs() const { return _lhs; }
 
-ptr<Expr> BinaryOperator::get_rhs() const { return _rhs; }
+Expr *BinaryOperator::get_rhs() const { return _rhs; }
 
 BinaryOpKind BinaryOperator::get_op() const { return _op; }
 
@@ -110,70 +106,68 @@ umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
 
 UnaryOperator::UnaryOperator(UnaryOpKind op) : Expr(ASTNodeType::UOP, UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
-void UnaryOperator::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+void UnaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op) {
-  return make_ptr<UnaryOperator>(op);
-}
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op) { return new UnaryOperator(op); }
 
-ptr<UnaryOperator> UnaryOperator::Create(UnaryOpKind op, const ptr<Expr> &rhs) {
-  auto ret = make_ptr<UnaryOperator>(op);
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op, Expr *rhs) {
+  auto ret = new UnaryOperator(op);
   ret->_rhs = rhs;
   return ret;
 }
 
 UnaryOpKind UnaryOperator::get_op() const { return _op; }
 
-ptr<Expr> UnaryOperator::get_rhs() const { return _rhs; }
+Expr *UnaryOperator::get_rhs() const { return _rhs; }
 
 /// \section Parenthesis
 
-ptr<Parenthesis> Parenthesis::Create() { return make_ptr<Parenthesis>(); }
+Parenthesis *Parenthesis::Create() { return new Parenthesis; }
 
 Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
 
-void Parenthesis::set_sub(const ptr<Expr> &sub) { _sub = sub; }
+void Parenthesis::set_sub(Expr *sub) { _sub = sub; }
 
-ptr<Expr> Parenthesis::get_sub() const { return _sub; }
+Expr *Parenthesis::get_sub() const { return _sub; }
 
 /// \section MEMBER_ACCESS operator
 
-ptr<MemberAccess> MemberAccess::Create() { return make_ptr<MemberAccess>(); }
+MemberAccess *MemberAccess::Create() { return new MemberAccess; }
 
 /// \section Function call
 
-ptr<FunctionCall> FunctionCall::Create() { return make_ptr<FunctionCall>(); }
+FunctionCall *FunctionCall::Create() { return new FunctionCall; }
 
 FunctionCall::FunctionCall() : Expr(ASTNodeType::FUNC_CALL, PREC_LOWEST) {}
 
 /// \section Assignment
 
-const ptr<Expr> &Assignment::get_rhs() const { return _rhs; }
+Expr *Assignment::get_rhs() const { return _rhs; }
 
-void Assignment::set_rhs(const ptr<Expr> &rhs) { _rhs = rhs; }
+void Assignment::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-ptr<Assignment> Assignment::Create() { return make_ptr<Assignment>(); }
+Assignment *Assignment::Create() { return new Assignment; }
 
 Assignment::Assignment() : Expr(ASTNodeType::ASSIGN, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
 
-const ASTBasePtr &Assignment::get_lhs() const { return _lhs; }
+ASTBase *Assignment::get_lhs() const { return _lhs; }
 
-void Assignment::set_lhs(const ASTBasePtr &lhs) { _lhs = lhs; }
+void Assignment::set_lhs(ASTBase *lhs) { _lhs = lhs; }
 
 /// \section Cast
 
-const ptr<Expr> &Cast::get_lhs() const { return _lhs; }
+Expr *Cast::get_lhs() const { return _lhs; }
 
-void Cast::set_lhs(const ptr<Expr> &lhs) { _lhs = lhs; }
+void Cast::set_lhs(Expr *lhs) { _lhs = lhs; }
 
-const ASTTypePtr &Cast::get_dest_type() const { return _dest_type; }
+ASTType *Cast::get_dest_type() const { return _dest_type; }
 
-void Cast::set_dest_type(const ASTTypePtr &dest_type) { _dest_type = dest_type; }
+void Cast::set_dest_type(ASTType *dest_type) { _dest_type = dest_type; }
 
-ptr<Cast> Cast::Create() { return make_ptr<Cast>(); }
+Cast *Cast::Create() { return new Cast; }
 
 Cast::Cast() : Expr(ASTNodeType::CAST, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
 
-const ASTBasePtr &Cast::get_rhs() const { return _rhs; }
+ASTBase *Cast::get_rhs() const { return _rhs; }
 
-void Cast::set_rhs(const ASTBasePtr &rhs) { _rhs = rhs; }
+void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }

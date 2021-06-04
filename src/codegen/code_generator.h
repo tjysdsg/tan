@@ -15,7 +15,7 @@ public:
   CodeGenerator() = delete;
   ~CodeGenerator();
   explicit CodeGenerator(CompilerSession *cs);
-  llvm::Value *codegen(const ASTBasePtr &p);
+  llvm::Value *codegen(ASTBase *p);
 
 private:
   CodeGeneratorImpl *_impl = nullptr;

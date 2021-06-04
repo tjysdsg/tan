@@ -9,10 +9,10 @@
 
 using namespace tanlang;
 
-Value *CodeGeneratorImpl::codegen_func_call(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_func_call(ASTBase *_p) {
   auto p = ast_must_cast<FunctionCall>(_p);
 
-  FunctionDeclPtr callee = p->_callee;
+  FunctionDecl *callee = p->_callee;
   size_t n = callee->get_n_args();
 
   /// args
@@ -32,7 +32,7 @@ Value *CodeGeneratorImpl::codegen_func_call(const ASTBasePtr &_p) {
   return p->_llvm_value = _cs->_builder->CreateCall(codegen(callee), arg_vals);
 }
 
-Value *CodeGeneratorImpl::codegen_func_prototype(const FunctionDeclPtr &p, bool import) {
+Value *CodeGeneratorImpl::codegen_func_prototype(FunctionDecl *p, bool import) {
   Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_ret_ty());
 
   /// set function arg types
@@ -66,7 +66,7 @@ Value *CodeGeneratorImpl::codegen_func_prototype(const FunctionDeclPtr &p, bool 
   return p->_llvm_value = func;
 }
 
-Value *CodeGeneratorImpl::codegen_func_decl(const FunctionDeclPtr &p) {
+Value *CodeGeneratorImpl::codegen_func_decl(FunctionDecl *p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 

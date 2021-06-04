@@ -3,8 +3,8 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_program(const ASTBasePtr &_p) {
-  ptr<Program> p = ast_must_cast<Program>(_p);
+size_t ParserImpl::parse_program(ASTBase *_p) {
+  Program *p = ast_must_cast<Program>(_p);
   while (!eof(p->_end_index)) {
     auto stmt = CompoundStmt::Create();
     stmt->set_token(at(p->_end_index));
@@ -15,7 +15,7 @@ size_t ParserImpl::parse_program(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_stmt(const ASTBasePtr &_p) {
+size_t ParserImpl::parse_stmt(ASTBase *_p) {
   auto p = ast_must_cast<CompoundStmt>(_p);
   if (at(p->_end_index)->value == "{") { /// compound statement
     ++p->_end_index; /// skip "{"
@@ -42,13 +42,13 @@ size_t ParserImpl::parse_stmt(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_return(const ASTBasePtr &_p) {
-  ptr<Return> p = ast_must_cast<Return>(_p);
+size_t ParserImpl::parse_return(ASTBase *_p) {
+  Return *p = ast_must_cast<Return>(_p);
 
   ++p->_end_index;
 
   auto _rhs = next_expression(p->_end_index, PREC_LOWEST);
-  ptr<Expr> rhs = expect_expression(_rhs);
+  Expr *rhs = expect_expression(_rhs);
   p->set_rhs(rhs);
   return p->_end_index;
 }

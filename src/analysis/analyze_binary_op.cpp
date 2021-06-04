@@ -1,20 +1,20 @@
+#include "src/analysis/analyzer_impl.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_type.h"
-#include "src/analysis/analyzer_impl.h"
 #include "src/analysis/type_system.h"
 #include "compiler_session.h"
 #include "src/common.h"
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_cast(const CastPtr &p) {
-  ptr<Expr> lhs = p->get_lhs();
-  ASTBasePtr rhs = p->get_rhs();
+void AnalyzerImpl::analyze_cast(Cast *p) {
+  Expr *lhs = p->get_lhs();
+  ASTBase *rhs = p->get_rhs();
   analyze(lhs);
   analyze(rhs);
 
-  ASTTypePtr ty = nullptr;
+  ASTType *ty = nullptr;
   switch (rhs->get_node_type()) {
     case ASTNodeType::ID:
       ty = _cs->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
@@ -39,12 +39,12 @@ void AnalyzerImpl::analyze_cast(const CastPtr &p) {
   // }
 }
 
-void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
-  ptr<Expr> rhs = p->get_rhs();
+void AnalyzerImpl::analyze_assignment(Assignment *p) {
+  Expr *rhs = p->get_rhs();
   analyze(rhs);
 
   auto lhs = p->get_lhs();
-  ASTTypePtr lhs_type = nullptr;
+  ASTType *lhs_type = nullptr;
   switch (lhs->get_node_type()) {
     case ASTNodeType::ID:
       analyze(lhs);
@@ -89,10 +89,10 @@ void AnalyzerImpl::analyze_assignment(const AssignmentPtr &p) {
   p->set_type(lhs_type);
 }
 
-void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_bop(ASTBase *_p) {
   auto p = ast_must_cast<BinaryOperator>(_p);
-  ptr<Expr> lhs = p->get_lhs();
-  ptr<Expr> rhs = p->get_rhs();
+  Expr *lhs = p->get_lhs();
+  Expr *rhs = p->get_rhs();
 
   /// NOTE: do not analyze lhs and rhs just yet, because analyze_assignment
   /// and analyze_member_access have their own ways of analyzing
@@ -113,7 +113,7 @@ void AnalyzerImpl::analyze_bop(const ASTBasePtr &_p) {
 
       size_t dominant_idx = static_cast<size_t>(i);
       p->set_dominant_idx(dominant_idx);
-      ASTTypePtr ty = copy_ty(dominant_idx == 0 ? lhs->get_type() : rhs->get_type());
+      ASTType *ty = copy_ty(dominant_idx == 0 ? lhs->get_type() : rhs->get_type());
       ty->_is_lvalue = false;
       p->set_type(ty);
       break;

@@ -75,7 +75,7 @@ void Compiler::parse() {
 }
 
 void Compiler::ParseFile(const str &filename) {
-  auto compiler = make_ptr<Compiler>(filename);
+  auto compiler = new Compiler(filename);
   compiler->parse();
   Compiler::sub_compilers.push_back(compiler);
 }

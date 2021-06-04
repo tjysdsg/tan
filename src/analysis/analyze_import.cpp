@@ -6,7 +6,7 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_import(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_import(ASTBase *_p) {
   auto p = ast_must_cast<Import>(_p);
 
   str file = p->get_filename();
@@ -16,7 +16,7 @@ void AnalyzerImpl::analyze_import(const ASTBasePtr &_p) {
   }
 
   /// it might be already parsed
-  vector<FunctionDeclPtr> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+  vector<FunctionDecl *> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
   if (imported_functions.empty()) {
     Compiler::ParseFile(imported[0]);
     imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
@@ -24,7 +24,7 @@ void AnalyzerImpl::analyze_import(const ASTBasePtr &_p) {
 
   /// import functions
   p->set_imported_funcs(imported_functions);
-  for (FunctionDeclPtr f: imported_functions) {
+  for (FunctionDecl *f: imported_functions) {
     _cs->add_function(f);
   }
 }

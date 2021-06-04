@@ -10,7 +10,7 @@
 
 using namespace tanlang;
 
-llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTypePtr orig, ASTTypePtr dest) {
+llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest) {
   auto *builder = cs->_builder;
   auto *loaded = val;
 
@@ -80,7 +80,7 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
-int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t2) {
+int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
   ASTHelper h(cs);
   TAN_ASSERT(t1);
   TAN_ASSERT(t2);
@@ -117,7 +117,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTTypePtr t1, ASTTypePtr t
   return -1;
 }
 
-void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
+void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
   Ty base = TY_GET_BASE(p->_tyty);
   Ty qual = TY_GET_QUALIFIER(p->_tyty);
   if (p->_resolved) {
@@ -224,7 +224,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
       if (p->_is_forward_decl) {
-        ASTTypePtr real = cs->get_type_decl(p->_type_name)->get_type();
+        ASTType *real = cs->get_type_decl(p->_type_name)->get_type();
         if (!real) {
           report_error(cs->_filename, p->get_token(), "Incomplete type");
         }
@@ -271,7 +271,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
       break;
     }
     case Ty::INVALID: { /// find the true type that p refers to
-      DeclPtr decl = cs->get_type_decl(p->get_token_str());
+      Decl *decl = cs->get_type_decl(p->get_token_str());
       if (!decl) {
         report_error(cs->_filename, p->get_token(), "Invalid type name");
       }
@@ -284,7 +284,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTTypePtr const &p) {
   p->_resolved = true;
 }
 
-Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
+Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
   TAN_ASSERT(p);
   if (!p->_resolved) {
     TypeSystem::ResolveTy(cs, p);
@@ -342,7 +342,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, const ASTTypePtr &p) {
   return type;
 }
 
-Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, const ASTTypePtr &p) {
+Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
   if (!p->_resolved) {
     TypeSystem::ResolveTy(cs, p);
   }

@@ -2,6 +2,7 @@
 #define TAN_SRC_AST_AST_TY_H_
 #include <variant>
 #include "src/ast/ast_base.h"
+#include "src/ast/fwd.h"
 #include "src/ast/ty.h"
 #include "base.h"
 
@@ -17,23 +18,21 @@ class Type;
 
 namespace tanlang {
 
-AST_FWD_DECL(ASTType);
-
 /**
  * \brief Type of an ASTNode
  */
 class ASTType : public ASTBase {
 public:
-  static ASTTypePtr Create();
-  static ASTTypePtr Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys = {}, bool is_lvalue = false);
+  static ASTType *Create();
+  static ASTType *Create(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys = {}, bool is_lvalue = false);
 
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
 
 private:
-  static inline umap<Ty, ASTTypePtr> _cache{};
-  // TODO: static ASTTypePtr find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue);
+  static inline umap<Ty, ASTType *> _cache{};
+  // TODO: static ASTType * find_cache(Ty t, const vector<ASTType *> &sub_tys, bool is_lvalue);
 
 public:
   ASTType();
@@ -71,7 +70,7 @@ public:
   bool _is_forward_decl = false;
 
 public:
-  vector<ASTTypePtr> _sub_types;
+  vector<ASTType *> _sub_types;
 };
 
 } // namespace tanlang

@@ -1,15 +1,15 @@
-#include "base.h"
 #include "src/parser/parser_impl.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
 #include "src/ast/decl.h"
 #include "src/common.h"
+#include "base.h"
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_struct_decl(const ASTBasePtr &_p) {
-  ptr<StructDecl> p = ast_must_cast<StructDecl>(_p);
+size_t ParserImpl::parse_struct_decl(ASTBase *_p) {
+  StructDecl *p = ast_must_cast<StructDecl>(_p);
 
   ++p->_end_index; /// skip "struct"
 
@@ -32,7 +32,7 @@ size_t ParserImpl::parse_struct_decl(const ASTBasePtr &_p) {
 
     /// copy member declarations
     auto children = comp_stmt->get_children();
-    vector<ExprPtr> member_decls{};
+    vector<Expr *> member_decls{};
     for (const auto &c : children) {
       if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::VAR_DECL, ASTNodeType::ASSIGN, ASTNodeType::FUNC_DECL})) {
         error(c->_end_index, "Invalid struct member");

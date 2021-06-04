@@ -8,20 +8,20 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_func_call(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_func_call(ASTBase *_p) {
   auto p = ast_must_cast<FunctionCall>(_p);
 
   for (const auto &a: p->_args) {
     analyze(a);
   }
 
-  FunctionDeclPtr callee = FunctionDecl::GetCallee(_cs, p->get_name(), p->_args);
+  FunctionDecl *callee = FunctionDecl::GetCallee(_cs, p->get_name(), p->_args);
   p->_callee = callee;
   p->set_type(copy_ty(callee->get_ret_ty()));
 }
 
-void AnalyzerImpl::analyze_func_decl(const ASTBasePtr &_p) {
-  FunctionDeclPtr p = ast_must_cast<FunctionDecl>(_p);
+void AnalyzerImpl::analyze_func_decl(ASTBase *_p) {
+  FunctionDecl *p = ast_must_cast<FunctionDecl>(_p);
 
   /// add to external function table
   if (p->is_public() || p->is_external()) {

@@ -5,9 +5,7 @@ using namespace tanlang;
 
 ASTBase::ASTBase(ASTNodeType node_type, int lbp) : _node_type(node_type), _lbp(lbp) {}
 
-ASTNodeType ASTBase::get_node_type() const {
-  return _node_type;
-}
+ASTNodeType ASTBase::get_node_type() const { return _node_type; }
 
 void ASTBase::set_node_type(ASTNodeType node_type) {
   _node_type = node_type;
@@ -48,11 +46,11 @@ str ASTBase::to_string(bool print_prefix) {
   else { return ""; }
 }
 
-void ASTBase::set_scope(const ptr<Scope> &scope) {
+void ASTBase::set_scope(Scope *scope) {
   _scope = scope;
 }
 
-ptr<Scope> ASTBase::get_scope() const {
+Scope *ASTBase::get_scope() const {
   return _scope;
 }
 

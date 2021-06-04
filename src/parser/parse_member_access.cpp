@@ -5,7 +5,7 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_member_access(const ptr<Expr> &left, const ptr<MemberAccess> &p) {
+size_t ParserImpl::parse_member_access(Expr *left, MemberAccess *p) {
   if (at(p->_end_index)->value == "[") {
     p->_access_type = MemberAccess::MemberAccessBracket;
   }
@@ -17,7 +17,7 @@ size_t ParserImpl::parse_member_access(const ptr<Expr> &left, const ptr<MemberAc
 
   /// rhs
   auto _right = peek(p->_end_index);
-  ptr<Expr> right = expect_expression(_right);
+  Expr *right = expect_expression(_right);
   p->_end_index = parse_node(right);
   p->set_rhs(right);
 

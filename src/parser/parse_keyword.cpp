@@ -7,8 +7,8 @@
 
 using namespace tanlang;
 
-size_t ParserImpl::parse_intrinsic(const ASTBasePtr &_p) {
-  ptr<Intrinsic> p = ast_must_cast<Intrinsic>(_p);
+size_t ParserImpl::parse_intrinsic(ASTBase *_p) {
+  Intrinsic *p = ast_must_cast<Intrinsic>(_p);
 
   ++p->_end_index; /// skip "@"
   auto e = peek(p->_end_index);
@@ -21,8 +21,8 @@ size_t ParserImpl::parse_intrinsic(const ASTBasePtr &_p) {
   return p->_end_index;
 }
 
-size_t ParserImpl::parse_import(const ASTBasePtr &_p) {
-  ptr<Import> p = ast_must_cast<Import>(_p);
+size_t ParserImpl::parse_import(ASTBase *_p) {
+  Import *p = ast_must_cast<Import>(_p);
 
   ++p->_end_index; /// skip "import"
   auto rhs = peek(p->_end_index);

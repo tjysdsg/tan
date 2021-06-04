@@ -14,7 +14,7 @@ using namespace tanlang;
 
 CodeGeneratorImpl::CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
-Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
+Value *CodeGeneratorImpl::codegen(ASTBase *p) {
   if (p->_llvm_value) {
     return p->_llvm_value;
   }
@@ -91,11 +91,11 @@ Value *CodeGeneratorImpl::codegen(const ASTBasePtr &p) {
   return ret;
 }
 
-void CodeGeneratorImpl::set_current_debug_location(ASTBasePtr p) {
+void CodeGeneratorImpl::set_current_debug_location(ASTBase *p) {
   _cs->set_current_debug_location(p->get_line(), p->get_col());
 }
 
-Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_bnot(ASTBase *_p) {
   auto p = ast_must_cast<UnaryOperator>(_p);
 
   auto *builder = _cs->_builder;
@@ -111,7 +111,7 @@ Value *CodeGeneratorImpl::codegen_bnot(const ASTBasePtr &_p) {
   return p->_llvm_value = builder->CreateNot(rhs);
 }
 
-Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_lnot(ASTBase *_p) {
   auto p = ast_must_cast<UnaryOperator>(_p);
 
   auto *builder = _cs->_builder;
@@ -137,7 +137,7 @@ Value *CodeGeneratorImpl::codegen_lnot(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_return(ASTBase *_p) {
   auto p = ast_must_cast<Return>(_p);
 
   auto *builder = _cs->_builder;
@@ -152,7 +152,7 @@ Value *CodeGeneratorImpl::codegen_return(const ASTBasePtr &_p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_var_arg_decl(ASTBase *_p) {
   auto p = ast_must_cast<Decl>(_p);
 
   auto *builder = _cs->_builder;
@@ -188,7 +188,7 @@ Value *CodeGeneratorImpl::codegen_var_arg_decl(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_address_of(ASTBase *_p) {
   auto p = ast_must_cast<UnaryOperator>(_p);
 
   auto *builder = _cs->_builder;
@@ -204,7 +204,7 @@ Value *CodeGeneratorImpl::codegen_address_of(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_parenthesis(ASTBase *_p) {
   auto p = ast_must_cast<Parenthesis>(_p);
 
   set_current_debug_location(p);
@@ -212,11 +212,11 @@ Value *CodeGeneratorImpl::codegen_parenthesis(const ASTBasePtr &_p) {
   return p->_llvm_value = codegen(p->get_sub());
 }
 
-Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_import(ASTBase *_p) {
   auto p = ast_must_cast<Import>(_p);
 
   set_current_debug_location(p);
-  for (const FunctionDeclPtr &f: p->get_imported_funcs()) {
+  for (FunctionDecl *f: p->get_imported_funcs()) {
     /// do nothing for already defined intrinsics
     auto *func = _cs->get_module()->getFunction(f->get_name());
     if (!func) {
@@ -228,7 +228,7 @@ Value *CodeGeneratorImpl::codegen_import(const ASTBasePtr &_p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
+Value *CodeGeneratorImpl::codegen_intrinsic(Intrinsic *p) {
   set_current_debug_location(p);
 
   Value *ret = nullptr;
@@ -252,7 +252,7 @@ Value *CodeGeneratorImpl::codegen_intrinsic(const IntrinsicPtr &p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
+Value *CodeGeneratorImpl::codegen_ty(ASTType *p) {
   auto *builder = _cs->_builder;
   TAN_ASSERT(p->_resolved);
   Ty base = TY_GET_BASE(p->_tyty);
@@ -307,7 +307,7 @@ Value *CodeGeneratorImpl::codegen_ty(const ASTTypePtr &p) {
 }
 
 // TODO: merge some of the code with codegen_ty()
-Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_literals(ASTBase *_p) {
   auto p = ast_must_cast<Literal>(_p);
 
   set_current_debug_location(p);
@@ -359,11 +359,11 @@ Value *CodeGeneratorImpl::codegen_literals(const ASTBasePtr &_p) {
 }
 
 // FIXME: write an ASTBaseError class
-void CodeGeneratorImpl::report_error(const ASTBasePtr &p, const str &message) {
+void CodeGeneratorImpl::report_error(ASTBase *p, const str &message) {
   ::report_error(_cs->_filename, p->get_token(), message);
 }
 
-Value *CodeGeneratorImpl::codegen_stmt(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_stmt(ASTBase *_p) {
   auto p = ast_must_cast<CompoundStmt>(_p);
 
   for (const auto &e : p->get_children()) {
@@ -372,7 +372,7 @@ Value *CodeGeneratorImpl::codegen_stmt(const ASTBasePtr &_p) {
   return nullptr;
 }
 
-Value *CodeGeneratorImpl::codegen_uop(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_uop(ASTBase *_p) {
   auto p = ast_must_cast<UnaryOperator>(_p);
   Value *ret = nullptr;
 
@@ -412,7 +412,7 @@ Value *CodeGeneratorImpl::codegen_uop(const ASTBasePtr &_p) {
   return ret;
 }
 
-Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_bop(ASTBase *_p) {
   auto p = ast_must_cast<BinaryOperator>(_p);
   Value *ret = nullptr;
 
@@ -451,7 +451,7 @@ Value *CodeGeneratorImpl::codegen_bop(const ASTBasePtr &_p) {
   return p->_llvm_value = ret;
 }
 
-Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_assignment(ASTBase *_p) {
   auto p = ast_must_cast<Assignment>(_p);
 
   auto *builder = _cs->_builder;
@@ -474,7 +474,7 @@ Value *CodeGeneratorImpl::codegen_assignment(const ASTBasePtr &_p) {
   return to;
 }
 
-Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_arithmetic(ASTBase *_p) {
   auto p = ast_must_cast<BinaryOperator>(_p);
 
   auto *builder = _cs->_builder;
@@ -556,7 +556,7 @@ Value *CodeGeneratorImpl::codegen_arithmetic(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_comparison(ASTBase *_p) {
   auto p = ast_must_cast<BinaryOperator>(_p);
 
   auto *builder = _cs->_builder;
@@ -629,7 +629,7 @@ Value *CodeGeneratorImpl::codegen_comparison(const ASTBasePtr &_p) {
   return p->_llvm_value;
 }
 
-Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_cast(ASTBase *_p) {
   auto p = ast_must_cast<Cast>(_p);
 
   auto *builder = _cs->_builder;
@@ -654,7 +654,7 @@ Value *CodeGeneratorImpl::codegen_cast(const ASTBasePtr &_p) {
   return p->_llvm_value = ret;
 }
 
-Value *CodeGeneratorImpl::codegen_identifier(const ASTBasePtr &_p) {
+Value *CodeGeneratorImpl::codegen_identifier(ASTBase *_p) {
   auto p = ast_must_cast<Identifier>(_p);
   return p->_llvm_value = codegen(p->_referred);
 }

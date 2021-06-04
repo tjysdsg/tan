@@ -8,10 +8,10 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
-  ptr<Expr> lhs = p->get_lhs();
+void AnalyzerImpl::analyze_member_access(MemberAccess *p) {
+  Expr *lhs = p->get_lhs();
   analyze(lhs);
-  ptr<Expr> rhs = p->get_rhs();
+  Expr *rhs = p->get_rhs();
 
   if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
     analyze(rhs);
@@ -53,7 +53,7 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
       }
 
       str m_name = ast_must_cast<Identifier>(rhs)->get_name();
-      ASTTypePtr struct_ast = nullptr;
+      ASTType *struct_ast = nullptr;
       /// auto dereference pointers
       if (lhs->get_type()->_is_ptr) {
         struct_ast = _h.get_contained_ty(lhs->get_type());
@@ -64,7 +64,7 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
         report_error(lhs, "Expect a struct type");
       }
 
-      ptr<StructDecl> struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->_type_name));
+      StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->_type_name));
       p->_access_idx = struct_decl->get_struct_member_index(m_name);
       auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
       ty->_is_lvalue = true;
@@ -81,7 +81,7 @@ void AnalyzerImpl::analyze_member_access(const MemberAccessPtr &p) {
 
     /// get address of the struct instance
     if (lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
-      ptr<Expr> tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs);
+      Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs);
       tmp->_start_index = lhs->_start_index;
       tmp->_end_index = lhs->_end_index;
       tmp->set_token(lhs->get_token());

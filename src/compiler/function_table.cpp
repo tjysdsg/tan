@@ -4,22 +4,22 @@
 
 namespace tanlang {
 
-void FunctionTable::set(FunctionDeclPtr func) {
+void FunctionTable::set(FunctionDecl *func) {
   auto name = func->get_name();
   if (_table.find(name) == _table.end()) { _table[name] = {}; }
   _table[name].push_back(func);
 }
 
-vector<FunctionDeclPtr> FunctionTable::get(const str &name) {
-  vector<FunctionDeclPtr> ret{};
+vector<FunctionDecl *> FunctionTable::get(const str &name) {
+  vector<FunctionDecl *> ret{};
   if (_table.find(name) != _table.end()) {
     ret.insert(ret.end(), _table[name].begin(), _table[name].end());
   }
   return ret;
 }
 
-vector<FunctionDeclPtr> FunctionTable::get_all() const {
-  vector<FunctionDeclPtr> ret{};
+vector<FunctionDecl *> FunctionTable::get_all() const {
+  vector<FunctionDecl *> ret{};
   ret.reserve(_table.size());
   for (const auto &p: _table) {
     ret.insert(ret.end(), p.second.begin(), p.second.end());

@@ -6,20 +6,20 @@
 
 using namespace tanlang;
 
-void AnalyzerImpl::analyze_string_literal(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_string_literal(ASTBase *_p) {
   auto p = ast_must_cast<StringLiteral>(_p);
   p->set_value(p->get_token_str());
   p->set_type(ASTType::Create(_cs, Ty::STRING));
 }
 
-void AnalyzerImpl::analyze_char_literal(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_char_literal(ASTBase *_p) {
   auto p = ast_must_cast<CharLiteral>(_p);
 
   p->set_type(ASTType::Create(_cs, Ty::CHAR, {}));
   p->set_value(static_cast<uint8_t>(p->get_token_str()[0]));
 }
 
-void AnalyzerImpl::analyze_integer_literal(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_integer_literal(ASTBase *_p) {
   auto p = ast_must_cast<IntegerLiteral>(_p);
   auto tyty = Ty::INT;
   if (p->get_token()->is_unsigned) {
@@ -28,24 +28,24 @@ void AnalyzerImpl::analyze_integer_literal(const ASTBasePtr &_p) {
   p->set_type(ASTType::Create(_cs, tyty));
 }
 
-void AnalyzerImpl::analyze_float_literal(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_float_literal(ASTBase *_p) {
   auto p = ast_must_cast<FloatLiteral>(_p);
   p->set_type(ASTType::Create(_cs, Ty::FLOAT));
 }
 
-void AnalyzerImpl::analyze_array_literal(const ASTBasePtr &_p) {
+void AnalyzerImpl::analyze_array_literal(ASTBase *_p) {
   auto p = ast_must_cast<ArrayLiteral>(_p);
 
   // TODO: restrict array element type to be the same
-  vector<ASTTypePtr> sub_tys{};
+  vector<ASTType *> sub_tys{};
   auto elements = p->get_elements();
   sub_tys.reserve(elements.size());
-  std::for_each(elements.begin(), elements.end(), [&sub_tys, this](const ptr<Expr> &e) {
+  std::for_each(elements.begin(), elements.end(), [&sub_tys, this](Expr *e) {
     analyze(e);
     sub_tys.push_back(e->get_type());
   });
 
-  ASTTypePtr ty = ASTType::Create(_cs, Ty::ARRAY, sub_tys);
+  ASTType *ty = ASTType::Create(_cs, Ty::ARRAY, sub_tys);
   ty->_array_size = elements.size();
   p->set_type(ty);
 }

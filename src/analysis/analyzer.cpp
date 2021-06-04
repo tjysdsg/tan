@@ -3,14 +3,8 @@
 
 using namespace tanlang;
 
-void Analyzer::analyze(ASTBasePtr p) {
-  _analyzer_impl->analyze(p);
-}
+void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
 
-Analyzer::Analyzer(CompilerSession *cs) {
-  _analyzer_impl = new AnalyzerImpl(cs);
-}
+Analyzer::Analyzer(CompilerSession *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
 
-Analyzer::~Analyzer() {
-  if (_analyzer_impl) { delete _analyzer_impl; }
-}
+Analyzer::~Analyzer() { if (_analyzer_impl) { delete _analyzer_impl; }}

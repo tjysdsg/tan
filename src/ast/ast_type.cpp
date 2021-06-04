@@ -7,7 +7,7 @@
 using namespace tanlang;
 
 /*
-ASTTypePtr ASTType::find_cache(Ty t, const vector<ASTTypePtr> &sub_tys, bool is_lvalue) {
+ASTType * ASTType::find_cache(Ty t, const vector<ASTType *> &sub_tys, bool is_lvalue) {
   auto find = ASTType::_cache.find(t);
   if (find == ASTType::_cache.end()) { return nullptr; }
   if (find->second->_is_lvalue != is_lvalue) { return nullptr; }
@@ -45,8 +45,8 @@ bool ASTType::operator==(const ASTType &other) {
     size_t n = _sub_types.size();
     if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
-      ASTTypePtr lhs = _sub_types[i];
-      ASTTypePtr rhs = other._sub_types[i];
+      ASTType * lhs = _sub_types[i];
+      ASTType * rhs = other._sub_types[i];
       if (!lhs->operator==(*rhs)) { return false; }
     }
   }
@@ -76,11 +76,11 @@ umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::U
 
 ASTType::ASTType() : ASTBase(ASTNodeType::TY, 0) {}
 
-ASTTypePtr ASTType::Create() { return make_ptr<ASTType>(); }
+ASTType *ASTType::Create() { return new ASTType; }
 
-ASTTypePtr ASTType::Create(CompilerSession *cs, Ty t, vector<ASTTypePtr> sub_tys, bool is_lvalue) {
+ASTType *ASTType::Create(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys, bool is_lvalue) {
   // TODO: cache
-  auto ret = make_ptr<ASTType>();
+  auto ret = new ASTType;
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
