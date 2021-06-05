@@ -571,12 +571,15 @@ Value *CodeGeneratorImpl::codegen_comparison(ASTBase *_p) {
   if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
   if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
+  bool is_signed = true;
   if (p->_dominant_idx == 0) {
     r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
     l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
+    is_signed = !lhs->get_type()->_is_unsigned;
   } else {
     l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
     r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
+    is_signed = !rhs->get_type()->_is_unsigned;
   }
 
   if (l->getType()->isFloatingPointTy()) {
@@ -612,16 +615,32 @@ Value *CodeGeneratorImpl::codegen_comparison(ASTBase *_p) {
         p->_llvm_value = builder->CreateICmpNE(l, r, "ne");
         break;
       case BinaryOpKind::GT:
-        p->_llvm_value = builder->CreateICmpUGT(l, r, "gt");
+        if (is_signed) {
+          p->_llvm_value = builder->CreateICmpSGT(l, r, "gt");
+        } else {
+          p->_llvm_value = builder->CreateICmpUGT(l, r, "gt");
+        }
         break;
       case BinaryOpKind::GE:
-        p->_llvm_value = builder->CreateICmpUGE(l, r, "ge");
+        if (is_signed) {
+          p->_llvm_value = builder->CreateICmpSGE(l, r, "ge");
+        } else {
+          p->_llvm_value = builder->CreateICmpUGE(l, r, "ge");
+        }
         break;
       case BinaryOpKind::LT:
-        p->_llvm_value = builder->CreateICmpULT(l, r, "lt");
+        if (is_signed) {
+          p->_llvm_value = builder->CreateICmpSLT(l, r, "lt");
+        } else {
+          p->_llvm_value = builder->CreateICmpULT(l, r, "lt");
+        }
         break;
       case BinaryOpKind::LE:
-        p->_llvm_value = builder->CreateICmpULE(l, r, "le");
+        if (is_signed) {
+          p->_llvm_value = builder->CreateICmpSLE(l, r, "le");
+        } else {
+          p->_llvm_value = builder->CreateICmpULE(l, r, "le");
+        }
         break;
       default:
         TAN_ASSERT(false);
