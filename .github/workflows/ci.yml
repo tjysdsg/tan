@@ -25,7 +25,7 @@ jobs:
           ref: ${{ github.sha }}
           submodules: 'recursive'
       - name: compile all and test all
-        run: bash scripts/compile.sh
+        run: bash scripts/compile-and-test.sh
       - name: upload coverage results
         shell: bash
         env:

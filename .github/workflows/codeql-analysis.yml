@@ -9,9 +9,14 @@ on:
       - master
 
 jobs:
-  analyse:
-    name: Analyse
-    runs-on: ubuntu-latest
+  analyze:
+    strategy:
+      matrix:
+        container: [ "tjysdsg/tanlang:latest" ]
+
+    runs-on: ubuntu-18.04
+    container:
+      image: ${{ matrix.container }}
 
     steps:
       - name: Checkout repository
@@ -25,12 +30,7 @@ jobs:
           languages: cpp
 
       - name: compile
-        run: |
-          mkdir -p build
-          pushd build
-          cmake .. || exit 1
-          make -j4 tanc || exit 1
-          popd
+        run: bash scripts/compile.sh
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
