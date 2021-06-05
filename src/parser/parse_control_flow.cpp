@@ -7,27 +7,37 @@ using namespace tanlang;
 size_t ParserImpl::parse_if(ASTBase *_p) {
   auto p = ast_must_cast<If>(_p);
 
+  /// if then
+  parse_if_then_branch(p);
+
+  /// else or elif clause, if any
+  while (at(p->_end_index)->value == "else") {
+    ++p->_end_index; /// skip "else"
+    if (at(p->_end_index)->value == "if") { /// elif
+      p->_end_index = parse_if_then_branch(p);
+    } else { /// else
+      auto else_clause = peek(p->_end_index);
+      p->_end_index = parse_node(else_clause);
+      p->add_else_branch(expect_stmt(else_clause));
+    }
+  }
+  return p->_end_index;
+}
+
+size_t ParserImpl::parse_if_then_branch(If *p) {
   ++p->_end_index; /// skip "if"
 
   /// predicate
   auto _pred = peek(p->_end_index, TokenType::PUNCTUATION, "(");
   p->_end_index = parse_node(_pred);
   Expr *pred = expect_expression(_pred);
-  p->set_predicate(pred);
 
   /// then clause
-  auto then_clause = peek(p->_end_index, TokenType::PUNCTUATION, "{");
-  p->_end_index = parse_node(then_clause);
-  p->set_then(expect_stmt(then_clause));
+  auto _then = peek(p->_end_index, TokenType::PUNCTUATION, "{");
+  p->_end_index = parse_node(_then);
+  Stmt *then_clause = expect_stmt(_then);
 
-  /// else clause, if any
-  auto *token = at(p->_end_index);
-  if (token->type == TokenType::KEYWORD && token->value == "else") {
-    ++p->_end_index; /// skip "else"
-    auto else_clause = peek(p->_end_index);
-    p->_end_index = parse_node(else_clause);
-    p->set_else(expect_stmt(else_clause));
-  }
+  p->add_if_then_branch(pred, then_clause);
   return p->_end_index;
 }
 

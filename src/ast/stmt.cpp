@@ -98,8 +98,29 @@ If::If() : Stmt(ASTNodeType::IF) {}
 
 If *If::Create() { return new If; }
 
-void If::set_predicate(Expr *pred) { _predicate = pred; }
+void If::add_if_then_branch(Expr *pred, Stmt *branch) {
+  TAN_ASSERT(pred);
+  _predicates.push_back(pred);
+  _branches.push_back(branch);
+}
 
-void If::set_then(Stmt *body) { _then = body; }
+void If::add_else_branch(Stmt *branch) {
+  _predicates.push_back(nullptr);
+  _branches.push_back(branch);
+  _last_branch_else = true;
+}
 
-void If::set_else(Stmt *body) { _else = body; }
+Expr *If::get_predicate(size_t i) const {
+  TAN_ASSERT(i < _predicates.size());
+  return _predicates[i];
+}
+
+Stmt *If::get_branch(size_t i) const {
+  TAN_ASSERT(i < _branches.size());
+  return _branches[i];
+}
+
+bool If::is_last_branch_else() const { return _last_branch_else; }
+
+size_t If::get_num_branches() const { return _branches.size(); }
+

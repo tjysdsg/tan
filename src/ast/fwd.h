@@ -26,6 +26,7 @@ class CompilerSession;
 class ASTNamed;
 struct Token;
 class Intrinsic;
+class If;
 
 }
 

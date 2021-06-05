@@ -161,8 +161,6 @@ Value *CodeGeneratorImpl::codegen_func_decl(FunctionDecl *p) {
       }
     }
     _cs->pop_di_scope();
-    /// restore parent code block
-    builder->SetInsertPoint(main_block);
   }
 
   _cs->pop_scope(); /// pop scope

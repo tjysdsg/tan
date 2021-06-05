@@ -172,14 +172,17 @@ void AnalyzerImpl::analyze_parenthesis(ASTBase *_p) {
 void AnalyzerImpl::analyze_if(ASTBase *_p) {
   auto p = ast_must_cast<If>(_p);
 
-  auto cond = p->get_predicate();
-  analyze(cond);
+  size_t n = p->get_num_branches();
+  for (size_t i = 0; i < n; ++i) {
+    auto cond = p->get_predicate(i);
+    if (cond) { /// can be nullptr, meaning an "else" branch
+      analyze(cond);
+      if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
+        report_error(p, "Cannot convert expression to bool");
+      }
+    }
 
-  analyze(p->get_then());
-  if (p->get_else()) { analyze(p->get_else()); }
-
-  if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::Create(_cs, Ty::BOOL), cond->get_type())) {
-    report_error(p, "Cannot convert type to bool");
+    analyze(p->get_branch(i));
   }
 }
 

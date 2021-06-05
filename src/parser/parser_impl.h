@@ -33,11 +33,14 @@ private:
   Stmt *expect_stmt(ASTBase *p);
   Decl *expect_decl(ASTBase *p);
 
+  // FIXME: parse_* functions don't have to return _end_index
+  //  But remember to set the _end_index of proxy classes like BinaryOrUnary
   size_t parse_program(ASTBase *p);
   size_t parse_stmt(ASTBase *p);
   size_t parse_intrinsic(ASTBase *p);
   size_t parse_import(ASTBase *p);
   size_t parse_if(ASTBase *p);
+  size_t parse_if_then_branch(If *p);
   size_t parse_loop(ASTBase *p);
   size_t parse_func_decl(ASTBase *p);
   size_t parse_func_call(ASTBase *p);
@@ -45,7 +48,7 @@ private:
   size_t parse_var_decl(ASTBase *p);
   size_t parse_arg_decl(ASTBase *p);
   size_t parse_struct_decl(ASTBase *p);
-  // size_t parse_enum_decl(const ASTBase * &p);
+  // TODO: size_t parse_enum_decl(const ASTBase * &p);
   size_t parse_uop(ASTBase *p);
   size_t parse_return(ASTBase *p);
   size_t parse_parenthesis(ASTBase *p);

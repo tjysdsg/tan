@@ -98,43 +98,48 @@ Value *CodeGeneratorImpl::codegen_if(ASTBase *_p) {
   auto *builder = _cs->_builder;
   set_current_debug_location(p);
 
-  Value *condition = codegen(p->get_predicate());
-  if (!condition) {
-    report_error(p, "Invalid condition expression ");
-  }
-
-  /// convert to bool if not
-  condition = TypeSystem::ConvertTo(_cs, condition, p->get_predicate()->get_type(), ASTType::Create(_cs, Ty::BOOL));
-
-  /// create_ty blocks for the then (and else) clause
   Function *func = builder->GetInsertBlock()->getParent();
-  BasicBlock *then_bb = BasicBlock::Create(*_cs->get_context(), "then", func);
-  BasicBlock *else_bb = BasicBlock::Create(*_cs->get_context(), "else");
-  BasicBlock *merge_bb = BasicBlock::Create(*_cs->get_context(), "fi");
+  BasicBlock *merge_bb = BasicBlock::Create(*_cs->get_context(), "endif");
+  size_t n = p->get_num_branches();
 
-  if (p->get_else()) {
-    builder->CreateCondBr(condition, then_bb, else_bb);
-  } else {
-    builder->CreateCondBr(condition, then_bb, merge_bb);
+  /// create basic blocks
+  vector<BasicBlock *> cond_blocks(n);
+  vector<BasicBlock *> then_blocks(n);
+  for (size_t i = 0; i < n; ++i) {
+    cond_blocks[i] = BasicBlock::Create(*_cs->get_context(), "cond", func);
+    then_blocks[i] = BasicBlock::Create(*_cs->get_context(), "branch", func);
   }
 
-  /// emit then value
-  builder->SetInsertPoint(then_bb);
-  codegen(p->get_then());
-  /// create a br instruction if there is no terminator instruction at the end of then
-  if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
-  builder->SetInsertPoint(then_bb);
-  if (!then_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
+  /// codegen branches
+  builder->CreateBr(cond_blocks[0]);
+  for (size_t i = 0; i < n; ++i) {
+    /// condition
+    builder->SetInsertPoint(cond_blocks[i]);
 
-  /// emit else block
-  if (p->get_else()) {
-    func->getBasicBlockList().push_back(else_bb);
-    builder->SetInsertPoint(else_bb);
-    codegen(p->get_else());
-    /// create a br instruction if there is no terminator instruction at the end of else
-    if (!builder->GetInsertBlock()->back().isTerminator()) { builder->CreateBr(merge_bb); }
-    builder->SetInsertPoint(else_bb);
-    if (!else_bb->back().isTerminator()) { builder->CreateBr(merge_bb); }
+    Expr *cond = p->get_predicate(i);
+    if (!cond) { /// else clause, immediately go to then block
+      TAN_ASSERT(i == n - 1); /// only the last branch can be an else
+      builder->CreateBr(then_blocks[i]);
+    } else {
+      Value *cond_v = codegen(cond);
+      if (!cond_v) { report_error(p, "Invalid condition expression "); }
+      /// convert to bool
+      cond_v = TypeSystem::ConvertTo(_cs, cond_v, cond->get_type(), ASTType::Create(_cs, Ty::BOOL));
+      if (i < n - 1) {
+        builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
+      } else {
+        builder->CreateCondBr(cond_v, then_blocks[i], merge_bb);
+      }
+    }
+
+    /// then clause
+    builder->SetInsertPoint(then_blocks[i]);
+    codegen(p->get_branch(i));
+
+    /// go to merge block if there is no terminator instruction at the end of then
+    if (!builder->GetInsertBlock()->back().isTerminator()) {
+      builder->CreateBr(merge_bb);
+    }
   }
 
   /// emit merge block

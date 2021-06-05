@@ -102,21 +102,34 @@ private:
   Stmt *_body = nullptr;
 };
 
+/**
+ * \brief Represent if-[else] or if-elif-[else] statements
+ */
 class If : public Stmt {
 public:
   static If *Create();
   If();
-  void set_predicate(Expr *pred);
-  void set_then(Stmt *body);
-  void set_else(Stmt *body);
-  Expr *get_predicate() const { return _predicate; }
-  Stmt *get_then() { return _then; }
-  Stmt *get_else() { return _else; }
+
+public:
+  void add_if_then_branch(Expr *pred, Stmt *branch);
+  void add_else_branch(Stmt *branch);
+
+  /**
+   * \note Return value can be a nullptr if the branch is an "else"
+   */
+  Expr *get_predicate(size_t i) const;
+
+  Stmt *get_branch(size_t i) const;
+  size_t get_num_branches() const;
+  bool is_last_branch_else() const;
 
 private:
-  Expr *_predicate = nullptr;
-  Stmt *_then = nullptr;
-  Stmt *_else = nullptr;
+  /// \note The last element can be a nullptr if the last branch is an "else"
+  vector<Expr *> _predicates{};
+  vector<Stmt *> _branches{};
+
+  /// \brief When true, the last branch is an "else"
+  bool _last_branch_else = false;
 };
 
 }
