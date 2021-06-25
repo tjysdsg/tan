@@ -180,13 +180,6 @@ bool ASTType::is_resolved() const { return must_get_canonical_type()->_resolved;
 
 void ASTType::set_resolved(bool resolved) { _resolved = resolved; }
 
-bool ASTType::is_lvalue() const { return must_get_canonical_type()->_is_lvalue; }
-
-void ASTType::set_is_lvalue(bool is_lvalue) {
-  no_modifications_on_type_reference();
-  must_get_canonical_type()->_is_lvalue = is_lvalue;
-}
-
 bool ASTType::is_forward_decl() const { return must_get_canonical_type()->_is_forward_decl; }
 
 void ASTType::set_is_forward_decl(bool is_forward_decl) {
@@ -228,3 +221,7 @@ void ASTType::no_modifications_on_type_reference() const {
     TAN_ASSERT(false);
   }
 }
+
+bool ASTType::is_lvalue() const { return _is_lvalue; }
+
+void ASTType::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }

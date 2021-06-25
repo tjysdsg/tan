@@ -665,11 +665,6 @@ private:
     str struct_name = p->get_name();
     _cs->add_type_decl(struct_name, p);
 
-    // TODO: save a type reference instead of the struct type itself.
-    //  Since the in later analysis, the type will be updated.
-    //  A type reference should always look up the type when get_type() is called in order
-    //  to reflect the changes
-
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
     ASTType *prev = _cs->get_type_decl(struct_name)->get_type();

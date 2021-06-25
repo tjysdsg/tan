@@ -91,7 +91,6 @@ void BinaryOperator::set_lhs(Expr *lhs) { _lhs = lhs; }
 
 void BinaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-// FIXME: lhs can also be a declaration
 Expr *BinaryOperator::get_lhs() const { return _lhs; }
 
 Expr *BinaryOperator::get_rhs() const { return _rhs; }

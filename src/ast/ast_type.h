@@ -102,13 +102,27 @@ public:
   void set_is_enum(bool is_enum);
   bool is_resolved() const;
   void set_resolved(bool resolved);
-  bool is_lvalue() const;
-  void set_is_lvalue(bool is_lvalue);
   bool is_forward_decl() const;
   void set_is_forward_decl(bool is_forward_decl);
   vector<ASTType *> &get_sub_types();
   void set_sub_types(const vector<ASTType *> &sub_types);
   ASTType *get_canonical_type() const;
+
+  /**
+   * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type
+   * The reason is that, for example, multiple variables all have a type reference to the same struct type, but some of
+   * them are lvalues while others aren't, then calling is_lvalue()/set_is_lvalue() should only operate on the
+   * type references themselves.
+   */
+  bool is_lvalue() const;
+
+  /**
+   * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type.
+   * The reason is that, for example, multiple variables all have a type reference to the same struct type, but some of
+   * them are lvalues while others aren't, then calling is_lvalue()/set_is_lvalue() should only operate on the
+   * type references themselves.
+   */
+  void set_is_lvalue(bool is_lvalue);
 
 private:
   ASTType *must_get_canonical_type() const;
