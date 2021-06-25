@@ -75,13 +75,17 @@ public:
   ASTBase *get(const str &name);
 
   /**
-   * \brief Register a type
+   * \brief Register a type declaration
+   * \note Registers only the original type declaration or a forward declaration,
+   *    use CompilerSession::add_type_accessor() to register a type accessor
    * */
   void add_type_decl(const str &name, Decl *value);
 
   /**
    * \brief Look up type table
    * \param name typename
+   * \note Returns only the original type declaration or a forward declaration, use CompilerSession::get_type_accessor()
+   * to get a type accessor
    */
   Decl *get_type_decl(const str &name);
 
@@ -115,7 +119,8 @@ public:
   Token *_current_token = nullptr; /// Used for error messages
 
 private:
-  umap<str, Decl *> _type_table{};
+  umap<str, Decl *> _type_decls{};
+  umap<str, TypeAccessor *> _type_accessors{};
 
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;

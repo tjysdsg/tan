@@ -157,7 +157,7 @@ private:
     } else if (token->type == TokenType::CHAR) { /// char literal
       node = CharLiteral::Create(static_cast<uint8_t>(token->value[0]));
     } else if (check_typename_token(token)) { /// types, must be before ID
-      node = ASTType::Create();
+      node = ASTType::Create(_cs);
     } else if (token->type == TokenType::ID) {
       Token *next = _tokens[index + 1];
       if (next->value == "(") {
@@ -899,9 +899,9 @@ private:
 
       /// subtype
       ASTType *sub = new ASTType(*p);
-      p->_tyty = Ty::ARRAY;
-      p->_sub_types.clear();
-      p->_sub_types.push_back(sub);
+      p->set_ty(Ty::ARRAY);
+      p->get_sub_types().clear();
+      p->get_sub_types().push_back(sub);
 
       /// size
       ASTBase *_size = peek(p->_end_index);
@@ -916,7 +916,7 @@ private:
         error(p->_end_index, "Expect an unsigned integer as the array size");
       }
 
-      p->_array_size = array_size;
+      p->set_array_size(array_size);
 
       /// skip "]"
       peek(p->_end_index, TokenType::PUNCTUATION, "]");
@@ -937,17 +937,17 @@ private:
       auto qq = ASTType::qualifier_tys.find(token->value);
 
       if (qb != ASTType::basic_tys.end()) { /// base types
-        p->_tyty = TY_OR(p->_tyty, qb->second);
+        p->set_ty(TY_OR(p->get_ty(), qb->second));
       } else if (qq != ASTType::qualifier_tys.end()) { /// TODO: qualifiers
         if (token->value == "*") { /// pointer
           auto sub = new ASTType(*p);
-          p->_tyty = Ty::POINTER;
-          p->_sub_types.clear();
-          p->_sub_types.push_back(sub);
+          p->set_ty(Ty::POINTER);
+          p->get_sub_types().clear();
+          p->get_sub_types().push_back(sub);
         }
       } else if (token->type == TokenType::ID) { /// struct or enum
         /// type is resolved in analysis phase
-        p->_tyty = Ty::INVALID;
+        p->set_ty(Ty::TYPE_REF);
       } else {
         break;
       }
@@ -975,10 +975,9 @@ private:
     /// type
     if (at(p->_end_index)->value == ":") {
       ++p->_end_index;
-      ASTType *ty = ASTType::Create();
+      ASTType *ty = ASTType::Create(_cs);
       ty->set_token(at(p->_end_index));
       ty->_end_index = ty->_start_index = p->_end_index;
-      ty->_is_lvalue = true;
       p->_end_index = parse_node(ty);
       p->set_type(ty);
     }
@@ -1000,10 +999,9 @@ private:
     ++p->_end_index;
 
     /// type
-    ASTType *ty = ASTType::Create();
+    ASTType *ty = ASTType::Create(_cs);
     ty->set_token(at(p->_end_index));
     ty->_end_index = ty->_start_index = p->_end_index;
-    ty->_is_lvalue = true;
     p->_end_index = parse_node(ty);
     p->set_type(ty);
 

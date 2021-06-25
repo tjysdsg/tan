@@ -142,7 +142,7 @@ private:
       case UnaryOpKind::MINUS: {
         /// unary plus/minus
         auto ty = copy_ty(rhs->get_type());
-        ty->_is_lvalue = false;
+        ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
       }
@@ -166,7 +166,7 @@ private:
 
     p->_referred = declared;
     auto ty = copy_ty(declared->get_type());
-    ty->_is_lvalue = true;
+    ty->set_is_lvalue(true);
     p->set_type(ty);
   }
 
@@ -200,7 +200,7 @@ private:
     ASTType *ty = p->get_type();
 
     if (ty) { /// analyze type if specified
-      ty->_is_lvalue = true;
+      ty->set_is_lvalue(true);
       analyze(ty);
     }
 
@@ -210,7 +210,7 @@ private:
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_must_cast<ArgDecl>(_p);
     ASTType *ty = p->get_type();
-    ty->_is_lvalue = true;
+    ty->set_is_lvalue(true);
     analyze(ty);
     _cs->add(p->get_name(), p);
   }
@@ -256,7 +256,7 @@ private:
     }
 
     ty = copy_ty(ty);
-    ty->_is_lvalue = lhs->get_type()->_is_lvalue;
+    ty->set_is_lvalue(lhs->get_type()->is_lvalue());
     p->set_type(ty);
     // FIXME: check if can explicit cast
     // if (TypeSystem::CanImplicitCast(_cs, np->_type, _h.get_ty(p->get_child_at(0))) != 0) {
@@ -339,7 +339,7 @@ private:
         size_t dominant_idx = static_cast<size_t>(i);
         p->set_dominant_idx(dominant_idx);
         ASTType *ty = copy_ty(dominant_idx == 0 ? lhs->get_type() : rhs->get_type());
-        ty->_is_lvalue = false;
+        ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
       }
@@ -562,7 +562,7 @@ private:
     });
 
     ASTType *ty = ASTType::Create(_cs, Ty::ARRAY, sub_tys);
-    ty->_array_size = elements.size();
+    ty->set_array_size(elements.size());
     p->set_type(ty);
   }
 
@@ -574,62 +574,62 @@ private:
     if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
       analyze(rhs);
       auto ty = lhs->get_type();
-      TAN_ASSERT(ty->_is_ptr);
+      TAN_ASSERT(ty->is_ptr());
       ty = copy_ty(_h.get_contained_ty(ty));
-      ty->_is_lvalue = true;
+      ty->set_is_lvalue(true);
       p->set_type(ty);
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze(rhs);
       auto ty = lhs->get_type();
-      if (!ty->_is_ptr) {
+      if (!ty->is_ptr()) {
         report_error(p, "Expect a pointer or an array");
       }
 
       ty = copy_ty(_h.get_contained_ty(ty));
-      ty->_is_lvalue = true;
+      ty->set_is_lvalue(true);
 
       p->set_type(ty);
       if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
         auto size_node = ast_must_cast<IntegerLiteral>(rhs);
         auto size = size_node->get_value(); // underflow is ok
-        if (rhs->get_type()->_is_array && size >= lhs->get_type()->_array_size) {
+        if (rhs->get_type()->is_array() && size >= lhs->get_type()->get_array_size()) {
           report_error(p,
               fmt::format("Index {} out of bound, the array size is {}",
                   std::to_string(size),
-                  std::to_string(lhs->get_type()->_array_size)));
+                  std::to_string(lhs->get_type()->get_array_size())));
         }
       }
     } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
       analyze(rhs);
-      if (lhs->get_type()->_is_enum) {
+      if (lhs->get_type()->is_enum()) {
         // TODO: Member access of enums
         TAN_ASSERT(false);
       } else {
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
-        if (!lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
+        if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
           report_error(p, "Invalid left-hand operand");
         }
 
         str m_name = ast_must_cast<Identifier>(rhs)->get_name();
         ASTType *struct_ast = nullptr;
         /// auto dereference pointers
-        if (lhs->get_type()->_is_ptr) {
+        if (lhs->get_type()->is_ptr()) {
           struct_ast = _h.get_contained_ty(lhs->get_type());
         } else {
           struct_ast = lhs->get_type();
         }
-        if (struct_ast->_tyty != Ty::STRUCT) {
+        if (struct_ast->get_ty() != Ty::STRUCT) {
           report_error(lhs, "Expect a struct type");
         }
 
-        StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->_type_name));
+        StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->get_type_name()));
         p->_access_idx = struct_decl->get_struct_member_index(m_name);
         auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
-        ty->_is_lvalue = true;
+        ty->set_is_lvalue(true);
         p->set_type(ty);
       }
     } else if (p->_access_type == MemberAccess::MemberAccessMemberFunction) { /// method call
-      if (!lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
+      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
         report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
       }
       auto func_call = ast_cast<FunctionCall>(rhs);
@@ -638,7 +638,7 @@ private:
       }
 
       /// get address of the struct instance
-      if (lhs->get_type()->_is_lvalue && !lhs->get_type()->_is_ptr) {
+      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
         Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs);
         tmp->_start_index = lhs->_start_index;
         tmp->_end_index = lhs->_end_index;
@@ -665,6 +665,11 @@ private:
     str struct_name = p->get_name();
     _cs->add_type_decl(struct_name, p);
 
+    // TODO: save a type reference instead of the struct type itself.
+    //  Since the in later analysis, the type will be updated.
+    //  A type reference should always look up the type when get_type() is called in order
+    //  to reflect the changes
+
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
     ASTType *prev = _cs->get_type_decl(struct_name)->get_type();
@@ -675,16 +680,16 @@ private:
         report_error(p, "Cannot redeclare type as a struct");
       }
     } else { /// no fwd decl
-      ty = ASTType::Create();
-      ty->_tyty = Ty::STRUCT;
+      ty = ASTType::Create(_cs);
+      ty->set_ty(Ty::STRUCT);
       _cs->add_type_decl(struct_name, p); /// add self to current scope
     }
-    ty->_type_name = struct_name;
+    ty->set_type_name(struct_name);
 
     /// resolve member names and types
     auto member_decls = p->get_member_decls();  // size is 0 if no struct body
     size_t n = member_decls.size();
-    ty->_sub_types.reserve(n);
+    ty->get_sub_types().reserve(n);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
       analyze(m);
@@ -693,7 +698,7 @@ private:
         /// fill members
         str name = ast_must_cast<VarDecl>(m)->get_name();
         p->set_member_index(name, i);
-        ty->_sub_types.push_back(m->get_type());
+        ty->get_sub_types().push_back(m->get_type());
       }
         /// member variable with an initial value
       else if (m->get_node_type() == ASTNodeType::ASSIGN) {
@@ -712,13 +717,13 @@ private:
         //    }
 
         /// fill members
-        ty->_sub_types.push_back(decl->get_type());
+        ty->get_sub_types().push_back(decl->get_type());
         p->set_member_index(decl->get_name(), i);
       } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
         auto f = ast_must_cast<FunctionDecl>(m);
 
         /// fill members
-        ty->_sub_types.push_back(f->get_type());
+        ty->get_sub_types().push_back(f->get_type());
         p->set_member_index(f->get_name(), i);
       } else {
         report_error(p, "Invalid struct member");

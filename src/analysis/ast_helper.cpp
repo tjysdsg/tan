@@ -12,11 +12,11 @@ ASTType *ASTHelper::get_ptr_to(ASTType *p) const {
 }
 
 ASTType *ASTHelper::get_contained_ty(ASTType *p) const {
-  if (p->_tyty == Ty::STRING) {
+  if (p->get_ty() == Ty::STRING) {
     return ASTType::Create(_cs, Ty::CHAR, {}, false);
-  } else if (p->_is_ptr) {
-    TAN_ASSERT(p->_sub_types.size());
-    auto ret = p->_sub_types[0];
+  } else if (p->is_ptr()) {
+    TAN_ASSERT(p->get_sub_types().size());
+    auto ret = p->get_sub_types()[0];
     TAN_ASSERT(ret);
     return ret;
   } else {

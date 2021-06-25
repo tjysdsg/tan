@@ -8,6 +8,7 @@
 namespace tanlang {
 
 class ASTBase;
+class TypeAccessor;
 class ASTType;
 class BinaryOperator;
 class MemberAccess;

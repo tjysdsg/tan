@@ -29,6 +29,7 @@ enum class ASTNodeType {
   IMPORT,      /// import
 
   // types in tan
+  TYPE_REF,        /// type reference
   INTEGER_LITERAL, /// int literal
   FLOAT_LITERAL,   /// float literal
   CHAR_LITERAL,    /// 's'

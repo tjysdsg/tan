@@ -21,6 +21,7 @@ enum class Ty : uint64_t {
   STRUCT = 10u,
   ARRAY = 11u,
   ENUM = 12u,
+  TYPE_REF = 13u,
 
   /// qualifiers 13->32 bits
   #define TY_QUALIFIER_MASK 0xffffff000u

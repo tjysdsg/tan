@@ -93,14 +93,14 @@ ASTBase *CompilerSession::get(const str &name) {
 }
 
 void CompilerSession::add_type_decl(const str &name, Decl *ty) {
-  _type_table[name] = ty;
+  _type_decls[name] = ty;
 }
 
 // TODO: return std::optional
 Decl *CompilerSession::get_type_decl(const str &name) {
   TAN_ASSERT(name != "");
-  auto q = _type_table.find(name);
-  if (q != _type_table.end()) {
+  auto q = _type_decls.find(name);
+  if (q != _type_decls.end()) {
     return q->second;
   }
   return nullptr;

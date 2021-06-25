@@ -243,7 +243,7 @@ private:
 
       /// create a return instruction if there is none, the return value is the default value of the return type
       if (!builder->GetInsertBlock()->back().isTerminator()) {
-        if (ret_ty->_tyty == Ty::VOID) {
+        if (ret_ty->get_ty() == Ty::VOID) {
           builder->CreateRetVoid();
         } else {
           auto *ret_val = codegen_ty(ret_ty);
@@ -273,7 +273,7 @@ private:
     if (!rhs) {
       report_error(p, "Invalid operand");
     }
-    if (p->get_rhs()->get_type()->_is_lvalue) {
+    if (p->get_rhs()->get_type()->is_lvalue()) {
       rhs = builder->CreateLoad(rhs);
     }
     return p->_llvm_value = builder->CreateNot(rhs);
@@ -291,7 +291,7 @@ private:
       report_error(p, "Invalid operand");
     }
 
-    if (p->get_rhs()->get_type()->_is_lvalue) {
+    if (p->get_rhs()->get_type()->is_lvalue()) {
       rhs = builder->CreateLoad(rhs);
     }
     /// get value size in bits
@@ -313,7 +313,7 @@ private:
 
     auto rhs = p->get_rhs();
     auto *result = codegen(rhs);
-    if (rhs->get_type()->_is_lvalue) {
+    if (rhs->get_type()->is_lvalue()) {
       result = builder->CreateLoad(result, "ret");
     }
     builder->CreateRet(result);
@@ -326,7 +326,7 @@ private:
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
-    if (!p->get_type()->_resolved) {
+    if (!p->get_type()->is_resolved()) {
       report_error(p, "Unknown type");
     }
     Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
@@ -363,7 +363,7 @@ private:
     set_current_debug_location(p);
 
     auto *val = codegen(p->get_rhs());
-    if (p->get_rhs()->get_type()->_is_lvalue) { /// lvalue, the val itself is a pointer to real value
+    if (p->get_rhs()->get_type()->is_lvalue()) { /// lvalue, the val itself is a pointer to real value
       p->_llvm_value = val;
     } else { /// rvalue, create an anonymous variable, and get address of it
       p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
@@ -422,8 +422,8 @@ private:
 
   Value *codegen_ty(ASTType *p) {
     auto *builder = _cs->_builder;
-    TAN_ASSERT(p->_resolved);
-    Ty base = TY_GET_BASE(p->_tyty);
+    TAN_ASSERT(p->is_resolved());
+    Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
     Type *type = TypeSystem::ToLLVMType(_cs, p);
     switch (base) {
@@ -431,24 +431,24 @@ private:
       case Ty::CHAR:
       case Ty::BOOL:
       case Ty::ENUM:
-        ret = ConstantInt::get(type, std::get<uint64_t>(p->_default_value), !p->_is_unsigned);
+        ret = ConstantInt::get(type, p->get_default_value<uint64_t>(), !p->is_unsigned());
         break;
       case Ty::FLOAT:
-        ret = ConstantFP::get(type, std::get<float>(p->_default_value));
+        ret = ConstantFP::get(type, p->get_default_value<float>());
         break;
       case Ty::DOUBLE:
-        ret = ConstantFP::get(type, std::get<double>(p->_default_value));
+        ret = ConstantFP::get(type, p->get_default_value<double>());
         break;
       case Ty::STRING:
-        ret = builder->CreateGlobalStringPtr(std::get<str>(p->_default_value));
+        ret = builder->CreateGlobalStringPtr(p->get_default_value<str>());
         break;
       case Ty::VOID:
         TAN_ASSERT(false);
       case Ty::STRUCT: {
         vector<Constant *> values{};
-        size_t n = p->_sub_types.size();
+        size_t n = p->get_sub_types().size();
         for (size_t i = 1; i < n; ++i) {
-          values.push_back((llvm::Constant *) codegen(p->_sub_types[i]));
+          values.push_back((llvm::Constant *) codegen(p->get_sub_types()[i]));
         }
         ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
         break;
@@ -457,15 +457,19 @@ private:
         ret = ConstantPointerNull::get((PointerType *) type);
         break;
       case Ty::ARRAY: {
-        auto *e_type = TypeSystem::ToLLVMType(_cs, p->_sub_types[0]);
-        size_t n = p->_sub_types.size();
+        auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_sub_types()[0]);
+        size_t n = p->get_sub_types().size();
         ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
         for (size_t i = 0; i < n; ++i) {
           auto *idx = builder->getInt32((unsigned) i);
-          auto *e_val = codegen_ty(p->_sub_types[i]);
+          auto *e_val = codegen_ty(p->get_sub_types()[i]);
           auto *e_ptr = builder->CreateGEP(ret, idx);
           builder->CreateStore(e_val, e_ptr);
         }
+        break;
+      }
+      case Ty::TYPE_REF: {
+        ret = codegen_ty(p->get_canonical_type());
         break;
       }
       default:
@@ -483,7 +487,7 @@ private:
 
     Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     Value *ret = nullptr;
-    Ty t = TY_GET_BASE(p->get_type()->_tyty);
+    Ty t = TY_GET_BASE(p->get_type()->get_ty());
     switch (t) {
       case Ty::CHAR:
         ret = ConstantInt::get(type, ast_must_cast<CharLiteral>(p)->get_value());
@@ -559,7 +563,7 @@ private:
         break;
       case UnaryOpKind::MINUS: {
         auto *r = codegen(rhs);
-        if (rhs->get_type()->_is_lvalue) {
+        if (rhs->get_type()->is_lvalue()) {
           r = builder->CreateLoad(r);
         }
         if (r->getType()->isFloatingPointTy()) {
@@ -630,7 +634,7 @@ private:
     if (!to) { report_error(rhs, "Invalid left-hand operand of the assignment"); }
 
     // type of lhs is the same as type of the assignment
-    if (!p->get_type()->_is_lvalue) { report_error(lhs, "Value can only be assigned to lvalue"); }
+    if (!p->get_type()->is_lvalue()) { report_error(lhs, "Value can only be assigned to lvalue"); }
 
     from = TypeSystem::ConvertTo(_cs, from, rhs->get_type(), p->get_type());
     builder->CreateStore(from, to);
@@ -690,7 +694,7 @@ private:
           break;
         case BinaryOpKind::DIVIDE: {
           auto ty = lhs->get_type();
-          if (ty->_is_unsigned) {
+          if (ty->is_unsigned()) {
             p->_llvm_value = builder->CreateUDiv(l, r, "div_tmp");
           } else {
             p->_llvm_value = builder->CreateSDiv(l, r, "div_tmp");
@@ -705,7 +709,7 @@ private:
           break;
         case BinaryOpKind::MOD: {
           auto ty = lhs->get_type();
-          if (ty->_is_unsigned) {
+          if (ty->is_unsigned()) {
             p->_llvm_value = builder->CreateURem(l, r, "mod_tmp");
           } else {
             p->_llvm_value = builder->CreateSRem(l, r, "mod_tmp");
@@ -737,11 +741,11 @@ private:
     if (p->_dominant_idx == 0) {
       r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
       l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
-      is_signed = !lhs->get_type()->_is_unsigned;
+      is_signed = !lhs->get_type()->is_unsigned();
     } else {
       l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
       r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
-      is_signed = !rhs->get_type()->_is_unsigned;
+      is_signed = !rhs->get_type()->is_unsigned();
     }
 
     if (l->getType()->isFloatingPointTy()) {
@@ -827,7 +831,7 @@ private:
     Value *ret = nullptr;
     val = TypeSystem::ConvertTo(_cs, val, lhs->get_type(), p->get_dest_type());
 
-    if (lhs->get_type()->_is_lvalue) {
+    if (lhs->get_type()->is_lvalue()) {
       ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
       builder->CreateStore(val, ret);
     } else {
@@ -999,14 +1003,14 @@ private:
     Value *ret;
     switch (p->_access_type) {
       case MemberAccess::MemberAccessBracket: {
-        if (lhs->get_type()->_is_lvalue) { from = builder->CreateLoad(from); }
+        if (lhs->get_type()->is_lvalue()) { from = builder->CreateLoad(from); }
         auto *rhs_val = codegen(rhs);
-        if (rhs->get_type()->_is_lvalue) { rhs_val = builder->CreateLoad(rhs_val); }
+        if (rhs->get_type()->is_lvalue()) { rhs_val = builder->CreateLoad(rhs_val); }
         ret = builder->CreateGEP(from, rhs_val, "bracket_access");
         break;
       }
       case MemberAccess::MemberAccessMemberVariable: {
-        if (lhs->get_type()->_is_lvalue && lhs->get_type()->_is_ptr && _h.get_contained_ty(lhs->get_type())) {
+        if (lhs->get_type()->is_lvalue() && lhs->get_type()->is_ptr() && _h.get_contained_ty(lhs->get_type())) {
           /// auto dereference pointers
           from = builder->CreateLoad(from);
         }

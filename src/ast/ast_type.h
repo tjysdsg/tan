@@ -4,13 +4,15 @@
 #include "src/ast/ast_base.h"
 #include "src/ast/fwd.h"
 #include "src/ast/ty.h"
+#include "src/ast/ast_named.h"
+#include "src/ast/typed.h"
 #include "base.h"
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
 #define TY_IS(t1, t2) ((bool)((uint64_t)(t1) & (uint64_t)(t2)))
-#define TY_OR(a, b) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b))
-#define TY_OR3(a, b, c) static_cast<Ty>((uint64_t) (a) | (uint64_t) (b) | (uint64_t) (c))
+#define TY_OR(a, b) static_cast<Ty>(static_cast<uint64_t>(a) | static_cast<uint64_t>(b))
+#define TY_OR3(a, b, c) static_cast<Ty>(static_cast<uint64_t>(a) | static_cast<uint64_t>(b) | static_cast<uint64_t>(c))
 
 namespace llvm {
 class Type;
@@ -23,16 +25,12 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  static ASTType *Create();
+  static ASTType *Create(CompilerSession *cs);
   static ASTType *Create(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys = {}, bool is_lvalue = false);
 
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
-
-private:
-  static inline umap<Ty, ASTType *> _cache{};
-  // TODO: static ASTType * find_cache(Ty t, const vector<ASTType *> &sub_tys, bool is_lvalue);
 
 public:
   ASTType();
@@ -48,6 +46,75 @@ public:
   virtual str to_string(bool print_prefix = true);
 
 public:
+  using default_value_t = std::variant<str, uint64_t, float, double>;
+
+  Ty get_ty() const;
+  void set_ty(Ty tyty);
+
+  template<typename T> T get_default_value() const {
+    static_assert(
+        std::is_same_v<str, T> || std::is_same_v<uint64_t, T> || std::is_same_v<float, T> || std::is_same_v<double, T>,
+        "The default value of a type can only be string, uint64_t, float, or double");
+    return std::get<T>(_default_value);
+  }
+
+  template<typename T> void set_default_value(T val) {
+    static_assert(
+        std::is_same_v<str, T> || std::is_same_v<uint64_t, T> || std::is_same_v<float, T> || std::is_same_v<double, T>,
+        "The default value of a type can only be string, uint64_t, float, or double");
+    _default_value.emplace<T>(val);
+  }
+
+  default_value_t get_default_value_variant() const { return _default_value; }
+
+  void set_default_value_variant(default_value_t val) {
+    no_modifications_on_type_reference();
+    _default_value = val;
+  }
+
+  const str &get_type_name() const;
+  void set_type_name(const str &type_name);
+  llvm::Type *get_llvm_type() const;
+  void set_llvm_type(llvm::Type *llvm_type);
+  size_t get_size_bits() const;
+  void set_size_bits(size_t size_bits);
+  size_t get_align_bits() const;
+  void set_align_bits(size_t align_bits);
+  unsigned int get_dwarf_encoding() const;
+  void set_dwarf_encoding(unsigned int dwarf_encoding);
+  bool is_ptr() const;
+  void set_is_ptr(bool is_ptr);
+  bool is_float() const;
+  void set_is_float(bool is_float);
+  bool is_array() const;
+  void set_is_array(bool is_array);
+  size_t get_array_size() const;
+  void set_array_size(size_t array_size);
+  bool is_int() const;
+  void set_is_int(bool is_int);
+  bool is_unsigned() const;
+  void set_is_unsigned(bool is_unsigned);
+  bool is_struct() const;
+  void set_is_struct(bool is_struct);
+  bool is_bool() const;
+  void set_is_bool(bool is_bool);
+  bool is_enum() const;
+  void set_is_enum(bool is_enum);
+  bool is_resolved() const;
+  void set_resolved(bool resolved);
+  bool is_lvalue() const;
+  void set_is_lvalue(bool is_lvalue);
+  bool is_forward_decl() const;
+  void set_is_forward_decl(bool is_forward_decl);
+  vector<ASTType *> &get_sub_types();
+  void set_sub_types(const vector<ASTType *> &sub_types);
+  ASTType *get_canonical_type() const;
+
+private:
+  ASTType *must_get_canonical_type() const;
+  void no_modifications_on_type_reference() const;
+
+private:
   Ty _tyty = Ty::INVALID; // FIXME: fix this goddamn name
   // use variant to prevent non-trivial destructor problem
   std::variant<str, uint64_t, float, double> _default_value;
@@ -68,9 +135,8 @@ public:
   bool _resolved = false;
   bool _is_lvalue = false;
   bool _is_forward_decl = false;
-
-public:
   vector<ASTType *> _sub_types;
+  CompilerSession *_cs = nullptr;
 };
 
 } // namespace tanlang
