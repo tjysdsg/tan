@@ -120,18 +120,14 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
 void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
   Ty base = TY_GET_BASE(p->get_ty());
   Ty qual = TY_GET_QUALIFIER(p->get_ty());
-  if (p->is_resolved()) {
-    if (base == Ty::STRUCT) {
-      if (!p->is_forward_decl()) { return; }
-    } else { return; }
+
+  if (p->is_resolved()) { return; }
+
+  /// resolve children
+  for (auto *t: p->get_sub_types()) {
+    TypeSystem::ResolveTy(cs, t);
   }
-  /// resolve_ty children if they are ASTType
-  for (const auto &c: p->get_sub_types()) {
-    auto t = ast_cast<ASTType>(c);
-    if (t && t->get_node_type() == ASTNodeType::TY && !t->is_resolved()) {
-      TypeSystem::ResolveTy(cs, t);
-    }
-  }
+
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
@@ -221,27 +217,24 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::STRUCT: {
       TAN_ASSERT(p->get_type_name() != "");
+      if (p->is_forward_decl()) {
+        /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
+        /// by an actual struct declaration by now
+        report_error(cs->_filename, p->get_token(), "Unresolved forward declaration of type");
+      }
+
       /// align size is the max element size, if no element, 8 bits
       /// size is the number of elements * align size
-      if (p->is_forward_decl()) {
-        ASTType *real = cs->get_type_decl(p->get_type_name())->get_type();
-        if (!real) {
-          report_error(cs->_filename, p->get_token(), "Incomplete type");
-        }
-        *p = *real;
-        p->set_is_forward_decl(false);
-      } else {
-        p->set_align_bits(8);
-        auto &sub_types = p->get_sub_types();
-        size_t n = sub_types.size();
-        for (size_t i = 0; i < n; ++i) {
-          auto et = sub_types[i];
-          auto s = et->get_size_bits();
-          if (s > p->get_align_bits()) { p->set_align_bits(s); }
-        }
-        p->set_size_bits(n * p->get_align_bits());
-        p->set_is_struct(true);
+      p->set_align_bits(8);
+      auto &sub_types = p->get_sub_types();
+      size_t n = sub_types.size();
+      for (size_t i = 0; i < n; ++i) {
+        auto et = sub_types[i];
+        auto s = et->get_size_bits();
+        if (s > p->get_align_bits()) { p->set_align_bits(s); }
       }
+      p->set_size_bits(n * p->get_align_bits());
+      p->set_is_struct(true);
       break;
     }
     case Ty::ARRAY: {
@@ -285,9 +278,11 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
 
 Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
   TAN_ASSERT(p);
-  if (!p->is_resolved()) {
-    TypeSystem::ResolveTy(cs, p);
-  }
+  TAN_ASSERT(p = p->get_canonical_type());
+
+  if (p->get_llvm_type()) { return p->get_llvm_type(); } /// avoid creating duplicated types
+
+  if (!p->is_resolved()) { TypeSystem::ResolveTy(cs, p); }
 
   auto *builder = cs->_builder;
   Ty base = TY_GET_BASE(p->get_ty());
@@ -318,15 +313,13 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
       type = ToLLVMType(cs, p->get_sub_types()[0]);
       break;
     case Ty::STRUCT: {
-      auto *struct_type = StructType::create(*cs->get_context(), p->get_type_name());
-      vector<Type *> body{};
+      vector<Type *> elements{};
       size_t n = p->get_sub_types().size();
-      body.reserve(n);
-      for (size_t i = 1; i < n; ++i) {
-        body.push_back(ToLLVMType(cs, p->get_sub_types()[i]));
+      elements.reserve(n);
+      for (size_t i = 0; i < n; ++i) {
+        elements.push_back(ToLLVMType(cs, p->get_sub_types()[i]));
       }
-      struct_type->setBody(body);
-      type = struct_type;
+      type = StructType::create(elements, p->get_type_name());
       break;
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
@@ -338,6 +331,8 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
     default:
       TAN_ASSERT(false);
   }
+
+  p->set_llvm_type(type);
   return type;
 }
 
@@ -403,6 +398,9 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
               p->get_type_name());
       break;
     }
+    case Ty::TYPE_REF:
+      ret = (DIType *) ToLLVMMeta(cs, p->get_canonical_type());
+      break;
     default:
       TAN_ASSERT(false);
   }

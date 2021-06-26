@@ -611,18 +611,19 @@ private:
         }
 
         str m_name = ast_must_cast<Identifier>(rhs)->get_name();
-        ASTType *struct_ast = nullptr;
+        ASTType *struct_ty = nullptr;
         /// auto dereference pointers
         if (lhs->get_type()->is_ptr()) {
-          struct_ast = _h.get_contained_ty(lhs->get_type());
+          struct_ty = _h.get_contained_ty(lhs->get_type());
         } else {
-          struct_ast = lhs->get_type();
+          struct_ty = lhs->get_type();
         }
-        if (struct_ast->get_ty() != Ty::STRUCT) {
+        struct_ty = struct_ty->get_canonical_type(); /// resolve type references
+        if (struct_ty->get_ty() != Ty::STRUCT) {
           report_error(lhs, "Expect a struct type");
         }
 
-        StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ast->get_type_name()));
+        StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ty->get_type_name()));
         p->_access_idx = struct_decl->get_struct_member_index(m_name);
         auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
         ty->set_is_lvalue(true);
@@ -645,9 +646,9 @@ private:
         tmp->set_token(lhs->get_token());
         analyze(tmp);
 
-        func_call->_args.push_back(tmp);
+        func_call->_args.insert(func_call->_args.begin(), tmp);
       } else {
-        func_call->_args.push_back(lhs);
+        func_call->_args.insert(func_call->_args.begin(), lhs);
       }
 
       /// postpone analysis of FUNC_CALL until now
@@ -677,6 +678,9 @@ private:
     } else { /// no fwd decl
       ty = ASTType::Create(_cs);
       ty->set_ty(Ty::STRUCT);
+      ty->set_token(p->get_token());
+      ty->_start_index = p->_start_index;
+      ty->_end_index = p->_end_index;
       _cs->add_type_decl(struct_name, p); /// add self to current scope
     }
     ty->set_type_name(struct_name);

@@ -447,7 +447,7 @@ private:
       case Ty::STRUCT: {
         vector<Constant *> values{};
         size_t n = p->get_sub_types().size();
-        for (size_t i = 1; i < n; ++i) {
+        for (size_t i = 0; i < n; ++i) {
           values.push_back((llvm::Constant *) codegen(p->get_sub_types()[i]));
         }
         ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);

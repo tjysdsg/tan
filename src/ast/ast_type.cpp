@@ -178,7 +178,7 @@ void ASTType::set_is_enum(bool is_enum) {
 
 bool ASTType::is_resolved() const { return must_get_canonical_type()->_resolved; }
 
-void ASTType::set_resolved(bool resolved) { _resolved = resolved; }
+void ASTType::set_resolved(bool resolved) { must_get_canonical_type()->_resolved = resolved; }
 
 bool ASTType::is_forward_decl() const { return must_get_canonical_type()->_is_forward_decl; }
 
@@ -216,11 +216,7 @@ ASTType *ASTType::must_get_canonical_type() const {
   return type;
 }
 
-void ASTType::no_modifications_on_type_reference() const {
-  if (_tyty == Ty::TYPE_REF) {
-    TAN_ASSERT(false);
-  }
-}
+void ASTType::no_modifications_on_type_reference() const { TAN_ASSERT(_tyty != Ty::TYPE_REF); }
 
 bool ASTType::is_lvalue() const { return _is_lvalue; }
 
