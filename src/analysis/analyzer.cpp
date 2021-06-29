@@ -2,6 +2,7 @@
 #include "base.h"
 #include "src/analysis/ast_helper.h"
 #include "src/ast/ast_base.h"
+#include "src/ast/constructor.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
@@ -681,6 +682,9 @@ private:
       ty->set_token(p->get_token());
       ty->_start_index = p->_start_index;
       ty->_end_index = p->_end_index;
+      ty->set_constructor(StructConstructor::Create(ty));
+      // TODO: package start_index and end_index into SourceLoc class, and make SourceLoc a required argument in
+      //  Create()
       _cs->add_type_decl(struct_name, p); /// add self to current scope
     }
     ty->set_type_name(struct_name);
@@ -702,7 +706,6 @@ private:
         /// member variable with an initial value
       else if (m->get_node_type() == ASTNodeType::ASSIGN) {
         auto bm = ast_must_cast<Assignment>(m);
-        // TODO: store default value in the type or the declaration?
         auto init_val = bm->get_rhs();
 
         if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
@@ -710,14 +713,16 @@ private:
         }
         auto decl = ast_must_cast<VarDecl>(bm->get_lhs());
 
-        /// TODO: support any compile-time known initial values
-        //    if (!is_ast_type_in(init_val->get_node_type(), TypeSystem::LiteralTypes)) {
-        //      report_error(p, "Invalid initial value of the member variable");
-        //    }
-
         /// fill members
         ty->get_sub_types().push_back(decl->get_type());
         p->set_member_index(decl->get_name(), i);
+
+        /// initial values
+        if (!init_val->is_comptime_known()) {
+          report_error(p, "Initial value of a member variable must be compile-time known");
+        }
+        auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
+        ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
       } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
         auto f = ast_must_cast<FunctionDecl>(m);
 

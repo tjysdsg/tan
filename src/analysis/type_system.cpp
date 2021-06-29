@@ -1,6 +1,7 @@
 #include "src/analysis/type_system.h"
 #include "src/common.h"
 #include "src/analysis/ast_helper.h"
+#include "src/ast/constructor.h"
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_type.h"
@@ -134,7 +135,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       p->set_size_bits(32);
       p->set_type_name("i32");
       p->set_is_int(true);
-      p->set_default_value<uint64_t>(0);
+      p->set_constructor_if_none(BasicConstructor::CreateIntegerConstructor());
       if (TY_IS(qual, Ty::BIT8)) {
         p->set_size_bits(8);
         p->set_type_name("i8");
@@ -166,34 +167,34 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       p->set_size_bits(8);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_unsigned_char);
       p->set_is_unsigned(true);
-      p->set_default_value<uint64_t>(0);
+      p->set_constructor_if_none(BasicConstructor::CreateCharConstructor());
       p->set_is_int(true);
       break;
     case Ty::BOOL:
       p->set_type_name("bool");
       p->set_size_bits(1);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_boolean);
-      p->set_default_value<uint64_t>(0);
+      p->set_constructor_if_none(BasicConstructor::CreateIntegerConstructor());
       p->set_is_bool(true);
       break;
     case Ty::FLOAT:
       p->set_type_name("float");
       p->set_size_bits(32);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
-      p->set_default_value<uint64_t>(0);
+      p->set_constructor_if_none(BasicConstructor::CreateFPConstructor());
       p->set_is_float(true);
       break;
     case Ty::DOUBLE:
       p->set_type_name("double");
       p->set_size_bits(64);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
-      p->set_default_value<double>(0);
+      p->set_constructor_if_none(BasicConstructor::CreateFPConstructor());
       p->set_is_float(true);
       break;
     case Ty::STRING:
       p->set_type_name("u8*");
       p->set_size_bits(tm->getPointerSizeInBits(0));
-      p->set_default_value<str>("");
+      p->set_constructor_if_none(BasicConstructor::CreateStringConstructor());
       p->set_align_bits(8);
       p->set_is_ptr(true);
       break;
@@ -208,7 +209,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       p->set_size_bits(sub->get_size_bits());
       p->set_align_bits(sub->get_align_bits());
       p->set_dwarf_encoding(sub->get_dwarf_encoding());
-      p->set_default_value_variant(sub->get_default_value_variant());
+      // TODO: p->set_constructor_if_none(BasicConstructor::CreateStringConstructor());
       p->set_is_unsigned(sub->is_unsigned());
       p->set_is_int(sub->is_int());
       p->set_is_enum(true);
@@ -235,6 +236,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       }
       p->set_size_bits(n * p->get_align_bits());
       p->set_is_struct(true);
+      // TODO: p->set_constructor_if_none(BasicConstructor::CreateStringConstructor());
       break;
     }
     case Ty::ARRAY: {
@@ -249,6 +251,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(et->get_size_bits());
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_address);
+      p->set_constructor_if_none(BasicConstructor::CreateArrayConstructor());
       break;
     }
     case Ty::POINTER: {
@@ -262,6 +265,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       p->set_align_bits(e->get_size_bits());
       p->set_is_ptr(true);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_address);
+      // TODO: p->set_constructor_if_none(BasicConstructor::CreateStringConstructor());
       break;
     }
     case Ty::TYPE_REF: {

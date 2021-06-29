@@ -2,6 +2,7 @@
 #include "base.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/constructor.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
 #include "src/ast/decl.h"
@@ -20,7 +21,7 @@ public:
 
   explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
 
-  [[nodiscard]] Value *codegen(ASTBase *p) {
+  Value *codegen(ASTBase *p) {
     if (p->_llvm_value) {
       return p->_llvm_value;
     }
@@ -81,7 +82,7 @@ public:
         break;
       case ASTNodeType::TY:
         // FIXME:
-        //  ret = codegen_ty(ast_cast<ASTType>(p));
+        //  ret = codegen_type_instantiation(ast_cast<ASTType>(p));
         break;
       case ASTNodeType::PARENTHESIS:
         ret = codegen_parenthesis(p);
@@ -246,7 +247,7 @@ private:
         if (ret_ty->get_ty() == Ty::VOID) {
           builder->CreateRetVoid();
         } else {
-          auto *ret_val = codegen_ty(ret_ty);
+          auto *ret_val = codegen_type_instantiation(ret_ty);
           TAN_ASSERT(ret_val);
           builder->CreateRet(ret_val);
         }
@@ -334,8 +335,8 @@ private:
 
     // FIXME: default value of var declaration
     // if (p->get_node_type() == ASTNodeType::VAR_DECL) { /// don't do this for arg_decl
-    //   auto *default_value = codegen_ty(p->_type);
-    //   if (default_value) { builder->CreateStore(default_value, codegen_ty(p->_type)); }
+    //   auto *default_value = codegen_type_instantiation(p->_type);
+    //   if (default_value) { builder->CreateStore(default_value, codegen_type_instantiation(p->_type)); }
     // }
     /// debug info
     {
@@ -420,27 +421,50 @@ private:
     return ret;
   }
 
-  Value *codegen_ty(ASTType *p) {
+  Value *codegen_constructor(Constructor *p) {
+    Value *ret = nullptr;
+    switch (p->get_type()) {
+      case ConstructorType::BASIC:
+        ret = codegen(cast_ptr<BasicConstructor>(p)->get_value());
+        break;
+      case ConstructorType::STRUCT: {
+        auto *ctr = cast_ptr<StructConstructor>(p);
+        vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
+        vector<Constant *> values{};
+        values.reserve(sub_ctrs.size());
+        for (auto *c: sub_ctrs) {
+          values.push_back((Constant *) codegen_constructor(c));
+        }
+        ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, ctr->get_struct_type()), values);
+        break;
+      }
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+    return ret;
+  }
+
+  Value *codegen_type_instantiation(ASTType *p) {
     auto *builder = _cs->_builder;
     TAN_ASSERT(p->is_resolved());
     Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
     Type *type = TypeSystem::ToLLVMType(_cs, p);
     switch (base) {
+      case Ty::ENUM:
+        // TODO: ret = ConstantInt::get(type, p->get_default_value<uint64_t>(), !p->is_unsigned());
+        break;
+      case Ty::BOOL:
+        // TODO: use codegen_constructor()
+        ret = ConstantInt::get(type, 0);
+        break;
       case Ty::INT:
       case Ty::CHAR:
-      case Ty::BOOL:
-      case Ty::ENUM:
-        ret = ConstantInt::get(type, p->get_default_value<uint64_t>(), !p->is_unsigned());
-        break;
       case Ty::FLOAT:
-        ret = ConstantFP::get(type, p->get_default_value<float>());
-        break;
       case Ty::DOUBLE:
-        ret = ConstantFP::get(type, p->get_default_value<double>());
-        break;
       case Ty::STRING:
-        ret = builder->CreateGlobalStringPtr(p->get_default_value<str>());
+        ret = codegen_constructor(p->get_constructor());
         break;
       case Ty::VOID:
         TAN_ASSERT(false);
@@ -454,22 +478,24 @@ private:
         break;
       }
       case Ty::POINTER:
+        // TODO: use codegen_constructor()
         ret = ConstantPointerNull::get((PointerType *) type);
         break;
       case Ty::ARRAY: {
+        // TODO: use codegen_constructor()
         auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_sub_types()[0]);
         size_t n = p->get_sub_types().size();
         ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
         for (size_t i = 0; i < n; ++i) {
           auto *idx = builder->getInt32((unsigned) i);
-          auto *e_val = codegen_ty(p->get_sub_types()[i]);
+          auto *e_val = codegen_type_instantiation(p->get_sub_types()[i]);
           auto *e_ptr = builder->CreateGEP(ret, idx);
           builder->CreateStore(e_val, e_ptr);
         }
         break;
       }
       case Ty::TYPE_REF: {
-        ret = codegen_ty(p->get_canonical_type());
+        ret = codegen_type_instantiation(p->get_canonical_type());
         break;
       }
       default:
@@ -478,7 +504,6 @@ private:
     return ret;
   }
 
-  // TODO: merge some of the code with codegen_ty()
   Value *codegen_literals(ASTBase *_p) {
     auto p = ast_must_cast<Literal>(_p);
 

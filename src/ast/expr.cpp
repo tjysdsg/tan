@@ -216,3 +216,5 @@ ASTBase *BinaryOrUnary::get() const { return get_generic_ptr(); }
 ASTType *BinaryOrUnary::get_type() const { return get_generic_ptr()->get_type(); }
 
 void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type); }
+
+bool CompTimeExpr::is_comptime_known() { return true; }

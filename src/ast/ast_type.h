@@ -51,27 +51,9 @@ public:
   Ty get_ty() const;
   void set_ty(Ty tyty);
 
-  template<typename T> T get_default_value() const {
-    static_assert(
-        std::is_same_v<str, T> || std::is_same_v<uint64_t, T> || std::is_same_v<float, T> || std::is_same_v<double, T>,
-        "The default value of a type can only be string, uint64_t, float, or double");
-    return std::get<T>(_default_value);
-  }
-
-  template<typename T> void set_default_value(T val) {
-    static_assert(
-        std::is_same_v<str, T> || std::is_same_v<uint64_t, T> || std::is_same_v<float, T> || std::is_same_v<double, T>,
-        "The default value of a type can only be string, uint64_t, float, or double");
-    _default_value.emplace<T>(val);
-  }
-
-  default_value_t get_default_value_variant() const { return _default_value; }
-
-  void set_default_value_variant(default_value_t val) {
-    no_modifications_on_type_reference();
-    _default_value = val;
-  }
-
+  Constructor *get_constructor() const;
+  void set_constructor(Constructor *constructor);
+  void set_constructor_if_none(Constructor *constructor);
   const str &get_type_name() const;
   void set_type_name(const str &type_name);
   llvm::Type *get_llvm_type() const;
@@ -130,8 +112,6 @@ private:
 
 private:
   Ty _tyty = Ty::INVALID; // FIXME: fix this goddamn name
-  // use variant to prevent non-trivial destructor problem
-  std::variant<str, uint64_t, float, double> _default_value;
   str _type_name = "";
   llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;
@@ -150,6 +130,7 @@ private:
   bool _is_lvalue = false;
   bool _is_forward_decl = false;
   vector<ASTType *> _sub_types;
+  Constructor *_constructor = nullptr;
   CompilerSession *_cs = nullptr;
 };
 

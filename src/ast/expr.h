@@ -11,11 +11,24 @@ namespace tanlang {
 class Expr : public ASTBase, public Typed {
 public:
   Expr(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
+  virtual bool is_comptime_known() { return false; }
 };
 
-class Literal : public Expr {
+/**
+ * \brief Compile-time expression
+ * \details Compile-time expression can be a value known by itself at compile time, or the result of compile-time
+ * evaluation.
+ * TODO: implement this
+ */
+class CompTimeExpr : public Expr {
 public:
-  Literal(ASTNodeType type, int lbp) : Expr(type, lbp) {}
+  CompTimeExpr(ASTNodeType type, int lbp) : Expr(type, lbp) {}
+  bool is_comptime_known() override;
+};
+
+class Literal : public CompTimeExpr {
+public:
+  Literal(ASTNodeType type, int lbp) : CompTimeExpr(type, lbp) {}
 };
 
 class IntegerLiteral : public Literal {

@@ -221,3 +221,16 @@ void ASTType::no_modifications_on_type_reference() const { TAN_ASSERT(_tyty != T
 bool ASTType::is_lvalue() const { return _is_lvalue; }
 
 void ASTType::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
+
+Constructor *ASTType::get_constructor() const { return must_get_canonical_type()->_constructor; }
+
+void ASTType::set_constructor(Constructor *constructor) {
+  no_modifications_on_type_reference();
+  _constructor = constructor;
+}
+
+void ASTType::set_constructor_if_none(Constructor *constructor) {
+  if (!_constructor) {
+    _constructor = constructor;
+  }
+}

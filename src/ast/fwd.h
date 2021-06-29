@@ -17,6 +17,7 @@ class Cast;
 class Decl;
 class Stmt;
 class Expr;
+class Literal;
 class FunctionDecl;
 class CompoundStmt;
 class FunctionTable;
@@ -28,6 +29,8 @@ class ASTNamed;
 struct Token;
 class Intrinsic;
 class If;
+class Constructor;
+class CompTimeExpr;
 
 }
 
