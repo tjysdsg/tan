@@ -2,6 +2,13 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
+    // test default values
+    var integer: i32;
+    assert(integer == 0);
+    var fp: float;
+    assert(fp == 0.0);
+    var b: bool;
+
     var typed: int = 1;
     var typed_f: float = 1.0;
     assert(typed == 1);

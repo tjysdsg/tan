@@ -32,6 +32,12 @@ public:
   static void ResolveTy(CompilerSession *cs, ASTType *const &p);
 
   /**
+   * \brief Set the default constructor of a type
+   * \details Only works for basic types, not struct
+   */
+  static void SetDefaultConstructor(CompilerSession *cs, ASTType *const &p);
+
+  /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
    * \param val Value to convert. This function automatically create a `load` instruction if orig is lvalue.

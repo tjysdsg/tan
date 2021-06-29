@@ -26,7 +26,7 @@ namespace tanlang {
 class ASTType : public ASTBase {
 public:
   static ASTType *Create(CompilerSession *cs);
-  static ASTType *Create(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys = {}, bool is_lvalue = false);
+  static ASTType *CreateAndResolve(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys = {}, bool is_lvalue = false);
 
 public:
   static umap<str, Ty> basic_tys;
@@ -53,7 +53,6 @@ public:
 
   Constructor *get_constructor() const;
   void set_constructor(Constructor *constructor);
-  void set_constructor_if_none(Constructor *constructor);
   const str &get_type_name() const;
   void set_type_name(const str &type_name);
   llvm::Type *get_llvm_type() const;

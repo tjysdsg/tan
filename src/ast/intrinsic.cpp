@@ -23,9 +23,8 @@ static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(CompilerSession *cs) {
-  cs->add_function(FunctionDecl::Create("compprint",
-      ASTType::Create(cs, Ty::VOID),
-      {ASTType::Create(cs, Ty::STRING),},
+  cs->add_function(FunctionDecl::Create("compprint", ASTType::CreateAndResolve(cs, Ty::VOID),
+      {ASTType::CreateAndResolve(cs, Ty::STRING),},
       true,
       false));
 }

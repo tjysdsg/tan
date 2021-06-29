@@ -63,7 +63,7 @@ ASTType *ASTType::Create(CompilerSession *cs) {
   return ret;
 }
 
-ASTType *ASTType::Create(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys, bool is_lvalue) {
+ASTType *ASTType::CreateAndResolve(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys, bool is_lvalue) {
   // TODO: cache
   auto ret = new ASTType;
   ret->_tyty = t;
@@ -227,10 +227,4 @@ Constructor *ASTType::get_constructor() const { return must_get_canonical_type()
 void ASTType::set_constructor(Constructor *constructor) {
   no_modifications_on_type_reference();
   _constructor = constructor;
-}
-
-void ASTType::set_constructor_if_none(Constructor *constructor) {
-  if (!_constructor) {
-    _constructor = constructor;
-  }
 }

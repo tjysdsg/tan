@@ -333,11 +333,15 @@ private:
     Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
 
-    // FIXME: default value of var declaration
-    // if (p->get_node_type() == ASTNodeType::VAR_DECL) { /// don't do this for arg_decl
-    //   auto *default_value = codegen_type_instantiation(p->_type);
-    //   if (default_value) { builder->CreateStore(default_value, codegen_type_instantiation(p->_type)); }
-    // }
+    /// default value of only var declaration
+    if (p->get_node_type() == ASTNodeType::VAR_DECL) {
+      auto *default_value = codegen_type_instantiation(p->get_type());
+      if (!default_value) {
+        report_error(p, "Fail to instantiate this type");
+      }
+      builder->CreateStore(default_value, p->_llvm_value);
+    }
+
     /// debug info
     {
       auto *di_builder = _cs->_di_builder;
@@ -446,29 +450,33 @@ private:
   }
 
   Value *codegen_type_instantiation(ASTType *p) {
-    auto *builder = _cs->_builder;
     TAN_ASSERT(p->is_resolved());
+    // TODO: TAN_ASSERT(p->get_constructor());
+
+    auto *builder = _cs->_builder;
     Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
     Type *type = TypeSystem::ToLLVMType(_cs, p);
     switch (base) {
       case Ty::ENUM:
-        // TODO: ret = ConstantInt::get(type, p->get_default_value<uint64_t>(), !p->is_unsigned());
+        // TODO:
+        ret = codegen_constructor(p->get_constructor());
         break;
       case Ty::BOOL:
-        // TODO: use codegen_constructor()
+        // TODO: ret = codegen_constructor(p->get_constructor());
         ret = ConstantInt::get(type, 0);
         break;
       case Ty::INT:
       case Ty::CHAR:
-      case Ty::FLOAT:
       case Ty::DOUBLE:
+      case Ty::FLOAT:
       case Ty::STRING:
         ret = codegen_constructor(p->get_constructor());
         break;
       case Ty::VOID:
         TAN_ASSERT(false);
       case Ty::STRUCT: {
+        // TODO: use codegen_constructor()
         vector<Constant *> values{};
         size_t n = p->get_sub_types().size();
         for (size_t i = 0; i < n; ++i) {
@@ -938,7 +946,7 @@ private:
       if (!cond) {
         report_error(p, "Expected a condition expression");
       }
-      cond = TypeSystem::ConvertTo(_cs, cond, p->get_predicate()->get_type(), ASTType::Create(_cs, Ty::BOOL));
+      cond = TypeSystem::ConvertTo(_cs, cond, p->get_predicate()->get_type(), ASTType::CreateAndResolve(_cs, Ty::BOOL));
       builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
       /// loop body
@@ -993,7 +1001,7 @@ private:
         Value *cond_v = codegen(cond);
         if (!cond_v) { report_error(p, "Invalid condition expression "); }
         /// convert to bool
-        cond_v = TypeSystem::ConvertTo(_cs, cond_v, cond->get_type(), ASTType::Create(_cs, Ty::BOOL));
+        cond_v = TypeSystem::ConvertTo(_cs, cond_v, cond->get_type(), ASTType::CreateAndResolve(_cs, Ty::BOOL));
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1068,12 +1076,10 @@ private:
   ASTHelper _h;
 };
 
-}
-
-using namespace tanlang;
-
 CodeGenerator::CodeGenerator(CompilerSession *cs) { _impl = new CodeGeneratorImpl(cs); }
 
 llvm::Value *CodeGenerator::codegen(ASTBase *p) { return _impl->codegen(p); }
 
 CodeGenerator::~CodeGenerator() { delete _impl; }
+
+}

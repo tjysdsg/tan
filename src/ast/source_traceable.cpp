@@ -1,14 +1,29 @@
 #include "source_traceable.h"
 #include "token.h"
+#include <iostream>
 
 using namespace tanlang;
 
+// TODO: #43
 size_t SourceTraceable::get_line() const {
-  return get_token()->l + 1;
+  Token *tok = get_token();
+  if (!tok) {
+    std::cerr << "WARNING: get_token() returned nullptr\n";
+    return 0;
+  } else {
+    return tok->l + 1;
+  }
 }
 
+// TODO: #43
 size_t SourceTraceable::get_col() const {
-  return get_token()->c + 1;
+  Token *tok = get_token();
+  if (!tok) {
+    std::cerr << "WARNING: get_token() returned nullptr\n";
+    return 0;
+  } else {
+    return tok->c + 1;
+  }
 }
 
 Token *SourceTraceable::get_token() const {

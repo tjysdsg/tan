@@ -1,5 +1,6 @@
 #include "src/ast/constructor.h"
 #include "src/ast/expr.h"
+#include "src/ast/ast_builder.h"
 
 using namespace tanlang;
 
@@ -9,24 +10,26 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
   return ret;
 }
 
-BasicConstructor *BasicConstructor::CreateIntegerConstructor(uint64_t default_val, bool is_unsigned) {
-  return BasicConstructor::Create(IntegerLiteral::Create(default_val, is_unsigned));
+BasicConstructor *BasicConstructor::CreateIntegerConstructor(CompilerSession *cs,
+    uint64_t default_val,
+    bool is_unsigned) {
+  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, default_val, is_unsigned));
 }
 
-BasicConstructor *BasicConstructor::CreateFPConstructor(double default_val) {
-  return BasicConstructor::Create(FloatLiteral::Create(default_val));
+BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs, double default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(cs, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateStringConstructor(str default_val) {
-  return BasicConstructor::Create(StringLiteral::Create(default_val));
+BasicConstructor *BasicConstructor::CreateStringConstructor(CompilerSession *cs, str default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(cs, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateCharConstructor(uint8_t default_val) {
-  return BasicConstructor::Create(CharLiteral::Create(default_val));
+BasicConstructor *BasicConstructor::CreateCharConstructor(CompilerSession *cs, uint8_t default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(cs, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(vector<Literal *> default_val) {
-  return BasicConstructor::Create(ArrayLiteral::Create(default_val));
+BasicConstructor *BasicConstructor::CreateArrayConstructor(CompilerSession *cs, vector<Literal *> default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(cs, default_val));
 }
 
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }

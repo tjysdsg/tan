@@ -1,9 +1,10 @@
 #ifndef __TAN_SRC_AST_CONSTRUCTOR_H__
 #define __TAN_SRC_AST_CONSTRUCTOR_H__
-
 #include "base.h"
 #include "src/ast/fwd.h"
 #include <variant>
+
+namespace llvm { class Value; }
 
 namespace tanlang {
 
@@ -31,12 +32,17 @@ private:
 
 class BasicConstructor : public Constructor {
 public:
+  /**
+   * \note Make sure default_val's type is resolved
+   */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(uint64_t default_val = 0, bool is_unsigned = false);
-  static BasicConstructor *CreateFPConstructor(double default_val = 0);
-  static BasicConstructor *CreateStringConstructor(str default_val = "");
-  static BasicConstructor *CreateCharConstructor(uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(vector<Literal *> default_val = {});
+  static BasicConstructor *CreateIntegerConstructor(CompilerSession *cs,
+      uint64_t default_val = 0,
+      bool is_unsigned = false);
+  static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0);
+  static BasicConstructor *CreateStringConstructor(CompilerSession *cs, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(CompilerSession *cs, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, vector<Literal *> default_val = {});
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);
