@@ -471,6 +471,7 @@ private:
       case Ty::DOUBLE:
       case Ty::FLOAT:
       case Ty::STRING:
+      case Ty::ARRAY:
         ret = codegen_constructor(p->get_constructor());
         break;
       case Ty::VOID:
@@ -489,19 +490,6 @@ private:
         // TODO: use codegen_constructor()
         ret = ConstantPointerNull::get((PointerType *) type);
         break;
-      case Ty::ARRAY: {
-        // TODO: use codegen_constructor()
-        auto *e_type = TypeSystem::ToLLVMType(_cs, p->get_sub_types()[0]);
-        size_t n = p->get_sub_types().size();
-        ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
-        for (size_t i = 0; i < n; ++i) {
-          auto *idx = builder->getInt32((unsigned) i);
-          auto *e_val = codegen_type_instantiation(p->get_sub_types()[i]);
-          auto *e_ptr = builder->CreateGEP(ret, idx);
-          builder->CreateStore(e_val, e_ptr);
-        }
-        break;
-      }
       case Ty::TYPE_REF: {
         ret = codegen_type_instantiation(p->get_canonical_type());
         break;
@@ -544,7 +532,9 @@ private:
 
         /// element type
         auto elements = arr->get_elements();
-        auto *e_type = TypeSystem::ToLLVMType(_cs, elements[0]->get_type());
+        vector<ASTType *> sub_types = arr->get_type()->get_sub_types();
+        TAN_ASSERT(!sub_types.empty());
+        auto *e_type = TypeSystem::ToLLVMType(_cs, sub_types[0]);
 
         /// codegen element values
         size_t n = elements.size();

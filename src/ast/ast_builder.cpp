@@ -29,16 +29,11 @@ CharLiteral *ASTBuilder::CreateCharLiteral(CompilerSession *cs, uint8_t val) {
   return ret;
 }
 
-ArrayLiteral *ASTBuilder::CreateArrayLiteral(CompilerSession *, vector<Literal *>) {
-  // TODO: implement this
-  /*
-   * auto *ret = ArrayLiteral::Create(val);
-   * vector<ASTType *> sub_types{};
-   * auto *type = ASTType::CreateAndResolve(cs, Ty::ARRAY, xxx);
-   * TypeSystem::ResolveTy(cs, type);
-   * ret->set_type(type);
-   * return ret;
-   */
-  TAN_ASSERT(false);
-  return nullptr;
+ArrayLiteral *ASTBuilder::CreateArrayLiteral(CompilerSession *cs, ASTType *element_type) {
+  auto *ret = ArrayLiteral::Create();
+  vector<ASTType *> sub_types{};
+  auto *type = ASTType::CreateAndResolve(cs, Ty::ARRAY, {element_type});
+  TypeSystem::ResolveTy(cs, type);
+  ret->set_type(type);
+  return ret;
 }

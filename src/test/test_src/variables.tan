@@ -8,6 +8,7 @@ pub fn main(argc: int, argv: char**) : int {
     var fp: float;
     assert(fp == 0.0);
     var b: bool;
+    // TODO: assert(b == false);
 
     var typed: int = 1;
     var typed_f: float = 1.0;

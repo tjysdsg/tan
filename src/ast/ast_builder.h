@@ -14,7 +14,7 @@ public:
   static FloatLiteral *CreateFloatLiteral(CompilerSession *cs, double val);
   static StringLiteral *CreateStringLiteral(CompilerSession *cs, str val);
   static CharLiteral *CreateCharLiteral(CompilerSession *cs, uint8_t val);
-  static ArrayLiteral *CreateArrayLiteral(CompilerSession *cs, vector<Literal *> val);
+  static ArrayLiteral *CreateArrayLiteral(CompilerSession *cs, ASTType *element_type);
 
 };
 

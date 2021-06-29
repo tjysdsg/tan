@@ -28,8 +28,8 @@ BasicConstructor *BasicConstructor::CreateCharConstructor(CompilerSession *cs, u
   return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(cs, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(CompilerSession *cs, vector<Literal *> default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(cs, default_val));
+BasicConstructor *BasicConstructor::CreateArrayConstructor(CompilerSession *cs, ASTType *element_type) {
+  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(cs, element_type));
 }
 
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }

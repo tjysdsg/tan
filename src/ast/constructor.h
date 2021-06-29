@@ -42,7 +42,7 @@ public:
   static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0);
   static BasicConstructor *CreateStringConstructor(CompilerSession *cs, str default_val = "");
   static BasicConstructor *CreateCharConstructor(CompilerSession *cs, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, vector<Literal *> default_val = {});
+  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, ASTType *element_type = {});
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

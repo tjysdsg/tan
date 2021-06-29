@@ -302,7 +302,9 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
       // TODO: p->set_constructor()
       break;
     case Ty::ARRAY: {
-      p->set_constructor(BasicConstructor::CreateArrayConstructor(cs));
+      vector<ASTType *> sub_types = p->get_sub_types();
+      TAN_ASSERT(!sub_types.empty());
+      p->set_constructor(BasicConstructor::CreateArrayConstructor(cs, sub_types[0]));
       break;
     }
     case Ty::POINTER:
