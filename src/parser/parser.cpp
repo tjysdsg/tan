@@ -179,24 +179,28 @@ private:
       node = CompoundStmt::Create();
     } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
       switch (hashed_string{token->value.c_str()}) {
-        case "*"_hs:
-          node = BinaryOperator::Create(BinaryOpKind::MULTIPLY);
-          break;
         case "/"_hs:
           node = BinaryOperator::Create(BinaryOpKind::DIVIDE);
           break;
         case "%"_hs:
           node = BinaryOperator::Create(BinaryOpKind::MOD);
           break;
+          /// Operators that are possibly BOP or UOP at this stage
+          /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
+        case "*"_hs:
+          // MULTIPLY / PTR_DEREF
+          node = BinaryOrUnary::Create(BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
+          break;
         case "+"_hs:
-          /// BOP or UOP? ambiguous
+          // SUM / PLUS
           node = BinaryOrUnary::Create(BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
           break;
         case "-"_hs:
-          /// BOP or UOP? ambiguous
+          // SUBTRACT / MINUS
           node = BinaryOrUnary::Create(BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
           break;
         default:
+          TAN_ASSERT(false);
           return nullptr;
       }
     } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
@@ -237,6 +241,9 @@ private:
       BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
       switch (hashed_string{p->get_token_str().c_str()}) {
+        case "*"_hs:
+          actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF);
+          break;
         case "&"_hs:
           actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF);
           break;
@@ -321,6 +328,11 @@ private:
       case ASTNodeType::BOP_OR_UOP: {
         BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
         TAN_ASSERT(pp->get_kind() == BinaryOrUnary::UNARY);
+
+        /// update binding power, as the value was originally set to the binding power of BOP version of this op
+        auto *uop = pp->get_uop();
+        uop->set_lbp(UnaryOperator::UOPPrecedence[uop->get_op()]);
+
         p->_end_index = parse_node(pp->get_generic_ptr());
         break;
       }
@@ -339,6 +351,9 @@ private:
       BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
       switch (hashed_string{p->get_token_str().c_str()}) {
+        case "*"_hs:
+          actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY);
+          break;
         case "&"_hs:
           actual = BinaryOperator::Create(BinaryOpKind::BAND);
           break;

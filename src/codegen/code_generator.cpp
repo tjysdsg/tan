@@ -579,6 +579,9 @@ private:
       case UnaryOpKind::ADDRESS_OF:
         ret = codegen_address_of(p);
         break;
+      case UnaryOpKind::PTR_DEREF:
+        ret = codegen_ptr_deref(p);
+        break;
       case UnaryOpKind::PLUS:
         ret = codegen(rhs);
         break;
@@ -1053,6 +1056,22 @@ private:
     }
 
     return p->_llvm_value = ret;
+  }
+
+  Value *codegen_ptr_deref(UnaryOperator *p) {
+    auto *builder = _cs->_builder;
+    set_current_debug_location(p);
+
+    auto *rhs = p->get_rhs();
+    Value *val = codegen(rhs);
+    TAN_ASSERT(val->getType()->isPointerTy());
+
+    /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
+    if (rhs->get_type()->is_lvalue()) {
+      p->_llvm_value = builder->CreateLoad(val, "ptr_deref");
+    }
+
+    return p->_llvm_value;
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {

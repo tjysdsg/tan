@@ -125,37 +125,6 @@ private:
     tanlang::report_error(_cs->_filename, p->get_token(), message);
   }
 
-  void analyze_uop(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
-    auto rhs = p->get_rhs();
-    analyze(rhs);
-
-    switch (p->get_op()) {
-      case UnaryOpKind::LNOT:
-        p->set_type(ASTType::CreateAndResolve(_cs, Ty::BOOL));
-        break;
-      case UnaryOpKind::BNOT:
-        p->set_type(copy_ty(rhs->get_type()));
-        break;
-      case UnaryOpKind::ADDRESS_OF: {
-        auto ty = copy_ty(rhs->get_type());
-        p->set_type(_h.get_ptr_to(ty));
-        break;
-      }
-      case UnaryOpKind::PLUS:
-      case UnaryOpKind::MINUS: {
-        /// unary plus/minus
-        auto ty = copy_ty(rhs->get_type());
-        ty->set_is_lvalue(false);
-        p->set_type(ty);
-        break;
-      }
-      default:
-        TAN_ASSERT(false);
-        break;
-    }
-  }
-
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
     auto referred = _cs->get(p->get_name());
@@ -237,84 +206,6 @@ private:
     analyze(p->get_generic_ptr());
   }
 
-  void analyze_cast(Cast *p) {
-    Expr *lhs = p->get_lhs();
-    ASTBase *rhs = p->get_rhs();
-    analyze(lhs);
-    analyze(rhs);
-
-    ASTType *ty = nullptr;
-    switch (rhs->get_node_type()) {
-      case ASTNodeType::ID:
-        ty = _cs->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
-        if (!ty) {
-          report_error(rhs, "Unknown type");
-        }
-        break;
-      case ASTNodeType::TY:
-        ty = ast_must_cast<ASTType>(rhs);
-        break;
-      default:
-        report_error(lhs, "Invalid right-hand operand");
-        break;
-    }
-
-    ty = copy_ty(ty);
-    ty->set_is_lvalue(lhs->get_type()->is_lvalue());
-    p->set_type(ty);
-    // FIXME: check if the cast is valid
-  }
-
-  void analyze_assignment(Assignment *p) {
-    Expr *rhs = p->get_rhs();
-    analyze(rhs);
-
-    auto lhs = p->get_lhs();
-    ASTType *lhs_type = nullptr;
-    switch (lhs->get_node_type()) {
-      case ASTNodeType::ID:
-        analyze(lhs);
-        lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
-        break;
-      case ASTNodeType::STRUCT_DECL:
-      case ASTNodeType::VAR_DECL:
-      case ASTNodeType::ARG_DECL:
-      case ASTNodeType::ENUM_DECL:
-      case ASTNodeType::BOP:
-        analyze(lhs);
-        lhs_type = ast_must_cast<Expr>(lhs)->get_type();
-        break;
-      default:
-        report_error(lhs, "Invalid left-hand operand");
-    }
-
-    /// if the type of lhs is not set, we deduce it
-    /// NOTE: we only allow type deduction for declarations
-    if (!lhs_type) {
-      lhs_type = copy_ty(rhs->get_type());
-
-      /// set type of lhs
-      switch (lhs->get_node_type()) {
-        case ASTNodeType::STRUCT_DECL:
-        case ASTNodeType::VAR_DECL:
-        case ASTNodeType::ARG_DECL:
-        case ASTNodeType::ENUM_DECL:
-          ast_must_cast<Decl>(lhs)->set_type(lhs_type);
-          break;
-        default:
-          TAN_ASSERT(false);
-          break;
-      }
-      /// analyze again just to make sure
-      analyze(lhs);
-    }
-
-    if (TypeSystem::CanImplicitCast(_cs, lhs_type, rhs->get_type()) != 0) {
-      report_error(p, "Cannot perform implicit type conversion");
-    }
-    p->set_type(lhs_type);
-  }
-
   void analyze_bop(ASTBase *_p) {
     auto p = ast_must_cast<BinaryOperator>(_p);
     Expr *lhs = p->get_lhs();
@@ -372,6 +263,125 @@ private:
     }
   }
 
+  void analyze_uop(ASTBase *_p) {
+    auto p = ast_must_cast<UnaryOperator>(_p);
+    auto rhs = p->get_rhs();
+    analyze(rhs);
+
+    switch (p->get_op()) {
+      case UnaryOpKind::LNOT:
+        p->set_type(ASTType::CreateAndResolve(_cs, Ty::BOOL));
+        break;
+      case UnaryOpKind::BNOT:
+        p->set_type(copy_ty(rhs->get_type()));
+        break;
+      case UnaryOpKind::ADDRESS_OF: {
+        auto ty = copy_ty(rhs->get_type());
+        p->set_type(_h.get_ptr_to(ty));
+        break;
+      }
+      case UnaryOpKind::PTR_DEREF: {
+        auto *ty = rhs->get_type();
+        if (!ty->is_ptr()) { report_error(ty, "Expect a pointer type"); }
+        ty = copy_ty(_h.get_contained_ty(ty));
+        ty->set_is_lvalue(true);
+        p->set_type(ty);
+        break;
+      }
+      case UnaryOpKind::PLUS:
+      case UnaryOpKind::MINUS: {
+        /// unary plus/minus
+        auto ty = copy_ty(rhs->get_type());
+        ty->set_is_lvalue(false);
+        p->set_type(ty);
+        break;
+      }
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+  }
+
+  void analyze_cast(Cast *p) {
+    Expr *lhs = p->get_lhs();
+    ASTBase *rhs = p->get_rhs();
+    analyze(lhs);
+    analyze(rhs);
+
+    ASTType *ty = nullptr;
+    switch (rhs->get_node_type()) {
+      case ASTNodeType::ID:
+        ty = _cs->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
+        if (!ty) {
+          report_error(rhs, "Unknown type");
+        }
+        break;
+      case ASTNodeType::TY:
+        ty = ast_must_cast<ASTType>(rhs);
+        break;
+      default:
+        report_error(lhs, "Invalid right-hand operand");
+        break;
+    }
+
+    ty = copy_ty(ty);
+    ty->set_is_lvalue(lhs->get_type()->is_lvalue());
+    p->set_type(ty);
+    // FIXME: check if the cast is valid
+  }
+
+  void analyze_assignment(Assignment *p) {
+    Expr *rhs = p->get_rhs();
+    analyze(rhs);
+
+    auto lhs = p->get_lhs();
+    ASTType *lhs_type = nullptr;
+    switch (lhs->get_node_type()) {
+      case ASTNodeType::ID:
+        analyze(lhs);
+        lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
+        break;
+      case ASTNodeType::STRUCT_DECL:
+      case ASTNodeType::VAR_DECL:
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::ENUM_DECL:
+      case ASTNodeType::BOP_OR_UOP:
+      case ASTNodeType::UOP:
+      case ASTNodeType::BOP:
+        analyze(lhs);
+        lhs_type = ast_must_cast<Expr>(lhs)->get_type();
+        break;
+      default:
+        report_error(lhs, "Invalid left-hand operand");
+    }
+
+    /// if the type of lhs is not set, we deduce it
+    /// NOTE: we only allow type deduction for declarations
+    if (!lhs_type) {
+      lhs_type = copy_ty(rhs->get_type());
+
+      /// set type of lhs
+      switch (lhs->get_node_type()) {
+        case ASTNodeType::STRUCT_DECL:
+        case ASTNodeType::VAR_DECL:
+        case ASTNodeType::ARG_DECL:
+        case ASTNodeType::ENUM_DECL:
+          ast_must_cast<Decl>(lhs)->set_type(lhs_type);
+          break;
+        default:
+          TAN_ASSERT(false);
+          break;
+      }
+      /// analyze again just to make sure
+      analyze(lhs);
+    }
+
+    if (TypeSystem::CanImplicitCast(_cs, lhs_type, rhs->get_type()) != 0) {
+      report_error(p, "Cannot perform implicit type conversion");
+    }
+    p->set_type(lhs_type);
+  }
+
   void analyze_func_call(ASTBase *_p) {
     auto p = ast_must_cast<FunctionCall>(_p);
 
@@ -423,7 +433,7 @@ private:
     }
 
     /// it might be already parsed
-    vector<FunctionDecl *> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+    vector < FunctionDecl * > imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
     if (imported_functions.empty()) {
       Compiler::ParseFile(imported[0]);
       imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
@@ -554,7 +564,7 @@ private:
     auto p = ast_must_cast<ArrayLiteral>(_p);
 
     // TODO: restrict array element type to be the same
-    vector<ASTType *> sub_tys{};
+    vector < ASTType * > sub_tys{};
     auto elements = p->get_elements();
     sub_tys.reserve(elements.size());
     std::for_each(elements.begin(), elements.end(), [&sub_tys, this](Expr *e) {

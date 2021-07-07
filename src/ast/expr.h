@@ -175,7 +175,7 @@ enum class UnaryOpKind {
   PLUS,        /// +
   MINUS,       /// -
   ADDRESS_OF,  /// var v: int; &v
-  // TODO: other unary operators
+  PTR_DEREF,   /// poitner dereference
 };
 
 class UnaryOperator : public Expr {

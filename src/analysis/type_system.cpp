@@ -27,7 +27,7 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyp
    * */
 
   /// early return if types are the same
-  if (*orig == *dest) { return loaded; };
+  if (orig == dest || *orig == *dest) { return loaded; };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return builder->CreateBitCast(loaded, ToLLVMType(cs, dest));

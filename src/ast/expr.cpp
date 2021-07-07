@@ -101,7 +101,7 @@ BinaryOpKind BinaryOperator::get_op() const { return _op; }
 
 umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
     {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}, {UnaryOpKind::ADDRESS_OF, PREC_UNARY},
-        {UnaryOpKind::PLUS, PREC_UNARY}, {UnaryOpKind::MINUS, PREC_UNARY}};
+        {UnaryOpKind::PLUS, PREC_UNARY}, {UnaryOpKind::MINUS, PREC_UNARY}, {UnaryOpKind::PTR_DEREF, PREC_HIGHEST}};
 
 UnaryOperator::UnaryOperator(UnaryOpKind op) : Expr(ASTNodeType::UOP, UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
