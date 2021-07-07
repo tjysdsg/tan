@@ -5,9 +5,10 @@
 
 using namespace tanlang;
 
-IntegerLiteral *ASTBuilder::CreateIntegerLiteral(CompilerSession *cs, uint64_t val, bool is_unsigned) {
+IntegerLiteral *ASTBuilder::CreateIntegerLiteral(CompilerSession *cs, uint64_t val, size_t bit_size, bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(val, is_unsigned);
-  ret->set_type(ASTType::CreateAndResolve(cs, TY_OR(Ty::INT, Ty::BIT32)));
+  ASTType *ty = ASTType::CreateAndResolve(cs, TY_OR(Ty::INT, BIT_SIZE_TO_TY[bit_size]), {}, false);
+  ret->set_type(ty);
   return ret;
 }
 

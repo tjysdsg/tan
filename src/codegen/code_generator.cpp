@@ -81,8 +81,7 @@ public:
         ret = codegen_var_arg_decl(p);
         break;
       case ASTNodeType::TY:
-        // FIXME:
-        //  ret = codegen_type_instantiation(ast_cast<ASTType>(p));
+        ret = codegen_type_instantiation(ast_cast<ASTType>(p));
         break;
       case ASTNodeType::PARENTHESIS:
         ret = codegen_parenthesis(p);
@@ -453,7 +452,6 @@ private:
     TAN_ASSERT(p->is_resolved());
     // TODO: TAN_ASSERT(p->get_constructor());
 
-    auto *builder = _cs->_builder;
     Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
     Type *type = TypeSystem::ToLLVMType(_cs, p);
@@ -852,8 +850,9 @@ private:
     if (!val) { report_error(lhs, "Invalid expression for left-hand operand"); }
 
     Value *ret = nullptr;
-    val = TypeSystem::ConvertTo(_cs, val, lhs->get_type(), p->get_dest_type());
 
+    // lvalue will be loaded here
+    val = TypeSystem::ConvertTo(_cs, val, ast_must_cast<ASTType>(p->get_rhs()), p->get_dest_type());
     if (lhs->get_type()->is_lvalue()) {
       ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
       builder->CreateStore(val, ret);

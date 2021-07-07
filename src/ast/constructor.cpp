@@ -12,8 +12,9 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
 
 BasicConstructor *BasicConstructor::CreateIntegerConstructor(CompilerSession *cs,
     uint64_t default_val,
+    size_t bit_size,
     bool is_unsigned) {
-  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, default_val, is_unsigned));
+  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, default_val, bit_size, is_unsigned));
 }
 
 BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs, double default_val) {

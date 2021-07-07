@@ -276,8 +276,7 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
 
   switch (base) {
     case Ty::INT:
-      // TODO: bit size
-      p->set_constructor(BasicConstructor::CreateIntegerConstructor(cs, 0, p->is_unsigned()));
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(cs, 0, p->get_size_bits(), p->is_unsigned()));
       break;
     case Ty::CHAR:
       p->set_constructor(BasicConstructor::CreateCharConstructor(cs));

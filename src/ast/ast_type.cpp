@@ -63,13 +63,20 @@ ASTType *ASTType::Create(CompilerSession *cs) {
   return ret;
 }
 
-ASTType *ASTType::CreateAndResolve(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys, bool is_lvalue) {
+ASTType *ASTType::CreateAndResolve(CompilerSession *cs,
+    Ty t,
+    vector<ASTType *> sub_tys,
+    bool is_lvalue,
+    std::function<void(ASTType *)> attribute_setter) {
   // TODO: cache
   auto ret = new ASTType;
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
   ret->_cs = cs;
+  if (attribute_setter) {
+    attribute_setter(ret);
+  }
   TypeSystem::ResolveTy(cs, ret);
   return ret;
 }

@@ -3,7 +3,7 @@ import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     // test default values
-    var integer: i32;
+    var integer: i8;
     assert(integer == 0);
     var fp: float;
     assert(fp == 0.0);

@@ -7,6 +7,7 @@
 #include "src/ast/ast_named.h"
 #include "src/ast/typed.h"
 #include "base.h"
+#include <functional>
 
 #define TY_GET_BASE(t) ((Ty)((uint64_t)t & TY_BASE_MASK))
 #define TY_GET_QUALIFIER(t) ((Ty)((uint64_t)t & TY_QUALIFIER_MASK))
@@ -26,7 +27,11 @@ namespace tanlang {
 class ASTType : public ASTBase {
 public:
   static ASTType *Create(CompilerSession *cs);
-  static ASTType *CreateAndResolve(CompilerSession *cs, Ty t, vector<ASTType *> sub_tys = {}, bool is_lvalue = false);
+  static ASTType *CreateAndResolve(CompilerSession *cs,
+      Ty t,
+      vector<ASTType *> sub_tys = {},
+      bool is_lvalue = false,
+      std::function<void(ASTType *)> attribute_setter = {});
 
 public:
   static umap<str, Ty> basic_tys;

@@ -260,10 +260,7 @@ private:
     ty = copy_ty(ty);
     ty->set_is_lvalue(lhs->get_type()->is_lvalue());
     p->set_type(ty);
-    // FIXME: check if can explicit cast
-    // if (TypeSystem::CanImplicitCast(_cs, np->_type, _h.get_ty(p->get_child_at(0))) != 0) {
-    //   report_error(p, "Cannot perform implicit type conversion");
-    // }
+    // FIXME: check if the cast is valid
   }
 
   void analyze_assignment(Assignment *p) {

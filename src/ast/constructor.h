@@ -38,6 +38,7 @@ public:
   static BasicConstructor *Create(CompTimeExpr *default_val);
   static BasicConstructor *CreateIntegerConstructor(CompilerSession *cs,
       uint64_t default_val = 0,
+      size_t bit_size = 32,
       bool is_unsigned = false);
   static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0);
   static BasicConstructor *CreateStringConstructor(CompilerSession *cs, str default_val = "");
