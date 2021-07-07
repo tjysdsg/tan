@@ -67,8 +67,6 @@ public:
       case ASTNodeType::IF:
         analyze_if(p);
         break;
-        // TODO: cs->set_current_loop(pl) // case ASTNodeType::LOOP:
-        // TODO: cs->get_current_loop() // case ASTNodeType::BREAK (or CONTINUE):
       case ASTNodeType::INTRINSIC:
         analyze_intrinsic(p);
         break;
@@ -99,11 +97,15 @@ public:
       case ASTNodeType::STRUCT_DECL:
         analyze_struct_decl(p);
         break;
-      case ASTNodeType::CONTINUE:
-      case ASTNodeType::BREAK:
-        break;
       case ASTNodeType::BOP_OR_UOP:
         analyze_bop_or_uop(p);
+        break;
+      case ASTNodeType::LOOP:
+        analyze_loop(p);
+        break;
+      case ASTNodeType::BREAK:
+      case ASTNodeType::CONTINUE:
+        analyze_break_or_continue(p);
         break;
       default:
         TAN_ASSERT(false);
@@ -732,6 +734,25 @@ private:
     }
     resolve_ty(ty);
     p->set_type(ty);
+  }
+
+  void analyze_loop(ASTBase *_p) {
+    auto *p = ast_must_cast<Loop>(_p);
+    analyze(p->get_predicate());
+
+    auto *prev_loop = _cs->get_current_loop();
+    _cs->set_current_loop(p);
+    analyze(p->get_body());
+    _cs->set_current_loop(prev_loop);
+  }
+
+  void analyze_break_or_continue(ASTBase *_p) {
+    auto *p = ast_must_cast<BreakContinue>(_p);
+    Loop *loop = _cs->get_current_loop();
+    if (!loop) {
+      report_error(p, "Break or continue must be inside a loop");
+    }
+    p->set_parent_loop(loop);
   }
 
 private:

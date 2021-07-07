@@ -875,14 +875,17 @@ private:
     return p->_llvm_value = codegen(p->get_generic_ptr());
   }
 
-  Value *codegen_break_continue(ASTBase *p) {
+  Value *codegen_break_continue(ASTBase *_p) {
+    auto *p = ast_must_cast<BreakContinue>(_p);
     auto *builder = _cs->_builder;
-    auto loop = _cs->get_current_loop();
-    if (!loop) {
-      report_error(p, "Any break/continue statement must be inside loop");
-    }
+    auto loop = p->get_parent_loop();
+    TAN_ASSERT(loop);
+
     auto s = loop->_loop_start;
     auto e = loop->_loop_end;
+    TAN_ASSERT(s);
+    TAN_ASSERT(e);
+
     if (p->get_node_type() == ASTNodeType::BREAK) {
       builder->CreateBr(e);
     } else if (p->get_node_type() == ASTNodeType::CONTINUE) {
@@ -895,12 +898,9 @@ private:
 
   Value *codegen_loop(ASTBase *_p) {
     auto p = ast_must_cast<Loop>(_p);
-
     auto *builder = _cs->_builder;
-    auto prev_loop = _cs->get_current_loop();
 
     set_current_debug_location(p);
-    _cs->set_current_loop(p);
     if (p->_loop_type == ASTLoopType::WHILE) {
       /*
        * Results should like this:
@@ -954,7 +954,6 @@ private:
       TAN_ASSERT(false);
     }
 
-    _cs->set_current_loop(prev_loop); /// restore the outer loop
     return nullptr;
   }
 

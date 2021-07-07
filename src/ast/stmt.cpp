@@ -74,6 +74,10 @@ BreakContinue::BreakContinue(ASTNodeType type) : Stmt(type) {
   TAN_ASSERT(type == ASTNodeType::BREAK || type == ASTNodeType::CONTINUE);
 }
 
+Loop *BreakContinue::get_parent_loop() const { return _parent_loop; }
+
+void BreakContinue::set_parent_loop(Loop *parent_loop) { _parent_loop = parent_loop; }
+
 Break *Break::Create() { return new Break; }
 
 Continue *Continue::Create() { return new Continue; }

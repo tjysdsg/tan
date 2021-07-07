@@ -66,6 +66,11 @@ private:
 class BreakContinue : public Stmt {
 public:
   BreakContinue(ASTNodeType type);
+  Loop *get_parent_loop() const;
+  void set_parent_loop(Loop *parent_loop);
+
+private:
+  Loop *_parent_loop = nullptr;
 };
 
 class Break : public BreakContinue {
