@@ -844,7 +844,7 @@ private:
     set_current_debug_location(p);
 
     auto lhs = p->get_lhs();
-    auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_dest_type());
+    auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_type());
 
     Value *val = codegen(lhs);
     if (!val) { report_error(lhs, "Invalid expression for left-hand operand"); }
@@ -852,7 +852,7 @@ private:
     Value *ret = nullptr;
 
     // lvalue will be loaded here
-    val = TypeSystem::ConvertTo(_cs, val, ast_must_cast<ASTType>(p->get_rhs()), p->get_dest_type());
+    val = TypeSystem::ConvertTo(_cs, val, p->get_lhs()->get_type(), p->get_type());
     if (lhs->get_type()->is_lvalue()) {
       ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
       builder->CreateStore(val, ret);

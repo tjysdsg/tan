@@ -274,13 +274,9 @@ public:
   ASTBase *get_rhs() const;
   void set_rhs(ASTBase *rhs);
 
-  ASTType *get_dest_type() const;
-  void set_dest_type(ASTType *dest_type);
-
 protected:
   Expr *_lhs = nullptr;
   ASTBase *_rhs = nullptr;
-  ASTType *_dest_type = nullptr;
 };
 
 }

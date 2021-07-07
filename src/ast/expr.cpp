@@ -159,10 +159,6 @@ Expr *Cast::get_lhs() const { return _lhs; }
 
 void Cast::set_lhs(Expr *lhs) { _lhs = lhs; }
 
-ASTType *Cast::get_dest_type() const { return _dest_type; }
-
-void Cast::set_dest_type(ASTType *dest_type) { _dest_type = dest_type; }
-
 Cast *Cast::Create() { return new Cast; }
 
 Cast::Cast() : Expr(ASTNodeType::CAST, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}

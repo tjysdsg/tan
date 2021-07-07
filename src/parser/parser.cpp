@@ -445,7 +445,6 @@ private:
     if (rhs->get_node_type() != ASTNodeType::TY) {
       error(rhs->_end_index, "Expect a type");
     }
-    p->set_dest_type(ast_must_cast<ASTType>(rhs));
     p->set_rhs(rhs);
 
     return p->_end_index;
