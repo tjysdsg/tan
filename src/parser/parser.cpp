@@ -11,6 +11,7 @@
 #include "src/ast/intrinsic.h"
 #include "src/ast/ast_base.h"
 #include "token.h"
+#include <fmt/core.h>
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
@@ -337,7 +338,7 @@ private:
         break;
       }
       default:
-        TAN_ASSERT(false);
+        error(p->_end_index, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
         break;
     }
     return p->_end_index;
