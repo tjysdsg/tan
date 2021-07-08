@@ -12,7 +12,7 @@ enum class Ty : uint64_t {
   #define TY_BASE_MASK 0xfffu
   VOID = 1u,
   INT = 2u,
-  FLOAT = 3u,
+  FLOAT = 3u,    // TODO: use bit_size to distinguish FLOAT and DOUBLE
   DOUBLE = 4u,
   BOOL = 5u,
   POINTER = 6u,
@@ -29,7 +29,7 @@ enum class Ty : uint64_t {
 
   UNSIGNED = 1u << 13u,
   CONST = 1u << 14u,
-  BIT8 = 1u << 15u,
+  BIT8 = 1u << 15u, // TODO: use ASTType::_bit_size instead
   BIT16 = 1u << 16u,
   BIT32 = 1u << 17u,
   BIT64 = 1u << 18u,

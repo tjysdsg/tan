@@ -11,11 +11,10 @@ namespace tanlang {
 class ASTBuilder {
 public:
   static IntegerLiteral *CreateIntegerLiteral(CompilerSession *cs, uint64_t val, size_t bit_size, bool is_unsigned);
-  static FloatLiteral *CreateFloatLiteral(CompilerSession *cs, double val);
+  static FloatLiteral *CreateFloatLiteral(CompilerSession *cs, double val, size_t bit_size);
   static StringLiteral *CreateStringLiteral(CompilerSession *cs, str val);
   static CharLiteral *CreateCharLiteral(CompilerSession *cs, uint8_t val);
   static ArrayLiteral *CreateArrayLiteral(CompilerSession *cs, ASTType *element_type);
-
 };
 
 }

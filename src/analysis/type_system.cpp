@@ -285,10 +285,10 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
       // TODO: p->set_constructor()
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, 0, 32));
       break;
     case Ty::DOUBLE:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, 0, 64));
       break;
     case Ty::STRING:
       p->set_constructor(BasicConstructor::CreateStringConstructor(cs));

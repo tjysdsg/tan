@@ -17,8 +17,8 @@ BasicConstructor *BasicConstructor::CreateIntegerConstructor(CompilerSession *cs
   return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, default_val, bit_size, is_unsigned));
 }
 
-BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs, double default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(cs, default_val));
+BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs, double default_val, size_t bit_size) {
+  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(cs, default_val, bit_size));
 }
 
 BasicConstructor *BasicConstructor::CreateStringConstructor(CompilerSession *cs, str default_val) {

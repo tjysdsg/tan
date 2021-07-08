@@ -40,7 +40,7 @@ public:
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
-  static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0);
+  static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0, size_t bit_size = 32);
   static BasicConstructor *CreateStringConstructor(CompilerSession *cs, str default_val = "");
   static BasicConstructor *CreateCharConstructor(CompilerSession *cs, uint8_t default_val = 0);
   static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, ASTType *element_type = {});

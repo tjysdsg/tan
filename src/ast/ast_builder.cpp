@@ -12,9 +12,15 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(CompilerSession *cs, uint64_t v
   return ret;
 }
 
-FloatLiteral *ASTBuilder::CreateFloatLiteral(CompilerSession *cs, double val) {
+FloatLiteral *ASTBuilder::CreateFloatLiteral(CompilerSession *cs, double val, size_t bit_size) {
   auto *ret = FloatLiteral::Create(val);
-  ret->set_type(ASTType::CreateAndResolve(cs, Ty::FLOAT));
+  if (bit_size == 32) {
+    ret->set_type(ASTType::CreateAndResolve(cs, Ty::FLOAT));
+  } else if (bit_size == 64) {
+    ret->set_type(ASTType::CreateAndResolve(cs, Ty::DOUBLE));
+  } else {
+    TAN_ASSERT(false);
+  }
   return ret;
 }
 
