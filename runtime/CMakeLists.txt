@@ -2,7 +2,7 @@ aux_source_directory(${CMAKE_CURRENT_LIST_DIR} RUNTIME_CXX_SRCS)
 file(GLOB_RECURSE RUNTIME_SRCS ${CMAKE_CURRENT_LIST_DIR}/*.tan)
 add_custom_target(
         runtime ALL
-        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/libruntime.so
+        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/libruntime.so tanc
 )
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/libruntime.so
