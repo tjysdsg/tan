@@ -568,6 +568,7 @@ private:
     Token *token = at(_p->get_loc());
     if (token->get_value() == "." || token->get_value() == "[") { /// delegate to parse_member_access
       parse_member_access(lhs, ast_must_cast<MemberAccess>(_p));
+      return;
     }
 
     BinaryOperator *p = ast_must_cast<BinaryOperator>(_p);

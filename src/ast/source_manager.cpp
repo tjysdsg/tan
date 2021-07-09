@@ -16,11 +16,11 @@ Token *SourceManager::get_token(SourceIndex loc) const {
 }
 
 size_t SourceManager::get_line(SourceIndex loc) const {
-  return get_token(loc)->get_line();
+  return get_token(loc)->get_line() + 1;
 }
 
 size_t SourceManager::get_col(SourceIndex loc) const {
-  return get_token(loc)->get_col();
+  return get_token(loc)->get_col() + 1;
 }
 
 str SourceManager::get_token_str(SourceIndex loc) const {
