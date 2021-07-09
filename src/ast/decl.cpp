@@ -8,16 +8,16 @@ using namespace tanlang;
 
 /// \section Decl
 
-Decl::Decl(ASTNodeType type, int lbp) : Expr(type, lbp) {}
+Decl::Decl(ASTNodeType type, SourceIndex loc, int lbp) : Expr(type, loc, lbp) {}
 
 /// \section ArgDecl
 
-ArgDecl::ArgDecl() : Decl(ASTNodeType::ARG_DECL, 0) {}
+ArgDecl::ArgDecl(SourceIndex loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
 
-ArgDecl *ArgDecl::Create() { return new ArgDecl; }
+ArgDecl *ArgDecl::Create(SourceIndex loc) { return new ArgDecl(loc); }
 
-ArgDecl *ArgDecl::Create(const str &name, ASTType *ty) {
-  auto ret = new ArgDecl;
+ArgDecl *ArgDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
+  auto ret = new ArgDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
@@ -25,12 +25,12 @@ ArgDecl *ArgDecl::Create(const str &name, ASTType *ty) {
 
 /// \section VarDecl
 
-VarDecl::VarDecl() : Decl(ASTNodeType::VAR_DECL, 0) {}
+VarDecl::VarDecl(SourceIndex loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
 
-VarDecl *VarDecl::Create() { return new VarDecl; }
+VarDecl *VarDecl::Create(SourceIndex loc) { return new VarDecl(loc); }
 
-VarDecl *VarDecl::Create(const str &name, ASTType *ty) {
-  auto ret = new VarDecl;
+VarDecl *VarDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
+  auto ret = new VarDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
@@ -38,7 +38,7 @@ VarDecl *VarDecl::Create(const str &name, ASTType *ty) {
 
 /// \section FunctionDecl
 
-FunctionDecl::FunctionDecl() : Decl(ASTNodeType::FUNC_DECL, 0) {}
+FunctionDecl::FunctionDecl(SourceIndex loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
 // TODO: move this to analysis
 FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args) {
@@ -83,15 +83,16 @@ FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, cons
   return ret;
 }
 
-FunctionDecl *FunctionDecl::Create() { return new FunctionDecl; }
+FunctionDecl *FunctionDecl::Create(SourceIndex loc) { return new FunctionDecl(loc); }
 
-FunctionDecl *FunctionDecl::Create(const str &name,
+FunctionDecl *FunctionDecl::Create(SourceIndex loc,
+    const str &name,
     ASTType *ret_type,
     vector<ASTType *> arg_types,
     bool is_external,
     bool is_public) {
   TAN_ASSERT(!arg_types.empty());
-  auto ret = new FunctionDecl;
+  auto ret = new FunctionDecl(loc);
 
   /// name
   ret->set_name(name);
@@ -143,9 +144,9 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 
 /// \section StructDecl
 
-StructDecl::StructDecl() : Decl(ASTNodeType::STRUCT_DECL, 0) {}
+StructDecl::StructDecl(SourceIndex loc) : Decl(ASTNodeType::STRUCT_DECL, loc, 0) {}
 
-StructDecl *StructDecl::Create() { return new StructDecl; }
+StructDecl *StructDecl::Create(SourceIndex loc) { return new StructDecl(loc); }
 
 void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
 

@@ -9,42 +9,45 @@
 namespace tanlang {
 
 class Decl : public Expr, public ASTNamed {
-public:
-  Decl(ASTNodeType type, int lbp);
+protected:
+  Decl(ASTNodeType type, SourceIndex loc, int lbp);
 };
 
 class VarDecl : public Decl {
-public:
-  static VarDecl *Create();
-  static VarDecl *Create(const str &name, ASTType *ty);
+protected:
+  VarDecl(SourceIndex loc);
 
 public:
-  VarDecl();
+  static VarDecl *Create(SourceIndex loc);
+  static VarDecl *Create(SourceIndex loc, const str &name, ASTType *ty);
 
 private:
   ASTBase *_value = nullptr;
 };
 
 class ArgDecl : public Decl {
-public:
-  static ArgDecl *Create();
-  static ArgDecl *Create(const str &name, ASTType *ty);
+protected:
+  ArgDecl(SourceIndex loc);
 
 public:
-  ArgDecl();
+  static ArgDecl *Create(SourceIndex loc);
+  static ArgDecl *Create(SourceIndex loc, const str &name, ASTType *ty);
 };
 
 // TODO: function type itself
 class FunctionDecl : public Decl {
+protected:
+  FunctionDecl(SourceIndex loc);
+
 public:
-  static FunctionDecl *Create();
-  static FunctionDecl *Create(const str &name,
+  static FunctionDecl *Create(SourceIndex loc);
+  static FunctionDecl *Create(SourceIndex loc,
+      const str &name,
       ASTType *ret_type,
       vector<ASTType *> arg_types,
       bool is_external,
       bool is_public);
   static FunctionDecl *GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args);
-  FunctionDecl();
 
   [[nodiscard]] ASTType *get_ret_ty() const;
   void set_ret_type(ASTType *type);
@@ -79,9 +82,11 @@ private:
 };
 
 class StructDecl : public Decl {
+protected:
+  StructDecl(SourceIndex loc);
+
 public:
-  static StructDecl *Create();
-  StructDecl();
+  static StructDecl *Create(SourceIndex loc);
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
