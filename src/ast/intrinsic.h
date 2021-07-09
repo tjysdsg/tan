@@ -49,15 +49,17 @@ enum class IntrinsicType {
  * rvalue
  */
 class Intrinsic : public Expr, public ASTNamed {
+protected:
+  Intrinsic(SourceIndex loc);
+
 public:
-  static Intrinsic *Create();
+  static Intrinsic *Create(SourceIndex loc);
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
   static void InitAnalysis(CompilerSession *cs);
 
 public:
-  Intrinsic();
   IntrinsicType get_intrinsic_type() const;
   void set_intrinsic_type(IntrinsicType intrinsic_type);
   ASTBase *get_sub() const;

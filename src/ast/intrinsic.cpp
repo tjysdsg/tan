@@ -4,8 +4,6 @@
 #include "src/ast/decl.h"
 #include "src/ast/ast_type.h"
 #include "src/compiler/stack_trace.h"
-#include "token.h"
-#include <iostream>
 
 namespace tanlang {
 
@@ -23,8 +21,10 @@ static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(CompilerSession *cs) {
-  cs->add_function(FunctionDecl::Create("compprint", ASTType::CreateAndResolve(cs, Ty::VOID),
-      {ASTType::CreateAndResolve(cs, Ty::STRING),},
+  cs->add_function(FunctionDecl::Create(SourceIndex(0),
+      "compprint",
+      ASTType::CreateAndResolve(cs, SourceIndex(0), Ty::VOID),
+      {ASTType::CreateAndResolve(cs, SourceIndex(0), Ty::STRING),},
       true,
       false));
 }
@@ -34,9 +34,9 @@ void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_abort(cs);
 }
 
-Intrinsic *Intrinsic::Create() { return new Intrinsic; }
+Intrinsic *Intrinsic::Create(SourceIndex loc) { return new Intrinsic(loc); }
 
-Intrinsic::Intrinsic() : Expr(ASTNodeType::INTRINSIC, 0) {}
+Intrinsic::Intrinsic(SourceIndex loc) : Expr(ASTNodeType::INTRINSIC, loc, 0) {}
 
 IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
 
