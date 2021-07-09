@@ -20,7 +20,7 @@ namespace tanlang {
 
 class AnalyzerImpl {
 public:
-  AnalyzerImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
+  AnalyzerImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()), _h(ASTHelper(cs)) {}
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
@@ -122,7 +122,7 @@ private:
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    tanlang::report_error(_cs->_filename, p->get_token(), message);
+    tanlang::report_error(_cs->_filename, _sm->get_token(p->get_loc()), message);
   }
 
   void analyze_id(ASTBase *_p) {
@@ -159,7 +159,9 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        if (0 != TypeSystem::CanImplicitCast(_cs, ASTType::CreateAndResolve(_cs, Ty::BOOL), cond->get_type())) {
+        if (0 != TypeSystem::CanImplicitCast(_cs,
+            ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL),
+            cond->get_type())) {
           report_error(p, "Cannot convert expression to bool");
         }
       }
@@ -252,7 +254,7 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        p->set_type(ASTType::CreateAndResolve(_cs, Ty::BOOL));
+        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
         analyze_member_access(ast_must_cast<MemberAccess>(p));
@@ -270,7 +272,7 @@ private:
 
     switch (p->get_op()) {
       case UnaryOpKind::LNOT:
-        p->set_type(ASTType::CreateAndResolve(_cs, Ty::BOOL));
+        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
         break;
       case UnaryOpKind::BNOT:
         p->set_type(copy_ty(rhs->get_type()));
@@ -433,7 +435,7 @@ private:
     }
 
     /// it might be already parsed
-    vector < FunctionDecl * > imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+    vector<FunctionDecl *> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
     if (imported_functions.empty()) {
       Compiler::ParseFile(imported[0]);
       imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
@@ -471,7 +473,7 @@ private:
     }
     p->set_intrinsic_type(q->second);
 
-    auto void_type = ASTType::CreateAndResolve(_cs, Ty::VOID);
+    auto void_type = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::VOID);
     switch (p->get_intrinsic_type()) {
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
@@ -480,38 +482,27 @@ private:
         break;
       }
       case IntrinsicType::LINENO: {
-        auto sub = IntegerLiteral::Create(_p->get_line(), true);
-
-        sub->_start_index = p->_start_index;
-        sub->_end_index = p->_end_index;
-        sub->set_token(p->get_token());
-
-        auto type = ASTType::CreateAndResolve(_cs, TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
+        auto sub = IntegerLiteral::Create(p->get_loc(), _sm->get_line(p->get_loc()), true);
+        auto type = ASTType::CreateAndResolve(_cs, p->get_loc(), TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
         break;
       }
       case IntrinsicType::FILENAME: {
-        auto sub = StringLiteral::Create(_cs->_filename);
-
-        sub->_start_index = p->_start_index;
-        sub->_end_index = p->_end_index;
-        sub->set_token(p->get_token());
-
-        auto type = ASTType::CreateAndResolve(_cs, Ty::STRING);
+        auto sub = StringLiteral::Create(p->get_loc(), _cs->_filename);
+        auto type = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING);
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
         break;
       }
       case IntrinsicType::GET_DECL: {
-        // FIXME:
-        p->set_type(ASTType::CreateAndResolve(_cs, Ty::STRING));
+        // FIXME: set the value to the srouce code string
+        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING));
         if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
           report_error(c, "Expect a string argument");
         }
-        // TODO: set p->_value to the source code of p
         break;
       }
       case IntrinsicType::COMP_PRINT: {
@@ -524,7 +515,7 @@ private:
           report_error(p, "Invalid call to compprint, one argument with type 'str' required");
         }
         str msg = ast_must_cast<StringLiteral>(args[0])->get_value();
-        std::cout << fmt::format("Message ({}): {}\n", _h.get_source_location(p), msg);
+        std::cout << fmt::format("Message ({}): {}\n", _cs->get_source_location_str(p), msg);
         break;
       }
       default:
@@ -534,36 +525,37 @@ private:
 
   void analyze_string_literal(ASTBase *_p) {
     auto p = ast_must_cast<StringLiteral>(_p);
-    p->set_value(p->get_token_str());
-    p->set_type(ASTType::CreateAndResolve(_cs, Ty::STRING));
+    p->set_value(_sm->get_token_str(p->get_loc()));
+    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING));
   }
 
   void analyze_char_literal(ASTBase *_p) {
     auto p = ast_must_cast<CharLiteral>(_p);
 
-    p->set_type(ASTType::CreateAndResolve(_cs, Ty::CHAR, {}));
-    p->set_value(static_cast<uint8_t>(p->get_token_str()[0]));
+    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::CHAR, {}));
+    p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->get_loc())[0]));
   }
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
     auto tyty = Ty::INT;
-    if (p->get_token()->is_unsigned()) {
+
+    if (_cs->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
       tyty = TY_OR(tyty, Ty::UNSIGNED);
     }
-    p->set_type(ASTType::CreateAndResolve(_cs, tyty));
+    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), tyty));
   }
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::CreateAndResolve(_cs, Ty::FLOAT));
+    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::FLOAT));
   }
 
   void analyze_array_literal(ASTBase *_p) {
     auto p = ast_must_cast<ArrayLiteral>(_p);
 
     // TODO: restrict array element type to be the same
-    vector < ASTType * > sub_tys{};
+    vector<ASTType *> sub_tys{};
     auto elements = p->get_elements();
     sub_tys.reserve(elements.size());
     std::for_each(elements.begin(), elements.end(), [&sub_tys, this](Expr *e) {
@@ -571,7 +563,7 @@ private:
       sub_tys.push_back(e->get_type());
     });
 
-    ASTType *ty = ASTType::CreateAndResolve(_cs, Ty::ARRAY, sub_tys);
+    ASTType *ty = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::ARRAY, sub_tys);
     ty->set_array_size(elements.size());
     p->set_type(ty);
   }
@@ -650,12 +642,8 @@ private:
 
       /// get address of the struct instance
       if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs);
-        tmp->_start_index = lhs->_start_index;
-        tmp->_end_index = lhs->_end_index;
-        tmp->set_token(lhs->get_token());
+        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
         analyze(tmp);
-
         func_call->_args.insert(func_call->_args.begin(), tmp);
       } else {
         func_call->_args.insert(func_call->_args.begin(), lhs);
@@ -686,13 +674,9 @@ private:
         report_error(p, "Cannot redeclare type as a struct");
       }
     } else { /// no fwd decl
-      ty = ASTType::Create(_cs);
+      ty = ASTType::Create(_cs, p->get_loc());
       ty->set_ty(Ty::STRUCT);
-      ty->set_token(p->get_token());
-      ty->_start_index = p->_start_index;
-      ty->_end_index = p->_end_index;
       ty->set_constructor(StructConstructor::Create(ty));
-      // TODO: #43
       _cs->add_type_decl(struct_name, p); /// add self to current scope
     }
     ty->set_type_name(struct_name);
@@ -766,6 +750,7 @@ private:
 
 private:
   CompilerSession *_cs = nullptr;
+  SourceManager *_sm = nullptr;
   ASTHelper _h;
 };
 
