@@ -5,7 +5,8 @@
 
 [![codecov](https://codecov.io/gh/tjysdsg/tan/branch/master/graph/badge.svg)](https://codecov.io/gh/tjysdsg/tan)
 [![CodeFactor](https://www.codefactor.io/repository/github/tjysdsg/tan/badge)](https://www.codefactor.io/repository/github/tjysdsg/tan)
-[![Code Inspector](https://www.code-inspector.com/project/8230/score/svg)](https://frontend.code-inspector.com/public/project/8230/tan/dashboard)
+[![CodeScene Code Health](https://codescene.io/projects/16888/status-badges/code-health)](https://codescene.io/projects/16888)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/e6d4b2f67fa743ddbbe5e654c59f723c)](https://www.codacy.com/gh/tjysdsg/tan/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tjysdsg/tan&amp;utm_campaign=Badge_Grade)
 
 *Work In Progress*
 
