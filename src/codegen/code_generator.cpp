@@ -195,9 +195,9 @@ private:
               func_name,
               func_name,
               di_file,
-              (unsigned) p->get_line(),
+              (unsigned) _sm->get_line(p->get_loc()),
               di_func_t,
-              (unsigned) p->get_col(),
+              (unsigned) _sm->get_col(p->get_loc()),
               DINode::FlagPrototyped,
               DISubprogram::SPFlagDefinition,
               nullptr,
@@ -221,21 +221,23 @@ private:
                 arg_name,
                 (unsigned) i + 1,
                 di_file,
-                (unsigned) p->get_line(),
+                (unsigned) _sm->get_line(p->get_loc()),
                 (DIType *) arg_meta,
                 true);
         _cs->_di_builder
             ->insertDeclare(arg_val,
                 di_arg,
                 _cs->_di_builder->createExpression(),
-                llvm::DebugLoc::get((unsigned) p->get_line(), (unsigned) p->get_col(), subprogram),
+                llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_loc()),
+                    (unsigned) _sm->get_col(p->get_loc()),
+                    subprogram),
                 builder->GetInsertBlock());
         ++i;
       }
 
       /// set debug emit location to function body
-      builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) p->get_body()->get_line(),
-          (unsigned) p->get_body()->get_col(),
+      builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_body()->get_loc()),
+          (unsigned) _sm->get_col(p->get_body()->get_loc()),
           subprogram));
 
       /// generate function body
@@ -259,8 +261,9 @@ private:
     return p->_llvm_value = F;
   }
 
+  // FIXME: remove this
   void set_current_debug_location(ASTBase *p) {
-    _cs->set_current_debug_location(p->get_line(), p->get_col());
+    _cs->set_current_debug_location(_sm->get_line(p->get_loc()), _sm->get_col(p->get_loc()));
   }
 
   Value *codegen_bnot(ASTBase *_p) {
@@ -349,12 +352,14 @@ private:
       auto *di_arg = di_builder->createAutoVariable(curr_di_scope,
           p->get_name(),
           _cs->get_di_file(),
-          (unsigned) p->get_line(),
+          (unsigned) _sm->get_line(p->get_loc()),
           (DIType *) arg_meta);
       di_builder->insertDeclare(p->_llvm_value,
           di_arg,
           _cs->_di_builder->createExpression(),
-          llvm::DebugLoc::get((unsigned) p->get_line(), (unsigned) p->get_col(), curr_di_scope),
+          llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_loc()),
+              (unsigned) _sm->get_col(p->get_loc()),
+              curr_di_scope),
           builder->GetInsertBlock());
     }
     return p->_llvm_value;
@@ -938,7 +943,10 @@ private:
       if (!cond) {
         report_error(p, "Expected a condition expression");
       }
-      cond = TypeSystem::ConvertTo(_cs, cond, p->get_predicate()->get_type(), ASTType::CreateAndResolve(_cs, Ty::BOOL));
+      cond = TypeSystem::ConvertTo(_cs,
+          cond,
+          p->get_predicate()->get_type(),
+          ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
       builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
       /// loop body
@@ -992,7 +1000,10 @@ private:
         Value *cond_v = codegen(cond);
         if (!cond_v) { report_error(p, "Invalid condition expression "); }
         /// convert to bool
-        cond_v = TypeSystem::ConvertTo(_cs, cond_v, cond->get_type(), ASTType::CreateAndResolve(_cs, Ty::BOOL));
+        cond_v = TypeSystem::ConvertTo(_cs,
+            cond_v,
+            cond->get_type(),
+            ASTType::CreateAndResolve(_cs, cond->get_loc(), Ty::BOOL));
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1075,11 +1086,12 @@ private:
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    tanlang::report_error(_cs->_filename, p->get_token(), message);
+    tanlang::report_error(_cs->_filename, _sm->get_token(p->get_loc()), message);
   }
 
 private:
   CompilerSession *_cs = nullptr;
+  SourceManager *_sm = nullptr;
   ASTHelper _h;
 };
 
