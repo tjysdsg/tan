@@ -21,7 +21,7 @@ namespace tanlang {
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  ParserImpl(CompilerSession *cs) : _sm(_cs->get_source_manager()), _filename(cs->get_filename()), _cs(cs) {}
+  ParserImpl(CompilerSession *cs) : _sm(cs->get_source_manager()), _filename(cs->get_filename()), _cs(cs) {}
 
   ASTBase *parse() {
     _root = Program::Create(SourceIndex(0));
@@ -31,7 +31,7 @@ public:
 
 private:
   SourceManager *_sm = nullptr;
-  SourceIndex _curr = 0;
+  SourceIndex _curr = SourceIndex(0);
 
   // FIXME: parse_* functions don't have to return _end_index
   //  But remember to set the _end_index of proxy classes like BinaryOrUnary
@@ -218,7 +218,6 @@ private:
 
   ASTBase *next_expression(int rbp) {
     ASTBase *node = peek();
-    _curr.offset_by(1);
     if (!node) { return nullptr; }
     auto n = node;
     parse_node(n);

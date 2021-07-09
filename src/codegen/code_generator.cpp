@@ -19,7 +19,7 @@ class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
 
-  explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _h(ASTHelper(cs)) {}
+  explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()), _h(ASTHelper(cs)) {}
 
   Value *codegen(ASTBase *p) {
     if (p->_llvm_value) {

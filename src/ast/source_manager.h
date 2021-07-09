@@ -12,7 +12,10 @@ public:
   friend class SourceManager;
 
   SourceIndex() = delete;
-  SourceIndex(size_t index) { _index = index; }
+  SourceIndex(const SourceIndex &) = default;
+  SourceIndex &operator=(const SourceIndex &) = default;
+
+  explicit SourceIndex(size_t index) { _index = index; }
   static SourceIndex CreateInvalidIndex() { return SourceIndex(static_cast<size_t>(-1)); }
   size_t get_index() const { return _index; }
   void offset_by(int64_t offset) { _index += offset; }

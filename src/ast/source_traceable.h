@@ -16,7 +16,7 @@ public:
   void set_loc(SourceIndex loc);
 
 protected:
-  SourceIndex _loc = nullptr;
+  SourceIndex _loc = SourceIndex(0);
 };
 
 }

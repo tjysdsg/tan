@@ -129,6 +129,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     TypeSystem::ResolveTy(cs, t);
   }
 
+  Token *token = cs->get_source_manager()->get_token(p->get_loc());
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
@@ -214,7 +215,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       if (p->is_forward_decl()) {
         /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
         /// by an actual struct declaration by now
-        report_error(cs->_filename, p->get_token(), "Unresolved forward declaration of type");
+        report_error(cs->_filename, token, "Unresolved forward declaration of type");
       }
 
       /// align size is the max element size, if no element, 8 bits
@@ -233,7 +234,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::ARRAY: {
       if (p->get_sub_types().size() == 0) {
-        report_error(cs->_filename, p->get_token(), "Invalid type");
+        report_error(cs->_filename, token, "Invalid type");
       }
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
@@ -247,7 +248,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::POINTER: {
       if (p->get_sub_types().size() == 0) {
-        report_error(cs->_filename, p->get_token(), "Invalid type");
+        report_error(cs->_filename, token, "Invalid type");
       }
       auto &e = p->get_sub_types()[0];
       TypeSystem::ResolveTy(cs, e);
@@ -260,12 +261,12 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::TYPE_REF: {
       if (!p->get_canonical_type()) {
-        report_error(cs->_filename, p->get_token(), "Invalid type name");
+        report_error(cs->_filename, token, "Invalid type name");
       }
       break;
     }
     default:
-      report_error(cs->_filename, p->get_token(), "Invalid type");
+      report_error(cs->_filename, token, "Invalid type");
   }
   p->set_resolved(true);
 }
@@ -276,22 +277,26 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
 
   switch (base) {
     case Ty::INT:
-      p->set_constructor(BasicConstructor::CreateIntegerConstructor(cs, 0, p->get_size_bits(), p->is_unsigned()));
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(cs,
+          p->get_loc(),
+          0,
+          p->get_size_bits(),
+          p->is_unsigned()));
       break;
     case Ty::CHAR:
-      p->set_constructor(BasicConstructor::CreateCharConstructor(cs));
+      p->set_constructor(BasicConstructor::CreateCharConstructor(cs, p->get_loc()));
       break;
     case Ty::BOOL:
       // TODO: p->set_constructor()
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, 0, 32));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, p->get_loc(), 0, 32));
       break;
     case Ty::DOUBLE:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, 0, 64));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, p->get_loc(), 0, 64));
       break;
     case Ty::STRING:
-      p->set_constructor(BasicConstructor::CreateStringConstructor(cs));
+      p->set_constructor(BasicConstructor::CreateStringConstructor(cs, p->get_loc()));
       break;
     case Ty::ENUM: {
       // TODO: p->set_constructor()
@@ -303,7 +308,7 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
     case Ty::ARRAY: {
       vector<ASTType *> sub_types = p->get_sub_types();
       TAN_ASSERT(!sub_types.empty());
-      p->set_constructor(BasicConstructor::CreateArrayConstructor(cs, sub_types[0]));
+      p->set_constructor(BasicConstructor::CreateArrayConstructor(cs, p->get_loc(), sub_types[0]));
       break;
     }
     case Ty::POINTER:
@@ -414,7 +419,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
           ->createStructType(cs->get_current_di_scope(),
               p->get_type_name(),
               di_file,
-              (unsigned) p->get_line(),
+              (unsigned) cs->get_source_manager()->get_line(p->get_loc()),
               p->get_size_bits(),
               (unsigned) p->get_align_bits(),
               DINode::DIFlags::FlagZero,
