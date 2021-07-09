@@ -236,3 +236,5 @@ void CompilerSession::set_source_manager(SourceManager *source_manager) { _sourc
 str CompilerSession::get_source_location_str(SourceTraceable *p) const {
   return _filename + ":" + std::to_string(_source_manager->get_line(p->get_loc()));
 }
+
+const str &CompilerSession::get_filename() const { return _filename; }

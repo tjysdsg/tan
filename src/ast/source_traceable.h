@@ -13,6 +13,7 @@ public:
   SourceTraceable() = delete;
   SourceTraceable(SourceIndex source_loc);
   const SourceIndex &get_loc() const;
+  void set_loc(SourceIndex loc);
 
 protected:
   SourceIndex _loc = nullptr;

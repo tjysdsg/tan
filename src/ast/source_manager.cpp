@@ -16,13 +16,17 @@ Token *SourceManager::get_token(SourceIndex loc) const {
 }
 
 size_t SourceManager::get_line(SourceIndex loc) const {
-  return this->operator()(loc)->get_line();
+  return get_token(loc)->get_line();
 }
 
 size_t SourceManager::get_col(SourceIndex loc) const {
-  return this->operator()(loc)->get_col();
+  return get_token(loc)->get_col();
 }
 
 str SourceManager::get_token_str(SourceIndex loc) const {
-  return this->operator()(loc)->get_value();
+  return get_token(loc)->get_value();
 }
+
+Token *SourceManager::get_last_token() const { return _tokens.back(); }
+
+bool SourceManager::is_eof(SourceIndex loc) const { return loc._index >= _tokens.size(); }

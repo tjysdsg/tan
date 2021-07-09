@@ -68,7 +68,7 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   _compiler_session->set_source_manager(new SourceManager(_filename, tokens));
 
-  auto *parser = new Parser(tokens, str(_filename), _compiler_session);
+  auto *parser = new Parser(_compiler_session);
   _ast = parser->parse();
 
   // TODO: separate parsing and analyzing phase

@@ -116,6 +116,8 @@ public:
   [[nodiscard]] DICompileUnit *get_di_cu() const;
   void set_current_debug_location(size_t l, size_t c);
 
+  const str &get_filename() const;
+
 public:
   str _filename = "";
   IRBuilder<> *_builder = nullptr; /// IR builder

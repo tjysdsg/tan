@@ -25,7 +25,7 @@ ASTBase *parse_string(str code) {
   Compiler compiler("test module"); // FIXME: decouple parsing and compiling
   CompilerSession *cs = new CompilerSession("test module", Compiler::GetDefaultTargetMachine());
   cs->set_source_manager(new SourceManager("test module", tokens));
-  auto *parser = new Parser(tokens, "test", cs);
+  auto *parser = new Parser(cs);
   return parser->parse();
 }
 

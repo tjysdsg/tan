@@ -17,10 +17,9 @@ struct Token;
 class Parser final {
 public:
   Parser() = delete;
-  Parser(vector<Token *> tokens, str filename, CompilerSession *cs);
+  Parser(CompilerSession *cs);
   ~Parser();
   ASTBase *parse();
-  [[nodiscard]] str get_filename() const;
 
 private:
   ParserImpl *_impl;
