@@ -2,6 +2,7 @@
 #define __TAN_SRC_AST_CONSTRUCTOR_H__
 #include "base.h"
 #include "src/ast/fwd.h"
+#include "src/ast/source_manager.h"
 #include <variant>
 
 namespace llvm { class Value; }
@@ -37,13 +38,17 @@ public:
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
   static BasicConstructor *CreateIntegerConstructor(CompilerSession *cs,
+      SourceIndex loc,
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
-  static BasicConstructor *CreateFPConstructor(CompilerSession *cs, double default_val = 0, size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(CompilerSession *cs, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(CompilerSession *cs, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, ASTType *element_type = {});
+  static BasicConstructor *CreateFPConstructor(CompilerSession *cs,
+      SourceIndex loc,
+      double default_val = 0,
+      size_t bit_size = 32);
+  static BasicConstructor *CreateStringConstructor(CompilerSession *cs, SourceIndex loc, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(CompilerSession *cs, SourceIndex loc, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, SourceIndex loc, ASTType *element_type = {});
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

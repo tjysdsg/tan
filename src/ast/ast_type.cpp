@@ -55,21 +55,22 @@ umap<str, Ty>ASTType::basic_tys =
 
 umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTType::ASTType() : ASTBase(ASTNodeType::TY, 0) {}
+ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {}
 
-ASTType *ASTType::Create(CompilerSession *cs) {
-  auto *ret = new ASTType;
+ASTType *ASTType::Create(CompilerSession *cs, SourceIndex loc) {
+  auto *ret = new ASTType(loc);
   ret->_cs = cs;
   return ret;
 }
 
 ASTType *ASTType::CreateAndResolve(CompilerSession *cs,
+    SourceIndex loc,
     Ty t,
     vector<ASTType *> sub_tys,
     bool is_lvalue,
     std::function<void(ASTType *)> attribute_setter) {
   // TODO: cache
-  auto ret = new ASTType;
+  auto ret = new ASTType(loc);
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
@@ -208,7 +209,7 @@ ASTType *ASTType::get_canonical_type() const {
     return (ASTType *) this;
   }
 
-  Decl *decl = _cs->get_type_decl(get_token_str());
+  Decl *decl = _cs->get_type_decl(_cs->get_source_manager()->get_token_str(_loc));
   if (decl) {
     return decl->get_type();
   }
@@ -218,7 +219,8 @@ ASTType *ASTType::get_canonical_type() const {
 ASTType *ASTType::must_get_canonical_type() const {
   ASTType *type = get_canonical_type();
   if (!type) {
-    report_error(_cs->_filename, get_token(), "Invalid type name");
+    TAN_ASSERT(_type_name != "");
+    report_error(_cs->_filename, _cs->get_source_manager()->get_token(_loc), "Invalid type name");
   }
   return type;
 }

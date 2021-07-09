@@ -64,7 +64,10 @@ void Compiler::dump_ast() const {
 void Compiler::parse() {
   Reader reader;
   reader.open(_filename);
+
   auto tokens = tokenize(&reader);
+  _compiler_session->set_source_manager(new SourceManager(_filename, tokens));
+
   auto *parser = new Parser(tokens, str(_filename), _compiler_session);
   _ast = parser->parse();
 

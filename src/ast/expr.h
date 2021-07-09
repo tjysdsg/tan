@@ -9,8 +9,10 @@
 namespace tanlang {
 
 class Expr : public ASTBase, public Typed {
+protected:
+  Expr(ASTNodeType type, SourceIndex loc, int lbp);
+
 public:
-  Expr(ASTNodeType type, int lbp) : ASTBase(type, lbp) {}
   virtual bool is_comptime_known() { return false; }
 };
 
@@ -21,20 +23,24 @@ public:
  * TODO: implement this
  */
 class CompTimeExpr : public Expr {
+protected:
+  CompTimeExpr(ASTNodeType type, SourceIndex loc, int lbp);
+
 public:
-  CompTimeExpr(ASTNodeType type, int lbp) : Expr(type, lbp) {}
   bool is_comptime_known() override;
 };
 
 class Literal : public CompTimeExpr {
-public:
-  Literal(ASTNodeType type, int lbp) : CompTimeExpr(type, lbp) {}
+protected:
+  Literal(ASTNodeType type, SourceIndex loc, int lbp);
 };
 
 class IntegerLiteral : public Literal {
+protected:
+  IntegerLiteral(SourceIndex loc);
+
 public:
-  static IntegerLiteral *Create(uint64_t val, bool is_unsigned = false);
-  IntegerLiteral() : Literal(ASTNodeType::INTEGER_LITERAL, 0) {}
+  static IntegerLiteral *Create(SourceIndex loc, uint64_t val, bool is_unsigned = false);
 
   uint64_t get_value() const { return _value; }
   bool is_unsigned() const { return _is_unsigned; }
@@ -45,9 +51,11 @@ private:
 };
 
 class FloatLiteral : public Literal {
+protected:
+  FloatLiteral(SourceIndex loc);
+
 public:
-  static FloatLiteral *Create(double val);
-  FloatLiteral() : Literal(ASTNodeType::FLOAT_LITERAL, 0) {}
+  static FloatLiteral *Create(SourceIndex loc, double val);
   double get_value() const;
   void set_value(double value);
 
@@ -56,9 +64,11 @@ private:
 };
 
 class StringLiteral : public Literal {
+protected:
+  StringLiteral(SourceIndex loc);
+
 public:
-  static StringLiteral *Create(const str &val);
-  StringLiteral();
+  static StringLiteral *Create(SourceIndex loc, const str &val);
 
   str get_value() const;
   void set_value(str val) { _value = val; }
@@ -68,9 +78,11 @@ private:
 };
 
 class CharLiteral : public Literal {
+protected:
+  CharLiteral(SourceIndex loc);
+
 public:
-  static CharLiteral *Create(uint8_t val);
-  CharLiteral() : Literal(ASTNodeType::CHAR_LITERAL, 0) {}
+  static CharLiteral *Create(SourceIndex loc, uint8_t val);
 
   void set_value(uint8_t val);
   uint8_t get_value() const;
@@ -80,10 +92,12 @@ private:
 };
 
 class ArrayLiteral : public Literal {
+protected:
+  ArrayLiteral(SourceIndex loc);
+
 public:
-  static ArrayLiteral *Create(vector<Literal *> val);
-  static ArrayLiteral *Create();
-  ArrayLiteral() : Literal(ASTNodeType::ARRAY_LITERAL, 0) {}
+  static ArrayLiteral *Create(SourceIndex loc, vector<Literal *> val);
+  static ArrayLiteral *Create(SourceIndex loc);
 
   void set_elements(const vector<Literal *> &elements);
   vector<Literal *> get_elements() const;
@@ -93,9 +107,11 @@ private:
 };
 
 class Identifier : public Expr, public ASTNamed {
+protected:
+  Identifier(SourceIndex loc);
+
 public:
-  static Identifier *Create(const str &name);
-  Identifier();
+  static Identifier *Create(SourceIndex loc, const str &name);
 
 public:
   Decl *_referred = nullptr;
@@ -124,14 +140,15 @@ enum class BinaryOpKind {
 };
 
 class BinaryOperator : public Expr {
+protected:
+  BinaryOperator(BinaryOpKind op, SourceIndex loc);
+
 public:
-  static BinaryOperator *Create(BinaryOpKind op);
-  static BinaryOperator *Create(BinaryOpKind op, Expr *lhs, Expr *rhs);
+  static BinaryOperator *Create(BinaryOpKind op, SourceIndex loc);
+  static BinaryOperator *Create(BinaryOpKind op, SourceIndex loc, Expr *lhs, Expr *rhs);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
-
-  BinaryOperator(BinaryOpKind op);
 
   void set_lhs(Expr *lhs);
   void set_rhs(Expr *rhs);
@@ -151,9 +168,11 @@ protected:
 };
 
 class MemberAccess : public BinaryOperator {
+protected:
+  MemberAccess(SourceIndex loc);
+
 public:
-  static MemberAccess *Create();
-  MemberAccess() : BinaryOperator(BinaryOpKind::MEMBER_ACCESS) {}
+  static MemberAccess *Create(SourceIndex loc);
 
 public:
   enum {
@@ -161,6 +180,7 @@ public:
     MemberAccessBracket,
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
+    // TODO: remove this
     MemberAccessDeref,
     MemberAccessEnumValue,
   } _access_type = MemberAccessInvalid;
@@ -179,14 +199,15 @@ enum class UnaryOpKind {
 };
 
 class UnaryOperator : public Expr {
+protected:
+  UnaryOperator(UnaryOpKind op, SourceIndex loc);
+
 public:
-  static UnaryOperator *Create(UnaryOpKind op);
-  static UnaryOperator *Create(UnaryOpKind op, Expr *rhs);
+  static UnaryOperator *Create(UnaryOpKind op, SourceIndex loc);
+  static UnaryOperator *Create(UnaryOpKind op, SourceIndex loc, Expr *rhs);
 
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
-
-  UnaryOperator(UnaryOpKind op);
 
   UnaryOpKind get_op() const;
   Expr *get_rhs() const;
@@ -202,9 +223,11 @@ protected:
  * the object is not allowed to change anymore
  */
 class BinaryOrUnary : public Expr {
+protected:
+  BinaryOrUnary(SourceIndex loc, int lbp);
+
 public:
-  BinaryOrUnary(int lbp);
-  static BinaryOrUnary *Create(int lbp);
+  static BinaryOrUnary *Create(SourceIndex loc, int lbp);
 
   enum BinaryOrUnaryKind {
     UNKNOWN, BINARY, UNARY,
@@ -230,9 +253,11 @@ private:
 };
 
 class Parenthesis : public Expr {
+protected:
+  Parenthesis(SourceIndex loc);
+
 public:
-  static Parenthesis *Create();
-  Parenthesis();
+  static Parenthesis *Create(SourceIndex loc);
 
   void set_sub(Expr *sub);
   Expr *get_sub() const;
@@ -242,9 +267,11 @@ private:
 };
 
 class FunctionCall : public Expr, public ASTNamed {
+protected:
+  FunctionCall(SourceIndex loc);
+
 public:
-  static FunctionCall *Create();
-  FunctionCall();
+  static FunctionCall *Create(SourceIndex loc);
 
 public:
   vector<Expr *> _args{};
@@ -252,9 +279,12 @@ public:
 };
 
 class Assignment : public Expr {
+protected:
+  Assignment(SourceIndex loc);
+
 public:
-  static Assignment *Create();
-  Assignment();
+  static Assignment *Create(SourceIndex loc);
+
   ASTBase *get_lhs() const;
   void set_lhs(ASTBase *lhs);
   Expr *get_rhs() const;
@@ -266,9 +296,11 @@ protected:
 };
 
 class Cast : public Expr {
+protected:
+  Cast(SourceIndex loc);
+
 public:
-  static Cast *Create();
-  Cast();
+  static Cast *Create(SourceIndex loc);
   Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
   ASTBase *get_rhs() const;

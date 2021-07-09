@@ -2,17 +2,23 @@
 
 using namespace tanlang;
 
+Expr::Expr(ASTNodeType type, SourceIndex loc, int lbp) : ASTBase(type, loc, lbp) {}
+
 /// \section Literals
 
-IntegerLiteral *IntegerLiteral::Create(uint64_t val, bool is_unsigned) {
-  auto ret = new IntegerLiteral;
+Literal::Literal(ASTNodeType type, SourceIndex loc, int lbp) : CompTimeExpr(type, loc, lbp) {}
+
+IntegerLiteral::IntegerLiteral(SourceIndex loc) : Literal(ASTNodeType::INTEGER_LITERAL, loc, 0) {}
+
+IntegerLiteral *IntegerLiteral::Create(SourceIndex loc, uint64_t val, bool is_unsigned) {
+  auto ret = new IntegerLiteral(loc);
   ret->_value = val;
   ret->_is_unsigned = is_unsigned;
   return ret;
 }
 
-FloatLiteral *FloatLiteral::Create(double val) {
-  auto ret = new FloatLiteral;
+FloatLiteral *FloatLiteral::Create(SourceIndex loc, double val) {
+  auto ret = new FloatLiteral(loc);
   ret->_value = val;
   return ret;
 }
@@ -21,18 +27,20 @@ double FloatLiteral::get_value() const { return _value; }
 
 void FloatLiteral::set_value(double value) { _value = value; }
 
-StringLiteral *StringLiteral::Create(const str &val) {
-  auto ret = new StringLiteral;
+FloatLiteral::FloatLiteral(SourceIndex loc) : Literal(ASTNodeType::FLOAT_LITERAL, loc, 0) {}
+
+StringLiteral *StringLiteral::Create(SourceIndex loc, const str &val) {
+  auto ret = new StringLiteral(loc);
   ret->_value = val;
   return ret;
 }
 
 str StringLiteral::get_value() const { return _value; }
 
-StringLiteral::StringLiteral() : Literal(ASTNodeType::STRING_LITERAL, 0) {}
+StringLiteral::StringLiteral(SourceIndex loc) : Literal(ASTNodeType::STRING_LITERAL, loc, 0) {}
 
-CharLiteral *CharLiteral::Create(uint8_t val) {
-  auto ret = new CharLiteral;
+CharLiteral *CharLiteral::Create(SourceIndex loc, uint8_t val) {
+  auto ret = new CharLiteral(loc);
   ret->_value = val;
   return ret;
 }
@@ -41,33 +49,39 @@ void CharLiteral::set_value(uint8_t val) { _value = val; }
 
 uint8_t CharLiteral::get_value() const { return _value; }
 
-ArrayLiteral *ArrayLiteral::Create(vector<Literal *> val) {
-  auto ret = new ArrayLiteral;
+CharLiteral::CharLiteral(SourceIndex loc) : Literal(ASTNodeType::CHAR_LITERAL, loc, 0) {}
+
+ArrayLiteral *ArrayLiteral::Create(SourceIndex loc, vector<Literal *> val) {
+  auto ret = new ArrayLiteral(loc);
   ret->_elements = val;
   return ret;
 }
 
-void ArrayLiteral::set_elements(const vector<Literal *> &elements) { _elements = elements; }
-
-ArrayLiteral *ArrayLiteral::Create() {
-  return new ArrayLiteral;
+ArrayLiteral *ArrayLiteral::Create(SourceIndex loc) {
+  return new ArrayLiteral(loc);
 }
+
+void ArrayLiteral::set_elements(const vector<Literal *> &elements) { _elements = elements; }
 
 vector<Literal *> ArrayLiteral::get_elements() const { return _elements; }
 
+ArrayLiteral::ArrayLiteral(SourceIndex loc) : Literal(ASTNodeType::ARRAY_LITERAL, loc, 0) {}
+
 /// \section Identifier
 
-Identifier::Identifier() : Expr(ASTNodeType::ID, 0) {}
+Identifier::Identifier(SourceIndex loc) : Expr(ASTNodeType::ID, loc, 0) {}
 
-Identifier *Identifier::Create(const str &name) {
-  auto ret = new Identifier;
+Identifier *Identifier::Create(SourceIndex loc, const str &name) {
+  auto ret = new Identifier(loc);
   ret->set_name(name);
   return ret;
 }
 
 /// \section Binary operators
 
-BinaryOperator::BinaryOperator(BinaryOpKind op) : Expr(ASTNodeType::BOP, BinaryOperator::BOPPrecedence[op]), _op(op) {}
+BinaryOperator::BinaryOperator(BinaryOpKind op, SourceIndex loc) : Expr(ASTNodeType::BOP,
+    loc,
+    BinaryOperator::BOPPrecedence[op]), _op(op) {}
 
 umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
     {{BinaryOpKind::SUM, PREC_TERM}, {BinaryOpKind::SUBTRACT, PREC_TERM}, {BinaryOpKind::BOR, PREC_TERM},
@@ -78,10 +92,10 @@ umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
         {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
         {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}};
 
-BinaryOperator *BinaryOperator::Create(BinaryOpKind op) { return new BinaryOperator(op); }
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SourceIndex loc) { return new BinaryOperator(op, loc); }
 
-BinaryOperator *BinaryOperator::Create(BinaryOpKind op, Expr *lhs, Expr *rhs) {
-  auto ret = new BinaryOperator(op);
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SourceIndex loc, Expr *lhs, Expr *rhs) {
+  auto ret = new BinaryOperator(op, loc);
   ret->_lhs = lhs;
   ret->_rhs = rhs;
   return ret;
@@ -103,14 +117,16 @@ umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
     {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}, {UnaryOpKind::ADDRESS_OF, PREC_UNARY},
         {UnaryOpKind::PLUS, PREC_UNARY}, {UnaryOpKind::MINUS, PREC_UNARY}, {UnaryOpKind::PTR_DEREF, PREC_HIGHEST}};
 
-UnaryOperator::UnaryOperator(UnaryOpKind op) : Expr(ASTNodeType::UOP, UnaryOperator::UOPPrecedence[op]), _op(op) {}
+UnaryOperator::UnaryOperator(UnaryOpKind op, SourceIndex loc) : Expr(ASTNodeType::UOP,
+    loc,
+    UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
 void UnaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-UnaryOperator *UnaryOperator::Create(UnaryOpKind op) { return new UnaryOperator(op); }
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SourceIndex loc) { return new UnaryOperator(op, loc); }
 
-UnaryOperator *UnaryOperator::Create(UnaryOpKind op, Expr *rhs) {
-  auto ret = new UnaryOperator(op);
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SourceIndex loc, Expr *rhs) {
+  auto ret = new UnaryOperator(op, loc);
   ret->_rhs = rhs;
   return ret;
 }
@@ -121,9 +137,11 @@ Expr *UnaryOperator::get_rhs() const { return _rhs; }
 
 /// \section Parenthesis
 
-Parenthesis *Parenthesis::Create() { return new Parenthesis; }
+Parenthesis *Parenthesis::Create(SourceIndex loc) { return new Parenthesis(loc); }
 
-Parenthesis::Parenthesis() : Expr(ASTNodeType::PARENTHESIS, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
+Parenthesis::Parenthesis(SourceIndex loc) : Expr(ASTNodeType::PARENTHESIS,
+    loc,
+    ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
 
 void Parenthesis::set_sub(Expr *sub) { _sub = sub; }
 
@@ -131,13 +149,15 @@ Expr *Parenthesis::get_sub() const { return _sub; }
 
 /// \section MEMBER_ACCESS operator
 
-MemberAccess *MemberAccess::Create() { return new MemberAccess; }
+MemberAccess *MemberAccess::Create(SourceIndex loc) { return new MemberAccess(loc); }
+
+MemberAccess::MemberAccess(SourceIndex loc) : BinaryOperator(BinaryOpKind::MEMBER_ACCESS, loc) {}
 
 /// \section Function call
 
-FunctionCall *FunctionCall::Create() { return new FunctionCall; }
+FunctionCall *FunctionCall::Create(SourceIndex loc) { return new FunctionCall(loc); }
 
-FunctionCall::FunctionCall() : Expr(ASTNodeType::FUNC_CALL, PREC_LOWEST) {}
+FunctionCall::FunctionCall(SourceIndex loc) : Expr(ASTNodeType::FUNC_CALL, loc, PREC_LOWEST) {}
 
 /// \section Assignment
 
@@ -145,9 +165,9 @@ Expr *Assignment::get_rhs() const { return _rhs; }
 
 void Assignment::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-Assignment *Assignment::Create() { return new Assignment; }
+Assignment *Assignment::Create(SourceIndex loc) { return new Assignment(loc); }
 
-Assignment::Assignment() : Expr(ASTNodeType::ASSIGN, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
+Assignment::Assignment(SourceIndex loc) : Expr(ASTNodeType::ASSIGN, loc, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
 
 ASTBase *Assignment::get_lhs() const { return _lhs; }
 
@@ -159,17 +179,17 @@ Expr *Cast::get_lhs() const { return _lhs; }
 
 void Cast::set_lhs(Expr *lhs) { _lhs = lhs; }
 
-Cast *Cast::Create() { return new Cast; }
+Cast *Cast::Create(SourceIndex loc) { return new Cast(loc); }
 
-Cast::Cast() : Expr(ASTNodeType::CAST, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
+Cast::Cast(SourceIndex loc) : Expr(ASTNodeType::CAST, loc, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
 
 ASTBase *Cast::get_rhs() const { return _rhs; }
 
 void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
 
-BinaryOrUnary::BinaryOrUnary(int lbp) : Expr(ASTNodeType::BOP_OR_UOP, lbp) {}
+BinaryOrUnary::BinaryOrUnary(SourceIndex loc, int lbp) : Expr(ASTNodeType::BOP_OR_UOP, loc, lbp) {}
 
-BinaryOrUnary *BinaryOrUnary::Create(int lbp) { return new BinaryOrUnary(lbp); }
+BinaryOrUnary *BinaryOrUnary::Create(SourceIndex loc, int lbp) { return new BinaryOrUnary(loc, lbp); }
 
 BinaryOrUnary::BinaryOrUnaryKind BinaryOrUnary::get_kind() const { return _kind; }
 
@@ -214,3 +234,5 @@ ASTType *BinaryOrUnary::get_type() const { return get_generic_ptr()->get_type();
 void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type); }
 
 bool CompTimeExpr::is_comptime_known() { return true; }
+
+CompTimeExpr::CompTimeExpr(ASTNodeType type, SourceIndex loc, int lbp) : Expr(type, loc, lbp) {}

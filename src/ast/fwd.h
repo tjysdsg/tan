@@ -32,6 +32,8 @@ class SourceTraceable;
 class CompilerSession;
 class ASTNamed;
 struct Token;
+class SourceIndex;
+class SourceManager;
 class Intrinsic;
 class If;
 class Constructor;

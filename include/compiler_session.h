@@ -30,6 +30,10 @@ public:
   ~CompilerSession();
 
 public:
+  SourceManager *get_source_manager() const;
+  void set_source_manager(SourceManager *source_manager);
+  str get_source_location_str(SourceTraceable *p) const;
+
   /**
    * \brief Get current scope
    * \see Scope
@@ -137,6 +141,7 @@ private:
    * The control flow in current scope, used by break and continue
    * */
   Loop *_current_loop = nullptr;
+  SourceManager *_source_manager = nullptr;
 
 private:
   void initialize_scope();

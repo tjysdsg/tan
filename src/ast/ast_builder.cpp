@@ -5,41 +5,45 @@
 
 using namespace tanlang;
 
-IntegerLiteral *ASTBuilder::CreateIntegerLiteral(CompilerSession *cs, uint64_t val, size_t bit_size, bool is_unsigned) {
+IntegerLiteral *ASTBuilder::CreateIntegerLiteral(CompilerSession *cs,
+    SourceIndex loc,
+    uint64_t val,
+    size_t bit_size,
+    bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(val, is_unsigned);
-  ASTType *ty = ASTType::CreateAndResolve(cs, TY_OR(Ty::INT, BIT_SIZE_TO_TY[bit_size]), {}, false);
+  ASTType *ty = ASTType::CreateAndResolve(cs, loc, TY_OR(Ty::INT, BIT_SIZE_TO_TY[bit_size]), {}, false);
   ret->set_type(ty);
   return ret;
 }
 
-FloatLiteral *ASTBuilder::CreateFloatLiteral(CompilerSession *cs, double val, size_t bit_size) {
+FloatLiteral *ASTBuilder::CreateFloatLiteral(CompilerSession *cs, SourceIndex loc, double val, size_t bit_size) {
   auto *ret = FloatLiteral::Create(val);
   if (bit_size == 32) {
-    ret->set_type(ASTType::CreateAndResolve(cs, Ty::FLOAT));
+    ret->set_type(ASTType::CreateAndResolve(cs, loc, Ty::FLOAT));
   } else if (bit_size == 64) {
-    ret->set_type(ASTType::CreateAndResolve(cs, Ty::DOUBLE));
+    ret->set_type(ASTType::CreateAndResolve(cs, loc, Ty::DOUBLE));
   } else {
     TAN_ASSERT(false);
   }
   return ret;
 }
 
-StringLiteral *ASTBuilder::CreateStringLiteral(CompilerSession *cs, str val) {
+StringLiteral *ASTBuilder::CreateStringLiteral(CompilerSession *cs, SourceIndex loc, str val) {
   auto *ret = StringLiteral::Create(val);
-  ret->set_type(ASTType::CreateAndResolve(cs, Ty::STRING));
+  ret->set_type(ASTType::CreateAndResolve(cs, loc, Ty::STRING));
   return ret;
 }
 
-CharLiteral *ASTBuilder::CreateCharLiteral(CompilerSession *cs, uint8_t val) {
+CharLiteral *ASTBuilder::CreateCharLiteral(CompilerSession *cs, SourceIndex loc, uint8_t val) {
   auto *ret = CharLiteral::Create(val);
-  ret->set_type(ASTType::CreateAndResolve(cs, Ty::CHAR));
+  ret->set_type(ASTType::CreateAndResolve(cs, loc, Ty::CHAR));
   return ret;
 }
 
-ArrayLiteral *ASTBuilder::CreateArrayLiteral(CompilerSession *cs, ASTType *element_type) {
+ArrayLiteral *ASTBuilder::CreateArrayLiteral(CompilerSession *cs, SourceIndex loc, ASTType *element_type) {
   auto *ret = ArrayLiteral::Create();
   vector<ASTType *> sub_types{};
-  auto *type = ASTType::CreateAndResolve(cs, Ty::ARRAY, {element_type});
+  auto *type = ASTType::CreateAndResolve(cs, loc, Ty::ARRAY, {element_type});
   TypeSystem::ResolveTy(cs, type);
   ret->set_type(type);
   return ret;

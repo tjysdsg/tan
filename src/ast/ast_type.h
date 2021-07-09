@@ -26,8 +26,9 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  static ASTType *Create(CompilerSession *cs);
+  static ASTType *Create(CompilerSession *cs, SourceIndex loc);
   static ASTType *CreateAndResolve(CompilerSession *cs,
+      SourceIndex loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
       bool is_lvalue = false,
@@ -38,12 +39,7 @@ public:
   static umap<str, Ty> qualifier_tys;
 
 public:
-  ASTType();
-
-  ASTType(const ASTType &) = default;
-  ASTType(ASTType &&) = default;
-  ASTType &operator=(const ASTType &) = default;
-  ASTType &operator=(ASTType &&) = default;
+  ASTType(SourceIndex loc);
 
   bool operator==(const ASTType &other);
   bool operator!=(const ASTType &other);
@@ -51,8 +47,6 @@ public:
   virtual str to_string(bool print_prefix = true);
 
 public:
-  using default_value_t = std::variant<str, uint64_t, float, double>;
-
   Ty get_ty() const;
   void set_ty(Ty tyty);
 

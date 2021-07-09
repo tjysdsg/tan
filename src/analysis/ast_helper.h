@@ -8,8 +8,6 @@ namespace tanlang {
 class ASTHelper {
 public:
   ASTHelper(CompilerSession *cs);
-
-  str get_source_location(SourceTraceable *p) const;
   ASTType *get_contained_ty(ASTType *p) const;
   ASTType *get_ptr_to(ASTType *p) const;
 

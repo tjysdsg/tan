@@ -11,26 +11,32 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
 }
 
 BasicConstructor *BasicConstructor::CreateIntegerConstructor(CompilerSession *cs,
+    SourceIndex loc,
     uint64_t default_val,
     size_t bit_size,
     bool is_unsigned) {
-  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, default_val, bit_size, is_unsigned));
+  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(cs, loc, default_val, bit_size, is_unsigned));
 }
 
-BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs, double default_val, size_t bit_size) {
-  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(cs, default_val, bit_size));
+BasicConstructor *BasicConstructor::CreateFPConstructor(CompilerSession *cs,
+    SourceIndex loc,
+    double default_val,
+    size_t bit_size) {
+  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(cs, loc, default_val, bit_size));
 }
 
-BasicConstructor *BasicConstructor::CreateStringConstructor(CompilerSession *cs, str default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(cs, default_val));
+BasicConstructor *BasicConstructor::CreateStringConstructor(CompilerSession *cs, SourceIndex loc, str default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(cs, loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateCharConstructor(CompilerSession *cs, uint8_t default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(cs, default_val));
+BasicConstructor *BasicConstructor::CreateCharConstructor(CompilerSession *cs, SourceIndex loc, uint8_t default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(cs, loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(CompilerSession *cs, ASTType *element_type) {
-  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(cs, element_type));
+BasicConstructor *BasicConstructor::CreateArrayConstructor(CompilerSession *cs,
+    SourceIndex loc,
+    ASTType *element_type) {
+  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(cs, loc, element_type));
 }
 
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }

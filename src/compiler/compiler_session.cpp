@@ -228,3 +228,11 @@ DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
 Loop *CompilerSession::get_current_loop() const { return _current_loop; }
 
 void CompilerSession::set_current_loop(Loop *loop) { _current_loop = loop; }
+
+SourceManager *CompilerSession::get_source_manager() const { return _source_manager; }
+
+void CompilerSession::set_source_manager(SourceManager *source_manager) { _source_manager = source_manager; }
+
+str CompilerSession::get_source_location_str(SourceTraceable *p) const {
+  return _filename + ":" + std::to_string(_source_manager->get_line(p->get_loc()));
+}
