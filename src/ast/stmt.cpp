@@ -4,13 +4,13 @@ using namespace tanlang;
 
 /// \section Stmt
 
-Stmt::Stmt(ASTNodeType type) : ASTBase(type, PREC_LOWEST) {}
+Stmt::Stmt(ASTNodeType type, SourceIndex loc) : ASTBase(type, loc, PREC_LOWEST) {}
 
 /// \section Compound statement
 
-CompoundStmt *CompoundStmt::Create() { return new CompoundStmt; }
+CompoundStmt *CompoundStmt::Create(SourceIndex loc) { return new CompoundStmt(loc); }
 
-CompoundStmt::CompoundStmt() : Stmt(ASTNodeType::STATEMENT) {}
+CompoundStmt::CompoundStmt(SourceIndex loc) : Stmt(ASTNodeType::STATEMENT, loc) {}
 
 void CompoundStmt::set_child_at(size_t idx, ASTBase *node) {
   TAN_ASSERT(_children.size() > idx);
@@ -40,15 +40,15 @@ vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
 
 /// \section Program
 
-Program *Program::Create() { return new Program; }
+Program *Program::Create(SourceIndex loc) { return new Program(loc); }
 
-Program::Program() { set_node_type((ASTNodeType::PROGRAM)); }
+Program::Program(SourceIndex loc) : CompoundStmt(loc) { set_node_type((ASTNodeType::PROGRAM)); }
 
-Return *Return::Create() { return new Return; }
+Return *Return::Create(SourceIndex loc) { return new Return(loc); }
 
 /// \section Return
 
-Return::Return() : Stmt(ASTNodeType::RET) {}
+Return::Return(SourceIndex loc) : Stmt(ASTNodeType::RET, loc) {}
 
 void Return::set_rhs(Expr *rhs) { _rhs = rhs; }
 
@@ -56,9 +56,9 @@ Expr *Return::get_rhs() const { return _rhs; }
 
 /// \section Import
 
-Import *Import::Create() { return new Import; }
+Import *Import::Create(SourceIndex loc) { return new Import(loc); }
 
-Import::Import() : Stmt(ASTNodeType::IMPORT) {}
+Import::Import(SourceIndex loc) : Stmt(ASTNodeType::IMPORT, loc) {}
 
 void Import::set_filename(const str &s) { _filename = s; }
 
@@ -70,7 +70,7 @@ void Import::set_imported_funcs(const vector<FunctionDecl *> &imported_funcs) { 
 
 /// \section Break or continue statement
 
-BreakContinue::BreakContinue(ASTNodeType type) : Stmt(type) {
+BreakContinue::BreakContinue(ASTNodeType type, SourceIndex loc) : Stmt(type, loc) {
   TAN_ASSERT(type == ASTNodeType::BREAK || type == ASTNodeType::CONTINUE);
 }
 
@@ -78,15 +78,19 @@ Loop *BreakContinue::get_parent_loop() const { return _parent_loop; }
 
 void BreakContinue::set_parent_loop(Loop *parent_loop) { _parent_loop = parent_loop; }
 
-Break *Break::Create() { return new Break; }
+Break *Break::Create(SourceIndex loc) { return new Break(loc); }
 
-Continue *Continue::Create() { return new Continue; }
+Break::Break(SourceIndex loc) : BreakContinue(ASTNodeType::BREAK, loc) {}
+
+Continue *Continue::Create(SourceIndex loc) { return new Continue(loc); }
+
+Continue::Continue(SourceIndex loc) : BreakContinue(ASTNodeType::CONTINUE, loc) {}
 
 /// \section Loop
 
-Loop *Loop::Create() { return new Loop; }
+Loop *Loop::Create(SourceIndex loc) { return new Loop(loc); }
 
-Loop::Loop() : Stmt(ASTNodeType::LOOP) {}
+Loop::Loop(SourceIndex loc) : Stmt(ASTNodeType::LOOP, loc) {}
 
 void Loop::set_body(Stmt *body) { _body = body; }
 
@@ -98,9 +102,9 @@ Stmt *Loop::get_body() const { return _body; }
 
 /// \section If-else
 
-If::If() : Stmt(ASTNodeType::IF) {}
+If::If(SourceIndex loc) : Stmt(ASTNodeType::IF, loc) {}
 
-If *If::Create() { return new If; }
+If *If::Create(SourceIndex loc) { return new If(loc); }
 
 void If::add_if_then_branch(Expr *pred, Stmt *branch) {
   TAN_ASSERT(pred);

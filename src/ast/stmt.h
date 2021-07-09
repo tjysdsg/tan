@@ -11,14 +11,16 @@ class BasicBlock;
 namespace tanlang {
 
 class Stmt : public ASTBase {
-public:
-  Stmt(ASTNodeType type);
+protected:
+  Stmt(ASTNodeType type, SourceIndex loc);
 };
 
 class CompoundStmt : public Stmt {
+protected:
+  CompoundStmt(SourceIndex loc);
+
 public:
-  static CompoundStmt *Create();
-  CompoundStmt();
+  static CompoundStmt *Create(SourceIndex loc);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -33,15 +35,20 @@ protected:
 };
 
 class Program : public CompoundStmt {
+protected:
+  Program(SourceIndex loc);
+
 public:
-  static Program *Create();
-  Program();
+  static Program *Create(SourceIndex loc);
 };
 
 class Return : public Stmt {
+protected:
+  Return(SourceIndex loc);
+
 public:
-  static Return *Create();
-  Return();
+  static Return *Create(SourceIndex loc);
+
   void set_rhs(Expr *rhs);
   Expr *get_rhs() const;
 
@@ -50,9 +57,12 @@ private:
 };
 
 class Import : public Stmt {
+protected:
+  Import(SourceIndex loc);
+
 public:
-  static Import *Create();
-  Import();
+  static Import *Create(SourceIndex loc);
+
   void set_filename(const str &s);
   const str &get_filename() const;
   const vector<FunctionDecl *> &get_imported_funcs() const;
@@ -64,8 +74,10 @@ private:
 };
 
 class BreakContinue : public Stmt {
+protected:
+  BreakContinue(ASTNodeType type, SourceIndex loc);
+
 public:
-  BreakContinue(ASTNodeType type);
   Loop *get_parent_loop() const;
   void set_parent_loop(Loop *parent_loop);
 
@@ -74,23 +86,29 @@ private:
 };
 
 class Break : public BreakContinue {
+protected:
+  Break(SourceIndex loc);
+
 public:
-  static Break *Create();
-  Break() : BreakContinue(ASTNodeType::BREAK) {}
+  static Break *Create(SourceIndex loc);
 };
 
 class Continue : public BreakContinue {
+protected:
+  Continue(SourceIndex loc);
+
 public:
-  static Continue *Create();
-  Continue() : BreakContinue(ASTNodeType::CONTINUE) {}
+  static Continue *Create(SourceIndex loc);
 };
 
 enum ASTLoopType { FOR, WHILE };
 
 class Loop final : public Stmt {
+protected:
+  Loop(SourceIndex loc);
+
 public:
-  static Loop *Create();
-  Loop();
+  static Loop *Create(SourceIndex loc);
 
   void set_predicate(Expr *pred);
   void set_body(Stmt *body);
@@ -111,9 +129,11 @@ private:
  * \brief Represent if-[else] or if-elif-[else] statements
  */
 class If : public Stmt {
+protected:
+  If(SourceIndex loc);
+
 public:
-  static If *Create();
-  If();
+  static If *Create(SourceIndex loc);
 
 public:
   void add_if_then_branch(Expr *pred, Stmt *branch);
