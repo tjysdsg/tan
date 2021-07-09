@@ -11,7 +11,7 @@ size_t SourceTraceable::get_line() const {
     std::cerr << "WARNING: get_token() returned nullptr\n";
     return 0;
   } else {
-    return tok->l + 1;
+    return tok->get_line() + 1;
   }
 }
 
@@ -22,7 +22,7 @@ size_t SourceTraceable::get_col() const {
     std::cerr << "WARNING: get_token() returned nullptr\n";
     return 0;
   } else {
-    return tok->c + 1;
+    return tok->get_col() + 1;
   }
 }
 
@@ -31,10 +31,9 @@ Token *SourceTraceable::get_token() const {
 }
 
 str SourceTraceable::get_token_str() const {
-  return _token->value;
+  return _token->get_value();
 }
 
 void SourceTraceable::set_token(Token *token) {
   _token = token;
 }
-

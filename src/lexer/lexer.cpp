@@ -17,7 +17,7 @@ namespace tanlang {
    x == '"' || x == ':')
 
 [[noreturn]] static void report_error(Reader *reader, Cursor c, const str &message) {
-  report_error(reader->get_filename(), reader->get_line(c.l).code, c.l + 1, c.c + 1, message);
+  report_error(reader->get_filename(), reader->get_line(c.l), c.l + 1, c.c + 1, message);
 }
 
 Cursor skip_whitespace(Reader *reader, Cursor ptr) {
@@ -44,7 +44,7 @@ Token *tokenize_id(Reader *reader, Cursor &start) {
     } else if (start == forward) {
       return nullptr;
     } else {
-      ret = new Token(TokenType::ID, reader->substr(start, forward), start, &reader->get_line(start.l));
+      ret = new Token(TokenType::ID, start.l, start.c, reader->substr(start, forward), reader->get_line(start.l));
       break;
     }
   }
@@ -58,8 +58,8 @@ Token *tokenize_keyword(Reader *reader, Cursor &start) {
   Cursor forward = start;
   auto *t = tokenize_id(reader, forward);
   if (t) {
-    if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->value) != KEYWORDS.end()) {
-      t->type = TokenType::KEYWORD;
+    if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->get_value()) != KEYWORDS.end()) {
+      t->set_type(TokenType::KEYWORD);
       start = forward;
     } else {
       delete (t);
@@ -75,8 +75,8 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
   if (*next == '/') {
     // line comments
     auto value = reader->substr(reader->forward(next));
-    t = new Token(TokenType::COMMENTS, value, start, &reader->get_line(start.l));
-    start.c = reader->get_line(start.l).code.length();
+    t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
+    start.c = reader->get_line(start.l).length();
     start = (*reader).forward(start);
   } else if (*next == '*') {
     /* block comments */
@@ -88,7 +88,7 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
       std::smatch result;
       if (std::regex_match(s, result, re)) {
         str value = s.substr(2, static_cast<size_t>(result.length(0) - 4));
-        t = new Token(TokenType::COMMENTS, value, start, &reader->get_line(start.l));
+        t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
         forward.c = static_cast<size_t>(result.length(0));
         start = forward;
       }
@@ -129,10 +129,11 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
   }
 
   auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT,
+      start.l,
+      start.c,
       reader->substr(start, forward),
-      start,
-      &reader->get_line(start.l));
-  t->is_unsigned = is_unsigned;
+      reader->get_line(start.l));
+  t->set_is_unsigned(is_unsigned);
   start = forward;
   return t;
 }
@@ -181,7 +182,7 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
 
   if (end <= forward) {
     auto lineno = reader->size() - 1;
-    auto src = reader->get_line(lineno).code;
+    auto src = reader->get_line(lineno);
     report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete character literal");
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the single quotes
@@ -193,7 +194,7 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
     } else if (value.length() != 1) {
       report_error(reader, forward, "Invalid character literal");
     }
-    t = new Token(TokenType::CHAR, value, start, &reader->get_line(start.l));
+    t = new Token(TokenType::CHAR, start.l, start.c, value, reader->get_line(start.l));
     start = (*reader).forward(forward);
   }
   return t;
@@ -213,7 +214,7 @@ Token *tokenize_string(Reader *reader, Cursor &start) {
 
   if (end <= forward) {
     auto lineno = reader->size() - 1;
-    auto src = reader->get_line(lineno).code;
+    auto src = reader->get_line(lineno);
     report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete string literal");
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the double quotes
@@ -232,7 +233,7 @@ Token *tokenize_string(Reader *reader, Cursor &start) {
       ++i;
     }
     escaped += value.substr(start_i, l - start_i);
-    t = new Token(TokenType::STRING, escaped, start, &reader->get_line(start.l));
+    t = new Token(TokenType::STRING, start.l, start.c, escaped, reader->get_line(start.l));
     start = (*reader).forward(forward);
   }
   return t;
@@ -276,10 +277,10 @@ Token *tokenize_punctuation(Reader *reader, Cursor &start) {
     }
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, value, start, &reader->get_line(lineno));
+    t = new Token(type, start.l, start.c, value, reader->get_line(lineno));
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION, str(1, *start), start, &reader->get_line(lineno));
+    t = new Token(TokenType::PUNCTUATION, start.l, start.c, str(1, *start), reader->get_line(lineno));
     start = next;
   } else {
     t = nullptr;

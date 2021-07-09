@@ -195,12 +195,12 @@ void report_error(const str &filename, const str &source, size_t line, size_t co
 }
 
 void report_error(const str &filename, Token *token, const str &error_message) {
-  str indent = token->c > 0 ? str(token->c - 1, ' ') : "";
+  str indent = token->get_col() > 0 ? str(token->get_col() - 1, ' ') : "";
   std::cerr << fmt::format("[ERROR] at {}:{} {}\n{}\n{}^\n",
       filename,
-      token->l + 1,
+      token->get_line() + 1,
       error_message,
-      token->line->code,
+      token->get_source_line(),
       indent);
   ABORT();
 }

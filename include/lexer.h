@@ -5,7 +5,6 @@
 
 namespace tanlang {
 
-struct SourceLine;
 struct Token;
 class Reader;
 

@@ -240,7 +240,7 @@ private:
       case BinaryOpKind::BOR:
       case BinaryOpKind::LOR:
       case BinaryOpKind::XOR:
-        // TODO: implement the analysis of the above operators
+        // TODO: implement the type checking of the above operators
         TAN_ASSERT(false);
         break;
       case BinaryOpKind::GT:
@@ -482,7 +482,6 @@ private:
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(_p->get_line(), true);
 
-        // TODO: make a "copy_source_location()" function
         sub->_start_index = p->_start_index;
         sub->_end_index = p->_end_index;
         sub->set_token(p->get_token());
@@ -549,7 +548,7 @@ private:
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
     auto tyty = Ty::INT;
-    if (p->get_token()->is_unsigned) {
+    if (p->get_token()->is_unsigned()) {
       tyty = TY_OR(tyty, Ty::UNSIGNED);
     }
     p->set_type(ASTType::CreateAndResolve(_cs, tyty));

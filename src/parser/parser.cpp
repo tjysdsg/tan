@@ -40,15 +40,15 @@ private:
   ASTBase *peek(size_t &index, TokenType type, const str &value) {
     if (index >= _tokens.size()) { report_error(_filename, _tokens.back(), "Unexpected EOF"); }
     Token *token = _tokens[index];
-    if (token->type != type || token->value != value) {
-      report_error(_filename, token, "Expect '" + value + "', but got '" + token->value + "' instead");
+    if (token->get_type() != type || token->get_value() != value) {
+      report_error(_filename, token, "Expect '" + value + "', but got '" + token->get_value() + "' instead");
     }
     return peek(index);
   }
 
   ASTBase *peek_keyword(Token *token, size_t &index) {
     ASTBase *ret = nullptr;
-    switch (hashed_string{token->value.c_str()}) {
+    switch (hashed_string{token->get_value().c_str()}) {
       case "var"_hs:
         ret = VarDecl::Create();
         break;
@@ -99,7 +99,7 @@ private:
     if (index >= _tokens.size()) { return nullptr; }
     Token *token = _tokens[index];
     /// skip comments
-    while (token && token->type == TokenType::COMMENTS) {
+    while (token && token->get_type() == TokenType::COMMENTS) {
       ++index;
       token = _tokens[index];
     }
@@ -107,26 +107,26 @@ private:
     if (index >= _tokens.size()) { return nullptr; }
 
     ASTBase *node = nullptr;
-    if (token->value == "@") { /// intrinsics
+    if (token->get_value() == "@") { /// intrinsics
       node = Intrinsic::Create();
-    } else if (token->value == "=" && token->type == TokenType::BOP) {
+    } else if (token->get_value() == "=" && token->get_type() == TokenType::BOP) {
       node = Assignment::Create();
-    } else if (token->value == "!") { /// logical not
+    } else if (token->get_value() == "!") { /// logical not
       node = UnaryOperator::Create(UnaryOpKind::LNOT);
-    } else if (token->value == "~") { /// binary not
+    } else if (token->get_value() == "~") { /// binary not
       node = UnaryOperator::Create(UnaryOpKind::BNOT);
-    } else if (token->value == "[") {
+    } else if (token->get_value() == "[") {
       auto prev = this->at(index - 1);
-      if (prev->type != TokenType::ID && prev->value != "]" && prev->value != ")") {
+      if (prev->get_type() != TokenType::ID && prev->get_value() != "]" && prev->get_value() != ")") {
         /// array literal if there is no identifier, "]", or ")" before
         node = ArrayLiteral::Create();
       } else {
         /// otherwise bracket access
         node = MemberAccess::Create();
       }
-    } else if (token->type == TokenType::RELOP) { /// comparisons
+    } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op = BinaryOpKind::INVALID;
-      switch (hashed_string{token->value.c_str()}) {
+      switch (hashed_string{token->get_value().c_str()}) {
         case ">"_hs:
           op = BinaryOpKind::GT;
           break;
@@ -149,37 +149,37 @@ private:
           return nullptr;
       }
       node = BinaryOperator::Create(op);
-    } else if (token->type == TokenType::INT) {
-      node = IntegerLiteral::Create((uint64_t) std::stol(token->value), token->is_unsigned);
-    } else if (token->type == TokenType::FLOAT) {
-      node = FloatLiteral::Create(std::stod(token->value));
-    } else if (token->type == TokenType::STRING) { /// string literal
-      node = StringLiteral::Create(token->value);
-    } else if (token->type == TokenType::CHAR) { /// char literal
-      node = CharLiteral::Create(static_cast<uint8_t>(token->value[0]));
+    } else if (token->get_type() == TokenType::INT) {
+      node = IntegerLiteral::Create((uint64_t) std::stol(token->get_value()), token->is_unsigned());
+    } else if (token->get_type() == TokenType::FLOAT) {
+      node = FloatLiteral::Create(std::stod(token->get_value()));
+    } else if (token->get_type() == TokenType::STRING) { /// string literal
+      node = StringLiteral::Create(token->get_value());
+    } else if (token->get_type() == TokenType::CHAR) { /// char literal
+      node = CharLiteral::Create(static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) { /// types, must be before ID
       node = ASTType::Create(_cs);
-    } else if (token->type == TokenType::ID) {
+    } else if (token->get_type() == TokenType::ID) {
       Token *next = _tokens[index + 1];
-      if (next->value == "(") {
+      if (next->get_value() == "(") {
         node = FunctionCall::Create();
       } else {
-        node = Identifier::Create(token->value);
+        node = Identifier::Create(token->get_value());
       }
-    } else if (token->type == TokenType::PUNCTUATION && token->value == "(") {
+    } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "(") {
       node = Parenthesis::Create();
-    } else if (token->type == TokenType::KEYWORD) { /// keywords
+    } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token, index);
       if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
-    } else if (token->type == TokenType::BOP && token->value == ".") { /// member access
+    } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
       node = MemberAccess::Create();
-    } else if (token->value == "&") {
+    } else if (token->get_value() == "&") {
       /// BOP or UOP? ambiguous
       node = BinaryOrUnary::Create(PREC_LOWEST);
-    } else if (token->type == TokenType::PUNCTUATION && token->value == "{") { /// statement(s)
+    } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
       node = CompoundStmt::Create();
-    } else if (token->type == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
-      switch (hashed_string{token->value.c_str()}) {
+    } else if (token->get_type() == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
+      switch (hashed_string{token->get_value().c_str()}) {
         case "/"_hs:
           node = BinaryOperator::Create(BinaryOpKind::DIVIDE);
           break;
@@ -473,9 +473,9 @@ private:
     parse_if_then_branch(p);
 
     /// else or elif clause, if any
-    while (at(p->_end_index)->value == "else") {
+    while (at(p->_end_index)->get_value() == "else") {
       ++p->_end_index; /// skip "else"
-      if (at(p->_end_index)->value == "if") { /// elif
+      if (at(p->_end_index)->get_value() == "if") { /// elif
         p->_end_index = parse_if_then_branch(p);
       } else { /// else
         auto else_clause = peek(p->_end_index);
@@ -506,10 +506,10 @@ private:
   size_t parse_loop(ASTBase *_p) {
     auto p = ast_must_cast<Loop>(_p);
 
-    if (at(p->_end_index)->value == "for") {
+    if (at(p->_end_index)->get_value() == "for") {
       // TODO: implement for loop
       p->_loop_type = ASTLoopType::FOR;
-    } else if (at(p->_end_index)->value == "while") {
+    } else if (at(p->_end_index)->get_value() == "while") {
       p->_loop_type = ASTLoopType::WHILE;
     } else {
       TAN_ASSERT(false);
@@ -544,7 +544,7 @@ private:
 
     ++p->_end_index; /// skip '['
 
-    if (at(p->_end_index)->value == "]") {
+    if (at(p->_end_index)->get_value() == "]") {
       // TODO: support empty array literal, but raise error if the type cannot be inferred
       error(p->_end_index, "Empty array literal");
     }
@@ -552,10 +552,10 @@ private:
     auto element_type = ASTNodeType::INVALID;
     vector<Literal *> elements{};
     while (!eof(p->_end_index)) {
-      if (at(p->_end_index)->value == ",") { /// skip ","
+      if (at(p->_end_index)->get_value() == ",") { /// skip ","
         ++p->_end_index;
         continue;
-      } else if (at(p->_end_index)->value == "]") { /// skip "]"
+      } else if (at(p->_end_index)->get_value() == "]") { /// skip "]"
         ++p->_end_index;
         break;
       }
@@ -622,7 +622,7 @@ private:
       auto *t = at(p->_end_index);
       if (!t) {
         error(p->_end_index - 1, "Unexpected EOF");
-      } else if (t->type == TokenType::PUNCTUATION && t->value == ")") { /// end at )
+      } else if (t->get_type() == TokenType::PUNCTUATION && t->get_value() == ")") { /// end at )
         ++p->_end_index;
         break;
       }
@@ -642,12 +642,12 @@ private:
     bool is_public = false;
     bool is_external = false;
 
-    if (at(p->_start_index)->value == "fn") { /// "fn"
+    if (at(p->_start_index)->get_value() == "fn") { /// "fn"
       ++p->_end_index;
-    } else if (at(p->_start_index)->value == "pub") { /// "pub fn"
+    } else if (at(p->_start_index)->get_value() == "pub") { /// "pub fn"
       is_public = true;
       p->_end_index = p->_start_index + 2;
-    } else if (at(p->_start_index)->value == "extern") { /// "extern"
+    } else if (at(p->_start_index)->get_value() == "extern") { /// "extern"
       is_external = true;
       p->_end_index = p->_start_index + 2;
     } else {
@@ -659,7 +659,7 @@ private:
     // but we only want the function name as an identifier
     // auto id = peek(p->_end_index);
     Token *id_token = at(p->_end_index);
-    auto id = Identifier::Create(id_token->value);
+    auto id = Identifier::Create(id_token->get_value());
     id->_start_index = id->_end_index = p->_end_index;
     id->set_token(p->get_token());
     if (id->get_node_type() != ASTNodeType::ID) {
@@ -675,7 +675,7 @@ private:
     vector<str> arg_names{};
     vector<ASTType *> arg_types{};
     vector<ArgDecl *> arg_decls{};
-    if (at(p->_end_index)->value != ")") {
+    if (at(p->_end_index)->get_value() != ")") {
       while (!eof(p->_end_index)) {
         auto arg = ArgDecl::Create();
         arg->set_token(at(p->_end_index));
@@ -686,7 +686,7 @@ private:
         arg_types.push_back(arg->get_type());
         arg_decls.push_back(arg);
 
-        if (at(p->_end_index)->value == ",") {
+        if (at(p->_end_index)->get_value() == ",") {
           ++p->_end_index;
         } else {
           break;
@@ -726,20 +726,20 @@ private:
   size_t parse_func_call(ASTBase *_p) {
     FunctionCall *p = ast_must_cast<FunctionCall>(_p);
 
-    p->set_name(at(p->_end_index)->value); /// function name
+    p->set_name(at(p->_end_index)->get_value()); /// function name
     ++p->_end_index;
 
     // No need to check since '(' is what distinguish a function call from an identifier at the first place
-    // auto *token = at(p->_end_index); if (token->value != "(") { error("Invalid function call"); }
+    // auto *token = at(p->_end_index); if (token->get_value() != "(") { error("Invalid function call"); }
     ++p->_end_index; /// skip (
 
     /// args
-    while (!eof(p->_end_index) && at(p->_end_index)->value != ")") {
+    while (!eof(p->_end_index) && at(p->_end_index)->get_value() != ")") {
       auto _arg = next_expression(p->_end_index, PREC_LOWEST);
       Expr *arg = expect_expression(_arg);
       p->_args.push_back(arg);
 
-      if (at(p->_end_index)->value == ",") { /// skip ,
+      if (at(p->_end_index)->get_value() == ",") { /// skip ,
         ++p->_end_index;
       } else {
         break;
@@ -781,7 +781,7 @@ private:
   }
 
   size_t parse_member_access(Expr *left, MemberAccess *p) {
-    if (at(p->_end_index)->value == "[") {
+    if (at(p->_end_index)->get_value() == "[") {
       p->_access_type = MemberAccess::MemberAccessBracket;
     }
 
@@ -831,7 +831,7 @@ private:
 
   size_t parse_stmt(ASTBase *_p) {
     auto p = ast_must_cast<CompoundStmt>(_p);
-    if (at(p->_end_index)->value == "{") { /// compound statement
+    if (at(p->_end_index)->get_value() == "{") { /// compound statement
       ++p->_end_index; /// skip "{"
       while (!eof(p->_end_index)) {
         auto node = peek(p->_end_index);
@@ -839,7 +839,7 @@ private:
           p->append_child(next_expression(p->_end_index, PREC_LOWEST));
           node = peek(p->_end_index);
         }
-        if (at(p->_end_index)->value == "}") {
+        if (at(p->_end_index)->get_value() == "}") {
           ++p->_end_index; /// skip "}"
           break;
         }
@@ -882,7 +882,7 @@ private:
     p->set_name(id->get_name());
 
     /// struct body
-    if (at(p->_end_index)->value == "{") {
+    if (at(p->_end_index)->get_value() == "{") {
       auto _comp_stmt = next_expression(p->_end_index, PREC_LOWEST);
       if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
         error(p->_end_index, "struct definition requires a valid body");
@@ -938,7 +938,7 @@ private:
       ++p->_end_index;
 
       /// if followed by a "[", this is a multi-dimension array
-      if (at(p->_end_index)->value != "[") {
+      if (at(p->_end_index)->get_value() != "[") {
         done = true;
       }
     }
@@ -948,19 +948,19 @@ private:
   size_t parse_ty(ASTType *p) {
     while (!eof(p->_end_index)) {
       Token *token = at(p->_end_index);
-      auto qb = ASTType::basic_tys.find(token->value);
-      auto qq = ASTType::qualifier_tys.find(token->value);
+      auto qb = ASTType::basic_tys.find(token->get_value());
+      auto qq = ASTType::qualifier_tys.find(token->get_value());
 
       if (qb != ASTType::basic_tys.end()) { /// base types
         p->set_ty(TY_OR(p->get_ty(), qb->second));
       } else if (qq != ASTType::qualifier_tys.end()) { /// TODO: qualifiers
-        if (token->value == "*") { /// pointer
+        if (token->get_value() == "*") { /// pointer
           auto sub = new ASTType(*p);
           p->set_ty(Ty::POINTER);
           p->get_sub_types().clear();
           p->get_sub_types().push_back(sub);
         }
-      } else if (token->type == TokenType::ID) { /// struct or enum
+      } else if (token->get_type() == TokenType::ID) { /// struct or enum
         /// type is resolved in analysis phase
         p->set_ty(Ty::TYPE_REF);
       } else {
@@ -971,7 +971,7 @@ private:
 
     /// composite types
     Token *token = at(p->_end_index);
-    if (token->value == "[") { /// array
+    if (token->get_value() == "[") { /// array
       p->_end_index = parse_ty_array(p);
     }
     return p->_end_index;
@@ -984,11 +984,11 @@ private:
 
     /// name
     auto name_token = at(p->_end_index);
-    p->set_name(name_token->value);
+    p->set_name(name_token->get_value());
     ++p->_end_index;
 
     /// type
-    if (at(p->_end_index)->value == ":") {
+    if (at(p->_end_index)->get_value() == ":") {
       ++p->_end_index;
       ASTType *ty = ASTType::Create(_cs);
       ty->set_token(at(p->_end_index));
@@ -1005,10 +1005,10 @@ private:
 
     /// name
     auto name_token = at(p->_end_index);
-    p->set_name(name_token->value);
+    p->set_name(name_token->get_value());
     ++p->_end_index;
 
-    if (at(p->_end_index)->value != ":") {
+    if (at(p->_end_index)->get_value() != ":") {
       error(p->_end_index, "Expect a type being specified");
     }
     ++p->_end_index;

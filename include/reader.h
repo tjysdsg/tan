@@ -7,14 +7,6 @@ namespace tanlang {
 
 struct Cursor;
 
-struct SourceLine {
-  size_t lineno;
-  str code;
-  SourceLine() = default;
-  ~SourceLine() = default;
-  SourceLine(const size_t lineno, const str &code) : lineno(lineno), code(code) {}
-};
-
 class Reader final {
 public:
   Reader() = default;
@@ -27,7 +19,7 @@ public:
   /** \brief Return source at a specific line
    *  \param index line of code starting from 0
    */
-  const SourceLine &get_line(const size_t index) const;
+  str get_line(const size_t index) const;
   char at(const Cursor &ptr) const;
 
   /**
@@ -47,12 +39,12 @@ public:
   [[nodiscard]] Cursor end() const;
 
   /// \brief Return a copy of code_ptr that points to the next character
-  [[nodiscard]] Cursor forward(Cursor ptr);
+  [[nodiscard]] Cursor forward(Cursor c);
 
   str get_filename() const;
 
 private:
-  vector<SourceLine> _lines{};
+  vector<str> _lines{};
   str _filename = "memory";
 };
 

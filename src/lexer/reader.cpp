@@ -21,9 +21,8 @@ void Reader::open(const str &filename) {
 
 void Reader::from_string(const str &code) {
   str line;
-  size_t lineno = 0;
   size_t line_start = 0;
-  SourceLine new_line;
+  str new_line;
   size_t code_len = code.length();
   for (size_t c = 0; c < code_len; ++c) {
     if (code[c] == '\n' || c == code.length() - 1) {
@@ -32,11 +31,11 @@ void Reader::from_string(const str &code) {
       } else {
         line = code.substr(line_start, c - line_start + 1);
       }
-      new_line = SourceLine(lineno++, line);
+      new_line = line;
       /// delete whitespace at the beginning of the line
       for (size_t i = 0; i < line.length(); ++i) {
         if (!std::isspace(line[i])) {
-          new_line.code = line.substr(i);
+          new_line = line.substr(i);
           break;
         }
       }
@@ -53,21 +52,21 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
   TAN_ASSERT(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
   if (end.l == (size_t) -1 && end.c == (size_t) -1) {
     end.l = start.l;
-    end.c = _lines[end.l].code.length();
+    end.c = _lines[end.l].length();
   }
   auto s_row = start.l;
   auto e_row = end.l;
   str ret;
   if (s_row == e_row) {
     TAN_ASSERT(start.c <= end.c);
-    ret = _lines[s_row].code.substr(start.c, end.c - start.c);
+    ret = _lines[s_row].substr(start.c, end.c - start.c);
   } else {
-    ret += _lines[s_row].code.substr(start.c);
+    ret += _lines[s_row].substr(start.c);
     for (auto r = s_row; r < e_row - 1; ++r) {
-      ret += _lines[r].code + "\n";
+      ret += _lines[r] + "\n";
     }
     if (end.c > 0) {
-      ret += _lines[e_row].code.substr(0, end.c);
+      ret += _lines[e_row].substr(0, end.c);
     }
   }
   return ret;
@@ -77,7 +76,7 @@ Cursor Reader::forward(Cursor ptr) {
   if (ptr.l >= _lines.size()) {
     return ptr;
   }
-  size_t n_cols = _lines[ptr.l].code.length();
+  size_t n_cols = _lines[ptr.l].length();
   if (ptr.c + 1 >= n_cols) {
     if (ptr.l < _lines.size()) {
       ++ptr.l;
@@ -95,14 +94,14 @@ str Reader::get_filename() const {
 
 Cursor Reader::end() const {
   if (_lines.empty()) { return Cursor(0, 1, this); }
-  return Cursor(_lines.size() - 1, _lines.back().code.length(), this);
+  return Cursor(_lines.size() - 1, _lines.back().length(), this);
 }
 
 char Reader::at(const Cursor &ptr) const {
   TAN_ASSERT(ptr.l != (size_t) -1 && ptr.c != (size_t) -1);
   if (ptr.l >= this->size()) { return '\0'; }
-  if (ptr.c >= this->_lines[ptr.l].code.length()) { return '\0'; }
-  return _lines[ptr.l].code[ptr.c];
+  if (ptr.c >= this->_lines[ptr.l].length()) { return '\0'; }
+  return _lines[ptr.l][ptr.c];
 }
 
 str Reader::substr(const Cursor &start) const {
@@ -113,7 +112,7 @@ Cursor Reader::begin() const {
   return Cursor(0, 0, this);
 }
 
-const SourceLine &Reader::get_line(size_t index) const {
+str Reader::get_line(size_t index) const {
   TAN_ASSERT(index < _lines.size());
   return _lines[index];
 }

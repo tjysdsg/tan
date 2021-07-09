@@ -1,5 +1,5 @@
 #include "token.h"
-#include "reader.h"
+#include <fmt/core.h>
 
 namespace tanlang {
 
@@ -47,7 +47,11 @@ umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP), std::pair("=", TokenType::BOP)};
 
 str Token::to_string() const {
-  return "<Token " + token_type_names[type] + " L" + std::to_string(l) + ":C" + std::to_string(c) + ">: " + value;
+  return fmt::format("<'{}' {} L{}:C{}>",
+      _value,
+      token_type_names[_type],
+      std::to_string(_loc->get_line()),
+      std::to_string(_loc->get_col()));
 }
 
 std::ostream &Token::operator<<(std::ostream &os) const {
@@ -55,7 +59,33 @@ std::ostream &Token::operator<<(std::ostream &os) const {
   return os;
 }
 
-Token::Token(TokenType tokenType, str value, const Cursor &cursor, const SourceLine *line)
-    : type(tokenType), value(std::move(value)), l(cursor.l), c(cursor.c), line(c_cast(SourceLine*, line)) {}
+Token::~Token() {
+  delete _loc;
+}
+
+Token::Token(TokenType tokenType, size_t line, size_t col, str value, str source_line) {
+  _type = tokenType;
+  _value = std::move(value);
+  _loc = new SourceLoc(line, col);
+  source_line = source_line;
+}
+
+TokenType Token::get_type() const { return _type; }
+
+void Token::set_type(TokenType type) { _type = type; }
+
+const str &Token::get_value() const { return _value; }
+
+SourceLoc *Token::get_loc() const { return _loc; }
+
+const str &Token::get_source_line() const { return _source_line; }
+
+bool Token::is_unsigned() const { return _is_unsigned; }
+
+void Token::set_is_unsigned(bool is_unsigned) { _is_unsigned = is_unsigned; }
+
+size_t Token::get_line() const { return _loc->get_line(); }
+
+size_t Token::get_col() const { return _loc->get_col(); }
 
 } // namespace tanlang
