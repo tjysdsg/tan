@@ -6,6 +6,9 @@ using namespace tanlang;
 SourceManager::SourceManager(str filename, vector<Token *> tokens) {
   _filename = filename;
   _tokens = tokens;
+  if (_tokens.empty()) { /// if the file is empty, insert a token so that source location 0:0 is always valid
+    _tokens.push_back(new Token(TokenType::COMMENTS, 0, 0, "", ""));
+  }
 }
 
 Token *SourceManager::get_token(SourceIndex loc) const {
