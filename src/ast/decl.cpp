@@ -90,21 +90,22 @@ FunctionDecl *FunctionDecl::Create(SourceIndex loc,
     ASTType *ret_type,
     vector<ASTType *> arg_types,
     bool is_external,
-    bool is_public) {
-  TAN_ASSERT(!arg_types.empty());
+    bool is_public,
+    Stmt *body) {
   auto ret = new FunctionDecl(loc);
 
-  /// name
+  /// name and return type
   ret->set_name(name);
-
-  /// return type
   ret->_ret_type = ret_type;
 
   /// args
   ret->_arg_types.reserve(arg_types.size());
-  if (arg_types.size() > 1) {
-    ret->_arg_types.insert(ret->_arg_types.end(), arg_types.begin() + 1, arg_types.end());
+  if (!arg_types.empty()) {
+    ret->_arg_types.insert(ret->_arg_types.end(), arg_types.begin(), arg_types.end());
   }
+
+  /// body
+  if (!body) { ret->set_body(body); }
 
   /// flags
   ret->_is_external = is_external;

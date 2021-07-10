@@ -481,6 +481,7 @@ private:
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
       case IntrinsicType::NOOP: {
+        analyze(p->get_sub());
         p->set_type(void_type);
         break;
       }

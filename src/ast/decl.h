@@ -46,7 +46,8 @@ public:
       ASTType *ret_type,
       vector<ASTType *> arg_types,
       bool is_external,
-      bool is_public);
+      bool is_public,
+      Stmt *body = nullptr);
   static FunctionDecl *GetCallee(ASTContext *ctx, const str &name, const vector<Expr *> &args);
 
   [[nodiscard]] ASTType *get_ret_ty() const;

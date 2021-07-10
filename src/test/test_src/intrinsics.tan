@@ -4,15 +4,18 @@ import "runtime/stdlib.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");
-    var a: i32 = 0;
-    var b: i32 = 1;
-    var shit: i32 = !(a == b) as i32;
-    assert(shit);
+
     assert(@file);  // TODO: string comparison
+    print("\nSource filename is:");
     print(@file);
-    assert(@line == 13);
-    // var argc_decl: str = @get_decl(argc);
-    // FIXME: stack_trace();
+
+    assert(@line == 12);
+    // FIXME: var argc_decl: str = @get_decl(argc);
+
+    print("\nPrinting stack trace...");
+    stack_trace();
+    print("Stack trace printed\n");
+
     print("SUCCESS\n");
     @compprint("main function ends");
     return 0;

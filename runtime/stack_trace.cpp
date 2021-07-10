@@ -3,7 +3,7 @@
 #include <libunwind.h>
 #include <malloc.h>
 
-extern "C" void tan_print_st() {
+extern "C" void stack_trace() {
   unw_cursor_t cursor;
   unw_context_t context;
 

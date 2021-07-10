@@ -14,6 +14,8 @@
 
 namespace tanlang {
 
+// TODO: extract into static functions that don't depend on ASTBase classes so that code can be reused (such as
+//   in intrinsic.cpp
 class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
@@ -415,14 +417,11 @@ private:
       case IntrinsicType::LINENO:
       case IntrinsicType::NOOP:
       case IntrinsicType::ABORT:
+      case IntrinsicType::STACK_TRACE:
       case IntrinsicType::FILENAME: {
         ret = codegen(p->get_sub());
         break;
       }
-        /// others
-      case IntrinsicType::STACK_TRACE:
-        // TODO: codegen of stack trace
-        break;
       default:
         break;
     }
