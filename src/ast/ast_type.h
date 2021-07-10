@@ -26,8 +26,8 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  static ASTType *Create(CompilerSession *cs, SourceIndex loc);
-  static ASTType *CreateAndResolve(CompilerSession *cs,
+  static ASTType *Create(ASTContext *ctx, SourceIndex loc);
+  static ASTType *CreateAndResolve(ASTContext *ctx,
       SourceIndex loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
@@ -131,7 +131,7 @@ private:
   bool _is_forward_decl = false;
   vector<ASTType *> _sub_types;
   Constructor *_constructor = nullptr;
-  CompilerSession *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
 };
 
 } // namespace tanlang

@@ -3,8 +3,8 @@
 
 #include "lexer.h"
 #include "token.h"
-#include "compiler_session.h"
 #include "src/ast/source_manager.h"
+#include "src/ast/ast_context.h"
 #include "compiler.h"
 #include "reader.h"
 #include "parser.h"
@@ -22,10 +22,9 @@ ASTBase *parse_string(str code) {
   auto result = tokenize(&reader);
   auto tokens = tokenize(&reader);
 
-  Compiler compiler("test module"); // FIXME: decouple parsing and compiling
-  CompilerSession *cs = new CompilerSession("test module", Compiler::GetDefaultTargetMachine());
-  cs->set_source_manager(new SourceManager("test module", tokens));
-  auto *parser = new Parser(cs);
+  ASTContext *ctx = new ASTContext("test module");
+  ctx->set_source_manager(new SourceManager("test module", tokens));
+  auto *parser = new Parser(ctx);
   return parser->parse();
 }
 

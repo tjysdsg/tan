@@ -91,7 +91,8 @@ public:
   void dump_ast() const;
 
 private:
-  CompilerSession *_compiler_session = nullptr; /// wrapper for various LLVM classes
+  CompilerSession *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
   ASTBase *_ast = nullptr;
   str _filename = "";
 };

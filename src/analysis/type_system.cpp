@@ -4,6 +4,7 @@
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/ast_context.h"
 #include "src/llvm_include.h"
 #include <fmt/core.h>
 
@@ -79,7 +80,7 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
-int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
+int TypeSystem::CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2) {
   TAN_ASSERT(t1);
   TAN_ASSERT(t2);
   if (*t1 == *t2) { return 0; }
@@ -110,12 +111,12 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
     if (t1->get_array_size() != t2->get_array_size()) { return -1; }
     /// the element type can be implicitly casted as long as the elements have the same size
     if (t1->get_contained_ty()->get_size_bits() != t2->get_contained_ty()->get_size_bits()) { return -1; }
-    return CanImplicitCast(cs, t1->get_contained_ty(), t2->get_contained_ty());
+    return CanImplicitCast(ctx, t1->get_contained_ty(), t2->get_contained_ty());
   }
   return -1;
 }
 
-void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
+void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   Ty base = TY_GET_BASE(p->get_ty());
   Ty qual = TY_GET_QUALIFIER(p->get_ty());
 
@@ -123,10 +124,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
 
   /// resolve children
   for (auto *t: p->get_sub_types()) {
-    TypeSystem::ResolveTy(cs, t);
+    TypeSystem::ResolveTy(ctx, t);
   }
 
-  Token *token = cs->get_source_manager()->get_token(p->get_loc());
+  Token *token = ctx->get_source_manager()->get_token(p->get_loc());
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
@@ -212,7 +213,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
       if (p->is_forward_decl()) {
         /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
         /// by an actual struct declaration by now
-        report_error(cs->_filename, token, "Unresolved forward declaration of type");
+        report_error(ctx->_filename, token, "Unresolved forward declaration of type");
       }
 
       /// align size is the max element size, if no element, 8 bits
@@ -231,7 +232,7 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::ARRAY: {
       if (p->get_sub_types().size() == 0) {
-        report_error(cs->_filename, token, "Invalid type");
+        report_error(ctx->_filename, token, "Invalid type");
       }
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
@@ -245,10 +246,10 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::POINTER: {
       if (p->get_sub_types().size() == 0) {
-        report_error(cs->_filename, token, "Invalid type");
+        report_error(ctx->_filename, token, "Invalid type");
       }
       auto &e = p->get_sub_types()[0];
-      TypeSystem::ResolveTy(cs, e);
+      TypeSystem::ResolveTy(ctx, e);
       p->set_type_name(e->get_type_name() + "*");
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(e->get_size_bits());
@@ -258,42 +259,42 @@ void TypeSystem::ResolveTy(CompilerSession *cs, ASTType *const &p) {
     }
     case Ty::TYPE_REF: {
       if (!p->get_canonical_type()) {
-        report_error(cs->_filename, token, "Invalid type name");
+        report_error(ctx->_filename, token, "Invalid type name");
       }
       break;
     }
     default:
-      report_error(cs->_filename, token, "Invalid type");
+      report_error(ctx->_filename, token, "Invalid type");
   }
   p->set_resolved(true);
 }
 
-void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
+void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
   TAN_ASSERT(p->is_resolved());
   Ty base = TY_GET_BASE(p->get_ty());
 
   switch (base) {
     case Ty::INT:
-      p->set_constructor(BasicConstructor::CreateIntegerConstructor(cs,
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx,
           p->get_loc(),
           0,
           p->get_size_bits(),
           p->is_unsigned()));
       break;
     case Ty::CHAR:
-      p->set_constructor(BasicConstructor::CreateCharConstructor(cs, p->get_loc()));
+      p->set_constructor(BasicConstructor::CreateCharConstructor(ctx, p->get_loc()));
       break;
     case Ty::BOOL:
       // TODO: p->set_constructor()
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, p->get_loc(), 0, 32));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 32));
       break;
     case Ty::DOUBLE:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(cs, p->get_loc(), 0, 64));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 64));
       break;
     case Ty::STRING:
-      p->set_constructor(BasicConstructor::CreateStringConstructor(cs, p->get_loc()));
+      p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
       break;
     case Ty::ENUM: {
       // TODO: p->set_constructor()
@@ -305,7 +306,7 @@ void TypeSystem::SetDefaultConstructor(CompilerSession *cs, ASTType *const &p) {
     case Ty::ARRAY: {
       vector<ASTType *> sub_types = p->get_sub_types();
       TAN_ASSERT(!sub_types.empty());
-      p->set_constructor(BasicConstructor::CreateArrayConstructor(cs, p->get_loc(), sub_types[0]));
+      p->set_constructor(BasicConstructor::CreateArrayConstructor(ctx, p->get_loc(), sub_types[0]));
       break;
     }
     case Ty::POINTER:
@@ -323,7 +324,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
 
   if (p->get_llvm_type()) { return p->get_llvm_type(); } /// avoid creating duplicated types
 
-  if (!p->is_resolved()) { TypeSystem::ResolveTy(cs, p); }
+  TAN_ASSERT(p->is_resolved());
 
   auto *builder = cs->_builder;
   Ty base = TY_GET_BASE(p->get_ty());
@@ -378,9 +379,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
 }
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
-  if (!p->is_resolved()) {
-    TypeSystem::ResolveTy(cs, p);
-  }
+  TAN_ASSERT(p->is_resolved());
 
   Ty base = TY_GET_BASE(p->get_ty());
   // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);

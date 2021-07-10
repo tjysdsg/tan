@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "src/ast/decl.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/ast_context.h"
 #include "src/compiler/stack_trace.h"
 
 namespace tanlang {
@@ -20,11 +21,11 @@ umap<str, IntrinsicType>
 static void init_noop(CompilerSession *cs);
 static void init_abort(CompilerSession *cs);
 
-void Intrinsic::InitAnalysis(CompilerSession *cs) {
-  cs->add_function(FunctionDecl::Create(SourceIndex(0),
+void Intrinsic::InitAnalysis(ASTContext *ctx) {
+  ctx->add_function(FunctionDecl::Create(SourceIndex(0),
       "compprint",
-      ASTType::CreateAndResolve(cs, SourceIndex(0), Ty::VOID),
-      {ASTType::CreateAndResolve(cs, SourceIndex(0), Ty::STRING),},
+      ASTType::CreateAndResolve(ctx, SourceIndex(0), Ty::VOID),
+      {ASTType::CreateAndResolve(ctx, SourceIndex(0), Ty::STRING),},
       true,
       false));
 }

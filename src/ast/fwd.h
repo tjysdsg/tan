@@ -30,6 +30,7 @@ class Loop;
 struct Scope;
 class SourceTraceable;
 class CompilerSession;
+class ASTContext;
 class ASTNamed;
 struct Token;
 class SourceIndex;

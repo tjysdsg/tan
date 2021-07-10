@@ -1,5 +1,5 @@
 #include "src/ast/decl.h"
-#include "src/ast/expr.h"
+#include "src/ast/ast_context.h"
 #include "src/ast/ast_type.h"
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
@@ -41,9 +41,9 @@ VarDecl *VarDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
 FunctionDecl::FunctionDecl(SourceIndex loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
 // TODO: move this to analysis
-FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args) {
+FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, const str &name, const vector<Expr *> &args) {
   FunctionDecl *ret = nullptr;
-  auto func_candidates = cs->get_functions(name);
+  auto func_candidates = ctx->get_functions(name);
   /// always prefer the function with lowest cost if multiple candidates are callable
   /// one implicit cast -> +1 cost
   /// however, if two (or more) functions have the same score, an error is raise (ambiguous call)
@@ -59,7 +59,7 @@ FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, cons
       auto t1 = f->get_arg_type(i);
       auto t2 = actual_arg->get_type();
       if (*t1 != *t2) {
-        if (0 != TypeSystem::CanImplicitCast(cs, t1, t2)) {
+        if (0 != TypeSystem::CanImplicitCast(ctx, t1, t2)) {
           good = false;
           break;
         }
@@ -72,13 +72,13 @@ FunctionDecl *FunctionDecl::GetCallee(CompilerSession *cs, const str &name, cons
         cost = c;
       } else if (c == cost) {
         throw std::runtime_error("Ambiguous function call: " + name);
-        // FIXME: report_error(cs, p, "Ambiguous function call: " + name);
+        // FIXME: report_error(ctx, p, "Ambiguous function call: " + name);
       }
     }
   }
   if (!ret) {
     throw std::runtime_error("Unknown function call: " + name);
-    // FIXME: report_error(cs, p, "Unknown function call: " + name);
+    // FIXME: report_error(ctx, p, "Unknown function call: " + name);
   }
   return ret;
 }

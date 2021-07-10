@@ -57,7 +57,7 @@ public:
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);
-  static void InitAnalysis(CompilerSession *cs);
+  static void InitAnalysis(ASTContext *ctx);
 
 public:
   IntrinsicType get_intrinsic_type() const;

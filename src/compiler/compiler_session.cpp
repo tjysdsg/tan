@@ -7,11 +7,6 @@
 
 using namespace tanlang;
 
-void CompilerSession::initialize_scope() {
-  _scope = vector<Scope *>();
-  _scope.push_back(new Scope); // outer-est scope
-}
-
 CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
     : _filename(module_name), _target_machine(tm) {
   _context = new LLVMContext();
@@ -28,83 +23,18 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _di_file = _di_builder->createFile(module_name, ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
-
-  _function_table = new FunctionTable;
-
-  /// scopes
-  initialize_scope();
 }
 
-CompilerSession::~CompilerSession() {}
-
-Scope *CompilerSession::get_current_scope() { return _scope.back(); }
-
-Scope *CompilerSession::push_scope() {
-  auto r = new Scope;
-  _scope.push_back(r);
-  return r;
+CompilerSession::~CompilerSession() {
+  delete _di_builder;
+  delete _module;
+  delete _builder;
+  delete _context;
 }
 
-void CompilerSession::push_scope(Scope *scope) { _scope.push_back(scope); }
+SourceManager *CompilerSession::get_source_manager() const { return _sm; }
 
-Scope *CompilerSession::pop_scope() {
-  if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
-  auto r = _scope.back();
-  _scope.pop_back();
-  return r;
-}
-
-void CompilerSession::add(const str &name, ASTBase *value) {
-  get_current_scope()->_named[name] = value;
-}
-
-void CompilerSession::set(const str &name, ASTBase *value) {
-  auto scope = _scope.end();
-  bool found = false;
-  --scope;
-  while (scope >= _scope.begin()) {
-    auto search = (*scope)->_named.find(name);
-    if (search != (*scope)->_named.end()) {
-      found = true;
-      break;
-    }
-    --scope;
-  }
-  if (found) { (*scope)->_named[name] = value; }
-  else { report_error("Cannot set the value of " + name); }
-}
-
-ASTBase *CompilerSession::get(const str &name) {
-  TAN_ASSERT(name != "");
-  // search from the outer-est scope to the inner-est scope
-  bool found = false;
-  ASTBase *result = nullptr;
-  auto scope = _scope.end(); // scope is an iterator
-  --scope;
-  while (!found && scope >= _scope.begin()) {
-    auto search = (*scope)->_named.find(name);
-    if (search != (*scope)->_named.end()) {
-      found = true;
-      result = search->second;
-    }
-    --scope;
-  }
-  return result;
-}
-
-void CompilerSession::add_type_decl(const str &name, Decl *ty) {
-  _type_decls[name] = ty;
-}
-
-// TODO: return std::optional
-Decl *CompilerSession::get_type_decl(const str &name) {
-  TAN_ASSERT(name != "");
-  auto q = _type_decls.find(name);
-  if (q != _type_decls.end()) {
-    return q->second;
-  }
-  return nullptr;
-}
+void CompilerSession::set_source_manager(SourceManager *sm) { _sm = sm; }
 
 LLVMContext *CompilerSession::get_context() { return _context; }
 
@@ -197,44 +127,10 @@ void CompilerSession::set_current_debug_location(size_t l, size_t c) {
       this->get_current_di_scope()));
 }
 
-void CompilerSession::AddPublicFunction(const str &filename, FunctionDecl *func) {
-  auto &pf = CompilerSession::public_func;
-  if (pf.find(filename) == pf.end()) {
-    pf[filename] = new FunctionTable;
-  }
-  pf[filename]->set(func);
-}
-
-vector<FunctionDecl *> CompilerSession::GetPublicFunctions(const str &filename) {
-  auto &pf = CompilerSession::public_func;
-  auto funcs = pf.find(filename);
-  if (funcs != pf.end()) {
-    auto fuck = funcs->second;
-    return fuck->get_all();
-  }
-  return {};
-}
-
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }
-
-void CompilerSession::add_function(FunctionDecl *func) { _function_table->set(func); }
-
-vector<FunctionDecl *> CompilerSession::get_functions(const str &name) { return _function_table->get(name); }
 
 DIFile *CompilerSession::get_di_file() const { return _di_file; }
 
 DICompileUnit *CompilerSession::get_di_cu() const { return _di_cu; }
-
-Loop *CompilerSession::get_current_loop() const { return _current_loop; }
-
-void CompilerSession::set_current_loop(Loop *loop) { _current_loop = loop; }
-
-SourceManager *CompilerSession::get_source_manager() const { return _source_manager; }
-
-void CompilerSession::set_source_manager(SourceManager *source_manager) { _source_manager = source_manager; }
-
-str CompilerSession::get_source_location_str(SourceTraceable *p) const {
-  return _filename + ":" + std::to_string(_source_manager->get_line(p->get_loc()));
-}
 
 const str &CompilerSession::get_filename() const { return _filename; }

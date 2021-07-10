@@ -5,6 +5,7 @@
 #include "src/ast/stmt.h"
 #include "src/ast/expr.h"
 #include "src/ast/decl.h"
+#include "src/ast/ast_context.h"
 #include "src/parser/token_check.h"
 #include "src/ast/ast_type.h"
 #include "src/common.h"
@@ -21,7 +22,7 @@ namespace tanlang {
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  ParserImpl(CompilerSession *cs) : _sm(cs->get_source_manager()), _filename(cs->get_filename()), _cs(cs) {}
+  ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _cs(ctx) {}
 
   ASTBase *parse() {
     _root = Program::Create(SourceIndex(0));
@@ -973,11 +974,11 @@ private:
 
 private:
   str _filename = "";
-  CompilerSession *_cs = nullptr;
+  ASTContext *_cs = nullptr;
   ASTBase *_root = nullptr;
 };
 
-Parser::Parser(CompilerSession *cs) { _impl = new ParserImpl(cs); }
+Parser::Parser(ASTContext *ctx) { _impl = new ParserImpl(ctx); }
 
 ASTBase *Parser::parse() { return _impl->parse(); }
 

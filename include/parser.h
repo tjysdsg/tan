@@ -1,12 +1,12 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
 #include "base.h"
+#include "src/ast/fwd.h"
 #include <memory>
 #include <stack>
 
 namespace tanlang {
 
-class CompilerSession;
 class ParserImpl;
 struct Token;
 
@@ -17,7 +17,7 @@ struct Token;
 class Parser final {
 public:
   Parser() = delete;
-  Parser(CompilerSession *cs);
+  Parser(ASTContext *ctx);
   ~Parser();
   ASTBase *parse();
 

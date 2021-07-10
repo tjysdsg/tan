@@ -47,7 +47,7 @@ public:
       vector<ASTType *> arg_types,
       bool is_external,
       bool is_public);
-  static FunctionDecl *GetCallee(CompilerSession *cs, const str &name, const vector<Expr *> &args);
+  static FunctionDecl *GetCallee(ASTContext *ctx, const str &name, const vector<Expr *> &args);
 
   [[nodiscard]] ASTType *get_ret_ty() const;
   void set_ret_type(ASTType *type);

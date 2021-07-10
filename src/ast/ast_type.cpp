@@ -1,9 +1,9 @@
 #include "src/analysis/type_system.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/decl.h"
-#include "parser.h"
+#include "src/ast/ast_context.h"
+#include "src/llvm_include.h"
 #include "token.h"
-#include "compiler_session.h"
 
 using namespace tanlang;
 
@@ -57,13 +57,13 @@ umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::U
 
 ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {}
 
-ASTType *ASTType::Create(CompilerSession *cs, SourceIndex loc) {
+ASTType *ASTType::Create(ASTContext *ctx, SourceIndex loc) {
   auto *ret = new ASTType(loc);
-  ret->_cs = cs;
+  ret->_ctx = ctx;
   return ret;
 }
 
-ASTType *ASTType::CreateAndResolve(CompilerSession *cs,
+ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
     SourceIndex loc,
     Ty t,
     vector<ASTType *> sub_tys,
@@ -74,11 +74,11 @@ ASTType *ASTType::CreateAndResolve(CompilerSession *cs,
   ret->_tyty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
-  ret->_cs = cs;
+  ret->_ctx = ctx;
   if (attribute_setter) {
     attribute_setter(ret);
   }
-  TypeSystem::ResolveTy(cs, ret);
+  TypeSystem::ResolveTy(ctx, ret);
   return ret;
 }
 
@@ -204,12 +204,12 @@ void ASTType::set_sub_types(const vector<ASTType *> &sub_types) {
 
 // FIXME: let the canonical type be observable, instead of looking up a table every time
 ASTType *ASTType::get_canonical_type() const {
-  TAN_ASSERT(_cs);
+  TAN_ASSERT(_ctx);
   if (_tyty != Ty::TYPE_REF) {
     return (ASTType *) this;
   }
 
-  Decl *decl = _cs->get_type_decl(_cs->get_source_manager()->get_token_str(_loc));
+  Decl *decl = _ctx->get_type_decl(_ctx->get_source_manager()->get_token_str(_loc));
   if (decl) {
     return decl->get_type();
   }
@@ -220,7 +220,7 @@ ASTType *ASTType::must_get_canonical_type() const {
   ASTType *type = get_canonical_type();
   if (!type) {
     TAN_ASSERT(_type_name != "");
-    report_error(_cs->_filename, _cs->get_source_manager()->get_token(_loc), "Invalid type name");
+    report_error(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
   }
   return type;
 }
@@ -240,7 +240,7 @@ void ASTType::set_constructor(Constructor *constructor) {
 
 ASTType *ASTType::get_contained_ty() const {
   if (get_ty() == Ty::STRING) {
-    return ASTType::CreateAndResolve(_cs, get_loc(), Ty::CHAR, {}, false);
+    return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::CHAR, {}, false);
   } else if (is_ptr()) {
     TAN_ASSERT(get_canonical_type()->_sub_types.size());
     auto ret = get_canonical_type()->_sub_types[0];
@@ -252,5 +252,5 @@ ASTType *ASTType::get_contained_ty() const {
 }
 
 ASTType *ASTType::get_ptr_to() const {
-  return ASTType::CreateAndResolve(_cs, get_loc(), Ty::POINTER, {(ASTType *) this}, false);
+  return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::POINTER, {(ASTType *) this}, false);
 }

@@ -5,6 +5,7 @@
 #include "src/analysis/analyzer.h"
 #include "src/codegen/code_generator.h"
 #include "src/ast/intrinsic.h"
+#include "src/ast/ast_context.h"
 #include "reader.h"
 #include "parser.h"
 
@@ -12,7 +13,8 @@ using namespace tanlang;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);
-  delete _compiler_session;
+  delete _cs;
+  delete _ctx;
 }
 
 Compiler::Compiler(const str &filename) : _filename(filename) {
@@ -34,25 +36,27 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     auto RM = llvm::Reloc::Model::PIC_;
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
-  _compiler_session = new CompilerSession(filename, Compiler::target_machine);
+  _ctx = new ASTContext(filename);
+  _cs = new CompilerSession(filename, Compiler::target_machine);
 }
 
-void Compiler::emit_object(const str &filename) { _compiler_session->emit_object(filename); }
+void Compiler::emit_object(const str &filename) { _cs->emit_object(filename); }
 
 Value *Compiler::codegen() {
   TAN_ASSERT(_ast);
-  TAN_ASSERT(_compiler_session);
-  TAN_ASSERT(_compiler_session->get_module());
-  Intrinsic::InitCodegen(_compiler_session);
-  CodeGenerator cg(_compiler_session);
+  TAN_ASSERT(_ctx);
+  TAN_ASSERT(_cs);
+  TAN_ASSERT(_cs->get_module());
+  Intrinsic::InitCodegen(_cs);
+  CodeGenerator cg(_cs, _ctx);
   auto *ret = cg.codegen(_ast);
   return ret;
 }
 
 void Compiler::dump_ir() const {
-  TAN_ASSERT(_compiler_session);
-  TAN_ASSERT(_compiler_session->get_module());
-  _compiler_session->get_module()->print(llvm::outs(), nullptr);
+  TAN_ASSERT(_cs);
+  TAN_ASSERT(_cs->get_module());
+  _cs->get_module()->print(llvm::outs(), nullptr);
 }
 
 void Compiler::dump_ast() const {
@@ -66,14 +70,15 @@ void Compiler::parse() {
   reader.open(_filename);
 
   auto tokens = tokenize(&reader);
-  _compiler_session->set_source_manager(new SourceManager(_filename, tokens));
+  auto *sm = new SourceManager(_filename, tokens);
+  _ctx->set_source_manager(sm);
+  _cs->set_source_manager(sm);
 
-  auto *parser = new Parser(_compiler_session);
+  auto *parser = new Parser(_ctx);
   _ast = parser->parse();
 
-  // TODO: separate parsing and analyzing phase
-  Intrinsic::InitAnalysis(_compiler_session);
-  Analyzer analyzer(_compiler_session);
+  Intrinsic::InitAnalysis(_ctx);
+  Analyzer analyzer(_ctx);
   analyzer.analyze(_ast);
 }
 

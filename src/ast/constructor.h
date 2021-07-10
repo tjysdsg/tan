@@ -37,18 +37,18 @@ public:
    * \note Make sure default_val's type is resolved
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(CompilerSession *cs,
+  static BasicConstructor *CreateIntegerConstructor(ASTContext *ctx,
       SourceIndex loc,
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
-  static BasicConstructor *CreateFPConstructor(CompilerSession *cs,
+  static BasicConstructor *CreateFPConstructor(ASTContext *ctx,
       SourceIndex loc,
       double default_val = 0,
       size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(CompilerSession *cs, SourceIndex loc, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(CompilerSession *cs, SourceIndex loc, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(CompilerSession *cs, SourceIndex loc, ASTType *element_type = {});
+  static BasicConstructor *CreateStringConstructor(ASTContext *ctx, SourceIndex loc, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(ASTContext *ctx, SourceIndex loc, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type = {});
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

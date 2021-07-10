@@ -24,18 +24,18 @@ public:
    * \brief Find out which type should a value be implicitly cast to.
    * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
    * */
-  static int CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2);
+  static int CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2);
 
   /**
    * \brief Set the fields of an ASTType according to the type and target machine
    */
-  static void ResolveTy(CompilerSession *cs, ASTType *const &p);
+  static void ResolveTy(ASTContext *ctx, ASTType *const &p);
 
   /**
    * \brief Set the default constructor of a type
    * \details Only works for basic types, not struct
    */
-  static void SetDefaultConstructor(CompilerSession *cs, ASTType *const &p);
+  static void SetDefaultConstructor(ASTContext *ctx, ASTType *const &p);
 
   /**
    * \brief Convert a value to from orig type to dest type.
@@ -46,13 +46,13 @@ public:
    * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
    * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *, llvm::Value *val, ASTType *orig, ASTType *dest);
+  static llvm::Value *ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest);
 
   static llvm::Type *ToLLVMType(CompilerSession *cs, ASTType *p);
 
   static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, ASTType *p);
 
-  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *,
+  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *cs,
       llvm::Metadata *ret,
       vector<llvm::Metadata *> args);
 };

@@ -9,7 +9,7 @@
 #include "src/ast/intrinsic.h"
 #include "src/analysis/type_system.h"
 #include "token.h"
-#include "compiler_session.h"
+#include "src/ast/ast_context.h"
 #include "compiler.h"
 #include "src/common.h"
 #include <iostream>
@@ -19,11 +19,11 @@ namespace tanlang {
 
 class AnalyzerImpl {
 public:
-  AnalyzerImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()) {}
+  AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
-    p->set_scope(_cs->get_current_scope());
+    p->set_scope(_ctx->get_current_scope());
 
     switch (p->get_node_type()) {
       case ASTNodeType::PROGRAM:
@@ -113,24 +113,24 @@ public:
   }
 
 private:
-  CompilerSession *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
 private:
   ASTType *copy_ty(ASTType *p) const { return new ASTType(*p); }
 
   void resolve_ty(ASTType *p) const {
-    TypeSystem::ResolveTy(_cs, p);
-    TypeSystem::SetDefaultConstructor(_cs, p);
+    TypeSystem::ResolveTy(_ctx, p);
+    TypeSystem::SetDefaultConstructor(_ctx, p);
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    tanlang::report_error(_cs->_filename, _sm->get_token(p->get_loc()), message);
+    tanlang::report_error(_ctx->_filename, _sm->get_token(p->get_loc()), message);
   }
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
-    auto referred = _cs->get(p->get_name());
+    auto referred = _ctx->get(p->get_name());
     if (!referred) {
       report_error(p, "Unknown identifier");
     }
@@ -162,8 +162,8 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        if (0 != TypeSystem::CanImplicitCast(_cs,
-            ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL),
+        if (0 != TypeSystem::CanImplicitCast(_ctx,
+            ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL),
             cond->get_type())) {
           report_error(p, "Cannot convert expression to bool");
         }
@@ -182,7 +182,7 @@ private:
       analyze(ty);
     }
 
-    _cs->add(p->get_name(), p);
+    _ctx->add(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
@@ -190,7 +190,7 @@ private:
     ASTType *ty = p->get_type();
     ty->set_is_lvalue(true);
     analyze(ty);
-    _cs->add(p->get_name(), p);
+    _ctx->add(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
@@ -228,7 +228,7 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        int i = TypeSystem::CanImplicitCast(_cs, lhs->get_type(), rhs->get_type());
+        int i = TypeSystem::CanImplicitCast(_ctx, lhs->get_type(), rhs->get_type());
         if (i == -1) {
           report_error(p, "Cannot perform implicit type conversion");
         }
@@ -257,7 +257,7 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
+        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
         analyze_member_access(ast_must_cast<MemberAccess>(p));
@@ -275,7 +275,7 @@ private:
 
     switch (p->get_op()) {
       case UnaryOpKind::LNOT:
-        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
+        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case UnaryOpKind::BNOT:
         p->set_type(copy_ty(rhs->get_type()));
@@ -316,7 +316,7 @@ private:
     ASTType *ty = nullptr;
     switch (rhs->get_node_type()) {
       case ASTNodeType::ID:
-        ty = _cs->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
+        ty = _ctx->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
         if (!ty) {
           report_error(rhs, "Unknown type");
         }
@@ -381,7 +381,7 @@ private:
       analyze(lhs);
     }
 
-    if (TypeSystem::CanImplicitCast(_cs, lhs_type, rhs->get_type()) != 0) {
+    if (TypeSystem::CanImplicitCast(_ctx, lhs_type, rhs->get_type()) != 0) {
       report_error(p, "Cannot perform implicit type conversion");
     }
     p->set_type(lhs_type);
@@ -394,7 +394,7 @@ private:
       analyze(a);
     }
 
-    FunctionDecl *callee = FunctionDecl::GetCallee(_cs, p->get_name(), p->_args);
+    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p->get_name(), p->_args);
     p->_callee = callee;
     p->set_type(copy_ty(callee->get_ret_ty()));
   }
@@ -404,15 +404,15 @@ private:
 
     /// add to external function table
     if (p->is_public() || p->is_external()) {
-      CompilerSession::AddPublicFunction(_cs->_filename, p);
+      ASTContext::AddPublicFunction(_ctx->_filename, p);
     }
     /// ...and to the internal function table
-    _cs->add_function(p);
+    _ctx->add_function(p);
 
     /// analyze return type
     analyze(p->get_ret_ty());
 
-    _cs->push_scope(); /// new scope
+    _ctx->push_scope(); /// new scope
 
     /// analyze args
     size_t n = p->get_n_args();
@@ -425,29 +425,29 @@ private:
       analyze(p->get_body());
     }
 
-    _cs->pop_scope(); /// pop scope
+    _ctx->pop_scope(); /// pop scope
   }
 
   void analyze_import(ASTBase *_p) {
     auto p = ast_must_cast<Import>(_p);
 
     str file = p->get_filename();
-    auto imported = Compiler::resolve_import(_cs->_filename, file);
+    auto imported = Compiler::resolve_import(_ctx->_filename, file);
     if (imported.empty()) {
       report_error(p, "Cannot import: " + file);
     }
 
     /// it might be already parsed
-    vector<FunctionDecl *> imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+    vector<FunctionDecl *> imported_functions = ASTContext::GetPublicFunctions(imported[0]);
     if (imported_functions.empty()) {
       Compiler::ParseFile(imported[0]);
-      imported_functions = CompilerSession::GetPublicFunctions(imported[0]);
+      imported_functions = ASTContext::GetPublicFunctions(imported[0]);
     }
 
     /// import functions
     p->set_imported_funcs(imported_functions);
     for (FunctionDecl *f: imported_functions) {
-      _cs->add_function(f);
+      _ctx->add_function(f);
     }
   }
 
@@ -476,7 +476,7 @@ private:
     }
     p->set_intrinsic_type(q->second);
 
-    auto void_type = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::VOID);
+    auto void_type = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::VOID);
     switch (p->get_intrinsic_type()) {
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
@@ -486,15 +486,15 @@ private:
       }
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(p->get_loc(), _sm->get_line(p->get_loc()), true);
-        auto type = ASTType::CreateAndResolve(_cs, p->get_loc(), TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
+        auto type = ASTType::CreateAndResolve(_ctx, p->get_loc(), TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
         break;
       }
       case IntrinsicType::FILENAME: {
-        auto sub = StringLiteral::Create(p->get_loc(), _cs->_filename);
-        auto type = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING);
+        auto sub = StringLiteral::Create(p->get_loc(), _ctx->_filename);
+        auto type = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING);
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
@@ -502,7 +502,7 @@ private:
       }
       case IntrinsicType::GET_DECL: {
         // FIXME: set the value to the srouce code string
-        p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING));
+        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING));
         if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
           report_error(c, "Expect a string argument");
         }
@@ -518,7 +518,7 @@ private:
           report_error(p, "Invalid call to compprint, one argument with type 'str' required");
         }
         str msg = ast_must_cast<StringLiteral>(args[0])->get_value();
-        std::cout << fmt::format("Message ({}): {}\n", _cs->get_source_location_str(p), msg);
+        std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
         break;
       }
       default:
@@ -529,13 +529,13 @@ private:
   void analyze_string_literal(ASTBase *_p) {
     auto p = ast_must_cast<StringLiteral>(_p);
     p->set_value(_sm->get_token_str(p->get_loc()));
-    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::STRING));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING));
   }
 
   void analyze_char_literal(ASTBase *_p) {
     auto p = ast_must_cast<CharLiteral>(_p);
 
-    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::CHAR, {}));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::CHAR, {}));
     p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->get_loc())[0]));
   }
 
@@ -543,15 +543,15 @@ private:
     auto p = ast_must_cast<IntegerLiteral>(_p);
     auto tyty = Ty::INT;
 
-    if (_cs->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
+    if (_ctx->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
       tyty = TY_OR(tyty, Ty::UNSIGNED);
     }
-    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), tyty));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), tyty));
   }
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::FLOAT));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::FLOAT));
   }
 
   void analyze_array_literal(ASTBase *_p) {
@@ -566,7 +566,7 @@ private:
       sub_tys.push_back(e->get_type());
     });
 
-    ASTType *ty = ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::ARRAY, sub_tys);
+    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, sub_tys);
     ty->set_array_size(elements.size());
     p->set_type(ty);
   }
@@ -628,7 +628,7 @@ private:
           report_error(lhs, "Expect a struct type");
         }
 
-        StructDecl *struct_decl = ast_must_cast<StructDecl>(_cs->get_type_decl(struct_ty->get_type_name()));
+        StructDecl *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
         p->_access_idx = struct_decl->get_struct_member_index(m_name);
         auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
         ty->set_is_lvalue(true);
@@ -665,11 +665,11 @@ private:
 
     ASTType *ty = nullptr;
     str struct_name = p->get_name();
-    _cs->add_type_decl(struct_name, p);
+    _ctx->add_type_decl(struct_name, p);
 
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
-    ASTType *prev = _cs->get_type_decl(struct_name)->get_type();
+    ASTType *prev = _ctx->get_type_decl(struct_name)->get_type();
     if (prev) {
       if (prev->get_node_type() != ASTNodeType::STRUCT_DECL) { /// fwd decl
         ty = std::move(prev);
@@ -677,10 +677,10 @@ private:
         report_error(p, "Cannot redeclare type as a struct");
       }
     } else { /// no fwd decl
-      ty = ASTType::Create(_cs, p->get_loc());
+      ty = ASTType::Create(_ctx, p->get_loc());
       ty->set_ty(Ty::STRUCT);
       ty->set_constructor(StructConstructor::Create(ty));
-      _cs->add_type_decl(struct_name, p); /// add self to current scope
+      _ctx->add_type_decl(struct_name, p); /// add self to current scope
     }
     ty->set_type_name(struct_name);
 
@@ -736,15 +736,15 @@ private:
     auto *p = ast_must_cast<Loop>(_p);
     analyze(p->get_predicate());
 
-    auto *prev_loop = _cs->get_current_loop();
-    _cs->set_current_loop(p);
+    auto *prev_loop = _ctx->get_current_loop();
+    _ctx->set_current_loop(p);
     analyze(p->get_body());
-    _cs->set_current_loop(prev_loop);
+    _ctx->set_current_loop(prev_loop);
   }
 
   void analyze_break_or_continue(ASTBase *_p) {
     auto *p = ast_must_cast<BreakContinue>(_p);
-    Loop *loop = _cs->get_current_loop();
+    Loop *loop = _ctx->get_current_loop();
     if (!loop) {
       report_error(p, "Break or continue must be inside a loop");
     }
@@ -754,7 +754,7 @@ private:
 
 void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
 
-Analyzer::Analyzer(CompilerSession *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
+Analyzer::Analyzer(ASTContext *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
 
 Analyzer::~Analyzer() { if (_analyzer_impl) { delete _analyzer_impl; }}
 

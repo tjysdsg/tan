@@ -18,7 +18,8 @@ class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
 
-  explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()) {}
+  explicit CodeGeneratorImpl(CompilerSession *cs, ASTContext *ctx)
+      : _cs(cs), _ctx(ctx), _sm(cs->get_source_manager()) {}
 
   Value *codegen(ASTBase *p) {
     if (p->_llvm_value) {
@@ -100,6 +101,7 @@ public:
 
 private:
   CompilerSession *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
 private:
@@ -169,9 +171,6 @@ private:
 
     /// generate prototype
     auto *F = (Function *) codegen_func_prototype(p);
-
-    /// push scope
-    _cs->push_scope(p->get_scope());
 
     /// set function arg types
     vector<Metadata *> arg_metas;
@@ -258,8 +257,6 @@ private:
       }
       _cs->pop_di_scope();
     }
-
-    _cs->pop_scope(); /// pop scope
 
     return p->_llvm_value = F;
   }
@@ -946,10 +943,11 @@ private:
       if (!cond) {
         report_error(p, "Expected a condition expression");
       }
+      // TODO: do this in analysis phase, and remove ASTContext from this
       cond = TypeSystem::ConvertTo(_cs,
           cond,
           p->get_predicate()->get_type(),
-          ASTType::CreateAndResolve(_cs, p->get_loc(), Ty::BOOL));
+          ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
       builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
       /// loop body
@@ -1003,10 +1001,11 @@ private:
         Value *cond_v = codegen(cond);
         if (!cond_v) { report_error(p, "Invalid condition expression "); }
         /// convert to bool
+        // TODO: do this in analysis phase, and remove ASTContext from this
         cond_v = TypeSystem::ConvertTo(_cs,
             cond_v,
             cond->get_type(),
-            ASTType::CreateAndResolve(_cs, cond->get_loc(), Ty::BOOL));
+            ASTType::CreateAndResolve(_ctx, cond->get_loc(), Ty::BOOL));
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1094,7 +1093,7 @@ private:
   }
 };
 
-CodeGenerator::CodeGenerator(CompilerSession *cs) { _impl = new CodeGeneratorImpl(cs); }
+CodeGenerator::CodeGenerator(CompilerSession *cs, ASTContext *ctx) { _impl = new CodeGeneratorImpl(cs, ctx); }
 
 llvm::Value *CodeGenerator::codegen(ASTBase *p) { return _impl->codegen(p); }
 
