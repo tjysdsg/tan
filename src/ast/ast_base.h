@@ -32,9 +32,6 @@ public:
   void set_lbp(int lbp);
   int get_lbp() const;
 
-  void set_scope(Scope *scope);
-  Scope *get_scope() const;
-
 protected:
   virtual str to_string(bool print_prefix = true);
 

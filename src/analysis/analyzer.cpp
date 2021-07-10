@@ -24,7 +24,6 @@ public:
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
-    p->set_scope(_ctx->get_current_scope());
 
     switch (p->get_node_type()) {
       case ASTNodeType::PROGRAM:

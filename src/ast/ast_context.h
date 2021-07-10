@@ -85,12 +85,6 @@ public:
   Decl *get_type_decl(const str &name);
 
   /**
-   * \brief Get the bit size of a pointer on the current machine
-   * FIXME
-   * */
-  [[nodiscard]] unsigned get_ptr_size() const { return 64; }
-
-  /**
    * \brief Add a function AST to the current file's function table
    * \details This will not add anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
@@ -103,12 +97,10 @@ public:
 
 public:
   str _filename = "";
-  Token *_current_token = nullptr; /// Used for error messages
 
 private:
   umap<str, Decl *> _type_decls{};
-  umap<str, TypeAccessor *> _type_accessors{};
-  vector<Scope *> _scope{}; // TODO: use tree for scope
+  vector<Scope *> _scope{};
   FunctionTable *_function_table = nullptr;
 
   /**
