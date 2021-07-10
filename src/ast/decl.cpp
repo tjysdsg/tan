@@ -146,6 +146,7 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 vector<ASTBase *> FunctionDecl::get_children() const {
   vector<ASTBase *> ret = {(ASTBase *) _ret_type};
   std::for_each(_arg_decls.begin(), _arg_decls.end(), [&](ArgDecl *e) { ret.push_back(e); });
+  ret.push_back((ASTBase *) _body);
   return ret;
 }
 
