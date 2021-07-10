@@ -48,7 +48,7 @@ public:
 
 public:
   Ty get_ty() const;
-  void set_ty(Ty tyty);
+  void set_ty(Ty ty);
   ASTType *get_contained_ty() const;
   ASTType *get_ptr_to() const;
 
@@ -65,7 +65,6 @@ public:
   unsigned int get_dwarf_encoding() const;
   void set_dwarf_encoding(unsigned int dwarf_encoding);
   bool is_ptr() const;
-  void set_is_ptr(bool is_ptr);
   bool is_float() const;
   void set_is_float(bool is_float);
   bool is_array() const;
@@ -117,7 +116,6 @@ private:
   size_t _size_bits = 0;
   size_t _align_bits = 0;
   unsigned _dwarf_encoding = 0;
-  bool _is_ptr = false;
   bool _is_float = false;
   bool _is_array = false;
   size_t _array_size = 0;

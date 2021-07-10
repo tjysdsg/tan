@@ -188,7 +188,6 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_type_name("u8*");
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(8);
-      p->set_is_ptr(true);
       break;
     case Ty::VOID:
       p->set_type_name("void");
@@ -236,7 +235,6 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
       p->set_type_name(fmt::format("{}[{}]", et->get_type_name(), std::to_string(p->get_array_size())));
-      p->set_is_ptr(true); /// FIXME: remove _is_ptr field
       p->set_is_array(true);
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(et->get_size_bits());
@@ -252,7 +250,6 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_type_name(e->get_type_name() + "*");
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(e->get_size_bits());
-      p->set_is_ptr(true);
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_address);
       break;
     }

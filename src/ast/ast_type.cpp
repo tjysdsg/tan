@@ -8,17 +8,17 @@
 using namespace tanlang;
 
 bool ASTType::operator==(const ASTType &other) {
-  #define CHECK(val) if (this->val != other.val) { return false; }
-  CHECK(_size_bits)
-  CHECK(_align_bits)
-  CHECK(_is_ptr)
-  CHECK(_is_float)
+  #define CHECK(val) if (this->val != other.val) return false
+  CHECK(_size_bits);
+  CHECK(_align_bits);
+  CHECK(is_ptr());
+  CHECK(_is_float);
   CHECK(_is_array);
   CHECK(_array_size);
-  CHECK(_is_int)
-  CHECK(_is_unsigned)
-  CHECK(_is_struct)
-  CHECK(_is_bool)
+  CHECK(_is_int);
+  CHECK(_is_unsigned);
+  CHECK(_is_struct);
+  CHECK(_is_bool);
   CHECK(_is_enum);
   #undef CHECK
 
@@ -121,11 +121,10 @@ void ASTType::set_dwarf_encoding(unsigned int dwarf_encoding) {
   must_get_canonical_type()->_dwarf_encoding = dwarf_encoding;
 }
 
-bool ASTType::is_ptr() const { return must_get_canonical_type()->_is_ptr; }
-
-void ASTType::set_is_ptr(bool is_ptr) {
-  no_modifications_on_type_reference();
-  must_get_canonical_type()->_is_ptr = is_ptr;
+// TODO: array/string is not exactly a pointer
+bool ASTType::is_ptr() const {
+  return must_get_canonical_type()->_ty == Ty::POINTER || must_get_canonical_type()->_ty == Ty::ARRAY
+      || must_get_canonical_type()->_ty == Ty::STRING;
 }
 
 bool ASTType::is_float() const { return must_get_canonical_type()->_is_float; }
