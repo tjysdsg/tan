@@ -20,9 +20,6 @@ protected:
 public:
   static VarDecl *Create(SourceIndex loc);
   static VarDecl *Create(SourceIndex loc, const str &name, ASTType *ty);
-
-private:
-  ASTBase *_value = nullptr;
 };
 
 class ArgDecl : public Decl {
@@ -69,6 +66,8 @@ public:
   void set_external(bool is_external);
   void set_public(bool is_public);
 
+  vector<ASTBase *> get_children() const override;
+
 private:
   bool _is_external = false;
   bool _is_public = false;
@@ -95,6 +94,8 @@ public:
   ASTType *get_struct_member_ty(size_t i) const;
   size_t get_struct_member_index(const str &name) const;
   void set_member_index(const str &name, size_t idx);
+
+  vector<ASTBase *> get_children() const override;
 
 private:
   vector<Expr *> _member_decls{};

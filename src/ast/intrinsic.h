@@ -65,6 +65,8 @@ public:
   ASTBase *get_sub() const;
   void set_sub(ASTBase *sub);
 
+  vector<ASTBase *> get_children() const override;
+
 private:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
   ASTBase *_sub = nullptr;

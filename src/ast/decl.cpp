@@ -143,6 +143,12 @@ const vector<ArgDecl *> &FunctionDecl::get_arg_decls() const { return _arg_decls
 
 void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decls = arg_decls; }
 
+vector<ASTBase *> FunctionDecl::get_children() const {
+  vector<ASTBase *> ret = {(ASTBase *) _ret_type};
+  std::for_each(_arg_decls.begin(), _arg_decls.end(), [&](ArgDecl *e) { ret.push_back(e); });
+  return ret;
+}
+
 /// \section StructDecl
 
 StructDecl::StructDecl(SourceIndex loc) : Decl(ASTNodeType::STRUCT_DECL, loc, 0) {}
@@ -171,3 +177,9 @@ size_t StructDecl::get_struct_member_index(const str &name) const {
 }
 
 void StructDecl::set_member_index(const str &name, size_t idx) { _member_indices[name] = idx; }
+
+vector<ASTBase *> StructDecl::get_children() const {
+  vector<ASTBase *> ret = {};
+  std::for_each(_member_decls.begin(), _member_decls.end(), [&](Expr *e) { ret.push_back(e); });
+  return ret;
+}

@@ -45,6 +45,13 @@ ASTBase *Intrinsic::get_sub() const { return _sub; }
 
 void Intrinsic::set_sub(ASTBase *sub) { _sub = sub; }
 
+vector<ASTBase *> Intrinsic::get_children() const {
+  if (_sub) {
+    return _sub->get_children();
+  }
+  return {};
+}
+
 static void init_noop(CompilerSession *cs) {
   /// fn llvm.donothing() : void;
   Function *func = cs->get_module()->getFunction("llvm.donothing");

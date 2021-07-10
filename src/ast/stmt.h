@@ -26,7 +26,7 @@ public:
   void append_child(ASTBase *node);
   void clear_children();
   size_t get_children_size() const;
-  vector<ASTBase *> get_children() const;
+  vector<ASTBase *> get_children() const override;
   vector<ASTBase *> &get_children();
   template<typename T = ASTBase> T *get_child_at(size_t idx) const;
 
@@ -51,6 +51,8 @@ public:
 
   void set_rhs(Expr *rhs);
   Expr *get_rhs() const;
+
+  vector<ASTBase *> get_children() const override;
 
 private:
   Expr *_rhs = nullptr;
@@ -115,6 +117,8 @@ public:
   Expr *get_predicate() const;
   Stmt *get_body() const;
 
+  vector<ASTBase *> get_children() const override;
+
 public:
   ASTLoopType _loop_type = ASTLoopType::WHILE;
   llvm::BasicBlock *_loop_start = nullptr;
@@ -147,6 +151,8 @@ public:
   Stmt *get_branch(size_t i) const;
   size_t get_num_branches() const;
   bool is_last_branch_else() const;
+
+  vector<ASTBase *> get_children() const override;
 
 private:
   /// \note The last element can be a nullptr if the last branch is an "else"

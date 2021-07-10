@@ -45,6 +45,7 @@ public:
   bool operator!=(const ASTType &other);
 
   virtual str to_string(bool print_prefix = true);
+  vector<ASTBase *> get_children() const override;
 
 public:
   Ty get_ty() const;

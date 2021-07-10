@@ -32,8 +32,18 @@ public:
   void set_bp(int bp);
   int get_bp() const;
 
+  /**
+   * \brief Get a ordered list of child nodes
+   */
+  virtual vector<ASTBase *> get_children() const;
+
+  /**
+   * \brief Pretty-print AST tree
+   */
+  void printTree() const;
+
 protected:
-  virtual str to_string(bool print_prefix = true);
+  virtual str to_string(bool print_prefix = true) const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.
@@ -42,6 +52,9 @@ protected:
 
 public:
   llvm::Value *_llvm_value = nullptr;
+
+private:
+  void printTree(const str &prefix, bool last_child) const;
 
 private:
   ASTNodeType _node_type = ASTNodeType::INVALID;

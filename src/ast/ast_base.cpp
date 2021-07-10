@@ -1,5 +1,6 @@
 #include "src/ast/ast_node_type.h"
 #include "src/ast/ast_base.h"
+#include <iostream>
 
 using namespace tanlang;
 
@@ -16,34 +17,41 @@ void ASTBase::set_bp(int bp) { _bp = bp; }
 
 int ASTBase::get_bp() const { return _bp; }
 
-/*
- * TODO
- *  void ASTBase::printTree() {
- *   using std::cout;
- *   cout << this->to_string(true) << "\n";
- *   size_t n_children = _children.size();
- *   for (size_t i = 0; i < n_children; ++i) {
- *     _children[i]->printTree("", i >= n_children - 1);
- *   }
- *  }
- *  void ASTBase::printTree(const str &prefix, bool last_child) {
- *    using std::cout;
- *    cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
- *    if (_children.empty()) { return; }
- *    size_t n_children = _children.size();
- *    for (size_t i = 0; i < n_children; ++i) {
- *      const auto &c = _children[i];
- *      c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
- *    }
- *  }
- */
+void ASTBase::printTree() const {
+  using std::cout;
+  cout << this->to_string(true) << "\n";
+  vector<ASTBase *> children = get_children();
+  size_t n_children = children.size();
+  for (size_t i = 0; i < n_children; ++i) {
+    auto *ch = children[i];
+    if (ch) {
+      ch->printTree("", i >= n_children - 1);
+    }
+  }
+}
 
-str ASTBase::to_string(bool print_prefix) {
+void ASTBase::printTree(const str &prefix, bool last_child) const {
+  using std::cout;
+  vector<ASTBase *> children = get_children();
+  cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
+  if (children.empty()) { return; }
+  size_t n_children = children.size();
+  for (size_t i = 0; i < n_children; ++i) {
+    auto *c = children[i];
+    if (c) {
+      c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
+    }
+  }
+}
+
+str ASTBase::to_string(bool print_prefix) const {
   if (print_prefix) { return ASTTypeNames[this->_node_type]; }
   else { return ""; }
 }
 
 ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
+
+vector<ASTBase *> ASTBase::get_children() const { return {}; }
 
 #define MAKE_ASTTYPE_NAME_PAIR(t) {ASTNodeType::t, #t}
 

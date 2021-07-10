@@ -54,6 +54,8 @@ void Return::set_rhs(Expr *rhs) { _rhs = rhs; }
 
 Expr *Return::get_rhs() const { return _rhs; }
 
+vector<ASTBase *> Return::get_children() const { return {(ASTBase *) _rhs}; }
+
 /// \section Import
 
 Import *Import::Create(SourceIndex loc) { return new Import(loc); }
@@ -100,6 +102,8 @@ Expr *Loop::get_predicate() const { return _predicate; }
 
 Stmt *Loop::get_body() const { return _body; }
 
+vector<ASTBase *> Loop::get_children() const { return {(ASTBase *) _predicate, _body}; }
+
 /// \section If-else
 
 If::If(SourceIndex loc) : Stmt(ASTNodeType::IF, loc) {}
@@ -131,4 +135,11 @@ Stmt *If::get_branch(size_t i) const {
 bool If::is_last_branch_else() const { return _last_branch_else; }
 
 size_t If::get_num_branches() const { return _branches.size(); }
+
+vector<ASTBase *> If::get_children() const {
+  vector<ASTBase *> ret = {};
+  std::for_each(_predicates.begin(), _predicates.end(), [&](Expr *e) { ret.push_back((ASTBase *) e); });
+  std::for_each(_branches.begin(), _branches.end(), [&](Stmt *e) { ret.push_back((ASTBase *) e); });
+  return ret;
+}
 

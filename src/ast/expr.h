@@ -158,6 +158,8 @@ public:
   size_t get_dominant_idx() const { return _dominant_idx; }
   void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
 
+  vector<ASTBase *> get_children() const override;
+
 public:
   size_t _dominant_idx = 0;
 
@@ -213,6 +215,8 @@ public:
   Expr *get_rhs() const;
   void set_rhs(Expr *rhs);
 
+  vector<ASTBase *> get_children() const override;
+
 protected:
   UnaryOpKind _op;
   Expr *_rhs = nullptr;
@@ -244,6 +248,8 @@ public:
   ASTType *get_type() const override;
   void set_type(ASTType *type) override;
 
+  vector<ASTBase *> get_children() const override;
+
 private:
   BinaryOrUnaryKind _kind = UNKNOWN;
   union {
@@ -262,6 +268,8 @@ public:
   void set_sub(Expr *sub);
   Expr *get_sub() const;
 
+  vector<ASTBase *> get_children() const override;
+
 private:
   Expr *_sub = nullptr;
 };
@@ -274,6 +282,8 @@ public:
   static FunctionCall *Create(SourceIndex loc);
   size_t get_n_args() const;
   Expr *get_arg(size_t i) const;
+
+  vector<ASTBase *> get_children() const override;
 
 public:
   vector<Expr *> _args{};
@@ -292,6 +302,8 @@ public:
   Expr *get_rhs() const;
   void set_rhs(Expr *rhs);
 
+  vector<ASTBase *> get_children() const override;
+
 protected:
   ASTBase *_lhs = nullptr; /// lhs can be decl or expr (identifier)
   Expr *_rhs = nullptr;
@@ -307,6 +319,8 @@ public:
   void set_lhs(Expr *lhs);
   ASTBase *get_rhs() const;
   void set_rhs(ASTBase *rhs);
+
+  vector<ASTBase *> get_children() const override;
 
 protected:
   Expr *_lhs = nullptr;

@@ -253,3 +253,10 @@ ASTType *ASTType::get_contained_ty() const {
 ASTType *ASTType::get_ptr_to() const {
   return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::POINTER, {(ASTType *) this}, false);
 }
+
+vector<ASTBase *> ASTType::get_children() const {
+  vector<ASTBase *> ret = {};
+  ret.reserve(_sub_types.size());
+  std::for_each(_sub_types.begin(), _sub_types.end(), [&](ASTType *t) { ret.push_back(t); });
+  return ret;
+}

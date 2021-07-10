@@ -111,6 +111,8 @@ Expr *BinaryOperator::get_rhs() const { return _rhs; }
 
 BinaryOpKind BinaryOperator::get_op() const { return _op; }
 
+vector<ASTBase *> BinaryOperator::get_children() const { return {_lhs, _rhs}; }
+
 /// \section Unary operators
 
 umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
@@ -135,6 +137,8 @@ UnaryOpKind UnaryOperator::get_op() const { return _op; }
 
 Expr *UnaryOperator::get_rhs() const { return _rhs; }
 
+vector<ASTBase *> UnaryOperator::get_children() const { return {_rhs}; }
+
 /// \section Parenthesis
 
 Parenthesis *Parenthesis::Create(SourceIndex loc) { return new Parenthesis(loc); }
@@ -146,6 +150,8 @@ Parenthesis::Parenthesis(SourceIndex loc) : Expr(ASTNodeType::PARENTHESIS,
 void Parenthesis::set_sub(Expr *sub) { _sub = sub; }
 
 Expr *Parenthesis::get_sub() const { return _sub; }
+
+vector<ASTBase *> Parenthesis::get_children() const { return {_sub}; }
 
 /// \section MEMBER_ACCESS operator
 
@@ -166,6 +172,12 @@ Expr *FunctionCall::get_arg(size_t i) const {
   return _args[i];
 }
 
+vector<ASTBase *> FunctionCall::get_children() const {
+  vector<ASTBase *> ret = {(ASTBase *) _callee};
+  std::for_each(_args.begin(), _args.end(), [&](Expr *e) { ret.push_back(e); });
+  return ret;
+}
+
 /// \section Assignment
 
 Expr *Assignment::get_rhs() const { return _rhs; }
@@ -180,6 +192,8 @@ ASTBase *Assignment::get_lhs() const { return _lhs; }
 
 void Assignment::set_lhs(ASTBase *lhs) { _lhs = lhs; }
 
+vector<ASTBase *> Assignment::get_children() const { return {_lhs, _rhs}; }
+
 /// \section Cast
 
 Expr *Cast::get_lhs() const { return _lhs; }
@@ -193,6 +207,8 @@ Cast::Cast(SourceIndex loc) : Expr(ASTNodeType::CAST, loc, ASTBase::OpPrecedence
 ASTBase *Cast::get_rhs() const { return _rhs; }
 
 void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
+
+vector<ASTBase *> Cast::get_children() const { return {_lhs, _rhs}; }
 
 BinaryOrUnary::BinaryOrUnary(SourceIndex loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP, loc, bp) {}
 
@@ -239,6 +255,8 @@ ASTBase *BinaryOrUnary::get() const { return get_generic_ptr(); }
 ASTType *BinaryOrUnary::get_type() const { return get_generic_ptr()->get_type(); }
 
 void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type); }
+
+vector<ASTBase *> BinaryOrUnary::get_children() const { return get_generic_ptr()->get_children(); }
 
 bool CompTimeExpr::is_comptime_known() { return true; }
 
