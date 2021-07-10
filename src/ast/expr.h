@@ -10,7 +10,7 @@ namespace tanlang {
 
 class Expr : public ASTBase, public Typed {
 protected:
-  Expr(ASTNodeType type, SourceIndex loc, int lbp);
+  Expr(ASTNodeType type, SourceIndex loc, int bp);
 
 public:
   virtual bool is_comptime_known() { return false; }
@@ -24,7 +24,7 @@ public:
  */
 class CompTimeExpr : public Expr {
 protected:
-  CompTimeExpr(ASTNodeType type, SourceIndex loc, int lbp);
+  CompTimeExpr(ASTNodeType type, SourceIndex loc, int bp);
 
 public:
   bool is_comptime_known() override;
@@ -32,7 +32,7 @@ public:
 
 class Literal : public CompTimeExpr {
 protected:
-  Literal(ASTNodeType type, SourceIndex loc, int lbp);
+  Literal(ASTNodeType type, SourceIndex loc, int bp);
 };
 
 class IntegerLiteral : public Literal {
@@ -224,10 +224,10 @@ protected:
  */
 class BinaryOrUnary : public Expr {
 protected:
-  BinaryOrUnary(SourceIndex loc, int lbp);
+  BinaryOrUnary(SourceIndex loc, int bp);
 
 public:
-  static BinaryOrUnary *Create(SourceIndex loc, int lbp);
+  static BinaryOrUnary *Create(SourceIndex loc, int bp);
 
   enum BinaryOrUnaryKind {
     UNKNOWN, BINARY, UNARY,

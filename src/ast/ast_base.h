@@ -23,14 +23,14 @@ public:
 
 public:
   ASTBase() = delete;
-  ASTBase(ASTNodeType node_type, SourceIndex loc, int lbp);
+  ASTBase(ASTNodeType node_type, SourceIndex loc, int bp);
   virtual ~ASTBase() = default;
 
 public:
   ASTNodeType get_node_type() const;
   void set_node_type(ASTNodeType node_type);
-  void set_lbp(int lbp);
-  int get_lbp() const;
+  void set_bp(int bp);
+  int get_bp() const;
 
 protected:
   virtual str to_string(bool print_prefix = true);
@@ -41,13 +41,11 @@ protected:
   virtual ASTBase *get() const;
 
 public:
-  // TODO: make this private
   llvm::Value *_llvm_value = nullptr;
 
 private:
   ASTNodeType _node_type = ASTNodeType::INVALID;
-  int _lbp = 0;
-  Scope *_scope = nullptr;
+  int _bp = 0; /// binding power
 };
 
 template<typename To, typename From> To *ast_cast(From *node) {

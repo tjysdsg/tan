@@ -3,8 +3,8 @@
 
 using namespace tanlang;
 
-ASTBase::ASTBase(ASTNodeType node_type, SourceIndex loc, int lbp)
-    : SourceTraceable(loc), _node_type(node_type), _lbp(lbp) {}
+ASTBase::ASTBase(ASTNodeType node_type, SourceIndex loc, int bp)
+    : SourceTraceable(loc), _node_type(node_type), _bp(bp) {}
 
 ASTNodeType ASTBase::get_node_type() const { return _node_type; }
 
@@ -12,13 +12,9 @@ void ASTBase::set_node_type(ASTNodeType node_type) {
   _node_type = node_type;
 }
 
-void ASTBase::set_lbp(int lbp) {
-  _lbp = lbp;
-}
+void ASTBase::set_bp(int bp) { _bp = bp; }
 
-int ASTBase::get_lbp() const {
-  return _lbp;
-}
+int ASTBase::get_bp() const { return _bp; }
 
 /*
  * TODO

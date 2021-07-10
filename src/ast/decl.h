@@ -10,7 +10,7 @@ namespace tanlang {
 
 class Decl : public Expr, public ASTNamed {
 protected:
-  Decl(ASTNodeType type, SourceIndex loc, int lbp);
+  Decl(ASTNodeType type, SourceIndex loc, int bp);
 };
 
 class VarDecl : public Decl {

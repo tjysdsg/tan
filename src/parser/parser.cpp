@@ -225,7 +225,7 @@ private:
     auto left = n;
     node = peek();
     if (!node) { return left; }
-    while (rbp < node->get_lbp()) {
+    while (rbp < node->get_bp()) {
       node = peek();
       n = node;
       parse_node(left, n);
@@ -330,7 +330,7 @@ private:
 
         /// update binding power, as the value was originally set to the binding power of BOP version of this op
         auto *uop = pp->get_uop();
-        uop->set_lbp(UnaryOperator::UOPPrecedence[uop->get_op()]);
+        uop->set_bp(UnaryOperator::UOPPrecedence[uop->get_op()]);
 
         parse_node(pp->get_generic_ptr());
         break;
@@ -447,7 +447,7 @@ private:
     p->set_lhs(lhs);
 
     /// rhs
-    auto rhs = next_expression(p->get_lbp());
+    auto rhs = next_expression(p->get_bp());
     if (rhs->get_node_type() != ASTNodeType::TY) { error(rhs->get_loc(), "Expect a type"); }
     p->set_rhs(rhs);
   }
@@ -578,7 +578,7 @@ private:
     p->set_lhs(lhs); /// lhs
 
     /// rhs
-    auto rhs = next_expression(p->get_lbp());
+    auto rhs = next_expression(p->get_bp());
     p->set_rhs(expect_expression(rhs));
   }
 
@@ -587,7 +587,7 @@ private:
 
     /// rhs
     _curr.offset_by(1);
-    auto rhs = ast_cast<Expr>(next_expression(p->get_lbp()));
+    auto rhs = ast_cast<Expr>(next_expression(p->get_bp()));
     if (!rhs) {
       error(p->get_loc(), "Invalid operand");
     }

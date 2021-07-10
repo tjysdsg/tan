@@ -2,11 +2,11 @@
 
 using namespace tanlang;
 
-Expr::Expr(ASTNodeType type, SourceIndex loc, int lbp) : ASTBase(type, loc, lbp) {}
+Expr::Expr(ASTNodeType type, SourceIndex loc, int bp) : ASTBase(type, loc, bp) {}
 
 /// \section Literals
 
-Literal::Literal(ASTNodeType type, SourceIndex loc, int lbp) : CompTimeExpr(type, loc, lbp) {}
+Literal::Literal(ASTNodeType type, SourceIndex loc, int bp) : CompTimeExpr(type, loc, bp) {}
 
 IntegerLiteral::IntegerLiteral(SourceIndex loc) : Literal(ASTNodeType::INTEGER_LITERAL, loc, 0) {}
 
@@ -194,9 +194,9 @@ ASTBase *Cast::get_rhs() const { return _rhs; }
 
 void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
 
-BinaryOrUnary::BinaryOrUnary(SourceIndex loc, int lbp) : Expr(ASTNodeType::BOP_OR_UOP, loc, lbp) {}
+BinaryOrUnary::BinaryOrUnary(SourceIndex loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP, loc, bp) {}
 
-BinaryOrUnary *BinaryOrUnary::Create(SourceIndex loc, int lbp) { return new BinaryOrUnary(loc, lbp); }
+BinaryOrUnary *BinaryOrUnary::Create(SourceIndex loc, int bp) { return new BinaryOrUnary(loc, bp); }
 
 BinaryOrUnary::BinaryOrUnaryKind BinaryOrUnary::get_kind() const { return _kind; }
 
@@ -242,4 +242,4 @@ void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type);
 
 bool CompTimeExpr::is_comptime_known() { return true; }
 
-CompTimeExpr::CompTimeExpr(ASTNodeType type, SourceIndex loc, int lbp) : Expr(type, loc, lbp) {}
+CompTimeExpr::CompTimeExpr(ASTNodeType type, SourceIndex loc, int bp) : Expr(type, loc, bp) {}
