@@ -111,7 +111,7 @@ private:
   void no_modifications_on_type_reference() const;
 
 private:
-  Ty _tyty = Ty::INVALID; // FIXME: fix this goddamn name
+  Ty _ty = Ty::INVALID;
   str _type_name = "";
   llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;

@@ -71,7 +71,7 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
     std::function<void(ASTType *)> attribute_setter) {
   // TODO: cache
   auto ret = new ASTType(loc);
-  ret->_tyty = t;
+  ret->_ty = t;
   ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
   ret->_ctx = ctx;
@@ -82,9 +82,9 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
   return ret;
 }
 
-Ty ASTType::get_ty() const { return _tyty; }
+Ty ASTType::get_ty() const { return _ty; }
 
-void ASTType::set_ty(Ty ty) { _tyty = ty; }
+void ASTType::set_ty(Ty ty) { _ty = ty; }
 
 const str &ASTType::get_type_name() const { return must_get_canonical_type()->_type_name; }
 
@@ -205,7 +205,7 @@ void ASTType::set_sub_types(const vector<ASTType *> &sub_types) {
 // FIXME: let the canonical type be observable, instead of looking up a table every time
 ASTType *ASTType::get_canonical_type() const {
   TAN_ASSERT(_ctx);
-  if (_tyty != Ty::TYPE_REF) {
+  if (_ty != Ty::TYPE_REF) {
     return (ASTType *) this;
   }
 
@@ -225,7 +225,7 @@ ASTType *ASTType::must_get_canonical_type() const {
   return type;
 }
 
-void ASTType::no_modifications_on_type_reference() const { TAN_ASSERT(_tyty != Ty::TYPE_REF); }
+void ASTType::no_modifications_on_type_reference() const { TAN_ASSERT(_ty != Ty::TYPE_REF); }
 
 bool ASTType::is_lvalue() const { return _is_lvalue; }
 

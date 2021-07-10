@@ -63,10 +63,9 @@ llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTTyp
   } else if (orig->is_array() && dest->is_array()) {
     // FIXME: casting array of float to/from array of integer is broken
     TAN_ASSERT(false);
-  } else {
-    // TODO: move this outside
-    report_error("Invalid type conversion");
   }
+
+  /// This shouldn't be executed, since type analysis should have already covered all cases
   TAN_ASSERT(false);
   return nullptr;
 }
@@ -382,7 +381,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
   TAN_ASSERT(p->is_resolved());
 
   Ty base = TY_GET_BASE(p->get_ty());
-  // TODO: Ty qual = TY_GET_QUALIFIER(_tyty);
+  // TODO: Ty qual = TY_GET_QUALIFIER(_ty);
   DIType *ret = nullptr;
   switch (base) {
     case Ty::CHAR:
