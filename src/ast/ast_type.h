@@ -49,6 +49,8 @@ public:
 public:
   Ty get_ty() const;
   void set_ty(Ty tyty);
+  ASTType *get_contained_ty() const;
+  ASTType *get_ptr_to() const;
 
   Constructor *get_constructor() const;
   void set_constructor(Constructor *constructor);

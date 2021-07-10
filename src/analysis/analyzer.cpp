@@ -1,6 +1,5 @@
 #include "analyzer.h"
 #include "base.h"
-#include "src/analysis/ast_helper.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/constructor.h"
 #include "src/ast/ast_type.h"
@@ -20,7 +19,7 @@ namespace tanlang {
 
 class AnalyzerImpl {
 public:
-  AnalyzerImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()), _h(ASTHelper(cs)) {}
+  AnalyzerImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()) {}
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
@@ -112,6 +111,10 @@ public:
         break;
     }
   }
+
+private:
+  CompilerSession *_cs = nullptr;
+  SourceManager *_sm = nullptr;
 
 private:
   ASTType *copy_ty(ASTType *p) const { return new ASTType(*p); }
@@ -279,13 +282,13 @@ private:
         break;
       case UnaryOpKind::ADDRESS_OF: {
         auto ty = copy_ty(rhs->get_type());
-        p->set_type(_h.get_ptr_to(ty));
+        p->set_type(ty->get_ptr_to());
         break;
       }
       case UnaryOpKind::PTR_DEREF: {
         auto *ty = rhs->get_type();
         if (!ty->is_ptr()) { report_error(ty, "Expect a pointer type"); }
-        ty = copy_ty(_h.get_contained_ty(ty));
+        ty = copy_ty(ty->get_contained_ty());
         ty->set_is_lvalue(true);
         p->set_type(ty);
         break;
@@ -577,7 +580,7 @@ private:
       analyze(rhs);
       auto ty = lhs->get_type();
       TAN_ASSERT(ty->is_ptr());
-      ty = copy_ty(_h.get_contained_ty(ty));
+      ty = copy_ty(ty->get_contained_ty());
       ty->set_is_lvalue(true);
       p->set_type(ty);
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
@@ -587,7 +590,7 @@ private:
         report_error(p, "Expect a pointer or an array");
       }
 
-      ty = copy_ty(_h.get_contained_ty(ty));
+      ty = copy_ty(ty->get_contained_ty());
       ty->set_is_lvalue(true);
 
       p->set_type(ty);
@@ -616,7 +619,7 @@ private:
         ASTType *struct_ty = nullptr;
         /// auto dereference pointers
         if (lhs->get_type()->is_ptr()) {
-          struct_ty = _h.get_contained_ty(lhs->get_type());
+          struct_ty = lhs->get_type()->get_contained_ty();
         } else {
           struct_ty = lhs->get_type();
         }
@@ -747,11 +750,6 @@ private:
     }
     p->set_parent_loop(loop);
   }
-
-private:
-  CompilerSession *_cs = nullptr;
-  SourceManager *_sm = nullptr;
-  ASTHelper _h;
 };
 
 void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }

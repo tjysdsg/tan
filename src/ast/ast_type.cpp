@@ -237,3 +237,20 @@ void ASTType::set_constructor(Constructor *constructor) {
   no_modifications_on_type_reference();
   _constructor = constructor;
 }
+
+ASTType *ASTType::get_contained_ty() const {
+  if (get_ty() == Ty::STRING) {
+    return ASTType::CreateAndResolve(_cs, get_loc(), Ty::CHAR, {}, false);
+  } else if (is_ptr()) {
+    TAN_ASSERT(get_canonical_type()->_sub_types.size());
+    auto ret = get_canonical_type()->_sub_types[0];
+    TAN_ASSERT(ret);
+    return ret;
+  } else {
+    return nullptr;
+  }
+}
+
+ASTType *ASTType::get_ptr_to() const {
+  return ASTType::CreateAndResolve(_cs, get_loc(), Ty::POINTER, {(ASTType *) this}, false);
+}

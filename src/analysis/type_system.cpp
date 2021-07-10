@@ -1,11 +1,9 @@
 #include "src/analysis/type_system.h"
 #include "src/common.h"
-#include "src/analysis/ast_helper.h"
 #include "src/ast/constructor.h"
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/ast_type.h"
-#include "src/ast/decl.h"
 #include "src/llvm_include.h"
 #include <fmt/core.h>
 
@@ -82,7 +80,6 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
 }
 
 int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
-  ASTHelper h(cs);
   TAN_ASSERT(t1);
   TAN_ASSERT(t2);
   if (*t1 == *t2) { return 0; }
@@ -90,7 +87,7 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
   size_t s2 = t2->get_size_bits();
 
   // TODO: support implicit cast of different pointer types
-  if (t1->is_ptr() && t2->is_ptr() && *h.get_contained_ty(t1) == *h.get_contained_ty(t2)) {
+  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t1->get_contained_ty()) {
     return 0;
   } else if (t1->is_bool()) { return 0; }
   else if (t2->is_bool()) { return 1; }
@@ -112,8 +109,8 @@ int TypeSystem::CanImplicitCast(CompilerSession *cs, ASTType *t1, ASTType *t2) {
     /// array size must be the same
     if (t1->get_array_size() != t2->get_array_size()) { return -1; }
     /// the element type can be implicitly casted as long as the elements have the same size
-    if (h.get_contained_ty(t1)->get_size_bits() != h.get_contained_ty(t2)->get_size_bits()) { return -1; }
-    return CanImplicitCast(cs, h.get_contained_ty(t1), h.get_contained_ty(t2));
+    if (t1->get_contained_ty()->get_size_bits() != t2->get_contained_ty()->get_size_bits()) { return -1; }
+    return CanImplicitCast(cs, t1->get_contained_ty(), t2->get_contained_ty());
   }
   return -1;
 }

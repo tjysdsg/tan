@@ -7,7 +7,6 @@
 #include "src/ast/stmt.h"
 #include "src/ast/decl.h"
 #include "src/ast/intrinsic.h"
-#include "src/analysis/ast_helper.h"
 #include "src/analysis/type_system.h"
 #include "src/common.h"
 #include "src/llvm_include.h"
@@ -19,7 +18,7 @@ class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
 
-  explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()), _h(ASTHelper(cs)) {}
+  explicit CodeGeneratorImpl(CompilerSession *cs) : _cs(cs), _sm(cs->get_source_manager()) {}
 
   Value *codegen(ASTBase *p) {
     if (p->_llvm_value) {
@@ -98,6 +97,10 @@ public:
     p->_llvm_value = ret;
     return ret;
   }
+
+private:
+  CompilerSession *_cs = nullptr;
+  SourceManager *_sm = nullptr;
 
 private:
   Value *codegen_func_call(ASTBase *_p) {
@@ -1045,7 +1048,7 @@ private:
         break;
       }
       case MemberAccess::MemberAccessMemberVariable: {
-        if (lhs->get_type()->is_lvalue() && lhs->get_type()->is_ptr() && _h.get_contained_ty(lhs->get_type())) {
+        if (lhs->get_type()->is_lvalue() && lhs->get_type()->is_ptr() && lhs->get_type()->get_contained_ty()) {
           /// auto dereference pointers
           from = builder->CreateLoad(from);
         }
@@ -1061,6 +1064,7 @@ private:
       case MemberAccess::MemberAccessEnumValue:
         ret = nullptr;
         // TODO: codegen of enum_type.enum_value
+        TAN_ASSERT(false);
         break;
       default:
         TAN_ASSERT(false);
@@ -1088,11 +1092,6 @@ private:
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     tanlang::report_error(_cs->_filename, _sm->get_token(p->get_loc()), message);
   }
-
-private:
-  CompilerSession *_cs = nullptr;
-  SourceManager *_sm = nullptr;
-  ASTHelper _h;
 };
 
 CodeGenerator::CodeGenerator(CompilerSession *cs) { _impl = new CodeGeneratorImpl(cs); }
