@@ -1,6 +1,7 @@
 #include "analyzer.h"
 #include "base.h"
 #include "src/ast/ast_base.h"
+#include "src/ast/ast_builder.h"
 #include "src/ast/constructor.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/expr.h"
@@ -502,11 +503,16 @@ private:
         break;
       }
       case IntrinsicType::GET_DECL: {
-        // FIXME: set the value to the srouce code string
-        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING));
-        if (c->get_node_type() != ASTNodeType::STRING_LITERAL) {
-          report_error(c, "Expect a string argument");
+        TAN_ASSERT(c->get_node_type() == ASTNodeType::FUNC_CALL);
+        auto *func_call = ast_must_cast<FunctionCall>(c);
+        if (func_call->get_n_args() != 1) {
+          report_error(func_call, "Expect the number of args to be 1");
         }
+        auto *target = func_call->get_arg(0);
+        auto *source_str =
+            ASTBuilder::CreateStringLiteral(_ctx, p->get_loc(), _ctx->get_source_manager()->get_source_code(target));
+        p->set_sub(source_str);
+        p->set_type(source_str->get_type());
         break;
       }
       case IntrinsicType::COMP_PRINT: {

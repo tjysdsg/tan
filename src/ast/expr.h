@@ -272,6 +272,8 @@ protected:
 
 public:
   static FunctionCall *Create(SourceIndex loc);
+  size_t get_n_args() const;
+  Expr *get_arg(size_t i) const;
 
 public:
   vector<Expr *> _args{};

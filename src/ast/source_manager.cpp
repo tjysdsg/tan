@@ -1,4 +1,5 @@
 #include "source_manager.h"
+#include "src/ast/ast_base.h"
 #include "token.h"
 
 using namespace tanlang;
@@ -33,3 +34,8 @@ str SourceManager::get_token_str(SourceIndex loc) const {
 Token *SourceManager::get_last_token() const { return _tokens.back(); }
 
 bool SourceManager::is_eof(SourceIndex loc) const { return loc._index >= _tokens.size(); }
+
+str SourceManager::get_source_code(ASTBase *p) const {
+  // TODO: return the string that also covers the child nodes, instead of only p's own token str
+  return get_token_str(p->get_loc());
+}

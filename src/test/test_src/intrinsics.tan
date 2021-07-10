@@ -10,7 +10,9 @@ pub fn main(argc: int, argv: char**) : int {
     print(@file);
 
     assert(@line == 12);
-    // FIXME: var argc_decl: str = @get_decl(argc);
+
+    print("\nSource code of variable argc is:");
+    print(@get_decl(argc));
 
     print("\nPrinting stack trace...");
     stack_trace();

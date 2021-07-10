@@ -159,6 +159,13 @@ FunctionCall *FunctionCall::Create(SourceIndex loc) { return new FunctionCall(lo
 
 FunctionCall::FunctionCall(SourceIndex loc) : Expr(ASTNodeType::FUNC_CALL, loc, PREC_LOWEST) {}
 
+size_t FunctionCall::get_n_args() const { return _args.size(); }
+
+Expr *FunctionCall::get_arg(size_t i) const {
+  TAN_ASSERT(i < _args.size());
+  return _args[i];
+}
+
 /// \section Assignment
 
 Expr *Assignment::get_rhs() const { return _rhs; }
