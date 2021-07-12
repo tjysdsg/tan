@@ -122,7 +122,7 @@ set(ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
 
 # ===== tests and coverage =====
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    add_subdirectory(${PROJECT_SOURCE_DIR}/src/test)
+    add_subdirectory(test)
     enable_tests()
 endif ()
 

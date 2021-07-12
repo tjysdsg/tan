@@ -5,19 +5,19 @@ macro(enable_tests)
     else ()
         set(COVERAGE_CXX_FLAGS "-g -O0 -Wall")
     endif ()
-    set(TEST_DIR ${PROJECT_SOURCE_DIR}/src/test)
+    set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
     # lexer tests
     add_executable(lexer_tests ${TEST_DIR}/lexer_test.cpp)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/src/test)
+            ${PROJECT_SOURCE_DIR}/test)
     target_link_libraries(lexer_tests tan gtest ${DEP_LIBS})
     set_other_options(lexer_tests)
 
     # parser tests
     add_executable(parser_tests ${TEST_DIR}/parser_test.cpp)
     target_include_directories(parser_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/src/test)
+            ${PROJECT_SOURCE_DIR}/test)
     target_link_libraries(parser_tests tan gtest ${DEP_LIBS})
     set_other_options(parser_tests)
 
