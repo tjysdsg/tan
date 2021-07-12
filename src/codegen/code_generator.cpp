@@ -1,5 +1,4 @@
-#include "code_generator.h"
-#include "base.h"
+#include "src/codegen/code_generator.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/constructor.h"
@@ -100,6 +99,10 @@ public:
     }
     p->_llvm_value = ret;
     return ret;
+  }
+
+  static Constant *CodegenIntegerLiteral(CompilerSession *cs, uint64_t val, size_t bit_size, bool is_unsigned = false) {
+    return ConstantInt::get(cs->_builder->getIntNTy((unsigned) bit_size), val, !is_unsigned);
   }
 
 private:
@@ -515,10 +518,10 @@ private:
         ret = ConstantInt::get(type, (uint64_t) pp->get_value());
         break;
       }
-      case Ty::INT:
-      case Ty::ENUM: {
+      case Ty::ENUM:
+      case Ty::INT: {
         auto pp = ast_must_cast<IntegerLiteral>(p);
-        ret = ConstantInt::get(type, pp->get_value(), !pp->is_unsigned());
+        ret = CodegenIntegerLiteral(_cs, pp->get_value(), pp->get_type()->get_size_bits(), pp->is_unsigned());
         break;
       }
       case Ty::STRING:
