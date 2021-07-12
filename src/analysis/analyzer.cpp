@@ -54,6 +54,9 @@ public:
       case ASTNodeType::CHAR_LITERAL:
         analyze_char_literal(p);
         break;
+      case ASTNodeType::BOOL_LITERAL:
+        analyze_bool_literal(p);
+        break;
       case ASTNodeType::INTEGER_LITERAL:
         analyze_integer_literal(p);
         break;
@@ -553,6 +556,11 @@ private:
       tyty = TY_OR(tyty, Ty::UNSIGNED);
     }
     p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), tyty));
+  }
+
+  void analyze_bool_literal(ASTBase *_p) {
+    auto p = ast_must_cast<BoolLiteral>(_p);
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
   }
 
   void analyze_float_literal(ASTBase *_p) {

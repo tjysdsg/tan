@@ -9,6 +9,7 @@ pub fn main(argc: int, argv: char**) : int {
     assert(fp == 0.0);
     var b: bool;
     assert(!b);
+    assert(b == false);
 
     var typed: int = 1;
     var typed_f: float = 1.0;

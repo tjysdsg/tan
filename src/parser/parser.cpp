@@ -87,6 +87,12 @@ private:
       case "as"_hs:
         ret = Cast::Create(_curr);
         break;
+      case "true"_hs:
+        ret = BoolLiteral::Create(_curr, true);
+        break;
+      case "false"_hs:
+        ret = BoolLiteral::Create(_curr, false);
+        break;
       default:
         return nullptr;
     }
@@ -236,6 +242,9 @@ private:
     return left;
   }
 
+  /**
+   * \brief Parse NUD
+   */
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
@@ -322,6 +331,7 @@ private:
       case ASTNodeType::FLOAT_LITERAL:
       case ASTNodeType::CHAR_LITERAL:
       case ASTNodeType::STRING_LITERAL:
+      case ASTNodeType::BOOL_LITERAL:
         _curr.offset_by(1);
         break;
       case ASTNodeType::BOP_OR_UOP: {
@@ -341,6 +351,9 @@ private:
     }
   }
 
+  /**
+   * \brief Parse LED
+   */
   void parse_node(ASTBase *left, ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
