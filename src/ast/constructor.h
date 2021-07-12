@@ -42,6 +42,7 @@ public:
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
+  static BasicConstructor *CreateBoolConstructor(ASTContext *ctx, SourceIndex loc, bool default_val = false);
   static BasicConstructor *CreateFPConstructor(ASTContext *ctx,
       SourceIndex loc,
       double default_val = 0,

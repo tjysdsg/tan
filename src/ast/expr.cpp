@@ -8,6 +8,16 @@ Expr::Expr(ASTNodeType type, SourceIndex loc, int bp) : ASTBase(type, loc, bp) {
 
 Literal::Literal(ASTNodeType type, SourceIndex loc, int bp) : CompTimeExpr(type, loc, bp) {}
 
+BoolLiteral *BoolLiteral::Create(SourceIndex loc, bool val) {
+  auto ret = new BoolLiteral(loc);
+  ret->_value = val;
+  return ret;
+}
+
+bool BoolLiteral::get_value() const { return _value; }
+
+BoolLiteral::BoolLiteral(SourceIndex loc) : Literal(ASTNodeType::BOOL_LITERAL, loc, 0) {}
+
 IntegerLiteral::IntegerLiteral(SourceIndex loc) : Literal(ASTNodeType::INTEGER_LITERAL, loc, 0) {}
 
 IntegerLiteral *IntegerLiteral::Create(SourceIndex loc, uint64_t val, bool is_unsigned) {

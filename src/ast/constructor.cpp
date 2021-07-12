@@ -18,6 +18,10 @@ BasicConstructor *BasicConstructor::CreateIntegerConstructor(ASTContext *ctx,
   return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(ctx, loc, default_val, bit_size, is_unsigned));
 }
 
+BasicConstructor *BasicConstructor::CreateBoolConstructor(ASTContext *ctx, SourceIndex loc, bool default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(ctx, loc, default_val));
+}
+
 BasicConstructor *BasicConstructor::CreateFPConstructor(ASTContext *ctx,
     SourceIndex loc,
     double default_val,
@@ -33,9 +37,7 @@ BasicConstructor *BasicConstructor::CreateCharConstructor(ASTContext *ctx, Sourc
   return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(ctx, loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx,
-    SourceIndex loc,
-    ASTType *element_type) {
+BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type) {
   return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(ctx, loc, element_type));
 }
 

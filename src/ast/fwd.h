@@ -18,6 +18,7 @@ class Decl;
 class Stmt;
 class Expr;
 class Literal;
+class BoolLiteral;
 class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;

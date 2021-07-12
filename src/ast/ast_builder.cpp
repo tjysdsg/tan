@@ -16,6 +16,13 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
   return ret;
 }
 
+BoolLiteral *ASTBuilder::CreateBoolLiteral(ASTContext *ctx, SourceIndex loc, bool val) {
+  auto *ret = BoolLiteral::Create(loc, val);
+  ASTType *ty = ASTType::CreateAndResolve(ctx, loc, Ty::BOOL);
+  ret->set_type(ty);
+  return ret;
+}
+
 FloatLiteral *ASTBuilder::CreateFloatLiteral(ASTContext *ctx, SourceIndex loc, double val, size_t bit_size) {
   auto *ret = FloatLiteral::Create(loc, val);
   if (bit_size == 32) {

@@ -56,6 +56,7 @@ public:
       case ASTNodeType::INTEGER_LITERAL:
       case ASTNodeType::FLOAT_LITERAL:
       case ASTNodeType::CHAR_LITERAL:
+      case ASTNodeType::BOOL_LITERAL:
       case ASTNodeType::STRING_LITERAL:
         ret = codegen_literals(p);
         break;
@@ -461,13 +462,7 @@ private:
     Type *type = TypeSystem::ToLLVMType(_cs, p);
     switch (base) {
       case Ty::ENUM:
-        // TODO:
-        ret = codegen_constructor(p->get_constructor());
-        break;
       case Ty::BOOL:
-        // TODO: ret = codegen_constructor(p->get_constructor());
-        ret = ConstantInt::get(type, 0);
-        break;
       case Ty::INT:
       case Ty::CHAR:
       case Ty::DOUBLE:
@@ -515,8 +510,12 @@ private:
       case Ty::CHAR:
         ret = ConstantInt::get(type, ast_must_cast<CharLiteral>(p)->get_value());
         break;
+      case Ty::BOOL: {
+        auto pp = ast_must_cast<BoolLiteral>(p);
+        ret = ConstantInt::get(type, (uint64_t) pp->get_value());
+        break;
+      }
       case Ty::INT:
-      case Ty::BOOL:
       case Ty::ENUM: {
         auto pp = ast_must_cast<IntegerLiteral>(p);
         ret = ConstantInt::get(type, pp->get_value(), !pp->is_unsigned());

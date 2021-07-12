@@ -281,7 +281,7 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
       p->set_constructor(BasicConstructor::CreateCharConstructor(ctx, p->get_loc()));
       break;
     case Ty::BOOL:
-      // TODO: p->set_constructor()
+      p->set_constructor(BasicConstructor::CreateBoolConstructor(ctx, p->get_loc()));
       break;
     case Ty::FLOAT:
       p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 32));

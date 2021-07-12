@@ -16,6 +16,7 @@ public:
       uint64_t val,
       size_t bit_size,
       bool is_unsigned);
+  static BoolLiteral *CreateBoolLiteral(ASTContext *ctx, SourceIndex loc, bool val);
   static FloatLiteral *CreateFloatLiteral(ASTContext *ctx, SourceIndex loc, double val, size_t bit_size);
   static StringLiteral *CreateStringLiteral(ASTContext *ctx, SourceIndex loc, str val);
   static CharLiteral *CreateCharLiteral(ASTContext *ctx, SourceIndex loc, uint8_t val);

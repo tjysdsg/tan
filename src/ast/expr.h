@@ -35,6 +35,18 @@ protected:
   Literal(ASTNodeType type, SourceIndex loc, int bp);
 };
 
+class BoolLiteral : public Literal {
+protected:
+  BoolLiteral(SourceIndex loc);
+
+public:
+  static BoolLiteral *Create(SourceIndex loc, bool val);
+  bool get_value() const;
+
+private:
+  bool _value = 0;
+};
+
 class IntegerLiteral : public Literal {
 protected:
   IntegerLiteral(SourceIndex loc);
