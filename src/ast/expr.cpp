@@ -87,6 +87,8 @@ Identifier *Identifier::Create(SourceIndex loc, const str &name) {
   return ret;
 }
 
+Decl *Identifier::get_referred() const { return _referred; }
+
 /// \section Binary operators
 
 BinaryOperator::BinaryOperator(BinaryOpKind op, SourceIndex loc) : Expr(ASTNodeType::BOP,

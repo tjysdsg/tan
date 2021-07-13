@@ -111,15 +111,13 @@ public:
   static EnumDecl *Create(SourceIndex loc);
   void set_elements(const vector<Expr *> &elements);
   vector<Expr *> &get_elements();
-  const vector<str> &get_names() const;
-  void set_names(const vector<str> &names);
-  const vector<int64_t> &get_values() const;
-  void set_values(const vector<int64_t> &values);
+  int64_t get_value(const str &name) const;
+  void set_value(const str &name, int64_t value);
+  bool contain_element(const str &name);
 
 private:
   vector<Expr *> _elements{};
-  vector<str> _names{};
-  vector<int64_t> _values{};
+  umap<str, int64_t> _element_values{};
 };
 
 } // namespace tanlang

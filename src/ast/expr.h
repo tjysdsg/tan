@@ -124,6 +124,7 @@ protected:
 
 public:
   static Identifier *Create(SourceIndex loc, const str &name);
+  Decl *get_referred() const;
 
 public:
   Decl *_referred = nullptr;

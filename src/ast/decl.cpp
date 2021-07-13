@@ -193,10 +193,8 @@ void EnumDecl::set_elements(const vector<Expr *> &elements) { _elements = elemen
 
 vector<Expr *> &EnumDecl::get_elements() { return _elements; }
 
-const vector<str> &EnumDecl::get_names() const { return _names; }
+int64_t EnumDecl::get_value(const str &name) const { return _element_values.at(name); }
 
-void EnumDecl::set_names(const vector<str> &names) { _names = names; }
+void EnumDecl::set_value(const str &name, int64_t value) { _element_values[name] = value; }
 
-const vector<int64_t> &EnumDecl::get_values() const { return _values; }
-
-void EnumDecl::set_values(const vector<int64_t> &values) { _values = values; }
+bool EnumDecl::contain_element(const str &name) { return _element_values.end() != _element_values.find(name); }

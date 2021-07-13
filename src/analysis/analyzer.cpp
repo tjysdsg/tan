@@ -134,16 +134,17 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
-    auto referred = _ctx->get(p->get_name());
-    if (!referred) {
-      report_error(p, "Unknown identifier");
+    Decl *declared = nullptr;
+    { /// search through variable declarations or type declarations
+      auto referred = _ctx->get(p->get_name());
+      if (referred) {
+        declared = ast_cast<Decl>(referred);
+      } else {
+        declared = _ctx->get_type_decl(p->get_name());
+      }
     }
 
-    auto declared = ast_cast<Decl>(referred);
-    if (!declared) {
-      report_error(p, "Invalid identifier");
-    }
-
+    if (!declared) { report_error(p, "Unknown identifier"); }
     p->_referred = declared;
     auto ty = copy_ty(declared->get_type());
     ty->set_is_lvalue(true);
@@ -637,11 +638,18 @@ private:
         }
       }
     } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
-      analyze(rhs);
       if (lhs->get_type()->is_enum()) {
-        // TODO: Member access of enums
-        TAN_ASSERT(false);
+        p->_access_type = MemberAccess::MemberAccessEnumValue;
+        p->set_type(lhs->get_type());
+
+        auto *enum_decl = ast_must_cast<EnumDecl>(ast_must_cast<Identifier>(lhs)->get_referred());
+
+        /// enum element
+        if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
+        str name = ast_must_cast<Identifier>(rhs)->get_name();
+        if (!enum_decl->contain_element(name)) { report_error(rhs, "Unknown enum element"); }
       } else {
+        analyze(rhs);
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
         if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
           report_error(p, "Invalid left-hand operand");
@@ -775,13 +783,9 @@ private:
     /// get element names and types
     int64_t val = 0;
     size_t i = 0;
-    size_t n = p->get_elements().size();
-    vector<str> names(n);
-    vector<int64_t> values(n);
     for (const auto &e : p->get_elements()) {
       if (e->get_node_type() == ASTNodeType::ID) {
-        names[i] = ast_must_cast<Identifier>(e)->get_name();
-        values[i] = val;
+        p->set_value(ast_must_cast<Identifier>(e)->get_name(), val);
       } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
         auto *assignment = ast_must_cast<Assignment>(e);
         auto *_lhs = assignment->get_lhs();
@@ -794,14 +798,12 @@ private:
         auto *rhs = ast_cast<IntegerLiteral>(_rhs);
         TAN_ASSERT(rhs);
 
-        names[i] = lhs->get_name();
-        values[i] = val = rhs->get_value();
+        val = rhs->get_value();
+        p->set_value(lhs->get_name(), val);
       }
       ++val;
       ++i;
     }
-    p->set_names(names);
-    p->set_values(values);
   }
 };
 
