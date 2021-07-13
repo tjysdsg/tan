@@ -2,19 +2,24 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 import "runtime/math.tan";
 
-// TODO
-
-// enum E {
-//     e1,
-//     e2,
-//     e3,
-// }
+enum E {
+    e1, // 0
+    e2 = 2,
+    e3, // 3
+}
 
 pub fn main(argc: int, argv: char**) : int {
-    // var enum1 = E.e1;
-    // // var enum2: E = 0; // this should raise compile error
-    // var enum2: E = 0 as E; // but this should work
-    // assert(enum1 == enum2);
-    // print("SUCCESS");
-    // return 0;
+    var enum1 = E.e1;
+    assert(enum1 == 0 as E);
+    // var enum2: E = 0; // this should raise compile error
+    var enum2: E = 0 as E; // but this should work
+    assert(enum1 == enum2);
+
+    var enum3 = E.e2;
+    var enum4 = 2 as E;
+    assert(enum3 == enum4);
+    assert(E.e3 == 3 as E);
+
+    print("SUCCESS");
+    return 0;
 }

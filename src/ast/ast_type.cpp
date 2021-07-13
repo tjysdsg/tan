@@ -86,12 +86,9 @@ Ty ASTType::get_ty() const { return _ty; }
 
 void ASTType::set_ty(Ty ty) { _ty = ty; }
 
-const str &ASTType::get_type_name() const { return must_get_canonical_type()->_type_name; }
+const str &ASTType::get_type_name() const { return _type_name; }
 
-void ASTType::set_type_name(const str &type_name) {
-  no_modifications_on_type_reference();
-  must_get_canonical_type()->_type_name = type_name;
-}
+void ASTType::set_type_name(const str &type_name) { _type_name = type_name; }
 
 Type *ASTType::get_llvm_type() const { return must_get_canonical_type()->_llvm_type; }
 

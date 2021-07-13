@@ -195,15 +195,17 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_signed);
       break;
     case Ty::ENUM: {
-      auto sub = p->get_sub_types()[0];
-      TAN_ASSERT(sub);
+      /// underlying type is i32
+      auto sub = ASTType::CreateAndResolve(ctx, p->get_loc(), TY_OR(Ty::INT, Ty::BIT32));
+      p->set_sub_types({sub});
       p->set_size_bits(sub->get_size_bits());
       p->set_align_bits(sub->get_align_bits());
       p->set_dwarf_encoding(sub->get_dwarf_encoding());
       p->set_is_unsigned(sub->is_unsigned());
       p->set_is_int(sub->is_int());
       p->set_is_enum(true);
-      /// _type_name, however, is set by ASTEnum::nud
+      /// _type_name, however, is set during analysis
+      TAN_ASSERT(p->get_type_name() != "");
       break;
     }
     case Ty::STRUCT: {
@@ -292,10 +294,10 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
     case Ty::STRING:
       p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
       break;
-    case Ty::ENUM: {
-      // TODO: p->set_constructor()
+    case Ty::ENUM:
+      // TODO: default value 0?
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
       break;
-    }
     case Ty::STRUCT:
       // TODO: p->set_constructor()
       break;

@@ -124,9 +124,10 @@ protected:
 
 public:
   static Identifier *Create(SourceIndex loc, const str &name);
+  ASTBase *get_referred() const;
 
 public:
-  Decl *_referred = nullptr;
+  ASTBase *_referred = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
@@ -194,8 +195,6 @@ public:
     MemberAccessBracket,
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
-    // TODO: remove this
-    MemberAccessDeref,
     MemberAccessEnumValue,
   } _access_type = MemberAccessInvalid;
   size_t _access_idx = (size_t) -1; /// struct member variable index

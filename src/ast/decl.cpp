@@ -184,3 +184,17 @@ vector<ASTBase *> StructDecl::get_children() const {
   std::for_each(_member_decls.begin(), _member_decls.end(), [&](Expr *e) { ret.push_back(e); });
   return ret;
 }
+
+EnumDecl::EnumDecl(SourceIndex loc) : Decl(ASTNodeType::ENUM_DECL, loc, 0) {}
+
+EnumDecl *EnumDecl::Create(SourceIndex loc) { return new EnumDecl(loc); }
+
+void EnumDecl::set_elements(const vector<Expr *> &elements) { _elements = elements; }
+
+vector<Expr *> &EnumDecl::get_elements() { return _elements; }
+
+int64_t EnumDecl::get_value(const str &name) const { return _element_values.at(name); }
+
+void EnumDecl::set_value(const str &name, int64_t value) { _element_values[name] = value; }
+
+bool EnumDecl::contain_element(const str &name) { return _element_values.end() != _element_values.find(name); }

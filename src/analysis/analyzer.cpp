@@ -85,7 +85,7 @@ public:
         resolve_ty(ast_must_cast<ASTType>(p));
         break;
       case ASTNodeType::ENUM_DECL:
-        // TODO: Analysis of enum types and values
+        analyze_enum_decl(p);
         break;
       case ASTNodeType::FUNC_DECL:
         analyze_func_decl(p);
@@ -133,20 +133,21 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
-    auto referred = _ctx->get(p->get_name());
-    if (!referred) {
+    auto *referred = _ctx->get(p->get_name());
+    if (referred) { /// refers to a variable
+      auto *declared = ast_cast<Decl>(referred);
+      if (!declared) { report_error(p, "Invalid identifier"); }
+      p->_referred = declared;
+      p->set_type(copy_ty(declared->get_type()));
+    } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
+      auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::TYPE_REF, {}, false, [&](ASTType *t) {
+        t->set_type_name(p->get_name());
+      });
+      p->_referred = ty;
+      p->set_type(ty);
+    } else {
       report_error(p, "Unknown identifier");
     }
-
-    auto declared = ast_cast<Decl>(referred);
-    if (!declared) {
-      report_error(p, "Invalid identifier");
-    }
-
-    p->_referred = declared;
-    auto ty = copy_ty(declared->get_type());
-    ty->set_is_lvalue(true);
-    p->set_type(ty);
   }
 
   void analyze_parenthesis(ASTBase *_p) {
@@ -319,10 +320,8 @@ private:
     ASTType *ty = nullptr;
     switch (rhs->get_node_type()) {
       case ASTNodeType::ID:
-        ty = _ctx->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
-        if (!ty) {
-          report_error(rhs, "Unknown type");
-        }
+        ty = ast_must_cast<Identifier>(rhs)->get_type();
+        if (!ty) { report_error(rhs, "Unknown type"); }
         break;
       case ASTNodeType::TY:
         ty = ast_must_cast<ASTType>(rhs);
@@ -585,18 +584,33 @@ private:
     p->set_type(ty);
   }
 
+  // TODO: delegate to the analysis to lhs
   void analyze_member_access(MemberAccess *p) {
     Expr *lhs = p->get_lhs();
     analyze(lhs);
     Expr *rhs = p->get_rhs();
 
-    if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
+    if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
+      p->_access_type = MemberAccess::MemberAccessMemberFunction;
+
+      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+        report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
+      }
+      auto func_call = ast_cast<FunctionCall>(rhs);
+      if (!func_call) { report_error(rhs, "Expect a function call"); }
+
+      /// get address of the struct instance
+      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
+        analyze(tmp);
+        func_call->_args.insert(func_call->_args.begin(), tmp);
+      } else {
+        func_call->_args.insert(func_call->_args.begin(), lhs);
+      }
+
+      /// postpone analysis of FUNC_CALL until now
       analyze(rhs);
-      auto ty = lhs->get_type();
-      TAN_ASSERT(ty->is_ptr());
-      ty = copy_ty(ty->get_contained_ty());
-      ty->set_is_lvalue(true);
-      p->set_type(ty);
+      p->set_type(copy_ty(rhs->get_type()));
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze(rhs);
       auto ty = lhs->get_type();
@@ -619,11 +633,19 @@ private:
         }
       }
     } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
-      analyze(rhs);
       if (lhs->get_type()->is_enum()) {
-        // TODO: Member access of enums
-        TAN_ASSERT(false);
+        p->_access_type = MemberAccess::MemberAccessEnumValue;
+        p->set_type(lhs->get_type());
+
+        str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
+        auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
+
+        /// enum element
+        if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
+        str name = ast_must_cast<Identifier>(rhs)->get_name();
+        if (!enum_decl->contain_element(name)) { report_error(rhs, "Unknown enum element"); }
       } else {
+        analyze(rhs);
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
         if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
           report_error(p, "Invalid left-hand operand");
@@ -648,27 +670,6 @@ private:
         ty->set_is_lvalue(true);
         p->set_type(ty);
       }
-    } else if (p->_access_type == MemberAccess::MemberAccessMemberFunction) { /// method call
-      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
-      }
-      auto func_call = ast_cast<FunctionCall>(rhs);
-      if (!func_call) {
-        report_error(rhs, "Expect a function call");
-      }
-
-      /// get address of the struct instance
-      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
-        analyze(tmp);
-        func_call->_args.insert(func_call->_args.begin(), tmp);
-      } else {
-        func_call->_args.insert(func_call->_args.begin(), lhs);
-      }
-
-      /// postpone analysis of FUNC_CALL until now
-      analyze(rhs);
-      p->set_type(copy_ty(rhs->get_type()));
     } else {
       report_error(p, "Invalid right-hand operand");
     }
@@ -763,6 +764,43 @@ private:
       report_error(p, "Break or continue must be inside a loop");
     }
     p->set_parent_loop(loop);
+  }
+
+  void analyze_enum_decl(ASTBase *_p) {
+    EnumDecl *p = ast_must_cast<EnumDecl>(_p);
+
+    /// add the enum type to context
+    auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
+      t->set_type_name(p->get_name());
+    });
+    TypeSystem::SetDefaultConstructor(_ctx, ty);
+    p->set_type(ty);
+    _ctx->add_type_decl(p->get_name(), p);
+
+    /// get element names and types
+    int64_t val = 0;
+    size_t i = 0;
+    for (const auto &e : p->get_elements()) {
+      if (e->get_node_type() == ASTNodeType::ID) {
+        p->set_value(ast_must_cast<Identifier>(e)->get_name(), val);
+      } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
+        auto *assignment = ast_must_cast<Assignment>(e);
+        auto *_lhs = assignment->get_lhs();
+        auto *_rhs = assignment->get_rhs();
+
+        auto *lhs = ast_cast<ASTNamed>(_lhs);
+        if (!lhs) { report_error(_lhs, "Expect a name"); }
+
+        if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { report_error(_rhs, "Expect an integer literal"); }
+        auto *rhs = ast_cast<IntegerLiteral>(_rhs);
+        TAN_ASSERT(rhs);
+
+        val = rhs->get_value();
+        p->set_value(lhs->get_name(), val);
+      }
+      ++val;
+      ++i;
+    }
   }
 };
 
