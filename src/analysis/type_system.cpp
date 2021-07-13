@@ -294,10 +294,10 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
     case Ty::STRING:
       p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
       break;
-    case Ty::ENUM: {
-      // TODO: p->set_constructor()
+    case Ty::ENUM:
+      // TODO: default value 0?
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
       break;
-    }
     case Ty::STRUCT:
       // TODO: p->set_constructor()
       break;

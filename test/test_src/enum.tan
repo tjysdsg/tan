@@ -9,7 +9,8 @@ enum E {
 }
 
 pub fn main(argc: int, argv: char**) : int {
-    // var enum1 = E.e1;
+    var enum1 = E.e1;
+    assert(enum1 == 0 as E);
     // // var enum2: E = 0; // this should raise compile error
     // var enum2: E = 0 as E; // but this should work
     // assert(enum1 == enum2);

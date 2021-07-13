@@ -147,7 +147,6 @@ private:
     if (!declared) { report_error(p, "Unknown identifier"); }
     p->_referred = declared;
     auto ty = copy_ty(declared->get_type());
-    ty->set_is_lvalue(true);
     p->set_type(ty);
   }
 
@@ -315,8 +314,6 @@ private:
   void analyze_cast(Cast *p) {
     Expr *lhs = p->get_lhs();
     ASTBase *rhs = p->get_rhs();
-    if (rhs->get_node_type() != ASTNodeType::TY) { report_error(rhs, "Expect a type"); }
-
     analyze(lhs);
     analyze(rhs);
 

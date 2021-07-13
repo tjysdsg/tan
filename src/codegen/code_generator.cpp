@@ -1058,11 +1058,14 @@ private:
       case MemberAccess::MemberAccessMemberFunction:
         ret = codegen(rhs);
         break;
-      case MemberAccess::MemberAccessEnumValue:
-        ret = nullptr;
-        // TODO: codegen of enum_type.enum_value
-        TAN_ASSERT(false);
+      case MemberAccess::MemberAccessEnumValue: {
+        auto *enum_decl = ast_must_cast<EnumDecl>(ast_must_cast<Identifier>(lhs)->get_referred());
+        str element_name = ast_must_cast<Identifier>(rhs)->get_name();
+        int64_t val = enum_decl->get_value(element_name);
+
+        ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
         break;
+      }
       default:
         TAN_ASSERT(false);
     }
