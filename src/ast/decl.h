@@ -103,6 +103,19 @@ private:
   bool _is_forward_decl = false;
 };
 
+class EnumDecl : public Decl {
+protected:
+  EnumDecl(SourceIndex loc);
+
+public:
+  static EnumDecl *Create(SourceIndex loc);
+  void set_elements(const vector<Expr *> &elements);
+
+private:
+  vector<Expr *> _elements{};
+  vector<int64_t> _values{};
+};
+
 } // namespace tanlang
 
 #endif

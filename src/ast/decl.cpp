@@ -184,3 +184,9 @@ vector<ASTBase *> StructDecl::get_children() const {
   std::for_each(_member_decls.begin(), _member_decls.end(), [&](Expr *e) { ret.push_back(e); });
   return ret;
 }
+
+EnumDecl::EnumDecl(SourceIndex loc) : Decl(ASTNodeType::ENUM_DECL, loc, 0) {}
+
+EnumDecl *EnumDecl::Create(SourceIndex loc) { return new EnumDecl(loc); }
+
+void EnumDecl::set_elements(const vector<Expr *> &elements) { _elements = elements; }

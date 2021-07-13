@@ -53,8 +53,7 @@ private:
         ret = VarDecl::Create(_curr);
         break;
       case "enum"_hs:
-        // TODO: implement enum
-        TAN_ASSERT(false);
+        ret = EnumDecl::Create(_curr);
         break;
       case "fn"_hs:
       case "pub"_hs:
@@ -321,8 +320,7 @@ private:
         parse_func_decl(p);
         break;
       case ASTNodeType::ENUM_DECL:
-        // parse_enum_decl(p);
-        TAN_ASSERT(false);
+        parse_enum_decl(p);
         break;
       case ASTNodeType::BREAK:
       case ASTNodeType::CONTINUE:
@@ -983,6 +981,44 @@ private:
     ASTType *ty = ASTType::Create(_cs, _curr);
     parse_node(ty);
     p->set_type(ty);
+  }
+
+  void parse_enum_decl(ASTBase *_p) {
+    EnumDecl *p = ast_must_cast<EnumDecl>(_p);
+
+    /// skip enum
+    _curr.offset_by(1);
+
+    /// enum class name
+    auto _id = peek();
+    if (_id->get_node_type() != ASTNodeType::ID) { error(_curr, "Expect an identifier"); }
+    parse_node(_id);
+    auto id = ast_must_cast<Identifier>(_id);
+    p->set_name(id->get_name());
+
+    /// body
+    if (at(_curr)->get_value() == "{") {
+      auto _comp_stmt = next_expression(PREC_LOWEST);
+      if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
+        error(_curr, "struct definition requires a valid body");
+      }
+      auto comp_stmt = ast_must_cast<CompoundStmt>(_comp_stmt);
+
+      /// copy member declarations
+      auto children = comp_stmt->get_children();
+      vector<Expr *> elements{};
+      elements.reserve(children.size());
+      for (const auto &c : children) {
+        if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::ASSIGN, ASTNodeType::ID})) {
+          error(c->get_loc(), "Invalid enum elements");
+        }
+        elements.push_back(ast_must_cast<Expr>(c));
+      }
+      p->set_elements(elements);
+    } else {
+      // TODO: extract logic of forward declaration
+      TAN_ASSERT(false);
+    }
   }
 
 private:
