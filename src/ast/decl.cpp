@@ -190,3 +190,13 @@ EnumDecl::EnumDecl(SourceIndex loc) : Decl(ASTNodeType::ENUM_DECL, loc, 0) {}
 EnumDecl *EnumDecl::Create(SourceIndex loc) { return new EnumDecl(loc); }
 
 void EnumDecl::set_elements(const vector<Expr *> &elements) { _elements = elements; }
+
+vector<Expr *> &EnumDecl::get_elements() { return _elements; }
+
+const vector<str> &EnumDecl::get_names() const { return _names; }
+
+void EnumDecl::set_names(const vector<str> &names) { _names = names; }
+
+const vector<int64_t> &EnumDecl::get_values() const { return _values; }
+
+void EnumDecl::set_values(const vector<int64_t> &values) { _values = values; }

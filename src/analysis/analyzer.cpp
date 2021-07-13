@@ -85,7 +85,7 @@ public:
         resolve_ty(ast_must_cast<ASTType>(p));
         break;
       case ASTNodeType::ENUM_DECL:
-        // TODO: Analysis of enum types and values
+        analyze_enum_decl(p);
         break;
       case ASTNodeType::FUNC_DECL:
         analyze_func_decl(p);
@@ -763,6 +763,37 @@ private:
       report_error(p, "Break or continue must be inside a loop");
     }
     p->set_parent_loop(loop);
+  }
+
+  void analyze_enum_decl(ASTBase *_p) {
+    EnumDecl *p = ast_must_cast<EnumDecl>(_p);
+
+    int64_t val = 0;
+    size_t i = 0;
+    size_t n = p->get_elements().size();
+    vector<str> names(n);
+    vector<int64_t> values(n);
+    for (const auto &e : p->get_elements()) {
+      if (e->get_node_type() == ASTNodeType::ID) {
+        names[i] = ast_must_cast<Identifier>(e)->get_name();
+        values[i] = val;
+      } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
+        auto *assignment = ast_must_cast<Assignment>(e);
+        auto *_lhs = assignment->get_lhs();
+        auto *_rhs = assignment->get_rhs();
+
+        auto *lhs = ast_cast<ASTNamed>(_lhs);
+        if (!lhs) { report_error(_lhs, "Expect a name"); }
+        auto *rhs = ast_cast<IntegerLiteral>(_lhs);
+        if (!rhs) { report_error(_rhs, "Expect an integer literal"); }
+        names[i] = lhs->get_name();
+        values[i] = rhs->get_value();
+      }
+      ++val;
+      ++i;
+    }
+    p->set_names(names);
+    p->set_values(values);
   }
 };
 
