@@ -323,10 +323,8 @@ private:
     ASTType *ty = nullptr;
     switch (rhs->get_node_type()) {
       case ASTNodeType::ID:
-        ty = _ctx->get_type_decl(ast_must_cast<Identifier>(rhs)->get_name())->get_type();
-        if (!ty) {
-          report_error(rhs, "Unknown type");
-        }
+        ty = ast_must_cast<Identifier>(rhs)->get_referred()->get_type();
+        if (!ty) { report_error(rhs, "Unknown type"); }
         break;
       case ASTNodeType::TY:
         ty = ast_must_cast<ASTType>(rhs);
