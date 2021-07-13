@@ -15,6 +15,7 @@
 #include "src/common.h"
 #include <iostream>
 #include <fmt/core.h>
+#include <functional>
 
 namespace tanlang {
 
@@ -771,7 +772,10 @@ private:
     EnumDecl *p = ast_must_cast<EnumDecl>(_p);
 
     /// add the enum type to context
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), TY_OR(Ty::INT, Ty::BIT32)));
+    auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
+      t->set_type_name(p->get_name());
+    });
+    p->set_type(ty);
     _ctx->add_type_decl(p->get_name(), p);
 
     /// get element names and types
