@@ -313,6 +313,8 @@ private:
   void analyze_cast(Cast *p) {
     Expr *lhs = p->get_lhs();
     ASTBase *rhs = p->get_rhs();
+    if (rhs->get_node_type() != ASTNodeType::TY) { report_error(rhs, "Expect a type"); }
+
     analyze(lhs);
     analyze(rhs);
 
@@ -784,10 +786,13 @@ private:
 
         auto *lhs = ast_cast<ASTNamed>(_lhs);
         if (!lhs) { report_error(_lhs, "Expect a name"); }
-        auto *rhs = ast_cast<IntegerLiteral>(_lhs);
-        if (!rhs) { report_error(_rhs, "Expect an integer literal"); }
+
+        if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { report_error(_rhs, "Expect an integer literal"); }
+        auto *rhs = ast_cast<IntegerLiteral>(_rhs);
+        TAN_ASSERT(rhs);
+
         names[i] = lhs->get_name();
-        values[i] = rhs->get_value();
+        values[i] = val = rhs->get_value();
       }
       ++val;
       ++i;

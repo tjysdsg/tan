@@ -459,7 +459,6 @@ private:
 
     /// rhs
     auto rhs = next_expression(p->get_bp());
-    if (rhs->get_node_type() != ASTNodeType::TY) { error(rhs->get_loc(), "Expect a type"); }
     p->set_rhs(rhs);
   }
 
