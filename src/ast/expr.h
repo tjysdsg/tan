@@ -194,8 +194,6 @@ public:
     MemberAccessBracket,
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
-    // TODO: remove this
-    MemberAccessDeref,
     MemberAccessEnumValue,
   } _access_type = MemberAccessInvalid;
   size_t _access_idx = (size_t) -1; /// struct member variable index

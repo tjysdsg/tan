@@ -776,20 +776,6 @@ private:
 
     if (p->_access_type == MemberAccess::MemberAccessBracket) { /// bracket access
       _curr.offset_by(1); /// skip ]
-    } else if (p->_access_type != MemberAccess::MemberAccessBracket
-        && at(right->get_loc())->get_value() == "*") { /// pointer dereference
-      p->_access_type = MemberAccess::MemberAccessDeref;
-      _curr.offset_by(1); // skip *
-    } else if (right->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
-      p->_access_type = MemberAccess::MemberAccessMemberFunction;
-    }
-
-    if (!(p->_access_type == MemberAccess::MemberAccessBracket
-        || p->_access_type == MemberAccess::MemberAccessMemberFunction
-        || p->_access_type == MemberAccess::MemberAccessDeref /// pointer dereference
-        || right->get_node_type() == ASTNodeType::ID /// member variable or enum
-    )) {
-      error(right->get_loc(), "Invalid right-hand operand");
     }
   }
 

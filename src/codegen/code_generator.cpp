@@ -1055,9 +1055,6 @@ private:
         ret = builder->CreateStructGEP(from, (unsigned) p->_access_idx, "member_variable");
         break;
       }
-      case MemberAccess::MemberAccessDeref:
-        ret = builder->CreateLoad(from);
-        break;
       case MemberAccess::MemberAccessMemberFunction:
         ret = codegen(rhs);
         break;

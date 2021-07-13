@@ -588,18 +588,33 @@ private:
     p->set_type(ty);
   }
 
+  // TODO: delegate to the analysis to lhs
   void analyze_member_access(MemberAccess *p) {
     Expr *lhs = p->get_lhs();
     analyze(lhs);
     Expr *rhs = p->get_rhs();
 
-    if (p->_access_type == MemberAccess::MemberAccessDeref) { /// pointer dereference
+    if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
+      p->_access_type = MemberAccess::MemberAccessMemberFunction;
+
+      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+        report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
+      }
+      auto func_call = ast_cast<FunctionCall>(rhs);
+      if (!func_call) { report_error(rhs, "Expect a function call"); }
+
+      /// get address of the struct instance
+      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
+        analyze(tmp);
+        func_call->_args.insert(func_call->_args.begin(), tmp);
+      } else {
+        func_call->_args.insert(func_call->_args.begin(), lhs);
+      }
+
+      /// postpone analysis of FUNC_CALL until now
       analyze(rhs);
-      auto ty = lhs->get_type();
-      TAN_ASSERT(ty->is_ptr());
-      ty = copy_ty(ty->get_contained_ty());
-      ty->set_is_lvalue(true);
-      p->set_type(ty);
+      p->set_type(copy_ty(rhs->get_type()));
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze(rhs);
       auto ty = lhs->get_type();
@@ -651,27 +666,6 @@ private:
         ty->set_is_lvalue(true);
         p->set_type(ty);
       }
-    } else if (p->_access_type == MemberAccess::MemberAccessMemberFunction) { /// method call
-      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
-      }
-      auto func_call = ast_cast<FunctionCall>(rhs);
-      if (!func_call) {
-        report_error(rhs, "Expect a function call");
-      }
-
-      /// get address of the struct instance
-      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
-        analyze(tmp);
-        func_call->_args.insert(func_call->_args.begin(), tmp);
-      } else {
-        func_call->_args.insert(func_call->_args.begin(), lhs);
-      }
-
-      /// postpone analysis of FUNC_CALL until now
-      analyze(rhs);
-      p->set_type(copy_ty(rhs->get_type()));
     } else {
       report_error(p, "Invalid right-hand operand");
     }
