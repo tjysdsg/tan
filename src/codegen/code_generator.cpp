@@ -1,6 +1,7 @@
 #include "src/codegen/code_generator.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_type.h"
+#include "src/ast/ast_context.h"
 #include "src/ast/constructor.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
@@ -1059,7 +1060,8 @@ private:
         ret = codegen(rhs);
         break;
       case MemberAccess::MemberAccessEnumValue: {
-        auto *enum_decl = ast_must_cast<EnumDecl>(ast_must_cast<Identifier>(lhs)->get_referred());
+        str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
+        auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
         str element_name = ast_must_cast<Identifier>(rhs)->get_name();
         int64_t val = enum_decl->get_value(element_name);
 

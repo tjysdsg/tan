@@ -134,20 +134,22 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
-    Decl *declared = nullptr;
-    { /// search through variable declarations or type declarations
-      auto referred = _ctx->get(p->get_name());
-      if (referred) {
-        declared = ast_cast<Decl>(referred);
-      } else {
-        declared = _ctx->get_type_decl(p->get_name());
-      }
+    auto *referred = _ctx->get(p->get_name());
+    if (referred) { /// refers to a variable
+      auto *declared = ast_cast<Decl>(referred);
+      if (!declared) { report_error(p, "Invalid identifier"); }
+      p->_referred = declared;
+      p->set_type(copy_ty(declared->get_type()));
+    } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
+      auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::TYPE_REF, {}, false, [&](ASTType *t) {
+        t->set_type_name(p->get_name());
+      });
+      p->_referred = ty;
+      p->set_type(ty);
+    } else {
+      report_error(p, "Unknown identifier");
     }
 
-    if (!declared) { report_error(p, "Unknown identifier"); }
-    p->_referred = declared;
-    auto ty = copy_ty(declared->get_type());
-    p->set_type(ty);
   }
 
   void analyze_parenthesis(ASTBase *_p) {
@@ -320,7 +322,7 @@ private:
     ASTType *ty = nullptr;
     switch (rhs->get_node_type()) {
       case ASTNodeType::ID:
-        ty = ast_must_cast<Identifier>(rhs)->get_referred()->get_type();
+        ty = ast_must_cast<Identifier>(rhs)->get_type();
         if (!ty) { report_error(rhs, "Unknown type"); }
         break;
       case ASTNodeType::TY:
@@ -637,7 +639,8 @@ private:
         p->_access_type = MemberAccess::MemberAccessEnumValue;
         p->set_type(lhs->get_type());
 
-        auto *enum_decl = ast_must_cast<EnumDecl>(ast_must_cast<Identifier>(lhs)->get_referred());
+        str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
+        auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
 
         /// enum element
         if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
@@ -772,6 +775,7 @@ private:
     auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
       t->set_type_name(p->get_name());
     });
+    TypeSystem::SetDefaultConstructor(_ctx, ty);
     p->set_type(ty);
     _ctx->add_type_decl(p->get_name(), p);
 

@@ -124,10 +124,10 @@ protected:
 
 public:
   static Identifier *Create(SourceIndex loc, const str &name);
-  Decl *get_referred() const;
+  ASTBase *get_referred() const;
 
 public:
-  Decl *_referred = nullptr;
+  ASTBase *_referred = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence

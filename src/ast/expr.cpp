@@ -87,7 +87,7 @@ Identifier *Identifier::Create(SourceIndex loc, const str &name) {
   return ret;
 }
 
-Decl *Identifier::get_referred() const { return _referred; }
+ASTBase *Identifier::get_referred() const { return _referred; }
 
 /// \section Binary operators
 
