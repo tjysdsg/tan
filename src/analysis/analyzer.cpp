@@ -770,6 +770,11 @@ private:
   void analyze_enum_decl(ASTBase *_p) {
     EnumDecl *p = ast_must_cast<EnumDecl>(_p);
 
+    /// add the enum type to context
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), TY_OR(Ty::INT, Ty::BIT32)));
+    _ctx->add_type_decl(p->get_name(), p);
+
+    /// get element names and types
     int64_t val = 0;
     size_t i = 0;
     size_t n = p->get_elements().size();
