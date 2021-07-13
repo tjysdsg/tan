@@ -15,7 +15,6 @@
 #include "src/common.h"
 #include <iostream>
 #include <fmt/core.h>
-#include <functional>
 
 namespace tanlang {
 
@@ -149,7 +148,6 @@ private:
     } else {
       report_error(p, "Unknown identifier");
     }
-
   }
 
   void analyze_parenthesis(ASTBase *_p) {
