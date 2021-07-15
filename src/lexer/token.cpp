@@ -67,7 +67,7 @@ Token::Token(TokenType tokenType, size_t line, size_t col, str value, str source
   _type = tokenType;
   _value = std::move(value);
   _loc = new SourceLoc(line, col);
-  source_line = source_line;
+  _source_line = source_line;
 }
 
 TokenType Token::get_type() const { return _type; }
