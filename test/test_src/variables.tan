@@ -40,6 +40,18 @@ pub fn main(argc: int, argv: char**) : int {
     assert(c == 2.0);
     assert(d == 2.0);
 
+    /// scope and shadowing tests
+    var var1 = 100;
+    var var2 = 200;
+    {
+        var var1 = 999;
+        var var2 = 888;
+        assert(var1 == 999);
+        assert(var2 == 888);
+    }
+    assert(var1 == 100);
+    assert(var2 == 200);
+
     print("SUCCESS\n");
     return 0;
 }
