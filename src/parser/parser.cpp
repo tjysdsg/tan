@@ -187,7 +187,7 @@ private:
       /// BOP or UOP? ambiguous
       node = BinaryOrUnary::Create(_curr, PREC_LOWEST);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
-      node = CompoundStmt::Create(_curr);
+      node = CompoundStmt::Create(_curr, true);
     } else if (token->get_type() == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
       switch (hashed_string{token->get_value().c_str()}) {
         case "/"_hs:

@@ -8,7 +8,11 @@ Stmt::Stmt(ASTNodeType type, SourceIndex loc) : ASTBase(type, loc, PREC_LOWEST) 
 
 /// \section Compound statement
 
-CompoundStmt *CompoundStmt::Create(SourceIndex loc) { return new CompoundStmt(loc); }
+CompoundStmt *CompoundStmt::Create(SourceIndex loc, bool new_scope) {
+  auto *ret = new CompoundStmt(loc);
+  ret->_new_scope = new_scope;
+  return ret;
+}
 
 CompoundStmt::CompoundStmt(SourceIndex loc) : Stmt(ASTNodeType::STATEMENT, loc) {}
 
@@ -37,6 +41,8 @@ template<> ASTBase *CompoundStmt::get_child_at<ASTBase>(size_t idx) const {
 }
 
 vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
+
+bool CompoundStmt::is_new_scope() const { return _new_scope; }
 
 /// \section Program
 

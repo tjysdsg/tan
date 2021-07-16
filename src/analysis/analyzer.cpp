@@ -206,9 +206,14 @@ private:
 
   void analyze_stmt(ASTBase *_p) {
     auto p = ast_must_cast<CompoundStmt>(_p);
+
+    if (p->is_new_scope()) { _ctx->push_scope(); }
+
     for (const auto &c: p->get_children()) {
       analyze(c);
     }
+
+    if (p->is_new_scope()) { _ctx->pop_scope(); }
   }
 
   void analyze_bop_or_uop(ASTBase *_p) {
