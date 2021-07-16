@@ -56,25 +56,7 @@ Scope *ASTContext::pop_scope() {
   return r;
 }
 
-void ASTContext::add(const str &name, ASTBase *value) {
-  get_current_scope()->_named[name] = value;
-}
-
-void ASTContext::set(const str &name, ASTBase *value) {
-  auto scope = _scope.end();
-  bool found = false;
-  --scope;
-  while (scope >= _scope.begin()) {
-    auto search = (*scope)->_named.find(name);
-    if (search != (*scope)->_named.end()) {
-      found = true;
-      break;
-    }
-    --scope;
-  }
-  if (found) { (*scope)->_named[name] = value; }
-  else { report_error("Cannot set the value of " + name); }
-}
+void ASTContext::add(const str &name, ASTBase *value) { get_current_scope()->_named[name] = value; }
 
 ASTBase *ASTContext::get(const str &name) {
   TAN_ASSERT(name != "");

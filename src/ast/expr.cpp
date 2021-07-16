@@ -1,4 +1,5 @@
 #include "src/ast/expr.h"
+#include "src/ast/ast_context.h"
 
 using namespace tanlang;
 
@@ -79,6 +80,17 @@ ArrayLiteral::ArrayLiteral(SourceIndex loc) : Literal(ASTNodeType::ARRAY_LITERAL
 
 /// \section Identifier
 
+VarRef *VarRef::Create(SourceIndex loc, const str &name, Decl *referred) {
+  auto ret = new VarRef(loc);
+  ret->set_name(name);
+  ret->_referred = referred;
+  return ret;
+}
+
+VarRef::VarRef(SourceIndex loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {}
+
+Decl *VarRef::get_referred() const { return _referred; }
+
 Identifier::Identifier(SourceIndex loc) : Expr(ASTNodeType::ID, loc, 0) {}
 
 Identifier *Identifier::Create(SourceIndex loc, const str &name) {
@@ -87,7 +99,27 @@ Identifier *Identifier::Create(SourceIndex loc, const str &name) {
   return ret;
 }
 
-ASTBase *Identifier::get_referred() const { return _referred; }
+IdentifierType Identifier::get_id_type() const { return _id_type; }
+
+VarRef *Identifier::get_var_ref() const {
+  TAN_ASSERT(_id_type == IdentifierType::ID_VAR_DECL);
+  return _var_ref;
+}
+
+ASTType *Identifier::get_type_ref() const {
+  TAN_ASSERT(_id_type == IdentifierType::ID_TYPE_DECL);
+  return _type_ref;
+}
+
+void Identifier::set_var_ref(VarRef *var_ref) {
+  _id_type = IdentifierType::ID_VAR_DECL;
+  _var_ref = var_ref;
+}
+
+void Identifier::set_type_ref(ASTType *type_ref) {
+  _id_type = IdentifierType::ID_TYPE_DECL;
+  _type_ref = type_ref;
+}
 
 /// \section Binary operators
 

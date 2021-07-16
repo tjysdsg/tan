@@ -27,10 +27,10 @@ enum class ASTNodeType {
   RET,         /// return
   IF,          /// if
   IMPORT,      /// import
+  VAR_REF,         /// variable reference
 
   // types in tan
-  TYPE_REF,        /// type reference
-  BOOL_LITERAL,    //// bool literal
+  BOOL_LITERAL,    /// bool literal
   INTEGER_LITERAL, /// int literal
   FLOAT_LITERAL,   /// float literal
   CHAR_LITERAL,    /// 's'

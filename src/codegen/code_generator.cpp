@@ -89,6 +89,9 @@ public:
       case ASTNodeType::PARENTHESIS:
         ret = codegen_parenthesis(p);
         break;
+      case ASTNodeType::VAR_REF:
+        ret = codegen_var_ref(p);
+        break;
       case ASTNodeType::ID:
         ret = codegen_identifier(p);
         break;
@@ -268,7 +271,6 @@ private:
     return p->_llvm_value = F;
   }
 
-  // FIXME: remove this
   void set_current_debug_location(ASTBase *p) {
     _cs->set_current_debug_location(_sm->get_line(p->get_loc()), _sm->get_col(p->get_loc()));
   }
@@ -873,10 +875,28 @@ private:
     return p->_llvm_value = ret;
   }
 
+  Value *codegen_var_ref(ASTBase *_p) {
+    auto p = ast_must_cast<VarRef>(_p);
+    set_current_debug_location(p);
+    return codegen(p->get_referred());
+  }
+
   Value *codegen_identifier(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
     set_current_debug_location(p);
-    return p->_llvm_value = codegen(p->_referred);
+
+    switch (p->get_id_type()) {
+      case IdentifierType::ID_VAR_DECL:
+        p->_llvm_value = codegen(p->get_var_ref());
+        break;
+      case IdentifierType::ID_TYPE_DECL:
+        p->_llvm_value = nullptr;
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
+    }
+    return p->_llvm_value;
   }
 
   Value *codegen_binary_or_unary(ASTBase *_p) {

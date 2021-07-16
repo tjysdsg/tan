@@ -54,13 +54,9 @@ public:
 
   /**
    * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
+   * TODO: ASTBase -> Decl
    * */
   void add(const str &name, ASTBase *value);
-
-  /**
-   * \brief Register a variable
-   * */
-  void set(const str &name, ASTBase *value);
 
   /**
    * \brief look up the variable table in the current and parent scopes

@@ -137,13 +137,14 @@ private:
     if (referred) { /// refers to a variable
       auto *declared = ast_cast<Decl>(referred);
       if (!declared) { report_error(p, "Invalid identifier"); }
-      p->_referred = declared;
+
+      p->set_var_ref(VarRef::Create(p->get_loc(), p->get_name(), declared));
       p->set_type(copy_ty(declared->get_type()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
       auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::TYPE_REF, {}, false, [&](ASTType *t) {
         t->set_type_name(p->get_name());
       });
-      p->_referred = ty;
+      p->set_type_ref(ty);
       p->set_type(ty);
     } else {
       report_error(p, "Unknown identifier");

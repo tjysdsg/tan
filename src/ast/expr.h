@@ -118,16 +118,41 @@ private:
   vector<Literal *> _elements{};
 };
 
+class VarRef : public Expr, public ASTNamed {
+protected:
+  VarRef(SourceIndex loc);
+
+public:
+  static VarRef *Create(SourceIndex loc, const str &name, Decl *referred);
+  Decl *get_referred() const;
+
+private:
+  Decl *_referred = nullptr;
+};
+
+enum class IdentifierType {
+  INVALID, ID_VAR_DECL, ID_TYPE_DECL,
+};
+
 class Identifier : public Expr, public ASTNamed {
 protected:
   Identifier(SourceIndex loc);
 
 public:
   static Identifier *Create(SourceIndex loc, const str &name);
-  ASTBase *get_referred() const;
 
-public:
-  ASTBase *_referred = nullptr;
+  IdentifierType get_id_type() const;
+  void set_var_ref(VarRef *var_ref);
+  void set_type_ref(ASTType *type_ref);
+  VarRef *get_var_ref() const;
+  ASTType *get_type_ref() const;
+
+private:
+  IdentifierType _id_type = IdentifierType::INVALID;
+  union {
+    VarRef *_var_ref = nullptr;
+    ASTType *_type_ref;
+  };
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
