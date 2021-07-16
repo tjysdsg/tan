@@ -589,7 +589,86 @@ private:
     p->set_type(ty);
   }
 
-  // TODO: delegate to the analysis to lhs
+  /// ASSUMES lhs has been already analyzed, while rhs has not
+  void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
+    if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+      report_error(p, "Invalid member function call");
+    }
+
+    /// get address of the struct instance
+    if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+      Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
+      analyze(tmp);
+      rhs->_args.insert(rhs->_args.begin(), tmp);
+    } else {
+      rhs->_args.insert(rhs->_args.begin(), lhs);
+    }
+
+    /// postpone analysis of FUNC_CALL until now
+    analyze(rhs);
+    p->set_type(copy_ty(rhs->get_type()));
+  }
+
+  /// ASSUMES lhs has been already analyzed, while rhs has not
+  void analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
+    analyze(rhs);
+    auto ty = lhs->get_type();
+    if (!ty->is_ptr()) { report_error(p, "Expect a pointer or an array"); }
+
+    ty = copy_ty(ty->get_contained_ty());
+    ty->set_is_lvalue(true);
+
+    p->set_type(ty);
+    if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
+      auto size_node = ast_must_cast<IntegerLiteral>(rhs);
+      auto size = size_node->get_value(); // underflow is ok
+      if (rhs->get_type()->is_array() && size >= lhs->get_type()->get_array_size()) {
+        report_error(p,
+            fmt::format("Index {} out of bound, the array size is {}",
+                std::to_string(size),
+                std::to_string(lhs->get_type()->get_array_size())));
+      }
+    }
+  }
+
+  /// ASSUMES lhs has been already analyzed, while rhs has not
+  void analyze_enum_member_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
+    p->set_type(lhs->get_type());
+
+    str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
+    auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
+
+    /// enum element
+    if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
+    str name = ast_must_cast<Identifier>(rhs)->get_name();
+    if (!enum_decl->contain_element(name)) { report_error(rhs, "Unknown enum element"); }
+  }
+
+  /// ASSUMES lhs has been already analyzed, while rhs has not
+  void analyze_enum_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
+    analyze(rhs);
+    if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+      report_error(p, "Invalid left-hand operand");
+    }
+
+    str m_name = ast_must_cast<Identifier>(rhs)->get_name();
+    ASTType *struct_ty = nullptr;
+    /// auto dereference pointers
+    if (lhs->get_type()->is_ptr()) {
+      struct_ty = lhs->get_type()->get_contained_ty();
+    } else {
+      struct_ty = lhs->get_type();
+    }
+    struct_ty = struct_ty->get_canonical_type(); /// resolve type references
+    if (struct_ty->get_ty() != Ty::STRUCT) { report_error(lhs, "Expect a struct type"); }
+
+    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
+    p->_access_idx = struct_decl->get_struct_member_index(m_name);
+    auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
+    ty->set_is_lvalue(true);
+    p->set_type(ty);
+  }
+
   void analyze_member_access(MemberAccess *p) {
     Expr *lhs = p->get_lhs();
     analyze(lhs);
@@ -597,83 +676,17 @@ private:
 
     if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
       p->_access_type = MemberAccess::MemberAccessMemberFunction;
-
-      if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        report_error(p, "Method calls require left-hand operand to be an lvalue or a pointer");
-      }
-      auto func_call = ast_cast<FunctionCall>(rhs);
-      if (!func_call) { report_error(rhs, "Expect a function call"); }
-
-      /// get address of the struct instance
-      if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-        Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
-        analyze(tmp);
-        func_call->_args.insert(func_call->_args.begin(), tmp);
-      } else {
-        func_call->_args.insert(func_call->_args.begin(), lhs);
-      }
-
-      /// postpone analysis of FUNC_CALL until now
-      analyze(rhs);
-      p->set_type(copy_ty(rhs->get_type()));
+      auto func_call = ast_must_cast<FunctionCall>(rhs);
+      analyze_member_func_call(p, lhs, func_call);
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
-      analyze(rhs);
-      auto ty = lhs->get_type();
-      if (!ty->is_ptr()) {
-        report_error(p, "Expect a pointer or an array");
-      }
-
-      ty = copy_ty(ty->get_contained_ty());
-      ty->set_is_lvalue(true);
-
-      p->set_type(ty);
-      if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
-        auto size_node = ast_must_cast<IntegerLiteral>(rhs);
-        auto size = size_node->get_value(); // underflow is ok
-        if (rhs->get_type()->is_array() && size >= lhs->get_type()->get_array_size()) {
-          report_error(p,
-              fmt::format("Index {} out of bound, the array size is {}",
-                  std::to_string(size),
-                  std::to_string(lhs->get_type()->get_array_size())));
-        }
-      }
+      analyze_bracket_access(p, lhs, rhs);
     } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
       if (lhs->get_type()->is_enum()) {
         p->_access_type = MemberAccess::MemberAccessEnumValue;
-        p->set_type(lhs->get_type());
-
-        str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
-        auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
-
-        /// enum element
-        if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
-        str name = ast_must_cast<Identifier>(rhs)->get_name();
-        if (!enum_decl->contain_element(name)) { report_error(rhs, "Unknown enum element"); }
-      } else {
-        analyze(rhs);
+        analyze_enum_member_access(p, lhs, rhs);
+      } else { /// member variable
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
-        if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-          report_error(p, "Invalid left-hand operand");
-        }
-
-        str m_name = ast_must_cast<Identifier>(rhs)->get_name();
-        ASTType *struct_ty = nullptr;
-        /// auto dereference pointers
-        if (lhs->get_type()->is_ptr()) {
-          struct_ty = lhs->get_type()->get_contained_ty();
-        } else {
-          struct_ty = lhs->get_type();
-        }
-        struct_ty = struct_ty->get_canonical_type(); /// resolve type references
-        if (struct_ty->get_ty() != Ty::STRUCT) {
-          report_error(lhs, "Expect a struct type");
-        }
-
-        auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
-        p->_access_idx = struct_decl->get_struct_member_index(m_name);
-        auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
-        ty->set_is_lvalue(true);
-        p->set_type(ty);
+        analyze_enum_member_variable(p, lhs, rhs);
       }
     } else {
       report_error(p, "Invalid right-hand operand");
