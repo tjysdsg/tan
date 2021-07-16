@@ -27,15 +27,15 @@ public:
   virtual ~ASTBase() = default;
 
 public:
-  ASTNodeType get_node_type() const;
+  [[nodiscard]] ASTNodeType get_node_type() const;
   void set_node_type(ASTNodeType node_type);
   void set_bp(int bp);
-  int get_bp() const;
+  [[nodiscard]] int get_bp() const;
 
   /**
    * \brief Get a ordered list of child nodes
    */
-  virtual vector<ASTBase *> get_children() const;
+  [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
   /**
    * \brief Pretty-print AST tree
@@ -43,12 +43,12 @@ public:
   void printTree() const;
 
 protected:
-  virtual str to_string(bool print_prefix = true) const;
+  [[nodiscard]] virtual str to_string(bool print_prefix = true) const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.
    */
-  virtual ASTBase *get() const;
+  [[nodiscard]] virtual ASTBase *get() const;
 
 public:
   llvm::Value *_llvm_value = nullptr;

@@ -1,5 +1,7 @@
 #ifndef __TAN_SRC_AST_EXPR_H__
 #define __TAN_SRC_AST_EXPR_H__
+#include <utility>
+
 #include "base.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_named.h"
@@ -37,25 +39,25 @@ protected:
 
 class BoolLiteral : public Literal {
 protected:
-  BoolLiteral(SourceIndex loc);
+  explicit BoolLiteral(SourceIndex loc);
 
 public:
   static BoolLiteral *Create(SourceIndex loc, bool val);
-  bool get_value() const;
+  [[nodiscard]] bool get_value() const;
 
 private:
-  bool _value = 0;
+  bool _value = false;
 };
 
 class IntegerLiteral : public Literal {
 protected:
-  IntegerLiteral(SourceIndex loc);
+  explicit IntegerLiteral(SourceIndex loc);
 
 public:
   static IntegerLiteral *Create(SourceIndex loc, uint64_t val, bool is_unsigned = false);
 
-  uint64_t get_value() const { return _value; }
-  bool is_unsigned() const { return _is_unsigned; }
+  [[nodiscard]] uint64_t get_value() const { return _value; }
+  [[nodiscard]] bool is_unsigned() const { return _is_unsigned; }
 
 private:
   uint64_t _value = 0;
@@ -64,11 +66,11 @@ private:
 
 class FloatLiteral : public Literal {
 protected:
-  FloatLiteral(SourceIndex loc);
+  explicit FloatLiteral(SourceIndex loc);
 
 public:
   static FloatLiteral *Create(SourceIndex loc, double val);
-  double get_value() const;
+  [[nodiscard]] double get_value() const;
   void set_value(double value);
 
 private:
@@ -77,13 +79,13 @@ private:
 
 class StringLiteral : public Literal {
 protected:
-  StringLiteral(SourceIndex loc);
+  explicit StringLiteral(SourceIndex loc);
 
 public:
   static StringLiteral *Create(SourceIndex loc, const str &val);
 
-  str get_value() const;
-  void set_value(str val) { _value = val; }
+  [[nodiscard]] str get_value() const;
+  void set_value(str val) { _value = std::move(val); }
 
 private:
   str _value;
@@ -91,13 +93,13 @@ private:
 
 class CharLiteral : public Literal {
 protected:
-  CharLiteral(SourceIndex loc);
+  explicit CharLiteral(SourceIndex loc);
 
 public:
   static CharLiteral *Create(SourceIndex loc, uint8_t val);
 
   void set_value(uint8_t val);
-  uint8_t get_value() const;
+  [[nodiscard]] uint8_t get_value() const;
 
 private:
   uint8_t _value = 0;
@@ -105,14 +107,14 @@ private:
 
 class ArrayLiteral : public Literal {
 protected:
-  ArrayLiteral(SourceIndex loc);
+  explicit ArrayLiteral(SourceIndex loc);
 
 public:
   static ArrayLiteral *Create(SourceIndex loc, vector<Literal *> val);
   static ArrayLiteral *Create(SourceIndex loc);
 
   void set_elements(const vector<Literal *> &elements);
-  vector<Literal *> get_elements() const;
+  [[nodiscard]] vector<Literal *> get_elements() const;
 
 private:
   vector<Literal *> _elements{};
@@ -120,11 +122,11 @@ private:
 
 class VarRef : public Expr, public ASTNamed {
 protected:
-  VarRef(SourceIndex loc);
+  explicit VarRef(SourceIndex loc);
 
 public:
   static VarRef *Create(SourceIndex loc, const str &name, Decl *referred);
-  Decl *get_referred() const;
+  [[nodiscard]] Decl *get_referred() const;
 
 private:
   Decl *_referred = nullptr;
@@ -136,16 +138,16 @@ enum class IdentifierType {
 
 class Identifier : public Expr, public ASTNamed {
 protected:
-  Identifier(SourceIndex loc);
+  explicit Identifier(SourceIndex loc);
 
 public:
   static Identifier *Create(SourceIndex loc, const str &name);
 
-  IdentifierType get_id_type() const;
+  [[nodiscard]] IdentifierType get_id_type() const;
   void set_var_ref(VarRef *var_ref);
   void set_type_ref(ASTType *type_ref);
-  VarRef *get_var_ref() const;
-  ASTType *get_type_ref() const;
+  [[nodiscard]] VarRef *get_var_ref() const;
+  [[nodiscard]] ASTType *get_type_ref() const;
 
 private:
   IdentifierType _id_type = IdentifierType::INVALID;
@@ -190,13 +192,13 @@ public:
 
   void set_lhs(Expr *lhs);
   void set_rhs(Expr *rhs);
-  Expr *get_lhs() const;
-  Expr *get_rhs() const;
-  BinaryOpKind get_op() const;
-  size_t get_dominant_idx() const { return _dominant_idx; }
+  [[nodiscard]] Expr *get_lhs() const;
+  [[nodiscard]] Expr *get_rhs() const;
+  [[nodiscard]] BinaryOpKind get_op() const;
+  [[nodiscard]] size_t get_dominant_idx() const { return _dominant_idx; }
   void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 public:
   size_t _dominant_idx = 0;
@@ -209,7 +211,7 @@ protected:
 
 class MemberAccess : public BinaryOperator {
 protected:
-  MemberAccess(SourceIndex loc);
+  explicit MemberAccess(SourceIndex loc);
 
 public:
   static MemberAccess *Create(SourceIndex loc);
@@ -247,14 +249,14 @@ public:
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
 
-  UnaryOpKind get_op() const;
-  Expr *get_rhs() const;
+  [[nodiscard]] UnaryOpKind get_op() const;
+  [[nodiscard]] Expr *get_rhs() const;
   void set_rhs(Expr *rhs);
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
-  UnaryOpKind _op;
+  UnaryOpKind _op = UnaryOpKind::INVALID;
   Expr *_rhs = nullptr;
 };
 
@@ -273,38 +275,38 @@ public:
     UNKNOWN, BINARY, UNARY,
   };
 
-  BinaryOrUnaryKind get_kind() const;
-  BinaryOperator *get_bop() const;
+  [[nodiscard]] BinaryOrUnaryKind get_kind() const;
+  [[nodiscard]] BinaryOperator *get_bop() const;
   void set_bop(BinaryOperator *bop);
-  UnaryOperator *get_uop() const;
+  [[nodiscard]] UnaryOperator *get_uop() const;
   void set_uop(UnaryOperator *uop);
 
-  Expr *get_generic_ptr() const;
-  ASTBase *get() const override;
-  ASTType *get_type() const override;
+  [[nodiscard]] Expr *get_generic_ptr() const;
+  [[nodiscard]] ASTBase *get() const override;
+  [[nodiscard]] ASTType *get_type() const override;
   void set_type(ASTType *type) override;
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 private:
   BinaryOrUnaryKind _kind = UNKNOWN;
   union {
-    BinaryOperator *_bop;
+    BinaryOperator *_bop = nullptr;
     UnaryOperator *_uop;
   };
 };
 
 class Parenthesis : public Expr {
 protected:
-  Parenthesis(SourceIndex loc);
+  explicit Parenthesis(SourceIndex loc);
 
 public:
   static Parenthesis *Create(SourceIndex loc);
 
   void set_sub(Expr *sub);
-  Expr *get_sub() const;
+  [[nodiscard]] Expr *get_sub() const;
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 private:
   Expr *_sub = nullptr;
@@ -312,14 +314,14 @@ private:
 
 class FunctionCall : public Expr, public ASTNamed {
 protected:
-  FunctionCall(SourceIndex loc);
+  explicit FunctionCall(SourceIndex loc);
 
 public:
   static FunctionCall *Create(SourceIndex loc);
-  size_t get_n_args() const;
-  Expr *get_arg(size_t i) const;
+  [[nodiscard]] size_t get_n_args() const;
+  [[nodiscard]] Expr *get_arg(size_t i) const;
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 public:
   vector<Expr *> _args{};
@@ -328,17 +330,17 @@ public:
 
 class Assignment : public Expr {
 protected:
-  Assignment(SourceIndex loc);
+  explicit Assignment(SourceIndex loc);
 
 public:
   static Assignment *Create(SourceIndex loc);
 
-  ASTBase *get_lhs() const;
+  [[nodiscard]] ASTBase *get_lhs() const;
   void set_lhs(ASTBase *lhs);
-  Expr *get_rhs() const;
+  [[nodiscard]] Expr *get_rhs() const;
   void set_rhs(Expr *rhs);
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
   ASTBase *_lhs = nullptr; /// lhs can be decl or expr (identifier)
@@ -347,16 +349,16 @@ protected:
 
 class Cast : public Expr {
 protected:
-  Cast(SourceIndex loc);
+  explicit Cast(SourceIndex loc);
 
 public:
   static Cast *Create(SourceIndex loc);
-  Expr *get_lhs() const;
+  [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
-  ASTBase *get_rhs() const;
+  [[nodiscard]] ASTBase *get_rhs() const;
   void set_rhs(ASTBase *rhs);
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
   Expr *_lhs = nullptr;

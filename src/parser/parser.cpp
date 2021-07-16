@@ -10,7 +10,6 @@
 #include "src/ast/ast_type.h"
 #include "src/common.h"
 #include "src/ast/intrinsic.h"
-#include "src/ast/ast_base.h"
 #include "token.h"
 #include <fmt/core.h>
 
@@ -22,7 +21,7 @@ namespace tanlang {
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _cs(ctx) {}
+  explicit ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _cs(ctx) {}
 
   ASTBase *parse() {
     _root = Program::Create(SourceIndex(0));
@@ -247,7 +246,7 @@ private:
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+      auto *pp = ast_must_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->get_loc());
       switch (hashed_string{token_str.c_str()}) {
@@ -333,7 +332,7 @@ private:
         _curr.offset_by(1);
         break;
       case ASTNodeType::BOP_OR_UOP: {
-        BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+        auto *pp = ast_must_cast<BinaryOrUnary>(p);
         TAN_ASSERT(pp->get_kind() == BinaryOrUnary::UNARY);
 
         /// update binding power, as the value was originally set to the binding power of BOP version of this op
@@ -355,7 +354,7 @@ private:
   void parse_node(ASTBase *left, ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+      auto *pp = ast_must_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->get_loc());
       switch (hashed_string{token_str.c_str()}) {
@@ -389,7 +388,7 @@ private:
         parse_cast(left, p);
         break;
       case ASTNodeType::BOP_OR_UOP: {
-        BinaryOrUnary *pp = ast_must_cast<BinaryOrUnary>(p);
+        auto *pp = ast_must_cast<BinaryOrUnary>(p);
         TAN_ASSERT(pp->get_kind() == BinaryOrUnary::BINARY);
         parse_node(left, pp->get_generic_ptr());
         break;
@@ -405,7 +404,7 @@ private:
     return _sm->get_token(loc);
   }
 
-  bool eof(SourceIndex loc) const { return _sm->is_eof(loc); }
+  [[nodiscard]] bool eof(SourceIndex loc) const { return _sm->is_eof(loc); }
 
   [[noreturn]] void error(SourceIndex loc, const str &error_message) const {
     report_error(_filename, at(loc), error_message);
@@ -533,7 +532,7 @@ private:
 
   // TODO: move type checking of array elements to analysis phase
   void parse_array_literal(ASTBase *_p) {
-    ArrayLiteral *p = ast_must_cast<ArrayLiteral>(_p);
+    auto *p = ast_must_cast<ArrayLiteral>(_p);
 
     _curr.offset_by(1); /// skip '['
 
@@ -582,7 +581,7 @@ private:
       return;
     }
 
-    BinaryOperator *p = ast_must_cast<BinaryOperator>(_p);
+    auto *p = ast_must_cast<BinaryOperator>(_p);
     _curr.offset_by(1); /// skip the operator
 
     p->set_lhs(lhs); /// lhs
@@ -593,7 +592,7 @@ private:
   }
 
   void parse_uop(ASTBase *_p) {
-    UnaryOperator *p = ast_must_cast<UnaryOperator>(_p);
+    auto *p = ast_must_cast<UnaryOperator>(_p);
 
     /// rhs
     _curr.offset_by(1);
@@ -605,7 +604,7 @@ private:
   }
 
   void parse_parenthesis(ASTBase *_p) {
-    Parenthesis *p = ast_must_cast<Parenthesis>(_p);
+    auto *p = ast_must_cast<Parenthesis>(_p);
 
     _curr.offset_by(1); /// skip "("
     while (true) {
@@ -623,7 +622,7 @@ private:
   }
 
   void parse_func_decl(ASTBase *_p) {
-    FunctionDecl *p = ast_cast<FunctionDecl>(_p);
+    auto *p = ast_cast<FunctionDecl>(_p);
 
     bool is_public = false;
     bool is_external = false;
@@ -706,7 +705,7 @@ private:
   }
 
   void parse_func_call(ASTBase *_p) {
-    FunctionCall *p = ast_must_cast<FunctionCall>(_p);
+    auto *p = ast_must_cast<FunctionCall>(_p);
 
     p->set_name(at(_curr)->get_value()); /// function name
     _curr.offset_by(1);
@@ -733,7 +732,7 @@ private:
   }
 
   void parse_intrinsic(ASTBase *_p) {
-    Intrinsic *p = ast_must_cast<Intrinsic>(_p);
+    auto *p = ast_must_cast<Intrinsic>(_p);
 
     _curr.offset_by(1); /// skip "@"
     auto e = peek();
@@ -746,7 +745,7 @@ private:
   }
 
   void parse_import(ASTBase *_p) {
-    Import *p = ast_must_cast<Import>(_p);
+    auto *p = ast_must_cast<Import>(_p);
 
     _curr.offset_by(1); /// skip "import"
     auto rhs = peek();
@@ -780,7 +779,7 @@ private:
   }
 
   void parse_program(ASTBase *_p) {
-    Program *p = ast_must_cast<Program>(_p);
+    auto *p = ast_must_cast<Program>(_p);
     while (!eof(_curr)) {
       auto stmt = CompoundStmt::Create(_curr);
       parse_node(stmt);
@@ -815,7 +814,7 @@ private:
   }
 
   void parse_return(ASTBase *_p) {
-    Return *p = ast_must_cast<Return>(_p);
+    auto *p = ast_must_cast<Return>(_p);
 
     _curr.offset_by(1);
 
@@ -825,7 +824,7 @@ private:
   }
 
   void parse_struct_decl(ASTBase *_p) {
-    StructDecl *p = ast_must_cast<StructDecl>(_p);
+    auto *p = ast_must_cast<StructDecl>(_p);
 
     _curr.offset_by(1); /// skip "struct"
 
@@ -868,7 +867,7 @@ private:
       _curr.offset_by(1); /// skip "["
 
       /// subtype
-      ASTType *sub = new ASTType(*p);
+      auto *sub = new ASTType(*p);
       p->set_ty(Ty::ARRAY);
       p->get_sub_types().clear();
       p->get_sub_types().push_back(sub);
@@ -931,7 +930,7 @@ private:
   }
 
   void parse_var_decl(ASTBase *_p) {
-    VarDecl *p = ast_must_cast<VarDecl>(_p);
+    auto *p = ast_must_cast<VarDecl>(_p);
 
     _curr.offset_by(1); /// skip 'var'
 
@@ -950,7 +949,7 @@ private:
   }
 
   void parse_arg_decl(ASTBase *_p) {
-    ArgDecl *p = ast_must_cast<ArgDecl>(_p);
+    auto *p = ast_must_cast<ArgDecl>(_p);
 
     /// name
     auto name_token = at(_curr);
@@ -969,7 +968,7 @@ private:
   }
 
   void parse_enum_decl(ASTBase *_p) {
-    EnumDecl *p = ast_must_cast<EnumDecl>(_p);
+    auto *p = ast_must_cast<EnumDecl>(_p);
 
     /// skip enum
     _curr.offset_by(1);
@@ -1007,7 +1006,7 @@ private:
   }
 
 private:
-  str _filename = "";
+  str _filename;
   ASTContext *_cs = nullptr;
   ASTBase *_root = nullptr;
 };

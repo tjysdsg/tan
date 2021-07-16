@@ -32,63 +32,63 @@ public:
       Ty t,
       vector<ASTType *> sub_tys = {},
       bool is_lvalue = false,
-      std::function<void(ASTType *)> attribute_setter = {});
+      const std::function<void(ASTType *)> &attribute_setter = {});
 
 public:
   static umap<str, Ty> basic_tys;
   static umap<str, Ty> qualifier_tys;
 
 public:
-  ASTType(SourceIndex loc);
+  explicit ASTType(SourceIndex loc);
 
   bool operator==(const ASTType &other);
   bool operator!=(const ASTType &other);
 
-  virtual str to_string(bool print_prefix = true);
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] str to_string(bool print_prefix) const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 public:
-  Ty get_ty() const;
+  [[nodiscard]] Ty get_ty() const;
   void set_ty(Ty ty);
-  ASTType *get_contained_ty() const;
-  ASTType *get_ptr_to() const;
+  [[nodiscard]] ASTType *get_contained_ty() const;
+  [[nodiscard]] ASTType *get_ptr_to() const;
 
-  Constructor *get_constructor() const;
+  [[nodiscard]] Constructor *get_constructor() const;
   void set_constructor(Constructor *constructor);
-  const str &get_type_name() const;
+  [[nodiscard]] const str &get_type_name() const;
   void set_type_name(const str &type_name);
-  llvm::Type *get_llvm_type() const;
+  [[nodiscard]] llvm::Type *get_llvm_type() const;
   void set_llvm_type(llvm::Type *llvm_type);
-  size_t get_size_bits() const;
+  [[nodiscard]] size_t get_size_bits() const;
   void set_size_bits(size_t size_bits);
-  size_t get_align_bits() const;
+  [[nodiscard]] size_t get_align_bits() const;
   void set_align_bits(size_t align_bits);
-  unsigned int get_dwarf_encoding() const;
+  [[nodiscard]] unsigned int get_dwarf_encoding() const;
   void set_dwarf_encoding(unsigned int dwarf_encoding);
-  bool is_ptr() const;
-  bool is_float() const;
+  [[nodiscard]] bool is_ptr() const;
+  [[nodiscard]] bool is_float() const;
   void set_is_float(bool is_float);
-  bool is_array() const;
+  [[nodiscard]] bool is_array() const;
   void set_is_array(bool is_array);
-  size_t get_array_size() const;
+  [[nodiscard]] size_t get_array_size() const;
   void set_array_size(size_t array_size);
-  bool is_int() const;
+  [[nodiscard]] bool is_int() const;
   void set_is_int(bool is_int);
-  bool is_unsigned() const;
+  [[nodiscard]] bool is_unsigned() const;
   void set_is_unsigned(bool is_unsigned);
-  bool is_struct() const;
+  [[nodiscard]] bool is_struct() const;
   void set_is_struct(bool is_struct);
-  bool is_bool() const;
+  [[nodiscard]] bool is_bool() const;
   void set_is_bool(bool is_bool);
-  bool is_enum() const;
+  [[nodiscard]] bool is_enum() const;
   void set_is_enum(bool is_enum);
-  bool is_resolved() const;
+  [[nodiscard]] bool is_resolved() const;
   void set_resolved(bool resolved);
-  bool is_forward_decl() const;
+  [[nodiscard]] bool is_forward_decl() const;
   void set_is_forward_decl(bool is_forward_decl);
   vector<ASTType *> &get_sub_types();
   void set_sub_types(const vector<ASTType *> &sub_types);
-  ASTType *get_canonical_type() const;
+  [[nodiscard]] ASTType *get_canonical_type() const;
 
   /**
    * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type
@@ -96,7 +96,7 @@ public:
    * them are lvalues while others aren't, then calling is_lvalue()/set_is_lvalue() should only operate on the
    * type references themselves.
    */
-  bool is_lvalue() const;
+  [[nodiscard]] bool is_lvalue() const;
 
   /**
    * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type.
@@ -107,12 +107,12 @@ public:
   void set_is_lvalue(bool is_lvalue);
 
 private:
-  ASTType *must_get_canonical_type() const;
+  [[nodiscard]] ASTType *must_get_canonical_type() const;
   void no_modifications_on_type_reference() const;
 
 private:
   Ty _ty = Ty::INVALID;
-  str _type_name = "";
+  str _type_name;
   llvm::Type *_llvm_type = nullptr;
   size_t _size_bits = 0;
   size_t _align_bits = 0;

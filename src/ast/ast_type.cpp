@@ -22,7 +22,7 @@ bool ASTType::operator==(const ASTType &other) {
   CHECK(_is_enum);
   #undef CHECK
 
-  if (_sub_types.size() > 0) {
+  if (!_sub_types.empty()) {
     size_t n = _sub_types.size();
     if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
@@ -34,8 +34,8 @@ bool ASTType::operator==(const ASTType &other) {
   return true;
 }
 
-str ASTType::to_string(bool print_prefix) {
-  str ret = "";
+str ASTType::to_string(bool print_prefix) const {
+  str ret;
   if (print_prefix) {
     ret += "Type: ";
   }
@@ -68,7 +68,7 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
     Ty t,
     vector<ASTType *> sub_tys,
     bool is_lvalue,
-    std::function<void(ASTType *)> attribute_setter) {
+    const std::function<void(ASTType *)> &attribute_setter) {
   // TODO: cache
   auto ret = new ASTType(loc);
   ret->_ty = t;
@@ -215,7 +215,7 @@ ASTType *ASTType::get_canonical_type() const {
 ASTType *ASTType::must_get_canonical_type() const {
   ASTType *type = get_canonical_type();
   if (!type) {
-    TAN_ASSERT(_type_name != "");
+    TAN_ASSERT(!_type_name.empty());
     report_error(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
   }
   return type;
@@ -238,7 +238,7 @@ ASTType *ASTType::get_contained_ty() const {
   if (get_ty() == Ty::STRING) {
     return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::CHAR, {}, false);
   } else if (is_ptr()) {
-    TAN_ASSERT(get_canonical_type()->_sub_types.size());
+    TAN_ASSERT(!get_canonical_type()->_sub_types.empty());
     auto ret = get_canonical_type()->_sub_types[0];
     TAN_ASSERT(ret);
     return ret;

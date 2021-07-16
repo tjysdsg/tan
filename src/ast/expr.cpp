@@ -1,4 +1,6 @@
 #include "src/ast/expr.h"
+
+#include <utility>
 #include "src/ast/ast_context.h"
 
 using namespace tanlang;
@@ -64,7 +66,7 @@ CharLiteral::CharLiteral(SourceIndex loc) : Literal(ASTNodeType::CHAR_LITERAL, l
 
 ArrayLiteral *ArrayLiteral::Create(SourceIndex loc, vector<Literal *> val) {
   auto ret = new ArrayLiteral(loc);
-  ret->_elements = val;
+  ret->_elements = std::move(val);
   return ret;
 }
 

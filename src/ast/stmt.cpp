@@ -148,4 +148,3 @@ vector<ASTBase *> If::get_children() const {
   std::for_each(_branches.begin(), _branches.end(), [&](Stmt *e) { ret.push_back((ASTBase *) e); });
   return ret;
 }
-

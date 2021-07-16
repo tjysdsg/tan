@@ -12,7 +12,6 @@
 #include "token.h"
 #include "src/ast/ast_context.h"
 #include "compiler.h"
-#include "src/common.h"
 #include <iostream>
 #include <fmt/core.h>
 
@@ -20,7 +19,7 @@ namespace tanlang {
 
 class AnalyzerImpl {
 public:
-  AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
+  explicit AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
@@ -408,7 +407,7 @@ private:
   }
 
   void analyze_func_decl(ASTBase *_p) {
-    FunctionDecl *p = ast_must_cast<FunctionDecl>(_p);
+    auto *p = ast_must_cast<FunctionDecl>(_p);
 
     /// add to external function table
     if (p->is_public() || p->is_external()) {
@@ -555,12 +554,12 @@ private:
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
-    auto tyty = Ty::INT;
+    auto t = Ty::INT;
 
     if (_ctx->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
-      tyty = TY_OR(tyty, Ty::UNSIGNED);
+      t = TY_OR(t, Ty::UNSIGNED);
     }
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), tyty));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), t));
   }
 
   void analyze_bool_literal(ASTBase *_p) {
@@ -670,7 +669,7 @@ private:
           report_error(lhs, "Expect a struct type");
         }
 
-        StructDecl *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
+        auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
         p->_access_idx = struct_decl->get_struct_member_index(m_name);
         auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
         ty->set_is_lvalue(true);
@@ -693,7 +692,7 @@ private:
     ASTType *prev = _ctx->get_type_decl(struct_name)->get_type();
     if (prev) {
       if (prev->get_node_type() != ASTNodeType::STRUCT_DECL) { /// fwd decl
-        ty = std::move(prev);
+        ty = prev;
       } else { /// conflict
         report_error(p, "Cannot redeclare type as a struct");
       }
@@ -773,7 +772,7 @@ private:
   }
 
   void analyze_enum_decl(ASTBase *_p) {
-    EnumDecl *p = ast_must_cast<EnumDecl>(_p);
+    auto *p = ast_must_cast<EnumDecl>(_p);
 
     /// add the enum type to context
     auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
@@ -814,6 +813,6 @@ void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
 
 Analyzer::Analyzer(ASTContext *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
 
-Analyzer::~Analyzer() { if (_analyzer_impl) { delete _analyzer_impl; }}
+Analyzer::~Analyzer() { delete _analyzer_impl; }
 
 }

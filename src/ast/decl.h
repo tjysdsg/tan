@@ -15,7 +15,7 @@ protected:
 
 class VarDecl : public Decl {
 protected:
-  VarDecl(SourceIndex loc);
+  explicit VarDecl(SourceIndex loc);
 
 public:
   static VarDecl *Create(SourceIndex loc);
@@ -24,7 +24,7 @@ public:
 
 class ArgDecl : public Decl {
 protected:
-  ArgDecl(SourceIndex loc);
+  explicit ArgDecl(SourceIndex loc);
 
 public:
   static ArgDecl *Create(SourceIndex loc);
@@ -34,7 +34,7 @@ public:
 // TODO: function type itself
 class FunctionDecl : public Decl {
 protected:
-  FunctionDecl(SourceIndex loc);
+  explicit FunctionDecl(SourceIndex loc);
 
 public:
   static FunctionDecl *Create(SourceIndex loc);
@@ -51,22 +51,22 @@ public:
   void set_ret_type(ASTType *type);
 
   void set_body(Stmt *body);
-  Stmt *get_body() const;
+  [[nodiscard]] Stmt *get_body() const;
 
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] str get_arg_name(size_t i) const;
   [[nodiscard]] ASTType *get_arg_type(size_t i) const;
   void set_arg_names(const vector<str> &names);
   void set_arg_types(const vector<ASTType *> &types);
-  const vector<ArgDecl *> &get_arg_decls() const;
+  [[nodiscard]] const vector<ArgDecl *> &get_arg_decls() const;
   void set_arg_decls(const vector<ArgDecl *> &arg_decls);
 
-  bool is_public() const;
-  bool is_external() const;
+  [[nodiscard]] bool is_public() const;
+  [[nodiscard]] bool is_external() const;
   void set_external(bool is_external);
   void set_public(bool is_public);
 
-  vector<ASTBase *> get_children() const override;
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 private:
   bool _is_external = false;
@@ -83,7 +83,7 @@ private:
 
 class StructDecl : public Decl {
 protected:
-  StructDecl(SourceIndex loc);
+  explicit StructDecl(SourceIndex loc);
 
 public:
   static StructDecl *Create(SourceIndex loc);
@@ -105,7 +105,7 @@ private:
 
 class EnumDecl : public Decl {
 protected:
-  EnumDecl(SourceIndex loc);
+  explicit EnumDecl(SourceIndex loc);
 
 public:
   static EnumDecl *Create(SourceIndex loc);
