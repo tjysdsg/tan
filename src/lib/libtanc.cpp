@@ -5,6 +5,7 @@
 #include "base.h"
 #include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"
+#include <fmt/core.h>
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -24,9 +25,37 @@
 #define END_TRY
 #endif
 
-static bool _link(const vector<str> &input_paths, TanCompilation *config) {
+static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
+  for (const str &dir : lib_dirs) {
+    vector<fs::path> candidates = { /// possible filenames
+        fs::path(dir) / fs::path(lib_name),                 //
+        fs::path(dir) / fs::path(lib_name + ".a"),          //
+        fs::path(dir) / fs::path(lib_name + ".so"),         //
+        fs::path(dir) / fs::path("lib" + lib_name + ".a"),  //
+        fs::path(dir) / fs::path("lib" + lib_name + ".so"), //
+    };
+    for (const auto &p : candidates) {
+      if (fs::exists(p)) {
+        return p.string();
+      }
+    }
+  }
+  return "";
+}
+
+static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
+    /// also add files specified by -l option
+    for (const auto &lib : config->link_files) {
+      str path = search_library(config->lib_dirs, lib);
+
+      if (path.empty()) {
+        std::cerr << fmt::format("Unable to find library: {}\n", lib);
+        return false;
+      }
+      input_paths.push_back(path);
+    }
     return !llvm_ar_create_static_lib(config->out_file, input_paths);
   }
   /// shared, obj, exe

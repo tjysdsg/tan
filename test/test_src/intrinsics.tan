@@ -15,7 +15,7 @@ pub fn main(argc: int, argv: char**) : int {
     print(@get_decl(argc));
 
     print("\nPrinting stack trace...");
-    // stack_trace();
+    stack_trace();
     print("Stack trace printed\n");
 
     print("SUCCESS\n");
