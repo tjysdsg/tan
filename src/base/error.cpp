@@ -3,6 +3,7 @@
 #include "token.h"
 #include <fmt/core.h>
 #include <iostream>
+#include <backtrace.h>
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -128,11 +129,26 @@ static void print_back_trace() {
 }
 
 #else
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
 #include <cxxabi.h>
+#define MAX_STACK_TRACE 256
 
-static void print_back_trace() {
+void *__bt_state = nullptr;
+
+struct frame_info {
+  char *filename;
+  int lineno;
+  char *function;
+};
+
+struct bt_data {
+  struct frame_info *all;
+  size_t index;
+  size_t max;
+  int failed;
+};
+
+/*
+static void shit() {
   unw_cursor_t cursor;
   unw_context_t context;
   unw_getcontext(&context);
@@ -161,6 +177,71 @@ static void print_back_trace() {
     }
   }
 }
+*/
+
+int bt_callback(void *vdata, uintptr_t pc, const char *filename, int lineno, const char *function) {
+  auto *data = (struct bt_data *) vdata;
+
+  if (data->index >= data->max) {
+    fprintf(stderr, "Number of stack frames exceeds %d\n", MAX_STACK_TRACE);
+    data->failed = 1;
+    return 1;
+  }
+
+  frame_info *p = &data->all[data->index];
+  if (filename == nullptr) {
+    p->filename = nullptr;
+  } else {
+    p->filename = strdup(filename);
+  }
+  p->lineno = lineno;
+  if (function == nullptr) {
+    p->function = nullptr;
+  } else {
+    p->function = strdup(function);
+  }
+  ++data->index;
+
+  std::cout << fmt::format("{}:{} in function {}\n", filename, lineno, function);
+  return 0;
+}
+
+void bt_error_callback(void *vdata, const char *msg, int errnum) {
+  auto *data = (struct bt_data *) vdata;
+  fprintf(stderr, "%s", msg);
+  if (errnum > 0) {
+    fprintf(stderr, ": %s", strerror(errnum));
+  }
+  fprintf(stderr, "\n");
+  data->failed = 1;
+}
+
+void bt_error_callback_create(void *data, const char *msg, int errnum) {
+  fprintf(stderr, "%s", msg);
+  if (errnum > 0) {
+    fprintf(stderr, ": %s", strerror(errnum));
+  }
+  fprintf(stderr, "\n");
+  exit(EXIT_FAILURE);
+}
+
+void init_back_trace(const char *filename) {
+  __bt_state = backtrace_create_state(filename, 0, bt_error_callback_create, nullptr);
+}
+
+void print_back_trace() {
+  TAN_ASSERT(__bt_state); /// make sure init_back_trace() is called
+  frame_info all[MAX_STACK_TRACE];
+  bt_data data;
+
+  data.all = &all[0];
+  data.index = 0;
+  data.max = MAX_STACK_TRACE;
+  data.failed = 0;
+
+  backtrace_full((backtrace_state *) __bt_state, 0, bt_callback, bt_error_callback, &data);
+}
+
 #endif
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {

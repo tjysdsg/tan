@@ -13,6 +13,8 @@ static constexpr std::array cxx_ext
         "tcc"};
 
 int cli_main(int argc, char **argv) {
+  init_back_trace(argv[0]); // TODO: wrap this
+
   /// option parser
   cmd::OptionCategory cl_category("tanc");
   cmd::opt<str> opt_output_file
