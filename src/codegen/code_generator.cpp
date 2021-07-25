@@ -109,6 +109,40 @@ public:
     return ConstantInt::get(cs->_builder->getIntNTy((unsigned) bit_size), val, !is_unsigned);
   }
 
+  static Function *CodegenFuncPrototype(CompilerSession *cs,
+      ASTType *ret_ty,
+      str name,
+      vector<ASTType *> arg_tys,
+      bool is_external,
+      bool is_public,
+      bool is_imported) {
+    Type *ret_type = TypeSystem::ToLLVMType(cs, ret_ty);
+
+    /// set function arg types
+    vector<Type *> args{};
+    std::for_each(arg_tys.begin(), arg_tys.end(), [&](ASTType *t) {
+      args.push_back(TypeSystem::ToLLVMType(cs, t));
+    });
+
+    /// create function prototype
+    FunctionType *FT = FunctionType::get(ret_type, args, false);
+    auto linkage = Function::InternalLinkage;
+    if (is_external) {
+      linkage = Function::ExternalWeakLinkage;
+    }
+    if (is_public) {
+      if (is_imported) {
+        linkage = Function::ExternalWeakLinkage;
+      } else {
+        linkage = Function::ExternalLinkage;
+      }
+    }
+    Function *func = Function::Create(FT, linkage, name, cs->get_module());
+    func->setCallingConv(llvm::CallingConv::C);
+
+    return func;
+  }
+
 private:
   CompilerSession *_cs = nullptr;
   ASTContext *_ctx = nullptr;
@@ -139,37 +173,30 @@ private:
   }
 
   Value *codegen_func_prototype(FunctionDecl *p, bool import = false) {
-    Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_ret_ty());
-
     /// set function arg types
-    vector<Type *> arg_types{};
+    vector<ASTType *> arg_types{};
     for (size_t i = 0; i < p->get_n_args(); ++i) {
-      arg_types.push_back(TypeSystem::ToLLVMType(_cs, p->get_arg_type(i)));
+      arg_types.push_back(p->get_arg_type(i));
     }
 
-    /// create function prototype
-    FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-    auto linkage = Function::InternalLinkage;
-    if (p->is_external()) {
-      linkage = Function::ExternalWeakLinkage;
-    }
-    if (p->is_public()) {
-      if (import) {
-        linkage = Function::ExternalWeakLinkage;
-      } else {
-        linkage = Function::ExternalLinkage;
-      }
-    }
-    Function *func = Function::Create(FT, linkage, p->get_name(), _cs->get_module());
-    func->setCallingConv(llvm::CallingConv::C);
+    p->_llvm_value =
+        CodegenFuncPrototype(_cs, p->get_ret_ty(), p->get_name(), arg_types, p->is_external(), p->is_public(), import);
+    return p->_llvm_value;
+  }
 
-    /// set argument names
-    auto args = func->args().begin();
-    for (size_t i = 0; i < p->get_n_args(); ++i) {
-      /// rename this since the real function argument is stored as variables
-      (args + i)->setName("_" + p->get_arg_name(i));
-    }
-    return p->_llvm_value = func;
+  void codegen_main_func_start(Function *f) {
+    Value *argc = f->getArg(0);
+    Value *argv = f->getArg(1);
+    Function *init_runtime = CodegenFuncPrototype(_cs,
+        ASTType::GetVoidType(_ctx, SourceIndex(0)),
+        "init_runtime",
+        {ASTType::GetI32Type(_ctx, SourceIndex(0)), /// argc: i32
+            ASTType::GetI8Type(_ctx, SourceIndex(0))->get_ptr_to()->get_ptr_to() /// argv: i8**
+        },
+        true,
+        false,
+        false);
+    _cs->_builder->CreateCall(init_runtime, {argc, argv});
   }
 
   Value *codegen_func_decl(FunctionDecl *p) {
@@ -251,6 +278,12 @@ private:
       builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_body()->get_loc()),
           (unsigned) _sm->get_col(p->get_body()->get_loc()),
           subprogram));
+
+      if (func_name == "main") { /// special case for the main function
+        // TODO: Check type of argc and argv
+        // TODO: call init_back_trace() automatically
+        // codegen_main_func_start(F);
+      }
 
       /// generate function body
       codegen(p->get_body());

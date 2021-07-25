@@ -1,6 +1,5 @@
 #include "tan_backtrace.h"
-#include <fmt/core.h>
-#include <iostream>
+#include <cstdlib>
 #include <backtrace.h>
 
 #ifdef _MSC_VER
@@ -140,16 +139,16 @@ int bt_callback(void *, uintptr_t, const char *filename, int lineno, const char 
   }
 
   /// print
-  std::cout << fmt::format("{}:{} in function {}\n", filename, lineno, func_name);
+  printf("%s:%d in function %s\n", filename, lineno, func_name);
   return 0;
 }
 
 void bt_error_callback(void *, const char *msg, int errnum) {
-  std::cerr << fmt::format("Error {} occurred when getting the stacktrace: {}", errnum, msg);
+  printf("Error %d occurred when getting the stacktrace: %s", errnum, msg);
 }
 
 void bt_error_callback_create(void *, const char *msg, int errnum) {
-  std::cerr << fmt::format("Error {} occurred when initializing the stacktrace: {}", errnum, msg);
+  printf("Error %d occurred when initializing the stacktrace: %s", errnum, msg);
 }
 
 void init_back_trace(const char *filename) {
@@ -158,7 +157,7 @@ void init_back_trace(const char *filename) {
 
 void print_back_trace() {
   if (!__bt_state) { /// make sure init_back_trace() is called
-    std::cerr << "Make sure init_back_trace() is called before calling print_stack_trace()\n";
+    printf("Make sure init_back_trace() is called before calling print_stack_trace()\n");
     abort();
   }
   backtrace_full((backtrace_state *) __bt_state, 0, bt_callback, bt_error_callback, nullptr);

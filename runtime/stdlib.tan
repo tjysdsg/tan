@@ -1,2 +1,3 @@
 extern fn abort() : void;
 extern fn stack_trace() : void;
+extern fn init_back_trace(filename: i8*) : void;
