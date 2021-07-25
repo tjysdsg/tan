@@ -100,7 +100,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== target library tan_backtrace =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
-add_library(tan_backtrace ${BACKTRACE_SRCS})
+add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
 add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
 target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
 target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
