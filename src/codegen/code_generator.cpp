@@ -196,7 +196,7 @@ private:
     /// rename to "tan_main", as it will be called by the real main function in runtime/main.cpp
     if (func_name == "main") {
       p->set_name(func_name = "tan_main");
-      p->set_external(true);
+      p->set_public(true);
     }
 
     /// generate prototype
