@@ -463,9 +463,9 @@ private:
         vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
         vector<Constant *> values{};
         values.reserve(sub_ctrs.size());
-        for (auto *c: sub_ctrs) {
-          values.push_back((Constant *) codegen_constructor(c));
-        }
+        std::transform(sub_ctrs.begin(), sub_ctrs.end(), values.begin(), [&](Constructor *c) {
+          return (Constant *) codegen_constructor(c);
+        });
         ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, ctr->get_struct_type()), values);
         break;
       }

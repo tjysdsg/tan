@@ -17,7 +17,7 @@ struct Token;
 class Parser final {
 public:
   Parser() = delete;
-  Parser(ASTContext *ctx);
+  explicit Parser(ASTContext *ctx);
   ~Parser();
   ASTBase *parse();
 

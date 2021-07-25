@@ -20,7 +20,7 @@ public:
   ASTContext &operator=(const ASTContext &) = delete;
   ASTContext(const ASTContext &) = delete;
   ASTContext() = delete;
-  ASTContext(str filename);
+  explicit ASTContext(str filename);
   ~ASTContext();
 
 public:

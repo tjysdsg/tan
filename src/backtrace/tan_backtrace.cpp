@@ -82,7 +82,7 @@ inline vector<StackFrame> stack_trace() {
     #else
     DWORD offset = 0;
     #endif
-    char symbolBuffer[sizeof(IMAGEHLP_SYMBOL) + 255];
+    char symbolBuffer[sizeof(IMAGEHLP_SYMBOL) + 255]{0};
     auto symbol = (PIMAGEHLP_SYMBOL) symbolBuffer;
     symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL) + 255;
     symbol->MaxNameLength = 254;

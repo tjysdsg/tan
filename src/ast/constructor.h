@@ -18,7 +18,7 @@ public:
   Constructor() = delete;
 
 protected:
-  Constructor(ConstructorType type) : _type(type) {};
+  explicit Constructor(ConstructorType type) : _type(type) {};
 
 public:
   virtual ~Constructor() {}
@@ -73,7 +73,7 @@ public:
   ASTType *get_struct_type() const;
 
 protected:
-  StructConstructor(ASTType *struct_type);
+  explicit StructConstructor(ASTType *struct_type);
 
 private:
   vector<Constructor *> _member_constructors{};

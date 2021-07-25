@@ -50,7 +50,7 @@ enum class IntrinsicType {
  */
 class Intrinsic : public Expr, public ASTNamed {
 protected:
-  Intrinsic(SourceIndex loc);
+  explicit Intrinsic(SourceIndex loc);
 
 public:
   static Intrinsic *Create(SourceIndex loc);

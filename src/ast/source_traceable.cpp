@@ -4,7 +4,7 @@
 
 using namespace tanlang;
 
-SourceTraceable::SourceTraceable(SourceIndex loc) { _loc = loc; }
+SourceTraceable::SourceTraceable(SourceIndex loc) : _loc(loc) {}
 
 const SourceIndex &SourceTraceable::get_loc() const { return _loc; }
 

@@ -8,13 +8,12 @@ namespace tanlang {
 class TypeAccessor {
 public:
   virtual ASTType *get_type() const;
-
   virtual ~TypeAccessor() = default;
 };
 
 class Typed : public TypeAccessor {
 public:
-  virtual ASTType *get_type() const;
+  ASTType *get_type() const override;
   virtual void set_type(ASTType *type);
 
 private:

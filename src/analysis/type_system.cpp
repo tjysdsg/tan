@@ -87,7 +87,7 @@ int TypeSystem::CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2) {
   size_t s2 = t2->get_size_bits();
 
   // TODO: support implicit cast of different pointer types
-  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t1->get_contained_ty()) {
+  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t2->get_contained_ty()) {
     return 0;
   } else if (t1->is_bool()) { return 0; }
   else if (t2->is_bool()) { return 1; }

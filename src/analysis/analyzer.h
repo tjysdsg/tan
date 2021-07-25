@@ -9,7 +9,7 @@ class AnalyzerImpl;
 
 class Analyzer {
 public:
-  Analyzer(ASTContext *ctx);
+  explicit Analyzer(ASTContext *ctx);
   ~Analyzer();
   void analyze(ASTBase *p);
 

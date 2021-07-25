@@ -63,12 +63,11 @@ Token::~Token() {
   delete _loc;
 }
 
-Token::Token(TokenType tokenType, size_t line, size_t col, str value, str source_line) {
-  _type = tokenType;
-  _value = std::move(value);
-  _loc = new SourceLoc(line, col);
-  _source_line = source_line;
-}
+Token::Token(TokenType tokenType, size_t line, size_t col, str value, str source_line)
+    : _type(tokenType),
+    _value(std::move(value)),
+    _loc(new SourceLoc(line, col)),
+    _source_line(std::move(source_line)) {}
 
 TokenType Token::get_type() const { return _type; }
 

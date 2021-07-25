@@ -4,9 +4,8 @@
 
 using namespace tanlang;
 
-SourceManager::SourceManager(str filename, vector<Token *> tokens) {
-  _filename = filename;
-  _tokens = tokens;
+SourceManager::SourceManager(str filename, vector<Token *> tokens)
+    : _filename(std::move(filename)), _tokens(std::move(tokens)) {
   if (_tokens.empty()) { /// if the file is empty, insert a token so that source location 0:0 is always valid
     _tokens.push_back(new Token(TokenType::COMMENTS, 0, 0, "", ""));
   }

@@ -54,7 +54,7 @@ StructConstructor *StructConstructor::Create(ASTType *struct_type) {
 
 StructConstructor *StructConstructor::Create(ASTType *struct_type, vector<Constructor *> member_ctrs) {
   auto *ret = new StructConstructor(struct_type);
-  ret->_member_constructors = member_ctrs;
+  ret->_member_constructors = std::move(member_ctrs);
   return ret;
 }
 
