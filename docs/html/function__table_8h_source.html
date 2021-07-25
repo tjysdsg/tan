@@ -31,6 +31,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -54,31 +55,27 @@
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef __TAN_SRC_COMPILER_FUNCTION_TABLE_H__</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_COMPILER_FUNCTION_TABLE_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/ast/fwd.h&quot;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">class </span>ASTFunction;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">using</span> ASTFunctionPtr = std::shared_ptr&lt;ASTFunction&gt;;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionTable.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1FunctionTable.html">FunctionTable</a> final {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  <a class="code" href="classtanlang_1_1FunctionTable.html">FunctionTable</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">void</span> set(ASTFunctionPtr func);</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  vector&lt;ASTFunctionPtr&gt; get(<span class="keyword">const</span> str &amp;name);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  vector&lt;ASTFunctionPtr&gt; get_all() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  umap&lt;str, vector&lt;ASTFunctionPtr&gt;&gt; _table{};</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;};</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">using</span> FunctionTablePtr = std::shared_ptr&lt;FunctionTable&gt;;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_SRC_COMPILER_FUNCTION_TABLE_H__ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionTable.html">    8</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1FunctionTable.html">FunctionTable</a> final {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  <a class="code" href="classtanlang_1_1FunctionTable.html">FunctionTable</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  <span class="keywordtype">void</span> set(<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *func);</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  vector&lt;FunctionDecl *&gt; get(<span class="keyword">const</span> str &amp;name);</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  [[nodiscard]] vector&lt;FunctionDecl *&gt; get_all() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  umap&lt;str, vector&lt;FunctionDecl *&gt;&gt; _table{};</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;};</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_SRC_COMPILER_FUNCTION_TABLE_H__ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1FunctionTable_html"><div class="ttname"><a href="classtanlang_1_1FunctionTable.html">tanlang::FunctionTable</a></div><div class="ttdef"><b>Definition:</b> <a href="function__table_8h_source.html#l00011">function_table.h:11</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionTable_html"><div class="ttname"><a href="classtanlang_1_1FunctionTable.html">tanlang::FunctionTable</a></div><div class="ttdef"><b>Definition:</b> <a href="function__table_8h_source.html#l00008">function_table.h:8</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html">tanlang::FunctionDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00035">decl.h:35</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

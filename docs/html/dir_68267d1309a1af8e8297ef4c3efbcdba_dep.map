@@ -1,16 +1,17 @@
 <map id="/mnt/d/repos/tan/src" name="/mnt/d/repos/tan/src">
-<area shape="rect" id="node2" href="dir_203e5988f1ed315d29383d699972de6f.html" title="ast" alt="" coords="803,27,875,75"/>
-<area shape="rect" id="node11" href="dir_d44c64559bbebec7f509842c48db8b23.html" title="include" alt="" coords="611,123,683,171"/>
-<area shape="rect" id="edge2-headlabel" href="dir_000002_000000.html" title="1" alt="" coords="698,127,708,141"/>
-<area shape="rect" id="node3" href="dir_0af1587c8378955de40f48b4bd1869f0.html" title="base" alt="" coords="707,27,779,75"/>
-<area shape="rect" id="node4" href="dir_b78fdfbbb632ce54d070469d6a721373.html" title="cli" alt="" coords="611,27,683,75"/>
-<area shape="rect" id="edge3-headlabel" href="dir_000004_000000.html" title="1" alt="" coords="650,97,660,112"/>
-<area shape="rect" id="node5" href="dir_f13bc85843fa14191e0ad4a3a157cf60.html" title="compiler" alt="" coords="507,27,586,75"/>
-<area shape="rect" id="node6" href="dir_e1aa690b4af0a0538ec65649b0390051.html" title="lexer" alt="" coords="411,27,483,75"/>
-<area shape="rect" id="node7" href="dir_c85d3e3c5052e9ad9ce18c6863244a25.html" title="lib" alt="" coords="315,27,387,75"/>
-<area shape="rect" id="edge1-headlabel" href="dir_000007_000000.html" title="2" alt="" coords="589,122,598,137"/>
-<area shape="rect" id="node8" href="dir_41b844c4f7b9bcc409e1bbd7bd44feef.html" title="linker" alt="" coords="219,27,291,75"/>
-<area shape="rect" id="node9" href="dir_6cd8491d143eb218b70983dbdb3c58bc.html" title="parser" alt="" coords="123,27,195,75"/>
-<area shape="rect" id="node10" href="dir_120ed4da3e3217b1e7fc0b4f48568e79.html" title="test" alt="" coords="27,27,99,75"/>
-<area shape="rect" id="clust1" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html" alt="" coords="16,16,981,85"/>
+<area shape="rect" id="node2" href="dir_2eec376824a17f48dc36b4bd0c810e01.html" title="analysis" alt="" coords="1017,27,1093,75"/>
+<area shape="rect" id="node3" href="dir_203e5988f1ed315d29383d699972de6f.html" title="ast" alt="" coords="920,27,992,75"/>
+<area shape="rect" id="node4" href="dir_8564d9456b691226e41356bb43c7af4c.html" title="backtrace" alt="" coords="809,27,895,75"/>
+<area shape="rect" id="node5" href="dir_0af1587c8378955de40f48b4bd1869f0.html" title="base" alt="" coords="712,27,784,75"/>
+<area shape="rect" id="node6" href="dir_b78fdfbbb632ce54d070469d6a721373.html" title="cli" alt="" coords="616,27,688,75"/>
+<area shape="rect" id="node13" href="dir_d44c64559bbebec7f509842c48db8b23.html" title="include" alt="" coords="417,123,489,171"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000006_000000.html" title="1" alt="" coords="505,128,514,143"/>
+<area shape="rect" id="node7" href="dir_7cf1b5e32c0ccac638cac1ebc38d93b6.html" title="codegen" alt="" coords="515,27,592,75"/>
+<area shape="rect" id="node8" href="dir_f13bc85843fa14191e0ad4a3a157cf60.html" title="compiler" alt="" coords="411,27,490,75"/>
+<area shape="rect" id="node9" href="dir_e1aa690b4af0a0538ec65649b0390051.html" title="lexer" alt="" coords="315,27,387,75"/>
+<area shape="rect" id="node10" href="dir_c85d3e3c5052e9ad9ce18c6863244a25.html" title="lib" alt="" coords="219,27,291,75"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000010_000000.html" title="3" alt="" coords="398,112,407,127"/>
+<area shape="rect" id="node11" href="dir_41b844c4f7b9bcc409e1bbd7bd44feef.html" title="linker" alt="" coords="123,27,195,75"/>
+<area shape="rect" id="node12" href="dir_6cd8491d143eb218b70983dbdb3c58bc.html" title="parser" alt="" coords="27,27,99,75"/>
+<area shape="rect" id="clust1" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html" alt="" coords="16,16,1200,85"/>
 </map>

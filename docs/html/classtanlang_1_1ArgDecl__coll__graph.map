@@ -1,0 +1,11 @@
+<map id="tanlang::ArgDecl" name="tanlang::ArgDecl">
+<area shape="rect" id="node1" title=" " alt="" coords="253,399,383,425"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="264,323,372,349"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="149,247,257,273"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="61,171,197,197"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,95,191,121"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="19,5,177,32"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="227,171,345,197"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,95,381,121"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="281,247,432,273"/>
+</map>

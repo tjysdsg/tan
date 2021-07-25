@@ -1,0 +1,8 @@
+<map id="tanlang::BreakContinue" name="tanlang::BreakContinue">
+<area shape="rect" id="node1" title=" " alt="" coords="53,229,227,256"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Break.html" title=" " alt="" coords="5,304,123,331"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Continue.html" title=" " alt="" coords="147,304,285,331"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Stmt.html" title=" " alt="" coords="85,155,195,181"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="72,80,208,107"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="47,5,233,32"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="tanlang::Decl" name="tanlang::Decl">
+<area shape="rect" id="node1" title=" " alt="" coords="621,107,729,133"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1ArgDecl.html" title=" " alt="" coords="793,5,924,32"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1EnumDecl.html" title=" " alt="" coords="786,56,931,83"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="777,107,940,133"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1StructDecl.html" title=" " alt="" coords="785,157,932,184"/>
+<area shape="rect" id="node12" href="$classtanlang_1_1VarDecl.html" title=" " alt="" coords="794,208,923,235"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="444,81,552,108"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="239,56,375,83"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,56,191,83"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="248,107,365,133"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="15,107,181,133"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="423,132,573,159"/>
+</map>

@@ -31,6 +31,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -56,118 +57,117 @@
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/llvm_include.h&quot;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="libtanc_8h.html">libtanc.h</a>&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">class </span>ASTNode;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">class </span>CompilerSession;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">/**</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment"> * \class Compiler</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment"> * \brief Abstraction of a compiler</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment"> * */</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html">   16</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Compiler.html">Compiler</a> {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">   * \brief Parse a single file to AST</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">ParseFile</a>(<span class="keyword">const</span> str &amp;filename);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">   * \brief Get information about the current machine</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keyword">static</span> TargetMachine *<a class="code" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">GetDefaultTargetMachine</a>();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">   * \brief Import search directories</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">   * \details This is set by compile_files() in libtanc.h</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">   32</a></span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">import_dirs</a>{};</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">   * \brief Current compile configuration</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">   37</a></span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> <a class="code" href="structTanCompilation.html">TanCompilation</a> <a class="code" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">compile_config</a>{};</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">   * \brief Get a list of possible files that corresponds to an import</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">   * \details Suppose there&#39;s an import statement `import &quot;../parent.tan&quot;`, in a file at &quot;./src.tan&quot;,</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">   *    the call to resolve_import should be like `Compiler::resolve_import(&quot;./src.tan&quot;, &quot;../parent.tan&quot;)`</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">   * \param callee_path The path to the file which the import statement is in</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">   * \param import_name The filename specified by the import statement</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">static</span> vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">resolve_import</a>(<span class="keyword">const</span> str &amp;callee_path, <span class="keyword">const</span> str &amp;import_name);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">private</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">   * \brief CompilerSession object of each source file</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> umap&lt;str, CompilerSession *&gt; sessions{};</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">   * \brief Compiler instances created due to import statements</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">   * \details These instances do NOT generate any code, they only serve as a parser</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> vector&lt;std::shared_ptr&lt;Compiler&gt;&gt; sub_compilers{};</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> TargetMachine *target_machine = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>() = <span class="keyword">delete</span>;<span class="comment"></span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">   * \brief Create a Compiler instance with its relevant source file name/path</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>(<span class="keyword">const</span> str &amp;filename);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  ~<a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>();</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">   * \brief Parse the corresponding source file, and build AST</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">parse</a>();</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">   * \brief Generate LLVM IR code</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  Value *<a class="code" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">codegen</a>();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">   * \brief Emit object files</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">   * \details A file called &quot;&lt;filename&gt;.o&quot; will be created in the current working directory</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">emit_object</a>(<span class="keyword">const</span> str &amp;filename);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">   * \brief Print LLVM IR code</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">dump_ir</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">   * \brief Pretty-print AST</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">dump_ast</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  CompilerSession *_compiler_session = <span class="keyword">nullptr</span>; <span class="comment">/// wrapper for various LLVM classes</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment"></span>  std::shared_ptr&lt;ASTNode&gt; _ast = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  str _filename = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;};</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160; </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* TAN_INCLUDE_COMPILER_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;src/ast/fwd.h&quot;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment"> * \class Compiler</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"> * \brief Abstraction of a compiler</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment"> * */</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html">   14</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Compiler.html">Compiler</a> {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">   * \brief Parse a single file to AST</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">ParseFile</a>(<span class="keyword">const</span> str &amp;filename);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">   * \brief Get information about the current machine</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keyword">static</span> TargetMachine *<a class="code" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">GetDefaultTargetMachine</a>();</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">   * \brief Import search directories</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">   * \details This is set by compile_files() in libtanc.h</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">   30</a></span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">import_dirs</a>{};</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">   * \brief Current compile configuration</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">   35</a></span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> <a class="code" href="structTanCompilation.html">TanCompilation</a> <a class="code" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">compile_config</a>{};</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">   * \brief Get a list of possible files that corresponds to an import</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">   * \details Suppose there&#39;s an import statement `import &quot;../parent.tan&quot;`, in a file at &quot;./src.tan&quot;,</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">   *    the call to resolve_import should be like `Compiler::resolve_import(&quot;./src.tan&quot;, &quot;../parent.tan&quot;)`</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">   * \param callee_path The path to the file which the import statement is in</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">   * \param import_name The filename specified by the import statement</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keyword">static</span> vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">resolve_import</a>(<span class="keyword">const</span> str &amp;callee_path, <span class="keyword">const</span> str &amp;import_name);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">   * \brief CompilerSession object of each source file</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> umap&lt;str, CompilerSession *&gt; sessions{};</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">   * \brief Compiler instances created due to import statements</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">   * \details These instances do NOT generate any code, they only serve as a parser</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> vector&lt;Compiler *&gt; sub_compilers{};</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> TargetMachine *target_machine = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>() = <span class="keyword">delete</span>;<span class="comment"></span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">   * \brief create_ty a Compiler instance with its relevant source file name/path</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>(<span class="keyword">const</span> str &amp;filename);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  ~<a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>();</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">   * \brief Parse the corresponding source file, and build AST</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">parse</a>();</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">   * \brief Generate LLVM IR code</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  Value *<a class="code" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">codegen</a>();</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">   * \brief Emit object files</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">   * \details A file called &quot;&lt;filename&gt;.o&quot; will be created in the current working directory</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">emit_object</a>(<span class="keyword">const</span> str &amp;filename);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">   * \brief Print LLVM IR code</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">dump_ir</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">   * \brief Pretty-print AST</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">dump_ast</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  CompilerSession *_cs = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  ASTContext *_ctx = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  ASTBase *_ast = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  str _filename = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;};</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* TAN_INCLUDE_COMPILER_H_ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab862c86e7077f06a08b2b52a4f526756"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">tanlang::Compiler::codegen</a></div><div class="ttdeci">Value * codegen()</div><div class="ttdoc">Generate LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00040">compiler.cpp:40</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a9d082149456346747f651680dab15ec3"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">tanlang::Compiler::GetDefaultTargetMachine</a></div><div class="ttdeci">static TargetMachine * GetDefaultTargetMachine()</div><div class="ttdoc">Get information about the current machine.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00074">compiler.cpp:74</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a4d8cca606eefa4ccda126c76231a730a"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">tanlang::Compiler::import_dirs</a></div><div class="ttdeci">static vector&lt; str &gt; import_dirs</div><div class="ttdoc">Import search directories.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00032">compiler.h:32</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a8b1492e7009960c17baecb9e84de5f51"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">tanlang::Compiler::emit_object</a></div><div class="ttdeci">void emit_object(const str &amp;filename)</div><div class="ttdoc">Emit object files.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00038">compiler.cpp:38</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab862c86e7077f06a08b2b52a4f526756"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">tanlang::Compiler::codegen</a></div><div class="ttdeci">Value * codegen()</div><div class="ttdoc">Generate LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00045">compiler.cpp:45</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a9d082149456346747f651680dab15ec3"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">tanlang::Compiler::GetDefaultTargetMachine</a></div><div class="ttdeci">static TargetMachine * GetDefaultTargetMachine()</div><div class="ttdoc">Get information about the current machine.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00090">compiler.cpp:90</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a4d8cca606eefa4ccda126c76231a730a"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">tanlang::Compiler::import_dirs</a></div><div class="ttdeci">static vector&lt; str &gt; import_dirs</div><div class="ttdoc">Import search directories.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00030">compiler.h:30</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a8b1492e7009960c17baecb9e84de5f51"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">tanlang::Compiler::emit_object</a></div><div class="ttdeci">void emit_object(const str &amp;filename)</div><div class="ttdoc">Emit object files.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00043">compiler.cpp:43</a></div></div>
 <div class="ttc" id="alibtanc_8h_html"><div class="ttname"><a href="libtanc_8h.html">libtanc.h</a></div><div class="ttdoc">Defines tools for compiling tan source files.</div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_aee2e3668284ce4f0498af7dfa356b7d1"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">tanlang::Compiler::dump_ast</a></div><div class="ttdeci">void dump_ast() const</div><div class="ttdoc">Pretty-print AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00055">compiler.cpp:55</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a1d85bccc1b3610c67e75990e73dac4f0"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">tanlang::Compiler::compile_config</a></div><div class="ttdeci">static TanCompilation compile_config</div><div class="ttdoc">Current compile configuration.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00037">compiler.h:37</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_aee2e3668284ce4f0498af7dfa356b7d1"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">tanlang::Compiler::dump_ast</a></div><div class="ttdeci">void dump_ast() const</div><div class="ttdoc">Pretty-print AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00062">compiler.cpp:62</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a1d85bccc1b3610c67e75990e73dac4f0"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">tanlang::Compiler::compile_config</a></div><div class="ttdeci">static TanCompilation compile_config</div><div class="ttdoc">Current compile configuration.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00035">compiler.h:35</a></div></div>
 <div class="ttc" id="astructTanCompilation_html"><div class="ttname"><a href="structTanCompilation.html">TanCompilation</a></div><div class="ttdoc">Compilation configuration.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00046">libtanc.h:46</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab972430029c084dc2bc334ef3c453a3e"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">tanlang::Compiler::dump_ir</a></div><div class="ttdeci">void dump_ir() const</div><div class="ttdoc">Print LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00049">compiler.cpp:49</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_aaf46e625bf4c4af102c376def95e66fb"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">tanlang::Compiler::ParseFile</a></div><div class="ttdeci">static void ParseFile(const str &amp;filename)</div><div class="ttdoc">Parse a single file to AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00068">compiler.cpp:68</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_acd1dda91d530e739d99e041c63895b12"><div class="ttname"><a href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">tanlang::Compiler::resolve_import</a></div><div class="ttdeci">static vector&lt; str &gt; resolve_import(const str &amp;callee_path, const str &amp;import_name)</div><div class="ttdoc">Get a list of possible files that corresponds to an import.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00079">compiler.cpp:79</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ac1d17f747a23dab0400fa8a692dc553c"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">tanlang::Compiler::parse</a></div><div class="ttdeci">void parse()</div><div class="ttdoc">Parse the corresponding source file, and build AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00060">compiler.cpp:60</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html"><div class="ttname"><a href="classtanlang_1_1Compiler.html">tanlang::Compiler</a></div><div class="ttdoc">Abstraction of a compiler.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00016">compiler.h:16</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab972430029c084dc2bc334ef3c453a3e"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">tanlang::Compiler::dump_ir</a></div><div class="ttdeci">void dump_ir() const</div><div class="ttdoc">Print LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00056">compiler.cpp:56</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_aaf46e625bf4c4af102c376def95e66fb"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">tanlang::Compiler::ParseFile</a></div><div class="ttdeci">static void ParseFile(const str &amp;filename)</div><div class="ttdoc">Parse a single file to AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00084">compiler.cpp:84</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_acd1dda91d530e739d99e041c63895b12"><div class="ttname"><a href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">tanlang::Compiler::resolve_import</a></div><div class="ttdeci">static vector&lt; str &gt; resolve_import(const str &amp;callee_path, const str &amp;import_name)</div><div class="ttdoc">Get a list of possible files that corresponds to an import.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00095">compiler.cpp:95</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ac1d17f747a23dab0400fa8a692dc553c"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">tanlang::Compiler::parse</a></div><div class="ttdeci">void parse()</div><div class="ttdoc">Parse the corresponding source file, and build AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00067">compiler.cpp:67</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html"><div class="ttname"><a href="classtanlang_1_1Compiler.html">tanlang::Compiler</a></div><div class="ttdoc">Abstraction of a compiler.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00014">compiler.h:14</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

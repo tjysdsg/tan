@@ -1,0 +1,15 @@
+<map id="tanlang::Literal" name="tanlang::Literal">
+<area shape="rect" id="node1" title=" " alt="" coords="805,132,925,159"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1ArrayLiteral.html" title=" " alt="" coords="979,5,1134,32"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1BoolLiteral.html" title=" " alt="" coords="982,56,1131,83"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1CharLiteral.html" title=" " alt="" coords="981,107,1132,133"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1FloatLiteral.html" title=" " alt="" coords="980,157,1133,184"/>
+<area shape="rect" id="node12" href="$classtanlang_1_1IntegerLiteral.html" title=" " alt="" coords="973,208,1140,235"/>
+<area shape="rect" id="node13" href="$classtanlang_1_1StringLiteral.html" title=" " alt="" coords="977,259,1136,285"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1CompTimeExpr.html" title="Compile&#45;time expression." alt="" coords="579,132,757,159"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="423,132,531,159"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="239,107,375,133"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,107,191,133"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="248,157,365,184"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="15,157,181,184"/>
+</map>

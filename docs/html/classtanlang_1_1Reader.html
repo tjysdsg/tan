@@ -31,6 +31,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -66,36 +67,39 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>open</b> (const str &
 void&#160;</td><td class="memItemRight" valign="bottom"><b>from_string</b> (const str &amp;code)</td></tr>
 <tr class="separator:a5ecc4ed4bf9a7bf9d7d26cad0518051d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98445b08398141ce38b7c62245965299"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">size</a> () const</td></tr>
-<tr class="memdesc:a98445b08398141ce38b7c62245965299"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of lines of code of the current file.  <a href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">More...</a><br /></td></tr>
+<tr class="memdesc:a98445b08398141ce38b7c62245965299"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classtanlang_1_1Return.html">Return</a> the number of lines of code of the current file.  <a href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">More...</a><br /></td></tr>
 <tr class="separator:a98445b08398141ce38b7c62245965299"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa845a4f8123c033c1865c3f59f0921d8"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtanlang_1_1SourceLine.html">SourceLine</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#aa845a4f8123c033c1865c3f59f0921d8">get_line</a> (const size_t index) const</td></tr>
-<tr class="memdesc:aa845a4f8123c033c1865c3f59f0921d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return source at a specific line.  <a href="classtanlang_1_1Reader.html#aa845a4f8123c033c1865c3f59f0921d8">More...</a><br /></td></tr>
-<tr class="separator:aa845a4f8123c033c1865c3f59f0921d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8628a86c3dfc5602ad923b077444a5be"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a8628a86c3dfc5602ad923b077444a5be">get_line</a> (const size_t index) const</td></tr>
+<tr class="memdesc:a8628a86c3dfc5602ad923b077444a5be"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classtanlang_1_1Return.html">Return</a> source at a specific line.  <a href="classtanlang_1_1Reader.html#a8628a86c3dfc5602ad923b077444a5be">More...</a><br /></td></tr>
+<tr class="separator:a8628a86c3dfc5602ad923b077444a5be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a80d05bb40e244c341d10c1891ef76a92"><td class="memItemLeft" align="right" valign="top"><a id="a80d05bb40e244c341d10c1891ef76a92"></a>
 char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;ptr) const</td></tr>
 <tr class="separator:a80d05bb40e244c341d10c1891ef76a92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa80bdda79d3d97180a1acc8abe804317"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">substr</a> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start) const</td></tr>
 <tr class="memdesc:aa80bdda79d3d97180a1acc8abe804317"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a substring from start to the end of the current line.  <a href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">More...</a><br /></td></tr>
 <tr class="separator:aa80bdda79d3d97180a1acc8abe804317"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a64fef2def98f0232be0ca0fb70e4522f"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a64fef2def98f0232be0ca0fb70e4522f">substr</a> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start, <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> end) const</td></tr>
-<tr class="memdesc:a64fef2def98f0232be0ca0fb70e4522f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a substring from the source code.  <a href="classtanlang_1_1Reader.html#a64fef2def98f0232be0ca0fb70e4522f">More...</a><br /></td></tr>
-<tr class="separator:a64fef2def98f0232be0ca0fb70e4522f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62cf96f170af697ec266efe1d051a7d6"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a62cf96f170af697ec266efe1d051a7d6">substr</a> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start, const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;end) const</td></tr>
+<tr class="memdesc:a62cf96f170af697ec266efe1d051a7d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a substring from the source code.  <a href="classtanlang_1_1Reader.html#a62cf96f170af697ec266efe1d051a7d6">More...</a><br /></td></tr>
+<tr class="separator:a62cf96f170af697ec266efe1d051a7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a486dfbf5ef0c62bb56df472a8ec60b77"><td class="memItemLeft" align="right" valign="top"><a id="a486dfbf5ef0c62bb56df472a8ec60b77"></a>
 <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> () const</td></tr>
 <tr class="separator:a486dfbf5ef0c62bb56df472a8ec60b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5c18e796faf23e7aa469536cabb4b4c"><td class="memItemLeft" align="right" valign="top"><a id="ae5c18e796faf23e7aa469536cabb4b4c"></a>
 <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end</b> () const</td></tr>
 <tr class="separator:ae5c18e796faf23e7aa469536cabb4b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac02983077ce83a3715e50899301b98ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#ac02983077ce83a3715e50899301b98ae">forward</a> (<a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> ptr)</td></tr>
-<tr class="memdesc:ac02983077ce83a3715e50899301b98ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a copy of code_ptr that points to the next character.  <a href="classtanlang_1_1Reader.html#ac02983077ce83a3715e50899301b98ae">More...</a><br /></td></tr>
-<tr class="separator:ac02983077ce83a3715e50899301b98ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16fad2a0e7aa8f4df464baf51cb9e4f7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a16fad2a0e7aa8f4df464baf51cb9e4f7">forward</a> (<a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> c)</td></tr>
+<tr class="memdesc:a16fad2a0e7aa8f4df464baf51cb9e4f7"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classtanlang_1_1Return.html">Return</a> a copy of code_ptr that points to the next character.  <a href="classtanlang_1_1Reader.html#a16fad2a0e7aa8f4df464baf51cb9e4f7">More...</a><br /></td></tr>
+<tr class="separator:a16fad2a0e7aa8f4df464baf51cb9e4f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee79bb9e4b9ef86dd020b54adbeeb657"><td class="memItemLeft" align="right" valign="top"><a id="aee79bb9e4b9ef86dd020b54adbeeb657"></a>
+str&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () const</td></tr>
+<tr class="separator:aee79bb9e4b9ef86dd020b54adbeeb657"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="reader_8h_source.html#l00018">18</a> of file <a class="el" href="reader_8h_source.html">reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8h_source.html#l00010">10</a> of file <a class="el" href="reader_8h_source.html">reader.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ac02983077ce83a3715e50899301b98ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac02983077ce83a3715e50899301b98ae">&#9670;&nbsp;</a></span>forward()</h2>
+<a id="a16fad2a0e7aa8f4df464baf51cb9e4f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16fad2a0e7aa8f4df464baf51cb9e4f7">&#9670;&nbsp;</a></span>forward()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -104,26 +108,26 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
           <td class="memname"><a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> tanlang::Reader::forward </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td>
-          <td class="paramname"><em>ptr</em></td><td>)</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return a copy of code_ptr that points to the next character. </p>
+<p><a class="el" href="classtanlang_1_1Return.html">Return</a> a copy of code_ptr that points to the next character. </p>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00073">73</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00075">75</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
-<a id="aa845a4f8123c033c1865c3f59f0921d8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa845a4f8123c033c1865c3f59f0921d8">&#9670;&nbsp;</a></span>get_line()</h2>
+<a id="a8628a86c3dfc5602ad923b077444a5be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8628a86c3dfc5602ad923b077444a5be">&#9670;&nbsp;</a></span>get_line()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="structtanlang_1_1SourceLine.html">SourceLine</a> &amp; tanlang::Reader::get_line </td>
+          <td class="memname">str tanlang::Reader::get_line </td>
           <td>(</td>
           <td class="paramtype">const size_t&#160;</td>
           <td class="paramname"><em>index</em></td><td>)</td>
@@ -132,7 +136,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
       </table>
 </div><div class="memdoc">
 
-<p>Return source at a specific line. </p>
+<p><a class="el" href="classtanlang_1_1Return.html">Return</a> source at a specific line. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">index</td><td>line of code starting from 0 </td></tr>
@@ -140,7 +144,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00109">109</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00115">115</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
@@ -167,9 +171,9 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
 </table>
 </div><div class="memdoc">
 
-<p>Return the number of lines of code of the current file. </p>
+<p><a class="el" href="classtanlang_1_1Return.html">Return</a> the number of lines of code of the current file. </p>
 
-<p class="definition">Definition at line <a class="el" href="reader_8h_source.html#l00025">25</a> of file <a class="el" href="reader_8h_source.html">reader.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8h_source.html#l00017">17</a> of file <a class="el" href="reader_8h_source.html">reader.h</a>.</p>
 
 </div>
 </div>
@@ -197,12 +201,12 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00101">101</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00107">107</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a64fef2def98f0232be0ca0fb70e4522f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a64fef2def98f0232be0ca0fb70e4522f">&#9670;&nbsp;</a></span>substr() <span class="overload">[2/2]</span></h2>
+<a id="a62cf96f170af697ec266efe1d051a7d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62cf96f170af697ec266efe1d051a7d6">&#9670;&nbsp;</a></span>substr() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -216,7 +220,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;&#160;</td>
           <td class="paramname"><em>end</em>&#160;</td>
         </tr>
         <tr>
@@ -236,7 +240,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00047">47</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00048">48</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>

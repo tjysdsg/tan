@@ -1,0 +1,12 @@
+<map id="tanlang::Identifier" name="tanlang::Identifier">
+<area shape="rect" id="node1" title=" " alt="" coords="156,437,293,464"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="285,247,393,273"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1VarRef.html" title=" " alt="" coords="213,348,335,375"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="38,171,174,197"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1ASTType.html" title="Type of an ASTNode." alt="" coords="5,297,140,324"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="13,95,199,121"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="27,5,185,32"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="281,171,398,197"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="256,95,423,121"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="111,247,261,273"/>
+</map>

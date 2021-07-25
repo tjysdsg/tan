@@ -31,6 +31,7 @@
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -60,90 +61,85 @@
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">struct </span>Cursor;</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="structtanlang_1_1SourceLine.html">   10</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtanlang_1_1SourceLine.html">SourceLine</a> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  <span class="keywordtype">size_t</span> lineno;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  str code;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  <a class="code" href="structtanlang_1_1SourceLine.html">SourceLine</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  ~<a class="code" href="structtanlang_1_1SourceLine.html">SourceLine</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <a class="code" href="structtanlang_1_1SourceLine.html">SourceLine</a>(<span class="keyword">const</span> <span class="keywordtype">size_t</span> lineno, <span class="keyword">const</span> str &amp;code) : lineno(lineno), code(code) {}</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;};</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classtanlang_1_1Reader.html">   18</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Reader.html">Reader</a> final {</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordtype">void</span> open(<span class="keyword">const</span> str &amp;filename);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  <span class="keywordtype">void</span> from_string(<span class="keyword">const</span> str &amp;code);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">  /// \brief Return the number of lines of code of the current file</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">   25</a></span>&#160;<span class="comment"></span>  [[nodiscard]] <span class="keywordtype">size_t</span> <a class="code" href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">size</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _lines.size(); }</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">  /** \brief Return source at a specific line</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">   *  \param index line of code starting from 0</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">   */</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keyword">const</span> <a class="code" href="structtanlang_1_1SourceLine.html">SourceLine</a> &amp;<a class="code" href="classtanlang_1_1Reader.html#aa845a4f8123c033c1865c3f59f0921d8">get_line</a>(<span class="keyword">const</span> <span class="keywordtype">size_t</span> index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordtype">char</span> at(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;ptr) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">   * \brief Get a substring from start to the end of the current line</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">   * \param start start of the string, inclusive</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  str <a class="code" href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">substr</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  /**</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">   * \brief Get a substring from the source code</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">   * \param start start of the string, inclusive</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">   * \param end end of the string, exclusive</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">   * */</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  str <a class="code" href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">substr</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start, <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> end) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classtanlang_1_1Reader.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Reader.html">Reader</a> final {</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  <span class="keywordtype">void</span> open(<span class="keyword">const</span> str &amp;filename);</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">void</span> from_string(<span class="keyword">const</span> str &amp;code);</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">  /// \brief Return the number of lines of code of the current file</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">   17</a></span>&#160;<span class="comment"></span>  [[nodiscard]] <span class="keywordtype">size_t</span> <a class="code" href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">size</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _lines.size(); }</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">  /** \brief Return source at a specific line</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">   *  \param index line of code starting from 0</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">   */</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  str <a class="code" href="classtanlang_1_1Reader.html#a8628a86c3dfc5602ad923b077444a5be">get_line</a>(<span class="keyword">const</span> <span class="keywordtype">size_t</span> index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordtype">char</span> at(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;ptr) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">   * \brief Get a substring from start to the end of the current line</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">   * \param start start of the string, inclusive</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  str <a class="code" href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">substr</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">   * \brief Get a substring from the source code</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">   * \param start start of the string, inclusive</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">   * \param end end of the string, exclusive</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">   * */</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  str <a class="code" href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">substr</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start, <span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;end) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> begin() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> end() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  /// \brief Return a copy of code_ptr that points to the next character</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"></span>  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> <a class="code" href="classtanlang_1_1Reader.html#a16fad2a0e7aa8f4df464baf51cb9e4f7">forward</a>(<a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> c);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  str get_filename() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> begin() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> end() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// \brief Return a copy of code_ptr that points to the next character</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span>  [[nodiscard]] <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> <a class="code" href="classtanlang_1_1Reader.html#ac02983077ce83a3715e50899301b98ae">forward</a>(<a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> ptr);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  vector&lt;SourceLine&gt; _lines{};</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;};</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  vector&lt;str&gt; _lines{};</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  str _filename = <span class="stringliteral">&quot;memory&quot;</span>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;};</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="structtanlang_1_1Cursor.html">   51</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classtanlang_1_1Reader.html">Reader</a>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordtype">size_t</span> l = 0;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordtype">size_t</span> c = 0;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="structtanlang_1_1Cursor.html">   56</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classtanlang_1_1Reader.html">Reader</a>;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">size_t</span> l = 0;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">size_t</span> c = 0;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>(<span class="keywordtype">size_t</span> r, <span class="keywordtype">size_t</span> c, <span class="keyword">const</span> <a class="code" href="classtanlang_1_1Reader.html">Reader</a> *reader);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  ~<a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordtype">bool</span> operator&gt;(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// prefix increment</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;operator++();</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">// postfix increment</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> operator++(<span class="keywordtype">int</span>);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keywordtype">char</span> operator*();</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>(<span class="keywordtype">size_t</span> r, <span class="keywordtype">size_t</span> c, <span class="keyword">const</span> <a class="code" href="classtanlang_1_1Reader.html">Reader</a> *reader);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  ~<a class="code" href="structtanlang_1_1Cursor.html">Cursor</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">bool</span> operator&lt;=(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="keywordtype">bool</span> operator&gt;(<span class="keyword">const</span> <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;other) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="comment">// prefix increment</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;operator++();</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="comment">// postfix increment</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <a class="code" href="structtanlang_1_1Cursor.html">Cursor</a> operator++(<span class="keywordtype">int</span>);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keywordtype">char</span> operator*();</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a> *_reader = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;};</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a> *_reader = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;};</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="preprocessor">#endif // TAN_READER_READER_H</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="preprocessor">#endif // TAN_READER_READER_H</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1Reader_html"><div class="ttname"><a href="classtanlang_1_1Reader.html">tanlang::Reader</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00018">reader.h:18</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Reader_html_ac02983077ce83a3715e50899301b98ae"><div class="ttname"><a href="classtanlang_1_1Reader.html#ac02983077ce83a3715e50899301b98ae">tanlang::Reader::forward</a></div><div class="ttdeci">Cursor forward(Cursor ptr)</div><div class="ttdoc">Return a copy of code_ptr that points to the next character.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00073">reader.cpp:73</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Reader_html_aa845a4f8123c033c1865c3f59f0921d8"><div class="ttname"><a href="classtanlang_1_1Reader.html#aa845a4f8123c033c1865c3f59f0921d8">tanlang::Reader::get_line</a></div><div class="ttdeci">const SourceLine &amp; get_line(const size_t index) const</div><div class="ttdoc">Return source at a specific line.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00109">reader.cpp:109</a></div></div>
-<div class="ttc" id="astructtanlang_1_1Cursor_html"><div class="ttname"><a href="structtanlang_1_1Cursor.html">tanlang::Cursor</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00056">reader.h:56</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Reader_html_a98445b08398141ce38b7c62245965299"><div class="ttname"><a href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">tanlang::Reader::size</a></div><div class="ttdeci">size_t size() const</div><div class="ttdoc">Return the number of lines of code of the current file.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00025">reader.h:25</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Reader_html_aa80bdda79d3d97180a1acc8abe804317"><div class="ttname"><a href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">tanlang::Reader::substr</a></div><div class="ttdeci">str substr(const Cursor &amp;start) const</div><div class="ttdoc">Get a substring from start to the end of the current line.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00101">reader.cpp:101</a></div></div>
-<div class="ttc" id="astructtanlang_1_1SourceLine_html"><div class="ttname"><a href="structtanlang_1_1SourceLine.html">tanlang::SourceLine</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00010">reader.h:10</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html"><div class="ttname"><a href="classtanlang_1_1Reader.html">tanlang::Reader</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00010">reader.h:10</a></div></div>
+<div class="ttc" id="astructtanlang_1_1Cursor_html"><div class="ttname"><a href="structtanlang_1_1Cursor.html">tanlang::Cursor</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00051">reader.h:51</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_a98445b08398141ce38b7c62245965299"><div class="ttname"><a href="classtanlang_1_1Reader.html#a98445b08398141ce38b7c62245965299">tanlang::Reader::size</a></div><div class="ttdeci">size_t size() const</div><div class="ttdoc">Return the number of lines of code of the current file.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00017">reader.h:17</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_a8628a86c3dfc5602ad923b077444a5be"><div class="ttname"><a href="classtanlang_1_1Reader.html#a8628a86c3dfc5602ad923b077444a5be">tanlang::Reader::get_line</a></div><div class="ttdeci">str get_line(const size_t index) const</div><div class="ttdoc">Return source at a specific line.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00115">reader.cpp:115</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_a16fad2a0e7aa8f4df464baf51cb9e4f7"><div class="ttname"><a href="classtanlang_1_1Reader.html#a16fad2a0e7aa8f4df464baf51cb9e4f7">tanlang::Reader::forward</a></div><div class="ttdeci">Cursor forward(Cursor c)</div><div class="ttdoc">Return a copy of code_ptr that points to the next character.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00075">reader.cpp:75</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Reader_html_aa80bdda79d3d97180a1acc8abe804317"><div class="ttname"><a href="classtanlang_1_1Reader.html#aa80bdda79d3d97180a1acc8abe804317">tanlang::Reader::substr</a></div><div class="ttdeci">str substr(const Cursor &amp;start) const</div><div class="ttdoc">Get a substring from start to the end of the current line.</div><div class="ttdef"><b>Definition:</b> <a href="reader_8cpp_source.html#l00107">reader.cpp:107</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
