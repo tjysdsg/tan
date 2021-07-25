@@ -127,102 +127,31 @@ static void print_back_trace() {
     std::cerr << "Callstack:\n0x" << std::hex << i.address << ": " << i.name << "(" << i.line << ")\n";
   }
 }
-
 #else
 #include <cxxabi.h>
-#define MAX_STACK_TRACE 256
 
 void *__bt_state = nullptr;
 
-struct frame_info {
-  char *filename;
-  int lineno;
-  char *function;
-};
-
-struct bt_data {
-  struct frame_info *all;
-  size_t index;
-  size_t max;
-  int failed;
-};
-
-/*
-static void shit() {
-  unw_cursor_t cursor;
-  unw_context_t context;
-  unw_getcontext(&context);
-  unw_init_local(&cursor, &context);
-
-  while (unw_step(&cursor) > 0) {
-    unw_word_t offset, pc;
-    unw_get_reg(&cursor, UNW_REG_IP, &pc);
-    if (pc == 0) {
-      break;
-    }
-    std::printf("0x%lx:", pc);
-
-    char sym[256];
-    if (unw_get_proc_name(&cursor, sym, sizeof(sym), &offset) == 0) {
-      char *nameptr = sym;
-      int status;
-      char *demangled = abi::__cxa_demangle(sym, nullptr, nullptr, &status);
-      if (status == 0) {
-        nameptr = demangled;
-      }
-      std::printf(" (%s+0x%lx)\n", nameptr, offset);
-      std::free(demangled);
-    } else {
-      std::printf("unable to obtain symbol name for this frame\n");
-    }
-  }
-}
-*/
-
-int bt_callback(void *vdata, uintptr_t pc, const char *filename, int lineno, const char *function) {
-  auto *data = (struct bt_data *) vdata;
-
-  if (data->index >= data->max) {
-    fprintf(stderr, "Number of stack frames exceeds %d\n", MAX_STACK_TRACE);
-    data->failed = 1;
-    return 1;
+int bt_callback(void *, uintptr_t, const char *filename, int lineno, const char *function) {
+  /// demangle function name
+  const char *func_name = function;
+  int status;
+  char *demangled = abi::__cxa_demangle(function, nullptr, nullptr, &status);
+  if (status == 0) {
+    func_name = demangled;
   }
 
-  frame_info *p = &data->all[data->index];
-  if (filename == nullptr) {
-    p->filename = nullptr;
-  } else {
-    p->filename = strdup(filename);
-  }
-  p->lineno = lineno;
-  if (function == nullptr) {
-    p->function = nullptr;
-  } else {
-    p->function = strdup(function);
-  }
-  ++data->index;
-
-  std::cout << fmt::format("{}:{} in function {}\n", filename, lineno, function);
+  /// print
+  std::cout << fmt::format("{}:{} in function {}\n", filename, lineno, func_name);
   return 0;
 }
 
-void bt_error_callback(void *vdata, const char *msg, int errnum) {
-  auto *data = (struct bt_data *) vdata;
-  fprintf(stderr, "%s", msg);
-  if (errnum > 0) {
-    fprintf(stderr, ": %s", strerror(errnum));
-  }
-  fprintf(stderr, "\n");
-  data->failed = 1;
+void bt_error_callback(void *, const char *msg, int errnum) {
+  std::cerr << fmt::format("Error {} occurred when getting the stacktrace: {}", errnum, msg);
 }
 
-void bt_error_callback_create(void *data, const char *msg, int errnum) {
-  fprintf(stderr, "%s", msg);
-  if (errnum > 0) {
-    fprintf(stderr, ": %s", strerror(errnum));
-  }
-  fprintf(stderr, "\n");
-  exit(EXIT_FAILURE);
+void bt_error_callback_create(void *, const char *msg, int errnum) {
+  std::cerr << fmt::format("Error {} occurred when initializing the stacktrace: {}", errnum, msg);
 }
 
 void init_back_trace(const char *filename) {
@@ -231,15 +160,7 @@ void init_back_trace(const char *filename) {
 
 void print_back_trace() {
   TAN_ASSERT(__bt_state); /// make sure init_back_trace() is called
-  frame_info all[MAX_STACK_TRACE];
-  bt_data data;
-
-  data.all = &all[0];
-  data.index = 0;
-  data.max = MAX_STACK_TRACE;
-  data.failed = 0;
-
-  backtrace_full((backtrace_state *) __bt_state, 0, bt_callback, bt_error_callback, &data);
+  backtrace_full((backtrace_state *) __bt_state, 0, bt_callback, bt_error_callback, nullptr);
 }
 
 #endif
