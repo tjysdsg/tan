@@ -101,7 +101,8 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread ${DEP_LIBS} unwind)
+add_dependencies(tan libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
+target_link_libraries(tan pthread ${DEP_LIBS})
 set_other_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")

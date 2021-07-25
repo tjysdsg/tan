@@ -4,10 +4,9 @@
 [submodule "dep/filesystem"]
 	path = dep/filesystem
 	url = https://github.com/gulrak/filesystem
-
-[submodule "dep/libunwind"]
-	path = dep/libunwind
-	url = https://github.com/libunwind/libunwind
+[submodule "dep/libbacktrace"]
+	path = dep/libbacktrace
+	url = https://github.com/ianlancetaylor/libbacktrace
 [submodule "dep/fmt"]
 	path = dep/fmt
 	url = git@github.com:fmtlib/fmt.git
