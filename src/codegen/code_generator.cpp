@@ -184,27 +184,20 @@ private:
     return p->_llvm_value;
   }
 
-  void codegen_main_func_start(Function *f) {
-    Value *argc = f->getArg(0);
-    Value *argv = f->getArg(1);
-    Function *init_runtime = CodegenFuncPrototype(_cs,
-        ASTType::GetVoidType(_ctx, SourceIndex(0)),
-        "init_runtime",
-        {ASTType::GetI32Type(_ctx, SourceIndex(0)), /// argc: i32
-            ASTType::GetI8Type(_ctx, SourceIndex(0))->get_ptr_to()->get_ptr_to() /// argv: i8**
-        },
-        true,
-        false,
-        false);
-    _cs->_builder->CreateCall(init_runtime, {argc, argv});
-  }
-
   Value *codegen_func_decl(FunctionDecl *p) {
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
     auto ret_ty = p->get_ret_ty();
     Metadata *ret_meta = TypeSystem::ToLLVMMeta(_cs, ret_ty);
+
+    /// get function name
+    str func_name = p->get_name();
+    /// rename to "tan_main", as it will be called by the real main function in runtime/main.cpp
+    if (func_name == "main") {
+      p->set_name(func_name = "tan_main");
+      p->set_external(true);
+    }
 
     /// generate prototype
     auto *F = (Function *) codegen_func_prototype(p);
@@ -215,9 +208,6 @@ private:
       auto ty = p->get_arg_type(i);
       arg_metas.push_back(TypeSystem::ToLLVMMeta(_cs, ty));
     }
-
-    /// get function name
-    str func_name = p->get_name();
 
     /// function implementation
     if (!p->is_external()) {
@@ -278,12 +268,6 @@ private:
       builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_body()->get_loc()),
           (unsigned) _sm->get_col(p->get_body()->get_loc()),
           subprogram));
-
-      if (func_name == "main") { /// special case for the main function
-        // TODO: Check type of argc and argv
-        // TODO: call init_back_trace() automatically
-        // codegen_main_func_start(F);
-      }
 
       /// generate function body
       codegen(p->get_body());

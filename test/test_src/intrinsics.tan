@@ -3,14 +3,13 @@ import "runtime/debug.tan";
 import "runtime/stdlib.tan";
 
 pub fn main(argc: int, argv: char**) : int {
-    init_back_trace(argv[0]);
     @compprint("main function starts");
 
     assert(@file);  // TODO: string comparison
     print("\nSource filename is:");
     print(@file);
 
-    assert(@line == 13);
+    assert(@line == 12);
 
     print("\nSource code of variable argc is:");
     print(@get_decl(argc));
