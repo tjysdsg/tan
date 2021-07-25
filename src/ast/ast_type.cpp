@@ -82,6 +82,18 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
   return ret;
 }
 
+ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
+}
+
+ASTType *ASTType::GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT32), {}, lvalue);
+}
+
+ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT8), {}, lvalue);
+}
+
 Ty ASTType::get_ty() const { return _ty; }
 
 void ASTType::set_ty(Ty ty) { _ty = ty; }

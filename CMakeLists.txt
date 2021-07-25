@@ -98,10 +98,18 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
+# ===== target library tan_backtrace =====
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
+add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
+add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
+target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
+target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
+set_other_options(tan_backtrace)
+
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread ${DEP_LIBS} unwind)
+target_link_libraries(tan pthread ${DEP_LIBS} tan_backtrace)
 set_other_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")

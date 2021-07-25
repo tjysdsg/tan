@@ -236,6 +236,17 @@ message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
 # ================== other deps ==================
 add_subdirectory(fmt)
+
+# build libbacktrace
+set(LIBBACKTRACE_LIBS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace/.libs/libbacktrace.a CACHE INTERNAL "libbacktrace libraries")
+set(LIBBACKTRACE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace CACHE INTERNAL "libbacktrace include dirs")
+add_custom_target(libbacktrace ALL DEPENDS ${LIBBACKTRACE_LIBS})
+add_custom_command(
+        OUTPUT ${LIBBACKTRACE_LIBS}
+        COMMAND ./configure
+        COMMAND make
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
+)
 # ================================================
 
 set(DEP_INCLUDES
@@ -256,5 +267,4 @@ set(DEP_LIBS ${LLVM_LIBS}
 set(DEP_LIB_DIRS
         ${LLVM_LIBRARY_DIR}
         ${CLANG_LIBDIRS}
-        ${DEP_DIR}/libbacktrace/.libs
         PARENT_SCOPE)

@@ -109,6 +109,40 @@ public:
     return ConstantInt::get(cs->_builder->getIntNTy((unsigned) bit_size), val, !is_unsigned);
   }
 
+  static Function *CodegenFuncPrototype(CompilerSession *cs,
+      ASTType *ret_ty,
+      str name,
+      vector<ASTType *> arg_tys,
+      bool is_external,
+      bool is_public,
+      bool is_imported) {
+    Type *ret_type = TypeSystem::ToLLVMType(cs, ret_ty);
+
+    /// set function arg types
+    vector<Type *> args{};
+    std::for_each(arg_tys.begin(), arg_tys.end(), [&](ASTType *t) {
+      args.push_back(TypeSystem::ToLLVMType(cs, t));
+    });
+
+    /// create function prototype
+    FunctionType *FT = FunctionType::get(ret_type, args, false);
+    auto linkage = Function::InternalLinkage;
+    if (is_external) {
+      linkage = Function::ExternalWeakLinkage;
+    }
+    if (is_public) {
+      if (is_imported) {
+        linkage = Function::ExternalWeakLinkage;
+      } else {
+        linkage = Function::ExternalLinkage;
+      }
+    }
+    Function *func = Function::Create(FT, linkage, name, cs->get_module());
+    func->setCallingConv(llvm::CallingConv::C);
+
+    return func;
+  }
+
 private:
   CompilerSession *_cs = nullptr;
   ASTContext *_ctx = nullptr;
@@ -139,37 +173,15 @@ private:
   }
 
   Value *codegen_func_prototype(FunctionDecl *p, bool import = false) {
-    Type *ret_type = TypeSystem::ToLLVMType(_cs, p->get_ret_ty());
-
     /// set function arg types
-    vector<Type *> arg_types{};
+    vector<ASTType *> arg_types{};
     for (size_t i = 0; i < p->get_n_args(); ++i) {
-      arg_types.push_back(TypeSystem::ToLLVMType(_cs, p->get_arg_type(i)));
+      arg_types.push_back(p->get_arg_type(i));
     }
 
-    /// create function prototype
-    FunctionType *FT = FunctionType::get(ret_type, arg_types, false);
-    auto linkage = Function::InternalLinkage;
-    if (p->is_external()) {
-      linkage = Function::ExternalWeakLinkage;
-    }
-    if (p->is_public()) {
-      if (import) {
-        linkage = Function::ExternalWeakLinkage;
-      } else {
-        linkage = Function::ExternalLinkage;
-      }
-    }
-    Function *func = Function::Create(FT, linkage, p->get_name(), _cs->get_module());
-    func->setCallingConv(llvm::CallingConv::C);
-
-    /// set argument names
-    auto args = func->args().begin();
-    for (size_t i = 0; i < p->get_n_args(); ++i) {
-      /// rename this since the real function argument is stored as variables
-      (args + i)->setName("_" + p->get_arg_name(i));
-    }
-    return p->_llvm_value = func;
+    p->_llvm_value =
+        CodegenFuncPrototype(_cs, p->get_ret_ty(), p->get_name(), arg_types, p->is_external(), p->is_public(), import);
+    return p->_llvm_value;
   }
 
   Value *codegen_func_decl(FunctionDecl *p) {
@@ -178,6 +190,14 @@ private:
 
     auto ret_ty = p->get_ret_ty();
     Metadata *ret_meta = TypeSystem::ToLLVMMeta(_cs, ret_ty);
+
+    /// get function name
+    str func_name = p->get_name();
+    /// rename to "tan_main", as it will be called by the real main function in runtime/main.cpp
+    if (func_name == "main") {
+      p->set_name(func_name = "tan_main");
+      p->set_public(true);
+    }
 
     /// generate prototype
     auto *F = (Function *) codegen_func_prototype(p);
@@ -188,9 +208,6 @@ private:
       auto ty = p->get_arg_type(i);
       arg_metas.push_back(TypeSystem::ToLLVMMeta(_cs, ty));
     }
-
-    /// get function name
-    str func_name = p->get_name();
 
     /// function implementation
     if (!p->is_external()) {
