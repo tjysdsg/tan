@@ -5,7 +5,6 @@
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
 [[noreturn]] void __tan_assert_fail();
-void init_back_trace(const char *filename);
 
 namespace tanlang {
 

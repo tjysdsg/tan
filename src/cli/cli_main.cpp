@@ -1,6 +1,7 @@
 #include "cli.h"
 #include "libtanc.h"
 #include "base.h"
+#include "src/backtrace/tan_backtrace.h"
 #include "src/llvm_include.h"
 #include "clang-frontend.h"
 #include <iostream>
