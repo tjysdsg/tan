@@ -100,17 +100,11 @@ void CompilerSession::emit_object(const str &filename) {
   dest.flush();
 }
 
-DIScope *CompilerSession::get_current_di_scope() const {
-  return _di_scope.back();
-}
+DIScope *CompilerSession::get_current_di_scope() const { return _di_scope.back(); }
 
-void CompilerSession::push_di_scope(DIScope *scope) {
-  _di_scope.push_back(scope);
-}
+void CompilerSession::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); }
 
-void CompilerSession::pop_di_scope() {
-  _di_scope.pop_back();
-}
+void CompilerSession::pop_di_scope() { _di_scope.pop_back(); }
 
 void CompilerSession::set_current_debug_location(size_t l, size_t c) {
   _builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) (l + 1),

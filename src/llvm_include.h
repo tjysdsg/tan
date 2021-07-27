@@ -244,6 +244,7 @@ using llvm::DIType;
 using llvm::DIScope;
 using llvm::DISubprogram;
 using llvm::DISubroutineType;
+using llvm::MDNode;
 using llvm::Metadata;
 using llvm::DINode;
 using llvm::DebugLoc;

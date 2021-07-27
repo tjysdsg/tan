@@ -149,6 +149,10 @@ private:
   SourceManager *_sm = nullptr;
 
 private:
+  DebugLoc debug_loc_of_node(ASTBase *p, MDNode *scope = nullptr) {
+    return DebugLoc::get((unsigned) _sm->get_line(p->get_loc()), (unsigned) _sm->get_col(p->get_loc()), scope);
+  }
+
   Value *codegen_func_call(ASTBase *_p) {
     auto p = ast_must_cast<FunctionCall>(_p);
 
@@ -234,8 +238,6 @@ private:
               nullptr);
       F->setSubprogram(subprogram);
       _cs->push_di_scope(subprogram);
-      /// reset debug emit location
-      builder->SetCurrentDebugLocation(DebugLoc());
 
       /// add all function arguments to scope
       size_t i = 0;
@@ -243,6 +245,7 @@ private:
         auto arg_name = p->get_arg_name(i);
         auto *arg_val = codegen(p->get_arg_decls()[i]);
         builder->CreateStore(&a, arg_val);
+
         /// create a debug descriptor for the arguments
         auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_arg_type(i));
         llvm::DILocalVariable *di_arg = _cs->_di_builder
@@ -257,17 +260,10 @@ private:
             ->insertDeclare(arg_val,
                 di_arg,
                 _cs->_di_builder->createExpression(),
-                llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_loc()),
-                    (unsigned) _sm->get_col(p->get_loc()),
-                    subprogram),
+                debug_loc_of_node(p->get_arg_decls()[i], subprogram),
                 builder->GetInsertBlock());
         ++i;
       }
-
-      /// set debug emit location to function body
-      builder->SetCurrentDebugLocation(llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_body()->get_loc()),
-          (unsigned) _sm->get_col(p->get_body()->get_loc()),
-          subprogram));
 
       /// generate function body
       codegen(p->get_body());
