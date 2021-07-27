@@ -47,14 +47,9 @@ private:
   LLVMContext *_context = nullptr;
   Module *_module = nullptr;
   vector<DIScope *> _di_scope{};
-  std::unique_ptr<FunctionPassManager> _fpm{};
-  std::unique_ptr<PassManager> _mpm{};
   TargetMachine *_target_machine = nullptr;
   DICompileUnit *_di_cu = nullptr;
   DIFile *_di_file = nullptr;
-
-private:
-  void init_llvm();
 };
 
 } // namespace tanlang

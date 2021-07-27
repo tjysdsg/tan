@@ -1,9 +1,6 @@
 #include "compiler_session.h"
-#include "src/scope.h"
 #include "src/ast/ast_base.h"
-#include "src/compiler/function_table.h"
 #include "compiler.h"
-#include "base.h"
 
 using namespace tanlang;
 
@@ -12,7 +9,10 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(module_name, *_context);
-  init_llvm(); // FIXME: call this during codegen instead of now
+  _module->setDataLayout(_target_machine->createDataLayout());
+  _module->setTargetTriple(_target_machine->getTargetTriple().str());
+  auto opt_level = (llvm::CodeGenOpt::Level) Compiler::compile_config.opt_level;
+  _target_machine->setOptLevel(opt_level);
 
   /// add the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
@@ -40,11 +40,10 @@ LLVMContext *CompilerSession::get_context() { return _context; }
 
 Module *CompilerSession::get_module() { return _module; }
 
-void CompilerSession::init_llvm() {
-  _module->setDataLayout(_target_machine->createDataLayout());
-  _module->setTargetTriple(_target_machine->getTargetTriple().str());
-  auto opt_level = (llvm::CodeGenOpt::Level) Compiler::compile_config.opt_level;
-  _target_machine->setOptLevel(opt_level);
+void CompilerSession::emit_object(const str &filename) {
+  _di_builder->finalize(); /// important: do this before any pass
+
+  auto opt_level = _target_machine->getOptLevel();
   bool debug = opt_level == llvm::CodeGenOpt::Level::None;
 
   /// pass manager builder
@@ -64,48 +63,40 @@ void CompilerSession::init_llvm() {
   pm_builder->PrepareForLTO = false;
   pm_builder->PrepareForThinLTO = false;
   pm_builder->PerformThinLTO = false;
-  llvm::TargetLibraryInfoImpl tlii(Triple(_module->getTargetTriple()));
-  pm_builder->LibraryInfo = &tlii;
-  if (debug) { pm_builder->Inliner = llvm::createAlwaysInlinerLegacyPass(false); }
-
-  /// function pass
-  _fpm = std::make_unique<FunctionPassManager>(_module);
-  auto *tliwp = new llvm::TargetLibraryInfoWrapperPass(tlii);
-  _fpm->add(tliwp);
-  _fpm->add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
-  _fpm->add(llvm::createVerifierPass());
-  pm_builder->populateFunctionPassManager(*_fpm.get());
-  _fpm->doInitialization();
+  auto *tlii = new llvm::TargetLibraryInfoImpl(Triple(_module->getTargetTriple()));
+  pm_builder->LibraryInfo = tlii;
+  pm_builder->Inliner = llvm::createFunctionInliningPass();
 
   /// module pass
-  _mpm = std::make_unique<PassManager>();
-  _mpm->add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
-  pm_builder->populateModulePassManager(*_mpm.get());
-}
+  PassManager mpm;
+  mpm.add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
+  pm_builder->populateModulePassManager(mpm);
+  mpm.run(*_module);
 
-void CompilerSession::emit_object(const str &filename) {
-  _di_builder->finalize(); /// important: do this before any pass
-
-  /// run function pass on all functions in the current module
+  /// function pass
+  FunctionPassManager fpm(_module);
+  fpm.add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
+  fpm.add(llvm::createVerifierPass());
+  pm_builder->populateFunctionPassManager(fpm);
+  fpm.doInitialization();
   for (auto &f: *_module) {
-    if (f.getName() == "main") { /// special case for main function
-      // mark as used, prevent LLVM from deleting it
+    if (f.getName() == "tan_main") { /// mark tan_main as used, prevent LLVM from deleting it
       llvm::appendToUsed(*_module, {(GlobalValue *) &f});
     }
-    _fpm->run(f);
+    fpm.run(f);
   }
-  _fpm->doFinalization();
+  fpm.doFinalization();
 
   /// generate object files
   std::error_code ec;
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
   if (ec) { report_error("Could not open file: " + ec.message()); }
-
+  PassManager emit_pass;
   auto file_type = llvm::CGFT_ObjectFile;
-  if (_target_machine->addPassesToEmitFile(*_mpm.get(), dest, nullptr, file_type)) {
+  if (_target_machine->addPassesToEmitFile(emit_pass, dest, nullptr, file_type)) {
     report_error("Target machine can't emit a file of this type");
   }
-  _mpm->run(*_module);
+  emit_pass.run(*_module);
   dest.flush();
 }
 

@@ -29,9 +29,10 @@ enum TanCompileType {
 };
 
 /**
-* \enum TanOptLevel
-* \brief Optimization level
-* */
+ * \enum TanOptLevel
+ * \brief Optimization level
+ * \details The values must match llvm::CodeGenOpt::Level
+ */
 enum TanOptLevel {
   O0 = 0, /// Debug
   O1 = 1, /// Less
