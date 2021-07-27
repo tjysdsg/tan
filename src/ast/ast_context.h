@@ -86,9 +86,18 @@ public:
    * */
   void add_function(FunctionDecl *func);
   vector<FunctionDecl *> get_functions(const str &name);
-  [[nodiscard]] Loop *get_current_loop() const;
-  void set_current_loop(Loop *loop);
   const str &get_filename() const;
+
+  /**
+   * \brief Find the loop in the outer-est scope
+   * \return nullptr if not found
+   */
+  [[nodiscard]] Loop *get_current_loop() const;
+
+  /**
+   * \brief Set the loop in current scope
+   */
+  void set_current_loop(Loop *loop);
 
 public:
   str _filename = "";
@@ -97,11 +106,6 @@ private:
   umap<str, Decl *> _type_decls{};
   vector<Scope *> _scope{};
   FunctionTable *_function_table = nullptr;
-
-  /**
-   * The control flow in current scope, used by break and continue
-   * */
-  Loop *_current_loop = nullptr;
   SourceManager *_sm = nullptr;
 
 private:

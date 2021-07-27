@@ -36,6 +36,20 @@ pub fn main() : int {
     }
     assert(i == 50u);
 
+    i = 0u;
+    while (i < 20) {
+        while (1) {
+            if (i >= 50) {
+                break;
+            }
+            i = i + 1u;
+            continue;
+        }
+        continue;
+    }
+    // continue; // this should cause a compile error
+    assert(i == 50u);
+
     print("SUCCESS\n");
     return 0;
 }

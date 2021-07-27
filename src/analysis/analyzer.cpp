@@ -10,6 +10,7 @@
 #include "src/ast/intrinsic.h"
 #include "src/analysis/type_system.h"
 #include "token.h"
+#include "src/scope.h"
 #include "src/ast/ast_context.h"
 #include "compiler.h"
 #include <iostream>
@@ -766,10 +767,10 @@ private:
     auto *p = ast_must_cast<Loop>(_p);
     analyze(p->get_predicate());
 
-    auto *prev_loop = _ctx->get_current_loop();
+    _ctx->push_scope();
     _ctx->set_current_loop(p);
     analyze(p->get_body());
-    _ctx->set_current_loop(prev_loop);
+    _ctx->pop_scope(); /// current loop (p) is discarded after popping
   }
 
   void analyze_break_or_continue(ASTBase *_p) {

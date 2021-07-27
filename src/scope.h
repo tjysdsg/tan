@@ -6,6 +6,10 @@
 namespace tanlang {
 
 struct Scope {
+  /**
+   * The control flow in current scope, used by break and continue
+   * */
+  Loop *_current_loop = nullptr;
   umap<str, Decl *> _declared{}; /// named identifiers in this scope
 };
 

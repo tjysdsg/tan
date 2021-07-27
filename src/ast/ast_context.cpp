@@ -58,7 +58,7 @@ Scope *ASTContext::pop_scope() {
 
 void ASTContext::add_decl(const str &name, Decl *value) { get_current_scope()->_declared[name] = value; }
 
-Decl * ASTContext::get_decl(const str &name) {
+Decl *ASTContext::get_decl(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
@@ -91,13 +91,23 @@ void ASTContext::add_function(FunctionDecl *func) { _function_table->set(func); 
 
 vector<FunctionDecl *> ASTContext::get_functions(const str &name) { return _function_table->get(name); }
 
-Loop *ASTContext::get_current_loop() const { return _current_loop; }
-
-void ASTContext::set_current_loop(Loop *loop) { _current_loop = loop; }
-
 const str &ASTContext::get_filename() const { return _filename; }
 
 void ASTContext::initialize_scope() {
   _scope = vector<Scope *>();
   _scope.push_back(new Scope); // outer-est scope
 }
+
+Loop *ASTContext::get_current_loop() const {
+  // search from the outer-est scope to the inner-est scope
+  auto scope = _scope.end(); // scope is an iterator
+  --scope;
+  while (scope >= _scope.begin()) {
+    Loop *loop = (*scope)->_current_loop;
+    if (loop) { return loop; }
+    --scope;
+  }
+  return nullptr;
+}
+
+void ASTContext::set_current_loop(Loop *loop) { get_current_scope()->_current_loop = loop; }
