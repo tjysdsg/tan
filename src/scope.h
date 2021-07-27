@@ -6,7 +6,7 @@
 namespace tanlang {
 
 struct Scope {
-  umap<str, ASTBase *> _named{}; /// named identifiers in this scope
+  umap<str, Decl *> _declared{}; /// named identifiers in this scope
 };
 
 } // namespace tanlang

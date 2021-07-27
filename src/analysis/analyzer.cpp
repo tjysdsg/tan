@@ -132,13 +132,10 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
-    auto *referred = _ctx->get(p->get_name());
+    auto *referred = _ctx->get_decl(p->get_name());
     if (referred) { /// refers to a variable
-      auto *declared = ast_cast<Decl>(referred);
-      if (!declared) { report_error(p, "Invalid identifier"); }
-
-      p->set_var_ref(VarRef::Create(p->get_loc(), p->get_name(), declared));
-      p->set_type(copy_ty(declared->get_type()));
+      p->set_var_ref(VarRef::Create(p->get_loc(), p->get_name(), referred));
+      p->set_type(copy_ty(referred->get_type()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
       auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::TYPE_REF, {}, false, [&](ASTType *t) {
         t->set_type_name(p->get_name());
@@ -186,7 +183,7 @@ private:
       analyze(ty);
     }
 
-    _ctx->add(p->get_name(), p);
+    _ctx->add_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
@@ -194,7 +191,7 @@ private:
     ASTType *ty = p->get_type();
     ty->set_is_lvalue(true);
     analyze(ty);
-    _ctx->add(p->get_name(), p);
+    _ctx->add_decl(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
@@ -409,7 +406,7 @@ private:
   void analyze_func_decl(ASTBase *_p) {
     auto *p = ast_must_cast<FunctionDecl>(_p);
 
-    /// add to external function table
+    /// add_decl to external function table
     if (p->is_public() || p->is_external()) {
       ASTContext::AddPublicFunction(_ctx->_filename, p);
     }
@@ -713,7 +710,7 @@ private:
       ty = ASTType::Create(_ctx, p->get_loc());
       ty->set_ty(Ty::STRUCT);
       ty->set_constructor(StructConstructor::Create(ty));
-      _ctx->add_type_decl(struct_name, p); /// add self to current scope
+      _ctx->add_type_decl(struct_name, p); /// add_decl self to current scope
     }
     ty->set_type_name(struct_name);
 
@@ -787,7 +784,7 @@ private:
   void analyze_enum_decl(ASTBase *_p) {
     auto *p = ast_must_cast<EnumDecl>(_p);
 
-    /// add the enum type to context
+    /// add_decl the enum type to context
     auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
       t->set_type_name(p->get_name());
     });

@@ -53,17 +53,16 @@ public:
   Scope *pop_scope();
 
   /**
-   * \brief Add a named ASTNode so that others can loop it up using CompilerSession::get
-   * TODO: ASTBase -> Decl
+   * \brief Register a declaration in the current scope
    * */
-  void add(const str &name, ASTBase *value);
+  void add_decl(const str &name, Decl *value);
 
   /**
-   * \brief look up the variable table in the current and parent scopes
+   * \brief Look up a declaration the current and parent scopes
    * \details This function starts by searching the current scope. If the target is not found in current scope,
    * search the parent scope, repeat the process until found. Return nullptr if not found in all visible scopes.
    * */
-  ASTBase *get(const str &name);
+  Decl *get_decl(const str &name);
 
   /**
    * \brief Register a type declaration
@@ -82,7 +81,7 @@ public:
 
   /**
    * \brief Add a function AST to the current file's function table
-   * \details This will not add anything to the public function table, to do that,
+   * \details This will not add_decl anything to the public function table, to do that,
    * call CompilerSession::AddPublicFunction
    * */
   void add_function(FunctionDecl *func);

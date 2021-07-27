@@ -56,18 +56,18 @@ Scope *ASTContext::pop_scope() {
   return r;
 }
 
-void ASTContext::add(const str &name, ASTBase *value) { get_current_scope()->_named[name] = value; }
+void ASTContext::add_decl(const str &name, Decl *value) { get_current_scope()->_declared[name] = value; }
 
-ASTBase *ASTContext::get(const str &name) {
+Decl * ASTContext::get_decl(const str &name) {
   TAN_ASSERT(name != "");
   // search from the outer-est scope to the inner-est scope
   bool found = false;
-  ASTBase *result = nullptr;
+  Decl *result = nullptr;
   auto scope = _scope.end(); // scope is an iterator
   --scope;
   while (!found && scope >= _scope.begin()) {
-    auto search = (*scope)->_named.find(name);
-    if (search != (*scope)->_named.end()) {
+    auto search = (*scope)->_declared.find(name);
+    if (search != (*scope)->_declared.end()) {
       found = true;
       result = search->second;
     }
