@@ -23,6 +23,7 @@ class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;
 class ArrayLiteral;
+class NullPointerLiteral;
 class CharLiteral;
 class FunctionDecl;
 class CompoundStmt;

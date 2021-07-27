@@ -41,6 +41,12 @@ BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx, Sour
   return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(ctx, loc, element_type));
 }
 
+BasicConstructor *BasicConstructor::CreateNullPointerConstructor(ASTContext *ctx,
+    SourceIndex loc,
+    ASTType *element_type) {
+  return BasicConstructor::Create(ASTBuilder::CreateNullPointerLiteral(ctx, loc, element_type));
+}
+
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }
 
 void BasicConstructor::set_value(CompTimeExpr *val) { _value = val; }

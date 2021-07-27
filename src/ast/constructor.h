@@ -50,6 +50,7 @@ public:
   static BasicConstructor *CreateStringConstructor(ASTContext *ctx, SourceIndex loc, str default_val = "");
   static BasicConstructor *CreateCharConstructor(ASTContext *ctx, SourceIndex loc, uint8_t default_val = 0);
   static BasicConstructor *CreateArrayConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type = {});
+  static BasicConstructor *CreateNullPointerConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type);
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

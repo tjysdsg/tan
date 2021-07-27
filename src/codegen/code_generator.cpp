@@ -58,6 +58,7 @@ public:
       case ASTNodeType::CHAR_LITERAL:
       case ASTNodeType::BOOL_LITERAL:
       case ASTNodeType::STRING_LITERAL:
+      case ASTNodeType::NULLPTR_LITERAL:
         ret = codegen_literals(p);
         break;
       case ASTNodeType::INTRINSIC:
@@ -488,6 +489,7 @@ private:
       case Ty::FLOAT:
       case Ty::STRING:
       case Ty::ARRAY:
+      case Ty::POINTER:
         ret = codegen_constructor(p->get_constructor());
         break;
       case Ty::VOID:
@@ -502,10 +504,6 @@ private:
         ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
         break;
       }
-      case Ty::POINTER:
-        // TODO: use codegen_constructor()
-        ret = ConstantPointerNull::get((PointerType *) type);
-        break;
       case Ty::TYPE_REF: {
         ret = codegen_type_instantiation(p->get_canonical_type());
         break;
@@ -567,6 +565,10 @@ private:
         }
         break;
       }
+      case Ty::POINTER:
+        /// the pointer literal is nullptr
+        ret = ConstantPointerNull::get((PointerType *) type);
+        break;
       default:
         TAN_ASSERT(false);
     }

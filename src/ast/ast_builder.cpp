@@ -55,3 +55,10 @@ ArrayLiteral *ASTBuilder::CreateArrayLiteral(ASTContext *ctx, SourceIndex loc, A
   ret->set_type(type);
   return ret;
 }
+
+NullPointerLiteral *ASTBuilder::CreateNullPointerLiteral(ASTContext *, SourceIndex loc, ASTType *element_type) {
+  auto *ret = NullPointerLiteral::Create(loc);
+  auto *type = element_type->get_ptr_to();
+  ret->set_type(type);
+  return ret;
+}

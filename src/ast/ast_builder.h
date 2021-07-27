@@ -21,6 +21,7 @@ public:
   static StringLiteral *CreateStringLiteral(ASTContext *ctx, SourceIndex loc, str val);
   static CharLiteral *CreateCharLiteral(ASTContext *ctx, SourceIndex loc, uint8_t val);
   static ArrayLiteral *CreateArrayLiteral(ASTContext *ctx, SourceIndex loc, ASTType *element_type);
+  static NullPointerLiteral *CreateNullPointerLiteral(ASTContext *ctx, SourceIndex loc, ASTType *element_type);
 };
 
 }

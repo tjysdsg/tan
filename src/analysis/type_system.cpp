@@ -308,7 +308,7 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
       break;
     }
     case Ty::POINTER:
-      // TODO: p->set_constructor()
+      p->set_constructor(BasicConstructor::CreateNullPointerConstructor(ctx, p->get_loc(), p->get_contained_ty()));
       break;
     default:
       // TODO: TAN_ASSERT(false);

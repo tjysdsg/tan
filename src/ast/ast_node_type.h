@@ -36,6 +36,7 @@ enum class ASTNodeType {
   CHAR_LITERAL,    /// 's'
   STRING_LITERAL,  /// "xxx"
   ARRAY_LITERAL,   /// [1, 2, 3]
+  NULLPTR_LITERAL, /// nullptr
   INTRINSIC,       /// intrinsic functions, operators, qualifiers, etc.
   INVALID,
 };

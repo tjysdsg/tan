@@ -120,6 +120,14 @@ private:
   vector<Literal *> _elements{};
 };
 
+class NullPointerLiteral : public Literal {
+protected:
+  explicit NullPointerLiteral(SourceIndex loc);
+
+public:
+  static NullPointerLiteral *Create(SourceIndex loc);
+};
+
 class VarRef : public Expr, public ASTNamed {
 protected:
   explicit VarRef(SourceIndex loc);

@@ -70,15 +70,17 @@ ArrayLiteral *ArrayLiteral::Create(SourceIndex loc, vector<Literal *> val) {
   return ret;
 }
 
-ArrayLiteral *ArrayLiteral::Create(SourceIndex loc) {
-  return new ArrayLiteral(loc);
-}
+ArrayLiteral *ArrayLiteral::Create(SourceIndex loc) { return new ArrayLiteral(loc); }
 
 void ArrayLiteral::set_elements(const vector<Literal *> &elements) { _elements = elements; }
 
 vector<Literal *> ArrayLiteral::get_elements() const { return _elements; }
 
 ArrayLiteral::ArrayLiteral(SourceIndex loc) : Literal(ASTNodeType::ARRAY_LITERAL, loc, 0) {}
+
+NullPointerLiteral::NullPointerLiteral(SourceIndex loc) : Literal(ASTNodeType::NULLPTR_LITERAL, loc, 0) {}
+
+NullPointerLiteral *NullPointerLiteral::Create(SourceIndex loc) { return new NullPointerLiteral(loc); }
 
 /// \section Identifier
 
