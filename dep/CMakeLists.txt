@@ -8,15 +8,6 @@ find_package(LLVM 10 REQUIRED PATHS ${LLVM_ROOT_DIR})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 set(LLVM_LIBS ${LLVM_AVAILABLE_LIBS})
-
-# CLION + WSL not handling symlink correctly
-set(tmp ${LLVM_INCLUDE_DIRS}/llvm)
-set(LLVM_INCLUDE_DIRS "")
-foreach (d ${tmp})
-    get_filename_component(d ${d} REALPATH)
-    get_filename_component(d ${d} DIRECTORY)
-    set(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} ${d})
-endforeach ()
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
 # ===== clang =====
