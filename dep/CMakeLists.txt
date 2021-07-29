@@ -1,8 +1,12 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
-find_package(LLVM 10 REQUIRED)
+if (${LLVM_ROOT_DIR})
+    message(STATUS "Using custom LLVM at ${LLVM_ROOT_DIR}")
+endif ()
+find_package(LLVM 10 REQUIRED
+        PATHS ${LLVM_ROOT_DIR})
 
 set(LLVM_LIBS
-        LLVM
+        # LLVM
         LLVMXRay
         LLVMWindowsManifest
         LLVMTextAPI
@@ -28,78 +32,89 @@ set(LLVM_LIBS
         LLVMDebugInfoGSYM
         LLVMCoverage
         LLVMCoroutines
-        LLVMXCoreDisassembler
-        LLVMXCoreCodeGen
-        LLVMXCoreDesc
-        LLVMXCoreInfo
+        LLVMCFGuard
+        # LLVMXCoreDisassembler
+        # LLVMXCoreCodeGen
+        # LLVMXCoreDesc
+        # LLVMXCoreInfo
         LLVMX86Disassembler
         LLVMX86AsmParser
         LLVMX86CodeGen
         LLVMX86Desc
         LLVMX86Utils
         LLVMX86Info
-        LLVMWebAssemblyDisassembler
-        LLVMWebAssemblyCodeGen
-        LLVMWebAssemblyDesc
-        LLVMWebAssemblyAsmParser
-        LLVMWebAssemblyInfo
-        LLVMSystemZDisassembler
-        LLVMSystemZCodeGen
-        LLVMSystemZAsmParser
-        LLVMSystemZDesc
-        LLVMSystemZInfo
-        LLVMSparcDisassembler
-        LLVMSparcCodeGen
-        LLVMSparcAsmParser
-        LLVMSparcDesc
-        LLVMSparcInfo
-        LLVMRISCVDisassembler
-        LLVMRISCVCodeGen
-        LLVMRISCVAsmParser
-        LLVMRISCVDesc
-        LLVMRISCVUtils
-        LLVMRISCVInfo
-        LLVMPowerPCDisassembler
-        LLVMPowerPCCodeGen
-        LLVMPowerPCAsmParser
-        LLVMPowerPCDesc
-        LLVMPowerPCInfo
-        LLVMNVPTXCodeGen
-        LLVMNVPTXDesc
-        LLVMNVPTXInfo
-        LLVMMSP430Disassembler
-        LLVMMSP430CodeGen
-        LLVMMSP430AsmParser
-        LLVMMSP430Desc
-        LLVMMSP430Info
-        LLVMMipsDisassembler
-        LLVMMipsCodeGen
-        LLVMMipsAsmParser
-        LLVMMipsDesc
-        LLVMMipsInfo
-        LLVMLanaiDisassembler
-        LLVMLanaiCodeGen
-        LLVMLanaiAsmParser
-        LLVMLanaiDesc
-        LLVMLanaiInfo
-        LLVMHexagonDisassembler
-        LLVMHexagonCodeGen
-        LLVMHexagonAsmParser
-        LLVMHexagonDesc
-        LLVMHexagonInfo
-        LLVMBPFDisassembler
-        LLVMBPFCodeGen
-        LLVMBPFAsmParser
-        LLVMBPFDesc
-        LLVMBPFInfo
-        LLVMARMDisassembler
-        LLVMARMCodeGen
-        LLVMARMAsmParser
-        LLVMARMDesc
-        LLVMARMUtils
-        LLVMARMInfo
-        LLVMAMDGPUDisassembler
-        LLVMAMDGPUCodeGen
+        # LLVMWebAssemblyDisassembler
+        # LLVMWebAssemblyCodeGen
+        # LLVMWebAssemblyDesc
+        # LLVMWebAssemblyAsmParser
+        # LLVMWebAssemblyInfo
+        # LLVMSystemZDisassembler
+        # LLVMSystemZCodeGen
+        # LLVMSystemZAsmParser
+        # LLVMSystemZDesc
+        # LLVMSystemZInfo
+        # LLVMSparcDisassembler
+        # LLVMSparcCodeGen
+        # LLVMSparcAsmParser
+        # LLVMSparcDesc
+        # LLVMSparcInfo
+        # LLVMRISCVDisassembler
+        # LLVMRISCVCodeGen
+        # LLVMRISCVAsmParser
+        # LLVMRISCVDesc
+        # LLVMRISCVUtils
+        # LLVMRISCVInfo
+        # LLVMPowerPCDisassembler
+        # LLVMPowerPCCodeGen
+        # LLVMPowerPCAsmParser
+        # LLVMPowerPCDesc
+        # LLVMPowerPCInfo
+        # LLVMNVPTXCodeGen
+        # LLVMNVPTXDesc
+        # LLVMNVPTXInfo
+        # LLVMMSP430Disassembler
+        # LLVMMSP430CodeGen
+        # LLVMMSP430AsmParser
+        # LLVMMSP430Desc
+        # LLVMMSP430Info
+        # LLVMMipsDisassembler
+        # LLVMMipsCodeGen
+        # LLVMMipsAsmParser
+        # LLVMMipsDesc
+        # LLVMMipsInfo
+        # LLVMLanaiDisassembler
+        # LLVMLanaiCodeGen
+        # LLVMLanaiAsmParser
+        # LLVMLanaiDesc
+        # LLVMLanaiInfo
+        # LLVMHexagonDisassembler
+        # LLVMHexagonCodeGen
+        # LLVMHexagonAsmParser
+        # LLVMHexagonDesc
+        # LLVMHexagonInfo
+        # LLVMBPFDisassembler
+        # LLVMBPFCodeGen
+        # LLVMBPFAsmParser
+        # LLVMBPFDesc
+        # LLVMBPFInfo
+        # LLVMARMDisassembler
+        # LLVMARMCodeGen
+        # LLVMARMAsmParser
+        # LLVMARMDesc
+        # LLVMARMUtils
+        # LLVMARMInfo
+        # LLVMAMDGPUDisassembler
+        # LLVMAMDGPUCodeGen
+        # LLVMAMDGPUAsmParser
+        # LLVMAMDGPUDesc
+        # LLVMAMDGPUUtils
+        # LLVMAMDGPUInfo
+        # LLVMAArch64Disassembler
+        # LLVMAArch64CodeGen
+        # LLVMAArch64AsmParser
+        # LLVMAArch64Desc
+        # LLVMAArch64Utils
+        # LLVMAArch64Info
         LLVMMIRParser
         LLVMipo
         LLVMInstrumentation
@@ -107,13 +122,7 @@ set(LLVM_LIBS
         LLVMLinker
         LLVMIRReader
         LLVMAsmParser
-        LLVMAMDGPUAsmParser
-        LLVMAMDGPUDesc
-        LLVMAMDGPUUtils
-        LLVMAMDGPUInfo
-        LLVMAArch64Disassembler
         LLVMMCDisassembler
-        LLVMAArch64CodeGen
         LLVMGlobalISel
         LLVMSelectionDAG
         LLVMAsmPrinter
@@ -132,20 +141,20 @@ set(LLVM_LIBS
         LLVMBitstreamReader
         LLVMCore
         LLVMRemarks
-        LLVMAArch64AsmParser
         LLVMMCParser
-        LLVMAArch64Desc
         LLVMMC
         LLVMDebugInfoCodeView
         LLVMDebugInfoMSF
         LLVMBinaryFormat
-        LLVMAArch64Utils
-        LLVMAArch64Info
         LLVMSupport
         LLVMDemangle
         )
 
-find_package(Clang REQUIRED)
+if (${CLANG_ROOT_DIR})
+    message(STATUS "Using custom LLVM at ${CLANG_ROOT_DIR}")
+endif ()
+find_package(Clang REQUIRED
+        PATHS ${CLANG_ROOT_DIR})
 
 if (NOT DEFINED CLANG_INCLUDE_DIRS)
     message(FATAL_ERROR "Cannot find clang")
@@ -180,6 +189,7 @@ if (NOT CLANG_LIBRARIES)
                 /mingw64/lib
                 /c/msys64/mingw64/lib
                 c:\\msys64\\mingw64\\lib
+                ${CLANG_ROOT_DIR}/lib
                 )
         if (CLANG_${_prettylibname_}_LIB)
             set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
@@ -238,31 +248,46 @@ message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 add_subdirectory(fmt)
 
 # build libbacktrace
-set(LIBBACKTRACE_LIBS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace/.libs/libbacktrace.a CACHE INTERNAL "libbacktrace libraries")
-set(LIBBACKTRACE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace CACHE INTERNAL "libbacktrace include dirs")
-add_custom_target(libbacktrace ALL DEPENDS ${LIBBACKTRACE_LIBS})
-add_custom_command(
-        OUTPUT ${LIBBACKTRACE_LIBS}
-        COMMAND ./configure
-        COMMAND make
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
-)
+if (WIN32)
+    set(LIBBACKTRACE_LIBS "" CACHE INTERNAL "libbacktrace libraries")
+    set(LIBBACKTRACE_INCLUDE_DIRS "" CACHE INTERNAL "libbacktrace include dirs")
+    add_custom_target(libbacktrace ALL)
+else ()
+    set(LIBBACKTRACE_LIBS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace/.libs/libbacktrace.a CACHE INTERNAL "libbacktrace libraries")
+    set(LIBBACKTRACE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace CACHE INTERNAL "libbacktrace include dirs")
+    add_custom_target(libbacktrace ALL DEPENDS ${LIBBACKTRACE_LIBS})
+    add_custom_command(
+            OUTPUT ${LIBBACKTRACE_LIBS}
+            COMMAND ./configure
+            COMMAND make
+            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
+    )
+endif ()
 # ================================================
 
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
         ${DEP_DIR}/filesystem/include
+        ${DEP_DIR}/fmt/include
         ${DEP_DIR}/libbacktrace
         PARENT_SCOPE)
 
 set(DEP_LIBS ${LLVM_LIBS}
         ${CLANG_LIBRARIES}
         fmt::fmt
-        z dl rt tinfo pthread m xml2
-        gcov
-        backtrace
         PARENT_SCOPE)
+if (WIN32)
+    set(DEP_LIBS ${DEP_LIBS}
+            Version
+            PARENT_SCOPE)
+else ()
+    set(DEP_LIBS ${DEP_LIBS}
+            z dl rt tinfo pthread m xml2
+            gcov
+            backtrace
+            PARENT_SCOPE)
+endif ()
 
 set(DEP_LIB_DIRS
         ${LLVM_LIBRARY_DIR}

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tanc type system" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="test/test_src/type_system.tan" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc_tests" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc_tests">
+  <configuration default="false" name="tanc type system" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="test/test_src/type_system.tan" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc_tests" CONFIG_NAME="Debug-VS" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc_tests">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>
