@@ -17,7 +17,8 @@ namespace tanlang {
    x == '"' || x == ':')
 
 [[noreturn]] static void report_error(Reader *reader, Cursor c, const str &message) {
-  report_error(reader->get_filename(), reader->get_line(c.l), c.l + 1, c.c + 1, message);
+  Error err(reader->get_filename(), reader->get_line(c.l), c.l + 1, c.c + 1, message);
+  err.print();
 }
 
 Cursor skip_whitespace(Reader *reader, Cursor ptr) {
@@ -183,7 +184,8 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
   if (end <= forward) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno);
-    report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete character literal");
+    Error err(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete character literal");
+    err.print();
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
@@ -215,7 +217,8 @@ Token *tokenize_string(Reader *reader, Cursor &start) {
   if (end <= forward) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno);
-    report_error(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete string literal");
+    Error err(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete string literal");
+    err.print();
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the double quotes
     str escaped = "";

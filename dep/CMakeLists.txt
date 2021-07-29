@@ -1,15 +1,15 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # ===== llvm =====
-find_package(LLVM 10 REQUIRED)
-message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
-set(LLVM_LIBS
+find_package(LLVM 10 REQUIRED PATHS ${LLVM_ROOT_DIR})
+set(_LLVM_LIBS
         LLVM
         LLVMXRay
         LLVMWindowsManifest
         LLVMTextAPI
-        LLVMTableGen
         LLVMSymbolize
+        LLVMFrontendOpenMP
+        LLVMCFGuard
         LLVMDebugInfoPDB
         LLVMOrcJIT
         LLVMJITLink
@@ -146,117 +146,113 @@ set(LLVM_LIBS
         LLVMSupport
         LLVMDemangle
         )
+message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
+
+macro(FIND_AND_ADD_LLVM_LIB libname libdir)
+    find_library(LLVM_${libname}_LIB NAMES ${libname}
+            PATHS
+            ${libdir}
+            NO_DEFAULT_PATH
+            )
+    if (LLVM_${libname}_LIB)
+        set(LLVM_LIBS ${LLVM_LIBS} ${LLVM_${libname}_LIB})
+    endif ()
+endmacro()
+foreach (LIB ${_LLVM_LIBS})
+    FIND_AND_ADD_LLVM_LIB(${LIB} ${LLVM_LIBRARY_DIR})
+endforeach ()
 
 # ===== clang =====
-find_package(Clang REQUIRED)
-
-if (NOT DEFINED CLANG_INCLUDE_DIRS)
-    message(FATAL_ERROR "Cannot find clang")
-else ()
-    message(STATUS "Clang headers found in: ${CLANG_INCLUDE_DIRS}")
-endif ()
-
-find_library(CLANG_LIBRARIES
-        NAMES
-        clang-cpp-10.0
-        clang-cpp100
-        clang-cpp
-        PATHS
-        ${CLANG_LIBDIRS}
-        /usr/lib/llvm-10/lib
-        /usr/local/llvm100/lib
-        /usr/local/llvm10/lib
+find_package(Clang REQUIRED PATHS ${CLANG_ROOT_DIR})
+message(STATUS "Clang headers location: ${CLANG_INCLUDE_DIRS}")
+set(CLANG_LIBRARY_DIR ${CLANG_INSTALL_PREFIX}/lib)
+set(_CLANG_LIBRARIES
+        clang
+        clangBasic
+        clangCodeGen
+        clangDriver
+        clangTooling
+        clangFrontend
+        clangFrontendTool
+        clangSerialization
+        clangFrontendTool
+        clangCodeGen
+        clangFrontend
+        clangDriver
+        clangSerialization
+        clangSema
+        clangStaticAnalyzerFrontend
+        clangStaticAnalyzerCheckers
+        clangStaticAnalyzerCore
+        clangAnalysis
+        clangASTMatchers
+        clangAST
+        clangParse
+        clangSema
+        clangBasic
+        clangEdit
+        clangLex
+        clangARCMigrate
+        clangRewriteFrontend
+        clangRewrite
+        clangCrossTU
+        clangIndex
+        # Polly
+        # PollyISL
+        # PollyPPCG
         )
-
-if (NOT CLANG_LIBRARIES)
-    set(CLANG_LIBRARIES "")
-    macro(FIND_AND_ADD_CLANG_LIB _libname_)
-        string(TOUPPER ${_libname_} _prettylibname_)
-        find_library(CLANG_${_prettylibname_}_LIB NAMES ${_libname_}
-                PATHS
-                ${CLANG_LIBDIRS}
-                /usr/lib/llvm/10/lib
-                /usr/lib/llvm-10/lib
-                /usr/lib/llvm-10.0/lib
-                /usr/local/llvm100/lib
-                /usr/local/llvm10/lib
-                /mingw64/lib
-                /c/msys64/mingw64/lib
-                c:\\msys64\\mingw64\\lib
-                )
-        if (CLANG_${_prettylibname_}_LIB)
-            set(CLANG_LIBRARIES ${CLANG_LIBRARIES} ${CLANG_${_prettylibname_}_LIB})
-        endif ()
-    endmacro(FIND_AND_ADD_CLANG_LIB)
-
-    FIND_AND_ADD_CLANG_LIB(clang)
-    FIND_AND_ADD_CLANG_LIB(clangBasic)
-    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-    FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangTooling)
-    FIND_AND_ADD_CLANG_LIB(clangFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-    FIND_AND_ADD_CLANG_LIB(clangSerialization)
-    FIND_AND_ADD_CLANG_LIB(clangFrontendTool)
-    FIND_AND_ADD_CLANG_LIB(clangCodeGen)
-    FIND_AND_ADD_CLANG_LIB(clangFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangDriver)
-    FIND_AND_ADD_CLANG_LIB(clangSerialization)
-    FIND_AND_ADD_CLANG_LIB(clangSema)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCheckers)
-    FIND_AND_ADD_CLANG_LIB(clangStaticAnalyzerCore)
-    FIND_AND_ADD_CLANG_LIB(clangAnalysis)
-    FIND_AND_ADD_CLANG_LIB(clangASTMatchers)
-    FIND_AND_ADD_CLANG_LIB(clangAST)
-    FIND_AND_ADD_CLANG_LIB(clangParse)
-    FIND_AND_ADD_CLANG_LIB(clangSema)
-    FIND_AND_ADD_CLANG_LIB(clangBasic)
-    FIND_AND_ADD_CLANG_LIB(clangEdit)
-    FIND_AND_ADD_CLANG_LIB(clangLex)
-    FIND_AND_ADD_CLANG_LIB(clangARCMigrate)
-    FIND_AND_ADD_CLANG_LIB(clangRewriteFrontend)
-    FIND_AND_ADD_CLANG_LIB(clangRewrite)
-    FIND_AND_ADD_CLANG_LIB(clangCrossTU)
-    FIND_AND_ADD_CLANG_LIB(clangIndex)
-    FIND_AND_ADD_CLANG_LIB(Polly)
-    FIND_AND_ADD_CLANG_LIB(PollyISL)
-    FIND_AND_ADD_CLANG_LIB(PollyPPCG)
-endif ()
-
-message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
+foreach (LIB ${_CLANG_LIBRARIES})
+    FIND_AND_ADD_LLVM_LIB(${LIB} ${CLANG_LIBRARY_DIR})
+endforeach ()
 
 # ================== other deps ==================
 add_subdirectory(fmt)
 
-# build libbacktrace
-set(LIBBACKTRACE_LIBS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace/.libs/libbacktrace.a CACHE INTERNAL "libbacktrace libraries")
-set(LIBBACKTRACE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace CACHE INTERNAL "libbacktrace include dirs")
-add_custom_target(libbacktrace ALL DEPENDS ${LIBBACKTRACE_LIBS})
-add_custom_command(
-        OUTPUT ${LIBBACKTRACE_LIBS}
-        COMMAND ./configure
-        COMMAND make
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
-)
+if (WIN32)
+    set(LIBBACKTRACE_LIBS "" CACHE INTERNAL "libbacktrace libraries")
+    set(LIBBACKTRACE_INCLUDE_DIRS "" CACHE INTERNAL "libbacktrace include dirs")
+    add_custom_target(libbacktrace ALL)
+else ()
+    set(LIBBACKTRACE_LIBS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace/.libs/libbacktrace.a CACHE INTERNAL "libbacktrace libraries")
+    set(LIBBACKTRACE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/libbacktrace CACHE INTERNAL "libbacktrace include dirs")
+    add_custom_target(libbacktrace ALL DEPENDS ${LIBBACKTRACE_LIBS})
+    add_custom_command(
+            OUTPUT ${LIBBACKTRACE_LIBS}
+            COMMAND ./configure
+            COMMAND make
+            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
+    )
+endif ()
 # ================================================
 
+if (UNIX)
+    set(LIBBACKTRACE_INCLUDE_DIR ${DEP_DIR}/libbacktrace)
+else ()
+    set(LIBBACKTRACE_INCLUDE_DIR "")
+endif ()
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
         ${DEP_DIR}/filesystem/include
-        ${DEP_DIR}/libbacktrace
-        PARENT_SCOPE)
+        ${DEP_DIR}/fmt/include
+        ${LIBBACKTRACE_INCLUDE_DIR}
+        CACHE INTERNAL "Include dependencies"
+        )
+message(STATUS "Include dirs of dependencies: ${DEP_INCLUDES}")
 
-set(DEP_LIBS ${LLVM_LIBS}
-        ${CLANG_LIBRARIES}
-        fmt::fmt
-        z dl rt tinfo pthread m xml2
-        gcov
-        backtrace
-        PARENT_SCOPE)
+set(DEP_LIBS ${LLVM_LIBS} fmt::fmt)
+if (WIN32)
+    set(DEP_LIBS ${DEP_LIBS}
+            Version
+            CACHE INTERNAL "Dependency libs")
+else ()
+    set(DEP_LIBS ${DEP_LIBS}
+            z dl rt tinfo pthread m xml2
+            gcov backtrace
+            CACHE INTERNAL "Dependency libs")
+endif ()
 
 set(DEP_LIB_DIRS
         ${LLVM_LIBRARY_DIR}
-        ${CLANG_LIBDIRS}
+        ${CLANG_LIBRARY_DIR}
         PARENT_SCOPE)

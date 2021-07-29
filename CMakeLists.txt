@@ -20,6 +20,8 @@ option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build"
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
+option(LLVM_ROOT_DIR "Custom LLVM location" "")
+option(CLANG_ROOT_DIR "Custom CLANG location" "")
 
 # ==================== GENERAL CONFIGS ====================
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
@@ -63,12 +65,20 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 macro(set_other_options target_name)
     message(DEBUG "Generating target: ${target_name}")
     target_compile_features(${target_name} PRIVATE cxx_std_17)
-    target_compile_options(${target_name}
-            PRIVATE -Wall
-            PRIVATE -Wextra
-            PRIVATE -pedantic-errors
-            PRIVATE -Wconversion
-            )
+
+    if (MSVC)
+        target_compile_options(${target_name}
+                PRIVATE /w
+                )
+    else ()
+        target_compile_options(${target_name}
+                PRIVATE -Wall
+                PRIVATE -Wextra
+                PRIVATE -pedantic-errors
+                PRIVATE -Wconversion
+                )
+    endif ()
+
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -96,7 +106,11 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== target library tan_backtrace =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
-add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
+if (WIN32)
+    add_library(tan_backtrace ${BACKTRACE_SRCS})
+else ()
+    add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
+endif ()
 add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
 target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
 target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})

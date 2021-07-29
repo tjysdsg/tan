@@ -7,7 +7,10 @@ namespace tanlang {
 void Reader::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
-  if (!ifs) { report_error("Cannot open file: " + filename); }
+  if (!ifs) {
+    Error err("Cannot open file: " + filename);
+    err.print();
+  }
   _filename = filename;
 
   /// read the whole file at once
@@ -34,7 +37,7 @@ void Reader::from_string(const str &code) {
       new_line = line;
       /// delete whitespace at the beginning of the line
       for (size_t i = 0; i < line.length(); ++i) {
-        if (!std::isspace(line[i])) {
+        if (!isspace(line[i])) { // avoid confusion with isspace in <locale>
           new_line = line.substr(i);
           break;
         }

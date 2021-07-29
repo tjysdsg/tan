@@ -50,7 +50,10 @@ Scope *ASTContext::push_scope() {
 void ASTContext::push_scope(Scope *scope) { _scope.push_back(scope); }
 
 Scope *ASTContext::pop_scope() {
-  if (_scope.size() == 1) { report_error("Cannot pop the outer-est scope"); }
+  if (_scope.size() == 1) {
+    Error err("Cannot pop the outer-est scope");
+    err.print();
+  }
   auto r = _scope.back();
   _scope.pop_back();
   return r;
