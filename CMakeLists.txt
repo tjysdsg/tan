@@ -65,7 +65,7 @@ macro(set_other_options target_name)
     target_compile_features(${target_name} PRIVATE cxx_std_17)
     if (WIN32)
         target_compile_options(${target_name}
-                PRIVATE /W3
+                PRIVATE /w
                 )
     elseif (UNIX)
         target_compile_options(${target_name}
