@@ -271,21 +271,22 @@ set(DEP_INCLUDES
         ${DEP_DIR}/filesystem/include
         ${DEP_DIR}/fmt/include
         ${DEP_DIR}/libbacktrace
-        CACHE INTERNAL "Include dirs of dependencies")
+        PARENT_SCOPE)
 
 set(DEP_LIBS ${LLVM_LIBS}
         ${CLANG_LIBRARIES}
-        fmt::fmt)
+        fmt::fmt
+        PARENT_SCOPE)
 if (WIN32)
     set(DEP_LIBS ${DEP_LIBS}
             Version
-            CACHE INTERNAL "Dependency libs")
+            PARENT_SCOPE)
 else ()
     set(DEP_LIBS ${DEP_LIBS}
             z dl rt tinfo pthread m xml2
             gcov
             backtrace
-            CACHE INTERNAL "Dependency libs")
+            PARENT_SCOPE)
 endif ()
 
 set(DEP_LIB_DIRS
