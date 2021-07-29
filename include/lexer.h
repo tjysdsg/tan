@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-struct Token;
+class Token;
 class Reader;
 
 vector<Token *> tokenize(Reader *p_reader);

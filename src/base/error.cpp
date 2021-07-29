@@ -11,13 +11,13 @@
   abort();
 }
 
-[[noreturn]] void __tan_assert_fail() {
+[[noreturn]] void __tan_abort() {
   print_back_trace();
   abort();
 }
 
 #ifdef DEBUG
-#define ABORT() __tan_assert_fail()
+#define ABORT() __tan_abort()
 #else
 #define ABORT() exit(1)
 #endif
@@ -29,7 +29,11 @@ void report_error(const str &error_message) {
   ABORT();
 }
 
-void report_error(const str &filename, const str &source, size_t line, size_t col, const str &error_message) {
+void report_error(const str &filename,
+    const str &source,
+    size_t line,
+    size_t col,
+    const str &error_message) {
   str indent = col > 0 ? str(col - 1, ' ') : "";
   std::cerr << fmt::format("[ERROR] at {}:{} {}\n{}\n{}^\n", filename, line, error_message, source, indent);
   ABORT();

@@ -40,7 +40,9 @@ private:
   ASTBase *peek(TokenType type, const str &value) {
     Token *token = at(_curr);
     if (token->get_type() != type || token->get_value() != value) {
-      report_error(_filename, token, "Expect '" + value + "', but got '" + token->get_value() + "' instead");
+      report_error(_filename,
+          token,
+          "Expect '" + value + "', but got '" + token->get_value() + "' instead");
     }
     return peek();
   }
