@@ -9,6 +9,7 @@ set(_LLVM_LIBS
         LLVMTextAPI
         LLVMTableGen
         LLVMSymbolize
+        LLVMFrontendOpenMP
         LLVMDebugInfoPDB
         LLVMOrcJIT
         LLVMJITLink
@@ -154,7 +155,7 @@ macro(FIND_AND_ADD_LLVM_LIB libname libdir)
             NO_DEFAULT_PATH
             )
     if (LLVM_${libname}_LIB)
-        set(LLVM_LIBS ${LLVM_LIBS} ${libname})
+        set(LLVM_LIBS ${LLVM_LIBS} ${LLVM_${libname}_LIB})
     endif ()
 endmacro()
 foreach (LIB ${_LLVM_LIBS})
