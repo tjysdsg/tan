@@ -201,7 +201,6 @@
 namespace tanlang {
 
 using llvm::Expected;
-using llvm::Error;
 using llvm::StringRef;
 using llvm::Value;
 using llvm::AllocaInst;

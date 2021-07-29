@@ -26,6 +26,7 @@
 #endif
 
 using namespace llvm;
+using llvm::Error;
 
 /// The name this program was invoked as.
 static StringRef ToolName;

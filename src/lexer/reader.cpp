@@ -7,7 +7,10 @@ namespace tanlang {
 void Reader::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
-  if (!ifs) { report_error("Cannot open file: " + filename); }
+  if (!ifs) {
+    Error err("Cannot open file: " + filename);
+    err.print();
+  }
   _filename = filename;
 
   /// read the whole file at once

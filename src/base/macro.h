@@ -27,12 +27,4 @@
 #define p_cast(T, val) reinterpret_cast<T>(val)
 #define c_cast(T, val) const_cast<T>(val)
 
-#ifdef MSVC
-#define CALL_CONV_C __cdecl
-#define CALL_CONV_CPP __stdcall
-#else
-#define CALL_CONV_C __attribute__((cdecl))
-#define CALL_CONV_CPP __attribute__((stdcall))
-#endif
-
 #endif // __TAN_SRC_BASE_MACRO_H__

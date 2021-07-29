@@ -228,7 +228,8 @@ ASTType *ASTType::must_get_canonical_type() const {
   ASTType *type = get_canonical_type();
   if (!type) {
     TAN_ASSERT(!_type_name.empty());
-    report_error(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
+    Error err(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
+    err.print();
   }
   return type;
 }

@@ -128,7 +128,8 @@ private:
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    tanlang::report_error(_ctx->_filename, _sm->get_token(p->get_loc()), message);
+    Error err(_ctx->_filename, _sm->get_token(p->get_loc()), message);
+    err.print();
   }
 
   void analyze_id(ASTBase *_p) {

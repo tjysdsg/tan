@@ -5,7 +5,7 @@
  * \file Include bunch of basic utilities
  * */
 
-#include "src/base/error.h"
+#include "error.h"
 #include "src/base/macro.h"
 #include "src/base/filesystem.h"
 #include "src/base/container.h"

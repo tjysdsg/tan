@@ -40,9 +40,8 @@ private:
   ASTBase *peek(TokenType type, const str &value) {
     Token *token = at(_curr);
     if (token->get_type() != type || token->get_value() != value) {
-      report_error(_filename,
-          token,
-          "Expect '" + value + "', but got '" + token->get_value() + "' instead");
+      Error err(_filename, token, "Expect '" + value + "', but got '" + token->get_value() + "' instead");
+      err.print();
     }
     return peek();
   }
@@ -181,7 +180,10 @@ private:
       node = Parenthesis::Create(_curr);
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token);
-      if (!node) { report_error(_filename, token, "Keyword not implemented: " + token->to_string()); }
+      if (!node) {
+        Error err(_filename, token, "Keyword not implemented: " + token->to_string());
+        err.print();
+      }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
       node = MemberAccess::Create(_curr);
     } else if (token->get_value() == "&") {
@@ -218,7 +220,8 @@ private:
     } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
       return nullptr;
     } else {
-      report_error(_filename, token, "Unknown token " + token->to_string());
+      Error err(_filename, token, "Unknown token " + token->to_string());
+      err.print();
     }
     return node;
   }
@@ -402,14 +405,18 @@ private:
   }
 
   [[nodiscard]] Token *at(SourceIndex loc) const {
-    if (this->eof(loc)) { report_error(_filename, _sm->get_last_token(), "Unexpected EOF"); }
+    if (this->eof(loc)) {
+      Error err(_filename, _sm->get_last_token(), "Unexpected EOF");
+      err.print();
+    }
     return _sm->get_token(loc);
   }
 
   [[nodiscard]] bool eof(SourceIndex loc) const { return _sm->is_eof(loc); }
 
   [[noreturn]] void error(SourceIndex loc, const str &error_message) const {
-    report_error(_filename, at(loc), error_message);
+    Error err(_filename, at(loc), error_message);
+    err.print();
   }
 
   Expr *expect_expression(ASTBase *p) {
