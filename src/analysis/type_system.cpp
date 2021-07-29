@@ -213,7 +213,8 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       if (p->is_forward_decl()) {
         /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
         /// by an actual struct declaration by now
-        report_error(ctx->_filename, token, "Unresolved forward declaration of type");
+        Error err(ctx->_filename, token, "Unresolved forward declaration of type");
+        err.print();
       }
 
       /// align size is the max element size, if no element, 8 bits
@@ -232,7 +233,8 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     }
     case Ty::ARRAY: {
       if (p->get_sub_types().size() == 0) {
-        report_error(ctx->_filename, token, "Invalid type");
+        Error err(ctx->_filename, token, "Invalid type");
+        err.print();
       }
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
@@ -245,7 +247,8 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     }
     case Ty::POINTER: {
       if (p->get_sub_types().size() == 0) {
-        report_error(ctx->_filename, token, "Invalid type");
+        Error err(ctx->_filename, token, "Invalid type");
+        err.print();
       }
       auto &e = p->get_sub_types()[0];
       TypeSystem::ResolveTy(ctx, e);
@@ -257,12 +260,14 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     }
     case Ty::TYPE_REF: {
       if (!p->get_canonical_type()) {
-        report_error(ctx->_filename, token, "Invalid type name");
+        Error err(ctx->_filename, token, "Invalid type name");
+        err.print();
       }
       break;
     }
     default:
-      report_error(ctx->_filename, token, "Invalid type");
+      Error err(ctx->_filename, token, "Invalid type");
+      err.print();
   }
   p->set_resolved(true);
 }
