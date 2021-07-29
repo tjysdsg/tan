@@ -123,7 +123,7 @@ inline std::vector<StackFrame> stack_trace() {
 void print_back_trace() {
   std::vector<StackFrame> stack = stack_trace();
   for (auto &i : stack) {
-    printf("%s:%d in function %s\n", i.file.c_str(), i.line, i.name.c_str());
+    printf("%s:%u in function %s\n", i.file.c_str(), i.line, i.name.c_str());
   }
 }
 #else
