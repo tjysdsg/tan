@@ -7,7 +7,6 @@ set(_LLVM_LIBS
         LLVMXRay
         LLVMWindowsManifest
         LLVMTextAPI
-        LLVMTableGen
         LLVMSymbolize
         LLVMFrontendOpenMP
         LLVMCFGuard
