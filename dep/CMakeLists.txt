@@ -10,6 +10,7 @@ set(_LLVM_LIBS
         LLVMTableGen
         LLVMSymbolize
         LLVMFrontendOpenMP
+        LLVMCFGuard
         LLVMDebugInfoPDB
         LLVMOrcJIT
         LLVMJITLink
