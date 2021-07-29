@@ -6,16 +6,20 @@
 #include <windows.h>
 #include <intrin.h>
 #include <dbghelp.h>
+#include <string>
+#include <vector>
+#include <iostream>
 #pragma comment(lib, "dbghelp.lib")
 
 struct StackFrame {
-  DWORD64 address;
-  str name;
+  std::string name;
   unsigned int line;
-  str file;
+  std::string file;
 };
 
-inline vector<StackFrame> stack_trace() {
+void init_back_trace(const char *) {}
+
+inline std::vector<StackFrame> stack_trace() {
   using std::cerr;
   #if _WIN64
   DWORD machine = IMAGE_FILE_MACHINE_AMD64;
@@ -27,7 +31,7 @@ inline vector<StackFrame> stack_trace() {
 
   if (SymInitialize(process, nullptr, TRUE) == FALSE) {
     cerr << "Failed to call SymInitialize\n";
-    return vector<StackFrame>();
+    return std::vector<StackFrame>();
   }
 
   SymSetOptions(SYMOPT_LOAD_LINES);
@@ -56,7 +60,7 @@ inline vector<StackFrame> stack_trace() {
 
   bool first = true;
 
-  vector<StackFrame> frames;
+  std::vector<StackFrame> frames;
   while (StackWalk(machine,
       process,
       thread,
@@ -66,8 +70,7 @@ inline vector<StackFrame> stack_trace() {
       SymFunctionTableAccess,
       SymGetModuleBase,
       nullptr)) {
-    StackFrame f = {};
-    f.address = frame.AddrPC.Offset;
+    StackFrame f{};
 
     #if _WIN64
     DWORD64 moduleBase = 0;
@@ -118,10 +121,10 @@ inline vector<StackFrame> stack_trace() {
   return frames;
 }
 
-static void print_back_trace() {
-  vector<StackFrame> stack = stack_trace();
+void print_back_trace() {
+  std::vector<StackFrame> stack = stack_trace();
   for (auto &i : stack) {
-    std::cerr << "Callstack:\n0x" << std::hex << i.address << ": " << i.name << "(" << i.line << ")\n";
+    printf("%s:%d in function %s\n", i.file, i.line, i.name);
   }
 }
 #else
