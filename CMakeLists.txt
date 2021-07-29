@@ -20,12 +20,17 @@ option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build"
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
-option(LLVM_ROOT_DIR "Custom LLVM location" "")
-option(CLANG_ROOT_DIR "Custom CLANG location" "")
 
 # ==================== GENERAL CONFIGS ====================
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
+
+# use static linking whenever possible
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+# always use full RPATH
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # default build debug
 if (NOT CMAKE_BUILD_TYPE)
@@ -61,21 +66,13 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 
 macro(set_other_options target_name)
     message(DEBUG "Generating target: ${target_name}")
-
     target_compile_features(${target_name} PRIVATE cxx_std_17)
-    if (WIN32)
-        target_compile_options(${target_name}
-                PRIVATE /W3
-                )
-    elseif (UNIX)
-        target_compile_options(${target_name}
-                PRIVATE -Wall
-                PRIVATE -Wextra
-                PRIVATE -pedantic-errors
-                PRIVATE -Wconversion
-                )
-    endif ()
-
+    target_compile_options(${target_name}
+            PRIVATE -Wall
+            PRIVATE -Wextra
+            PRIVATE -pedantic-errors
+            PRIVATE -Wconversion
+            )
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -103,11 +100,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== target library tan_backtrace =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
-if (WIN32)
-    add_library(tan_backtrace ${BACKTRACE_SRCS})
-else ()
-    add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
-endif ()
+add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
 add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
 target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
 target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
@@ -116,7 +109,7 @@ set_other_options(tan_backtrace)
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan ${DEP_LIBS} tan_backtrace)
+target_link_libraries(tan pthread ${DEP_LIBS} tan_backtrace)
 set_other_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")
