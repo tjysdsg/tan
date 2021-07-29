@@ -1,6 +1,8 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
-find_package(LLVM 10 REQUIRED)
 
+# ===== llvm =====
+find_package(LLVM 10 REQUIRED)
+message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 set(LLVM_LIBS
         LLVM
         LLVMXRay
@@ -145,6 +147,7 @@ set(LLVM_LIBS
         LLVMDemangle
         )
 
+# ===== clang =====
 find_package(Clang REQUIRED)
 
 if (NOT DEFINED CLANG_INCLUDE_DIRS)
@@ -222,17 +225,6 @@ if (NOT CLANG_LIBRARIES)
 endif ()
 
 message(STATUS "Clang libraries to link against: ${CLANG_LIBRARIES}")
-
-# CLION + WSL not handling symlink correctly
-set(tmp ${LLVM_INCLUDE_DIRS}/llvm)
-set(LLVM_INCLUDE_DIRS "")
-foreach (d ${tmp})
-    get_filename_component(d ${d} REALPATH)
-    get_filename_component(d ${d} DIRECTORY)
-    set(LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS} ${d})
-endforeach ()
-
-message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 
 # ================== other deps ==================
 add_subdirectory(fmt)

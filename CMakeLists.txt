@@ -25,13 +25,6 @@ option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
 set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
 
-# use static linking whenever possible
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-
-# always use full RPATH
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 # default build debug
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, using Debug as default")
@@ -46,6 +39,9 @@ if (CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
     endif ()
 endif (CCACHE_FOUND)
+
+# use lld to link libraries
+add_link_options("-fuse-ld=lld")
 
 # ================================ thirdparty dependencies ========================== #
 # googletest
@@ -109,7 +105,7 @@ set_other_options(tan_backtrace)
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan pthread ${DEP_LIBS} tan_backtrace)
+target_link_libraries(tan ${DEP_LIBS} tan_backtrace)
 set_other_options(tan)
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")
@@ -125,10 +121,9 @@ set_other_options(tanc)
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
 
+# ===== tests and coverage =====
 # add all srcs before enabling tests (for gcov)
 set(ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
-
-# ===== tests and coverage =====
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_subdirectory(test)
     enable_tests()
