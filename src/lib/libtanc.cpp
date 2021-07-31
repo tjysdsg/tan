@@ -2,10 +2,9 @@
 #include "compiler.h"
 #include "lexer.h"
 #include "linker.h"
-#include "base.h"
 #include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"
-#include <fmt/core.h>
+#include "src/backtrace/tan_backtrace.h"
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -148,4 +147,8 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   } else {
     return true;
   }
+}
+
+bool init_compiler(int argc, char **argv) {
+  return init_back_trace(argv[0]);
 }

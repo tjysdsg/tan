@@ -150,12 +150,16 @@ void bt_error_callback(void *, const char *msg, int errnum) {
   printf("Error %d occurred when getting the stacktrace: %s", errnum, msg);
 }
 
-void bt_error_callback_create(void *, const char *msg, int errnum) {
+void bt_error_callback_create(void *data, const char *msg, int errnum) {
   printf("Error %d occurred when initializing the stacktrace: %s", errnum, msg);
+  bool *status = (bool *) data;
+  *status = false;
 }
 
-void init_back_trace(const char *filename) {
-  __bt_state = backtrace_create_state(filename, 0, bt_error_callback_create, nullptr);
+bool init_back_trace(const char *filename) {
+  bool status = true;
+  __bt_state = backtrace_create_state(filename, 0, bt_error_callback_create, (void *) status);
+  return status;
 }
 
 void print_back_trace() {

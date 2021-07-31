@@ -1,11 +1,8 @@
 #include "cli.h"
 #include "libtanc.h"
-#include "base.h"
-#include "src/backtrace/tan_backtrace.h"
 #include "src/llvm_include.h"
 #include "clang-frontend.h"
-#include <iostream>
-#include <algorithm>
+
 namespace cmd = llvm::cl;
 
 /// \see https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html
@@ -14,8 +11,6 @@ static constexpr std::array cxx_ext
         "tcc"};
 
 int cli_main(int argc, char **argv) {
-  init_back_trace(argv[0]); // TODO: wrap this
-
   /// option parser
   cmd::OptionCategory cl_category("tanc");
   cmd::opt<str> opt_output_file
@@ -52,6 +47,12 @@ int cli_main(int argc, char **argv) {
   cmd::HideUnrelatedOptions(cl_category);
   cmd::ParseCommandLineOptions(argc, argv, "tanc: compiler for TAN programming language\n\n"
                                            "tan, a fucking amazing programming language\n");
+
+  /// init
+  if (!init_compiler(argc, argv)) {
+    std::cerr << "Unable to init tanc compiler\n";
+    abort();
+  }
 
   /// tan source files
   vector<str> source_files;

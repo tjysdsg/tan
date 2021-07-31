@@ -56,6 +56,12 @@ struct TanCompilation {
 };
 
 /**
+ * \brief Initialize compiler
+ * \note This is required before calling compile_files
+ */
+bool init_compiler(int argc, char **argv);
+
+/**
  * \brief Compile multiple source files.
  * \details The output files are named as "<name of the source file>.o" and they are located at current working directory.
  *          If current build is release, all exceptions are captured and `e.what()` is printed out to stderr.
