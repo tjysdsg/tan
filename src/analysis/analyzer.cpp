@@ -560,12 +560,14 @@ private:
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
-    auto t = Ty::INT;
 
+    ASTType *ty;
     if (_ctx->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
-      t = TY_OR(t, Ty::UNSIGNED);
+      ty = ASTType::GetU32Type(_ctx, p->get_loc());
+    } else {
+      ty = ASTType::GetI32Type(_ctx, p->get_loc());
     }
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), t));
+    p->set_type(ty);
   }
 
   void analyze_bool_literal(ASTBase *_p) {
@@ -581,16 +583,19 @@ private:
   void analyze_array_literal(ASTBase *_p) {
     auto p = ast_must_cast<ArrayLiteral>(_p);
 
-    // TODO: restrict array element type to be the same
-    vector<ASTType *> sub_tys{};
+    /// check if the element types are all the same
     auto elements = p->get_elements();
-    sub_tys.reserve(elements.size());
-    std::for_each(elements.begin(), elements.end(), [&sub_tys, this](Expr *e) {
+    ASTType *element_type = nullptr;
+    for (auto *e : elements) {
       analyze(e);
-      sub_tys.push_back(e->get_type());
-    });
+      if (!element_type) { element_type = e->get_type(); }
+      if (*e->get_type() != *element_type) {
+        report_error(p, "All elements in an array must have the same type");
+      }
+    }
 
-    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, sub_tys);
+    TAN_ASSERT(element_type);
+    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, {element_type});
     ty->set_array_size(elements.size());
     p->set_type(ty);
   }

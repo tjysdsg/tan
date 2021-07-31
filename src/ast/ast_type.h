@@ -26,17 +26,18 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  static ASTType *Create(ASTContext *ctx, SourceIndex loc);
-  static ASTType *CreateAndResolve(ASTContext *ctx,
+  [[nodiscard]] static ASTType *Create(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *CreateAndResolve(ASTContext *ctx,
       SourceIndex loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
       bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
-  static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
-  static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
 
 public:
   static umap<str, Ty> basic_tys;

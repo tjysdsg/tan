@@ -539,7 +539,6 @@ private:
     }
   }
 
-  // TODO: move type checking of array elements to analysis phase
   void parse_array_literal(ASTBase *_p) {
     auto *p = ast_must_cast<ArrayLiteral>(_p);
 
@@ -550,7 +549,6 @@ private:
       error(p->get_loc(), "Empty array literal");
     }
 
-    auto element_type = ASTNodeType::INVALID;
     vector<Literal *> elements{};
     while (!eof(p->get_loc())) {
       if (at(_curr)->get_value() == ",") { /// skip ","
@@ -567,13 +565,6 @@ private:
         error(p->get_loc(), "Expected a literal");
       }
 
-      if (element_type == ASTNodeType::INVALID) { /// set the element type to first element if unknown
-        element_type = node->get_node_type();
-      } else { /// otherwise check whether element types are the same
-        if (element_type != node->get_node_type()) {
-          error(p->get_loc(), "All elements in an array must have the same type");
-        }
-      }
       parse_node(node);
       elements.push_back(ast_must_cast<Literal>(node));
     }

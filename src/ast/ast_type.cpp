@@ -22,9 +22,9 @@ bool ASTType::operator==(const ASTType &other) {
   CHECK(_is_enum);
   #undef CHECK
 
+  size_t n = _sub_types.size();
+  if (n != other._sub_types.size()) { return false; }
   if (!_sub_types.empty()) {
-    size_t n = _sub_types.size();
-    if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
       ASTType *lhs = _sub_types[i];
       ASTType *rhs = other._sub_types[i];
@@ -88,6 +88,10 @@ ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
 
 ASTType *ASTType::GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
   return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT32), {}, lvalue);
+}
+
+ASTType *ASTType::GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), {}, lvalue);
 }
 
 ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
