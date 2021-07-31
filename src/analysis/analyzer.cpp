@@ -143,7 +143,11 @@ private:
   void check_types(ASTType *t1, ASTType *t2, SourceIndex loc) {
     if (t1 == t2) { return; }
     if (*t1 != *t2) {
-      Error err(_ctx->_filename, _sm->get_token(loc), "Different types. Please explicitly cast the types");
+      Error err(_ctx->_filename,
+          _sm->get_token(loc),
+          fmt::format("{} and {} are different types. Please explicitly cast the them",
+              t1->get_type_name(),
+              t2->get_type_name()));
       err.raise();
     }
   }
