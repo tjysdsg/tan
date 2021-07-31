@@ -14,10 +14,12 @@ void Linker::add_files(vector<str> filenames) {
 
 bool Linker::link() {
   vector<str> args{};
-  args.insert(args.end(), _exe);
-  args.insert(args.end(), "-stdlib=libc++"); /// link to libc++ by default
+  args.push_back(_exe);
+  args.push_back("-stdlib=libc++"); /// link to libc++ by default
   args.insert(args.end(), _input_files.begin(), _input_files.end());
   args.insert(args.end(), _flags.begin(), _flags.end());
+  args.push_back("-lm"); /// link to libm by default
+
   vector<const char *> cargs{};
   for (const auto &a : args) {
     if (a.length() == 0) { continue; }
