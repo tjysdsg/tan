@@ -828,8 +828,10 @@ private:
     _curr.offset_by(1);
 
     auto _rhs = next_expression(PREC_LOWEST);
-    Expr *rhs = expect_expression(_rhs);
-    p->set_rhs(rhs);
+    if (_rhs) {
+      Expr *rhs = expect_expression(_rhs);
+      p->set_rhs(rhs);
+    }
   }
 
   void parse_struct_decl(ASTBase *_p) {

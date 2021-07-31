@@ -211,7 +211,8 @@ private:
   void analyze_ret(ASTBase *_p) {
     // TODO: check if return type can be implicitly cast to function return type
     auto p = ast_must_cast<Return>(_p);
-    analyze(p->get_rhs());
+    auto *rhs = p->get_rhs();
+    if (rhs) { analyze(rhs); }
   }
 
   void analyze_stmt(ASTBase *_p) {

@@ -338,11 +338,15 @@ private:
     set_current_debug_location(p);
 
     auto rhs = p->get_rhs();
-    auto *result = codegen(rhs);
-    if (rhs->get_type()->is_lvalue()) {
-      result = builder->CreateLoad(result, "ret");
+    if (rhs) { /// return with value
+      Value *result = codegen(rhs);
+      if (rhs->get_type()->is_lvalue()) {
+        result = builder->CreateLoad(result, "ret");
+      }
+      builder->CreateRet(result);
+    } else { /// return void
+      builder->CreateRetVoid();
     }
-    builder->CreateRet(result);
     return nullptr;
   }
 
