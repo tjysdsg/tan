@@ -8,30 +8,24 @@ pub fn main() : int {
     assert(a2 == 100 as u32);
     assert(a2 == 100u);
     var a3: u8 = a2 as u8;
-    assert(a3 == 100u);
+    assert(a3 == 100 as u8);
     var a4: i8 = a3 as i8;
-    assert(a4 == 100);
-    assert(a4 == 100.0);
-    var a5: i32 = a4;
+    assert(a4 == 100 as i8);
+    assert(a4 == 100.0 as i8);
+    var a5: i32 = a4 as i32;
     assert(a5 == 100);
-    var a6: float = a5;
+    var a6: float = a5 as float;
     assert(a6 == 100.0);
-    var a7: double = a6;
+    var a7: double = a6 as double;
     assert(a7 as float == 100.0);
-    a7 = a5;
+    a7 = a5 as double;
     assert(a7 == 100 as double);
 
     // float and signed/unsigned int
-    var fp: float = -1.0;
+    var fp: float = -1.0 as float;
     assert(fp as int == -1);
     assert(fp as u32 == 4294967295u); // underflow
-    assert(fp);
-
-    // float, int and double
-    var integer = 100;
-    var fp1: float = integer;
-    var d: double = fp1;
-    assert(d == fp1);
+    assert(fp as bool);
 
     // arrays
     var array1: i32[3] = [0, 1, 2];
