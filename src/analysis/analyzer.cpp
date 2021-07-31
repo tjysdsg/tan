@@ -285,6 +285,7 @@ private:
     }
   }
 
+  // TODO: check the types of the operand
   void analyze_uop(ASTBase *_p) {
     auto p = ast_must_cast<UnaryOperator>(_p);
     auto rhs = p->get_rhs();
@@ -292,6 +293,9 @@ private:
 
     switch (p->get_op()) {
       case UnaryOpKind::LNOT:
+        if (!p->get_rhs()->get_type()->is_bool()) {
+          report_error(p->get_rhs(), "Expect a bool type");
+        }
         p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case UnaryOpKind::BNOT:
