@@ -5,11 +5,11 @@ import "runtime/stdlib.tan";
 pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");
 
-    assert(@file);  // TODO: string comparison
+    assert(@file as bool);  // TODO: string comparison
     print("\nSource filename is:");
     print(@file);
 
-    assert(@line == 12);
+    assert(@line == 12u);
 
     print("\nSource code of variable argc is:");
     print(@get_decl(argc));

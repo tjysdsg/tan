@@ -23,9 +23,9 @@ fn else_if(c: i32) : i32 {
 
 pub fn main(argc: int, argv: char**) : int {
     if (argc > 0) {
-        assert(1);
+        assert(true);
     } else {
-        assert(0);
+        assert(false);
     }
     // assert(sign(-10) == -1);
     assert(sign(0) == 0);
