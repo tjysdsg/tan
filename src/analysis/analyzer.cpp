@@ -129,7 +129,23 @@ private:
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     Error err(_ctx->_filename, _sm->get_token(p->get_loc()), message);
-    err.print();
+    err.raise();
+  }
+
+  /**
+   * \brief Check if two types are the same, if not, report error (at the location t1)
+   */
+  void check_types(ASTType *t1, ASTType *t2) { check_types(t1, t2, t1->get_loc()); }
+
+  /**
+   * \brief Check if two types are the same, if not, report error (at the location loc)
+   */
+  void check_types(ASTType *t1, ASTType *t2, SourceIndex loc) {
+    if (t1 == t2) { return; }
+    if (*t1 != *t2) {
+      Error err(_ctx->_filename, _sm->get_token(loc), "Different types. Please explicitly cast the types");
+      err.raise();
+    }
   }
 
   void analyze_id(ASTBase *_p) {
@@ -165,11 +181,7 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        if (0 != TypeSystem::CanImplicitCast(_ctx,
-            ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL),
-            cond->get_type())) {
-          report_error(p, "Cannot convert expression to bool");
-        }
+        check_types(cond->get_type(), ASTType::GetBoolType(_ctx, cond->get_loc()));
       }
 
       analyze(p->get_branch(i));
@@ -236,14 +248,10 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        int i = TypeSystem::CanImplicitCast(_ctx, lhs->get_type(), rhs->get_type());
-        if (i == -1) {
-          report_error(p, "Cannot perform implicit type conversion");
-        }
+        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
 
-        size_t dominant_idx = static_cast<size_t>(i);
-        p->set_dominant_idx(dominant_idx);
-        ASTType *ty = copy_ty(dominant_idx == 0 ? lhs->get_type() : rhs->get_type());
+        // TODO: maybe the resulting type is not the same as lhs/rhs?
+        ASTType *ty = copy_ty(lhs->get_type());
         ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
@@ -387,9 +395,7 @@ private:
       analyze(lhs);
     }
 
-    if (TypeSystem::CanImplicitCast(_ctx, lhs_type, rhs->get_type()) != 0) {
-      report_error(p, "Cannot perform implicit type conversion");
-    }
+    check_types(lhs_type, rhs->get_type(), p->get_loc());
     p->set_type(lhs_type);
   }
 
@@ -400,7 +406,7 @@ private:
       analyze(a);
     }
 
-    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p->get_name(), p->_args);
+    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, nullptr);
     p->_callee = callee;
     p->set_type(copy_ty(callee->get_ret_ty()));
   }

@@ -94,6 +94,10 @@ ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
   return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT8), {}, lvalue);
 }
 
+ASTType *ASTType::GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::BOOL, {}, lvalue);
+}
+
 Ty ASTType::get_ty() const { return _ty; }
 
 void ASTType::set_ty(Ty ty) { _ty = ty; }
@@ -229,7 +233,7 @@ ASTType *ASTType::must_get_canonical_type() const {
   if (!type) {
     TAN_ASSERT(!_type_name.empty());
     Error err(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
-    err.print();
+    err.raise();
   }
   return type;
 }

@@ -10,12 +10,11 @@
 
 using namespace tanlang;
 
-llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest) {
+Value *TypeSystem::ConvertTo(CompilerSession *cs, Value *val, ASTType *orig, ASTType *dest) {
   auto *builder = cs->_builder;
-  auto *loaded = val;
 
   /// load if lvalue
-  if (orig->is_lvalue()) { loaded = builder->CreateLoad(val); }
+  Value *loaded = TypeSystem::LoadIfLValue(cs, val, orig);
 
   bool is_pointer1 = orig->is_ptr();
   bool is_pointer2 = dest->is_ptr();
@@ -178,7 +177,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
         /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
         /// by an actual struct declaration by now
         Error err(ctx->_filename, token, "Unresolved forward declaration of type");
-        err.print();
+        err.raise();
       }
 
       /// align size is the max element size, if no element, 8 bits
@@ -198,7 +197,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::ARRAY: {
       if (p->get_sub_types().size() == 0) {
         Error err(ctx->_filename, token, "Invalid type");
-        err.print();
+        err.raise();
       }
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
@@ -212,7 +211,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::POINTER: {
       if (p->get_sub_types().size() == 0) {
         Error err(ctx->_filename, token, "Invalid type");
-        err.print();
+        err.raise();
       }
       auto &e = p->get_sub_types()[0];
       TypeSystem::ResolveTy(ctx, e);
@@ -225,13 +224,13 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::TYPE_REF: {
       if (!p->get_canonical_type()) {
         Error err(ctx->_filename, token, "Invalid type name");
-        err.print();
+        err.raise();
       }
       break;
     }
     default:
       Error err(ctx->_filename, token, "Invalid type");
-      err.print();
+      err.raise();
   }
   p->set_resolved(true);
 }
@@ -295,7 +294,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
 
   auto *builder = cs->_builder;
   Ty base = TY_GET_BASE(p->get_ty());
-  llvm::Type *type = nullptr;
+  Type *type = nullptr;
   switch (base) {
     case Ty::INT:
       type = builder->getIntNTy((unsigned) p->get_size_bits());
@@ -412,4 +411,9 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
       TAN_ASSERT(false);
   }
   return ret;
+}
+
+Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Value *val, ASTType *type) {
+  if (type->is_lvalue()) { return cs->_builder->CreateLoad(val); }
+  return val;
 }

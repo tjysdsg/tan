@@ -42,6 +42,11 @@ public:
    * */
   static llvm::Value *ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest);
 
+  /**
+   * \brief Create a load instruction if the type is lvalue. Otherwise return the original value.
+   */
+  static llvm::Value *LoadIfLValue(CompilerSession *cs, llvm::Value *val, ASTType *type);
+
   static llvm::Type *ToLLVMType(CompilerSession *cs, ASTType *p);
 
   static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, ASTType *p);

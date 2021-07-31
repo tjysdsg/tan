@@ -36,6 +36,7 @@ public:
   static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
   static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
   static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
 
 public:
   static umap<str, Ty> basic_tys;

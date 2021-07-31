@@ -14,7 +14,7 @@ SourceManager::SourceManager(str filename, vector<Token *> tokens)
 Token *SourceManager::get_token(SourceIndex loc) const {
   if (loc._index >= _tokens.size()) {
     Error err("Invalid source location {filename}:{line}");
-    err.print();
+    err.raise();
   }
   return _tokens[loc._index];
 }

@@ -18,7 +18,7 @@ namespace tanlang {
 
 [[noreturn]] static void report_error(Reader *reader, Cursor c, const str &message) {
   Error err(reader->get_filename(), reader->get_line(c.l), c.l + 1, c.c + 1, message);
-  err.print();
+  err.raise();
 }
 
 Cursor skip_whitespace(Reader *reader, Cursor ptr) {
@@ -185,7 +185,7 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno);
     Error err(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete character literal");
-    err.print();
+    err.raise();
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the single quotes
     if (value[0] == '\\') {
@@ -218,7 +218,7 @@ Token *tokenize_string(Reader *reader, Cursor &start) {
     auto lineno = reader->size() - 1;
     auto src = reader->get_line(lineno);
     Error err(reader->get_filename(), src, lineno, src.length() - 1, "Incomplete string literal");
-    err.print();
+    err.raise();
   } else {
     str value = reader->substr(reader->forward(start), forward); // not including the double quotes
     str escaped = "";
