@@ -21,12 +21,6 @@ public:
           ASTNodeType::ARRAY_LITERAL};
 
   /**
-   * \brief Find out which type should a value be implicitly cast to.
-   * \details Return 0 if t1, 1 if t2, and -1 if can't. If both ok, 0 is returned.
-   * */
-  static int CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2);
-
-  /**
    * \brief Set the fields of an ASTType according to the type and target machine
    */
   static void ResolveTy(ASTContext *ctx, ASTType *const &p);

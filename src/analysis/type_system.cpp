@@ -79,42 +79,6 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
-int TypeSystem::CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2) {
-  TAN_ASSERT(t1);
-  TAN_ASSERT(t2);
-  if (*t1 == *t2) { return 0; }
-  size_t s1 = t1->get_size_bits();
-  size_t s2 = t2->get_size_bits();
-
-  // TODO: support implicit cast of different pointer types
-  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t2->get_contained_ty()) {
-    return 0;
-  } else if (t1->is_bool()) { return 0; }
-  else if (t2->is_bool()) { return 1; }
-  else if (t1->is_enum() && t2->is_int()) {
-    return 1;
-  } else if (t2->is_enum() && t1->is_int()) {
-    return 0;
-  } else if (t1->is_int() && t2->is_int()) { /// between integers
-    /// should be both unsigned or both signed
-    if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
-    return s1 >= s2 ? 0 : 1;
-  } else if (t1->is_float() && t2->is_int()) { /// float/double and int
-    return 0;
-  } else if (t1->is_int() && t2->is_float()) { /// int and float/double
-    return 1;
-  } else if (t1->is_float() && t2->is_float()) { /// float/double and float/double
-    return s1 >= s2 ? 0 : 1;
-  } else if (t1->is_array() && t2->is_array()) { /// arrays, FIXME: move this to before the _is_ptr check
-    /// array size must be the same
-    if (t1->get_array_size() != t2->get_array_size()) { return -1; }
-    /// the element type can be implicitly casted as long as the elements have the same size
-    if (t1->get_contained_ty()->get_size_bits() != t2->get_contained_ty()->get_size_bits()) { return -1; }
-    return CanImplicitCast(ctx, t1->get_contained_ty(), t2->get_contained_ty());
-  }
-  return -1;
-}
-
 void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   Ty base = TY_GET_BASE(p->get_ty());
   Ty qual = TY_GET_QUALIFIER(p->get_ty());
