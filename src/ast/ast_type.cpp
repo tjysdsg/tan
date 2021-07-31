@@ -10,7 +10,8 @@ using namespace tanlang;
 bool ASTType::operator==(const ASTType &other) {
   #define CHECK(val) if (this->val != other.val) return false
   CHECK(_size_bits);
-  CHECK(_align_bits);
+  // FIXME: align_size of the pointer to a struct is broken
+  //   CHECK(_align_bits);
   CHECK(is_ptr());
   CHECK(_is_float);
   CHECK(_is_array);
