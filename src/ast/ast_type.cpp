@@ -196,6 +196,8 @@ void ASTType::set_is_enum(bool is_enum) {
   must_get_canonical_type()->_is_enum = is_enum;
 }
 
+bool ASTType::is_numeric() const { return is_float() || is_int(); }
+
 bool ASTType::is_resolved() const { return must_get_canonical_type()->_resolved; }
 
 void ASTType::set_resolved(bool resolved) { must_get_canonical_type()->_resolved = resolved; }

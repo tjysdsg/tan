@@ -93,6 +93,7 @@ public:
   vector<ASTType *> &get_sub_types();
   void set_sub_types(const vector<ASTType *> &sub_types);
   [[nodiscard]] ASTType *get_canonical_type() const;
+  [[nodiscard]] bool is_numeric() const;
 
   /**
    * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type

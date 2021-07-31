@@ -243,8 +243,7 @@ private:
       case BinaryOpKind::SUM:
       case BinaryOpKind::SUBTRACT:
       case BinaryOpKind::MULTIPLY:
-      case BinaryOpKind::DIVIDE:
-      case BinaryOpKind::MOD: {
+      case BinaryOpKind::DIVIDE: {
         analyze(lhs);
         analyze(rhs);
 
@@ -252,6 +251,20 @@ private:
 
         // TODO: maybe the resulting type is not the same as lhs/rhs?
         ASTType *ty = copy_ty(lhs->get_type());
+        ty->set_is_lvalue(false);
+        p->set_type(ty);
+        break;
+      }
+      case BinaryOpKind::MOD: {
+        analyze(lhs);
+        analyze(rhs);
+
+        auto *ltype = lhs->get_type();
+        auto *rtype = rhs->get_type();
+        if (!ltype->is_numeric()) { report_error(lhs, "Expect a numeric type"); }
+        if (!rtype->is_numeric()) { report_error(lhs, "Expect a numeric type"); }
+
+        ASTType *ty = copy_ty(ltype);
         ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
@@ -272,7 +285,7 @@ private:
       case BinaryOpKind::NE:
         analyze(lhs);
         analyze(rhs);
-
+        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
         p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
@@ -406,7 +419,7 @@ private:
       analyze(a);
     }
 
-    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, nullptr);
+    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p);
     p->_callee = callee;
     p->set_type(copy_ty(callee->get_ret_ty()));
   }
