@@ -37,9 +37,9 @@ pub fn main() : int {
     assert(i == 50u);
 
     i = 0u;
-    while (i < 20) {
+    while (i < 20u) {
         while (1) {
-            if (i >= 50) {
+            if (i >= 50u) {
                 break;
             }
             i = i + 1u;

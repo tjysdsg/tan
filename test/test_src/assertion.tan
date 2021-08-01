@@ -1,7 +1,7 @@
 import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
-    assert(1);
-    assert(!0);
+    assert(1 as bool);
+    assert(!(0 as bool));
     return 0;
 }

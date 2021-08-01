@@ -26,31 +26,39 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  static ASTType *Create(ASTContext *ctx, SourceIndex loc);
-  static ASTType *CreateAndResolve(ASTContext *ctx,
+  [[nodiscard]] static ASTType *Create(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *CreateAndResolve(ASTContext *ctx,
       SourceIndex loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
       bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
-  static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
-  static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetIntegerType(ASTContext *ctx,
+      SourceIndex loc,
+      size_t bit_size,
+      bool is_unsigned,
+      bool lvalue = false);
+  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetFloatType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetF32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
 
 public:
-  static umap<str, Ty> basic_tys;
-  static umap<str, Ty> qualifier_tys;
+  static const umap<str, Ty> basic_tys;
+  static const umap<str, size_t> type_bit_size;
+  static const umap<str, Ty> qualifier_tys;
 
 public:
-  explicit ASTType(SourceIndex loc);
-
   bool operator==(const ASTType &other);
   bool operator!=(const ASTType &other);
 
   [[nodiscard]] str to_string(bool print_prefix) const override;
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
-public:
   [[nodiscard]] Ty get_ty() const;
   void set_ty(Ty ty);
   [[nodiscard]] ASTType *get_contained_ty() const;
@@ -92,6 +100,7 @@ public:
   vector<ASTType *> &get_sub_types();
   void set_sub_types(const vector<ASTType *> &sub_types);
   [[nodiscard]] ASTType *get_canonical_type() const;
+  [[nodiscard]] bool is_numeric() const;
 
   /**
    * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type
@@ -109,6 +118,9 @@ public:
    */
   void set_is_lvalue(bool is_lvalue);
 
+protected:
+  explicit ASTType(SourceIndex loc);
+
 private:
   [[nodiscard]] ASTType *must_get_canonical_type() const;
   void no_modifications_on_type_reference() const;
@@ -116,24 +128,27 @@ private:
 private:
   Ty _ty = Ty::INVALID;
   str _type_name;
-  llvm::Type *_llvm_type = nullptr;
-  size_t _size_bits = 0;
-  size_t _align_bits = 0;
-  unsigned _dwarf_encoding = 0;
-  bool _is_float = false;
-  bool _is_array = false;
-  size_t _array_size = 0;
-  bool _is_int = false;
-  bool _is_unsigned = false;
-  bool _is_struct = false;
-  bool _is_bool = false;
-  bool _is_enum = false;
-  bool _resolved = false;
-  bool _is_lvalue = false;
-  bool _is_forward_decl = false;
   vector<ASTType *> _sub_types;
   Constructor *_constructor = nullptr;
   ASTContext *_ctx = nullptr;
+
+  llvm::Type *_llvm_type = nullptr;
+  unsigned _dwarf_encoding = 0;
+
+  size_t _size_bits = 0;
+  size_t _align_bits = 0;
+  size_t _array_size = 0;
+
+  bool _is_float: 1;
+  bool _is_array: 1;
+  bool _is_int: 1;
+  bool _is_unsigned: 1;
+  bool _is_struct: 1;
+  bool _is_bool: 1;
+  bool _is_enum: 1;
+  bool _resolved: 1;
+  bool _is_lvalue: 1;
+  bool _is_forward_decl: 1;
 };
 
 } // namespace tanlang

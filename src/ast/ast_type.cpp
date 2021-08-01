@@ -10,7 +10,8 @@ using namespace tanlang;
 bool ASTType::operator==(const ASTType &other) {
   #define CHECK(val) if (this->val != other.val) return false
   CHECK(_size_bits);
-  CHECK(_align_bits);
+  // FIXME: align_size of the pointer to a struct is broken
+  //   CHECK(_align_bits);
   CHECK(is_ptr());
   CHECK(_is_float);
   CHECK(_is_array);
@@ -22,9 +23,9 @@ bool ASTType::operator==(const ASTType &other) {
   CHECK(_is_enum);
   #undef CHECK
 
+  size_t n = _sub_types.size();
+  if (n != other._sub_types.size()) { return false; }
   if (!_sub_types.empty()) {
-    size_t n = _sub_types.size();
-    if (n != other._sub_types.size()) { return false; }
     for (size_t i = 0; i < n; ++i) {
       ASTType *lhs = _sub_types[i];
       ASTType *rhs = other._sub_types[i];
@@ -45,17 +46,33 @@ str ASTType::to_string(bool print_prefix) const {
 
 bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-umap<str, Ty>ASTType::basic_tys =
-    {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
-        {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
-        {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
-        {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
-        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
-        {"bool", Ty::BOOL},};
+const umap<str, size_t>ASTType::type_bit_size =
+    {{"int", 32}, {"i8", 8}, {"u8", 8}, {"i16", 16}, {"u16", 16}, {"i32", 32}, {"u32", 32}, {"i64", 64}, {"u64", 64},
+        {"char", 8}, {"bool", 8}, {"float", 32}, {"f32", 32}, {"f64", 64}};
 
-umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+const umap<str, Ty> ASTType::basic_tys = { /// typename -> Ty
+    {"int", Ty::INT}, {"i8", Ty::INT}, {"u8", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i16", Ty::INT},
+    {"u16", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i32", Ty::INT}, {"u32", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i64", Ty::INT},
+    {"u64", TY_OR(Ty::INT, Ty::UNSIGNED)},  /// integers
 
-ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {}
+    {"float", Ty::FLOAT}, {"f32", Ty::FLOAT}, {"f64", Ty::FLOAT}, /// float
+
+    {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR}, {"bool", Ty::BOOL}};
+
+const umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+
+ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {
+  _is_float = false;
+  _is_array = false;
+  _is_int = false;
+  _is_unsigned = false;
+  _is_struct = false;
+  _is_bool = false;
+  _is_enum = false;
+  _resolved = false;
+  _is_lvalue = false;
+  _is_forward_decl = false;
+}
 
 ASTType *ASTType::Create(ASTContext *ctx, SourceIndex loc) {
   auto *ret = new ASTType(loc);
@@ -86,12 +103,53 @@ ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
 }
 
+ASTType *ASTType::GetIntegerType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool is_unsigned, bool lvalue) {
+  TAN_ASSERT(bit_size == 8 || bit_size == 16 || bit_size == 32 || bit_size == 64);
+  return ASTType::CreateAndResolve(ctx,
+      loc,
+      Ty::INT,
+      {},
+      lvalue,
+      (const std::function<void(ASTType *)> &) [&](ASTType *t) {
+        t->set_size_bits(bit_size);
+        t->set_is_unsigned(is_unsigned);
+      });
+}
+
 ASTType *ASTType::GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT32), {}, lvalue);
+  return ASTType::GetIntegerType(ctx, loc, 32, false, lvalue);
+}
+
+ASTType *ASTType::GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::GetIntegerType(ctx, loc, 32, true, lvalue);
 }
 
 ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT8), {}, lvalue);
+  return ASTType::GetIntegerType(ctx, loc, 8, false, lvalue);
+}
+
+ASTType *ASTType::GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::BOOL, {}, lvalue);
+}
+
+ASTType *ASTType::GetFloatType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool lvalue) {
+  TAN_ASSERT(bit_size == 32 || bit_size == 64); // TODO: maybe support f128?
+  return ASTType::CreateAndResolve(ctx,
+      loc,
+      Ty::FLOAT,
+      {},
+      lvalue,
+      (const std::function<void(ASTType *)> &) [&](ASTType *t) {
+        t->set_size_bits(bit_size);
+      });
+}
+
+ASTType *ASTType::GetF32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::GetFloatType(ctx, loc, 32, lvalue);
+}
+
+ASTType *ASTType::GetF64Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::GetFloatType(ctx, loc, 64, lvalue);
 }
 
 Ty ASTType::get_ty() const { return _ty; }
@@ -192,6 +250,8 @@ void ASTType::set_is_enum(bool is_enum) {
   must_get_canonical_type()->_is_enum = is_enum;
 }
 
+bool ASTType::is_numeric() const { return is_float() || is_int(); }
+
 bool ASTType::is_resolved() const { return must_get_canonical_type()->_resolved; }
 
 void ASTType::set_resolved(bool resolved) { must_get_canonical_type()->_resolved = resolved; }
@@ -229,7 +289,7 @@ ASTType *ASTType::must_get_canonical_type() const {
   if (!type) {
     TAN_ASSERT(!_type_name.empty());
     Error err(_ctx->_filename, _ctx->get_source_manager()->get_token(_loc), "Invalid type name");
-    err.print();
+    err.raise();
   }
   return type;
 }

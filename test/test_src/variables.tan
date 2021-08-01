@@ -4,7 +4,7 @@ import "runtime/debug.tan";
 pub fn main(argc: int, argv: char**) : int {
     // test default values
     var integer: i8;
-    assert(integer == 0);
+    assert(integer == 0 as i8);
     var fp: float;
     assert(fp == 0.0);
     var b: bool;
@@ -34,7 +34,7 @@ pub fn main(argc: int, argv: char**) : int {
     assert(b == 2.0);
     assert(c == 2.0);
 
-    var d = two = (a + b) / 2;
+    var d = two = (a + b) / 2.;
     assert(a == 2.0);
     assert(b == 2.0);
     assert(c == 2.0);

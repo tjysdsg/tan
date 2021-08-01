@@ -10,12 +10,11 @@
 
 using namespace tanlang;
 
-llvm::Value *TypeSystem::ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest) {
+Value *TypeSystem::ConvertTo(CompilerSession *cs, Value *val, ASTType *orig, ASTType *dest) {
   auto *builder = cs->_builder;
-  auto *loaded = val;
 
   /// load if lvalue
-  if (orig->is_lvalue()) { loaded = builder->CreateLoad(val); }
+  Value *loaded = TypeSystem::LoadIfLValue(cs, val, orig);
 
   bool is_pointer1 = orig->is_ptr();
   bool is_pointer2 = dest->is_ptr();
@@ -79,42 +78,6 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
-int TypeSystem::CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2) {
-  TAN_ASSERT(t1);
-  TAN_ASSERT(t2);
-  if (*t1 == *t2) { return 0; }
-  size_t s1 = t1->get_size_bits();
-  size_t s2 = t2->get_size_bits();
-
-  // TODO: support implicit cast of different pointer types
-  if (t1->is_ptr() && t2->is_ptr() && *t1->get_contained_ty() == *t2->get_contained_ty()) {
-    return 0;
-  } else if (t1->is_bool()) { return 0; }
-  else if (t2->is_bool()) { return 1; }
-  else if (t1->is_enum() && t2->is_int()) {
-    return 1;
-  } else if (t2->is_enum() && t1->is_int()) {
-    return 0;
-  } else if (t1->is_int() && t2->is_int()) { /// between integers
-    /// should be both unsigned or both signed
-    if (t1->is_unsigned() ^ t2->is_unsigned()) { return -1; }
-    return s1 >= s2 ? 0 : 1;
-  } else if (t1->is_float() && t2->is_int()) { /// float/double and int
-    return 0;
-  } else if (t1->is_int() && t2->is_float()) { /// int and float/double
-    return 1;
-  } else if (t1->is_float() && t2->is_float()) { /// float/double and float/double
-    return s1 >= s2 ? 0 : 1;
-  } else if (t1->is_array() && t2->is_array()) { /// arrays, FIXME: move this to before the _is_ptr check
-    /// array size must be the same
-    if (t1->get_array_size() != t2->get_array_size()) { return -1; }
-    /// the element type can be implicitly casted as long as the elements have the same size
-    if (t1->get_contained_ty()->get_size_bits() != t2->get_contained_ty()->get_size_bits()) { return -1; }
-    return CanImplicitCast(ctx, t1->get_contained_ty(), t2->get_contained_ty());
-  }
-  return -1;
-}
-
 void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   Ty base = TY_GET_BASE(p->get_ty());
   Ty qual = TY_GET_QUALIFIER(p->get_ty());
@@ -130,19 +93,13 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
-      p->set_size_bits(32);
-      p->set_type_name("i32");
-      p->set_is_int(true);
-      if (TY_IS(qual, Ty::BIT8)) {
-        p->set_size_bits(8);
-        p->set_type_name("i8");
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        p->set_size_bits(16);
-        p->set_type_name("i16");
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        p->set_size_bits(64);
-        p->set_type_name("i64");
+      if (!p->get_size_bits()) { /// set bit size if not
+        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
       }
+      p->set_is_int(true);
+      p->set_type_name((p->is_unsigned() ? "u" : "i") + std::to_string(p->get_size_bits()));
+
+      /// dwarf encoding
       if (TY_IS(qual, Ty::UNSIGNED)) {
         p->set_is_unsigned(true);
         if (p->get_size_bits() == 8) {
@@ -173,14 +130,10 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_is_bool(true);
       break;
     case Ty::FLOAT:
-      p->set_type_name("float");
-      p->set_size_bits(32);
-      p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
-      p->set_is_float(true);
-      break;
-    case Ty::DOUBLE:
-      p->set_type_name("double");
-      p->set_size_bits(64);
+      if (!p->get_size_bits()) { /// set bit size if not
+        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
+      }
+      p->set_type_name("f" + std::to_string(p->get_size_bits()));
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
       p->set_is_float(true);
       break;
@@ -196,7 +149,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       break;
     case Ty::ENUM: {
       /// underlying type is i32
-      auto sub = ASTType::CreateAndResolve(ctx, p->get_loc(), TY_OR(Ty::INT, Ty::BIT32));
+      auto sub = ASTType::GetI32Type(ctx, p->get_loc());
       p->set_sub_types({sub});
       p->set_size_bits(sub->get_size_bits());
       p->set_align_bits(sub->get_align_bits());
@@ -214,7 +167,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
         /// we're not supposed to resolve a forward declaration here, as all forward decls should be replaced
         /// by an actual struct declaration by now
         Error err(ctx->_filename, token, "Unresolved forward declaration of type");
-        err.print();
+        err.raise();
       }
 
       /// align size is the max element size, if no element, 8 bits
@@ -234,7 +187,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::ARRAY: {
       if (p->get_sub_types().size() == 0) {
         Error err(ctx->_filename, token, "Invalid type");
-        err.print();
+        err.raise();
       }
       auto et = p->get_sub_types()[0];
       /// typename = "<element type>[<n_elements>]"
@@ -248,7 +201,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::POINTER: {
       if (p->get_sub_types().size() == 0) {
         Error err(ctx->_filename, token, "Invalid type");
-        err.print();
+        err.raise();
       }
       auto &e = p->get_sub_types()[0];
       TypeSystem::ResolveTy(ctx, e);
@@ -261,13 +214,13 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::TYPE_REF: {
       if (!p->get_canonical_type()) {
         Error err(ctx->_filename, token, "Invalid type name");
-        err.print();
+        err.raise();
       }
       break;
     }
     default:
       Error err(ctx->_filename, token, "Invalid type");
-      err.print();
+      err.raise();
   }
   p->set_resolved(true);
 }
@@ -291,10 +244,7 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
       p->set_constructor(BasicConstructor::CreateBoolConstructor(ctx, p->get_loc()));
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 32));
-      break;
-    case Ty::DOUBLE:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 64));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
       break;
     case Ty::STRING:
       p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
@@ -331,7 +281,7 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
 
   auto *builder = cs->_builder;
   Ty base = TY_GET_BASE(p->get_ty());
-  llvm::Type *type = nullptr;
+  Type *type = nullptr;
   switch (base) {
     case Ty::INT:
       type = builder->getIntNTy((unsigned) p->get_size_bits());
@@ -343,10 +293,13 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
       type = builder->getInt1Ty();
       break;
     case Ty::FLOAT:
-      type = builder->getFloatTy();
-      break;
-    case Ty::DOUBLE:
-      type = builder->getDoubleTy();
+      if (32 == p->get_size_bits()) {
+        type = builder->getFloatTy();
+      } else if (64 == p->get_size_bits()) {
+        type = builder->getDoubleTy();
+      } else {
+        TAN_ASSERT(false);
+      }
       break;
     case Ty::STRING:
       type = builder->getInt8PtrTy(); /// str as char*
@@ -355,21 +308,21 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
       type = builder->getVoidTy();
       break;
     case Ty::ENUM:
-      type = ToLLVMType(cs, p->get_sub_types()[0]);
+      type = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
       break;
     case Ty::STRUCT: {
       vector<Type *> elements{};
       size_t n = p->get_sub_types().size();
       elements.reserve(n);
       for (size_t i = 0; i < n; ++i) {
-        elements.push_back(ToLLVMType(cs, p->get_sub_types()[i]));
+        elements.push_back(TypeSystem::ToLLVMType(cs, p->get_sub_types()[i]));
       }
       type = StructType::create(elements, p->get_type_name());
       break;
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
-      auto e_type = ToLLVMType(cs, p->get_sub_types()[0]);
+      auto e_type = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
       type = e_type->getPointerTo();
       break;
     }
@@ -393,7 +346,6 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
     case Ty::BOOL:
     case Ty::FLOAT:
     case Ty::VOID:
-    case Ty::DOUBLE:
     case Ty::ENUM:
       ret = cs->_di_builder->createBasicType(p->get_type_name(), p->get_size_bits(), p->get_dwarf_encoding());
       break;
@@ -412,7 +364,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
       size_t n = p->get_sub_types().size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        elements.push_back(ToLLVMMeta(cs, p->get_sub_types()[i]));
+        elements.push_back(TypeSystem::ToLLVMMeta(cs, p->get_sub_types()[i]));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
@@ -432,7 +384,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
     case Ty::ARRAY:
     case Ty::POINTER: {
       auto e = p->get_sub_types()[0];
-      auto *e_di_type = ToLLVMMeta(cs, e);
+      auto *e_di_type = TypeSystem::ToLLVMMeta(cs, e);
       ret = cs->_di_builder
           ->createPointerType((DIType *) e_di_type,
               p->get_size_bits(),
@@ -442,10 +394,15 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
       break;
     }
     case Ty::TYPE_REF:
-      ret = (DIType *) ToLLVMMeta(cs, p->get_canonical_type());
+      ret = (DIType *) TypeSystem::ToLLVMMeta(cs, p->get_canonical_type());
       break;
     default:
       TAN_ASSERT(false);
   }
   return ret;
+}
+
+Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Value *val, ASTType *type) {
+  if (type->is_lvalue()) { return cs->_builder->CreateLoad(val); }
+  return val;
 }

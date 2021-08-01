@@ -9,7 +9,7 @@ void Reader::open(const str &filename) {
   ifs.open(filename, std::ios::in);
   if (!ifs) {
     Error err("Cannot open file: " + filename);
-    err.print();
+    err.raise();
   }
   _filename = filename;
 

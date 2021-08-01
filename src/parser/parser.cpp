@@ -41,7 +41,7 @@ private:
     Token *token = at(_curr);
     if (token->get_type() != type || token->get_value() != value) {
       Error err(_filename, token, "Expect '" + value + "', but got '" + token->get_value() + "' instead");
-      err.print();
+      err.raise();
     }
     return peek();
   }
@@ -182,7 +182,7 @@ private:
       node = peek_keyword(token);
       if (!node) {
         Error err(_filename, token, "Keyword not implemented: " + token->to_string());
-        err.print();
+        err.raise();
       }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
       node = MemberAccess::Create(_curr);
@@ -221,7 +221,7 @@ private:
       return nullptr;
     } else {
       Error err(_filename, token, "Unknown token " + token->to_string());
-      err.print();
+      err.raise();
     }
     return node;
   }
@@ -407,7 +407,7 @@ private:
   [[nodiscard]] Token *at(SourceIndex loc) const {
     if (this->eof(loc)) {
       Error err(_filename, _sm->get_last_token(), "Unexpected EOF");
-      err.print();
+      err.raise();
     }
     return _sm->get_token(loc);
   }
@@ -416,7 +416,7 @@ private:
 
   [[noreturn]] void error(SourceIndex loc, const str &error_message) const {
     Error err(_filename, at(loc), error_message);
-    err.print();
+    err.raise();
   }
 
   Expr *expect_expression(ASTBase *p) {
@@ -539,7 +539,6 @@ private:
     }
   }
 
-  // TODO: move type checking of array elements to analysis phase
   void parse_array_literal(ASTBase *_p) {
     auto *p = ast_must_cast<ArrayLiteral>(_p);
 
@@ -550,7 +549,6 @@ private:
       error(p->get_loc(), "Empty array literal");
     }
 
-    auto element_type = ASTNodeType::INVALID;
     vector<Literal *> elements{};
     while (!eof(p->get_loc())) {
       if (at(_curr)->get_value() == ",") { /// skip ","
@@ -567,13 +565,6 @@ private:
         error(p->get_loc(), "Expected a literal");
       }
 
-      if (element_type == ASTNodeType::INVALID) { /// set the element type to first element if unknown
-        element_type = node->get_node_type();
-      } else { /// otherwise check whether element types are the same
-        if (element_type != node->get_node_type()) {
-          error(p->get_loc(), "All elements in an array must have the same type");
-        }
-      }
       parse_node(node);
       elements.push_back(ast_must_cast<Literal>(node));
     }
@@ -828,8 +819,10 @@ private:
     _curr.offset_by(1);
 
     auto _rhs = next_expression(PREC_LOWEST);
-    Expr *rhs = expect_expression(_rhs);
-    p->set_rhs(rhs);
+    if (_rhs) {
+      Expr *rhs = expect_expression(_rhs);
+      p->set_rhs(rhs);
+    }
   }
 
   void parse_struct_decl(ASTBase *_p) {

@@ -338,11 +338,15 @@ private:
     set_current_debug_location(p);
 
     auto rhs = p->get_rhs();
-    auto *result = codegen(rhs);
-    if (rhs->get_type()->is_lvalue()) {
-      result = builder->CreateLoad(result, "ret");
+    if (rhs) { /// return with value
+      Value *result = codegen(rhs);
+      if (rhs->get_type()->is_lvalue()) {
+        result = builder->CreateLoad(result, "ret");
+      }
+      builder->CreateRet(result);
+    } else { /// return void
+      builder->CreateRetVoid();
     }
-    builder->CreateRet(result);
     return nullptr;
   }
 
@@ -479,13 +483,11 @@ private:
 
     Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
-    Type *type = TypeSystem::ToLLVMType(_cs, p);
     switch (base) {
       case Ty::ENUM:
       case Ty::BOOL:
       case Ty::INT:
       case Ty::CHAR:
-      case Ty::DOUBLE:
       case Ty::FLOAT:
       case Ty::STRING:
       case Ty::ARRAY:
@@ -542,7 +544,6 @@ private:
         ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
         break;
       case Ty::FLOAT:
-      case Ty::DOUBLE:
         ret = ConstantFP::get(type, ast_must_cast<FloatLiteral>(p)->get_value());
         break;
       case Ty::ARRAY: {
@@ -704,14 +705,8 @@ private:
     if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
     if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
-    if (p->_dominant_idx == 0) {
-      r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
-      l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
-    } else {
-      l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
-      r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
-    }
-
+    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
+    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
     if (l->getType()->isFloatingPointTy()) {
       /// float arithmetic
       switch (p->get_op()) {
@@ -785,17 +780,9 @@ private:
     if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
     if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
-    bool is_signed = true;
-    if (p->_dominant_idx == 0) {
-      r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), lhs->get_type());
-      l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), lhs->get_type());
-      is_signed = !lhs->get_type()->is_unsigned();
-    } else {
-      l = TypeSystem::ConvertTo(_cs, l, lhs->get_type(), rhs->get_type());
-      r = TypeSystem::ConvertTo(_cs, r, rhs->get_type(), rhs->get_type());
-      is_signed = !rhs->get_type()->is_unsigned();
-    }
-
+    bool is_signed = !lhs->get_type()->is_unsigned();
+    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
+    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
     if (l->getType()->isFloatingPointTy()) {
       switch (p->get_op()) {
         case BinaryOpKind::EQ:
@@ -1128,7 +1115,7 @@ private:
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     Error err(_cs->_filename, _sm->get_token(p->get_loc()), message);
-    err.print();
+    err.raise();
   }
 };
 

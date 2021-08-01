@@ -203,13 +203,7 @@ public:
   [[nodiscard]] Expr *get_lhs() const;
   [[nodiscard]] Expr *get_rhs() const;
   [[nodiscard]] BinaryOpKind get_op() const;
-  [[nodiscard]] size_t get_dominant_idx() const { return _dominant_idx; }
-  void set_dominant_idx(size_t idx) { _dominant_idx = idx; }
-
   [[nodiscard]] vector<ASTBase *> get_children() const override;
-
-public:
-  size_t _dominant_idx = 0;
 
 protected:
   BinaryOpKind _op;

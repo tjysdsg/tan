@@ -92,13 +92,13 @@ void CompilerSession::emit_object(const str &filename) {
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
   if (ec) {
     Error err("Could not open file: " + ec.message());
-    err.print();
+    err.raise();
   }
   PassManager emit_pass;
   auto file_type = llvm::CGFT_ObjectFile;
   if (_target_machine->addPassesToEmitFile(emit_pass, dest, nullptr, file_type)) {
     Error err("Target machine can't emit a file of this type");
-    err.print();
+    err.raise();
   }
   emit_pass.run(*_module);
   dest.flush();

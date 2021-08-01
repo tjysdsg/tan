@@ -41,39 +41,38 @@ VarDecl *VarDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
 FunctionDecl::FunctionDecl(SourceIndex loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
 // TODO: move this to analysis
-FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, const str &name, const vector<Expr *> &args) {
+FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
+  const str &name = p->get_name();
+  const vector<Expr *> &args = p->_args;
+
   FunctionDecl *ret = nullptr;
   auto func_candidates = ctx->get_functions(name);
-  /// always prefer the function with lowest cost if multiple candidates are callable
-  /// one implicit cast -> +1 cost
-  /// however, if two (or more) functions have the same score, an error is raise (ambiguous call)
-  auto cost = (size_t) -1;
+  /// find the function with the same argument types
   for (const auto &f : func_candidates) {
     size_t n = f->get_n_args();
     if (n != args.size()) { continue; }
     bool good = true;
-    size_t c = 0;
     for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
       auto actual_arg = args[i];
       /// allow implicit cast from actual_arg to arg, but not in reverse
       auto t1 = f->get_arg_type(i);
       auto t2 = actual_arg->get_type();
       if (*t1 != *t2) {
-        if (0 != TypeSystem::CanImplicitCast(ctx, t1, t2)) {
-          good = false;
-          break;
-        }
-        ++c;
+        good = false;
+        break;
       }
     }
+
+    // remember valid candidate(s)
     if (good) {
-      if (c < cost) {
-        ret = f;
-        cost = c;
-      } else if (c == cost) {
-        throw std::runtime_error("Ambiguous function call: " + name);
-        // FIXME: report_error(ctx, p, "Ambiguous function call: " + name);
+      if (ret) {
+        // TODO: print all valid candidates
+        Error err(ctx->get_filename(),
+            ctx->get_source_manager()->get_token(f->get_loc()),
+            "Ambiguous function call: " + name);
+        err.raise();
       }
+      ret = f;
     }
   }
   if (!ret) {

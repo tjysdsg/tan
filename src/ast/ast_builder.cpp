@@ -11,7 +11,7 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
     size_t bit_size,
     bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(loc, val, is_unsigned);
-  ASTType *ty = ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, BIT_SIZE_TO_TY[bit_size]), {}, false);
+  ASTType *ty = ASTType::GetIntegerType(ctx, loc, bit_size, is_unsigned);
   ret->set_type(ty);
   return ret;
 }
@@ -25,13 +25,7 @@ BoolLiteral *ASTBuilder::CreateBoolLiteral(ASTContext *ctx, SourceIndex loc, boo
 
 FloatLiteral *ASTBuilder::CreateFloatLiteral(ASTContext *ctx, SourceIndex loc, double val, size_t bit_size) {
   auto *ret = FloatLiteral::Create(loc, val);
-  if (bit_size == 32) {
-    ret->set_type(ASTType::CreateAndResolve(ctx, loc, Ty::FLOAT));
-  } else if (bit_size == 64) {
-    ret->set_type(ASTType::CreateAndResolve(ctx, loc, Ty::DOUBLE));
-  } else {
-    TAN_ASSERT(false);
-  }
+  ret->set_type(ASTType::GetFloatType(ctx, loc, bit_size));
   return ret;
 }
 

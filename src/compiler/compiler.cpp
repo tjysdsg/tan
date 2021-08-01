@@ -29,7 +29,7 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   auto target = llvm::TargetRegistry::lookupTarget(target_triple, error);
   if (!target) {
     Error err(error);
-    err.print();
+    err.raise();
   }
   if (!Compiler::target_machine) {
     auto CPU = "generic";

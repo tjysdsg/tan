@@ -129,7 +129,27 @@ private:
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     Error err(_ctx->_filename, _sm->get_token(p->get_loc()), message);
-    err.print();
+    err.raise();
+  }
+
+  /**
+   * \brief Check if two types are the same, if not, report error (at the location t1)
+   */
+  void check_types(ASTType *t1, ASTType *t2) { check_types(t1, t2, t1->get_loc()); }
+
+  /**
+   * \brief Check if two types are the same, if not, report error (at the location loc)
+   */
+  void check_types(ASTType *t1, ASTType *t2, SourceIndex loc) {
+    if (t1 == t2) { return; }
+    if (*t1 != *t2) {
+      Error err(_ctx->_filename,
+          _sm->get_token(loc),
+          fmt::format("{} and {} are different types. Please explicitly cast the them",
+              t1->get_type_name(),
+              t2->get_type_name()));
+      err.raise();
+    }
   }
 
   void analyze_id(ASTBase *_p) {
@@ -165,11 +185,7 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        if (0 != TypeSystem::CanImplicitCast(_ctx,
-            ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL),
-            cond->get_type())) {
-          report_error(p, "Cannot convert expression to bool");
-        }
+        check_types(cond->get_type(), ASTType::GetBoolType(_ctx, cond->get_loc()));
       }
 
       analyze(p->get_branch(i));
@@ -199,7 +215,8 @@ private:
   void analyze_ret(ASTBase *_p) {
     // TODO: check if return type can be implicitly cast to function return type
     auto p = ast_must_cast<Return>(_p);
-    analyze(p->get_rhs());
+    auto *rhs = p->get_rhs();
+    if (rhs) { analyze(rhs); }
   }
 
   void analyze_stmt(ASTBase *_p) {
@@ -236,14 +253,10 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        int i = TypeSystem::CanImplicitCast(_ctx, lhs->get_type(), rhs->get_type());
-        if (i == -1) {
-          report_error(p, "Cannot perform implicit type conversion");
-        }
+        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
 
-        size_t dominant_idx = static_cast<size_t>(i);
-        p->set_dominant_idx(dominant_idx);
-        ASTType *ty = copy_ty(dominant_idx == 0 ? lhs->get_type() : rhs->get_type());
+        // TODO: maybe the resulting type is not the same as lhs/rhs?
+        ASTType *ty = copy_ty(lhs->get_type());
         ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
@@ -264,7 +277,7 @@ private:
       case BinaryOpKind::NE:
         analyze(lhs);
         analyze(rhs);
-
+        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
         p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
@@ -276,6 +289,7 @@ private:
     }
   }
 
+  // TODO: check the types of the operand
   void analyze_uop(ASTBase *_p) {
     auto p = ast_must_cast<UnaryOperator>(_p);
     auto rhs = p->get_rhs();
@@ -283,6 +297,9 @@ private:
 
     switch (p->get_op()) {
       case UnaryOpKind::LNOT:
+        if (!p->get_rhs()->get_type()->is_bool()) {
+          report_error(p->get_rhs(), "Expect a bool type");
+        }
         p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
         break;
       case UnaryOpKind::BNOT:
@@ -387,9 +404,7 @@ private:
       analyze(lhs);
     }
 
-    if (TypeSystem::CanImplicitCast(_ctx, lhs_type, rhs->get_type()) != 0) {
-      report_error(p, "Cannot perform implicit type conversion");
-    }
+    check_types(lhs_type, rhs->get_type(), p->get_loc());
     p->set_type(lhs_type);
   }
 
@@ -400,7 +415,7 @@ private:
       analyze(a);
     }
 
-    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p->get_name(), p->_args);
+    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p);
     p->_callee = callee;
     p->set_type(copy_ty(callee->get_ret_ty()));
   }
@@ -493,7 +508,7 @@ private:
       }
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(p->get_loc(), _sm->get_line(p->get_loc()), true);
-        auto type = ASTType::CreateAndResolve(_ctx, p->get_loc(), TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
+        auto type = ASTType::GetU32Type(_ctx, p->get_loc());
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
@@ -553,12 +568,14 @@ private:
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
-    auto t = Ty::INT;
 
+    ASTType *ty;
     if (_ctx->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
-      t = TY_OR(t, Ty::UNSIGNED);
+      ty = ASTType::GetU32Type(_ctx, p->get_loc());
+    } else {
+      ty = ASTType::GetI32Type(_ctx, p->get_loc());
     }
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), t));
+    p->set_type(ty);
   }
 
   void analyze_bool_literal(ASTBase *_p) {
@@ -568,22 +585,25 @@ private:
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::FLOAT));
+    p->set_type(ASTType::GetF32Type(_ctx, p->get_loc()));
   }
 
   void analyze_array_literal(ASTBase *_p) {
     auto p = ast_must_cast<ArrayLiteral>(_p);
 
-    // TODO: restrict array element type to be the same
-    vector<ASTType *> sub_tys{};
+    /// check if the element types are all the same
     auto elements = p->get_elements();
-    sub_tys.reserve(elements.size());
-    std::for_each(elements.begin(), elements.end(), [&sub_tys, this](Expr *e) {
+    ASTType *element_type = nullptr;
+    for (auto *e : elements) {
       analyze(e);
-      sub_tys.push_back(e->get_type());
-    });
+      if (!element_type) { element_type = e->get_type(); }
+      if (*e->get_type() != *element_type) {
+        report_error(p, "All elements in an array must have the same type");
+      }
+    }
 
-    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, sub_tys);
+    TAN_ASSERT(element_type);
+    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, {element_type});
     ty->set_array_size(elements.size());
     p->set_type(ty);
   }

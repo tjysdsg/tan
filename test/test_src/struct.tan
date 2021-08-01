@@ -36,8 +36,8 @@ pub fn main(argc: int, argv: u8**) : i32 {
     assert(s.fuck.val == 11);
     assert(s.pfuck.val == 12);
     var shit: i8 = s.shit;
-    assert(s.shit == 100);
-    assert(shit == 100);
+    assert(s.shit == 100 as i8);
+    assert(shit == 100 as i8);
     assert(s.f == 1.0);
 
     s.fuck.set_fuck(20);

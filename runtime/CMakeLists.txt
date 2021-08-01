@@ -14,8 +14,9 @@ add_custom_target(
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/libruntime.${LIB_EXT}
         DEPENDS ${RUNTIME_SRCS} ${RUNTIME_CXX_SRCS} ${CMAKE_CURRENT_LIST_DIR}/stack_trace.h tanc
-        COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -shared -I${CMAKE_CURRENT_LIST_DIR} -ltan_backtrace
-        -L${LIB_OUTPUT_DIR} -o libruntime.${LIB_EXT}
+        COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -shared -I${CMAKE_CURRENT_LIST_DIR} -L${LIB_OUTPUT_DIR}
+        -ltan_backtrace
+        -o libruntime.${LIB_EXT}
         ${RUNTIME_SRCS} ${RUNTIME_CXX_SRCS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 )
