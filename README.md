@@ -23,7 +23,11 @@
 - Make sure to clone this repository using `git clone --recursive`, because there are some git submodules
   under [dep/](dep)
 - [CMake](https://cmake.org/download) >=3.0, other versions might work, but not tested (and won't be tested)
-- [LLVM project 10](https://releases.llvm.org/download.html), and their headers and libraries
+- [LLVM 10](https://releases.llvm.org/download.html). Only the libraries of LLVM and Clang are required. You can
+  use [this](https://github.com/tjysdsg/llvm-build) precompiled version.
+- `lld` is required to properly link the libraries (since it allows the libraries to be specified in arbitrary order
+  which makes life MUCH easier linking against so many llvm libraries).
+- gcc/clang compiler that supports C++ 17
 
 - Others:
 
@@ -62,12 +66,8 @@ There are a few options that you can specify when using `cmake` command:
 - `ENABLE_COVERAGE`: bool, Enable test coverage, default OFF
 - `BUILD_EXAMPLES`: bool, Build `tan` examples, default OFF
 - `ENABLE_CCACHE`: bool, Enable ccache to speed up rebuilding, default ON
-
-As an example, the following command disable precompiled headers and enable test coverage:
-
-```shell script
-cmake .. -DENABLE_PRECOMPILED_HEADERS=OFF -DENABLE_COVERAGE=ON
-```
+- `LLVM_ROOT_DIR`: Custom LLVM location
+- `CLANG_ROOT_DIR`: Custom CLANG location
 
 # Project Structure
 
