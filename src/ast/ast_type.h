@@ -48,9 +48,9 @@ public:
   [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
 
 public:
-  static umap<str, Ty> basic_tys;
-  static umap<str, size_t> type_bit_size;
-  static umap<str, Ty> qualifier_tys;
+  static const umap<str, Ty> basic_tys;
+  static const umap<str, size_t> type_bit_size;
+  static const umap<str, Ty> qualifier_tys;
 
 public:
   bool operator==(const ASTType &other);

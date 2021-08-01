@@ -94,7 +94,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   switch (base) {
     case Ty::INT: {
       if (!p->get_size_bits()) { /// set bit size if not
-        p->set_size_bits(ASTType::type_bit_size[ctx->get_source_manager()->get_token_str(p->get_loc())]);
+        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
       }
       p->set_is_int(true);
       p->set_type_name((p->is_unsigned() ? "u" : "i") + std::to_string(p->get_size_bits()));
@@ -131,7 +131,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       break;
     case Ty::FLOAT:
       if (!p->get_size_bits()) { /// set bit size if not
-        p->set_size_bits(ASTType::type_bit_size[ctx->get_source_manager()->get_token_str(p->get_loc())]);
+        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
       }
       p->set_type_name("f" + std::to_string(p->get_size_bits()));
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);

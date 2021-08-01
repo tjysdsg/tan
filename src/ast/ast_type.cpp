@@ -46,11 +46,11 @@ str ASTType::to_string(bool print_prefix) const {
 
 bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-umap<str, size_t>ASTType::type_bit_size =
+const umap<str, size_t>ASTType::type_bit_size =
     {{"int", 32}, {"i8", 8}, {"u8", 8}, {"i16", 16}, {"u16", 16}, {"i32", 32}, {"u32", 32}, {"i64", 64}, {"u64", 64},
         {"char", 8}, {"bool", 8}, {"float", 32}, {"f32", 32}, {"f64", 64}};
 
-umap<str, Ty>ASTType::basic_tys = { /// typename -> Ty
+const umap<str, Ty> ASTType::basic_tys = { /// typename -> Ty
     {"int", Ty::INT}, {"i8", Ty::INT}, {"u8", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i16", Ty::INT},
     {"u16", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i32", Ty::INT}, {"u32", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i64", Ty::INT},
     {"u64", TY_OR(Ty::INT, Ty::UNSIGNED)},  /// integers
@@ -59,7 +59,7 @@ umap<str, Ty>ASTType::basic_tys = { /// typename -> Ty
 
     {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR}, {"bool", Ty::BOOL}};
 
-umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+const umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
 ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {
   _is_float = false;
