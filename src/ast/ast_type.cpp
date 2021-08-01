@@ -46,13 +46,14 @@ str ASTType::to_string(bool print_prefix) const {
 
 bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-umap<str, Ty>ASTType::basic_tys =
-    {{"int", TY_OR(Ty::INT, Ty::BIT32)}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", TY_OR(Ty::INT, Ty::BIT8)},
-        {"u8", TY_OR3(Ty::INT, Ty::BIT8, Ty::UNSIGNED)}, {"i16", TY_OR(Ty::INT, Ty::BIT16)},
-        {"u16", TY_OR3(Ty::INT, Ty::BIT16, Ty::UNSIGNED)}, {"i32", TY_OR(Ty::INT, Ty::BIT32)},
-        {"u32", TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED)}, {"i64", TY_OR(Ty::INT, Ty::BIT64)},
-        {"u64", TY_OR3(Ty::INT, Ty::BIT64, Ty::UNSIGNED)}, {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR},
-        {"bool", Ty::BOOL},};
+umap<str, size_t>ASTType::type_bit_size =
+    {{"int", 32}, {"i8", 8}, {"u8", 8}, {"i16", 16}, {"u16", 16}, {"i32", 32}, {"u32", 32}, {"i64", 64}, {"u64", 64},
+        {"char", 8}, {"bool", 8}, {"float", 32}, {"double", 64}};
+
+umap<str, Ty>ASTType::basic_tys = {{"int", Ty::INT}, {"float", Ty::FLOAT}, {"double", Ty::DOUBLE}, {"i8", Ty::INT},
+    {"u8", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i16", Ty::INT}, {"u16", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i32", Ty::INT},
+    {"u32", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i64", Ty::INT}, {"u64", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"void", Ty::VOID},
+    {"str", Ty::STRING}, {"char", Ty::CHAR}, {"bool", Ty::BOOL}};
 
 umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
@@ -98,16 +99,28 @@ ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
 }
 
+ASTType *ASTType::GetIntegerType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool is_unsigned, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx,
+      loc,
+      Ty::INT,
+      {},
+      lvalue,
+      (const std::function<void(ASTType *)> &) [&](ASTType *t) {
+        t->set_size_bits(bit_size);
+        t->set_is_unsigned(is_unsigned);
+      });
+}
+
 ASTType *ASTType::GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT32), {}, lvalue);
+  return ASTType::GetIntegerType(ctx, loc, 32, false, lvalue);
 }
 
 ASTType *ASTType::GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, TY_OR3(Ty::INT, Ty::BIT32, Ty::UNSIGNED), {}, lvalue);
+  return ASTType::GetIntegerType(ctx, loc, 32, true, lvalue);
 }
 
 ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, Ty::BIT8), {}, lvalue);
+  return ASTType::GetIntegerType(ctx, loc, 8, false, lvalue);
 }
 
 ASTType *ASTType::GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue) {

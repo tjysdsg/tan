@@ -34,6 +34,11 @@ public:
       bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
   [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *GetIntegerType(ASTContext *ctx,
+      SourceIndex loc,
+      size_t bit_size,
+      bool is_unsigned,
+      bool lvalue = false);
   [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
   [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
   [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
@@ -41,6 +46,7 @@ public:
 
 public:
   static umap<str, Ty> basic_tys;
+  static umap<str, size_t> type_bit_size;
   static umap<str, Ty> qualifier_tys;
 
 public:

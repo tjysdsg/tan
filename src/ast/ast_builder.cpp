@@ -11,7 +11,7 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
     size_t bit_size,
     bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(loc, val, is_unsigned);
-  ASTType *ty = ASTType::CreateAndResolve(ctx, loc, TY_OR(Ty::INT, BIT_SIZE_TO_TY[bit_size]), {}, false);
+  ASTType *ty = ASTType::GetIntegerType(ctx, loc, bit_size, is_unsigned);
   ret->set_type(ty);
   return ret;
 }

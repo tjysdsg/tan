@@ -508,7 +508,7 @@ private:
       }
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(p->get_loc(), _sm->get_line(p->get_loc()), true);
-        auto type = ASTType::CreateAndResolve(_ctx, p->get_loc(), TY_OR3(Ty::INT, Ty::UNSIGNED, Ty::BIT32));
+        auto type = ASTType::GetU32Type(_ctx, p->get_loc());
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);

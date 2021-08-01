@@ -29,13 +29,7 @@ enum class Ty : uint64_t {
 
   UNSIGNED = 1u << 13u,
   CONST = 1u << 14u,
-  BIT8 = 1u << 15u, // TODO: use ASTType::_bit_size instead
-  BIT16 = 1u << 16u,
-  BIT32 = 1u << 17u,
-  BIT64 = 1u << 18u,
 };
-
-inline umap<size_t, Ty> BIT_SIZE_TO_TY{{8, Ty::BIT8}, {16, Ty::BIT16}, {32, Ty::BIT32}, {64, Ty::BIT64},};
 
 }
 

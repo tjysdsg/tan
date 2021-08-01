@@ -93,19 +93,13 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
-      p->set_size_bits(32);
-      p->set_type_name("i32");
-      p->set_is_int(true);
-      if (TY_IS(qual, Ty::BIT8)) {
-        p->set_size_bits(8);
-        p->set_type_name("i8");
-      } else if (TY_IS(qual, Ty::BIT16)) {
-        p->set_size_bits(16);
-        p->set_type_name("i16");
-      } else if (TY_IS(qual, Ty::BIT64)) {
-        p->set_size_bits(64);
-        p->set_type_name("i64");
+      if (!p->get_size_bits()) { /// set bit size if not
+        p->set_size_bits(ASTType::type_bit_size[ctx->get_source_manager()->get_token_str(p->get_loc())]);
       }
+      p->set_is_int(true);
+      p->set_type_name((p->is_unsigned() ? "u" : "i") + std::to_string(p->get_size_bits()));
+
+      /// dwarf encoding
       if (TY_IS(qual, Ty::UNSIGNED)) {
         p->set_is_unsigned(true);
         if (p->get_size_bits() == 8) {
@@ -159,7 +153,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       break;
     case Ty::ENUM: {
       /// underlying type is i32
-      auto sub = ASTType::CreateAndResolve(ctx, p->get_loc(), TY_OR(Ty::INT, Ty::BIT32));
+      auto sub = ASTType::GetI32Type(ctx, p->get_loc());
       p->set_sub_types({sub});
       p->set_size_bits(sub->get_size_bits());
       p->set_align_bits(sub->get_align_bits());
@@ -318,21 +312,21 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
       type = builder->getVoidTy();
       break;
     case Ty::ENUM:
-      type = ToLLVMType(cs, p->get_sub_types()[0]);
+      type = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
       break;
     case Ty::STRUCT: {
       vector<Type *> elements{};
       size_t n = p->get_sub_types().size();
       elements.reserve(n);
       for (size_t i = 0; i < n; ++i) {
-        elements.push_back(ToLLVMType(cs, p->get_sub_types()[i]));
+        elements.push_back(TypeSystem::ToLLVMType(cs, p->get_sub_types()[i]));
       }
       type = StructType::create(elements, p->get_type_name());
       break;
     }
     case Ty::ARRAY: /// during analysis phase, array is different from pointer, but during _codegen, they are the same
     case Ty::POINTER: {
-      auto e_type = ToLLVMType(cs, p->get_sub_types()[0]);
+      auto e_type = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
       type = e_type->getPointerTo();
       break;
     }
@@ -375,7 +369,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
       size_t n = p->get_sub_types().size();
       vector<Metadata *> elements(n);
       for (size_t i = 1; i < n; ++i) {
-        elements.push_back(ToLLVMMeta(cs, p->get_sub_types()[i]));
+        elements.push_back(TypeSystem::ToLLVMMeta(cs, p->get_sub_types()[i]));
       }
       ret = cs->_di_builder
           ->createStructType(cs->get_current_di_scope(),
@@ -395,7 +389,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
     case Ty::ARRAY:
     case Ty::POINTER: {
       auto e = p->get_sub_types()[0];
-      auto *e_di_type = ToLLVMMeta(cs, e);
+      auto *e_di_type = TypeSystem::ToLLVMMeta(cs, e);
       ret = cs->_di_builder
           ->createPointerType((DIType *) e_di_type,
               p->get_size_bits(),
@@ -405,7 +399,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
       break;
     }
     case Ty::TYPE_REF:
-      ret = (DIType *) ToLLVMMeta(cs, p->get_canonical_type());
+      ret = (DIType *) TypeSystem::ToLLVMMeta(cs, p->get_canonical_type());
       break;
     default:
       TAN_ASSERT(false);
