@@ -1,5 +1,4 @@
 #include "parser.h"
-#include "base.h"
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
 #include "src/ast/stmt.h"
@@ -11,7 +10,6 @@
 #include "src/common.h"
 #include "src/ast/intrinsic.h"
 #include "token.h"
-#include <fmt/core.h>
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h

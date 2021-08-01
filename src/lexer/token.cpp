@@ -1,5 +1,4 @@
 #include "token.h"
-#include <fmt/core.h>
 
 namespace tanlang {
 

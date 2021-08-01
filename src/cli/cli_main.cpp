@@ -2,6 +2,7 @@
 #include "libtanc.h"
 #include "src/llvm_include.h"
 #include "clang-frontend.h"
+#include <iostream>
 
 namespace cmd = llvm::cl;
 
