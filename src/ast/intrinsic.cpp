@@ -23,7 +23,7 @@ void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
   ctx->add_function(FunctionDecl::Create(SourceIndex(0),
       "compprint",
-      ASTType::CreateAndResolve(ctx, SourceIndex(0), Ty::VOID),
+      ASTType::GetVoidType(ctx, SourceIndex(0)),
       {ASTType::CreateAndResolve(ctx, SourceIndex(0), Ty::STRING),},
       true,
       false));

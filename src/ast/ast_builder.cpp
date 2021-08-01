@@ -18,7 +18,7 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
 
 BoolLiteral *ASTBuilder::CreateBoolLiteral(ASTContext *ctx, SourceIndex loc, bool val) {
   auto *ret = BoolLiteral::Create(loc, val);
-  ASTType *ty = ASTType::CreateAndResolve(ctx, loc, Ty::BOOL);
+  ASTType *ty = ASTType::GetBoolType(ctx, loc);
   ret->set_type(ty);
   return ret;
 }
@@ -37,7 +37,7 @@ StringLiteral *ASTBuilder::CreateStringLiteral(ASTContext *ctx, SourceIndex loc,
 
 CharLiteral *ASTBuilder::CreateCharLiteral(ASTContext *ctx, SourceIndex loc, uint8_t val) {
   auto *ret = CharLiteral::Create(loc, val);
-  ret->set_type(ASTType::CreateAndResolve(ctx, loc, Ty::CHAR));
+  ret->set_type(ASTType::GetCharType(ctx, loc));
   return ret;
 }
 

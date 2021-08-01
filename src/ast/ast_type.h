@@ -34,7 +34,10 @@ public:
       bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
   [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *GetEnumType(ASTContext *ctx, SourceIndex loc, str name, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetTypeRef(ASTContext *ctx, SourceIndex loc, str name, bool lvalue = false);
   [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetCharType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
   [[nodiscard]] static ASTType *GetIntegerType(ASTContext *ctx,
       SourceIndex loc,
       size_t bit_size,

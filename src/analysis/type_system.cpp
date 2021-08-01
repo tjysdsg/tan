@@ -5,8 +5,6 @@
 #include "compiler.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/ast_context.h"
-#include "src/llvm_include.h"
-#include <fmt/core.h>
 
 using namespace tanlang;
 

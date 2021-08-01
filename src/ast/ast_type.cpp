@@ -103,6 +103,32 @@ ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
 }
 
+ASTType *ASTType::GetCharType(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::CHAR, {}, lvalue);
+}
+
+ASTType *ASTType::GetEnumType(ASTContext *ctx, SourceIndex loc, str name, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx,
+      loc,
+      Ty::ENUM,
+      {},
+      lvalue,
+      (const std::function<void(ASTType *)> &) [&](ASTType *t) {
+        t->set_type_name(name);
+      });
+}
+
+ASTType *ASTType::GetTypeRef(ASTContext *ctx, SourceIndex loc, str name, bool lvalue) {
+  return ASTType::CreateAndResolve(ctx,
+      loc,
+      Ty::TYPE_REF,
+      {},
+      lvalue,
+      (const std::function<void(ASTType *)> &) [&](ASTType *t) {
+        t->set_type_name(name);
+      });
+}
+
 ASTType *ASTType::GetIntegerType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool is_unsigned, bool lvalue) {
   TAN_ASSERT(bit_size == 8 || bit_size == 16 || bit_size == 32 || bit_size == 64);
   return ASTType::CreateAndResolve(ctx,
@@ -309,7 +335,7 @@ void ASTType::set_constructor(Constructor *constructor) {
 
 ASTType *ASTType::get_contained_ty() const {
   if (get_ty() == Ty::STRING) {
-    return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::CHAR, {}, false);
+    return ASTType::GetCharType(_ctx, get_loc());
   } else if (is_ptr()) {
     TAN_ASSERT(!get_canonical_type()->_sub_types.empty());
     auto ret = get_canonical_type()->_sub_types[0];

@@ -1,5 +1,4 @@
 #include "analyzer.h"
-#include "base.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_builder.h"
 #include "src/ast/constructor.h"
@@ -9,12 +8,9 @@
 #include "src/ast/decl.h"
 #include "src/ast/intrinsic.h"
 #include "src/analysis/type_system.h"
-#include "token.h"
 #include "src/scope.h"
 #include "src/ast/ast_context.h"
 #include "compiler.h"
-#include <iostream>
-#include <fmt/core.h>
 
 namespace tanlang {
 
@@ -159,9 +155,7 @@ private:
       p->set_var_ref(VarRef::Create(p->get_loc(), p->get_name(), referred));
       p->set_type(copy_ty(referred->get_type()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::TYPE_REF, {}, false, [&](ASTType *t) {
-        t->set_type_name(p->get_name());
-      });
+      auto *ty = ASTType::GetTypeRef(_ctx, p->get_loc(), p->get_name());
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
@@ -278,7 +272,7 @@ private:
         analyze(lhs);
         analyze(rhs);
         check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
-        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
+        p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
         analyze_member_access(ast_must_cast<MemberAccess>(p));
@@ -300,7 +294,7 @@ private:
         if (!p->get_rhs()->get_type()->is_bool()) {
           report_error(p->get_rhs(), "Expect a bool type");
         }
-        p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
+        p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
         break;
       case UnaryOpKind::BNOT:
         p->set_type(copy_ty(rhs->get_type()));
@@ -497,7 +491,7 @@ private:
     }
     p->set_intrinsic_type(q->second);
 
-    auto void_type = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::VOID);
+    auto void_type = ASTType::GetVoidType(_ctx, p->get_loc());
     switch (p->get_intrinsic_type()) {
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
@@ -561,8 +555,7 @@ private:
 
   void analyze_char_literal(ASTBase *_p) {
     auto p = ast_must_cast<CharLiteral>(_p);
-
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::CHAR, {}));
+    p->set_type(ASTType::GetCharType(_ctx, p->get_loc()));
     p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->get_loc())[0]));
   }
 
@@ -580,7 +573,7 @@ private:
 
   void analyze_bool_literal(ASTBase *_p) {
     auto p = ast_must_cast<BoolLiteral>(_p);
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
+    p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
   }
 
   void analyze_float_literal(ASTBase *_p) {
@@ -807,9 +800,7 @@ private:
     auto *p = ast_must_cast<EnumDecl>(_p);
 
     /// add_decl the enum type to context
-    auto *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ENUM, {}, false, [&](ASTType *t) {
-      t->set_type_name(p->get_name());
-    });
+    auto *ty = ASTType::GetEnumType(_ctx, p->get_loc(), p->get_name());
     TypeSystem::SetDefaultConstructor(_ctx, ty);
     p->set_type(ty);
     _ctx->add_type_decl(p->get_name(), p);

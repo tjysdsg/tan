@@ -9,7 +9,6 @@
 #include "src/ast/intrinsic.h"
 #include "src/analysis/type_system.h"
 #include "src/common.h"
-#include "src/llvm_include.h"
 #include "compiler_session.h"
 
 namespace tanlang {
@@ -967,11 +966,6 @@ private:
       if (!cond) {
         report_error(p, "Expected a condition expression");
       }
-      // TODO: do this in analysis phase, and remove ASTContext from this
-      cond = TypeSystem::ConvertTo(_cs,
-          cond,
-          p->get_predicate()->get_type(),
-          ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::BOOL));
       builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
       /// loop body
