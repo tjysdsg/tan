@@ -56,7 +56,18 @@ umap<str, Ty>ASTType::basic_tys =
 
 umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {}
+ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {
+  _is_float = false;
+  _is_array = false;
+  _is_int = false;
+  _is_unsigned = false;
+  _is_struct = false;
+  _is_bool = false;
+  _is_enum = false;
+  _resolved = false;
+  _is_lvalue = false;
+  _is_forward_decl = false;
+}
 
 ASTType *ASTType::Create(ASTContext *ctx, SourceIndex loc) {
   auto *ret = new ASTType(loc);

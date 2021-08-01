@@ -119,24 +119,27 @@ private:
 private:
   Ty _ty = Ty::INVALID;
   str _type_name;
-  llvm::Type *_llvm_type = nullptr;
-  size_t _size_bits = 0;
-  size_t _align_bits = 0;
-  unsigned _dwarf_encoding = 0;
-  bool _is_float = false;
-  bool _is_array = false;
-  size_t _array_size = 0;
-  bool _is_int = false;
-  bool _is_unsigned = false;
-  bool _is_struct = false;
-  bool _is_bool = false;
-  bool _is_enum = false;
-  bool _resolved = false;
-  bool _is_lvalue = false;
-  bool _is_forward_decl = false;
   vector<ASTType *> _sub_types;
   Constructor *_constructor = nullptr;
   ASTContext *_ctx = nullptr;
+
+  llvm::Type *_llvm_type = nullptr;
+  unsigned _dwarf_encoding = 0;
+
+  size_t _size_bits = 0;
+  size_t _align_bits = 0;
+  size_t _array_size = 0;
+
+  bool _is_float: 1;
+  bool _is_array: 1;
+  bool _is_int: 1;
+  bool _is_unsigned: 1;
+  bool _is_struct: 1;
+  bool _is_bool: 1;
+  bool _is_enum: 1;
+  bool _resolved: 1;
+  bool _is_lvalue: 1;
+  bool _is_forward_decl: 1;
 };
 
 } // namespace tanlang
