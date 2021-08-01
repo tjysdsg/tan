@@ -585,7 +585,7 @@ private:
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::FLOAT));
+    p->set_type(ASTType::GetF32Type(_ctx, p->get_loc()));
   }
 
   void analyze_array_literal(ASTBase *_p) {

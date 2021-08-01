@@ -14,15 +14,15 @@ pub fn main() : int {
     assert(a4 == 100.0 as i8);
     var a5: i32 = a4 as i32;
     assert(a5 == 100);
-    var a6: float = a5 as float;
+    var a6: f32 = a5 as float;
     assert(a6 == 100.0);
-    var a7: double = a6 as double;
-    assert(a7 as float == 100.0);
-    a7 = a5 as double;
-    assert(a7 == 100 as double);
+    var a7: f64 = a6 as f64;
+    assert(a7 as f32 == 100.0);
+    a7 = a5 as f64;
+    assert(a7 == 100 as f64);
 
     // float and signed/unsigned int
-    var fp: float = -1.0 as float;
+    var fp: float = -1.0 as f32;
     assert(fp as int == -1);
     assert(fp as u32 == 4294967295u); // underflow
     assert(fp as bool);

@@ -488,7 +488,6 @@ private:
       case Ty::BOOL:
       case Ty::INT:
       case Ty::CHAR:
-      case Ty::DOUBLE:
       case Ty::FLOAT:
       case Ty::STRING:
       case Ty::ARRAY:
@@ -545,7 +544,6 @@ private:
         ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
         break;
       case Ty::FLOAT:
-      case Ty::DOUBLE:
         ret = ConstantFP::get(type, ast_must_cast<FloatLiteral>(p)->get_value());
         break;
       case Ty::ARRAY: {

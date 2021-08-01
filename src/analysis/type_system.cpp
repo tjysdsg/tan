@@ -130,14 +130,10 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_is_bool(true);
       break;
     case Ty::FLOAT:
-      p->set_type_name("float");
-      p->set_size_bits(32);
-      p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
-      p->set_is_float(true);
-      break;
-    case Ty::DOUBLE:
-      p->set_type_name("double");
-      p->set_size_bits(64);
+      if (!p->get_size_bits()) { /// set bit size if not
+        p->set_size_bits(ASTType::type_bit_size[ctx->get_source_manager()->get_token_str(p->get_loc())]);
+      }
+      p->set_type_name("f" + std::to_string(p->get_size_bits()));
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
       p->set_is_float(true);
       break;
@@ -248,10 +244,7 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
       p->set_constructor(BasicConstructor::CreateBoolConstructor(ctx, p->get_loc()));
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 32));
-      break;
-    case Ty::DOUBLE:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, 64));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
       break;
     case Ty::STRING:
       p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
@@ -300,10 +293,13 @@ Type *TypeSystem::ToLLVMType(CompilerSession *cs, ASTType *p) {
       type = builder->getInt1Ty();
       break;
     case Ty::FLOAT:
-      type = builder->getFloatTy();
-      break;
-    case Ty::DOUBLE:
-      type = builder->getDoubleTy();
+      if (32 == p->get_size_bits()) {
+        type = builder->getFloatTy();
+      } else if (64 == p->get_size_bits()) {
+        type = builder->getDoubleTy();
+      } else {
+        TAN_ASSERT(false);
+      }
       break;
     case Ty::STRING:
       type = builder->getInt8PtrTy(); /// str as char*
@@ -350,7 +346,6 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
     case Ty::BOOL:
     case Ty::FLOAT:
     case Ty::VOID:
-    case Ty::DOUBLE:
     case Ty::ENUM:
       ret = cs->_di_builder->createBasicType(p->get_type_name(), p->get_size_bits(), p->get_dwarf_encoding());
       break;
