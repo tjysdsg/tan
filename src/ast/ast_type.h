@@ -44,15 +44,12 @@ public:
   static umap<str, Ty> qualifier_tys;
 
 public:
-  explicit ASTType(SourceIndex loc);
-
   bool operator==(const ASTType &other);
   bool operator!=(const ASTType &other);
 
   [[nodiscard]] str to_string(bool print_prefix) const override;
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
-public:
   [[nodiscard]] Ty get_ty() const;
   void set_ty(Ty ty);
   [[nodiscard]] ASTType *get_contained_ty() const;
@@ -111,6 +108,9 @@ public:
    * type references themselves.
    */
   void set_is_lvalue(bool is_lvalue);
+
+protected:
+  explicit ASTType(SourceIndex loc);
 
 private:
   [[nodiscard]] ASTType *must_get_canonical_type() const;
