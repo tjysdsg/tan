@@ -11,6 +11,8 @@
 #include "src/scope.h"
 #include "src/ast/ast_context.h"
 #include "compiler.h"
+#include "token.h"
+#include <iostream>
 
 namespace tanlang {
 
