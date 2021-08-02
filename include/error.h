@@ -25,10 +25,10 @@ namespace tanlang {
 class ErrorCatcher {
 public:
   friend class Error;
-  using callback_t = std::function<void(const str &)>;
+  using callback_t = std::function<void(str)>;
 
 public:
-  void register_callback(callback_t handler);
+  ErrorCatcher(callback_t handler);
 
 private:
   callback_t _callback;

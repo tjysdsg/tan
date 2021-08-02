@@ -729,10 +729,40 @@ private:
     _curr.offset_by(1);
   }
 
+  // assuming _curr is at the token after "@"
+  void parse_test_comp_error_intrinsic(Intrinsic *p) {
+    _curr.offset_by(1); /// skip "test_comp_error"
+
+    auto *e = peek();
+    if (e->get_node_type() != ASTNodeType::PARENTHESIS) {
+      error(_curr, "Expect a parenthesis");
+    }
+    parse_node(e);
+
+    auto *test_name = ast_must_cast<Parenthesis>(e)->get_sub();
+    if (test_name->get_node_type() != ASTNodeType::ID) {
+      error(_curr, "Expect a test name");
+    }
+
+    // TODO: the underlying expression of this intrinsic should be Test
+    // TODO: expect parsing OR analysis error
+
+    auto *body = peek(TokenType::PUNCTUATION, "{");
+    parse_node(body);
+    p->set_sub(body);
+    p->set_name("test_comp_error");
+  }
+
   void parse_intrinsic(ASTBase *_p) {
     auto *p = ast_must_cast<Intrinsic>(_p);
 
     _curr.offset_by(1); /// skip "@"
+
+    if (_sm->get_token_str(_curr) == "test_comp_error") {
+      parse_test_comp_error_intrinsic(p);
+      return;
+    }
+
     auto e = peek();
     parse_node(e);
     /// Only allow identifier or function call as valid intrinsic token

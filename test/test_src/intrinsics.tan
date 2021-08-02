@@ -2,6 +2,10 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 import "runtime/stdlib.tan";
 
+@test_comp_error(continue_outside_loop) {
+    continue;
+}
+
 pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");
 
@@ -9,7 +13,7 @@ pub fn main(argc: int, argv: char**) : int {
     print("\nSource filename is:");
     print(@file);
 
-    assert(@line == 12u);
+    assert(@line == 16u);
 
     print("\nSource code of variable argc is:");
     print(@get_decl(argc));
