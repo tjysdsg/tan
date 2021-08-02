@@ -547,12 +547,13 @@ private:
         break;
       }
       case IntrinsicType::TEST_COMP_ERROR: {
-        volatile bool error_catched = false;
+        // FIXME: memory leaks
+        bool error_catched = false;
         std::jmp_buf buf;
         if (setjmp(buf) > 0) {
           error_catched = true;
         } else {
-          auto error_catcher = ErrorCatcher([&](str) {
+          auto error_catcher = ErrorCatcher((const ErrorCatcher::callback_t &) [&](str) {
             longjmp(buf, 1);
           });
           Error::CatchErrors(&error_catcher);
