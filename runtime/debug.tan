@@ -5,5 +5,5 @@ pub fn assert(b: bool) : void {
         stack_trace();
         abort();
     }
-    return; // FIXME: #41
+    return; // a workaround for #41
 }

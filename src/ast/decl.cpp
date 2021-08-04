@@ -76,8 +76,9 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
     }
   }
   if (!ret) {
-    throw std::runtime_error("Unknown function call: " + name);
-    // FIXME: report_error(ctx, p, "Unknown function call: " + name);
+    Error
+        err(ctx->get_filename(), ctx->get_source_manager()->get_token(p->get_loc()), "Unknown function call: " + name);
+    err.raise();
   }
   return ret;
 }

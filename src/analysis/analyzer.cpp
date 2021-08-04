@@ -210,7 +210,7 @@ private:
   }
 
   void analyze_ret(ASTBase *_p) {
-    // TODO: check if return type can be implicitly cast to function return type
+    // TODO: check if return type is the same as the function return type
     auto p = ast_must_cast<Return>(_p);
     auto *rhs = p->get_rhs();
     if (rhs) { analyze(rhs); }
@@ -252,7 +252,6 @@ private:
 
         check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
 
-        // TODO: maybe the resulting type is not the same as lhs/rhs?
         ASTType *ty = copy_ty(lhs->get_type());
         ty->set_is_lvalue(false);
         p->set_type(ty);

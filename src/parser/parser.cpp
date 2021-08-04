@@ -31,10 +31,6 @@ private:
   SourceManager *_sm = nullptr;
   SourceIndex _curr = SourceIndex(0);
 
-  // FIXME: parse_* functions don't have to return _end_index
-  //  But remember to set the _end_index of proxy classes like BinaryOrUnary
-  // TODO: size_t parse_enum_decl(const ASTBase * &p);
-
   ASTBase *peek(TokenType type, const str &value) {
     Token *token = at(_curr);
     if (token->get_type() != type || token->get_value() != value) {

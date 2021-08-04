@@ -34,7 +34,6 @@ private:
   callback_t _callback;
 };
 
-// TODO: improve this
 class Error {
 public:
   static void CatchErrors(ErrorCatcher *handler_class);

@@ -13,8 +13,6 @@
 
 namespace tanlang {
 
-// TODO: extract into static functions that don't depend on ASTBase classes so that code can be reused (such as
-//   in intrinsic.cpp
 class CodeGeneratorImpl {
 public:
   CodeGeneratorImpl() = delete;
@@ -575,7 +573,6 @@ private:
     return ret;
   }
 
-  // FIXME: write an ASTBaseError class
   Value *codegen_stmt(ASTBase *_p) {
     auto p = ast_must_cast<CompoundStmt>(_p);
 
