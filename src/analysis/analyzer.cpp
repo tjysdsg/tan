@@ -11,6 +11,9 @@
 #include "src/scope.h"
 #include "src/ast/ast_context.h"
 #include "compiler.h"
+#include "token.h"
+#include <iostream>
+#include <csetjmp>
 
 namespace tanlang {
 
@@ -480,9 +483,10 @@ private:
         name = ast_must_cast<Identifier>(c)->get_name();
         break;
       default:
-        TAN_ASSERT(false);
+        name = p->get_name();
         break;
     }
+    TAN_ASSERT(!name.empty());
 
     /// search for the intrinsic type
     auto q = Intrinsic::intrinsics.find(name);
@@ -540,6 +544,26 @@ private:
         }
         str msg = ast_must_cast<StringLiteral>(args[0])->get_value();
         std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
+        break;
+      }
+      case IntrinsicType::TEST_COMP_ERROR: {
+        // FIXME: memory leaks
+        bool error_catched = false;
+        std::jmp_buf buf;
+        if (setjmp(buf) > 0) {
+          error_catched = true;
+        } else {
+          auto error_catcher = ErrorCatcher((const ErrorCatcher::callback_t &) [&](str) {
+            longjmp(buf, 1);
+          });
+          Error::CatchErrors(&error_catcher);
+          analyze(p->get_sub());
+        }
+
+        Error::ResetErrorCatcher();
+        if (!error_catched) {
+          report_error(p, "Expect a compile error");
+        }
         break;
       }
       default:

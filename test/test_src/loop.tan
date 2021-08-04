@@ -1,6 +1,10 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
+@test_comp_error(continue_outside_loop) {
+    continue;
+}
+
 pub fn main() : int {
     var i: u32 = 0u;
     var gt_50: u32 = 0u;

@@ -18,6 +18,8 @@
 
 using namespace tanlang;
 
+ErrorCatcher::ErrorCatcher(ErrorCatcher::callback_t handler) : _callback(handler) {}
+
 Error::Error(const str &error_message) {
   _msg = "[ERROR] " + error_message;
 }
@@ -38,6 +40,25 @@ Error::Error(const str &filename, Token *token, const str &error_message) {
 }
 
 void Error::raise() const {
+  if (Error::__catcher) { Error::__catcher->_callback(_msg); }
   std::cerr << _msg << '\n';
   ABORT();
+}
+
+void Error::ResetErrorCatcher() { __catcher = nullptr; }
+
+void Error::CatchErrors(ErrorCatcher *catcher) {
+  if (!catcher) {
+    std::cerr << "Invalid error catcher\n";
+    print_back_trace();
+    exit(1);
+  }
+
+  if (__catcher) {
+    std::cerr << "Not allowed to have multiple error catchers\n";
+    print_back_trace();
+    exit(1);
+  }
+
+  __catcher = catcher;
 }

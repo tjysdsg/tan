@@ -1,6 +1,14 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
+@test_comp_error(i32_to_i8) {
+    var a: i8 = 32;
+}
+
+@test_comp_error(f32_to_i32) {
+    var a: i32 = 8.;
+}
+
 pub fn main() : int {
     var a1: i32 = 100;
     assert(a1 == 100);
