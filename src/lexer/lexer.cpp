@@ -73,27 +73,29 @@ Token *tokenize_keyword(Reader *reader, Cursor &start) {
 Token *tokenize_comments(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto next = reader->forward(start);
-  if (*next == '/') {
-    // line comments
+  if (*next == '/') {  /// line comments
     auto value = reader->substr(reader->forward(next));
     t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
     start.c = reader->get_line(start.l).length();
-    start = (*reader).forward(start);
-  } else if (*next == '*') {
-    /* block comments */
-    auto forward = start;
-    // loop for each line
-    while (static_cast<size_t>(forward.l) < reader->size()) {
-      auto re = std::regex(R"(.*\*\/)");
-      auto s = reader->substr(forward);
+    start = reader->forward(start);
+  } else if (*next == '*') {  /// block comments
+    auto forward = start = reader->forward(next); /// forward now points to the character after "/*"
+
+    /// trying to find "*/"
+    while ((size_t) forward.l < reader->size()) {
+      auto re = std::regex(R"(\*\/)");
+      auto s = reader->get_line(forward.l);
       std::smatch result;
-      if (std::regex_match(s, result, re)) {
-        str value = s.substr(2, static_cast<size_t>(result.length(0) - 4));
-        t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
-        forward.c = static_cast<size_t>(result.length(0));
+      if (std::regex_search(s, result, re)) {
+        forward.c = (size_t) result.position(0);  // forward is the position of */
+        str comment_val = reader->substr(start, forward);
+        t = new Token(TokenType::COMMENTS, start.l, start.c, comment_val, reader->get_line(start.l));
+        forward.c += 2;
         start = forward;
+        break;
       }
       ++forward.l;
+      forward.c = 0;
     }
     if (!t) {
       report_error(reader, start, "Invalid comments");

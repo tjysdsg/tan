@@ -48,14 +48,25 @@ void Reader::from_string(const str &code) {
   }
 }
 
+bool Reader::is_cursor_valid(const Cursor &c) const {
+  if (c.l >= _lines.size()) { return false; }
+
+  str line = _lines[c.l];
+  if (line.empty()) {
+    return c.c == 0;
+  } else {
+    return c.c < line.size();
+  }
+}
+
 str Reader::substr(const Cursor &start, const Cursor &_end) const {
+  TAN_ASSERT(is_cursor_valid(start));
+
+  /// if the end cursor is out of boundary, make it point to EOF
   Cursor end(_end);
-  TAN_ASSERT(start.l != (size_t) -1 && start.c != (size_t) -1);
-  // if end can contain -1 only if l and c are both -1
-  TAN_ASSERT(!((end.l == (size_t) -1) ^ (end.c == (size_t) -1)));
-  if (end.l == (size_t) -1 && end.c == (size_t) -1) {
-    end.l = start.l;
-    end.c = _lines[end.l].length();
+  if (end.l >= _lines.size() || end.c > _lines[end.l].size()) {
+    end.l = _lines.size() - 1;
+    end.c = _lines.back().size();
   }
   auto s_row = start.l;
   auto e_row = end.l;
@@ -64,8 +75,8 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
     TAN_ASSERT(start.c <= end.c);
     ret = _lines[s_row].substr(start.c, end.c - start.c);
   } else {
-    ret += _lines[s_row].substr(start.c);
-    for (auto r = s_row; r < e_row - 1; ++r) {
+    ret += _lines[s_row].substr(start.c) + "\n";
+    for (auto r = s_row + 1; r < e_row; ++r) {
       ret += _lines[r] + "\n";
     }
     if (end.c > 0) {
@@ -73,6 +84,11 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
     }
   }
   return ret;
+}
+
+str Reader::substr(const Cursor &start) const {
+  Cursor end(start.l, get_line(start.l).size(), this);
+  return substr(start, end);
 }
 
 Cursor Reader::forward(Cursor ptr) {
@@ -105,10 +121,6 @@ char Reader::at(const Cursor &ptr) const {
   if (ptr.l >= this->size()) { return '\0'; }
   if (ptr.c >= this->_lines[ptr.l].length()) { return '\0'; }
   return _lines[ptr.l][ptr.c];
-}
-
-str Reader::substr(const Cursor &start) const {
-  return substr(start, this->end());
 }
 
 Cursor Reader::begin() const {

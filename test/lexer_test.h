@@ -41,7 +41,7 @@ TEST(tokenize, string_literal) {
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 1);
   EXPECT_EQ(result[0]->get_type(), TokenType::STRING);
-  EXPECT_EQ(result[0]->get_value(), "hello world, motherfucker dsfs shit \t");
+  EXPECT_EQ(result[0]->get_value(), "hello world, motherfucker dsfs \nshit \t");
   for (auto *&t : result) {
     delete t;
     t = nullptr;
@@ -85,7 +85,7 @@ TEST(tokenize, char_literal) {
   }
 }
 
-TEST(tokenize, block_comment) {
+TEST(tokenize, block_comment1) {
   str code = "/* this is a comment */";
   Reader r;
   r.from_string(code);
@@ -93,6 +93,20 @@ TEST(tokenize, block_comment) {
   EXPECT_EQ(result.size(), 1);
   EXPECT_EQ(result[0]->get_type(), TokenType::COMMENTS);
   EXPECT_EQ(result[0]->get_value(), " this is a comment ");
+  for (auto *&t : result) {
+    delete t;
+    t = nullptr;
+  }
+}
+
+TEST(tokenize, block_comment2) {
+  str code = "/*\n\nblock\n \tis a comment \n*/xxx";
+  Reader r;
+  r.from_string(code);
+  auto result = tokenize(&r);
+  EXPECT_EQ(result.size(), 2);
+  EXPECT_EQ(result[0]->get_type(), TokenType::COMMENTS);
+  EXPECT_EQ(result[0]->get_value(), "\nblock\nis a comment \n");
   for (auto *&t : result) {
     delete t;
     t = nullptr;

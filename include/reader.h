@@ -35,6 +35,11 @@ public:
    * */
   str substr(const Cursor &start, const Cursor &end) const;
 
+  /**
+   * \brief Check if a cursor is in bound
+   */
+  bool is_cursor_valid(const Cursor &c) const;
+
   [[nodiscard]] Cursor begin() const;
   [[nodiscard]] Cursor end() const;
 
