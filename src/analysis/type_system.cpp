@@ -117,8 +117,8 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     case Ty::CHAR:
       p->set_type_name("char");
       p->set_size_bits(8);
-      p->set_dwarf_encoding(llvm::dwarf::DW_ATE_unsigned_char);
-      p->set_is_unsigned(true);
+      p->set_dwarf_encoding(llvm::dwarf::DW_ATE_signed_char);
+      p->set_is_unsigned(false);
       p->set_is_int(true);
       break;
     case Ty::BOOL:
@@ -136,7 +136,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       p->set_is_float(true);
       break;
     case Ty::STRING:
-      p->set_type_name("u8*");
+      p->set_type_name("i8*");
       p->set_size_bits(tm->getPointerSizeInBits(0));
       p->set_align_bits(8);
       break;

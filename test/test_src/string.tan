@@ -2,6 +2,14 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
+    // c-string
+    var int_str = [1, 2, 0] as str; // TODO: malloc
+    int_str[0] = 'a';
+    int_str[1] = 'b';
+    int_str[2] = 0 as char;
+    print(int_str);
+
+    /*
     var s: str = "shit 他妈的";
     assert(s[0] == 's');
     assert(s[1] == 'h');
@@ -22,5 +30,6 @@ pub fn main(argc: int, argv: char**) : int {
     assert(s[13] == de[2]);
     print(s);
     print("SUCCESS");
+    */
     return 0;
 }

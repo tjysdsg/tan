@@ -22,7 +22,7 @@ const vector<char> PUNCTUATIONS
 const vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
 
 const vector<str> TYPE_NAMES
-    {"bool", "int", "float", "f32", "str", "f64", "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64", "void"};
+    {"bool", "int", "float", "f32", "str", "char", "f64", "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64", "void"};
 
 const vector<str> OP_ALL
     {"==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=",
