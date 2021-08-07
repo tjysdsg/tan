@@ -1,2 +1,62 @@
+fn reverse(s: i8*, len: u32) : void {
+    var start: u32 = 0u;
+    var end: u32 = len - 1u;
+    while (start < end) {
+        var tmp: i8 = s[start];
+        s[start] = s[end];
+        s[end] = tmp;
+        start = start + 1u;
+        end = end - 1u;
+    }
+}
+
+pub fn itoa(num: i32, s: str, base: u32) : str {
+    var i: u32 = 0u;
+    var isNegative: bool = false;
+
+    // handle 0 explicitly
+    if (num == 0) {
+        s[i] = '0';
+        i = i + 1u;
+        s[i] = 0 as char;
+        return s;
+    }
+
+    /*
+     * in standard itoa(), negative numbers are handled only with
+     * base 10. Otherwise numbers are considered unsigned.
+     */
+    if (num < 0) { // TODO: num < 0 && base == 10u
+        if (base == 10u) {
+            isNegative = true;
+            num = -num;
+        }
+    }
+
+    // process individual digits
+    while (num != 0) {
+        var rem: u32 = num as u32 % base;
+        if (rem > 9u) {
+            s[i] = (rem - 10u) as i8 + 'a';
+        } else {
+            s[i] = rem as i8 + '0';
+        }
+        i = i + 1u;
+        num = num / base as i32;
+    }
+
+    // if number is negative, append '-'
+    if (isNegative) {
+        s[i] = '-';
+        i = i + 1u;
+    }
+
+    s[i] = 0 as i8;
+
+    // reverse the string
+    reverse(s as i8*, i);
+    return s;
+}
+
 extern fn abort() : void;
 extern fn stack_trace() : void;

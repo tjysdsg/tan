@@ -1,13 +1,22 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
+import "runtime/stdlib.tan";
+
 
 pub fn main(argc: int, argv: char**) : int {
     // c-string
-    var int_str = [1, 2, 0] as str; // TODO: malloc
+    var int_str = [1] as str; // TODO: malloc
+    // TODO: var int_str = [1 as i8, 2 as i8, 0 as i8] as str;
     int_str[0] = 'a';
     int_str[1] = 'b';
     int_str[2] = 0 as char;
     print(int_str);
+
+    // itoa
+    itoa(-12, int_str, 10u);
+    assert(int_str[0] == '-');
+    assert(int_str[1] == '1');
+    assert(int_str[2] == '2');
 
     /*
     var s: str = "shit 他妈的";
