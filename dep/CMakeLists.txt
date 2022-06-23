@@ -223,13 +223,14 @@ else ()
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/libbacktrace
     )
 endif ()
-# ================================================
 
 if (UNIX)
     set(LIBBACKTRACE_INCLUDE_DIR ${DEP_DIR}/libbacktrace)
 else ()
     set(LIBBACKTRACE_INCLUDE_DIR "")
 endif ()
+# ================================================
+
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}

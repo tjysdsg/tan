@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.19)
 
 # version number
 set(TAN_VERSION 0.0.1)
@@ -13,6 +13,7 @@ set(CMAKE_PROJECT_TAN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # ==================== OPTIONS ====================
@@ -64,7 +65,6 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 
 macro(set_other_options target_name)
     message(DEBUG "Generating target: ${target_name}")
-    target_compile_features(${target_name} PRIVATE cxx_std_17)
 
     if (MSVC)
         target_compile_options(${target_name}
