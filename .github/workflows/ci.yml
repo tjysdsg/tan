@@ -12,7 +12,7 @@ jobs:
   CI_master:
     strategy:
       matrix:
-        container: ["tjysdsg/tanlang:latest"]
+        container: [ "quay.io/tjysdsg/tan:latest" ]
 
     runs-on: ubuntu-18.04
     container:
