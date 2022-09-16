@@ -10,11 +10,7 @@
 
 # Design Objectives
 
-- High performance
-- Parallel programming
-- Memory safety (but not as rigid as rust)
-- Easy-to-use but powerful meta-programming
-- Improved OOP model
+NVM I'll never accomplish them
 
 # Build Instructions
 
