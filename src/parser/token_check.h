@@ -3,7 +3,7 @@
 
 namespace tanlang {
 
-struct Token;
+class Token;
 
 bool check_typename_token(Token *token);
 bool check_terminal_token(Token *token);

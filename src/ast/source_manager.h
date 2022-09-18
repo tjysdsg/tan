@@ -18,7 +18,7 @@ public:
   explicit SourceIndex(size_t index) { _index = index; }
   static SourceIndex CreateInvalidIndex() { return SourceIndex(static_cast<size_t>(-1)); }
   size_t get_index() const { return _index; }
-  void offset_by(int64_t offset) { _index += offset; }
+  void offset_by(int64_t offset) { _index = (size_t) ((int64_t) _index + offset); }
 
 private:
   size_t _index = 0;

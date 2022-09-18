@@ -62,12 +62,6 @@
     <editorconfig>
       <option name="ENABLED" value="false" />
     </editorconfig>
-    <files>
-      <extensions>
-        <pair source="cpp" header="h" fileNamingConvention="SNAKE_CASE" />
-        <pair source="c" header="h" fileNamingConvention="NONE" />
-      </extensions>
-    </files>
     <codeStyleSettings language="ObjectiveC">
       <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
       <option name="LINE_COMMENT_ADD_SPACE" value="true" />

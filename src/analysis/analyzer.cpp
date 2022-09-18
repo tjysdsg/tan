@@ -610,7 +610,7 @@ private:
     /// check if the element types are all the same
     auto elements = p->get_elements();
     ASTType *element_type = nullptr;
-    for (auto *e : elements) {
+    for (auto *e: elements) {
       analyze(e);
       if (!element_type) { element_type = e->get_type(); }
       if (*e->get_type() != *element_type) {
@@ -831,7 +831,7 @@ private:
     /// get element names and types
     int64_t val = 0;
     size_t i = 0;
-    for (const auto &e : p->get_elements()) {
+    for (const auto &e: p->get_elements()) {
       if (e->get_node_type() == ASTNodeType::ID) {
         p->set_value(ast_must_cast<Identifier>(e)->get_name(), val);
       } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
@@ -846,7 +846,7 @@ private:
         auto *rhs = ast_cast<IntegerLiteral>(_rhs);
         TAN_ASSERT(rhs);
 
-        val = rhs->get_value();
+        val = (int64_t) rhs->get_value();
         p->set_value(lhs->get_name(), val);
       }
       ++val;

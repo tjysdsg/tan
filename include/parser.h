@@ -8,7 +8,7 @@
 namespace tanlang {
 
 class ParserImpl;
-struct Token;
+class Token;
 
 /**
  * \brief Parser
