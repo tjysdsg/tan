@@ -261,10 +261,17 @@ private:
       case BinaryOpKind::LAND:
       case BinaryOpKind::BOR:
       case BinaryOpKind::LOR:
-      case BinaryOpKind::XOR:
-        // TODO: implement the type checking of the above operators
-        TAN_ASSERT(false);
+      case BinaryOpKind::XOR: {
+        analyze(lhs);
+        analyze(rhs);
+        auto loc = p->get_loc();
+        auto *bool_type = ASTType::GetBoolType(_ctx, loc);
+        // check if both operators are bool
+        check_types(lhs->get_type(), bool_type, loc);
+        check_types(rhs->get_type(), bool_type, loc);
+        p->set_type(bool_type);
         break;
+      }
       case BinaryOpKind::GT:
       case BinaryOpKind::GE:
       case BinaryOpKind::LT:

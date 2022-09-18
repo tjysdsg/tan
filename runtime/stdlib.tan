@@ -26,11 +26,9 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
      * in standard itoa(), negative numbers are handled only with
      * base 10. Otherwise numbers are considered unsigned.
      */
-    if (num < 0) { // TODO: num < 0 && base == 10u
-        if (base == 10u) {
-            isNegative = true;
-            num = -num;
-        }
+    if (num < 0 && base == 10u) {
+        isNegative = true;
+        num = -num;
     }
 
     // process individual digits

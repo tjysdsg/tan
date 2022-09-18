@@ -239,7 +239,7 @@ private:
 
       /// add all function arguments to scope
       size_t i = 0;
-      for (auto &a : F->args()) {
+      for (auto &a: F->args()) {
         auto arg_name = p->get_arg_name(i);
         auto *arg_val = codegen(p->get_arg_decls()[i]);
         builder->CreateStore(&a, arg_val);
@@ -576,7 +576,7 @@ private:
   Value *codegen_stmt(ASTBase *_p) {
     auto p = ast_must_cast<CompoundStmt>(_p);
 
-    for (const auto &e : p->get_children()) {
+    for (const auto &e: p->get_children()) {
       codegen(e);
     }
     return nullptr;
@@ -642,8 +642,7 @@ private:
       case BinaryOpKind::BOR:
       case BinaryOpKind::LOR:
       case BinaryOpKind::XOR:
-        // TODO: implement codegen of the above operators
-        TAN_ASSERT(false);
+        ret = codegen_relop(p);
         break;
       case BinaryOpKind::GT:
       case BinaryOpKind::GE:
@@ -843,6 +842,44 @@ private:
           TAN_ASSERT(false);
           break;
       }
+    }
+    return p->_llvm_value;
+  }
+
+  Value *codegen_relop(ASTBase *_p) {
+    auto p = ast_must_cast<BinaryOperator>(_p);
+
+    auto *builder = _cs->_builder;
+    set_current_debug_location(p);
+
+    auto lhs = p->get_lhs();
+    auto rhs = p->get_rhs();
+    Value *l = codegen(lhs);
+    Value *r = codegen(rhs);
+    if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
+    if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
+
+    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
+    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
+    switch (p->get_op()) {
+      case BinaryOpKind::BAND:
+        p->_llvm_value = builder->CreateAnd(l, r, "binary_and");
+        break;
+      case BinaryOpKind::LAND:
+        p->_llvm_value = builder->CreateAnd(l, r, "logical_and");
+        break;
+      case BinaryOpKind::BOR:
+        p->_llvm_value = builder->CreateOr(l, r, "binary_or");
+        break;
+      case BinaryOpKind::LOR:
+        p->_llvm_value = builder->CreateOr(l, r, "logical_or");
+        break;
+      case BinaryOpKind::XOR:
+        p->_llvm_value = builder->CreateXor(l, r, "logical_or");
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
     }
     return p->_llvm_value;
   }

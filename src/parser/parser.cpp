@@ -145,7 +145,23 @@ private:
         case "!="_hs:
           op = BinaryOpKind::NE;
           break;
+        case "&&"_hs:
+          op = BinaryOpKind::LAND;
+          break;
+        case "||"_hs:
+          op = BinaryOpKind::LOR;
+          break;
+        case "|"_hs:
+          op = BinaryOpKind::BOR;
+          break;
+        case "&"_hs:
+          op = BinaryOpKind::BAND;
+          break;
+        case "^"_hs:
+          op = BinaryOpKind::XOR;
+          break;
         default:
+          error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
           return nullptr;
       }
       node = BinaryOperator::Create(op, _curr);
@@ -414,6 +430,7 @@ private:
   }
 
   Expr *expect_expression(ASTBase *p) {
+    TAN_ASSERT(p);
     Expr *ret = nullptr;
     if (!(ret = ast_cast<Expr>(p))) {
       error(p->get_loc(), "Expect an expression");
@@ -422,6 +439,7 @@ private:
   }
 
   Stmt *expect_stmt(ASTBase *p) {
+    TAN_ASSERT(p);
     Stmt *ret = nullptr;
     if (!(ret = ast_cast<Stmt>(p))) {
       error(p->get_loc(), "Expect a statement");
@@ -430,6 +448,7 @@ private:
   }
 
   Decl *expect_decl(ASTBase *p) {
+    TAN_ASSERT(p);
     Decl *ret = nullptr;
     if (!(ret = ast_cast<Decl>(p))) {
       error(p->get_loc(), "Expect a declaration");
@@ -874,7 +893,7 @@ private:
       /// copy member declarations
       auto children = comp_stmt->get_children();
       vector<Expr *> member_decls{};
-      for (const auto &c : children) {
+      for (const auto &c: children) {
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::VAR_DECL, ASTNodeType::ASSIGN, ASTNodeType::FUNC_DECL})) {
           error(c->get_loc(), "Invalid struct member");
         }
@@ -1018,7 +1037,7 @@ private:
       auto children = comp_stmt->get_children();
       vector<Expr *> elements{};
       elements.reserve(children.size());
-      for (const auto &c : children) {
+      for (const auto &c: children) {
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::ASSIGN, ASTNodeType::ID})) {
           error(c->get_loc(), "Invalid enum elements");
         }
