@@ -283,7 +283,7 @@ public:
   [[nodiscard]] UnaryOperator *get_uop() const;
   void set_uop(UnaryOperator *uop);
 
-  [[nodiscard]] Expr *get_generic_ptr() const;
+  [[nodiscard]] Expr *get_expr_ptr() const;
   [[nodiscard]] ASTBase *get() const override;
   [[nodiscard]] ASTType *get_type() const override;
   void set_type(ASTType *type) override;

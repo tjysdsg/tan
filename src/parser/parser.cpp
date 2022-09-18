@@ -16,6 +16,9 @@ using tanlang::TokenType; // distinguish from the one in winnt.h
 
 namespace tanlang {
 
+using nud_parsing_func_t = void (ParserImpl::*)(ASTBase *);
+using led_parsing_func_t = void (ParserImpl::*)(ASTBase *, ASTBase *);
+
 class ParserImpl final {
 public:
   ParserImpl() = delete;
@@ -282,85 +285,19 @@ private:
           break;
       }
       pp->set_uop(actual);
+
+      // update binding power, as the value was originally set to the binding power of BOP version of this op
+      parse_node(pp->get_expr_ptr());
+      return;
     }
 
-    switch (p->get_node_type()) {
-      case ASTNodeType::PROGRAM:
-        parse_program(p);
-        break;
-      case ASTNodeType::STATEMENT:
-        parse_stmt(p);
-        break;
-      case ASTNodeType::PARENTHESIS:
-        parse_parenthesis(p);
-        break;
-      case ASTNodeType::IMPORT:
-        parse_import(p);
-        break;
-      case ASTNodeType::INTRINSIC:
-        parse_intrinsic(p);
-        break;
-      case ASTNodeType::IF:
-        parse_if(p);
-        break;
-      case ASTNodeType::LOOP:
-        parse_loop(p);
-        break;
-      case ASTNodeType::UOP:
-        parse_uop(p);
-        break;
-      case ASTNodeType::RET:
-        parse_return(p);
-        break;
-      case ASTNodeType::FUNC_CALL:
-        parse_func_call(p);
-        break;
-      case ASTNodeType::ARRAY_LITERAL:
-        parse_array_literal(p);
-        break;
-      case ASTNodeType::TY:
-        parse_ty(ast_must_cast<ASTType>(p));
-        break;
-      case ASTNodeType::STRUCT_DECL:
-        parse_struct_decl(p);
-        break;
-      case ASTNodeType::VAR_DECL:
-        parse_var_decl(p);
-        break;
-      case ASTNodeType::ARG_DECL:
-        parse_arg_decl(p);
-        break;
-      case ASTNodeType::FUNC_DECL:
-        parse_func_decl(p);
-        break;
-      case ASTNodeType::ENUM_DECL:
-        parse_enum_decl(p);
-        break;
-      case ASTNodeType::BREAK:
-      case ASTNodeType::CONTINUE:
-      case ASTNodeType::ID:
-      case ASTNodeType::INTEGER_LITERAL:
-      case ASTNodeType::FLOAT_LITERAL:
-      case ASTNodeType::CHAR_LITERAL:
-      case ASTNodeType::STRING_LITERAL:
-      case ASTNodeType::BOOL_LITERAL:
-        _curr.offset_by(1);
-        break;
-      case ASTNodeType::BOP_OR_UOP: {
-        auto *pp = ast_must_cast<BinaryOrUnary>(p);
-        TAN_ASSERT(pp->get_kind() == BinaryOrUnary::UNARY);
-
-        /// update binding power, as the value was originally set to the binding power of BOP version of this op
-        auto *uop = pp->get_uop();
-        uop->set_bp(UnaryOperator::UOPPrecedence[uop->get_op()]);
-
-        parse_node(pp->get_generic_ptr());
-        break;
-      }
-      default:
-        error(_curr, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
-        break;
+    // look up parser func from the table
+    auto it = NUD_PARSING_FUNC_TABLE.find(p->get_node_type());
+    if (it == NUD_PARSING_FUNC_TABLE.end()) {
+      error(_curr, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
+    nud_parsing_func_t func = it->second;
+    (this->*func)(p);
   }
 
   /**
@@ -390,28 +327,17 @@ private:
           break;
       }
       pp->set_bop(actual);
+      parse_node(left, pp->get_expr_ptr());
+      return;
     }
 
-    switch (p->get_node_type()) {
-      case ASTNodeType::BOP:
-        parse_bop(left, p);
-        break;
-      case ASTNodeType::ASSIGN:
-        parse_assignment(left, p);
-        break;
-      case ASTNodeType::CAST:
-        parse_cast(left, p);
-        break;
-      case ASTNodeType::BOP_OR_UOP: {
-        auto *pp = ast_must_cast<BinaryOrUnary>(p);
-        TAN_ASSERT(pp->get_kind() == BinaryOrUnary::BINARY);
-        parse_node(left, pp->get_generic_ptr());
-        break;
-      }
-      default:
-        TAN_ASSERT(false);
-        break;
+    // look up parser func from the table
+    auto it = LED_PARSING_FUNC_TABLE.find(p->get_node_type());
+    if (it == LED_PARSING_FUNC_TABLE.end()) {
+      error(_curr, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
+    led_parsing_func_t func = it->second;
+    (this->*func)(left, p);
   }
 
   [[nodiscard]] Token *at(SourceIndex loc) const {
@@ -481,6 +407,10 @@ private:
     /// rhs
     auto rhs = next_expression(p->get_bp());
     p->set_rhs(rhs);
+  }
+
+  void parse_generic_token(ASTBase *) {
+    _curr.offset_by(1);
   }
 
   void parse_if(ASTBase *_p) {
@@ -943,7 +873,9 @@ private:
     }
   }
 
-  void parse_ty(ASTType *p) {
+  void parse_ty(ASTBase *_p) {
+    ASTType *p = ast_must_cast<ASTType>(_p);
+
     while (!eof(_curr)) {
       Token *token = at(_curr);
       auto qb = ASTType::basic_tys.find(token->get_value());
@@ -1054,6 +986,10 @@ private:
   str _filename;
   ASTContext *_cs = nullptr;
   ASTBase *_root = nullptr;
+
+private:
+  const static umap<ASTNodeType, nud_parsing_func_t> NUD_PARSING_FUNC_TABLE;
+  const static umap<ASTNodeType, led_parsing_func_t> LED_PARSING_FUNC_TABLE;
 };
 
 Parser::Parser(ASTContext *ctx) { _impl = new ParserImpl(ctx); }
@@ -1062,4 +998,25 @@ ASTBase *Parser::parse() { return _impl->parse(); }
 
 Parser::~Parser() { delete _impl; }
 
+const umap<ASTNodeType, nud_parsing_func_t>ParserImpl::NUD_PARSING_FUNC_TABLE =
+    {{ASTNodeType::PROGRAM, &ParserImpl::parse_program}, {ASTNodeType::STATEMENT, &ParserImpl::parse_stmt},
+        {ASTNodeType::PARENTHESIS, &ParserImpl::parse_parenthesis}, {ASTNodeType::IMPORT, &ParserImpl::parse_import},
+        {ASTNodeType::INTRINSIC, &ParserImpl::parse_intrinsic}, {ASTNodeType::IF, &ParserImpl::parse_if},
+        {ASTNodeType::LOOP, &ParserImpl::parse_loop}, {ASTNodeType::UOP, &ParserImpl::parse_uop},
+        {ASTNodeType::RET, &ParserImpl::parse_return}, {ASTNodeType::FUNC_CALL, &ParserImpl::parse_func_call},
+        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal}, {ASTNodeType::TY, &ParserImpl::parse_ty},
+        {ASTNodeType::STRUCT_DECL, &ParserImpl::parse_struct_decl},
+        {ASTNodeType::VAR_DECL, &ParserImpl::parse_var_decl}, {ASTNodeType::ARG_DECL, &ParserImpl::parse_arg_decl},
+        {ASTNodeType::FUNC_DECL, &ParserImpl::parse_func_decl}, {ASTNodeType::ENUM_DECL, &ParserImpl::parse_enum_decl},
+        {ASTNodeType::BREAK, &ParserImpl::parse_generic_token},
+        {ASTNodeType::CONTINUE, &ParserImpl::parse_generic_token}, {ASTNodeType::ID, &ParserImpl::parse_generic_token},
+        {ASTNodeType::INTEGER_LITERAL, &ParserImpl::parse_generic_token},
+        {ASTNodeType::FLOAT_LITERAL, &ParserImpl::parse_generic_token},
+        {ASTNodeType::CHAR_LITERAL, &ParserImpl::parse_generic_token},
+        {ASTNodeType::STRING_LITERAL, &ParserImpl::parse_generic_token},
+        {ASTNodeType::BOOL_LITERAL, &ParserImpl::parse_generic_token}};
 }
+
+const umap<ASTNodeType, led_parsing_func_t>ParserImpl::LED_PARSING_FUNC_TABLE =
+    {{ASTNodeType::BOP, &ParserImpl::parse_bop}, {ASTNodeType::ASSIGN, &ParserImpl::parse_assignment},
+        {ASTNodeType::CAST, &ParserImpl::parse_cast}};

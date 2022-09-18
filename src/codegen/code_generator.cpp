@@ -937,7 +937,7 @@ private:
   Value *codegen_binary_or_unary(ASTBase *_p) {
     auto p = ast_must_cast<BinaryOrUnary>(_p);
     set_current_debug_location(p);
-    return p->_llvm_value = codegen(p->get_generic_ptr());
+    return p->_llvm_value = codegen(p->get_expr_ptr());
   }
 
   Value *codegen_break_continue(ASTBase *_p) {

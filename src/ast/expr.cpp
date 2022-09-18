@@ -286,7 +286,7 @@ void BinaryOrUnary::set_uop(UnaryOperator *uop) {
   _uop = uop;
 }
 
-Expr *BinaryOrUnary::get_generic_ptr() const {
+Expr *BinaryOrUnary::get_expr_ptr() const {
   switch (_kind) {
     case BINARY:
       return _bop;
@@ -298,13 +298,13 @@ Expr *BinaryOrUnary::get_generic_ptr() const {
   }
 }
 
-ASTBase *BinaryOrUnary::get() const { return get_generic_ptr(); }
+ASTBase *BinaryOrUnary::get() const { return get_expr_ptr(); }
 
-ASTType *BinaryOrUnary::get_type() const { return get_generic_ptr()->get_type(); }
+ASTType *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
 
-void BinaryOrUnary::set_type(ASTType *type) { get_generic_ptr()->set_type(type); }
+void BinaryOrUnary::set_type(ASTType *type) { get_expr_ptr()->set_type(type); }
 
-vector<ASTBase *> BinaryOrUnary::get_children() const { return get_generic_ptr()->get_children(); }
+vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->get_children(); }
 
 bool CompTimeExpr::is_comptime_known() { return true; }
 

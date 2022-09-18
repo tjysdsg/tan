@@ -230,7 +230,7 @@ private:
 
   void analyze_bop_or_uop(ASTBase *_p) {
     auto p = ast_must_cast<BinaryOrUnary>(_p);
-    analyze(p->get_generic_ptr());
+    analyze(p->get_expr_ptr());
   }
 
   void analyze_bop(ASTBase *_p) {
