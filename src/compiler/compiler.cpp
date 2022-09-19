@@ -13,6 +13,7 @@ using namespace tanlang;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);
+  delete _ast;
   delete _cs;
   delete _ctx;
 }

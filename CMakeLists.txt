@@ -76,11 +76,8 @@ macro(set_other_options target_name)
                 PRIVATE -Wextra
                 PRIVATE -pedantic-errors
                 PRIVATE -Wconversion
-                # PRIVATE -fsanitize=address,undefined
                 )
     endif ()
-    # target_link_options(${target_name} PRIVATE -fsanitize=address,undefined)
-
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -123,6 +120,14 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
 target_link_libraries(tan ${DEP_LIBS} tan_backtrace)
 set_other_options(tan)
+
+# ======= ENABLE sanitizers =======
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_compile_options(tan PUBLIC -fsanitize=address,undefined)
+    target_link_options(tan PUBLIC -fsanitize=address,undefined)
+endif ()
+# =================================
+
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")
     target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
