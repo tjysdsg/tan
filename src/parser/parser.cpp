@@ -25,14 +25,14 @@ public:
   explicit ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _cs(ctx) {}
 
   ASTBase *parse() {
-    _root = Program::Create(SourceIndex(0));
+    _root = Program::Create(SrcLoc(0));
     parse_node(_root);
     return _root;
   }
 
 private:
   SourceManager *_sm = nullptr;
-  SourceIndex _curr = SourceIndex(0);
+  SrcLoc _curr = SrcLoc(0);
 
   ASTBase *peek(TokenType type, const str &value) {
     Token *token = at(_curr);
@@ -266,19 +266,19 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_must_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
-      str token_str = _sm->get_token_str(p->get_loc());
+      str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
         case "*"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->get_loc());
+          actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->loc());
           break;
         case "&"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->get_loc());
+          actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->loc());
           break;
         case "+"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->get_loc());
+          actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->loc());
           break;
         case "-"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->get_loc());
+          actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->loc());
           break;
         default:
           TAN_ASSERT(false);
@@ -308,19 +308,19 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_must_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
-      str token_str = _sm->get_token_str(p->get_loc());
+      str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
         case "*"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->get_loc());
+          actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->loc());
           break;
         case "&"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::BAND, p->get_loc());
+          actual = BinaryOperator::Create(BinaryOpKind::BAND, p->loc());
           break;
         case "+"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::SUM, p->get_loc());
+          actual = BinaryOperator::Create(BinaryOpKind::SUM, p->loc());
           break;
         case "-"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->get_loc());
+          actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->loc());
           break;
         default:
           TAN_ASSERT(false);
@@ -340,7 +340,7 @@ private:
     (this->*func)(left, p);
   }
 
-  [[nodiscard]] Token *at(SourceIndex loc) const {
+  [[nodiscard]] Token *at(SrcLoc loc) const {
     if (this->eof(loc)) {
       Error err(_filename, _sm->get_last_token(), "Unexpected EOF");
       err.raise();
@@ -348,9 +348,9 @@ private:
     return _sm->get_token(loc);
   }
 
-  [[nodiscard]] bool eof(SourceIndex loc) const { return _sm->is_eof(loc); }
+  [[nodiscard]] bool eof(SrcLoc loc) const { return _sm->is_eof(loc); }
 
-  [[noreturn]] void error(SourceIndex loc, const str &error_message) const {
+  [[noreturn]] void error(SrcLoc loc, const str &error_message) const {
     Error err(_filename, at(loc), error_message);
     err.raise();
   }
@@ -359,7 +359,7 @@ private:
     TAN_ASSERT(p);
     Expr *ret = nullptr;
     if (!(ret = ast_cast<Expr>(p))) {
-      error(p->get_loc(), "Expect an expression");
+      error(p->loc(), "Expect an expression");
     }
     return ret;
   }
@@ -368,7 +368,7 @@ private:
     TAN_ASSERT(p);
     Stmt *ret = nullptr;
     if (!(ret = ast_cast<Stmt>(p))) {
-      error(p->get_loc(), "Expect a statement");
+      error(p->loc(), "Expect a statement");
     }
     return ret;
   }
@@ -377,7 +377,7 @@ private:
     TAN_ASSERT(p);
     Decl *ret = nullptr;
     if (!(ret = ast_cast<Decl>(p))) {
-      error(p->get_loc(), "Expect a declaration");
+      error(p->loc(), "Expect a declaration");
     }
     return ret;
   }
@@ -489,11 +489,11 @@ private:
 
     if (at(_curr)->get_value() == "]") {
       // TODO: support empty array literal, but raise error if the type cannot be inferred
-      error(p->get_loc(), "Empty array literal");
+      error(p->loc(), "Empty array literal");
     }
 
     vector<Literal *> elements{};
-    while (!eof(p->get_loc())) {
+    while (!eof(p->loc())) {
       if (at(_curr)->get_value() == ",") { /// skip ","
         _curr.offset_by(1);
         continue;
@@ -505,7 +505,7 @@ private:
       auto node = peek();
       if (!is_ast_type_in(node->get_node_type(), TypeSystem::LiteralTypes)) {
         // TODO: support array of constexpr
-        error(p->get_loc(), "Expected a literal");
+        error(p->loc(), "Expected a literal");
       }
 
       parse_node(node);
@@ -518,7 +518,7 @@ private:
   void parse_bop(ASTBase *_lhs, ASTBase *_p) {
     Expr *lhs = ast_must_cast<Expr>(_lhs);
 
-    Token *token = at(_p->get_loc());
+    Token *token = at(_p->loc());
     if (token->get_value() == "." || token->get_value() == "[") { /// delegate to parse_member_access
       parse_member_access(lhs, ast_must_cast<MemberAccess>(_p));
       return;
@@ -541,7 +541,7 @@ private:
     _curr.offset_by(1);
     auto rhs = ast_cast<Expr>(next_expression(p->get_bp()));
     if (!rhs) {
-      error(p->get_loc(), "Invalid operand");
+      error(p->loc(), "Invalid operand");
     }
     p->set_rhs(rhs);
   }
@@ -825,7 +825,7 @@ private:
       vector<Expr *> member_decls{};
       for (const auto &c: children) {
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::VAR_DECL, ASTNodeType::ASSIGN, ASTNodeType::FUNC_DECL})) {
-          error(c->get_loc(), "Invalid struct member");
+          error(c->loc(), "Invalid struct member");
         }
         member_decls.push_back(ast_must_cast<Expr>(c));
       }
@@ -878,12 +878,12 @@ private:
 
     while (!eof(_curr)) {
       Token *token = at(_curr);
-      auto qb = ASTType::basic_tys.find(token->get_value());
-      auto qq = ASTType::qualifier_tys.find(token->get_value());
+      auto qb = ASTType::BASIC_TYS.find(token->get_value());
+      auto qq = ASTType::QUALIFIER_TYS.find(token->get_value());
 
-      if (qb != ASTType::basic_tys.end()) { /// base types
+      if (qb != ASTType::BASIC_TYS.end()) { /// base types
         p->set_ty(TY_OR(p->get_ty(), qb->second));
-      } else if (qq != ASTType::qualifier_tys.end()) { /// TODO: qualifiers
+      } else if (qq != ASTType::QUALIFIER_TYS.end()) { /// TODO: qualifiers
         if (token->get_value() == "*") { /// pointer
           auto sub = new ASTType(*p);
           p->set_ty(Ty::POINTER);
@@ -971,7 +971,7 @@ private:
       elements.reserve(children.size());
       for (const auto &c: children) {
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::ASSIGN, ASTNodeType::ID})) {
-          error(c->get_loc(), "Invalid enum elements");
+          error(c->loc(), "Invalid enum elements");
         }
         elements.push_back(ast_must_cast<Expr>(c));
       }

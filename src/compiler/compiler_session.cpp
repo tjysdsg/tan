@@ -81,7 +81,7 @@ void CompilerSession::emit_object(const str &filename) {
   fpm.doInitialization();
   for (auto &f: *_module) {
     if (f.getName() == "tan_main") { /// mark tan_main as used, prevent LLVM from deleting it
-      llvm::appendToUsed(*_module, {(GlobalValue * ) & f});
+      llvm::appendToUsed(*_module, {(GlobalValue *) &f});
     }
     fpm.run(f);
   }

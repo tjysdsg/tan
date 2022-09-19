@@ -87,12 +87,12 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
     TypeSystem::ResolveTy(ctx, t);
   }
 
-  Token *token = ctx->get_source_manager()->get_token(p->get_loc());
+  Token *token = ctx->get_source_manager()->get_token(p->loc());
   auto *tm = Compiler::GetDefaultTargetMachine();
   switch (base) {
     case Ty::INT: {
       if (!p->get_size_bits()) { /// set bit size if not
-        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
+        p->set_size_bits(ASTType::TYPE_BIT_SIZES.at(ctx->get_source_manager()->get_token_str(p->loc())));
       }
       p->set_is_int(true);
       p->set_type_name((p->is_unsigned() ? "u" : "i") + std::to_string(p->get_size_bits()));
@@ -129,7 +129,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       break;
     case Ty::FLOAT:
       if (!p->get_size_bits()) { /// set bit size if not
-        p->set_size_bits(ASTType::type_bit_size.at(ctx->get_source_manager()->get_token_str(p->get_loc())));
+        p->set_size_bits(ASTType::TYPE_BIT_SIZES.at(ctx->get_source_manager()->get_token_str(p->loc())));
       }
       p->set_type_name("f" + std::to_string(p->get_size_bits()));
       p->set_dwarf_encoding(llvm::dwarf::DW_ATE_float);
@@ -147,7 +147,7 @@ void TypeSystem::ResolveTy(ASTContext *ctx, ASTType *const &p) {
       break;
     case Ty::ENUM: {
       /// underlying type is i32
-      auto sub = ASTType::GetI32Type(ctx, p->get_loc());
+      auto sub = ASTType::GetI32Type(ctx, p->loc());
       p->set_sub_types({sub});
       p->set_size_bits(sub->get_size_bits());
       p->set_align_bits(sub->get_align_bits());
@@ -230,26 +230,26 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
   switch (base) {
     case Ty::INT:
       p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx,
-          p->get_loc(),
+          p->loc(),
           0,
           p->get_size_bits(),
           p->is_unsigned()));
       break;
     case Ty::CHAR:
-      p->set_constructor(BasicConstructor::CreateCharConstructor(ctx, p->get_loc()));
+      p->set_constructor(BasicConstructor::CreateCharConstructor(ctx, p->loc()));
       break;
     case Ty::BOOL:
-      p->set_constructor(BasicConstructor::CreateBoolConstructor(ctx, p->get_loc()));
+      p->set_constructor(BasicConstructor::CreateBoolConstructor(ctx, p->loc()));
       break;
     case Ty::FLOAT:
-      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
+      p->set_constructor(BasicConstructor::CreateFPConstructor(ctx, p->loc(), 0, p->get_size_bits()));
       break;
     case Ty::STRING:
-      p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->get_loc()));
+      p->set_constructor(BasicConstructor::CreateStringConstructor(ctx, p->loc()));
       break;
     case Ty::ENUM:
       // TODO: default value 0?
-      p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx, p->get_loc(), 0, p->get_size_bits()));
+      p->set_constructor(BasicConstructor::CreateIntegerConstructor(ctx, p->loc(), 0, p->get_size_bits()));
       break;
     case Ty::STRUCT:
       // TODO: p->set_constructor()
@@ -257,11 +257,11 @@ void TypeSystem::SetDefaultConstructor(ASTContext *ctx, ASTType *const &p) {
     case Ty::ARRAY: {
       vector<ASTType *> sub_types = p->get_sub_types();
       TAN_ASSERT(!sub_types.empty());
-      p->set_constructor(BasicConstructor::CreateArrayConstructor(ctx, p->get_loc(), sub_types[0]));
+      p->set_constructor(BasicConstructor::CreateArrayConstructor(ctx, p->loc(), sub_types[0]));
       break;
     }
     case Ty::POINTER:
-      p->set_constructor(BasicConstructor::CreateNullPointerConstructor(ctx, p->get_loc(), p->get_contained_ty()));
+      p->set_constructor(BasicConstructor::CreateNullPointerConstructor(ctx, p->loc(), p->get_contained_ty()));
       break;
     default:
       // TODO: TAN_ASSERT(false);
@@ -368,7 +368,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
           ->createStructType(cs->get_current_di_scope(),
               p->get_type_name(),
               di_file,
-              (unsigned) cs->get_source_manager()->get_line(p->get_loc()),
+              (unsigned) cs->get_source_manager()->get_line(p->loc()),
               p->get_size_bits(),
               (unsigned) p->get_align_bits(),
               DINode::DIFlags::FlagZero,

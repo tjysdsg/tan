@@ -56,10 +56,10 @@ enum class IntrinsicType {
  */
 class Intrinsic : public Expr, public ASTNamed {
 protected:
-  explicit Intrinsic(SourceIndex loc);
+  explicit Intrinsic(SrcLoc loc);
 
 public:
-  static Intrinsic *Create(SourceIndex loc);
+  static Intrinsic *Create(SrcLoc loc);
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static void InitCodegen(CompilerSession *);

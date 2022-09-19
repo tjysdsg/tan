@@ -132,7 +132,7 @@ int main0(int argc_, const char **argv_) {
     SmallVector<std::pair<int, const Command *>, 4> FailingCommands;
     Res = TheDriver.ExecuteCompilation(*C, FailingCommands);
 
-    for (const auto &P : FailingCommands) {
+    for (const auto &P: FailingCommands) {
       int CommandRes = P.first;
       const Command *FailingCommand = P.second;
       if (!Res) {

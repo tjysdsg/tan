@@ -11,7 +11,7 @@ SourceManager::SourceManager(str filename, vector<Token *> tokens)
   }
 }
 
-Token *SourceManager::get_token(SourceIndex loc) const {
+Token *SourceManager::get_token(SrcLoc loc) const {
   if (loc._index >= _tokens.size()) {
     Error err("Invalid source location {filename}:{line}");
     err.raise();
@@ -19,23 +19,23 @@ Token *SourceManager::get_token(SourceIndex loc) const {
   return _tokens[loc._index];
 }
 
-size_t SourceManager::get_line(SourceIndex loc) const {
+size_t SourceManager::get_line(SrcLoc loc) const {
   return get_token(loc)->get_line() + 1;
 }
 
-size_t SourceManager::get_col(SourceIndex loc) const {
+size_t SourceManager::get_col(SrcLoc loc) const {
   return get_token(loc)->get_col() + 1;
 }
 
-str SourceManager::get_token_str(SourceIndex loc) const {
+str SourceManager::get_token_str(SrcLoc loc) const {
   return get_token(loc)->get_value();
 }
 
 Token *SourceManager::get_last_token() const { return _tokens.back(); }
 
-bool SourceManager::is_eof(SourceIndex loc) const { return loc._index >= _tokens.size(); }
+bool SourceManager::is_eof(SrcLoc loc) const { return loc._index >= _tokens.size(); }
 
 str SourceManager::get_source_code(ASTBase *p) const {
   // TODO: return the string that also covers the child nodes, instead of only p's own token str
-  return get_token_str(p->get_loc());
+  return get_token_str(p->loc());
 }

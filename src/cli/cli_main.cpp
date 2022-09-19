@@ -19,12 +19,8 @@ int cli_main(int argc, char **argv) {
   cmd::list<str> opt_link_libraries
       ("l", cmd::desc("Libraries to link against"), cmd::value_desc("libraries"), cmd::Prefix, cmd::cat(cl_category));
   cmd::list<str> opt_library_path("L", cmd::desc("Library search path"), cmd::Prefix, cmd::cat(cl_category));
-  cmd::list<str> opt_source_files(cmd::Positional,
-      cmd::Required,
-      cmd::desc("Files to compile"),
-      cmd::value_desc("<source files>"),
-      cmd::OneOrMore,
-      cmd::cat(cl_category));
+  cmd::list<str> opt_source_files(cmd::Positional, cmd::Required,
+  cmd::desc("Files to compile"), cmd::value_desc("<source files>"), cmd::OneOrMore, cmd::cat(cl_category));
   cmd::list<str> opt_import_dirs("I", cmd::desc("Import search directories"), cmd::Prefix, cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ir_code("print-ir", cmd::desc("Print LLVM IR code"), cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ast("print-ast", cmd::desc("Print abstract syntax tree"), cmd::cat(cl_category));
@@ -63,7 +59,7 @@ int cli_main(int argc, char **argv) {
    * sometimes llvm::cl doesn't seem to split a string by space, causing opt_source_files containing an element
    * that should have been two elements
    */
-  for (const auto &s : opt_source_files) {
+  for (const auto &s: opt_source_files) {
     auto f = std::find(s.begin(), s.end(), ' ');
     if (f != s.end()) {
       source_files.emplace_back(s.begin(), f);

@@ -130,7 +130,7 @@ static std::vector<NewArchiveMember> computeNewArchiveMembers(object::Archive *O
   int InsertPos = -1;
   if (OldArchive) {
     Error Err = Error::success();
-    for (auto &Child : OldArchive->children(Err)) {
+    for (auto &Child: OldArchive->children(Err)) {
       int Pos = (int) Ret.size();
       Expected<StringRef> NameOrErr = Child.getName();
       failIfError(NameOrErr.takeError());
@@ -164,13 +164,13 @@ static std::vector<NewArchiveMember> computeNewArchiveMembers(object::Archive *O
 
   assert(unsigned(InsertPos) <= Ret.size());
   int Pos = InsertPos;
-  for (auto &M : Moved) {
+  for (auto &M: Moved) {
     Ret.insert(Ret.begin() + Pos, std::move(M));
     ++Pos;
   }
 
   std::vector<NewArchiveMember> NewMembers;
-  for (auto &Member : Members) {
+  for (auto &Member: Members) {
     addMember(NewMembers, Member);
   }
   Ret.reserve(Ret.size() + NewMembers.size());

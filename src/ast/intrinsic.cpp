@@ -20,10 +20,10 @@ static void init_noop(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
-  ctx->add_function(FunctionDecl::Create(SourceIndex(0),
+  ctx->add_function(FunctionDecl::Create(SrcLoc(0),
       "compprint",
-      ASTType::GetVoidType(ctx, SourceIndex(0)),
-      {ASTType::CreateAndResolve(ctx, SourceIndex(0), Ty::STRING),},
+      ASTType::GetVoidType(ctx, SrcLoc(0)),
+      {ASTType::CreateAndResolve(ctx, SrcLoc(0), Ty::STRING),},
       true,
       false));
 }
@@ -32,9 +32,9 @@ void Intrinsic::InitCodegen(CompilerSession *cs) {
   init_noop(cs);
 }
 
-Intrinsic *Intrinsic::Create(SourceIndex loc) { return new Intrinsic(loc); }
+Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }
 
-Intrinsic::Intrinsic(SourceIndex loc) : Expr(ASTNodeType::INTRINSIC, loc, 0) {}
+Intrinsic::Intrinsic(SrcLoc loc) : Expr(ASTNodeType::INTRINSIC, loc, 0) {}
 
 IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
 

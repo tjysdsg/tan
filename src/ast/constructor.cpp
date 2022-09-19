@@ -11,39 +11,37 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
 }
 
 BasicConstructor *BasicConstructor::CreateIntegerConstructor(ASTContext *ctx,
-    SourceIndex loc,
+    SrcLoc loc,
     uint64_t default_val,
     size_t bit_size,
     bool is_unsigned) {
   return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(ctx, loc, default_val, bit_size, is_unsigned));
 }
 
-BasicConstructor *BasicConstructor::CreateBoolConstructor(ASTContext *ctx, SourceIndex loc, bool default_val) {
+BasicConstructor *BasicConstructor::CreateBoolConstructor(ASTContext *ctx, SrcLoc loc, bool default_val) {
   return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(ctx, loc, default_val));
 }
 
 BasicConstructor *BasicConstructor::CreateFPConstructor(ASTContext *ctx,
-    SourceIndex loc,
+    SrcLoc loc,
     double default_val,
     size_t bit_size) {
   return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(ctx, loc, default_val, bit_size));
 }
 
-BasicConstructor *BasicConstructor::CreateStringConstructor(ASTContext *ctx, SourceIndex loc, str default_val) {
+BasicConstructor *BasicConstructor::CreateStringConstructor(ASTContext *ctx, SrcLoc loc, str default_val) {
   return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(ctx, loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateCharConstructor(ASTContext *ctx, SourceIndex loc, uint8_t default_val) {
+BasicConstructor *BasicConstructor::CreateCharConstructor(ASTContext *ctx, SrcLoc loc, uint8_t default_val) {
   return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(ctx, loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type) {
+BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type) {
   return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(ctx, loc, element_type));
 }
 
-BasicConstructor *BasicConstructor::CreateNullPointerConstructor(ASTContext *ctx,
-    SourceIndex loc,
-    ASTType *element_type) {
+BasicConstructor *BasicConstructor::CreateNullPointerConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type) {
   return BasicConstructor::Create(ASTBuilder::CreateNullPointerLiteral(ctx, loc, element_type));
 }
 

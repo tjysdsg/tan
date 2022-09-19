@@ -6,7 +6,7 @@
 using namespace tanlang;
 
 IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
-    SourceIndex loc,
+    SrcLoc loc,
     uint64_t val,
     size_t bit_size,
     bool is_unsigned) {
@@ -16,32 +16,32 @@ IntegerLiteral *ASTBuilder::CreateIntegerLiteral(ASTContext *ctx,
   return ret;
 }
 
-BoolLiteral *ASTBuilder::CreateBoolLiteral(ASTContext *ctx, SourceIndex loc, bool val) {
+BoolLiteral *ASTBuilder::CreateBoolLiteral(ASTContext *ctx, SrcLoc loc, bool val) {
   auto *ret = BoolLiteral::Create(loc, val);
   ASTType *ty = ASTType::GetBoolType(ctx, loc);
   ret->set_type(ty);
   return ret;
 }
 
-FloatLiteral *ASTBuilder::CreateFloatLiteral(ASTContext *ctx, SourceIndex loc, double val, size_t bit_size) {
+FloatLiteral *ASTBuilder::CreateFloatLiteral(ASTContext *ctx, SrcLoc loc, double val, size_t bit_size) {
   auto *ret = FloatLiteral::Create(loc, val);
   ret->set_type(ASTType::GetFloatType(ctx, loc, bit_size));
   return ret;
 }
 
-StringLiteral *ASTBuilder::CreateStringLiteral(ASTContext *ctx, SourceIndex loc, str val) {
+StringLiteral *ASTBuilder::CreateStringLiteral(ASTContext *ctx, SrcLoc loc, str val) {
   auto *ret = StringLiteral::Create(loc, val);
   ret->set_type(ASTType::CreateAndResolve(ctx, loc, Ty::STRING));
   return ret;
 }
 
-CharLiteral *ASTBuilder::CreateCharLiteral(ASTContext *ctx, SourceIndex loc, uint8_t val) {
+CharLiteral *ASTBuilder::CreateCharLiteral(ASTContext *ctx, SrcLoc loc, uint8_t val) {
   auto *ret = CharLiteral::Create(loc, val);
   ret->set_type(ASTType::GetCharType(ctx, loc));
   return ret;
 }
 
-ArrayLiteral *ASTBuilder::CreateArrayLiteral(ASTContext *ctx, SourceIndex loc, ASTType *element_type) {
+ArrayLiteral *ASTBuilder::CreateArrayLiteral(ASTContext *ctx, SrcLoc loc, ASTType *element_type) {
   auto *ret = ArrayLiteral::Create(loc);
   vector<ASTType *> sub_types{};
   auto *type = ASTType::CreateAndResolve(ctx, loc, Ty::ARRAY, {element_type});
@@ -50,7 +50,7 @@ ArrayLiteral *ASTBuilder::CreateArrayLiteral(ASTContext *ctx, SourceIndex loc, A
   return ret;
 }
 
-NullPointerLiteral *ASTBuilder::CreateNullPointerLiteral(ASTContext *, SourceIndex loc, ASTType *element_type) {
+NullPointerLiteral *ASTBuilder::CreateNullPointerLiteral(ASTContext *, SrcLoc loc, ASTType *element_type) {
   auto *ret = NullPointerLiteral::Create(loc);
   auto *type = element_type->get_ptr_to();
   ret->set_type(type);

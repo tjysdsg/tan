@@ -12,15 +12,15 @@ namespace tanlang {
 
 class Stmt : public ASTBase {
 protected:
-  Stmt(ASTNodeType type, SourceIndex loc);
+  Stmt(ASTNodeType type, SrcLoc loc);
 };
 
 class CompoundStmt : public Stmt {
 protected:
-  explicit CompoundStmt(SourceIndex loc);
+  explicit CompoundStmt(SrcLoc loc);
 
 public:
-  static CompoundStmt *Create(SourceIndex loc, bool new_scope = false);
+  static CompoundStmt *Create(SrcLoc loc, bool new_scope = false);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -40,18 +40,18 @@ private:
 
 class Program : public CompoundStmt {
 protected:
-  explicit Program(SourceIndex loc);
+  explicit Program(SrcLoc loc);
 
 public:
-  static Program *Create(SourceIndex loc);
+  static Program *Create(SrcLoc loc);
 };
 
 class Return : public Stmt {
 protected:
-  explicit Return(SourceIndex loc);
+  explicit Return(SrcLoc loc);
 
 public:
-  static Return *Create(SourceIndex loc);
+  static Return *Create(SrcLoc loc);
 
   void set_rhs(Expr *rhs);
   [[nodiscard]] Expr *get_rhs() const;
@@ -64,10 +64,10 @@ private:
 
 class Import : public Stmt {
 protected:
-  explicit Import(SourceIndex loc);
+  explicit Import(SrcLoc loc);
 
 public:
-  static Import *Create(SourceIndex loc);
+  static Import *Create(SrcLoc loc);
 
   void set_filename(const str &s);
   [[nodiscard]] const str &get_filename() const;
@@ -81,7 +81,7 @@ private:
 
 class BreakContinue : public Stmt {
 protected:
-  BreakContinue(ASTNodeType type, SourceIndex loc);
+  BreakContinue(ASTNodeType type, SrcLoc loc);
 
 public:
   [[nodiscard]] Loop *get_parent_loop() const;
@@ -93,28 +93,28 @@ private:
 
 class Break : public BreakContinue {
 protected:
-  explicit Break(SourceIndex loc);
+  explicit Break(SrcLoc loc);
 
 public:
-  static Break *Create(SourceIndex loc);
+  static Break *Create(SrcLoc loc);
 };
 
 class Continue : public BreakContinue {
 protected:
-  explicit Continue(SourceIndex loc);
+  explicit Continue(SrcLoc loc);
 
 public:
-  static Continue *Create(SourceIndex loc);
+  static Continue *Create(SrcLoc loc);
 };
 
 enum ASTLoopType { FOR, WHILE };
 
 class Loop final : public Stmt {
 protected:
-  explicit Loop(SourceIndex loc);
+  explicit Loop(SrcLoc loc);
 
 public:
-  static Loop *Create(SourceIndex loc);
+  static Loop *Create(SrcLoc loc);
 
   void set_predicate(Expr *pred);
   void set_body(Stmt *body);
@@ -138,10 +138,10 @@ private:
  */
 class If : public Stmt {
 protected:
-  explicit If(SourceIndex loc);
+  explicit If(SrcLoc loc);
 
 public:
-  static If *Create(SourceIndex loc);
+  static If *Create(SrcLoc loc);
 
 public:
   void add_if_then_branch(Expr *pred, Stmt *branch);

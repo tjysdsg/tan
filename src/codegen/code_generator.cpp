@@ -148,7 +148,7 @@ private:
 
 private:
   DebugLoc debug_loc_of_node(ASTBase *p, MDNode *scope = nullptr) {
-    return DebugLoc::get((unsigned) _sm->get_line(p->get_loc()), (unsigned) _sm->get_col(p->get_loc()), scope);
+    return DebugLoc::get((unsigned) _sm->get_line(p->loc()), (unsigned) _sm->get_col(p->loc()), scope);
   }
 
   Value *codegen_func_call(ASTBase *_p) {
@@ -226,9 +226,9 @@ private:
               func_name,
               func_name,
               di_file,
-              (unsigned) _sm->get_line(p->get_loc()),
+              (unsigned) _sm->get_line(p->loc()),
               di_func_t,
-              (unsigned) _sm->get_col(p->get_loc()),
+              (unsigned) _sm->get_col(p->loc()),
               DINode::FlagPrototyped,
               DISubprogram::SPFlagDefinition,
               nullptr,
@@ -251,7 +251,7 @@ private:
                 arg_name,
                 (unsigned) i + 1,
                 di_file,
-                (unsigned) _sm->get_line(p->get_loc()),
+                (unsigned) _sm->get_line(p->loc()),
                 (DIType *) arg_meta,
                 true);
         _cs->_di_builder
@@ -283,7 +283,7 @@ private:
   }
 
   void set_current_debug_location(ASTBase *p) {
-    _cs->set_current_debug_location(_sm->get_line(p->get_loc()), _sm->get_col(p->get_loc()));
+    _cs->set_current_debug_location(_sm->get_line(p->loc()), _sm->get_col(p->loc()));
   }
 
   Value *codegen_bnot(ASTBase *_p) {
@@ -376,14 +376,12 @@ private:
       auto *di_arg = di_builder->createAutoVariable(curr_di_scope,
           p->get_name(),
           _cs->get_di_file(),
-          (unsigned) _sm->get_line(p->get_loc()),
+          (unsigned) _sm->get_line(p->loc()),
           (DIType *) arg_meta);
       di_builder->insertDeclare(p->_llvm_value,
           di_arg,
           _cs->_di_builder->createExpression(),
-          llvm::DebugLoc::get((unsigned) _sm->get_line(p->get_loc()),
-              (unsigned) _sm->get_col(p->get_loc()),
-              curr_di_scope),
+          llvm::DebugLoc::get((unsigned) _sm->get_line(p->loc()), (unsigned) _sm->get_col(p->loc()), curr_di_scope),
           builder->GetInsertBlock());
     }
     return p->_llvm_value;
@@ -1057,7 +1055,7 @@ private:
         cond_v = TypeSystem::ConvertTo(_cs,
             cond_v,
             cond->get_type(),
-            ASTType::CreateAndResolve(_ctx, cond->get_loc(), Ty::BOOL));
+            ASTType::CreateAndResolve(_ctx, cond->loc(), Ty::BOOL));
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1142,7 +1140,7 @@ private:
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    Error err(_cs->_filename, _sm->get_token(p->get_loc()), message);
+    Error err(_cs->_filename, _sm->get_token(p->loc()), message);
     err.raise();
   }
 };

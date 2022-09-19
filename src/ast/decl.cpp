@@ -8,15 +8,15 @@ using namespace tanlang;
 
 /// \section Decl
 
-Decl::Decl(ASTNodeType type, SourceIndex loc, int bp) : Expr(type, loc, bp) {}
+Decl::Decl(ASTNodeType type, SrcLoc loc, int bp) : Expr(type, loc, bp) {}
 
 /// \section ArgDecl
 
-ArgDecl::ArgDecl(SourceIndex loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
+ArgDecl::ArgDecl(SrcLoc loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
 
-ArgDecl *ArgDecl::Create(SourceIndex loc) { return new ArgDecl(loc); }
+ArgDecl *ArgDecl::Create(SrcLoc loc) { return new ArgDecl(loc); }
 
-ArgDecl *ArgDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
+ArgDecl *ArgDecl::Create(SrcLoc loc, const str &name, ASTType *ty) {
   auto ret = new ArgDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
@@ -25,11 +25,11 @@ ArgDecl *ArgDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
 
 /// \section VarDecl
 
-VarDecl::VarDecl(SourceIndex loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
+VarDecl::VarDecl(SrcLoc loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
 
-VarDecl *VarDecl::Create(SourceIndex loc) { return new VarDecl(loc); }
+VarDecl *VarDecl::Create(SrcLoc loc) { return new VarDecl(loc); }
 
-VarDecl *VarDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
+VarDecl *VarDecl::Create(SrcLoc loc, const str &name, ASTType *ty) {
   auto ret = new VarDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
@@ -38,7 +38,7 @@ VarDecl *VarDecl::Create(SourceIndex loc, const str &name, ASTType *ty) {
 
 /// \section FunctionDecl
 
-FunctionDecl::FunctionDecl(SourceIndex loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
+FunctionDecl::FunctionDecl(SrcLoc loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
 // TODO: move this to analysis
 FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
@@ -48,7 +48,7 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
   FunctionDecl *ret = nullptr;
   auto func_candidates = ctx->get_functions(name);
   /// find the function with the same argument types
-  for (const auto &f : func_candidates) {
+  for (const auto &f: func_candidates) {
     size_t n = f->get_n_args();
     if (n != args.size()) { continue; }
     bool good = true;
@@ -67,25 +67,23 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
     if (good) {
       if (ret) {
         // TODO: print all valid candidates
-        Error err(ctx->get_filename(),
-            ctx->get_source_manager()->get_token(f->get_loc()),
-            "Ambiguous function call: " + name);
+        Error err
+            (ctx->get_filename(), ctx->get_source_manager()->get_token(f->loc()), "Ambiguous function call: " + name);
         err.raise();
       }
       ret = f;
     }
   }
   if (!ret) {
-    Error
-        err(ctx->get_filename(), ctx->get_source_manager()->get_token(p->get_loc()), "Unknown function call: " + name);
+    Error err(ctx->get_filename(), ctx->get_source_manager()->get_token(p->loc()), "Unknown function call: " + name);
     err.raise();
   }
   return ret;
 }
 
-FunctionDecl *FunctionDecl::Create(SourceIndex loc) { return new FunctionDecl(loc); }
+FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
 
-FunctionDecl *FunctionDecl::Create(SourceIndex loc,
+FunctionDecl *FunctionDecl::Create(SrcLoc loc,
     const str &name,
     ASTType *ret_type,
     vector<ASTType *> arg_types,
@@ -152,9 +150,9 @@ vector<ASTBase *> FunctionDecl::get_children() const {
 
 /// \section StructDecl
 
-StructDecl::StructDecl(SourceIndex loc) : Decl(ASTNodeType::STRUCT_DECL, loc, 0) {}
+StructDecl::StructDecl(SrcLoc loc) : Decl(ASTNodeType::STRUCT_DECL, loc, 0) {}
 
-StructDecl *StructDecl::Create(SourceIndex loc) { return new StructDecl(loc); }
+StructDecl *StructDecl::Create(SrcLoc loc) { return new StructDecl(loc); }
 
 void StructDecl::set_is_forward_decl(bool is_forward_decl) { _is_forward_decl = is_forward_decl; }
 
@@ -185,9 +183,9 @@ vector<ASTBase *> StructDecl::get_children() const {
   return ret;
 }
 
-EnumDecl::EnumDecl(SourceIndex loc) : Decl(ASTNodeType::ENUM_DECL, loc, 0) {}
+EnumDecl::EnumDecl(SrcLoc loc) : Decl(ASTNodeType::ENUM_DECL, loc, 0) {}
 
-EnumDecl *EnumDecl::Create(SourceIndex loc) { return new EnumDecl(loc); }
+EnumDecl *EnumDecl::Create(SrcLoc loc) { return new EnumDecl(loc); }
 
 void EnumDecl::set_elements(const vector<Expr *> &elements) { _elements = elements; }
 

@@ -3,6 +3,10 @@
 #include "base.h"
 
 namespace tanlang {
+
+/**
+ * \brief All named AST nodes should inherit this class
+ */
 class ASTNamed {
 public:
   str get_name() const;
@@ -11,6 +15,7 @@ public:
 private:
   str _name;
 };
+
 }
 
 #endif //__TAN_SRC_AST_AST_NAMED_H__

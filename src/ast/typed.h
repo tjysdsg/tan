@@ -11,6 +11,9 @@ public:
   virtual ~TypeAccessor() = default;
 };
 
+/**
+ * \brief All typed AST nodes should inherit this class
+ */
 class Typed : public TypeAccessor {
 public:
   ASTType *get_type() const override;

@@ -35,7 +35,7 @@ class CompilerSession;
 class ASTContext;
 class ASTNamed;
 class Token;
-class SourceIndex;
+class SrcLoc;
 class SourceManager;
 class Intrinsic;
 class If;

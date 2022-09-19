@@ -25,7 +25,7 @@
 #endif
 
 static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
-  for (const str &dir : lib_dirs) {
+  for (const str &dir: lib_dirs) {
     vector<fs::path> candidates = { /// possible filenames
         fs::path(dir) / fs::path(lib_name),                 //
         fs::path(dir) / fs::path(lib_name + ".a"),          //
@@ -33,7 +33,7 @@ static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
         fs::path(dir) / fs::path("lib" + lib_name + ".a"),  //
         fs::path(dir) / fs::path("lib" + lib_name + ".so"), //
     };
-    for (const auto &p : candidates) {
+    for (const auto &p: candidates) {
       if (fs::exists(p)) {
         return p.string();
       }
@@ -46,7 +46,7 @@ static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
     /// also add files specified by -l option
-    for (const auto &lib : config->link_files) {
+    for (const auto &lib: config->link_files) {
       str path = search_library(config->lib_dirs, lib);
 
       if (path.empty()) {

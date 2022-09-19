@@ -46,11 +46,11 @@ str ASTType::to_string(bool print_prefix) const {
 
 bool ASTType::operator!=(const ASTType &other) { return !this->operator==(other); }
 
-const umap<str, size_t>ASTType::type_bit_size =
+const umap<str, size_t>ASTType::TYPE_BIT_SIZES =
     {{"int", 32}, {"i8", 8}, {"u8", 8}, {"i16", 16}, {"u16", 16}, {"i32", 32}, {"u32", 32}, {"i64", 64}, {"u64", 64},
         {"char", 8}, {"bool", 8}, {"float", 32}, {"f32", 32}, {"f64", 64}};
 
-const umap<str, Ty> ASTType::basic_tys = { /// typename -> Ty
+const umap<str, Ty> ASTType::BASIC_TYS = { /// typename -> Ty
     {"int", Ty::INT}, {"i8", Ty::INT}, {"u8", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i16", Ty::INT},
     {"u16", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i32", Ty::INT}, {"u32", TY_OR(Ty::INT, Ty::UNSIGNED)}, {"i64", Ty::INT},
     {"u64", TY_OR(Ty::INT, Ty::UNSIGNED)},  /// integers
@@ -59,9 +59,9 @@ const umap<str, Ty> ASTType::basic_tys = { /// typename -> Ty
 
     {"void", Ty::VOID}, {"str", Ty::STRING}, {"char", Ty::CHAR}, {"bool", Ty::BOOL}};
 
-const umap<str, Ty> ASTType::qualifier_tys = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
+const umap<str, Ty> ASTType::QUALIFIER_TYS = {{"const", Ty::CONST}, {"unsigned", Ty::UNSIGNED}, {"*", Ty::POINTER},};
 
-ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {
+ASTType::ASTType(SrcLoc loc) : ASTBase(ASTNodeType::TY, loc, 0) {
   _is_float = false;
   _is_array = false;
   _is_int = false;
@@ -74,14 +74,14 @@ ASTType::ASTType(SourceIndex loc) : ASTBase(ASTNodeType::TY, loc, 0) {
   _is_forward_decl = false;
 }
 
-ASTType *ASTType::Create(ASTContext *ctx, SourceIndex loc) {
+ASTType *ASTType::Create(ASTContext *ctx, SrcLoc loc) {
   auto *ret = new ASTType(loc);
   ret->_ctx = ctx;
   return ret;
 }
 
 ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
-    SourceIndex loc,
+    SrcLoc loc,
     Ty t,
     vector<ASTType *> sub_tys,
     bool is_lvalue,
@@ -99,15 +99,15 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
   return ret;
 }
 
-ASTType *ASTType::GetVoidType(ASTContext *ctx, SourceIndex loc) {
+ASTType *ASTType::GetVoidType(ASTContext *ctx, SrcLoc loc) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
 }
 
-ASTType *ASTType::GetCharType(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetCharType(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::CHAR, {}, lvalue);
 }
 
-ASTType *ASTType::GetEnumType(ASTContext *ctx, SourceIndex loc, str name, bool lvalue) {
+ASTType *ASTType::GetEnumType(ASTContext *ctx, SrcLoc loc, str name, bool lvalue) {
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::ENUM,
@@ -118,7 +118,7 @@ ASTType *ASTType::GetEnumType(ASTContext *ctx, SourceIndex loc, str name, bool l
       });
 }
 
-ASTType *ASTType::GetTypeRef(ASTContext *ctx, SourceIndex loc, str name, bool lvalue) {
+ASTType *ASTType::GetTypeRef(ASTContext *ctx, SrcLoc loc, str name, bool lvalue) {
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::TYPE_REF,
@@ -129,7 +129,7 @@ ASTType *ASTType::GetTypeRef(ASTContext *ctx, SourceIndex loc, str name, bool lv
       });
 }
 
-ASTType *ASTType::GetIntegerType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool is_unsigned, bool lvalue) {
+ASTType *ASTType::GetIntegerType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool is_unsigned, bool lvalue) {
   TAN_ASSERT(bit_size == 8 || bit_size == 16 || bit_size == 32 || bit_size == 64);
   return ASTType::CreateAndResolve(ctx,
       loc,
@@ -142,23 +142,23 @@ ASTType *ASTType::GetIntegerType(ASTContext *ctx, SourceIndex loc, size_t bit_si
       });
 }
 
-ASTType *ASTType::GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetI32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::GetIntegerType(ctx, loc, 32, false, lvalue);
 }
 
-ASTType *ASTType::GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetU32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::GetIntegerType(ctx, loc, 32, true, lvalue);
 }
 
-ASTType *ASTType::GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetI8Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::GetIntegerType(ctx, loc, 8, false, lvalue);
 }
 
-ASTType *ASTType::GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetBoolType(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::BOOL, {}, lvalue);
 }
 
-ASTType *ASTType::GetFloatType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool lvalue) {
+ASTType *ASTType::GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool lvalue) {
   TAN_ASSERT(bit_size == 32 || bit_size == 64); // TODO: maybe support f128?
   return ASTType::CreateAndResolve(ctx,
       loc,
@@ -170,11 +170,11 @@ ASTType *ASTType::GetFloatType(ASTContext *ctx, SourceIndex loc, size_t bit_size
       });
 }
 
-ASTType *ASTType::GetF32Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetF32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::GetFloatType(ctx, loc, 32, lvalue);
 }
 
-ASTType *ASTType::GetF64Type(ASTContext *ctx, SourceIndex loc, bool lvalue) {
+ASTType *ASTType::GetF64Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
   return ASTType::GetFloatType(ctx, loc, 64, lvalue);
 }
 
@@ -335,7 +335,7 @@ void ASTType::set_constructor(Constructor *constructor) {
 
 ASTType *ASTType::get_contained_ty() const {
   if (get_ty() == Ty::STRING) {
-    return ASTType::GetCharType(_ctx, get_loc());
+    return ASTType::GetCharType(_ctx, loc());
   } else if (is_ptr()) {
     TAN_ASSERT(!get_canonical_type()->_sub_types.empty());
     auto ret = get_canonical_type()->_sub_types[0];
@@ -347,7 +347,7 @@ ASTType *ASTType::get_contained_ty() const {
 }
 
 ASTType *ASTType::get_ptr_to() const {
-  return ASTType::CreateAndResolve(_ctx, get_loc(), Ty::POINTER, {(ASTType *) this}, false);
+  return ASTType::CreateAndResolve(_ctx, loc(), Ty::POINTER, {(ASTType *) this}, false);
 }
 
 vector<ASTBase *> ASTType::get_children() const {

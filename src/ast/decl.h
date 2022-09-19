@@ -10,35 +10,35 @@ namespace tanlang {
 
 class Decl : public Expr, public ASTNamed {
 protected:
-  Decl(ASTNodeType type, SourceIndex loc, int bp);
+  Decl(ASTNodeType type, SrcLoc loc, int bp);
 };
 
 class VarDecl : public Decl {
 protected:
-  explicit VarDecl(SourceIndex loc);
+  explicit VarDecl(SrcLoc loc);
 
 public:
-  static VarDecl *Create(SourceIndex loc);
-  static VarDecl *Create(SourceIndex loc, const str &name, ASTType *ty);
+  static VarDecl *Create(SrcLoc loc);
+  static VarDecl *Create(SrcLoc loc, const str &name, ASTType *ty);
 };
 
 class ArgDecl : public Decl {
 protected:
-  explicit ArgDecl(SourceIndex loc);
+  explicit ArgDecl(SrcLoc loc);
 
 public:
-  static ArgDecl *Create(SourceIndex loc);
-  static ArgDecl *Create(SourceIndex loc, const str &name, ASTType *ty);
+  static ArgDecl *Create(SrcLoc loc);
+  static ArgDecl *Create(SrcLoc loc, const str &name, ASTType *ty);
 };
 
 // TODO: function type itself
 class FunctionDecl : public Decl {
 protected:
-  explicit FunctionDecl(SourceIndex loc);
+  explicit FunctionDecl(SrcLoc loc);
 
 public:
-  static FunctionDecl *Create(SourceIndex loc);
-  static FunctionDecl *Create(SourceIndex loc,
+  static FunctionDecl *Create(SrcLoc loc);
+  static FunctionDecl *Create(SrcLoc loc,
       const str &name,
       ASTType *ret_type,
       vector<ASTType *> arg_types,
@@ -83,10 +83,10 @@ private:
 
 class StructDecl : public Decl {
 protected:
-  explicit StructDecl(SourceIndex loc);
+  explicit StructDecl(SrcLoc loc);
 
 public:
-  static StructDecl *Create(SourceIndex loc);
+  static StructDecl *Create(SrcLoc loc);
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
   void set_is_forward_decl(bool is_forward_decl);
@@ -105,10 +105,10 @@ private:
 
 class EnumDecl : public Decl {
 protected:
-  explicit EnumDecl(SourceIndex loc);
+  explicit EnumDecl(SrcLoc loc);
 
 public:
-  static EnumDecl *Create(SourceIndex loc);
+  static EnumDecl *Create(SrcLoc loc);
   void set_elements(const vector<Expr *> &elements);
   vector<Expr *> &get_elements();
   int64_t get_value(const str &name) const;

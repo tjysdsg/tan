@@ -38,19 +38,19 @@ public:
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
   static BasicConstructor *CreateIntegerConstructor(ASTContext *ctx,
-      SourceIndex loc,
+      SrcLoc loc,
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
-  static BasicConstructor *CreateBoolConstructor(ASTContext *ctx, SourceIndex loc, bool default_val = false);
+  static BasicConstructor *CreateBoolConstructor(ASTContext *ctx, SrcLoc loc, bool default_val = false);
   static BasicConstructor *CreateFPConstructor(ASTContext *ctx,
-      SourceIndex loc,
+      SrcLoc loc,
       double default_val = 0,
       size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(ASTContext *ctx, SourceIndex loc, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(ASTContext *ctx, SourceIndex loc, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type = {});
-  static BasicConstructor *CreateNullPointerConstructor(ASTContext *ctx, SourceIndex loc, ASTType *element_type);
+  static BasicConstructor *CreateStringConstructor(ASTContext *ctx, SrcLoc loc, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(ASTContext *ctx, SrcLoc loc, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type = {});
+  static BasicConstructor *CreateNullPointerConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type);
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

@@ -21,7 +21,7 @@ bool Linker::link() {
   args.push_back("-lm"); /// link to libm by default
 
   vector<const char *> cargs{};
-  for (const auto &a : args) {
+  for (const auto &a: args) {
     if (a.length() == 0) { continue; }
     cargs.push_back(a.c_str());
     std::cout << a << " ";

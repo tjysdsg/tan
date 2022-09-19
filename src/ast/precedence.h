@@ -3,6 +3,9 @@
 
 namespace tanlang {
 
+/**
+ * \brief Operator precedence as enums. The higher the value, the higher the precedence
+ */
 enum PrecedenceLevel {
   PREC_LOWEST = 0,        //
   PREC_LITERAL = 10,      // "string" 1.0 2

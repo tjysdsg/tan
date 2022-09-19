@@ -26,34 +26,34 @@ namespace tanlang {
  */
 class ASTType : public ASTBase {
 public:
-  [[nodiscard]] static ASTType *Create(ASTContext *ctx, SourceIndex loc);
+  [[nodiscard]] static ASTType *Create(ASTContext *ctx, SrcLoc loc);
   [[nodiscard]] static ASTType *CreateAndResolve(ASTContext *ctx,
-      SourceIndex loc,
+      SrcLoc loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
       bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
-  [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SourceIndex loc);
-  [[nodiscard]] static ASTType *GetEnumType(ASTContext *ctx, SourceIndex loc, str name, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetTypeRef(ASTContext *ctx, SourceIndex loc, str name, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetCharType(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetEnumType(ASTContext *ctx, SrcLoc loc, str name, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetTypeRef(ASTContext *ctx, SrcLoc loc, str name, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetCharType(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
   [[nodiscard]] static ASTType *GetIntegerType(ASTContext *ctx,
-      SourceIndex loc,
+      SrcLoc loc,
       size_t bit_size,
       bool is_unsigned,
       bool lvalue = false);
-  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetFloatType(ASTContext *ctx, SourceIndex loc, size_t bit_size, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetF32Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SourceIndex loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetF32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
 
 public:
-  static const umap<str, Ty> basic_tys;
-  static const umap<str, size_t> type_bit_size;
-  static const umap<str, Ty> qualifier_tys;
+  static const umap<str, Ty> BASIC_TYS;
+  static const umap<str, size_t> TYPE_BIT_SIZES;
+  static const umap<str, Ty> QUALIFIER_TYS;
 
 public:
   bool operator==(const ASTType &other);
@@ -122,7 +122,7 @@ public:
   void set_is_lvalue(bool is_lvalue);
 
 protected:
-  explicit ASTType(SourceIndex loc);
+  explicit ASTType(SrcLoc loc);
 
 private:
   [[nodiscard]] ASTType *must_get_canonical_type() const;

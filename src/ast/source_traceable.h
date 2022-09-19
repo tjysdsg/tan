@@ -11,12 +11,12 @@ namespace tanlang {
 class SourceTraceable {
 public:
   SourceTraceable() = delete;
-  explicit SourceTraceable(SourceIndex source_loc);
-  [[nodiscard]] const SourceIndex &get_loc() const;
-  void set_loc(SourceIndex loc);
+  explicit SourceTraceable(SrcLoc source_loc);
+  [[nodiscard]] const SrcLoc &loc() const;
+  void set_loc(SrcLoc loc);
 
 protected:
-  SourceIndex _loc = SourceIndex(0);
+  SrcLoc _loc = SrcLoc(0);
 };
 
 }

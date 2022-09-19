@@ -14,7 +14,7 @@ class CodeGenerator {
 public:
   CodeGenerator() = delete;
   ~CodeGenerator();
-  explicit CodeGenerator(CompilerSession *cs, ASTContext* ctx);
+  explicit CodeGenerator(CompilerSession *cs, ASTContext *ctx);
   llvm::Value *codegen(ASTBase *p);
 
 private:

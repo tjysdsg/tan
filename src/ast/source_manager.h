@@ -5,18 +5,18 @@
 namespace tanlang {
 
 /**
- * \brief The index of the token in SourceManager
+ * \brief Stores the location information of a token in SourceManager
  */
-class SourceIndex {
+class SrcLoc {
 public:
   friend class SourceManager;
 
-  SourceIndex() = delete;
-  SourceIndex(const SourceIndex &) = default;
-  SourceIndex &operator=(const SourceIndex &) = default;
+  SrcLoc() = delete;
+  SrcLoc(const SrcLoc &) = default;
+  SrcLoc &operator=(const SrcLoc &) = default;
 
-  explicit SourceIndex(size_t index) { _index = index; }
-  static SourceIndex CreateInvalidIndex() { return SourceIndex(static_cast<size_t>(-1)); }
+  explicit SrcLoc(size_t index) { _index = index; }
+  static SrcLoc CreateInvalidIndex() { return SrcLoc(static_cast<size_t>(-1)); }
   size_t get_index() const { return _index; }
   void offset_by(int64_t offset) { _index = (size_t) ((int64_t) _index + offset); }
 
@@ -28,12 +28,12 @@ class SourceManager {
 public:
   SourceManager() = delete;
   SourceManager(str filename, vector<Token *> tokens);
-  Token *get_token(SourceIndex loc) const;
-  size_t get_line(SourceIndex loc) const;
-  size_t get_col(SourceIndex loc) const;
-  str get_token_str(SourceIndex loc) const;
+  Token *get_token(SrcLoc loc) const;
+  size_t get_line(SrcLoc loc) const;
+  size_t get_col(SrcLoc loc) const;
+  str get_token_str(SrcLoc loc) const;
   Token *get_last_token() const;
-  bool is_eof(SourceIndex loc) const;
+  bool is_eof(SrcLoc loc) const;
   str get_source_code(ASTBase *p) const;
 
 private:

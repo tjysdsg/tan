@@ -12,7 +12,7 @@ namespace tanlang {
 
 class Expr : public ASTBase, public Typed {
 protected:
-  Expr(ASTNodeType type, SourceIndex loc, int bp);
+  Expr(ASTNodeType type, SrcLoc loc, int bp);
 
 public:
   virtual bool is_comptime_known() { return false; }
@@ -26,7 +26,7 @@ public:
  */
 class CompTimeExpr : public Expr {
 protected:
-  CompTimeExpr(ASTNodeType type, SourceIndex loc, int bp);
+  CompTimeExpr(ASTNodeType type, SrcLoc loc, int bp);
 
 public:
   bool is_comptime_known() override;
@@ -34,15 +34,15 @@ public:
 
 class Literal : public CompTimeExpr {
 protected:
-  Literal(ASTNodeType type, SourceIndex loc, int bp);
+  Literal(ASTNodeType type, SrcLoc loc, int bp);
 };
 
 class BoolLiteral : public Literal {
 protected:
-  explicit BoolLiteral(SourceIndex loc);
+  explicit BoolLiteral(SrcLoc loc);
 
 public:
-  static BoolLiteral *Create(SourceIndex loc, bool val);
+  static BoolLiteral *Create(SrcLoc loc, bool val);
   [[nodiscard]] bool get_value() const;
 
 private:
@@ -51,10 +51,10 @@ private:
 
 class IntegerLiteral : public Literal {
 protected:
-  explicit IntegerLiteral(SourceIndex loc);
+  explicit IntegerLiteral(SrcLoc loc);
 
 public:
-  static IntegerLiteral *Create(SourceIndex loc, uint64_t val, bool is_unsigned = false);
+  static IntegerLiteral *Create(SrcLoc loc, uint64_t val, bool is_unsigned = false);
 
   [[nodiscard]] uint64_t get_value() const { return _value; }
   [[nodiscard]] bool is_unsigned() const { return _is_unsigned; }
@@ -66,10 +66,10 @@ private:
 
 class FloatLiteral : public Literal {
 protected:
-  explicit FloatLiteral(SourceIndex loc);
+  explicit FloatLiteral(SrcLoc loc);
 
 public:
-  static FloatLiteral *Create(SourceIndex loc, double val);
+  static FloatLiteral *Create(SrcLoc loc, double val);
   [[nodiscard]] double get_value() const;
   void set_value(double value);
 
@@ -79,10 +79,10 @@ private:
 
 class StringLiteral : public Literal {
 protected:
-  explicit StringLiteral(SourceIndex loc);
+  explicit StringLiteral(SrcLoc loc);
 
 public:
-  static StringLiteral *Create(SourceIndex loc, const str &val);
+  static StringLiteral *Create(SrcLoc loc, const str &val);
 
   [[nodiscard]] str get_value() const;
   void set_value(str val) { _value = std::move(val); }
@@ -93,10 +93,10 @@ private:
 
 class CharLiteral : public Literal {
 protected:
-  explicit CharLiteral(SourceIndex loc);
+  explicit CharLiteral(SrcLoc loc);
 
 public:
-  static CharLiteral *Create(SourceIndex loc, uint8_t val);
+  static CharLiteral *Create(SrcLoc loc, uint8_t val);
 
   void set_value(uint8_t val);
   [[nodiscard]] uint8_t get_value() const;
@@ -107,11 +107,11 @@ private:
 
 class ArrayLiteral : public Literal {
 protected:
-  explicit ArrayLiteral(SourceIndex loc);
+  explicit ArrayLiteral(SrcLoc loc);
 
 public:
-  static ArrayLiteral *Create(SourceIndex loc, vector<Literal *> val);
-  static ArrayLiteral *Create(SourceIndex loc);
+  static ArrayLiteral *Create(SrcLoc loc, vector<Literal *> val);
+  static ArrayLiteral *Create(SrcLoc loc);
 
   void set_elements(const vector<Literal *> &elements);
   [[nodiscard]] vector<Literal *> get_elements() const;
@@ -122,18 +122,18 @@ private:
 
 class NullPointerLiteral : public Literal {
 protected:
-  explicit NullPointerLiteral(SourceIndex loc);
+  explicit NullPointerLiteral(SrcLoc loc);
 
 public:
-  static NullPointerLiteral *Create(SourceIndex loc);
+  static NullPointerLiteral *Create(SrcLoc loc);
 };
 
 class VarRef : public Expr, public ASTNamed {
 protected:
-  explicit VarRef(SourceIndex loc);
+  explicit VarRef(SrcLoc loc);
 
 public:
-  static VarRef *Create(SourceIndex loc, const str &name, Decl *referred);
+  static VarRef *Create(SrcLoc loc, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
 private:
@@ -146,10 +146,10 @@ enum class IdentifierType {
 
 class Identifier : public Expr, public ASTNamed {
 protected:
-  explicit Identifier(SourceIndex loc);
+  explicit Identifier(SrcLoc loc);
 
 public:
-  static Identifier *Create(SourceIndex loc, const str &name);
+  static Identifier *Create(SrcLoc loc, const str &name);
 
   [[nodiscard]] IdentifierType get_id_type() const;
   void set_var_ref(VarRef *var_ref);
@@ -189,11 +189,11 @@ enum class BinaryOpKind {
 
 class BinaryOperator : public Expr {
 protected:
-  BinaryOperator(BinaryOpKind op, SourceIndex loc);
+  BinaryOperator(BinaryOpKind op, SrcLoc loc);
 
 public:
-  static BinaryOperator *Create(BinaryOpKind op, SourceIndex loc);
-  static BinaryOperator *Create(BinaryOpKind op, SourceIndex loc, Expr *lhs, Expr *rhs);
+  static BinaryOperator *Create(BinaryOpKind op, SrcLoc loc);
+  static BinaryOperator *Create(BinaryOpKind op, SrcLoc loc, Expr *lhs, Expr *rhs);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
@@ -213,10 +213,10 @@ protected:
 
 class MemberAccess : public BinaryOperator {
 protected:
-  explicit MemberAccess(SourceIndex loc);
+  explicit MemberAccess(SrcLoc loc);
 
 public:
-  static MemberAccess *Create(SourceIndex loc);
+  static MemberAccess *Create(SrcLoc loc);
 
 public:
   enum {
@@ -242,11 +242,11 @@ enum class UnaryOpKind {
 
 class UnaryOperator : public Expr {
 protected:
-  UnaryOperator(UnaryOpKind op, SourceIndex loc);
+  UnaryOperator(UnaryOpKind op, SrcLoc loc);
 
 public:
-  static UnaryOperator *Create(UnaryOpKind op, SourceIndex loc);
-  static UnaryOperator *Create(UnaryOpKind op, SourceIndex loc, Expr *rhs);
+  static UnaryOperator *Create(UnaryOpKind op, SrcLoc loc);
+  static UnaryOperator *Create(UnaryOpKind op, SrcLoc loc, Expr *rhs);
 
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
@@ -268,10 +268,10 @@ protected:
  */
 class BinaryOrUnary : public Expr {
 protected:
-  BinaryOrUnary(SourceIndex loc, int bp);
+  BinaryOrUnary(SrcLoc loc, int bp);
 
 public:
-  static BinaryOrUnary *Create(SourceIndex loc, int bp);
+  static BinaryOrUnary *Create(SrcLoc loc, int bp);
 
   enum BinaryOrUnaryKind {
     UNKNOWN, BINARY, UNARY,
@@ -300,10 +300,10 @@ private:
 
 class Parenthesis : public Expr {
 protected:
-  explicit Parenthesis(SourceIndex loc);
+  explicit Parenthesis(SrcLoc loc);
 
 public:
-  static Parenthesis *Create(SourceIndex loc);
+  static Parenthesis *Create(SrcLoc loc);
 
   void set_sub(Expr *sub);
   [[nodiscard]] Expr *get_sub() const;
@@ -316,10 +316,10 @@ private:
 
 class FunctionCall : public Expr, public ASTNamed {
 protected:
-  explicit FunctionCall(SourceIndex loc);
+  explicit FunctionCall(SrcLoc loc);
 
 public:
-  static FunctionCall *Create(SourceIndex loc);
+  static FunctionCall *Create(SrcLoc loc);
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] Expr *get_arg(size_t i) const;
 
@@ -332,10 +332,10 @@ public:
 
 class Assignment : public Expr {
 protected:
-  explicit Assignment(SourceIndex loc);
+  explicit Assignment(SrcLoc loc);
 
 public:
-  static Assignment *Create(SourceIndex loc);
+  static Assignment *Create(SrcLoc loc);
 
   [[nodiscard]] ASTBase *get_lhs() const;
   void set_lhs(ASTBase *lhs);
@@ -351,10 +351,10 @@ protected:
 
 class Cast : public Expr {
 protected:
-  explicit Cast(SourceIndex loc);
+  explicit Cast(SrcLoc loc);
 
 public:
-  static Cast *Create(SourceIndex loc);
+  static Cast *Create(SrcLoc loc);
   [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
   [[nodiscard]] ASTBase *get_rhs() const;

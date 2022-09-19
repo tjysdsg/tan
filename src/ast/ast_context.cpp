@@ -36,7 +36,7 @@ SourceManager *ASTContext::get_source_manager() const { return _sm; }
 void ASTContext::set_source_manager(SourceManager *sm) { _sm = sm; }
 
 str ASTContext::get_source_location_str(SourceTraceable *p) const {
-  return _filename + ":" + std::to_string(_sm->get_line(p->get_loc()));
+  return _filename + ":" + std::to_string(_sm->get_line(p->loc()));
 }
 
 Scope *ASTContext::get_current_scope() { return _scope.back(); }

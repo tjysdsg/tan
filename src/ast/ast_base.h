@@ -23,7 +23,7 @@ public:
 
 public:
   ASTBase() = delete;
-  ASTBase(ASTNodeType node_type, SourceIndex loc, int bp);
+  ASTBase(ASTNodeType node_type, SrcLoc loc, int bp);
   virtual ~ASTBase() = default;
 
 public:

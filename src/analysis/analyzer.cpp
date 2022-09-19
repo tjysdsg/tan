@@ -127,19 +127,14 @@ private:
   }
 
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    Error err(_ctx->_filename, _sm->get_token(p->get_loc()), message);
+    Error err(_ctx->_filename, _sm->get_token(p->loc()), message);
     err.raise();
   }
 
   /**
-   * \brief Check if two types are the same, if not, report error (at the location t1)
-   */
-  void check_types(ASTType *t1, ASTType *t2) { check_types(t1, t2, t1->get_loc()); }
-
-  /**
    * \brief Check if two types are the same, if not, report error (at the location loc)
    */
-  void check_types(ASTType *t1, ASTType *t2, SourceIndex loc) {
+  void check_types(ASTType *t1, ASTType *t2, SrcLoc loc) {
     if (t1 == t2) { return; }
     if (*t1 != *t2) {
       Error err(_ctx->_filename,
@@ -155,10 +150,10 @@ private:
     auto p = ast_must_cast<Identifier>(_p);
     auto *referred = _ctx->get_decl(p->get_name());
     if (referred) { /// refers to a variable
-      p->set_var_ref(VarRef::Create(p->get_loc(), p->get_name(), referred));
+      p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
       p->set_type(copy_ty(referred->get_type()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = ASTType::GetTypeRef(_ctx, p->get_loc(), p->get_name());
+      auto *ty = ASTType::GetTypeRef(_ctx, p->loc(), p->get_name());
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
@@ -182,7 +177,7 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        check_types(cond->get_type(), ASTType::GetBoolType(_ctx, cond->get_loc()));
+        check_types(cond->get_type(), ASTType::GetBoolType(_ctx, cond->loc()), cond->loc());
       }
 
       analyze(p->get_branch(i));
@@ -250,7 +245,7 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
+        check_types(lhs->get_type(), rhs->get_type(), p->loc());
 
         ASTType *ty = copy_ty(lhs->get_type());
         ty->set_is_lvalue(false);
@@ -264,7 +259,7 @@ private:
       case BinaryOpKind::XOR: {
         analyze(lhs);
         analyze(rhs);
-        auto loc = p->get_loc();
+        auto loc = p->loc();
         auto *bool_type = ASTType::GetBoolType(_ctx, loc);
         // check if both operators are bool
         check_types(lhs->get_type(), bool_type, loc);
@@ -280,8 +275,8 @@ private:
       case BinaryOpKind::NE:
         analyze(lhs);
         analyze(rhs);
-        check_types(lhs->get_type(), rhs->get_type(), p->get_loc());
-        p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
+        check_types(lhs->get_type(), rhs->get_type(), p->loc());
+        p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
         break;
       case BinaryOpKind::MEMBER_ACCESS:
         analyze_member_access(ast_must_cast<MemberAccess>(p));
@@ -303,7 +298,7 @@ private:
         if (!p->get_rhs()->get_type()->is_bool()) {
           report_error(p->get_rhs(), "Expect a bool type");
         }
-        p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
+        p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
         break;
       case UnaryOpKind::BNOT:
         p->set_type(copy_ty(rhs->get_type()));
@@ -407,7 +402,7 @@ private:
       analyze(lhs);
     }
 
-    check_types(lhs_type, rhs->get_type(), p->get_loc());
+    check_types(lhs_type, rhs->get_type(), p->loc());
     p->set_type(lhs_type);
   }
 
@@ -501,7 +496,7 @@ private:
     }
     p->set_intrinsic_type(q->second);
 
-    auto void_type = ASTType::GetVoidType(_ctx, p->get_loc());
+    auto void_type = ASTType::GetVoidType(_ctx, p->loc());
     switch (p->get_intrinsic_type()) {
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
@@ -511,16 +506,16 @@ private:
         break;
       }
       case IntrinsicType::LINENO: {
-        auto sub = IntegerLiteral::Create(p->get_loc(), _sm->get_line(p->get_loc()), true);
-        auto type = ASTType::GetU32Type(_ctx, p->get_loc());
+        auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
+        auto type = ASTType::GetU32Type(_ctx, p->loc());
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
         break;
       }
       case IntrinsicType::FILENAME: {
-        auto sub = StringLiteral::Create(p->get_loc(), _ctx->_filename);
-        auto type = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING);
+        auto sub = StringLiteral::Create(p->loc(), _ctx->_filename);
+        auto type = ASTType::CreateAndResolve(_ctx, p->loc(), Ty::STRING);
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
@@ -534,7 +529,7 @@ private:
         }
         auto *target = func_call->get_arg(0);
         auto *source_str =
-            ASTBuilder::CreateStringLiteral(_ctx, p->get_loc(), _ctx->get_source_manager()->get_source_code(target));
+            ASTBuilder::CreateStringLiteral(_ctx, p->loc(), _ctx->get_source_manager()->get_source_code(target));
         p->set_sub(source_str);
         p->set_type(source_str->get_type());
         break;
@@ -579,36 +574,36 @@ private:
 
   void analyze_string_literal(ASTBase *_p) {
     auto p = ast_must_cast<StringLiteral>(_p);
-    p->set_value(_sm->get_token_str(p->get_loc()));
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::STRING));
+    p->set_value(_sm->get_token_str(p->loc()));
+    p->set_type(ASTType::CreateAndResolve(_ctx, p->loc(), Ty::STRING));
   }
 
   void analyze_char_literal(ASTBase *_p) {
     auto p = ast_must_cast<CharLiteral>(_p);
-    p->set_type(ASTType::GetCharType(_ctx, p->get_loc()));
-    p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->get_loc())[0]));
+    p->set_type(ASTType::GetCharType(_ctx, p->loc()));
+    p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->loc())[0]));
   }
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
 
     ASTType *ty;
-    if (_ctx->get_source_manager()->get_token(p->get_loc())->is_unsigned()) {
-      ty = ASTType::GetU32Type(_ctx, p->get_loc());
+    if (_ctx->get_source_manager()->get_token(p->loc())->is_unsigned()) {
+      ty = ASTType::GetU32Type(_ctx, p->loc());
     } else {
-      ty = ASTType::GetI32Type(_ctx, p->get_loc());
+      ty = ASTType::GetI32Type(_ctx, p->loc());
     }
     p->set_type(ty);
   }
 
   void analyze_bool_literal(ASTBase *_p) {
     auto p = ast_must_cast<BoolLiteral>(_p);
-    p->set_type(ASTType::GetBoolType(_ctx, p->get_loc()));
+    p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
   }
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::GetF32Type(_ctx, p->get_loc()));
+    p->set_type(ASTType::GetF32Type(_ctx, p->loc()));
   }
 
   void analyze_array_literal(ASTBase *_p) {
@@ -626,7 +621,7 @@ private:
     }
 
     TAN_ASSERT(element_type);
-    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->get_loc(), Ty::ARRAY, {element_type});
+    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->loc(), Ty::ARRAY, {element_type});
     ty->set_array_size(elements.size());
     p->set_type(ty);
   }
@@ -639,7 +634,7 @@ private:
 
     /// get address of the struct instance
     if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-      Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->get_loc(), lhs);
+      Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
       analyze(tmp);
       rhs->_args.insert(rhs->_args.begin(), tmp);
     } else {
@@ -752,7 +747,7 @@ private:
         report_error(p, "Cannot redeclare type as a struct");
       }
     } else { /// no fwd decl
-      ty = ASTType::Create(_ctx, p->get_loc());
+      ty = ASTType::Create(_ctx, p->loc());
       ty->set_ty(Ty::STRUCT);
       ty->set_constructor(StructConstructor::Create(ty));
       _ctx->add_type_decl(struct_name, p); /// add_decl self to current scope
@@ -830,7 +825,7 @@ private:
     auto *p = ast_must_cast<EnumDecl>(_p);
 
     /// add_decl the enum type to context
-    auto *ty = ASTType::GetEnumType(_ctx, p->get_loc(), p->get_name());
+    auto *ty = ASTType::GetEnumType(_ctx, p->loc(), p->get_name());
     TypeSystem::SetDefaultConstructor(_ctx, ty);
     p->set_type(ty);
     _ctx->add_type_decl(p->get_name(), p);
