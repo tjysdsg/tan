@@ -277,10 +277,7 @@ public:
     UNKNOWN, BINARY, UNARY,
   };
 
-  [[nodiscard]] BinaryOrUnaryKind get_kind() const;
-  [[nodiscard]] BinaryOperator *get_bop() const;
   void set_bop(BinaryOperator *bop);
-  [[nodiscard]] UnaryOperator *get_uop() const;
   void set_uop(UnaryOperator *uop);
 
   [[nodiscard]] Expr *get_expr_ptr() const;

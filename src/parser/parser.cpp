@@ -37,7 +37,7 @@ private:
   ASTBase *peek(TokenType type, const str &value) {
     Token *token = at(_curr);
     if (token->get_type() != type || token->get_value() != value) {
-      Error err(_filename, token, "Expect '" + value + "', but got '" + token->get_value() + "' instead");
+      Error err(_filename, token, fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()));
       err.raise();
     }
     return peek();

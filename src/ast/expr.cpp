@@ -262,22 +262,10 @@ BinaryOrUnary::BinaryOrUnary(SrcLoc loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP,
 
 BinaryOrUnary *BinaryOrUnary::Create(SrcLoc loc, int bp) { return new BinaryOrUnary(loc, bp); }
 
-BinaryOrUnary::BinaryOrUnaryKind BinaryOrUnary::get_kind() const { return _kind; }
-
-BinaryOperator *BinaryOrUnary::get_bop() const {
-  TAN_ASSERT(_kind == BINARY);
-  return _bop;
-}
-
 void BinaryOrUnary::set_bop(BinaryOperator *bop) {
   TAN_ASSERT(_kind == UNKNOWN); /// prevent setting this twice
   _kind = BINARY;
   _bop = bop;
-}
-
-UnaryOperator *BinaryOrUnary::get_uop() const {
-  TAN_ASSERT(_kind == UNARY);
-  return _uop;
 }
 
 void BinaryOrUnary::set_uop(UnaryOperator *uop) {
