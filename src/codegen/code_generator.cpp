@@ -81,9 +81,6 @@ public:
       case ASTNodeType::ARG_DECL:
         ret = codegen_var_arg_decl(p);
         break;
-      case ASTNodeType::TY:
-        ret = codegen_type_instantiation(ast_cast<ASTType>(p));
-        break;
       case ASTNodeType::PARENTHESIS:
         ret = codegen_parenthesis(p);
         break;
@@ -95,6 +92,10 @@ public:
         break;
       case ASTNodeType::BOP_OR_UOP:
         ret = codegen_binary_or_unary(p);
+        break;
+      case ASTNodeType::TY:
+        /// codegen() should not handle this, use codegen_type_instantiation() instead
+        TAN_ASSERT(false);
         break;
       default:
         break;
@@ -496,7 +497,7 @@ private:
         vector<Constant *> values{};
         size_t n = p->get_sub_types().size();
         for (size_t i = 0; i < n; ++i) {
-          values.push_back((llvm::Constant *) codegen(p->get_sub_types()[i]));
+          values.push_back((llvm::Constant *) codegen_type_instantiation(p->get_sub_types()[i]));
         }
         ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
         break;
