@@ -183,7 +183,8 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
     args.push_back("-I");
     args.push_back(config->import_dirs[i].c_str());
   }
-  args.push_back(opt_level_to_string(config->opt_level).c_str());
+  str opt_level = opt_level_to_string(config->opt_level);
+  args.push_back(opt_level.c_str());
   args.push_back("-c");
 
   llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diag_id(new clang::DiagnosticIDs());

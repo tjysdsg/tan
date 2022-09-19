@@ -76,8 +76,10 @@ macro(set_other_options target_name)
                 PRIVATE -Wextra
                 PRIVATE -pedantic-errors
                 PRIVATE -Wconversion
+                # PRIVATE -fsanitize=address,undefined
                 )
     endif ()
+    # target_link_options(${target_name} PRIVATE -fsanitize=address,undefined)
 
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
