@@ -11,6 +11,9 @@ pub fn main(argc: int, argv: char**) : int {
     assert(!b);
     assert(b == false);
 
+    // variable name
+    var _ = 0;
+
     var typed: int = 1;
     var typed_f: float = 1.0;
     assert(typed == 1);

@@ -28,7 +28,7 @@ TEST(tokenize, line_comment) {
   EXPECT_EQ(result.size(), 1);
   EXPECT_EQ(result[0]->get_type(), TokenType::COMMENTS);
   EXPECT_EQ(result[0]->get_value(), " this is a comment");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
@@ -42,16 +42,18 @@ TEST(tokenize, string_literal) {
   EXPECT_EQ(result.size(), 1);
   EXPECT_EQ(result[0]->get_type(), TokenType::STRING);
   EXPECT_EQ(result[0]->get_value(), "hello world, motherfucker dsfs \nshit \t");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
 }
 
 TEST(tokenize, string_literal_escape) {
+  vector<str> input =
+      {R"raw("\"hello world")raw", R"raw("\\")raw", R"raw("\n")raw", R"raw("\a")raw", R"raw("\b")raw", R"raw("\f")raw",
+          R"raw("\?")raw", R"raw("\r")raw", R"raw("\v")raw", R"raw("\t")raw", R"raw("he says, \"fuck you\"\n")raw"};
   vector<str>
-      input = {R"raw("\"hello world")raw", R"raw("\\")raw", R"raw("\n")raw", R"raw("he says, \"fuck you\"\n")raw"};
-  vector<str> output = {"\"hello world", "\\", "\n", "he says, \"fuck you\"\n"};
+      output = {"\"hello world", "\\", "\n", "\a", "\b", "\f", "\?", "\r", "\v", "\t", "he says, \"fuck you\"\n"};
   for (size_t i = 0; i < input.size(); ++i) {
     str code = input[i];
     Reader r;
@@ -60,7 +62,7 @@ TEST(tokenize, string_literal_escape) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->get_type(), TokenType::STRING);
     EXPECT_EQ(result[0]->get_value(), output[i]);
-    for (auto *&t : result) {
+    for (auto *&t: result) {
       delete t;
       t = nullptr;
     }
@@ -78,7 +80,7 @@ TEST(tokenize, char_literal) {
     EXPECT_EQ(result.size(), 1);
     EXPECT_EQ(result[0]->get_type(), TokenType::CHAR);
     EXPECT_EQ(result[0]->get_value(), output[i]);
-    for (auto *&t : result) {
+    for (auto *&t: result) {
       delete t;
       t = nullptr;
     }
@@ -93,7 +95,7 @@ TEST(tokenize, block_comment1) {
   EXPECT_EQ(result.size(), 1);
   EXPECT_EQ(result[0]->get_type(), TokenType::COMMENTS);
   EXPECT_EQ(result[0]->get_value(), " this is a comment ");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
@@ -107,7 +109,7 @@ TEST(tokenize, block_comment2) {
   EXPECT_EQ(result.size(), 2);
   EXPECT_EQ(result[0]->get_type(), TokenType::COMMENTS);
   EXPECT_EQ(result[0]->get_value(), "\nblock\nis a comment \n");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
@@ -126,7 +128,7 @@ TEST(tokenize, number_literal) {
   EXPECT_EQ(result[7]->get_value(), "10");
   EXPECT_EQ((int) result[9]->get_type(), (int) TokenType::FLOAT);
   EXPECT_EQ(result[9]->get_value(), "4.2");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
@@ -144,7 +146,7 @@ TEST(tokenize, number_literal1) {
   EXPECT_EQ(result[2]->get_value(), "2.");
   EXPECT_EQ((int) result[4]->get_type(), (int) TokenType::FLOAT);
   EXPECT_EQ(result[4]->get_value(), "3.0");
-  for (auto *&t : result) {
+  for (auto *&t: result) {
     delete t;
     t = nullptr;
   }
