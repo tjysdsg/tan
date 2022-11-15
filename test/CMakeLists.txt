@@ -5,6 +5,7 @@ macro(enable_tests)
     else ()
         set(COVERAGE_CXX_FLAGS "-g -O0 -Wall")
     endif ()
+    set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
     set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
     # lexer tests
@@ -21,37 +22,23 @@ macro(enable_tests)
     target_link_libraries(parser_tests tan gtest ${DEP_LIBS})
     set_other_options(parser_tests)
 
-    # tanc tests
-    file(GLOB TAN_TEST_SRCS ${TEST_DIR}/test_src/*.tan)
-    set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
-    add_executable(tanc_tests ${TEST_DIR}/tanc_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
-    set_other_options(tanc_tests)
-    target_link_libraries(tanc_tests tan gtest)
-    target_compile_definitions(tanc_tests PRIVATE
-            -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
-            )
-    add_dependencies(tanc_tests runtime)
+    # tanc exec tests
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_exec)
 
-    # tests target
-    add_custom_target(tests ALL DEPENDS lexer_tests tanc_tests)
+    # tests target that runs all defined tests
+    add_custom_target(tests ALL DEPENDS lexer_tests run_tanc_exec_tests)
     add_custom_command(TARGET tests POST_BUILD
             COMMAND ${PROJECT_SOURCE_DIR}/bin/lexer_tests
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
-    foreach (tt ${TAN_TEST_SRCS})
-        add_custom_command(TARGET tests POST_BUILD
-                COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc_tests ${tt}
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                )
-    endforeach ()
 
+    # generate coverage
     if (DEFINED ENABLE_COVERAGE)
         add_custom_target(coverage ALL
                 COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
                 DEPENDS tests
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 )
-
         add_custom_command(TARGET coverage POST_BUILD
                 COMMAND gcovr --xml
                 -r ${PROJECT_SOURCE_DIR}

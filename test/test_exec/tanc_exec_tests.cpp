@@ -1,3 +1,7 @@
+/**
+ * \brief Tests for using tanc to compile and generate executable
+ */
+
 #include "cli.h"
 #include "base.h"
 #include <gtest/gtest.h>
@@ -5,17 +9,20 @@
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
 #endif
+#ifndef TAN_TEST_SOURCE_DIR
+#error "Define TAN_TEST_SOURCE_DIR before compiling this"
+#endif
 
 class MyFixture : public ::testing::Test {};
 
-class TanCTests : public MyFixture {
+class TanCExecTests : public MyFixture {
 public:
-  TanCTests(const str &filename) : _filename(filename) {}
+  TanCExecTests(const str &filename) : _filename(filename) {}
   void TestBody() override {
     vector<const char *> cmd
         {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
             "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", _filename.c_str(), "-o", "a.out"};
-    for (auto *c : cmd) {
+    for (auto *c: cmd) {
       std::cout << c << " ";
     }
     std::cout << '\n';
@@ -36,7 +43,7 @@ void register_tanc_test(const str &v) {
       v.c_str(),
       __FILE__,
       __LINE__,
-      [=]() -> MyFixture * { return new TanCTests(v); });
+      [=]() -> MyFixture * { return new TanCExecTests(v); });
 }
 
 int main(int argc, char **argv) {

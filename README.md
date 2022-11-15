@@ -86,4 +86,4 @@ There are a few options that you can specify when using `cmake` command:
     - linker: linker implemented using Clang
     - parser: code related to parsing the tokenized source into AST
 - test:
-    - test_src: tan sources used for general compiler tests
+    - test_exec: executable tests

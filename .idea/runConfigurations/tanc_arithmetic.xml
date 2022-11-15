@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tanc arithmetic" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="test/test_src/arithmetic.tan" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$ProjectFileDir$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="tan" TARGET_NAME="tanc_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="tan" RUN_TARGET_NAME="tanc_tests">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>
