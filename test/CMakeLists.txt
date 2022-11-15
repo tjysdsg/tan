@@ -24,9 +24,11 @@ macro(enable_tests)
 
     # tanc exec tests
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_exec)
+    # tanc library tests
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_lib)
 
     # tests target that runs all defined tests
-    add_custom_target(tests ALL DEPENDS lexer_tests run_tanc_exec_tests)
+    add_custom_target(tests ALL DEPENDS lexer_tests run_tanc_exec_tests run_tanc_lib_tests)
     add_custom_command(TARGET tests POST_BUILD
             COMMAND ${PROJECT_SOURCE_DIR}/bin/lexer_tests
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
