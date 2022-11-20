@@ -34,18 +34,17 @@ public:
   /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
-   * \param val Value to convert. This function automatically create a `load` instruction if orig is lvalue.
    * \param dest Destination type.
-   * \param orig Original type.
+   * \param expr Original expression.
    * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
    * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *cs, llvm::Value *val, ASTType *orig, ASTType *dest);
+  static llvm::Value *ConvertTo(CompilerSession *cs, Expr *expr, ASTType *dest);
 
   /**
    * \brief Create a load instruction if the type is lvalue. Otherwise return the original value.
    */
-  static llvm::Value *LoadIfLValue(CompilerSession *cs, llvm::Value *val, ASTType *type);
+  static llvm::Value *LoadIfLValue(CompilerSession *cs, Expr* expr);
 
   static llvm::Type *ToLLVMType(CompilerSession *cs, ASTType *p);
 

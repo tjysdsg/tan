@@ -189,7 +189,6 @@ private:
     ASTType *ty = p->get_type();
 
     if (ty) { /// analyze type if specified
-      ty->set_is_lvalue(true);
       analyze(ty);
     }
 
@@ -199,7 +198,6 @@ private:
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_must_cast<ArgDecl>(_p);
     ASTType *ty = p->get_type();
-    ty->set_is_lvalue(true);
     analyze(ty);
     _ctx->add_decl(p->get_name(), p);
   }
@@ -248,7 +246,6 @@ private:
         check_types(lhs->get_type(), rhs->get_type(), p->loc());
 
         ASTType *ty = copy_ty(lhs->get_type());
-        ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
       }
@@ -312,7 +309,8 @@ private:
         auto *ty = rhs->get_type();
         if (!ty->is_ptr()) { report_error(ty, "Expect a pointer type"); }
         ty = copy_ty(ty->get_contained_ty());
-        ty->set_is_lvalue(true);
+        TAN_ASSERT(rhs->is_lvalue());
+        p->set_lvalue(true);
         p->set_type(ty);
         break;
       }
@@ -320,7 +318,6 @@ private:
       case UnaryOpKind::MINUS: {
         /// unary plus/minus
         auto ty = copy_ty(rhs->get_type());
-        ty->set_is_lvalue(false);
         p->set_type(ty);
         break;
       }
@@ -351,7 +348,6 @@ private:
     }
 
     ty = copy_ty(ty);
-    ty->set_is_lvalue(lhs->get_type()->is_lvalue());
     p->set_type(ty);
     // FIXME: check if the cast is valid
   }
@@ -401,6 +397,8 @@ private:
       /// analyze again just to make sure
       analyze(lhs);
     }
+
+    p->set_lvalue(true);
 
     check_types(lhs_type, rhs->get_type(), p->loc());
     p->set_type(lhs_type);
@@ -628,12 +626,12 @@ private:
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
-    if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+    if (!lhs->is_lvalue() && !lhs->get_type()->is_ptr()) {
       report_error(p, "Invalid member function call");
     }
 
     /// get address of the struct instance
-    if (lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
+    if (lhs->is_lvalue() && !lhs->get_type()->is_ptr()) {
       Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
       analyze(tmp);
       rhs->_args.insert(rhs->_args.begin(), tmp);
@@ -649,11 +647,15 @@ private:
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze(rhs);
+
+    if (!lhs->is_lvalue()) {
+      report_error(p, "Expect lhs to be an lvalue");
+    }
+
     auto ty = lhs->get_type();
     if (!ty->is_ptr()) { report_error(p, "Expect a pointer or an array"); }
 
     ty = copy_ty(ty->get_contained_ty());
-    ty->set_is_lvalue(true);
 
     p->set_type(ty);
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
@@ -684,9 +686,6 @@ private:
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_enum_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze(rhs);
-    if (!lhs->get_type()->is_lvalue() && !lhs->get_type()->is_ptr()) {
-      report_error(p, "Invalid left-hand operand");
-    }
 
     str m_name = ast_must_cast<Identifier>(rhs)->get_name();
     ASTType *struct_ty = nullptr;
@@ -702,7 +701,6 @@ private:
     auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
     auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
-    ty->set_is_lvalue(true);
     p->set_type(ty);
   }
 

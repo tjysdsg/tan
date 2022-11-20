@@ -7,7 +7,9 @@ noticed if explicit type cast is written.
 
 ## Supported Implicit Type Cast
 
-TODO:
+TODO: add more
+
+- signed int to unsigned int with equal or bigger size
 
 Any implicit cast can be done the same way using explicit cast. Therefore, the exact behaviors will be listed in the
 sections below.

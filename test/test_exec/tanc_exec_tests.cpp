@@ -19,9 +19,8 @@ class TanCExecTests : public MyFixture {
 public:
   TanCExecTests(const str &filename) : _filename(filename) {}
   void TestBody() override {
-    vector<const char *> cmd
-        {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
-            "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", _filename.c_str(), "-o", "a.out"};
+    vector<const char *> cmd{__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
+        "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", _filename.c_str(), "-o", "a.out"};
     for (auto *c: cmd) {
       std::cout << c << " ";
     }

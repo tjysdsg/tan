@@ -5,14 +5,17 @@
 #include "compiler.h"
 #include "src/ast/ast_type.h"
 #include "src/ast/ast_context.h"
+#include "src/ast/expr.h"
 
 using namespace tanlang;
 
-Value *TypeSystem::ConvertTo(CompilerSession *cs, Value *val, ASTType *orig, ASTType *dest) {
+Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, ASTType *dest) {
   auto *builder = cs->_builder;
 
   /// load if lvalue
-  Value *loaded = TypeSystem::LoadIfLValue(cs, val, orig);
+  Value *loaded = TypeSystem::LoadIfLValue(cs, expr);
+
+  ASTType* orig = expr->get_type();
 
   bool is_pointer1 = orig->is_ptr();
   bool is_pointer2 = dest->is_ptr();
@@ -46,7 +49,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Value *val, ASTType *orig, AST
   } else if (orig->is_float() && dest->is_float()) { /// float <-> double
     return builder->CreateFPCast(loaded, ToLLVMType(cs, dest));
   } else if (orig->is_bool() && dest->is_int()) { /// bool to int
-    return builder->CreateZExtOrTrunc(val, ToLLVMType(cs, dest));
+    return builder->CreateZExtOrTrunc(loaded, ToLLVMType(cs, dest));
   } else if (dest->is_bool()) { /// all types to bool, equivalent to val != 0
     if (orig->is_float()) {
       return builder->CreateFCmpONE(loaded, ConstantFP::get(builder->getFloatTy(), 0.0f));
@@ -400,7 +403,9 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, ASTType *p) {
   return ret;
 }
 
-Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Value *val, ASTType *type) {
-  if (type->is_lvalue()) { return cs->_builder->CreateLoad(val); }
+Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Expr *expr) {
+  Value *val = expr->_llvm_value;
+  TAN_ASSERT(val);
+  if (expr->is_lvalue()) { return cs->_builder->CreateLoad(val); }
   return val;
 }

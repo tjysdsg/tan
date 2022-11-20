@@ -16,6 +16,11 @@ protected:
 
 public:
   virtual bool is_comptime_known() { return false; }
+  virtual bool is_lvalue() { return _is_lvalue; }
+  virtual void set_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
+
+protected:
+  bool _is_lvalue = false;
 };
 
 /**
@@ -156,6 +161,8 @@ public:
   void set_type_ref(ASTType *type_ref);
   [[nodiscard]] VarRef *get_var_ref() const;
   [[nodiscard]] ASTType *get_type_ref() const;
+  bool is_lvalue() override;
+  void set_lvalue(bool is_lvalue) override;
 
 private:
   IdentifierType _id_type = IdentifierType::INVALID;
@@ -217,6 +224,8 @@ protected:
 
 public:
   static MemberAccess *Create(SrcLoc loc);
+  bool is_lvalue() override;
+  void set_lvalue(bool is_lvalue) override;
 
 public:
   enum {
@@ -287,6 +296,9 @@ public:
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
+  bool is_lvalue() override;
+  void set_lvalue(bool is_lvalue) override;
+
 private:
   BinaryOrUnaryKind _kind = UNKNOWN;
   union {
@@ -304,8 +316,10 @@ public:
 
   void set_sub(Expr *sub);
   [[nodiscard]] Expr *get_sub() const;
-
   [[nodiscard]] vector<ASTBase *> get_children() const override;
+
+  bool is_lvalue() override;
+  void set_lvalue(bool is_lvalue) override;
 
 private:
   Expr *_sub = nullptr;
@@ -358,6 +372,9 @@ public:
   void set_rhs(ASTBase *rhs);
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
+
+  bool is_lvalue() override;
+  void set_lvalue(bool is_lvalue) override;
 
 protected:
   Expr *_lhs = nullptr;

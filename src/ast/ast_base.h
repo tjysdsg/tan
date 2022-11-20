@@ -51,6 +51,7 @@ protected:
   [[nodiscard]] virtual ASTBase *get() const;
 
 public:
+  // FIXME: shouldn't be public
   llvm::Value *_llvm_value = nullptr;
 
 private:

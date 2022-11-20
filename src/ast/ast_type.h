@@ -31,24 +31,22 @@ public:
       SrcLoc loc,
       Ty t,
       vector<ASTType *> sub_tys = {},
-      bool is_lvalue = false,
       const std::function<void(ASTType *)> &attribute_setter = {});
   [[nodiscard]] static ASTType *GetVoidType(ASTContext *ctx, SrcLoc loc);
-  [[nodiscard]] static ASTType *GetEnumType(ASTContext *ctx, SrcLoc loc, str name, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetTypeRef(ASTContext *ctx, SrcLoc loc, str name, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetCharType(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+  [[nodiscard]] static ASTType *GetEnumType(ASTContext *ctx, SrcLoc loc, str name);
+  [[nodiscard]] static ASTType *GetTypeRef(ASTContext *ctx, SrcLoc loc, str name);
+  [[nodiscard]] static ASTType *GetBoolType(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetCharType(ASTContext *ctx, SrcLoc loc);
   [[nodiscard]] static ASTType *GetIntegerType(ASTContext *ctx,
       SrcLoc loc,
       size_t bit_size,
-      bool is_unsigned,
-      bool lvalue = false);
-  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetF32Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
-  [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SrcLoc loc, bool lvalue = false);
+      bool is_unsigned);
+  [[nodiscard]] static ASTType *GetI32Type(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetU32Type(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetI8Type(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size);
+  [[nodiscard]] static ASTType *GetF32Type(ASTContext *ctx, SrcLoc loc);
+  [[nodiscard]] static ASTType *GetF64Type(ASTContext *ctx, SrcLoc loc);
 
 public:
   static const umap<str, Ty> BASIC_TYS;
@@ -105,22 +103,6 @@ public:
   [[nodiscard]] ASTType *get_canonical_type() const;
   [[nodiscard]] bool is_numeric() const;
 
-  /**
-   * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type
-   * The reason is that, for example, multiple variables all have a type reference to the same struct type, but some of
-   * them are lvalues while others aren't, then calling is_lvalue()/set_is_lvalue() should only operate on the
-   * type references themselves.
-   */
-  [[nodiscard]] bool is_lvalue() const;
-
-  /**
-   * \brief Unlike other attributes, is_lvalue() and set_is_lvalue() do not look through/modify the canonical type.
-   * The reason is that, for example, multiple variables all have a type reference to the same struct type, but some of
-   * them are lvalues while others aren't, then calling is_lvalue()/set_is_lvalue() should only operate on the
-   * type references themselves.
-   */
-  void set_is_lvalue(bool is_lvalue);
-
 protected:
   explicit ASTType(SrcLoc loc);
 
@@ -150,7 +132,6 @@ private:
   bool _is_bool: 1;
   bool _is_enum: 1;
   bool _resolved: 1;
-  bool _is_lvalue: 1;
   bool _is_forward_decl: 1;
 };
 

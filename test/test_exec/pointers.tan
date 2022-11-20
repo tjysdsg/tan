@@ -29,9 +29,6 @@ pub fn main() : int {
     var pf = p as float*;
     assert(*pf == -2.5);
 
-    var ptr = &1;
-    assert(*ptr == 1);
-
     print("SUCCESS\n");
     return 0;
 }

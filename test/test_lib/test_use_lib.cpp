@@ -22,7 +22,7 @@ public:
   void TestBody() override {
     // compile the executable that uses the library and run it
     vector<const char *> cmd =
-        {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
+        {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
             "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", "-L" __STR__(TAN_PROJECT_SOURCE_DIR),
             "-ltest", "-o", "a.out", __STR__(TAN_TEST_SOURCE_DIR)"/cli.tan"};
     for (auto *c: cmd) {

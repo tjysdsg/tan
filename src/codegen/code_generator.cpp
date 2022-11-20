@@ -169,7 +169,7 @@ private:
 
       /// implicit cast
       auto expected_ty = callee->get_arg_type(i);
-      a = TypeSystem::ConvertTo(_cs, a, actual_arg->get_type(), expected_ty);
+      a = TypeSystem::ConvertTo(_cs, actual_arg, expected_ty);
       arg_vals.push_back(a);
     }
     return p->_llvm_value = _cs->_builder->CreateCall(codegen(callee), arg_vals);
@@ -297,7 +297,7 @@ private:
     if (!rhs) {
       report_error(p, "Invalid operand");
     }
-    if (p->get_rhs()->get_type()->is_lvalue()) {
+    if (p->get_rhs()->is_lvalue()) {
       rhs = builder->CreateLoad(rhs);
     }
     return p->_llvm_value = builder->CreateNot(rhs);
@@ -315,7 +315,7 @@ private:
       report_error(p, "Invalid operand");
     }
 
-    if (p->get_rhs()->get_type()->is_lvalue()) {
+    if (p->get_rhs()->is_lvalue()) {
       rhs = builder->CreateLoad(rhs);
     }
     /// get value size in bits
@@ -338,7 +338,7 @@ private:
     auto rhs = p->get_rhs();
     if (rhs) { /// return with value
       Value *result = codegen(rhs);
-      if (rhs->get_type()->is_lvalue()) {
+      if (rhs->is_lvalue()) {
         result = builder->CreateLoad(result, "ret");
       }
       builder->CreateRet(result);
@@ -390,17 +390,15 @@ private:
 
   Value *codegen_address_of(ASTBase *_p) {
     auto p = ast_must_cast<UnaryOperator>(_p);
-
-    auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
     auto *val = codegen(p->get_rhs());
-    if (p->get_rhs()->get_type()->is_lvalue()) { /// lvalue, the val itself is a pointer to real value
-      p->_llvm_value = val;
-    } else { /// rvalue, create an anonymous variable, and get address of it
-      p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), val->getType(), 1, "anonymous");
-      builder->CreateStore(val, p->_llvm_value);
+
+    if (!p->get_rhs()->is_lvalue()) {
+      report_error(p, "Cannot get address of rvalue");
     }
+
+    p->_llvm_value = val;
     return p->_llvm_value;
   }
 
@@ -607,7 +605,7 @@ private:
         break;
       case UnaryOpKind::MINUS: {
         auto *r = codegen(rhs);
-        if (rhs->get_type()->is_lvalue()) {
+        if (rhs->is_lvalue()) {
           r = builder->CreateLoad(r);
         }
         if (r->getType()->isFloatingPointTy()) {
@@ -669,7 +667,7 @@ private:
     set_current_debug_location(p);
 
     /// _codegen the lhs and rhs
-    auto lhs = p->get_lhs();
+    auto lhs = ast_must_cast<Expr>(p->get_lhs());
     auto rhs = p->get_rhs();
     Value *from = codegen(rhs);
     Value *to = codegen(lhs);
@@ -677,9 +675,9 @@ private:
     if (!to) { report_error(rhs, "Invalid left-hand operand of the assignment"); }
 
     // type of lhs is the same as type of the assignment
-    if (!p->get_type()->is_lvalue()) { report_error(lhs, "Value can only be assigned to lvalue"); }
+    if (!lhs->is_lvalue()) { report_error(lhs, "Value can only be assigned to lvalue"); }
 
-    from = TypeSystem::ConvertTo(_cs, from, rhs->get_type(), p->get_type());
+    from = TypeSystem::ConvertTo(_cs, rhs, p->get_type());
     builder->CreateStore(from, to);
     p->_llvm_value = to;
     return to;
@@ -699,8 +697,8 @@ private:
     if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
     if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
-    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
-    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
+    r = TypeSystem::LoadIfLValue(_cs, rhs);
+    l = TypeSystem::LoadIfLValue(_cs, lhs);
     if (l->getType()->isFloatingPointTy()) {
       /// float arithmetic
       switch (p->get_op()) {
@@ -775,8 +773,8 @@ private:
     if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
     bool is_signed = !lhs->get_type()->is_unsigned();
-    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
-    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
+    r = TypeSystem::LoadIfLValue(_cs, rhs);
+    l = TypeSystem::LoadIfLValue(_cs, lhs);
     if (l->getType()->isFloatingPointTy()) {
       switch (p->get_op()) {
         case BinaryOpKind::EQ:
@@ -858,8 +856,8 @@ private:
     if (!l) { report_error(lhs, "Invalid expression for right-hand operand"); }
     if (!r) { report_error(rhs, "Invalid expression for left-hand operand"); }
 
-    r = TypeSystem::LoadIfLValue(_cs, r, rhs->get_type());
-    l = TypeSystem::LoadIfLValue(_cs, l, lhs->get_type());
+    r = TypeSystem::LoadIfLValue(_cs, rhs);
+    l = TypeSystem::LoadIfLValue(_cs, lhs);
     switch (p->get_op()) {
       case BinaryOpKind::BAND:
         p->_llvm_value = builder->CreateAnd(l, r, "binary_and");
@@ -898,8 +896,8 @@ private:
     Value *ret = nullptr;
 
     // lvalue will be loaded here
-    val = TypeSystem::ConvertTo(_cs, val, p->get_lhs()->get_type(), p->get_type());
-    if (lhs->get_type()->is_lvalue()) {
+    val = TypeSystem::ConvertTo(_cs, lhs, p->get_type());
+    if (lhs->is_lvalue()) {
       ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
       builder->CreateStore(val, ret);
     } else {
@@ -1053,10 +1051,7 @@ private:
         if (!cond_v) { report_error(p, "Invalid condition expression "); }
         /// convert to bool
         // TODO: do this in analysis phase, and remove ASTContext from this
-        cond_v = TypeSystem::ConvertTo(_cs,
-            cond_v,
-            cond->get_type(),
-            ASTType::CreateAndResolve(_ctx, cond->loc(), Ty::BOOL));
+        cond_v = TypeSystem::ConvertTo(_cs, cond, ASTType::CreateAndResolve(_ctx, cond->loc(), Ty::BOOL));
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1091,14 +1086,14 @@ private:
     Value *ret;
     switch (p->_access_type) {
       case MemberAccess::MemberAccessBracket: {
-        if (lhs->get_type()->is_lvalue()) { from = builder->CreateLoad(from); }
+        if (lhs->is_lvalue()) { from = builder->CreateLoad(from); }
         auto *rhs_val = codegen(rhs);
-        if (rhs->get_type()->is_lvalue()) { rhs_val = builder->CreateLoad(rhs_val); }
+        if (rhs->is_lvalue()) { rhs_val = builder->CreateLoad(rhs_val); }
         ret = builder->CreateGEP(from, rhs_val, "bracket_access");
         break;
       }
       case MemberAccess::MemberAccessMemberVariable: {
-        if (lhs->get_type()->is_lvalue() && lhs->get_type()->is_ptr() && lhs->get_type()->get_contained_ty()) {
+        if (lhs->is_lvalue() && lhs->get_type()->is_ptr() && lhs->get_type()->get_contained_ty()) {
           /// auto dereference pointers
           from = builder->CreateLoad(from);
         }
@@ -1133,7 +1128,7 @@ private:
     TAN_ASSERT(val->getType()->isPointerTy());
 
     /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
-    if (rhs->get_type()->is_lvalue()) {
+    if (rhs->is_lvalue()) {
       p->_llvm_value = builder->CreateLoad(val, "ptr_deref");
     }
 

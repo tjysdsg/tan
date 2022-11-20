@@ -9,6 +9,10 @@
 namespace tanlang {
 
 class Decl : public Expr, public ASTNamed {
+public:
+  bool is_lvalue() override { return true; }
+  void set_lvalue(bool) override { TAN_ASSERT(false); }
+
 protected:
   Decl(ASTNodeType type, SrcLoc loc, int bp);
 };

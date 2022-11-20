@@ -22,10 +22,9 @@ public:
 
   void TestBody() override {
     // compile into a static library
-    vector<const char *> cmd
-        {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "--print-ast", "--print-ir", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
-            "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", "-shared", "-o", "libtest.so",
-            __STR__(TAN_TEST_SOURCE_DIR)"/lib1.tan", __STR__(TAN_TEST_SOURCE_DIR)"/lib2.tan"};
+    vector<const char *> cmd{__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
+        "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", "-shared", "-o", "libtest.so",
+        __STR__(TAN_TEST_SOURCE_DIR)"/lib1.tan", __STR__(TAN_TEST_SOURCE_DIR)"/lib2.tan"};
 
     for (auto *c: cmd) {
       std::cout << c << " ";

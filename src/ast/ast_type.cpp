@@ -70,7 +70,6 @@ ASTType::ASTType(SrcLoc loc) : ASTBase(ASTNodeType::TY, loc, 0) {
   _is_bool = false;
   _is_enum = false;
   _resolved = false;
-  _is_lvalue = false;
   _is_forward_decl = false;
 }
 
@@ -84,12 +83,10 @@ ASTType *ASTType::CreateAndResolve(ASTContext *ctx,
     SrcLoc loc,
     Ty t,
     vector<ASTType *> sub_tys,
-    bool is_lvalue,
     const std::function<void(ASTType *)> &attribute_setter) {
   // TODO: cache
   auto ret = new ASTType(loc);
   ret->_ty = t;
-  ret->_is_lvalue = is_lvalue;
   ret->_sub_types.insert(ret->_sub_types.begin(), sub_tys.begin(), sub_tys.end());
   ret->_ctx = ctx;
   if (attribute_setter) {
@@ -103,79 +100,75 @@ ASTType *ASTType::GetVoidType(ASTContext *ctx, SrcLoc loc) {
   return ASTType::CreateAndResolve(ctx, loc, Ty::VOID);
 }
 
-ASTType *ASTType::GetCharType(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, Ty::CHAR, {}, lvalue);
+ASTType *ASTType::GetCharType(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::CHAR, {});
 }
 
-ASTType *ASTType::GetEnumType(ASTContext *ctx, SrcLoc loc, str name, bool lvalue) {
+ASTType *ASTType::GetEnumType(ASTContext *ctx, SrcLoc loc, str name) {
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::ENUM,
       {},
-      lvalue,
       (const std::function<void(ASTType *)> &) [&](ASTType *t) {
         t->set_type_name(name);
       });
 }
 
-ASTType *ASTType::GetTypeRef(ASTContext *ctx, SrcLoc loc, str name, bool lvalue) {
+ASTType *ASTType::GetTypeRef(ASTContext *ctx, SrcLoc loc, str name) {
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::TYPE_REF,
       {},
-      lvalue,
       (const std::function<void(ASTType *)> &) [&](ASTType *t) {
         t->set_type_name(name);
       });
 }
 
-ASTType *ASTType::GetIntegerType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool is_unsigned, bool lvalue) {
+ASTType *ASTType::GetIntegerType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool is_unsigned) {
   TAN_ASSERT(bit_size == 8 || bit_size == 16 || bit_size == 32 || bit_size == 64);
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::INT,
       {},
-      lvalue,
       (const std::function<void(ASTType *)> &) [&](ASTType *t) {
         t->set_size_bits(bit_size);
         t->set_is_unsigned(is_unsigned);
       });
 }
 
-ASTType *ASTType::GetI32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::GetIntegerType(ctx, loc, 32, false, lvalue);
+ASTType *ASTType::GetI32Type(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::GetIntegerType(ctx, loc, 32, false);
 }
 
-ASTType *ASTType::GetU32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::GetIntegerType(ctx, loc, 32, true, lvalue);
+ASTType *ASTType::GetU32Type(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::GetIntegerType(ctx, loc, 32, true);
 }
 
-ASTType *ASTType::GetI8Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::GetIntegerType(ctx, loc, 8, false, lvalue);
+ASTType *ASTType::GetI8Type(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::GetIntegerType(ctx, loc, 8, false);
 }
 
-ASTType *ASTType::GetBoolType(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::CreateAndResolve(ctx, loc, Ty::BOOL, {}, lvalue);
+ASTType *ASTType::GetBoolType(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::CreateAndResolve(ctx, loc, Ty::BOOL, {});
 }
 
-ASTType *ASTType::GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size, bool lvalue) {
+ASTType *ASTType::GetFloatType(ASTContext *ctx, SrcLoc loc, size_t bit_size) {
   TAN_ASSERT(bit_size == 32 || bit_size == 64); // TODO: maybe support f128?
   return ASTType::CreateAndResolve(ctx,
       loc,
       Ty::FLOAT,
       {},
-      lvalue,
       (const std::function<void(ASTType *)> &) [&](ASTType *t) {
         t->set_size_bits(bit_size);
       });
 }
 
-ASTType *ASTType::GetF32Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::GetFloatType(ctx, loc, 32, lvalue);
+ASTType *ASTType::GetF32Type(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::GetFloatType(ctx, loc, 32);
 }
 
-ASTType *ASTType::GetF64Type(ASTContext *ctx, SrcLoc loc, bool lvalue) {
-  return ASTType::GetFloatType(ctx, loc, 64, lvalue);
+ASTType *ASTType::GetF64Type(ASTContext *ctx, SrcLoc loc) {
+  return ASTType::GetFloatType(ctx, loc, 64);
 }
 
 Ty ASTType::get_ty() const { return _ty; }
@@ -322,10 +315,6 @@ ASTType *ASTType::must_get_canonical_type() const {
 
 void ASTType::no_modifications_on_type_reference() const { TAN_ASSERT(_ty != Ty::TYPE_REF); }
 
-bool ASTType::is_lvalue() const { return _is_lvalue; }
-
-void ASTType::set_is_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
-
 Constructor *ASTType::get_constructor() const { return must_get_canonical_type()->_constructor; }
 
 void ASTType::set_constructor(Constructor *constructor) {
@@ -347,7 +336,7 @@ ASTType *ASTType::get_contained_ty() const {
 }
 
 ASTType *ASTType::get_ptr_to() const {
-  return ASTType::CreateAndResolve(_ctx, loc(), Ty::POINTER, {(ASTType *) this}, false);
+  return ASTType::CreateAndResolve(_ctx, loc(), Ty::POINTER, {(ASTType *) this});
 }
 
 vector<ASTBase *> ASTType::get_children() const {

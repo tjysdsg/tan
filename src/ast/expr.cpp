@@ -91,7 +91,9 @@ VarRef *VarRef::Create(SrcLoc loc, const str &name, Decl *referred) {
   return ret;
 }
 
-VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {}
+VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {
+  _is_lvalue = true;
+}
 
 Decl *VarRef::get_referred() const { return _referred; }
 
@@ -124,6 +126,13 @@ void Identifier::set_type_ref(ASTType *type_ref) {
   _id_type = IdentifierType::ID_TYPE_DECL;
   _type_ref = type_ref;
 }
+
+bool Identifier::is_lvalue() {
+  if (_id_type == IdentifierType::ID_VAR_DECL) { return true; }
+  return false;
+}
+
+void Identifier::set_lvalue(bool) { TAN_ASSERT(false); }
 
 /// \section Binary operators
 
@@ -201,11 +210,22 @@ Expr *Parenthesis::get_sub() const { return _sub; }
 
 vector<ASTBase *> Parenthesis::get_children() const { return {_sub}; }
 
+void Parenthesis::set_lvalue(bool) { TAN_ASSERT(false); }
+
+bool Parenthesis::is_lvalue() { return _sub->is_lvalue(); }
+
 /// \section MEMBER_ACCESS operator
 
 MemberAccess *MemberAccess::Create(SrcLoc loc) { return new MemberAccess(loc); }
 
 MemberAccess::MemberAccess(SrcLoc loc) : BinaryOperator(BinaryOpKind::MEMBER_ACCESS, loc) {}
+
+void MemberAccess::set_lvalue(bool) { TAN_ASSERT(false); }
+
+bool MemberAccess::is_lvalue() {
+  TAN_ASSERT(_lhs);
+  return _lhs->is_lvalue();
+}
 
 /// \section Function call
 
@@ -247,6 +267,10 @@ vector<ASTBase *> Assignment::get_children() const { return {_lhs, _rhs}; }
 Expr *Cast::get_lhs() const { return _lhs; }
 
 void Cast::set_lhs(Expr *lhs) { _lhs = lhs; }
+
+bool Cast::is_lvalue() { return _lhs->is_lvalue(); }
+
+void Cast::set_lvalue(bool) { TAN_ASSERT(false); }
 
 Cast *Cast::Create(SrcLoc loc) { return new Cast(loc); }
 
@@ -293,6 +317,10 @@ ASTType *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
 void BinaryOrUnary::set_type(ASTType *type) { get_expr_ptr()->set_type(type); }
 
 vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->get_children(); }
+
+bool BinaryOrUnary::is_lvalue() { return get_expr_ptr()->is_lvalue(); }
+
+void BinaryOrUnary::set_lvalue(bool is_lvalue) { get_expr_ptr()->set_lvalue(is_lvalue); }
 
 bool CompTimeExpr::is_comptime_known() { return true; }
 
