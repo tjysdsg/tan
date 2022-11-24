@@ -5,7 +5,7 @@ using namespace tanlang;
 
 Type *Typed::get_type() const {
   if (!_type) { return nullptr; }
-  return _type->get_canonical();
+  return _type;
 }
 
 void Typed::set_type(Type *type) {

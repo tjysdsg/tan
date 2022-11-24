@@ -4,14 +4,6 @@ using namespace tanlang;
 
 StringType *Type::STRING_TYPE = new StringType();
 
-Type *Type::get_canonical() const {
-  TAN_ASSERT(_canonical_type != this);
-  if (!_canonical_type) { return (Type *) this; }
-  return _canonical_type;
-}
-
-void Type::set_canonical(Type *t) { _canonical_type = t; }
-
 PrimitiveType *PrimitiveType::Create(PrimitiveType::Kind kind) {
   auto it = CACHE.find(kind);
   if (it != CACHE.end()) {
@@ -118,74 +110,33 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
-bool Type::is_primitive() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_primitive() { return false; }
 
-bool Type::is_pointer() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_pointer() { return false; }
 
-bool Type::is_array() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_array() { return false; }
 
-bool Type::is_string() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_string() { return false; }
 
-bool Type::is_struct() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_struct() { return false; }
 
-bool Type::is_ref() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_ref() { return false; }
 
-bool Type::is_float() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_float() { return false; }
 
-bool Type::is_int() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_int() { return false; }
 
-bool Type::is_unsigned() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_unsigned() { return false; }
 
-bool Type::is_bool() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_bool() { return false; }
 
-bool Type::is_void() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_void() { return false; }
 
-bool Type::is_char() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_char() { return false; }
 
-bool Type::is_enum() {
-  TAN_ASSERT(!_canonical_type);
-  return false;
-}
+bool Type::is_enum() { return false; }
 
-int PrimitiveType::get_size_bits() {
-  return SIZE_BITS[_kind];
-}
+int PrimitiveType::get_size_bits() { return SIZE_BITS[_kind]; }
 
 int PrimitiveType::get_align_bits() {
   TAN_ASSERT(_kind != VOID);

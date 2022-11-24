@@ -85,7 +85,7 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
 
 llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
-  TAN_ASSERT(p == p->get_canonical());
+  TAN_ASSERT(!p->is_ref());
 
   auto it = cs->llvm_type_cache.find(p);
   if (it != cs->llvm_type_cache.end()) {
@@ -142,7 +142,7 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
-  TAN_ASSERT(p == p->get_canonical());
+  TAN_ASSERT(!p->is_ref());
 
   auto it = cs->llvm_metadata_cache.find(p);
   if (it != cs->llvm_metadata_cache.end()) {
@@ -243,6 +243,7 @@ Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Expr *expr) {
 }
 
 bool TypeSystem::CanImplicitlyConvert(Type *from, Type *to) {
+  TAN_ASSERT(from && to);
   // TODO: implicit cast
   return from == to;
 }

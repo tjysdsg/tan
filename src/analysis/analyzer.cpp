@@ -98,17 +98,19 @@ private:
     p->set_type(p->get_type());
   }
 
-  void analyze_ty(Type *p, SrcLoc loc) {
+  Type *analyze_ty(Type *p, SrcLoc loc) {
+    Type *ret = p;
     /// Resolve type references
-
-    if (p->is_ref() && p->get_canonical() == p) {
+    if (p->is_ref()) {
       auto *decl = _ctx->get_type_decl(p->get_typename());
       if (!decl) {
         Error err(_ctx->_filename, _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
         err.raise();
       }
-      p->set_canonical(decl->get_type());
+      ret = decl->get_type();
     }
+
+    return ret;
   }
 
   void analyze_id(ASTBase *_p) {
@@ -116,9 +118,9 @@ private:
     auto *referred = _ctx->get_decl(p->get_name());
     if (referred) { /// refers to a variable
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-      p->set_type(referred->get_type());
+      p->set_type(analyze_ty(referred->get_type(), p->loc()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = _ctx->get_type_decl(p->get_name())->get_type();
+      auto *ty = analyze_ty(_ctx->get_type_decl(p->get_name())->get_type(), p->loc());
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
@@ -155,15 +157,14 @@ private:
 
     /// analyze type if specified
     Type *ty = p->get_type();
-    if (ty) { analyze_ty(ty, p->loc()); }
+    if (ty) { p->set_type(analyze_ty(ty, p->loc())); }
 
     _ctx->add_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_must_cast<ArgDecl>(_p);
-    Type *ty = p->get_type();
-    analyze_ty(ty, p->loc());
+    p->set_type(analyze_ty(p->get_type(), p->loc()));
     _ctx->add_decl(p->get_name(), p);
   }
 
@@ -296,7 +297,7 @@ private:
     auto *p = ast_must_cast<Cast>(_p);
     Expr *lhs = p->get_lhs();
     analyze(lhs);
-    analyze_ty(p->get_type(), p->loc());
+    p->set_type(analyze_ty(p->get_type(), p->loc()));
   }
 
   void analyze_assignment(ASTBase *_p) {
@@ -305,7 +306,7 @@ private:
     Expr *rhs = p->get_rhs();
     analyze(rhs);
 
-    auto lhs = p->get_lhs();
+    auto *lhs = p->get_lhs();
     Type *lhs_type = nullptr;
     switch (lhs->get_node_type()) {
       case ASTNodeType::ID:
@@ -343,7 +344,8 @@ private:
 
     p->set_lvalue(true);
 
-    if (!TypeSystem::CanImplicitlyConvert(rhs->get_type(), lhs_type)) {
+    Type *rhs_type = rhs->get_type();
+    if (!TypeSystem::CanImplicitlyConvert(rhs_type, lhs_type)) {
       report_error(p, "Cannot implicitly cast rhs to lhs");
     }
     p->set_type(lhs_type);
@@ -372,8 +374,7 @@ private:
     _ctx->add_function(p);
 
     /// analyze return type
-    p->set_ret_type(p->get_ret_ty()->get_canonical());
-    analyze_ty(p->get_ret_ty(), p->loc());
+    p->set_ret_type(analyze_ty(p->get_ret_ty(), p->loc()));
 
     _ctx->push_scope(); /// new scope
 
@@ -654,12 +655,14 @@ private:
     } else {
       struct_ty = lhs->get_type();
     }
+
+    struct_ty = analyze_ty(struct_ty, lhs->loc());
     if (!struct_ty->is_struct()) { report_error(lhs, "Expect a struct type"); }
 
     auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
     auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
-    p->set_type(ty);
+    p->set_type(analyze_ty(ty, p->loc()));
   }
 
   void analyze_member_access(MemberAccess *p) {

@@ -122,7 +122,7 @@ VarRef *Identifier::get_var_ref() const {
 
 Type *Identifier::get_type_ref() const {
   TAN_ASSERT(_id_type == IdentifierType::ID_TYPE_DECL);
-  return _type_ref->get_canonical();
+  return _type_ref;
 }
 
 void Identifier::set_var_ref(VarRef *var_ref) {
@@ -132,7 +132,7 @@ void Identifier::set_var_ref(VarRef *var_ref) {
 
 void Identifier::set_type_ref(Type *type_ref) {
   _id_type = IdentifierType::ID_TYPE_DECL;
-  _type_ref = type_ref->get_canonical();
+  _type_ref = type_ref;
 }
 
 bool Identifier::is_lvalue() {
@@ -317,7 +317,7 @@ ASTBase *BinaryOrUnary::get() const { return get_expr_ptr(); }
 
 Type *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
 
-void BinaryOrUnary::set_type(Type *type) { get_expr_ptr()->set_type(type->get_canonical()); }
+void BinaryOrUnary::set_type(Type *type) { get_expr_ptr()->set_type(type); }
 
 vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->get_children(); }
 

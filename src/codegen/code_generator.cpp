@@ -465,7 +465,7 @@ private:
 
   Value *codegen_type_instantiation(Type *p) {
     // TODO: TAN_ASSERT(p->get_constructor());
-    p = p->get_canonical();
+    TAN_ASSERT(!p->is_ref());
 
     Value *ret = nullptr;
     if (p->is_primitive()) { /// primitive types

@@ -410,9 +410,8 @@ private:
     p->set_lhs(lhs);
 
     /// rhs
-    auto* ty = peek_type();
-    parse_ty(ty);
-    p->set_type(ty->get_canonical());
+    auto *ty = peek_type();
+    p->set_type(parse_ty(ty));
   }
 
   void parse_generic_token(ASTBase *) {
@@ -635,8 +634,7 @@ private:
 
     /// function return type
     auto *ret_type = peek_type();
-    parse_ty(ret_type);
-    p->set_ret_type(ret_type);
+    p->set_ret_type(parse_ty(ret_type));
 
     /// body
     if (!is_external) {
@@ -874,20 +872,20 @@ private:
     return ret;
   }
 
-  void parse_ty(Type *p) {
-    Type *canonical = nullptr;
+  Type *parse_ty(Type *p) {
+    Type *ret = p;
 
     while (!eof(_curr)) {
       Token *token = at(_curr);
 
       auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
       if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
-        canonical = PrimitiveType::Create(it->second);
+        ret = PrimitiveType::Create(it->second);
       } else if (token->get_value() == "*") { /// pointer
-        TAN_ASSERT(canonical);
-        canonical = Type::GetPointerType(canonical);
+        TAN_ASSERT(ret);
+        ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {
-        canonical = Type::GetStringType();
+        ret = Type::GetStringType();
       } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
         /// type referred will be resolved in analysis phase
       } else {
@@ -899,11 +897,11 @@ private:
     /// array
     Token *token = at(_curr);
     if (token->get_value() == "[") {
-      TAN_ASSERT(canonical);
-      canonical = parse_ty_array(canonical);
+      TAN_ASSERT(ret);
+      ret = parse_ty_array(ret);
     }
 
-    p->set_canonical(canonical);
+    return ret;
   }
 
   void parse_var_decl(ASTBase *_p) {
@@ -920,8 +918,7 @@ private:
     if (at(_curr)->get_value() == ":") {
       _curr.offset_by(1);
       Type *ty = peek_type();
-      parse_ty(ty);
-      p->set_type(ty);
+      p->set_type(parse_ty(ty));
     }
   }
 
@@ -938,8 +935,7 @@ private:
 
     /// type
     Type *ty = peek_type();
-    parse_ty(ty);
-    p->set_type(ty);
+    p->set_type(parse_ty(ty));
   }
 
   void parse_enum_decl(ASTBase *_p) {

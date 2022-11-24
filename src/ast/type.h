@@ -18,7 +18,6 @@ class StructDecl;
  */
 class Type {
 public:
-  // TODO IMPORTANT: move these into CompilerSession
   [[nodiscard]] static PrimitiveType *GetVoidType();
   [[nodiscard]] static PrimitiveType *GetBoolType();
   [[nodiscard]] static PrimitiveType *GetCharType();
@@ -28,6 +27,8 @@ public:
   [[nodiscard]] static StringType *GetStringType();
   [[nodiscard]] static PointerType *GetPointerType(Type *pointee);
   [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
+
+  // TODO: CompilerSession specific?
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
@@ -49,17 +50,12 @@ public:
   virtual bool is_enum();
 
   const str &get_typename() { return _type_name; }
-  Type *get_canonical() const;
-  void set_canonical(Type *t);
 
 protected:
   Type() = default;
 
 protected:
   str _type_name{};
-
-private:
-  Type *_canonical_type = nullptr;
 
   // type cache
   static StringType *STRING_TYPE;
