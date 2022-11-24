@@ -108,6 +108,10 @@ private:
         err.raise();
       }
       ret = decl->get_type();
+    } else if (p->is_pointer()) {
+      ret = Type::GetPointerType(  /// "flatten" pointer that points to a TypeRef
+          analyze_ty(((PointerType *) p)->get_pointee(), loc) //
+      );
     }
 
     return ret;
@@ -380,9 +384,13 @@ private:
 
     /// analyze args
     size_t n = p->get_n_args();
+    const auto &arg_decls = p->get_arg_decls();
+    vector<Type *> arg_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
-      analyze(p->get_arg_decls()[i]); /// args will be added to the scope here
+      analyze(arg_decls[i]); /// args will be added to the scope here
+      arg_types[i] = arg_decls[i]->get_type();
     }
+    p->set_arg_types(std::move(arg_types)); // update the types
 
     /// function body
     if (!p->is_external()) {
