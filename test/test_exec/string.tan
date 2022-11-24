@@ -5,12 +5,17 @@ import "runtime/stdlib.tan";
 
 pub fn main(argc: int, argv: char**) : int {
     // TODO IMPORTANT: CreateGlobalStringPtr doesn't create a mutable string
-    // var array_str = "123456";
+    var s = "123456";
 
     var array: i8[3];
     var array_str = array as str;
     array_str[0] = 'a';
     array_str[1] = 'b';
+    array_str[2] = 0 as char;
+    print(array_str);
+
+    array_str[0] = s[1];
+    array_str[1] = s[0];
     array_str[2] = 0 as char;
     print(array_str);
 

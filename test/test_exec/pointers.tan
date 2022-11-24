@@ -17,7 +17,7 @@ pub fn main() : int {
 
     var a: A;
     a.a = 100;
-    a.b = -2.5;  // TODO: implicit cast
+    a.b = -2.5;
     var shit = &a;
     assert(shit.a == 100);
     assert(*shit.a == 100);
