@@ -12,75 +12,75 @@ bool Type::is_canonical() { return !_canonical_type; }
 
 void Type::set_canonical(Type *t) { _canonical_type = t; }
 
-StringType *Type::GetStringType(SrcLoc loc) { return new StringType(loc); }
+StringType *Type::GetStringType() { return new StringType(); }
 
-PrimitiveType *PrimitiveType::Create(SrcLoc loc, PrimitiveType::Kind kind) {
-  auto *ret = new PrimitiveType(loc);
+PrimitiveType *PrimitiveType::Create(PrimitiveType::Kind kind) {
+  auto *ret = new PrimitiveType();
   ret->_kind = kind;
   ret->_type_name = TYPE_NAMES[kind];
   return ret;
 }
 
-PrimitiveType *Type::GetVoidType(SrcLoc loc) {
-  return PrimitiveType::Create(loc, PrimitiveType::VOID);
+PrimitiveType *Type::GetVoidType() {
+  return PrimitiveType::Create(PrimitiveType::VOID);
 }
 
-PrimitiveType *Type::GetBoolType(SrcLoc loc) {
-  return PrimitiveType::Create(loc, PrimitiveType::BOOL);
+PrimitiveType *Type::GetBoolType() {
+  return PrimitiveType::Create(PrimitiveType::BOOL);
 }
 
-PrimitiveType *Type::GetCharType(SrcLoc loc) {
-  return PrimitiveType::Create(loc, PrimitiveType::CHAR);
+PrimitiveType *Type::GetCharType() {
+  return PrimitiveType::Create(PrimitiveType::CHAR);
 }
 
-PrimitiveType *Type::GetIntegerType(SrcLoc loc, size_t bit_size, bool is_unsigned) {
+PrimitiveType *Type::GetIntegerType(size_t bit_size, bool is_unsigned) {
   switch (bit_size) {
     case 8:
       if (is_unsigned) {
-        return PrimitiveType::Create(loc, PrimitiveType::U8);
+        return PrimitiveType::Create(PrimitiveType::U8);
       } else {
-        return PrimitiveType::Create(loc, PrimitiveType::I8);
+        return PrimitiveType::Create(PrimitiveType::I8);
       }
     case 16:
       if (is_unsigned) {
-        return PrimitiveType::Create(loc, PrimitiveType::U16);
+        return PrimitiveType::Create(PrimitiveType::U16);
       } else {
-        return PrimitiveType::Create(loc, PrimitiveType::I16);
+        return PrimitiveType::Create(PrimitiveType::I16);
       }
     case 32:
       if (is_unsigned) {
-        return PrimitiveType::Create(loc, PrimitiveType::U32);
+        return PrimitiveType::Create(PrimitiveType::U32);
       } else {
-        return PrimitiveType::Create(loc, PrimitiveType::I32);
+        return PrimitiveType::Create(PrimitiveType::I32);
       }
     case 64:
       if (is_unsigned) {
-        return PrimitiveType::Create(loc, PrimitiveType::U64);
+        return PrimitiveType::Create(PrimitiveType::U64);
       } else {
-        return PrimitiveType::Create(loc, PrimitiveType::I64);
+        return PrimitiveType::Create(PrimitiveType::I64);
       }
     default:
       TAN_ASSERT(false);
   }
 }
 
-PrimitiveType *Type::GetFloatType(SrcLoc loc, size_t bit_size) {
+PrimitiveType *Type::GetFloatType(size_t bit_size) {
   switch (bit_size) {
     case 32:
-      return PrimitiveType::Create(loc, PrimitiveType::F32);
+      return PrimitiveType::Create(PrimitiveType::F32);
     case 64:
-      return PrimitiveType::Create(loc, PrimitiveType::F64);
+      return PrimitiveType::Create(PrimitiveType::F64);
     default:
       TAN_ASSERT(false);
   }
 }
 
-PointerType *Type::GetPointerType(SrcLoc loc, Type *pointee) {
-  return new PointerType(loc, pointee);
+PointerType *Type::GetPointerType(Type *pointee) {
+  return new PointerType(pointee);
 }
 
-ArrayType *Type::GetArrayType(SrcLoc loc, Type *element_type, int size) {
-  return new ArrayType(loc, element_type, size);
+ArrayType *Type::GetArrayType(Type *element_type, int size) {
+  return new ArrayType(element_type, size);
 }
 
 bool Type::is_primitive() {
@@ -153,18 +153,18 @@ int PrimitiveType::get_align_bits() {
   return SIZE_BITS[_kind]; // the same as their sizes
 }
 
-PointerType::PointerType(SrcLoc loc, Type *pointee_type) : Type(loc), _pointee_type(pointee_type) {
+PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
   _type_name = pointee_type->get_typename() + "*";
 }
 
-ArrayType::ArrayType(SrcLoc loc, Type *element_type, int size) : Type(loc), _element_type(element_type), _size(size) {
+ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
 }
 
-TypeRef::TypeRef(SrcLoc loc, str name) : Type(loc) {
+TypeRef::TypeRef(str name) {
   _type_name = name;
 }
 
-StringType::StringType(SrcLoc loc) : Type(loc) {
+StringType::StringType() {
   _type_name = "str";
 }

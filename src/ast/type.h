@@ -16,18 +16,18 @@ class StructType;
 class Type : public ASTBase {
 public:
   // TODO IMPORTANT: avoid duplicated instantiation
-  [[nodiscard]] static PrimitiveType *GetVoidType(SrcLoc loc);
-  [[nodiscard]] static PrimitiveType *GetBoolType(SrcLoc loc);
-  [[nodiscard]] static PrimitiveType *GetCharType(SrcLoc loc);
-  [[nodiscard]] static PrimitiveType *GetIntegerType(SrcLoc loc, size_t bit_size, bool is_unsigned);
-  [[nodiscard]] static PrimitiveType *GetFloatType(SrcLoc loc, size_t bit_size);
+  [[nodiscard]] static PrimitiveType *GetVoidType();
+  [[nodiscard]] static PrimitiveType *GetBoolType();
+  [[nodiscard]] static PrimitiveType *GetCharType();
+  [[nodiscard]] static PrimitiveType *GetIntegerType(size_t bit_size, bool is_unsigned);
+  [[nodiscard]] static PrimitiveType *GetFloatType(size_t bit_size);
 
-  [[nodiscard]] static StringType *GetStringType(SrcLoc loc);
-  [[nodiscard]] static PointerType *GetPointerType(SrcLoc loc, Type *pointee);
-  [[nodiscard]] static ArrayType *GetArrayType(SrcLoc loc, Type *element_type, int size);
+  [[nodiscard]] static StringType *GetStringType();
+  [[nodiscard]] static PointerType *GetPointerType(Type *pointee);
+  [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
 
 public:
-  Type(SrcLoc loc) : ASTBase(ASTNodeType::TY, loc, 0) {};
+  Type() : ASTBase(ASTNodeType::TY, SrcLoc(0), 0) {};
 
   virtual bool is_primitive();
   virtual bool is_pointer();
@@ -70,12 +70,12 @@ public:
           {"u64", U64}, {"float", F32}, {"f32", F32}, {"f64", F64}, {"void", VOID}, {"char", CHAR}, {"bool", BOOL}};
 
 public:
-  [[nodiscard]] static PrimitiveType *Create(SrcLoc loc, Kind kind);
+  [[nodiscard]] static PrimitiveType *Create(Kind kind);
 
   bool is_primitive() override { return true; }
 
 protected:
-  PrimitiveType(SrcLoc loc) : Type(loc) {}
+  PrimitiveType() = default;
 
 private:
   Kind _kind;
@@ -100,7 +100,7 @@ public:
   friend class Type;
 
 protected:
-  PointerType(SrcLoc loc, Type *pointee_type);
+  PointerType(Type *pointee_type);
 
 private:
   Type *_pointee_type = nullptr;
@@ -111,7 +111,7 @@ public:
   friend class Type;
 
 protected:
-  ArrayType(SrcLoc loc, Type *element_type, int size);
+  ArrayType(Type *element_type, int size);
 
 private:
   Type *_element_type = nullptr;
@@ -125,7 +125,7 @@ public:
   friend class Type;
 
 protected:
-  StringType(SrcLoc loc);
+  StringType();
 };
 
 class StructType : public Type {
@@ -133,7 +133,7 @@ class StructType : public Type {
 
 class TypeRef : public Type {
 public:
-  TypeRef(SrcLoc loc, str name);
+  TypeRef(str name);
   bool is_ref() { return true; }
 };
 
