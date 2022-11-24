@@ -1,6 +1,6 @@
 #include "src/codegen/code_generator.h"
 #include "src/ast/ast_base.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/ast/ast_context.h"
 #include "src/ast/constructor.h"
 #include "src/ast/expr.h"
@@ -109,22 +109,22 @@ public:
   }
 
   static Function *CodegenFuncPrototype(CompilerSession *cs,
-      ASTType *ret_ty,
+      Type *ret_ty,
       str name,
-      vector<ASTType *> arg_tys,
+      vector<Type *> arg_tys,
       bool is_external,
       bool is_public,
       bool is_imported) {
-    Type *ret_type = TypeSystem::ToLLVMType(cs, ret_ty);
+    llvm::Type *ret_type = TypeSystem::ToLLVMType(cs, ret_ty);
 
     /// set function arg types
-    vector<Type *> args{};
-    std::for_each(arg_tys.begin(), arg_tys.end(), [&](ASTType *t) {
+    vector<llvm::Type *> args{};
+    std::for_each(arg_tys.begin(), arg_tys.end(), [&](Type *t) {
       args.push_back(TypeSystem::ToLLVMType(cs, t));
     });
 
     /// create function prototype
-    FunctionType *FT = FunctionType::get(ret_type, args, false);
+    llvm::FunctionType *FT = llvm::FunctionType::get(ret_type, args, false);
     auto linkage = Function::InternalLinkage;
     if (is_external) {
       linkage = Function::ExternalWeakLinkage;
@@ -177,7 +177,7 @@ private:
 
   Value *codegen_func_prototype(FunctionDecl *p, bool import = false) {
     /// set function arg types
-    vector<ASTType *> arg_types{};
+    vector<Type *> arg_types{};
     for (size_t i = 0; i < p->get_n_args(); ++i) {
       arg_types.push_back(p->get_arg_type(i));
     }
@@ -269,7 +269,7 @@ private:
 
       /// create a return instruction if there is none, the return value is the default value of the return type
       if (!builder->GetInsertBlock()->back().isTerminator()) {
-        if (ret_ty->get_ty() == Ty::VOID) {
+        if (ret_ty->is_void()) {
           builder->CreateRetVoid();
         } else {
           auto *ret_val = codegen_type_instantiation(ret_ty);
@@ -354,10 +354,12 @@ private:
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
-    if (!p->get_type()->is_resolved()) {
-      report_error(p, "Unknown type");
-    }
-    Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
+    // TODO IMPORTANT: check if type is inferred succesfully
+    // if (!p->get_type()->is_resolved()) {
+    //   report_error(p, "Unknown type");
+    // }
+
+    llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
 
     /// default value of only var declaration
@@ -461,52 +463,63 @@ private:
         std::transform(sub_ctrs.begin(), sub_ctrs.end(), values.begin(), [&](Constructor *c) {
           return (Constant *) codegen_constructor(c);
         });
-        ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, ctr->get_struct_type()), values);
+        ret = ConstantStruct::get((llvm::StructType *) TypeSystem::ToLLVMType(_cs, ctr->get_struct_type()), values);
         break;
       }
       default:
         TAN_ASSERT(false);
-        break;
     }
     return ret;
   }
 
-  Value *codegen_type_instantiation(ASTType *p) {
-    TAN_ASSERT(p->is_resolved());
+  Value *codegen_type_instantiation(Type *p) {
     // TODO: TAN_ASSERT(p->get_constructor());
+    p = p->get_canonical();
 
-    Ty base = TY_GET_BASE(p->get_ty());
     Value *ret = nullptr;
-    switch (base) {
-      case Ty::ENUM:
-      case Ty::BOOL:
-      case Ty::INT:
-      case Ty::CHAR:
-      case Ty::FLOAT:
-      case Ty::STRING:
-      case Ty::ARRAY:
-      case Ty::POINTER:
-        ret = codegen_constructor(p->get_constructor());
-        break;
-      case Ty::VOID:
+    if (p->is_primitive()) { /// primitive types
+      int size_bits = ast_must_cast<PrimitiveType>(p)->get_size_bits();
+
+      if (p->is_int()) {
+        ret = codegen_constructor(BasicConstructor::CreateIntegerConstructor(SrcLoc(0),
+            0,
+            (size_t) size_bits,
+            p->is_unsigned()));
+      } else if (p->is_char()) {
+        ret = codegen_constructor(BasicConstructor::CreateCharConstructor(SrcLoc(0), 0));
+      } else if (p->is_bool()) {
+        ret = codegen_constructor(BasicConstructor::CreateBoolConstructor(SrcLoc(0), false));
+      } else if (p->is_float()) {
+        ret = codegen_constructor(BasicConstructor::CreateFPConstructor(SrcLoc(0), 0, (size_t) size_bits));
+      } else {
         TAN_ASSERT(false);
-      case Ty::STRUCT: {
-        // TODO: use codegen_constructor()
-        vector<Constant *> values{};
-        size_t n = p->get_sub_types().size();
-        for (size_t i = 0; i < n; ++i) {
-          values.push_back((llvm::Constant *) codegen_type_instantiation(p->get_sub_types()[i]));
-        }
-        ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
-        break;
       }
-      case Ty::TYPE_REF: {
-        ret = codegen_type_instantiation(p->get_canonical_type());
-        break;
+    } else if (p->is_string()) { /// str as char*
+      ret = codegen_constructor(BasicConstructor::CreateStringConstructor(SrcLoc(0), ""));
+    } else if (p->is_enum()) { /// enums
+      // TODO IMPORTANT
+      TAN_ASSERT(false);
+    } else if (p->is_struct()) { /// struct
+      /* TODO IMPORTANT
+      // TODO: use codegen_constructor()
+      vector<Constant *> values{};
+      size_t n = p->get_sub_types().size();
+      for (size_t i = 0; i < n; ++i) {
+        values.push_back((llvm::Constant *) codegen_type_instantiation(p->get_sub_types()[i]));
       }
-      default:
-        TAN_ASSERT(false);
+      ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
+      */
+      TAN_ASSERT(false);
+    } else if (p->is_array()) { /// array as pointer
+      ret = codegen_constructor(BasicConstructor::CreateArrayConstructor(SrcLoc(0),
+          ast_must_cast<ArrayType>(p)->get_element_type()));
+    } else if (p->is_pointer()) { /// the pointer literal is nullptr
+      ret = codegen_constructor(BasicConstructor::CreateNullPointerConstructor(SrcLoc(0),
+          ast_must_cast<PointerType>(p)->get_pointee()));
+    } else {
+      TAN_ASSERT(false);
     }
+
     return ret;
   }
 
@@ -516,57 +529,55 @@ private:
     set_current_debug_location(p);
     auto *builder = _cs->_builder;
 
-    Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
+    llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     Value *ret = nullptr;
-    Ty t = TY_GET_BASE(p->get_type()->get_ty());
-    switch (t) {
-      case Ty::CHAR:
+    Type *ptype = p->get_type();
+    if (ptype->is_primitive()) { /// primitive types
+      int size_bits = ast_must_cast<PrimitiveType>(ptype)->get_size_bits();
+
+      if (ptype->is_int()) {
+        auto pp = ast_must_cast<IntegerLiteral>(p);
+        ret = CodegenIntegerLiteral(_cs, pp->get_value(), (size_t) size_bits, pp->is_unsigned());
+      } else if (ptype->is_char()) {
         ret = ConstantInt::get(type, ast_must_cast<CharLiteral>(p)->get_value());
-        break;
-      case Ty::BOOL: {
+      } else if (ptype->is_bool()) {
         auto pp = ast_must_cast<BoolLiteral>(p);
         ret = ConstantInt::get(type, (uint64_t) pp->get_value());
-        break;
-      }
-      case Ty::ENUM:
-      case Ty::INT: {
-        auto pp = ast_must_cast<IntegerLiteral>(p);
-        ret = CodegenIntegerLiteral(_cs, pp->get_value(), pp->get_type()->get_size_bits(), pp->is_unsigned());
-        break;
-      }
-      case Ty::STRING:
-        ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
-        break;
-      case Ty::FLOAT:
+      } else if (ptype->is_float()) {
         ret = ConstantFP::get(type, ast_must_cast<FloatLiteral>(p)->get_value());
-        break;
-      case Ty::ARRAY: {
-        auto arr = ast_must_cast<ArrayLiteral>(p);
-
-        /// element type
-        auto elements = arr->get_elements();
-        vector<ASTType *> sub_types = arr->get_type()->get_sub_types();
-        TAN_ASSERT(!sub_types.empty());
-        auto *e_type = TypeSystem::ToLLVMType(_cs, sub_types[0]);
-
-        /// codegen element values
-        size_t n = elements.size();
-        ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
-        for (size_t i = 0; i < n; ++i) {
-          auto *idx = builder->getInt32((unsigned) i);
-          auto *e_val = codegen(elements[i]);
-          auto *e_ptr = builder->CreateGEP(ret, idx);
-          builder->CreateStore(e_val, e_ptr);
-        }
-        break;
-      }
-      case Ty::POINTER:
-        /// the pointer literal is nullptr
-        ret = ConstantPointerNull::get((PointerType *) type);
-        break;
-      default:
+      } else {
         TAN_ASSERT(false);
+      }
+    } else if (ptype->is_string()) { /// str as char*
+      ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
+    } else if (ptype->is_enum()) { /// enums
+      // TODO IMPORTANT
+      TAN_ASSERT(false);
+    } else if (ptype->is_struct()) { /// struct
+      // TODO IMPORTANT
+      TAN_ASSERT(false);
+    } else if (ptype->is_array()) { /// array as pointer
+      auto arr = ast_must_cast<ArrayLiteral>(p);
+
+      /// element type
+      auto elements = arr->get_elements();
+      auto *e_type = TypeSystem::ToLLVMType(_cs, ast_must_cast<ArrayType>(ptype));
+
+      /// codegen element values
+      size_t n = elements.size();
+      ret = create_block_alloca(builder->GetInsertBlock(), e_type, n, "const_array");
+      for (size_t i = 0; i < n; ++i) {
+        auto *idx = builder->getInt32((unsigned) i);
+        auto *e_val = codegen(elements[i]);
+        auto *e_ptr = builder->CreateGEP(ret, idx);
+        builder->CreateStore(e_val, e_ptr);
+      }
+    } else if (ptype->is_pointer()) { /// the pointer literal is nullptr
+      ret = ConstantPointerNull::get((llvm::PointerType *) type);
+    } else {
+      TAN_ASSERT(false);
     }
+
     return ret;
   }
 
@@ -1050,8 +1061,7 @@ private:
         Value *cond_v = codegen(cond);
         if (!cond_v) { report_error(p, "Invalid condition expression "); }
         /// convert to bool
-        // TODO: do this in analysis phase, and remove ASTContext from this
-        cond_v = TypeSystem::ConvertTo(_cs, cond, ASTType::CreateAndResolve(_ctx, cond->loc(), Ty::BOOL));
+        cond_v = TypeSystem::ConvertTo(_cs, cond, Type::GetBoolType());
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
@@ -1093,7 +1103,8 @@ private:
         break;
       }
       case MemberAccess::MemberAccessMemberVariable: {
-        if (lhs->is_lvalue() && lhs->get_type()->is_ptr() && lhs->get_type()->get_contained_ty()) {
+        if (lhs->is_lvalue() && lhs->get_type()->is_pointer()
+            && ast_must_cast<PointerType>(lhs->get_type())->get_pointee()) {
           /// auto dereference pointers
           from = builder->CreateLoad(from);
         }
@@ -1109,7 +1120,7 @@ private:
         str element_name = ast_must_cast<Identifier>(rhs)->get_name();
         int64_t val = enum_decl->get_value(element_name);
 
-        ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
+        // TODO IMPORTANT: ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
         break;
       }
       default:

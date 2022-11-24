@@ -1,49 +1,51 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
-struct Fuck;
-struct Useless;
-
-struct Useless {
-    // var shit: i8 = 1 as i8;
-    var shit: i8;
-    var f: float;
-    var pfuck: Fuck*;
-    var fuck: Fuck;
-}
-
-struct Fuck {
-    // var val: i32 = 2;
-    var val: i32;
-}
-
-fn set_fuck(self: Fuck*, val: i32) : void {
-    self.val = val;
-}
+// struct Fuck;
+// struct Useless;
+//
+// struct Useless {
+//     // var shit: i8 = 1 as i8;
+//     var shit: i8;
+//     var f: float;
+//     var pfuck: Fuck*;
+//     var fuck: Fuck;
+// }
+//
+// struct Fuck {
+//     // var val: i32 = 2;
+//     var val: i32;
+// }
+//
+// fn set_fuck(self: Fuck*, val: i32) : void {
+//     self.val = val;
+// }
 
 pub fn main(argc: int, argv: u8**) : i32 {
-    var s: Useless;
-    var f: Fuck;
-    s.pfuck = &f; // pointer
-    s.fuck = f; // copy
+    // var s: Useless;
+    // var f: Fuck;
+    // s.pfuck = &f; // pointer
+    // s.fuck = f; // copy
+
     // TODO: assert(s.shit == 1);
     // TODO: assert(s.fuck.val == 2);
     // TODO: assert(s.pfuck.val == 2);
-    s.shit = 100 as i8;
-    s.f = 1.0;
-    s.fuck.val = 11;
-    s.pfuck.val = 12;
-    assert(s.fuck.val == 11);
-    assert(s.pfuck.val == 12);
-    var shit: i8 = s.shit;
-    assert(s.shit == 100 as i8);
-    assert(shit == 100 as i8);
-    assert(s.f == 1.0);
 
-    s.fuck.set_fuck(20);
-    assert(s.fuck.val == 20);
-    s.pfuck.set_fuck(21);
-    assert(s.pfuck.val == 21);
+    // s.shit = 100 as i8;
+    // s.f = 1.0;
+    // s.fuck.val = 11;
+    // s.pfuck.val = 12;
+    // assert(s.fuck.val == 11);
+    // assert(s.pfuck.val == 12);
+    // var shit: i8 = s.shit;
+    // assert(s.shit == 100 as i8);
+    // assert(shit == 100 as i8);
+    // assert(s.f == 1.0);
+
+    // s.fuck.set_fuck(20);
+    // assert(s.fuck.val == 20);
+    // s.pfuck.set_fuck(21);
+    // assert(s.pfuck.val == 21);
 
     print("SUCCESS\n");
     return 0;
