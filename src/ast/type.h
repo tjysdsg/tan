@@ -11,6 +11,7 @@ class PointerType;
 class ArrayType;
 class TypeRef;
 class StructType;
+class StructDecl;
 
 // TODO IMPORTANT: remove dependency from ASTBase
 /**
@@ -18,7 +19,7 @@ class StructType;
  */
 class Type : public ASTBase {
 public:
-  // TODO IMPORTANT: avoid duplicated instantiation
+  // TODO IMPORTANT: move these into CompilerSession
   [[nodiscard]] static PrimitiveType *GetVoidType();
   [[nodiscard]] static PrimitiveType *GetBoolType();
   [[nodiscard]] static PrimitiveType *GetCharType();
@@ -28,10 +29,10 @@ public:
   [[nodiscard]] static StringType *GetStringType();
   [[nodiscard]] static PointerType *GetPointerType(Type *pointee);
   [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
+  [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
+  [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
 public:
-  Type() : ASTBase(ASTNodeType::TY, SrcLoc(0), 0) {};
-
   virtual bool is_primitive();
   virtual bool is_pointer();
   virtual bool is_array();
@@ -51,6 +52,9 @@ public:
   void set_canonical(Type *t);
 
 protected:
+  Type() : ASTBase(ASTNodeType::TY, SrcLoc(0), 0) {};
+
+protected:
   str _type_name{};
 
 private:
@@ -61,6 +65,8 @@ private:
   static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{}; // pointee type -> pointer type
   static inline umap<std::pair<Type *, int>, ArrayType *, PairHash>
       ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
+  static inline umap<str, StructType *> STRUCT_TYPE_CACHE{}; // struct_name -> pointer type
+  static inline umap<str, TypeRef *> TYPE_REF_CACHE{}; // name -> pointer type
 };
 
 class PrimitiveType : public Type {
@@ -141,17 +147,30 @@ protected:
   StringType();
 };
 
-class StructDecl;
 class StructType : public Type {
 public:
   bool is_struct() override { return true; }
+  vector<Type *> get_member_types() const { return _member_types; };
 
   friend class Type;
 
 protected:
-  StructType(const str &name, StructDecl *struct_decl) {
-    _type_name = name;
-  }
+  StructType(const str &name, const vector<Type *> &member_types);
+
+private:
+  vector<Type *> _member_types{};
+};
+
+/**
+ * \brief Placeholder during parsing
+ */
+class TypeRef : public Type {
+public:
+  friend class Type;
+  bool is_ref() override { return true; }
+
+protected:
+  TypeRef(const str &name);
 };
 
 }

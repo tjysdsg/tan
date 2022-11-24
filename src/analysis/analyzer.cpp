@@ -1,7 +1,6 @@
 #include "analyzer.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_builder.h"
-#include "src/ast/constructor.h"
 #include "src/ast/type.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
@@ -124,8 +123,14 @@ private:
   }
 
   void analyze_ty(ASTBase *_p) {
+    /// Resolve type references
+
     auto *p = ast_must_cast<Type>(_p);
-    // TODO IMPORTANT
+    if (p->is_ref() && p->get_canonical() == p) {
+      auto *decl = _ctx->get_type_decl(p->get_typename());
+      if (!decl) { report_error(p, fmt::format("Unknown type {}", p->get_typename())); }
+      p->set_canonical(decl->get_type());
+    }
   }
 
   void analyze_id(ASTBase *_p) {
@@ -174,9 +179,7 @@ private:
 
     /// analyze type if specified
     Type *ty = p->get_type();
-    if (ty) {
-      analyze(ty);
-    }
+    if (ty) { analyze_ty(ty); }
 
     _ctx->add_decl(p->get_name(), p);
   }
@@ -682,7 +685,6 @@ private:
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
-    /* TODO IMPORTANT: FIX THIS
     analyze(rhs);
 
     str m_name = ast_must_cast<Identifier>(rhs)->get_name();
@@ -693,15 +695,12 @@ private:
     } else {
       struct_ty = lhs->get_type();
     }
-    struct_ty = struct_ty->get_canonical_type(); /// resolve type references
-    if (struct_ty->get_ty() != Ty::STRUCT) { report_error(lhs, "Expect a struct type"); }
+    if (!struct_ty->is_struct()) { report_error(lhs, "Expect a struct type"); }
 
-    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
+    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
-    auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
+    auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
     p->set_type(ty);
-    */
-    TAN_ASSERT(false);
   }
 
   void analyze_member_access(MemberAccess *p) {
@@ -729,10 +728,8 @@ private:
   }
 
   void analyze_struct_decl(ASTBase *_p) {
-    /* TODO IMPORTANT: FIX THIS
     auto p = ast_must_cast<StructDecl>(_p);
 
-    Type *ty = nullptr;
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
     str struct_name = p->get_name();
@@ -742,21 +739,12 @@ private:
           && ast_must_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
         report_error(p, "Cannot redeclare type as a struct");
       }
-    } else {
-      ty = Type::Create(_ctx, p->loc());
-      ty->set_ty(Ty::STRUCT);
-      ty->set_constructor(StructConstructor::Create(ty));
-      _ctx->add_type_decl(struct_name, p); /// add_decl self to current scope
     }
-    ty->set_type_name(struct_name);
-
-    /// register type to context
-    _ctx->add_type_decl(struct_name, p);
 
     /// resolve member names and types
     auto member_decls = p->get_member_decls();  // size is 0 if no struct body
     size_t n = member_decls.size();
-    ty->get_sub_types().reserve(n);
+    vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
       analyze(m);
@@ -765,10 +753,8 @@ private:
         /// fill members
         str name = ast_must_cast<VarDecl>(m)->get_name();
         p->set_member_index(name, i);
-        ty->get_sub_types().push_back(m->get_type());
-      }
-        /// member variable with an initial value
-      else if (m->get_node_type() == ASTNodeType::ASSIGN) {
+        child_types[i] = m->get_type();
+      } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
         auto bm = ast_must_cast<Assignment>(m);
         auto init_val = bm->get_rhs();
 
@@ -778,29 +764,30 @@ private:
         auto decl = ast_must_cast<VarDecl>(bm->get_lhs());
 
         /// fill members
-        ty->get_sub_types().push_back(decl->get_type());
+        child_types[i] = decl->get_type();
         p->set_member_index(decl->get_name(), i);
 
         /// initial values
         if (!init_val->is_comptime_known()) {
           report_error(p, "Initial value of a member variable must be compile-time known");
         }
-        auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
-        ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
-      } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
+        // TODO IMPORTANT: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
+        //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
+      } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
         auto f = ast_must_cast<FunctionDecl>(m);
 
         /// fill members
-        ty->get_sub_types().push_back(f->get_type());
+        child_types[i] = f->get_type();
         p->set_member_index(f->get_name(), i);
       } else {
         report_error(p, "Invalid struct member");
       }
     }
-    resolve_ty(ty);
+
+    /// register type to context
+    auto *ty = Type::GetStructType(struct_name, child_types);
+    _ctx->add_type_decl(struct_name, p);
     p->set_type(ty);
-     */
-    TAN_ASSERT(false);
   }
 
   void analyze_loop(ASTBase *_p) {

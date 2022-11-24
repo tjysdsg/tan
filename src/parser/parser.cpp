@@ -10,6 +10,7 @@
 #include "src/common.h"
 #include "src/ast/intrinsic.h"
 #include "token.h"
+#include <iostream>
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
@@ -95,6 +96,10 @@ private:
     return ret;
   }
 
+  Type *peek_type() {
+    return Type::GetTypeRef(at(_curr)->get_value()); // placeholder type
+  }
+
   ASTBase *peek() {
     if (eof(_curr)) { return nullptr; }
     Token *token = at(_curr);
@@ -177,7 +182,7 @@ private:
     } else if (token->get_type() == TokenType::CHAR) { /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) { /// types, must be before ID
-      node = new Type(); // placeholder
+      node = peek_type();
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       next.offset_by(1);
@@ -883,12 +888,12 @@ private:
       if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
         canonical = PrimitiveType::Create(it->second);
       } else if (token->get_value() == "*") { /// pointer
+        TAN_ASSERT(canonical);
         canonical = Type::GetPointerType(canonical);
       } else if (token->get_value() == "str") {
         canonical = Type::GetStringType();
       } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
         /// type referred will be resolved in analysis phase
-        canonical = new Type();
       } else {
         break;
       }
@@ -896,9 +901,9 @@ private:
     }
 
     /// array
-    TAN_ASSERT(canonical);
     Token *token = at(_curr);
     if (token->get_value() == "[") {
+      TAN_ASSERT(canonical);
       canonical = parse_ty_array(canonical);
     }
 
@@ -918,12 +923,10 @@ private:
     /// type
     if (at(_curr)->get_value() == ":") {
       _curr.offset_by(1);
-      ASTBase *node = peek();
-      if (node->get_node_type() != ASTNodeType::TY) {
-        error(_curr, "Expect a type");
-      }
-      parse_node(node);
-      p->set_type(ast_must_cast<Type>(node));
+      Type *ty = peek_type();
+      if (ty->get_node_type() != ASTNodeType::TY) { error(_curr, "Expect a type"); }
+      parse_ty(ty);
+      p->set_type(ty->get_canonical());
     }
   }
 
@@ -935,18 +938,14 @@ private:
     p->set_name(name_token->get_value());
     _curr.offset_by(1);
 
-    if (at(_curr)->get_value() != ":") {
-      error(_curr, "Expect a type being specified");
-    }
+    if (at(_curr)->get_value() != ":") { error(_curr, "Expect a type being specified"); }
     _curr.offset_by(1);
 
     /// type
-    ASTBase *node = peek();
-    if (node->get_node_type() != ASTNodeType::TY) {
-      error(_curr, "Expect a type");
-    }
-    parse_node(node);
-    p->set_type(ast_must_cast<Type>(node));
+    Type *ty = peek_type();
+    if (ty->get_node_type() != ASTNodeType::TY) { error(_curr, "Expect a type"); }
+    parse_ty(ty);
+    p->set_type(ty);
   }
 
   void parse_enum_decl(ASTBase *_p) {

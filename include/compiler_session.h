@@ -18,6 +18,10 @@ public:
   CompilerSession(const str &module_name, TargetMachine *target_machine);
   ~CompilerSession();
 
+  /// avoid creating duplicated llvm::Type and llvm::Metadata
+  umap<Type *, llvm::Type *> llvm_type_cache{};
+  umap<Type *, llvm::Metadata *> llvm_metadata_cache{};
+
 public:
   SourceManager *get_source_manager() const;
   void set_source_manager(SourceManager *sm);

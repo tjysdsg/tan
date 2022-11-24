@@ -84,6 +84,7 @@ StringType *Type::GetStringType() { return STRING_TYPE; }
 PointerType *Type::GetPointerType(Type *pointee) {
   auto it = POINTER_TYPE_CACHE.find(pointee);
   if (it != POINTER_TYPE_CACHE.end()) {
+    TAN_ASSERT(it->second->is_pointer() && it->second->get_pointee() == pointee);
     return it->second;
   } else {
     auto *ret = new PointerType(pointee);
@@ -102,6 +103,20 @@ ArrayType *Type::GetArrayType(Type *element_type, int size) {
     return ret;
   }
 }
+
+StructType *Type::GetStructType(const str &name, const vector<Type *> &member_types) {
+  auto it = STRUCT_TYPE_CACHE.find(name);
+  if (it != STRUCT_TYPE_CACHE.end()) {
+    it->second->_member_types = member_types; /// update forward declaration
+    return it->second;
+  } else {
+    auto *ret = new StructType(name, member_types);
+    STRUCT_TYPE_CACHE[name] = ret;
+    return ret;
+  }
+}
+
+TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
 bool Type::is_primitive() {
   TAN_ASSERT(!_canonical_type);
@@ -186,3 +201,10 @@ ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type)
 }
 
 StringType::StringType() { _type_name = "str"; }
+
+StructType::StructType(const str &name, const vector<Type *> &member_types) {
+  _type_name = name;
+  _member_types = member_types;
+}
+
+TypeRef::TypeRef(const str &name) { _type_name = name; }

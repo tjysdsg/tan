@@ -354,11 +354,6 @@ private:
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
-    // TODO IMPORTANT: check if type is inferred succesfully
-    // if (!p->get_type()->is_resolved()) {
-    //   report_error(p, "Unknown type");
-    // }
-
     llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
 
@@ -500,16 +495,13 @@ private:
       // TODO IMPORTANT
       TAN_ASSERT(false);
     } else if (p->is_struct()) { /// struct
-      /* TODO IMPORTANT
       // TODO: use codegen_constructor()
-      vector<Constant *> values{};
-      size_t n = p->get_sub_types().size();
-      for (size_t i = 0; i < n; ++i) {
-        values.push_back((llvm::Constant *) codegen_type_instantiation(p->get_sub_types()[i]));
+      auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+      vector<Constant *> values(member_types.size(), nullptr);
+      for (size_t i = 0; i < member_types.size(); ++i) {
+        values[i] = (llvm::Constant *) codegen_type_instantiation(member_types[i]);
       }
-      ret = ConstantStruct::get((StructType *) TypeSystem::ToLLVMType(_cs, p), values);
-      */
-      TAN_ASSERT(false);
+      ret = ConstantStruct::get((llvm::StructType *) TypeSystem::ToLLVMType(_cs, p), values);
     } else if (p->is_array()) { /// array as pointer
       ret = codegen_constructor(BasicConstructor::CreateArrayConstructor(SrcLoc(0),
           ast_must_cast<ArrayType>(p)->get_element_type()));

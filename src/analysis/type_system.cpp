@@ -1,6 +1,4 @@
 #include "src/analysis/type_system.h"
-#include "src/common.h"
-#include "src/ast/constructor.h"
 #include "compiler_session.h"
 #include "compiler.h"
 #include "src/ast/type.h"
@@ -86,34 +84,14 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
-/*
-void TypeSystem::ResolveTy(ASTContext *ctx, Type *const &p) {
-  Ty base = TY_GET_BASE(p->get_ty());
-  Ty qual = TY_GET_QUALIFIER(p->get_ty());
-
-  if (p->is_resolved()) { return; }
-
-  /// resolve children
-  for (auto *t: p->get_sub_types()) {
-    TypeSystem::ResolveTy(ctx, t);
-  }
-
-  Token *token = ctx->get_source_manager()->get_token(p->loc());
-  auto *tm = Compiler::GetDefaultTargetMachine();
-  switch (base) {
-    case Ty::STRING:
-      p->set_type_name("i8*");
-      p->set_size_bits(tm->getPointerSizeInBits(0));
-      p->set_align_bits(8);
-      break;
-    case Ty::ARRAY: {
-    }
-}
-*/
-
 llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
   p = p->get_canonical();
+
+  auto it = cs->llvm_type_cache.find(p);
+  if (it != cs->llvm_type_cache.end()) {
+    return it->second;
+  }
 
   auto *builder = cs->_builder;
   llvm::Type *ret = nullptr;
@@ -143,16 +121,12 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
     // TODO IMPORTANT: ret = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
     TAN_ASSERT(false);
   } else if (p->is_struct()) { /// struct
-    /* TODO IMPORTANT
-    vector<Type *> elements{};
-    size_t n = p->get_sub_types().size();
-    elements.reserve(n);
-    for (size_t i = 0; i < n; ++i) {
-      elements.push_back(TypeSystem::ToLLVMType(cs, p->get_sub_types()[i]));
+    auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+    vector<llvm::Type *> elements(member_types.size(), nullptr);
+    for (size_t i = 0; i < member_types.size(); ++i) {
+      elements[i] = TypeSystem::ToLLVMType(cs, member_types[i]);
     }
-    ret = StructType::create(elements, p->get_type_name());
-    */
-    TAN_ASSERT(false);
+    ret = llvm::StructType::create(elements, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
     auto *e_type = TypeSystem::ToLLVMType(cs, ast_must_cast<ArrayType>(p)->get_element_type());
     ret = e_type->getPointerTo();
@@ -163,12 +137,18 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
     TAN_ASSERT(false);
   }
 
+  cs->llvm_type_cache[p] = ret;
   return ret;
 }
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
   p = p->get_canonical();
+
+  auto it = cs->llvm_metadata_cache.find(p);
+  if (it != cs->llvm_metadata_cache.end()) {
+    return it->second;
+  }
 
   DIType *ret = nullptr;
   auto *tm = Compiler::GetDefaultTargetMachine();
@@ -213,28 +193,25 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
   } else if (p->is_enum()) { /// enums
     // TODO IMPORTANT
   } else if (p->is_struct()) { /// struct
-    /* TODO IMPORTANT
-      DIFile *di_file = cs->get_di_file();
-      size_t n = p->get_sub_types().size();
-      vector<Metadata *> elements(n);
-      for (size_t i = 1; i < n; ++i) {
-        elements.push_back(TypeSystem::ToLLVMMeta(cs, p->get_sub_types()[i]));
-      }
-      ret = cs->_di_builder
-          ->createStructType(cs->get_current_di_scope(),
-              p->get_type_name(),
-              di_file,
-              (unsigned) cs->get_source_manager()->get_line(p->loc()),
-              p->get_size_bits(),
-              (unsigned) p->get_align_bits(),
-              DINode::DIFlags::FlagZero,
-              nullptr,
-              cs->_di_builder->getOrCreateArray(elements),
-              0,
-              nullptr,
-              p->get_type_name());
-    */
-    TAN_ASSERT(false);
+    DIFile *di_file = cs->get_di_file();
+    auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+    vector<Metadata *> elements(member_types.size(), nullptr);
+    for (size_t i = 1; i < member_types.size(); ++i) {
+      elements[i] = TypeSystem::ToLLVMMeta(cs, member_types[i]);
+    }
+    ret = cs->_di_builder
+        ->createStructType(cs->get_current_di_scope(),
+            p->get_typename(),
+            di_file,
+            (unsigned) cs->get_source_manager()->get_line(p->loc()),
+            0, // TODO IMPORTANT: p->get_size_bits(),
+            0, // TODO IMPORTANT: (unsigned) p->get_align_bits(),
+            DINode::DIFlags::FlagZero,
+            nullptr,
+            cs->_di_builder->getOrCreateArray(elements),
+            0,
+            nullptr,
+            p->get_typename());
   } else if (p->is_array()) { /// array as pointer
     auto *sub = TypeSystem::ToLLVMMeta(cs, ast_must_cast<ArrayType>(p)->get_element_type());
     ret = cs->_di_builder
@@ -255,6 +232,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
     TAN_ASSERT(false);
   }
 
+  cs->llvm_metadata_cache[p] = ret;
   return ret;
 }
 
