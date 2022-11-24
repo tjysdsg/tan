@@ -69,6 +69,8 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
     return loaded;
   } else if (orig->is_array() && dest->is_pointer()) { /// array to pointer, don't need to do anything
     return loaded;
+  } else if (orig->is_array() && dest->is_string()) { /// array to string, don't need to do anything
+    return loaded;
   }
 
   Error err(cs->_filename, cs->get_source_manager()->get_token(expr->loc()), "Cannot perform type conversion");

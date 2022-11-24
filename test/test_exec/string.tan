@@ -4,19 +4,21 @@ import "runtime/stdlib.tan";
 
 
 pub fn main(argc: int, argv: char**) : int {
-    // c-string
-    var int_str = [1] as str; // TODO: malloc
-    // TODO: var int_str = [1 as i8, 2 as i8, 0 as i8] as str;
-    int_str[0] = 'a';
-    int_str[1] = 'b';
-    int_str[2] = 0 as char;
-    print(int_str);
+    // TODO IMPORTANT: CreateGlobalStringPtr doesn't create a mutable string
+    // var array_str = "123456";
+
+    var array: i8[3];
+    var array_str = array as str;
+    array_str[0] = 'a';
+    array_str[1] = 'b';
+    array_str[2] = 0 as char;
+    print(array_str);
 
     // itoa
-    itoa(-12, int_str, 10u);
-    assert(int_str[0] == '-');
-    assert(int_str[1] == '1');
-    assert(int_str[2] == '2');
+    itoa(-12, array_str, 10u);
+    assert(array_str[0] == '-');
+    assert(array_str[1] == '1');
+    assert(array_str[2] == '2');
 
     /*
     var s: str = "shit 他妈的";
