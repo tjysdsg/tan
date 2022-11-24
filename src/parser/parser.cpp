@@ -6,10 +6,11 @@
 #include "src/ast/decl.h"
 #include "src/ast/ast_context.h"
 #include "src/parser/token_check.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/common.h"
 #include "src/ast/intrinsic.h"
 #include "token.h"
+#include <iostream>
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
@@ -95,6 +96,10 @@ private:
     return ret;
   }
 
+  Type *peek_type() {
+    return Type::GetTypeRef(at(_curr)->get_value()); // placeholder type
+  }
+
   ASTBase *peek() {
     if (eof(_curr)) { return nullptr; }
     Token *token = at(_curr);
@@ -176,8 +181,8 @@ private:
       node = StringLiteral::Create(_curr, token->get_value());
     } else if (token->get_type() == TokenType::CHAR) { /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
-    } else if (check_typename_token(token)) { /// types, must be before ID
-      node = ASTType::Create(_cs, _curr);
+    } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
+      TAN_ASSERT(false);
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       next.offset_by(1);
@@ -405,8 +410,8 @@ private:
     p->set_lhs(lhs);
 
     /// rhs
-    auto rhs = next_expression(p->get_bp());
-    p->set_rhs(rhs);
+    auto *ty = peek_type();
+    p->set_type(parse_ty(ty));
   }
 
   void parse_generic_token(ASTBase *) {
@@ -478,7 +483,6 @@ private:
       case ASTLoopType::FOR:
         // TODO: implement for loop
         TAN_ASSERT(false);
-        break;
     }
   }
 
@@ -600,7 +604,7 @@ private:
 
     /// arguments
     vector<str> arg_names{};
-    vector<ASTType *> arg_types{};
+    vector<Type *> arg_types{};
     vector<ArgDecl *> arg_decls{};
     if (at(_curr)->get_value() != ")") {
       while (!eof(_curr)) {
@@ -629,12 +633,8 @@ private:
     _curr.offset_by(1);
 
     /// function return type
-    auto ret_type = peek();
-    if (ret_type->get_node_type() != ASTNodeType::TY) {
-      error(_curr, "Expect a type");
-    }
-    parse_node(ret_type);
-    p->set_ret_type(ast_must_cast<ASTType>(ret_type));
+    auto *ret_type = peek_type();
+    p->set_ret_type(parse_ty(ret_type));
 
     /// body
     if (!is_external) {
@@ -835,17 +835,10 @@ private:
     }
   }
 
-  void parse_ty_array(ASTType *p) {
-    bool done = false;
-    while (!done) {
-      /// current token should be "[" right now
+  ArrayType *parse_ty_array(Type *p) {
+    ArrayType *ret = nullptr;
+    while (true) {
       _curr.offset_by(1); /// skip "["
-
-      /// subtype
-      auto *sub = new ASTType(*p);
-      p->set_ty(Ty::ARRAY);
-      p->get_sub_types().clear();
-      p->get_sub_types().push_back(sub);
 
       /// size
       ASTBase *_size = peek();
@@ -860,50 +853,55 @@ private:
         error(_curr, "Expect an unsigned integer as the array size");
       }
 
-      p->set_array_size(array_size);
+      ret = Type::GetArrayType(p, (int) array_size);
 
       /// skip "]"
       peek(TokenType::PUNCTUATION, "]");
       _curr.offset_by(1);
 
       /// if followed by a "[", this is a multi-dimension array
-      if (at(_curr)->get_value() != "[") {
-        done = true;
+      if (at(_curr)->get_value() == "[") {
+        p = ret;
+        ret = nullptr;
+      } else {
+        break;
       }
     }
+
+    TAN_ASSERT(ret);
+    return ret;
   }
 
-  void parse_ty(ASTBase *_p) {
-    ASTType *p = ast_must_cast<ASTType>(_p);
+  Type *parse_ty(Type *p) {
+    Type *ret = p;
 
     while (!eof(_curr)) {
       Token *token = at(_curr);
-      auto qb = ASTType::BASIC_TYS.find(token->get_value());
-      auto qq = ASTType::QUALIFIER_TYS.find(token->get_value());
 
-      if (qb != ASTType::BASIC_TYS.end()) { /// base types
-        p->set_ty(TY_OR(p->get_ty(), qb->second));
-      } else if (qq != ASTType::QUALIFIER_TYS.end()) { /// TODO: qualifiers
-        if (token->get_value() == "*") { /// pointer
-          auto sub = new ASTType(*p);
-          p->set_ty(Ty::POINTER);
-          p->get_sub_types().clear();
-          p->get_sub_types().push_back(sub);
-        }
-      } else if (token->get_type() == TokenType::ID) { /// struct or enum
-        /// type is resolved in analysis phase
-        p->set_ty(Ty::TYPE_REF);
+      auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
+      if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
+        ret = PrimitiveType::Create(it->second);
+      } else if (token->get_value() == "*") { /// pointer
+        TAN_ASSERT(ret);
+        ret = Type::GetPointerType(ret);
+      } else if (token->get_value() == "str") {
+        ret = Type::GetStringType();
+      } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
+        /// type referred will be resolved in analysis phase
       } else {
         break;
       }
       _curr.offset_by(1);
     }
 
-    /// composite types
+    /// array
     Token *token = at(_curr);
-    if (token->get_value() == "[") { /// array
-      parse_ty_array(p);
+    if (token->get_value() == "[") {
+      TAN_ASSERT(ret);
+      ret = parse_ty_array(ret);
     }
+
+    return ret;
   }
 
   void parse_var_decl(ASTBase *_p) {
@@ -919,9 +917,8 @@ private:
     /// type
     if (at(_curr)->get_value() == ":") {
       _curr.offset_by(1);
-      ASTType *ty = ASTType::Create(_cs, _curr);
-      parse_node(ty);
-      p->set_type(ty);
+      Type *ty = peek_type();
+      p->set_type(parse_ty(ty));
     }
   }
 
@@ -933,15 +930,12 @@ private:
     p->set_name(name_token->get_value());
     _curr.offset_by(1);
 
-    if (at(_curr)->get_value() != ":") {
-      error(_curr, "Expect a type being specified");
-    }
+    if (at(_curr)->get_value() != ":") { error(_curr, "Expect a type being specified"); }
     _curr.offset_by(1);
 
     /// type
-    ASTType *ty = ASTType::Create(_cs, _curr);
-    parse_node(ty);
-    p->set_type(ty);
+    Type *ty = peek_type();
+    p->set_type(parse_ty(ty));
   }
 
   void parse_enum_decl(ASTBase *_p) {
@@ -1004,7 +998,7 @@ const umap<ASTNodeType, nud_parsing_func_t>ParserImpl::NUD_PARSING_FUNC_TABLE =
         {ASTNodeType::INTRINSIC, &ParserImpl::parse_intrinsic}, {ASTNodeType::IF, &ParserImpl::parse_if},
         {ASTNodeType::LOOP, &ParserImpl::parse_loop}, {ASTNodeType::UOP, &ParserImpl::parse_uop},
         {ASTNodeType::RET, &ParserImpl::parse_return}, {ASTNodeType::FUNC_CALL, &ParserImpl::parse_func_call},
-        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal}, {ASTNodeType::TY, &ParserImpl::parse_ty},
+        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal},
         {ASTNodeType::STRUCT_DECL, &ParserImpl::parse_struct_decl},
         {ASTNodeType::VAR_DECL, &ParserImpl::parse_var_decl}, {ASTNodeType::ARG_DECL, &ParserImpl::parse_arg_decl},
         {ASTNodeType::FUNC_DECL, &ParserImpl::parse_func_decl}, {ASTNodeType::ENUM_DECL, &ParserImpl::parse_enum_decl},

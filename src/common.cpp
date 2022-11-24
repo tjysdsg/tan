@@ -2,7 +2,7 @@
 
 namespace tanlang {
 
-AllocaInst *create_block_alloca(BasicBlock *block, Type *type, size_t size, const str &name) {
+AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
   block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
   if (size <= 1) {

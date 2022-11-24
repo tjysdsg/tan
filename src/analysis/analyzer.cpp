@@ -1,8 +1,7 @@
 #include "analyzer.h"
 #include "src/ast/ast_base.h"
 #include "src/ast/ast_builder.h"
-#include "src/ast/constructor.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/ast/expr.h"
 #include "src/ast/stmt.h"
 #include "src/ast/decl.h"
@@ -17,7 +16,9 @@
 
 namespace tanlang {
 
-class AnalyzerImpl {
+using analyze_func_t = void (AnalyzerImpl::*)(ASTBase *);
+
+class AnalyzerImpl final {
 public:
   explicit AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
 
@@ -29,77 +30,14 @@ public:
       case ASTNodeType::STATEMENT:
         analyze_stmt(p);
         break;
-      case ASTNodeType::ASSIGN:
-        analyze_assignment(ast_must_cast<Assignment>(p));
-        break;
-      case ASTNodeType::CAST:
-        analyze_cast(ast_must_cast<Cast>(p));
-        break;
-      case ASTNodeType::BOP:
-        analyze_bop(p);
-        break;
-      case ASTNodeType::UOP:
-        analyze_uop(p);
-        break;
       case ASTNodeType::RET:
         analyze_ret(p);
-        break;
-      case ASTNodeType::ID:
-        analyze_id(p);
-        break;
-      case ASTNodeType::STRING_LITERAL:
-        analyze_string_literal(p);
-        break;
-      case ASTNodeType::CHAR_LITERAL:
-        analyze_char_literal(p);
-        break;
-      case ASTNodeType::BOOL_LITERAL:
-        analyze_bool_literal(p);
-        break;
-      case ASTNodeType::INTEGER_LITERAL:
-        analyze_integer_literal(p);
-        break;
-      case ASTNodeType::FLOAT_LITERAL:
-        analyze_float_literal(p);
-        break;
-      case ASTNodeType::ARRAY_LITERAL:
-        analyze_array_literal(p);
         break;
       case ASTNodeType::IF:
         analyze_if(p);
         break;
-      case ASTNodeType::INTRINSIC:
-        analyze_intrinsic(p);
-        break;
       case ASTNodeType::IMPORT:
         analyze_import(p);
-        break;
-      case ASTNodeType::PARENTHESIS:
-        analyze_parenthesis(p);
-        break;
-      case ASTNodeType::FUNC_CALL:
-        analyze_func_call(p);
-        break;
-      case ASTNodeType::TY:
-        resolve_ty(ast_must_cast<ASTType>(p));
-        break;
-      case ASTNodeType::ENUM_DECL:
-        analyze_enum_decl(p);
-        break;
-      case ASTNodeType::FUNC_DECL:
-        analyze_func_decl(p);
-        break;
-      case ASTNodeType::ARG_DECL:
-        analyze_arg_decl(p);
-        break;
-      case ASTNodeType::VAR_DECL:
-        analyze_var_decl(p);
-        break;
-      case ASTNodeType::STRUCT_DECL:
-        analyze_struct_decl(p);
-        break;
-      case ASTNodeType::BOP_OR_UOP:
-        analyze_bop_or_uop(p);
         break;
       case ASTNodeType::LOOP:
         analyze_loop(p);
@@ -108,9 +46,31 @@ public:
       case ASTNodeType::CONTINUE:
         analyze_break_or_continue(p);
         break;
+        /// expressions
+      case ASTNodeType::ASSIGN:
+      case ASTNodeType::CAST:
+      case ASTNodeType::BOP:
+      case ASTNodeType::UOP:
+      case ASTNodeType::BOP_OR_UOP:
+      case ASTNodeType::ID:
+      case ASTNodeType::STRING_LITERAL:
+      case ASTNodeType::CHAR_LITERAL:
+      case ASTNodeType::BOOL_LITERAL:
+      case ASTNodeType::INTEGER_LITERAL:
+      case ASTNodeType::FLOAT_LITERAL:
+      case ASTNodeType::ARRAY_LITERAL:
+      case ASTNodeType::INTRINSIC:
+      case ASTNodeType::PARENTHESIS:
+      case ASTNodeType::FUNC_CALL:
+      case ASTNodeType::ENUM_DECL:
+      case ASTNodeType::FUNC_DECL:
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::VAR_DECL:
+      case ASTNodeType::STRUCT_DECL:
+        analyze_expr(ast_must_cast<Expr>(p));
+        break;
       default:
         TAN_ASSERT(false);
-        break;
     }
   }
 
@@ -119,31 +79,42 @@ private:
   SourceManager *_sm = nullptr;
 
 private:
-  ASTType *copy_ty(ASTType *p) const { return new ASTType(*p); }
-
-  void resolve_ty(ASTType *p) const {
-    TypeSystem::ResolveTy(_ctx, p);
-    TypeSystem::SetDefaultConstructor(_ctx, p);
-  }
-
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     Error err(_ctx->_filename, _sm->get_token(p->loc()), message);
     err.raise();
   }
 
-  /**
-   * \brief Check if two types are the same, if not, report error (at the location loc)
-   */
-  void check_types(ASTType *t1, ASTType *t2, SrcLoc loc) {
-    if (t1 == t2) { return; }
-    if (*t1 != *t2) {
-      Error err(_ctx->_filename,
-          _sm->get_token(loc),
-          fmt::format("{} and {} are different types. Please explicitly cast the them",
-              t1->get_type_name(),
-              t2->get_type_name()));
-      err.raise();
+  void analyze_expr(Expr *p) {
+    (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p);
+
+    /// assign p's type directly to the canonical type, skip TypeRef etc.
+    ///  exceptions:
+    ///     - VAR_DECL: type may be inferred in assignment expression
+    ///     - INTRINSIC: could be statement
+    if (p->get_node_type() == ASTNodeType::VAR_DECL || p->get_node_type() == ASTNodeType::INTRINSIC) { return; }
+    if (!p->get_type()) {
+      report_error(p, "[DEV] Expression must have a type after analysis");
     }
+    p->set_type(p->get_type());
+  }
+
+  Type *analyze_ty(Type *p, SrcLoc loc) {
+    Type *ret = p;
+    /// Resolve type references
+    if (p->is_ref()) {
+      auto *decl = _ctx->get_type_decl(p->get_typename());
+      if (!decl) {
+        Error err(_ctx->_filename, _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+        err.raise();
+      }
+      ret = decl->get_type();
+    } else if (p->is_pointer()) {
+      ret = Type::GetPointerType(  /// "flatten" pointer that points to a TypeRef
+          analyze_ty(((PointerType *) p)->get_pointee(), loc) //
+      );
+    }
+
+    return ret;
   }
 
   void analyze_id(ASTBase *_p) {
@@ -151,9 +122,9 @@ private:
     auto *referred = _ctx->get_decl(p->get_name());
     if (referred) { /// refers to a variable
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-      p->set_type(copy_ty(referred->get_type()));
+      p->set_type(analyze_ty(referred->get_type(), p->loc()));
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = ASTType::GetTypeRef(_ctx, p->loc(), p->get_name());
+      auto *ty = analyze_ty(_ctx->get_type_decl(p->get_name())->get_type(), p->loc());
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
@@ -163,10 +134,8 @@ private:
 
   void analyze_parenthesis(ASTBase *_p) {
     auto p = ast_must_cast<Parenthesis>(_p);
-
     analyze(p->get_sub());
-
-    p->set_type(copy_ty(p->get_sub()->get_type()));
+    p->set_type(p->get_sub()->get_type());
   }
 
   void analyze_if(ASTBase *_p) {
@@ -177,7 +146,10 @@ private:
       auto cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-        check_types(cond->get_type(), ASTType::GetBoolType(_ctx, cond->loc()), cond->loc());
+
+        if (!TypeSystem::CanImplicitlyConvert(cond->get_type(), PrimitiveType::GetBoolType())) {
+          report_error(cond, "Cannot implicitly convert expression to bool");
+        }
       }
 
       analyze(p->get_branch(i));
@@ -186,19 +158,17 @@ private:
 
   void analyze_var_decl(ASTBase *_p) {
     auto p = ast_must_cast<VarDecl>(_p);
-    ASTType *ty = p->get_type();
 
-    if (ty) { /// analyze type if specified
-      analyze(ty);
-    }
+    /// analyze type if specified
+    Type *ty = p->get_type();
+    if (ty) { p->set_type(analyze_ty(ty, p->loc())); }
 
     _ctx->add_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_must_cast<ArgDecl>(_p);
-    ASTType *ty = p->get_type();
-    analyze(ty);
+    p->set_type(analyze_ty(p->get_type(), p->loc()));
     _ctx->add_decl(p->get_name(), p);
   }
 
@@ -234,6 +204,7 @@ private:
     /// NOTE: do not analyze lhs and rhs just yet, because analyze_assignment
     /// and analyze_member_access have their own ways of analyzing
 
+    // TODO: IMPORTANT determine which operand's type should the other one implicitly convert to
     switch (p->get_op()) {
       case BinaryOpKind::SUM:
       case BinaryOpKind::SUBTRACT:
@@ -243,10 +214,12 @@ private:
         analyze(lhs);
         analyze(rhs);
 
-        check_types(lhs->get_type(), rhs->get_type(), p->loc());
+        if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type())
+            && !TypeSystem::CanImplicitlyConvert(rhs->get_type(), lhs->get_type())) {
+          report_error(p, "Cannot implicitly convert between two expressions");
+        }
 
-        ASTType *ty = copy_ty(lhs->get_type());
-        p->set_type(ty);
+        p->set_type(lhs->get_type());
         break;
       }
       case BinaryOpKind::BAND:
@@ -256,11 +229,16 @@ private:
       case BinaryOpKind::XOR: {
         analyze(lhs);
         analyze(rhs);
-        auto loc = p->loc();
-        auto *bool_type = ASTType::GetBoolType(_ctx, loc);
+
         // check if both operators are bool
-        check_types(lhs->get_type(), bool_type, loc);
-        check_types(rhs->get_type(), bool_type, loc);
+        auto *bool_type = PrimitiveType::GetBoolType();
+        if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), bool_type)) {
+          report_error(p, "Cannot implicitly convert lhs to bool");
+        }
+        if (!TypeSystem::CanImplicitlyConvert(rhs->get_type(), bool_type)) {
+          report_error(p, "Cannot implicitly convert rhs to bool");
+        }
+
         p->set_type(bool_type);
         break;
       }
@@ -272,101 +250,75 @@ private:
       case BinaryOpKind::NE:
         analyze(lhs);
         analyze(rhs);
-        check_types(lhs->get_type(), rhs->get_type(), p->loc());
-        p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
+        if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type())) {
+          report_error(p, "Cannot implicitly convert between lhs and rhs");
+        }
+        p->set_type(PrimitiveType::GetBoolType());
         break;
       case BinaryOpKind::MEMBER_ACCESS:
         analyze_member_access(ast_must_cast<MemberAccess>(p));
         break;
       default:
         TAN_ASSERT(false);
-        break;
     }
   }
 
-  // TODO: check the types of the operand
   void analyze_uop(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
-    auto rhs = p->get_rhs();
+    auto *p = ast_must_cast<UnaryOperator>(_p);
+    auto *rhs = p->get_rhs();
     analyze(rhs);
 
+    auto *rhs_type = rhs->get_type();
     switch (p->get_op()) {
       case UnaryOpKind::LNOT:
-        if (!p->get_rhs()->get_type()->is_bool()) {
-          report_error(p->get_rhs(), "Expect a bool type");
-        }
-        p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
+        if (!rhs_type->is_bool()) { report_error(rhs, "Expect a bool type"); }
+        p->set_type(PrimitiveType::GetBoolType());
         break;
       case UnaryOpKind::BNOT:
-        p->set_type(copy_ty(rhs->get_type()));
+        if (!rhs_type->is_int()) { report_error(rhs, "Expect an integer type"); }
+        p->set_type(rhs_type);
         break;
-      case UnaryOpKind::ADDRESS_OF: {
-        auto ty = copy_ty(rhs->get_type());
-        p->set_type(ty->get_ptr_to());
+      case UnaryOpKind::ADDRESS_OF:
+        p->set_type(Type::GetPointerType(rhs_type));
         break;
-      }
-      case UnaryOpKind::PTR_DEREF: {
-        auto *ty = rhs->get_type();
-        if (!ty->is_ptr()) { report_error(ty, "Expect a pointer type"); }
-        ty = copy_ty(ty->get_contained_ty());
+      case UnaryOpKind::PTR_DEREF:
+        if (!rhs_type->is_pointer()) { report_error(rhs, "Expect a pointer type"); }
         TAN_ASSERT(rhs->is_lvalue());
         p->set_lvalue(true);
-        p->set_type(ty);
+        p->set_type(((PointerType *) rhs_type)->get_pointee());
         break;
-      }
       case UnaryOpKind::PLUS:
-      case UnaryOpKind::MINUS: {
-        /// unary plus/minus
-        auto ty = copy_ty(rhs->get_type());
-        p->set_type(ty);
+      case UnaryOpKind::MINUS: /// unary plus/minus
+        if (!(rhs_type->is_int() || rhs_type->is_float())) { report_error(rhs, "Expect an numerical type"); }
+        p->set_type(rhs_type);
         break;
-      }
       default:
         TAN_ASSERT(false);
-        break;
     }
   }
 
-  void analyze_cast(Cast *p) {
+  void analyze_cast(ASTBase *_p) {
+    auto *p = ast_must_cast<Cast>(_p);
     Expr *lhs = p->get_lhs();
-    ASTBase *rhs = p->get_rhs();
     analyze(lhs);
-    analyze(rhs);
-
-    ASTType *ty = nullptr;
-    switch (rhs->get_node_type()) {
-      case ASTNodeType::ID:
-        ty = ast_must_cast<Identifier>(rhs)->get_type();
-        if (!ty) { report_error(rhs, "Unknown type"); }
-        break;
-      case ASTNodeType::TY:
-        ty = ast_must_cast<ASTType>(rhs);
-        break;
-      default:
-        report_error(lhs, "Invalid right-hand operand");
-        break;
-    }
-
-    ty = copy_ty(ty);
-    p->set_type(ty);
-    // FIXME: check if the cast is valid
+    p->set_type(analyze_ty(p->get_type(), p->loc()));
   }
 
-  void analyze_assignment(Assignment *p) {
+  void analyze_assignment(ASTBase *_p) {
+    auto *p = ast_must_cast<Assignment>(_p);
+
     Expr *rhs = p->get_rhs();
     analyze(rhs);
 
-    auto lhs = p->get_lhs();
-    ASTType *lhs_type = nullptr;
+    auto *lhs = p->get_lhs();
+    Type *lhs_type = nullptr;
     switch (lhs->get_node_type()) {
       case ASTNodeType::ID:
         analyze(lhs);
         lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
         break;
-      case ASTNodeType::STRUCT_DECL:
       case ASTNodeType::VAR_DECL:
       case ASTNodeType::ARG_DECL:
-      case ASTNodeType::ENUM_DECL:
       case ASTNodeType::BOP_OR_UOP:
       case ASTNodeType::UOP:
       case ASTNodeType::BOP:
@@ -378,21 +330,17 @@ private:
     }
 
     /// if the type of lhs is not set, we deduce it
-    /// NOTE: we only allow type deduction for declarations
+    /// NOTE: we only allow type deduction for variable declarations
     if (!lhs_type) {
-      lhs_type = copy_ty(rhs->get_type());
+      lhs_type = rhs->get_type();
 
       /// set type of lhs
       switch (lhs->get_node_type()) {
-        case ASTNodeType::STRUCT_DECL:
         case ASTNodeType::VAR_DECL:
-        case ASTNodeType::ARG_DECL:
-        case ASTNodeType::ENUM_DECL:
           ast_must_cast<Decl>(lhs)->set_type(lhs_type);
           break;
         default:
           TAN_ASSERT(false);
-          break;
       }
       /// analyze again just to make sure
       analyze(lhs);
@@ -400,7 +348,10 @@ private:
 
     p->set_lvalue(true);
 
-    check_types(lhs_type, rhs->get_type(), p->loc());
+    Type *rhs_type = rhs->get_type();
+    if (!TypeSystem::CanImplicitlyConvert(rhs_type, lhs_type)) {
+      report_error(p, "Cannot implicitly cast rhs to lhs");
+    }
     p->set_type(lhs_type);
   }
 
@@ -413,7 +364,7 @@ private:
 
     FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p);
     p->_callee = callee;
-    p->set_type(copy_ty(callee->get_ret_ty()));
+    p->set_type(callee->get_ret_ty());
   }
 
   void analyze_func_decl(ASTBase *_p) {
@@ -427,20 +378,27 @@ private:
     _ctx->add_function(p);
 
     /// analyze return type
-    analyze(p->get_ret_ty());
+    p->set_ret_type(analyze_ty(p->get_ret_ty(), p->loc()));
 
     _ctx->push_scope(); /// new scope
 
     /// analyze args
     size_t n = p->get_n_args();
+    const auto &arg_decls = p->get_arg_decls();
+    vector<Type *> arg_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
-      analyze(p->get_arg_decls()[i]); /// args will be added to the scope here
+      analyze(arg_decls[i]); /// args will be added to the scope here
+      arg_types[i] = arg_decls[i]->get_type();
     }
+    p->set_arg_types(std::move(arg_types)); // update the types
 
     /// function body
     if (!p->is_external()) {
       analyze(p->get_body());
     }
+
+    // TODO IMPORTANT: function type
+    p->set_type(p->get_ret_ty());
 
     _ctx->pop_scope(); /// pop scope
   }
@@ -494,7 +452,7 @@ private:
     }
     p->set_intrinsic_type(q->second);
 
-    auto void_type = ASTType::GetVoidType(_ctx, p->loc());
+    auto void_type = Type::GetVoidType();
     switch (p->get_intrinsic_type()) {
       case IntrinsicType::STACK_TRACE:
       case IntrinsicType::ABORT:
@@ -505,7 +463,7 @@ private:
       }
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
-        auto type = ASTType::GetU32Type(_ctx, p->loc());
+        auto type = PrimitiveType::GetIntegerType(32, true);
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
@@ -513,7 +471,7 @@ private:
       }
       case IntrinsicType::FILENAME: {
         auto sub = StringLiteral::Create(p->loc(), _ctx->_filename);
-        auto type = ASTType::CreateAndResolve(_ctx, p->loc(), Ty::STRING);
+        auto type = Type::GetStringType();
         sub->set_type(type);
         p->set_type(type);
         p->set_sub(sub);
@@ -527,7 +485,7 @@ private:
         }
         auto *target = func_call->get_arg(0);
         auto *source_str =
-            ASTBuilder::CreateStringLiteral(_ctx, p->loc(), _ctx->get_source_manager()->get_source_code(target));
+            ASTBuilder::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
         p->set_sub(source_str);
         p->set_type(source_str->get_type());
         break;
@@ -573,65 +531,64 @@ private:
   void analyze_string_literal(ASTBase *_p) {
     auto p = ast_must_cast<StringLiteral>(_p);
     p->set_value(_sm->get_token_str(p->loc()));
-    p->set_type(ASTType::CreateAndResolve(_ctx, p->loc(), Ty::STRING));
+    p->set_type(Type::GetStringType());
   }
 
   void analyze_char_literal(ASTBase *_p) {
     auto p = ast_must_cast<CharLiteral>(_p);
-    p->set_type(ASTType::GetCharType(_ctx, p->loc()));
+    p->set_type(Type::GetCharType());
     p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->loc())[0]));
   }
 
   void analyze_integer_literal(ASTBase *_p) {
     auto p = ast_must_cast<IntegerLiteral>(_p);
 
-    ASTType *ty;
+    Type *ty;
     if (_ctx->get_source_manager()->get_token(p->loc())->is_unsigned()) {
-      ty = ASTType::GetU32Type(_ctx, p->loc());
+      ty = Type::GetIntegerType(32, true);
     } else {
-      ty = ASTType::GetI32Type(_ctx, p->loc());
+      ty = Type::GetIntegerType(32, false);
     }
     p->set_type(ty);
   }
 
   void analyze_bool_literal(ASTBase *_p) {
     auto p = ast_must_cast<BoolLiteral>(_p);
-    p->set_type(ASTType::GetBoolType(_ctx, p->loc()));
+    p->set_type(Type::GetBoolType());
   }
 
   void analyze_float_literal(ASTBase *_p) {
     auto p = ast_must_cast<FloatLiteral>(_p);
-    p->set_type(ASTType::GetF32Type(_ctx, p->loc()));
+    p->set_type(Type::GetFloatType(32));
   }
 
   void analyze_array_literal(ASTBase *_p) {
     auto p = ast_must_cast<ArrayLiteral>(_p);
 
-    /// check if the element types are all the same
+    // TODO IMPORTANT: find the type that all elements can implicitly convert to
+    //  for example: [1, 2.2, 3u] has element type float
     auto elements = p->get_elements();
-    ASTType *element_type = nullptr;
+    Type *element_type = nullptr;
     for (auto *e: elements) {
       analyze(e);
       if (!element_type) { element_type = e->get_type(); }
-      if (*e->get_type() != *element_type) {
+      if (!TypeSystem::CanImplicitlyConvert(e->get_type(), element_type)) {
         report_error(p, "All elements in an array must have the same type");
       }
     }
 
     TAN_ASSERT(element_type);
-    ASTType *ty = ASTType::CreateAndResolve(_ctx, p->loc(), Ty::ARRAY, {element_type});
-    ty->set_array_size(elements.size());
-    p->set_type(ty);
+    p->set_type(Type::GetArrayType(element_type, (int) elements.size()));
   }
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
-    if (!lhs->is_lvalue() && !lhs->get_type()->is_ptr()) {
+    if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
       report_error(p, "Invalid member function call");
     }
 
     /// get address of the struct instance
-    if (lhs->is_lvalue() && !lhs->get_type()->is_ptr()) {
+    if (lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
       Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
       analyze(tmp);
       rhs->_args.insert(rhs->_args.begin(), tmp);
@@ -641,7 +598,7 @@ private:
 
     /// postpone analysis of FUNC_CALL until now
     analyze(rhs);
-    p->set_type(copy_ty(rhs->get_type()));
+    p->set_type(rhs->get_type());
   }
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
@@ -652,22 +609,33 @@ private:
       report_error(p, "Expect lhs to be an lvalue");
     }
 
-    auto ty = lhs->get_type();
-    if (!ty->is_ptr()) { report_error(p, "Expect a pointer or an array"); }
-
-    ty = copy_ty(ty->get_contained_ty());
-
-    p->set_type(ty);
-    if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
-      auto size_node = ast_must_cast<IntegerLiteral>(rhs);
-      auto size = size_node->get_value(); // underflow is ok
-      if (rhs->get_type()->is_array() && size >= lhs->get_type()->get_array_size()) {
-        report_error(p,
-            fmt::format("Index {} out of bound, the array size is {}",
-                std::to_string(size),
-                std::to_string(lhs->get_type()->get_array_size())));
-      }
+    auto *lhs_type = lhs->get_type();
+    if (!(lhs_type->is_pointer() || lhs_type->is_array() || lhs_type->is_string())) {
+      report_error(p, "Expect a type that supports bracket access");
     }
+    if (!rhs->get_type()->is_int()) { report_error(rhs, "Expect an integer"); }
+
+    Type *sub_type = nullptr;
+    if (lhs_type->is_pointer()) {
+      sub_type = ((PointerType *) lhs_type)->get_pointee();
+    } else if (lhs_type->is_array()) {
+      auto *array_type = (ArrayType *) lhs_type;
+      sub_type = array_type->get_element_type();
+      /// check if array index is out-of-bound
+      if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
+        uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
+        if (lhs->get_type()->is_array() && (int) size >= array_type->get_size()) {
+          report_error(p,
+              fmt::format("Index {} out of bound, the array size is {}",
+                  std::to_string(size),
+                  std::to_string(array_type->get_size())));
+        }
+      }
+    } else if (lhs_type->is_string()) {
+      sub_type = Type::GetCharType();
+    }
+
+    p->set_type(sub_type);
   }
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
@@ -684,24 +652,25 @@ private:
   }
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
-  void analyze_enum_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
+  void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze(rhs);
 
     str m_name = ast_must_cast<Identifier>(rhs)->get_name();
-    ASTType *struct_ty = nullptr;
+    Type *struct_ty = nullptr;
     /// auto dereference pointers
-    if (lhs->get_type()->is_ptr()) {
-      struct_ty = lhs->get_type()->get_contained_ty();
+    if (lhs->get_type()->is_pointer()) {
+      struct_ty = ((PointerType *) lhs->get_type())->get_pointee();
     } else {
       struct_ty = lhs->get_type();
     }
-    struct_ty = struct_ty->get_canonical_type(); /// resolve type references
-    if (struct_ty->get_ty() != Ty::STRUCT) { report_error(lhs, "Expect a struct type"); }
 
-    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_type_name()));
+    struct_ty = analyze_ty(struct_ty, lhs->loc());
+    if (!struct_ty->is_struct()) { report_error(lhs, "Expect a struct type"); }
+
+    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
-    auto ty = copy_ty(struct_decl->get_struct_member_ty(p->_access_idx));
-    p->set_type(ty);
+    auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
+    p->set_type(analyze_ty(ty, p->loc()));
   }
 
   void analyze_member_access(MemberAccess *p) {
@@ -721,7 +690,7 @@ private:
         analyze_enum_member_access(p, lhs, rhs);
       } else { /// member variable
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
-        analyze_enum_member_variable(p, lhs, rhs);
+        analyze_member_access_member_variable(p, lhs, rhs);
       }
     } else {
       report_error(p, "Invalid right-hand operand");
@@ -731,31 +700,21 @@ private:
   void analyze_struct_decl(ASTBase *_p) {
     auto p = ast_must_cast<StructDecl>(_p);
 
-    ASTType *ty = nullptr;
-    str struct_name = p->get_name();
-    _ctx->add_type_decl(struct_name, p);
-
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
-    ASTType *prev = _ctx->get_type_decl(struct_name)->get_type();
-    if (prev) {
-      if (prev->get_node_type() != ASTNodeType::STRUCT_DECL) { /// fwd decl
-        ty = prev;
-      } else { /// conflict
+    str struct_name = p->get_name();
+    auto *prev_decl = _ctx->get_type_decl(struct_name);
+    if (prev_decl) {
+      if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL
+          && ast_must_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
         report_error(p, "Cannot redeclare type as a struct");
       }
-    } else { /// no fwd decl
-      ty = ASTType::Create(_ctx, p->loc());
-      ty->set_ty(Ty::STRUCT);
-      ty->set_constructor(StructConstructor::Create(ty));
-      _ctx->add_type_decl(struct_name, p); /// add_decl self to current scope
     }
-    ty->set_type_name(struct_name);
 
     /// resolve member names and types
     auto member_decls = p->get_member_decls();  // size is 0 if no struct body
     size_t n = member_decls.size();
-    ty->get_sub_types().reserve(n);
+    vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
       analyze(m);
@@ -764,10 +723,8 @@ private:
         /// fill members
         str name = ast_must_cast<VarDecl>(m)->get_name();
         p->set_member_index(name, i);
-        ty->get_sub_types().push_back(m->get_type());
-      }
-        /// member variable with an initial value
-      else if (m->get_node_type() == ASTNodeType::ASSIGN) {
+        child_types[i] = m->get_type();
+      } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
         auto bm = ast_must_cast<Assignment>(m);
         auto init_val = bm->get_rhs();
 
@@ -777,26 +734,29 @@ private:
         auto decl = ast_must_cast<VarDecl>(bm->get_lhs());
 
         /// fill members
-        ty->get_sub_types().push_back(decl->get_type());
+        child_types[i] = decl->get_type();
         p->set_member_index(decl->get_name(), i);
 
         /// initial values
         if (!init_val->is_comptime_known()) {
           report_error(p, "Initial value of a member variable must be compile-time known");
         }
-        auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
-        ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
-      } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
+        // TODO IMPORTANT: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
+        //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
+      } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
         auto f = ast_must_cast<FunctionDecl>(m);
 
         /// fill members
-        ty->get_sub_types().push_back(f->get_type());
+        child_types[i] = f->get_type();
         p->set_member_index(f->get_name(), i);
       } else {
         report_error(p, "Invalid struct member");
       }
     }
-    resolve_ty(ty);
+
+    /// register type to context
+    auto *ty = Type::GetStructType(struct_name, child_types);
+    _ctx->add_type_decl(struct_name, p);
     p->set_type(ty);
   }
 
@@ -820,10 +780,11 @@ private:
   }
 
   void analyze_enum_decl(ASTBase *_p) {
+    /* TODO IMPORTANT: FIX THIS
     auto *p = ast_must_cast<EnumDecl>(_p);
 
     /// add_decl the enum type to context
-    auto *ty = ASTType::GetEnumType(_ctx, p->loc(), p->get_name());
+    auto *ty = Type::GetEnumType(_ctx, p->loc(), p->get_name());
     TypeSystem::SetDefaultConstructor(_ctx, ty);
     p->set_type(ty);
     _ctx->add_type_decl(p->get_name(), p);
@@ -852,7 +813,33 @@ private:
       ++val;
       ++i;
     }
+    */
+    TAN_ASSERT(false);
   }
+
+private:
+  static inline umap<ASTNodeType, analyze_func_t> EXPRESSION_ANALYZER_TABLE{ //
+      {ASTNodeType::ASSIGN, &AnalyzerImpl::analyze_assignment}, //
+      {ASTNodeType::CAST, &AnalyzerImpl::analyze_cast}, //
+      {ASTNodeType::BOP, &AnalyzerImpl::analyze_bop}, //
+      {ASTNodeType::UOP, &AnalyzerImpl::analyze_uop}, //
+      {ASTNodeType::ID, &AnalyzerImpl::analyze_id}, //
+      {ASTNodeType::STRING_LITERAL, &AnalyzerImpl::analyze_string_literal}, //
+      {ASTNodeType::CHAR_LITERAL, &AnalyzerImpl::analyze_char_literal}, //
+      {ASTNodeType::BOOL_LITERAL, &AnalyzerImpl::analyze_bool_literal}, //
+      {ASTNodeType::INTEGER_LITERAL, &AnalyzerImpl::analyze_integer_literal}, //
+      {ASTNodeType::FLOAT_LITERAL, &AnalyzerImpl::analyze_float_literal}, //
+      {ASTNodeType::ARRAY_LITERAL, &AnalyzerImpl::analyze_array_literal}, //
+      {ASTNodeType::BOP_OR_UOP, &AnalyzerImpl::analyze_bop_or_uop}, //
+      {ASTNodeType::INTRINSIC, &AnalyzerImpl::analyze_intrinsic}, //
+      {ASTNodeType::PARENTHESIS, &AnalyzerImpl::analyze_parenthesis}, //
+      {ASTNodeType::FUNC_CALL, &AnalyzerImpl::analyze_func_call}, //
+      {ASTNodeType::ENUM_DECL, &AnalyzerImpl::analyze_enum_decl}, //
+      {ASTNodeType::FUNC_DECL, &AnalyzerImpl::analyze_func_decl}, //
+      {ASTNodeType::ARG_DECL, &AnalyzerImpl::analyze_arg_decl}, //
+      {ASTNodeType::VAR_DECL, &AnalyzerImpl::analyze_var_decl}, //
+      {ASTNodeType::STRUCT_DECL, &AnalyzerImpl::analyze_struct_decl}, //
+  };
 };
 
 void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }

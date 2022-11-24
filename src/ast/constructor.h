@@ -37,20 +37,16 @@ public:
    * \note Make sure default_val's type is resolved
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(ASTContext *ctx,
-      SrcLoc loc,
+  static BasicConstructor *CreateIntegerConstructor(SrcLoc loc,
       uint64_t default_val = 0,
       size_t bit_size = 32,
       bool is_unsigned = false);
-  static BasicConstructor *CreateBoolConstructor(ASTContext *ctx, SrcLoc loc, bool default_val = false);
-  static BasicConstructor *CreateFPConstructor(ASTContext *ctx,
-      SrcLoc loc,
-      double default_val = 0,
-      size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(ASTContext *ctx, SrcLoc loc, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(ASTContext *ctx, SrcLoc loc, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type = {});
-  static BasicConstructor *CreateNullPointerConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type);
+  static BasicConstructor *CreateBoolConstructor(SrcLoc loc, bool default_val = false);
+  static BasicConstructor *CreateFPConstructor(SrcLoc loc, double default_val = 0, size_t bit_size = 32);
+  static BasicConstructor *CreateStringConstructor(SrcLoc loc, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(SrcLoc loc, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(SrcLoc loc, Type *element_type = {});
+  static BasicConstructor *CreateNullPointerConstructor(SrcLoc loc, Type *element_type);
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);
@@ -66,19 +62,19 @@ private:
 class StructConstructor : public Constructor {
 public:
   StructConstructor() = delete;
-  static StructConstructor *Create(ASTType *struct_type);
-  static StructConstructor *Create(ASTType *struct_type, vector<Constructor *> member_ctrs);
+  static StructConstructor *Create(Type *struct_type);
+  static StructConstructor *Create(Type *struct_type, vector<Constructor *> member_ctrs);
 
   vector<Constructor *> &get_member_constructors();
   void set_member_constructors(const vector<Constructor *> &member_constructors);
-  ASTType *get_struct_type() const;
+  Type *get_struct_type() const;
 
 protected:
-  explicit StructConstructor(ASTType *struct_type);
+  explicit StructConstructor(Type *struct_type);
 
 private:
   vector<Constructor *> _member_constructors{};
-  ASTType *_struct_type = nullptr;
+  Type *_struct_type = nullptr;
 };
 
 }

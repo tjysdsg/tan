@@ -1,7 +1,7 @@
 #include "src/ast/intrinsic.h"
 #include "compiler_session.h"
 #include "src/ast/decl.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/ast/ast_context.h"
 
 namespace tanlang {
@@ -22,8 +22,8 @@ void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
   ctx->add_function(FunctionDecl::Create(SrcLoc(0),
       "compprint",
-      ASTType::GetVoidType(ctx, SrcLoc(0)),
-      {ASTType::CreateAndResolve(ctx, SrcLoc(0), Ty::STRING),},
+      Type::GetVoidType(),
+      {Type::GetStringType()},
       true,
       false));
 }
@@ -55,8 +55,8 @@ static void init_noop(CompilerSession *cs) {
   /// fn llvm.donothing() : void;
   Function *func = cs->get_module()->getFunction("llvm.donothing");
   if (!func) {
-    Type *ret_type = cs->_builder->getVoidTy();
-    FunctionType *FT = FunctionType::get(ret_type, {}, false);
+    llvm::Type *ret_type = cs->_builder->getVoidTy();
+    auto *FT = llvm::FunctionType::get(ret_type, {}, false);
     Function::Create(FT, Function::ExternalWeakLinkage, "llvm.donothing", cs->get_module());
   }
 }

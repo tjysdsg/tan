@@ -1,5 +1,5 @@
 #include "src/compiler/function_table.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/ast/decl.h"
 
 namespace tanlang {

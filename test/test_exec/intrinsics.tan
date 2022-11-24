@@ -5,7 +5,7 @@ import "runtime/stdlib.tan";
 pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");
 
-    assert(@file as bool);  // TODO: string comparison
+    // assert(@file == "intrinsics.tan");  // TODO: string comparison
     print("\nSource filename is:");
     print(@file);
 

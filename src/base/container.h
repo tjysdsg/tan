@@ -8,8 +8,21 @@
 #include <functional>
 
 template<typename T> using vector = std::vector<T>;
+
 using str = std::string;
-template<typename T1, typename T2> using umap = std::unordered_map<T1, T2>;
+
+template<typename Key, typename Value, typename Hash = std::hash<Key>> // support custom hash
+using umap = std::unordered_map<Key, Value, Hash>;
+
+struct PairHash {
+  template<class T1, class T2> std::size_t operator()(const std::pair<T1, T2> &p) const {
+    // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes/27952689#27952689
+    size_t lhs = std::hash<T1>{}(p.first);
+    size_t rhs = std::hash<T2>{}(p.second);
+    lhs ^= rhs + 0x9e3779b9 + (lhs << 6) + (lhs >> 2);
+    return lhs;
+  }
+};
 
 template<typename To, typename From> To *cast_ptr(From *p) {
   #ifdef DEBUG

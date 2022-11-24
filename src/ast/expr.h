@@ -141,6 +141,9 @@ public:
   static VarRef *Create(SrcLoc loc, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
+  Type *get_type() const override;
+  void set_type(Type *) override;
+
 private:
   Decl *_referred = nullptr;
 };
@@ -158,9 +161,9 @@ public:
 
   [[nodiscard]] IdentifierType get_id_type() const;
   void set_var_ref(VarRef *var_ref);
-  void set_type_ref(ASTType *type_ref);
+  void set_type_ref(Type *type_ref);
   [[nodiscard]] VarRef *get_var_ref() const;
-  [[nodiscard]] ASTType *get_type_ref() const;
+  [[nodiscard]] Type *get_type_ref() const;
   bool is_lvalue() override;
   void set_lvalue(bool is_lvalue) override;
 
@@ -168,7 +171,7 @@ private:
   IdentifierType _id_type = IdentifierType::INVALID;
   union {
     VarRef *_var_ref = nullptr;
-    ASTType *_type_ref;
+    Type *_type_ref;
   };
 };
 
@@ -291,8 +294,8 @@ public:
 
   [[nodiscard]] Expr *get_expr_ptr() const;
   [[nodiscard]] ASTBase *get() const override;
-  [[nodiscard]] ASTType *get_type() const override;
-  void set_type(ASTType *type) override;
+  [[nodiscard]] Type *get_type() const override;
+  void set_type(Type *type) override;
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
@@ -368,8 +371,6 @@ public:
   static Cast *Create(SrcLoc loc);
   [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
-  [[nodiscard]] ASTBase *get_rhs() const;
-  void set_rhs(ASTBase *rhs);
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
@@ -378,7 +379,6 @@ public:
 
 protected:
   Expr *_lhs = nullptr;
-  ASTBase *_rhs = nullptr;
 };
 
 }

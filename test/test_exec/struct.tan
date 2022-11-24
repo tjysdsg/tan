@@ -26,9 +26,11 @@ pub fn main(argc: int, argv: u8**) : i32 {
     var f: Fuck;
     s.pfuck = &f; // pointer
     s.fuck = f; // copy
+
     // TODO: assert(s.shit == 1);
     // TODO: assert(s.fuck.val == 2);
     // TODO: assert(s.pfuck.val == 2);
+
     s.shit = 100 as i8;
     s.f = 1.0;
     s.fuck.val = 11;

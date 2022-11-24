@@ -5,22 +5,17 @@
 
 namespace tanlang {
 
-class TypeAccessor {
-public:
-  virtual ASTType *get_type() const;
-  virtual ~TypeAccessor() = default;
-};
-
 /**
  * \brief All typed AST nodes should inherit this class
  */
-class Typed : public TypeAccessor {
+class Typed {
 public:
-  ASTType *get_type() const override;
-  virtual void set_type(ASTType *type);
+  virtual Type *get_type() const;
+  virtual void set_type(Type *type);
+  virtual ~Typed() = default;
 
 private:
-  ASTType *_type = nullptr;
+  Type *_type = nullptr;
 };
 
 }

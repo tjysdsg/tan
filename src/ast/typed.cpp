@@ -1,12 +1,14 @@
 #include "src/ast/typed.h"
+#include "src/ast/type.h"
 
 using namespace tanlang;
 
-ASTType *TypeAccessor::get_type() const {
-  TAN_ASSERT(false);
-  return nullptr;
+Type *Typed::get_type() const {
+  if (!_type) { return nullptr; }
+  return _type;
 }
 
-ASTType *Typed::get_type() const { return _type; }
-
-void Typed::set_type(ASTType *type) { _type = type; }
+void Typed::set_type(Type *type) {
+  TAN_ASSERT(type);
+  _type = type;
+}

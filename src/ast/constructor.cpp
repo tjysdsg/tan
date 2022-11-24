@@ -10,53 +10,53 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
   return ret;
 }
 
-BasicConstructor *BasicConstructor::CreateIntegerConstructor(ASTContext *ctx,
+BasicConstructor *BasicConstructor::CreateIntegerConstructor(
     SrcLoc loc,
     uint64_t default_val,
     size_t bit_size,
     bool is_unsigned) {
-  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(ctx, loc, default_val, bit_size, is_unsigned));
+  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(loc, default_val, bit_size, is_unsigned));
 }
 
-BasicConstructor *BasicConstructor::CreateBoolConstructor(ASTContext *ctx, SrcLoc loc, bool default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(ctx, loc, default_val));
+BasicConstructor *BasicConstructor::CreateBoolConstructor(SrcLoc loc, bool default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateFPConstructor(ASTContext *ctx,
+BasicConstructor *BasicConstructor::CreateFPConstructor(
     SrcLoc loc,
     double default_val,
     size_t bit_size) {
-  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(ctx, loc, default_val, bit_size));
+  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(loc, default_val, bit_size));
 }
 
-BasicConstructor *BasicConstructor::CreateStringConstructor(ASTContext *ctx, SrcLoc loc, str default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(ctx, loc, default_val));
+BasicConstructor *BasicConstructor::CreateStringConstructor(SrcLoc loc, str default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateCharConstructor(ASTContext *ctx, SrcLoc loc, uint8_t default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(ctx, loc, default_val));
+BasicConstructor *BasicConstructor::CreateCharConstructor(SrcLoc loc, uint8_t default_val) {
+  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateArrayConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type) {
-  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(ctx, loc, element_type));
+BasicConstructor *BasicConstructor::CreateArrayConstructor(SrcLoc loc, Type *element_type) {
+  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(loc, element_type, 0));
 }
 
-BasicConstructor *BasicConstructor::CreateNullPointerConstructor(ASTContext *ctx, SrcLoc loc, ASTType *element_type) {
-  return BasicConstructor::Create(ASTBuilder::CreateNullPointerLiteral(ctx, loc, element_type));
+BasicConstructor *BasicConstructor::CreateNullPointerConstructor(SrcLoc loc, Type *element_type) {
+  return BasicConstructor::Create(ASTBuilder::CreateNullPointerLiteral(loc, element_type));
 }
 
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }
 
 void BasicConstructor::set_value(CompTimeExpr *val) { _value = val; }
 
-StructConstructor::StructConstructor(ASTType *struct_type)
+StructConstructor::StructConstructor(Type *struct_type)
     : Constructor(ConstructorType::STRUCT), _struct_type(struct_type) {}
 
-StructConstructor *StructConstructor::Create(ASTType *struct_type) {
+StructConstructor *StructConstructor::Create(Type *struct_type) {
   return new StructConstructor(struct_type);
 }
 
-StructConstructor *StructConstructor::Create(ASTType *struct_type, vector<Constructor *> member_ctrs) {
+StructConstructor *StructConstructor::Create(Type *struct_type, vector<Constructor *> member_ctrs) {
   auto *ret = new StructConstructor(struct_type);
   ret->_member_constructors = std::move(member_ctrs);
   return ret;
@@ -68,4 +68,4 @@ void StructConstructor::set_member_constructors(const vector<Constructor *> &mem
   _member_constructors = member_constructors;
 }
 
-ASTType *StructConstructor::get_struct_type() const { return _struct_type; }
+Type *StructConstructor::get_struct_type() const { return _struct_type; }

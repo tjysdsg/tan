@@ -16,9 +16,9 @@ pub fn main() : int {
     assert(*pn == 2);
 
     var a: A;
-    var shit = &a;
     a.a = 100;
     a.b = -2.5;
+    var shit = &a;
     assert(shit.a == 100);
     assert(*shit.a == 100);
     shit.a = 21;

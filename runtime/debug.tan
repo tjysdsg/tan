@@ -5,5 +5,4 @@ pub fn assert(b: bool) : void {
         stack_trace();
         abort();
     }
-    return; // a workaround for #41
 }

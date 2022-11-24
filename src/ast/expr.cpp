@@ -1,7 +1,8 @@
 #include "src/ast/expr.h"
-
-#include <utility>
 #include "src/ast/ast_context.h"
+#include "src/ast/type.h"
+#include "src/ast/decl.h"
+#include <utility>
 
 using namespace tanlang;
 
@@ -97,6 +98,13 @@ VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {
 
 Decl *VarRef::get_referred() const { return _referred; }
 
+Type *VarRef::get_type() const {
+  TAN_ASSERT(_referred);
+  return _referred->get_type();
+}
+
+void VarRef::set_type(Type *) { TAN_ASSERT(false); }
+
 Identifier::Identifier(SrcLoc loc) : Expr(ASTNodeType::ID, loc, 0) {}
 
 Identifier *Identifier::Create(SrcLoc loc, const str &name) {
@@ -112,7 +120,7 @@ VarRef *Identifier::get_var_ref() const {
   return _var_ref;
 }
 
-ASTType *Identifier::get_type_ref() const {
+Type *Identifier::get_type_ref() const {
   TAN_ASSERT(_id_type == IdentifierType::ID_TYPE_DECL);
   return _type_ref;
 }
@@ -122,7 +130,7 @@ void Identifier::set_var_ref(VarRef *var_ref) {
   _var_ref = var_ref;
 }
 
-void Identifier::set_type_ref(ASTType *type_ref) {
+void Identifier::set_type_ref(Type *type_ref) {
   _id_type = IdentifierType::ID_TYPE_DECL;
   _type_ref = type_ref;
 }
@@ -276,11 +284,7 @@ Cast *Cast::Create(SrcLoc loc) { return new Cast(loc); }
 
 Cast::Cast(SrcLoc loc) : Expr(ASTNodeType::CAST, loc, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
 
-ASTBase *Cast::get_rhs() const { return _rhs; }
-
-void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
-
-vector<ASTBase *> Cast::get_children() const { return {_lhs, _rhs}; }
+vector<ASTBase *> Cast::get_children() const { return {_lhs}; }
 
 BinaryOrUnary::BinaryOrUnary(SrcLoc loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP, loc, bp) {}
 
@@ -306,15 +310,14 @@ Expr *BinaryOrUnary::get_expr_ptr() const {
       return _uop;
     default:
       TAN_ASSERT(false);
-      break;
   }
 }
 
 ASTBase *BinaryOrUnary::get() const { return get_expr_ptr(); }
 
-ASTType *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
+Type *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
 
-void BinaryOrUnary::set_type(ASTType *type) { get_expr_ptr()->set_type(type); }
+void BinaryOrUnary::set_type(Type *type) { get_expr_ptr()->set_type(type); }
 
 vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->get_children(); }
 
