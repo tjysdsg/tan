@@ -1,6 +1,6 @@
 #include "src/ast/decl.h"
 #include "src/ast/ast_context.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
 
@@ -16,7 +16,7 @@ ArgDecl::ArgDecl(SrcLoc loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
 
 ArgDecl *ArgDecl::Create(SrcLoc loc) { return new ArgDecl(loc); }
 
-ArgDecl *ArgDecl::Create(SrcLoc loc, const str &name, ASTType *ty) {
+ArgDecl *ArgDecl::Create(SrcLoc loc, const str &name, Type *ty) {
   auto ret = new ArgDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
@@ -29,7 +29,7 @@ VarDecl::VarDecl(SrcLoc loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
 
 VarDecl *VarDecl::Create(SrcLoc loc) { return new VarDecl(loc); }
 
-VarDecl *VarDecl::Create(SrcLoc loc, const str &name, ASTType *ty) {
+VarDecl *VarDecl::Create(SrcLoc loc, const str &name, Type *ty) {
   auto ret = new VarDecl(loc);
   ret->set_name(name);
   ret->set_type(ty);
@@ -55,9 +55,7 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
     for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
       auto actual_arg = args[i];
       /// allow implicit cast from actual_arg to arg, but not in reverse
-      auto t1 = f->get_arg_type(i);
-      auto t2 = actual_arg->get_type();
-      if (*t1 != *t2) {
+      if (!TypeSystem::CanImplicitlyConvert(actual_arg->get_type(), f->get_arg_type(i))) {
         good = false;
         break;
       }
@@ -85,8 +83,8 @@ FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
 
 FunctionDecl *FunctionDecl::Create(SrcLoc loc,
     const str &name,
-    ASTType *ret_type,
-    vector<ASTType *> arg_types,
+    Type *ret_type,
+    vector<Type *> arg_types,
     bool is_external,
     bool is_public,
     Stmt *body) {
@@ -111,21 +109,21 @@ FunctionDecl *FunctionDecl::Create(SrcLoc loc,
   return ret;
 }
 
-ASTType *FunctionDecl::get_ret_ty() const { return _ret_type; }
+Type *FunctionDecl::get_ret_ty() const { return _ret_type; }
 
 str FunctionDecl::get_arg_name(size_t i) const { return _arg_names[i]; }
 
-ASTType *FunctionDecl::get_arg_type(size_t i) const { return _arg_types[i]; }
+Type *FunctionDecl::get_arg_type(size_t i) const { return _arg_types[i]; }
 
 size_t FunctionDecl::get_n_args() const { return _arg_names.size(); }
 
 void FunctionDecl::set_body(Stmt *body) { _body = body; }
 
-void FunctionDecl::set_ret_type(ASTType *type) { _ret_type = type; }
+void FunctionDecl::set_ret_type(Type *type) { _ret_type = type; }
 
 void FunctionDecl::set_arg_names(const vector<str> &names) { _arg_names = names; }
 
-void FunctionDecl::set_arg_types(const vector<ASTType *> &types) { _arg_types = types; }
+void FunctionDecl::set_arg_types(const vector<Type *> &types) { _arg_types = types; }
 
 bool FunctionDecl::is_public() const { return _is_public; }
 
@@ -162,7 +160,7 @@ const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decl
 
 void StructDecl::set_member_decls(const vector<Expr *> &member_decls) { _member_decls = member_decls; }
 
-ASTType *StructDecl::get_struct_member_ty(size_t i) const {
+Type *StructDecl::get_struct_member_ty(size_t i) const {
   TAN_ASSERT(i < _member_decls.size());
   return _member_decls[i]->get_type();
 }
