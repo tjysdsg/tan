@@ -2,6 +2,8 @@
 
 using namespace tanlang;
 
+StringType *Type::STRING_TYPE = new StringType();
+
 Type *Type::get_canonical() {
   TAN_ASSERT(_canonical_type != this);
   if (!_canonical_type) { return this; }
@@ -12,13 +14,17 @@ bool Type::is_canonical() { return !_canonical_type; }
 
 void Type::set_canonical(Type *t) { _canonical_type = t; }
 
-StringType *Type::GetStringType() { return new StringType(); }
-
 PrimitiveType *PrimitiveType::Create(PrimitiveType::Kind kind) {
-  auto *ret = new PrimitiveType();
-  ret->_kind = kind;
-  ret->_type_name = TYPE_NAMES[kind];
-  return ret;
+  auto it = CACHE.find(kind);
+  if (it != CACHE.end()) {
+    return it->second;
+  } else {
+    auto *ret = new PrimitiveType();
+    ret->_kind = kind;
+    ret->_type_name = TYPE_NAMES[kind];
+    CACHE[kind] = ret;
+    return ret;
+  }
 }
 
 PrimitiveType *Type::GetVoidType() {
@@ -75,12 +81,28 @@ PrimitiveType *Type::GetFloatType(size_t bit_size) {
   }
 }
 
+StringType *Type::GetStringType() { return STRING_TYPE; }
+
 PointerType *Type::GetPointerType(Type *pointee) {
-  return new PointerType(pointee);
+  auto it = POINTER_TYPE_CACHE.find(pointee);
+  if (it != POINTER_TYPE_CACHE.end()) {
+    return it->second;
+  } else {
+    auto *ret = new PointerType(pointee);
+    POINTER_TYPE_CACHE[pointee] = ret;
+    return ret;
+  }
 }
 
 ArrayType *Type::GetArrayType(Type *element_type, int size) {
-  return new ArrayType(element_type, size);
+  auto it = ARRAY_TYPE_CACHE.find({element_type, size});
+  if (it != ARRAY_TYPE_CACHE.end()) {
+    return it->second;
+  } else {
+    auto *ret = new ArrayType(element_type, size);
+    ARRAY_TYPE_CACHE[{element_type, size}] = ret;
+    return ret;
+  }
 }
 
 bool Type::is_primitive() {
@@ -139,6 +161,11 @@ bool Type::is_void() {
 }
 
 bool Type::is_char() {
+  TAN_ASSERT(!_canonical_type);
+  return false;
+}
+
+bool Type::is_enum() {
   TAN_ASSERT(!_canonical_type);
   return false;
 }

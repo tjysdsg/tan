@@ -13,6 +13,9 @@ class TypeRef;
 class StructType;
 
 // TODO IMPORTANT: remove dependency from ASTBase
+/**
+ * \brief Type is immutable once created, and it's made sure that each type has only one instance
+ */
 class Type : public ASTBase {
 public:
   // TODO IMPORTANT: avoid duplicated instantiation
@@ -41,6 +44,7 @@ public:
   virtual bool is_bool();
   virtual bool is_void();
   virtual bool is_char();
+  virtual bool is_enum();
 
   const str &get_typename() { return _type_name; }
   Type *get_canonical();
@@ -52,6 +56,12 @@ protected:
 
 private:
   Type *_canonical_type = nullptr;
+
+  // type cache
+  static StringType *STRING_TYPE;
+  static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{}; // pointee type -> pointer type
+  static inline umap<std::pair<Type *, int>, ArrayType *, PairHash>
+      ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
 };
 
 class PrimitiveType : public Type {
@@ -78,6 +88,8 @@ protected:
   PrimitiveType() = default;
 
 private:
+  static inline umap<PrimitiveType::Kind, PrimitiveType *> CACHE{};
+
   Kind _kind;
   Constructor *_constructor = nullptr;
 
@@ -108,6 +120,9 @@ private:
 
 class ArrayType : public Type {
 public:
+  Type *get_element_type() { return _element_type; }
+  int get_size() { return _size; }
+
   friend class Type;
 
 protected:
