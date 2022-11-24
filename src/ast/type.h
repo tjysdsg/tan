@@ -119,6 +119,7 @@ class ArrayType : public Type {
 public:
   Type *get_element_type() { return _element_type; }
   int get_size() { return _size; }
+  bool is_array() override { return true; }
 
   friend class Type;
 

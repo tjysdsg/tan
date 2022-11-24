@@ -66,6 +66,9 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
     // FIXME: casting array of float to/from array of integer is broken
     TAN_ASSERT(false);
   } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
+    return loaded;
+  } else if (orig->is_array() && dest->is_pointer()) { /// array to pointer, don't need to do anything
+    return loaded;
   }
 
   Error err(cs->_filename, cs->get_source_manager()->get_token(expr->loc()), "Cannot perform type conversion");

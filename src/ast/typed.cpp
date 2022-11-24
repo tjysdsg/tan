@@ -4,7 +4,7 @@
 using namespace tanlang;
 
 Type *Typed::get_type() const {
-  TAN_ASSERT(_type);
+  if (!_type) { return nullptr; }
   return _type->get_canonical();
 }
 

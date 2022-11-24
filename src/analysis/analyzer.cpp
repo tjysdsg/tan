@@ -647,16 +647,18 @@ private:
     Type *sub_type = nullptr;
     if (lhs_type->is_pointer()) {
       sub_type = ast_must_cast<PointerType>(lhs_type)->get_pointee();
-    } else if (lhs_type->is_array()
-        && rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) { /// check if array index is out-of-bound
-      uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
+    } else if (lhs_type->is_array()) {
       auto *array_type = ast_must_cast<ArrayType>(lhs_type);
       sub_type = array_type->get_element_type();
-      if (lhs->get_type()->is_array() && (int) size >= array_type->get_size()) {
-        report_error(p,
-            fmt::format("Index {} out of bound, the array size is {}",
-                std::to_string(size),
-                std::to_string(array_type->get_size())));
+      /// check if array index is out-of-bound
+      if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
+        uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
+        if (lhs->get_type()->is_array() && (int) size >= array_type->get_size()) {
+          report_error(p,
+              fmt::format("Index {} out of bound, the array size is {}",
+                  std::to_string(size),
+                  std::to_string(array_type->get_size())));
+        }
       }
     } else if (lhs_type->is_string()) {
       sub_type = Type::GetCharType();

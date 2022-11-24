@@ -561,7 +561,7 @@ private:
 
       /// element type
       auto elements = arr->get_elements();
-      auto *e_type = TypeSystem::ToLLVMType(_cs, ast_must_cast<ArrayType>(ptype));
+      auto *e_type = TypeSystem::ToLLVMType(_cs, ast_must_cast<ArrayType>(ptype)->get_element_type());
 
       /// codegen element values
       size_t n = elements.size();
