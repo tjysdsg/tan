@@ -639,7 +639,7 @@ private:
       error(_curr, "Expect a type");
     }
     parse_node(ret_type);
-    p->set_ret_type(ast_must_cast<Type>(ret_type)->get_canonical());
+    p->set_ret_type(ast_must_cast<Type>(ret_type));
 
     /// body
     if (!is_external) {
@@ -926,7 +926,7 @@ private:
       Type *ty = peek_type();
       if (ty->get_node_type() != ASTNodeType::TY) { error(_curr, "Expect a type"); }
       parse_ty(ty);
-      p->set_type(ty->get_canonical());
+      p->set_type(ty);
     }
   }
 

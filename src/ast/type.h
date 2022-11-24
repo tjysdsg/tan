@@ -66,7 +66,6 @@ private:
   static inline umap<std::pair<Type *, int>, ArrayType *, PairHash>
       ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
   static inline umap<str, StructType *> STRUCT_TYPE_CACHE{}; // struct_name -> pointer type
-  static inline umap<str, TypeRef *> TYPE_REF_CACHE{}; // name -> pointer type
 };
 
 class PrimitiveType : public Type {

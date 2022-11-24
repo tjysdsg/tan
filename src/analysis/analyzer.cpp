@@ -16,7 +16,9 @@
 
 namespace tanlang {
 
-class AnalyzerImpl {
+using analyze_func_t = void (AnalyzerImpl::*)(ASTBase *);
+
+class AnalyzerImpl final {
 public:
   explicit AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
 
@@ -28,74 +30,14 @@ public:
       case ASTNodeType::STATEMENT:
         analyze_stmt(p);
         break;
-      case ASTNodeType::ASSIGN:
-        analyze_assignment(ast_must_cast<Assignment>(p));
-        break;
-      case ASTNodeType::CAST:
-        analyze_cast(ast_must_cast<Cast>(p));
-        break;
-      case ASTNodeType::BOP:
-        analyze_bop(p);
-        break;
-      case ASTNodeType::UOP:
-        analyze_uop(p);
-        break;
       case ASTNodeType::RET:
         analyze_ret(p);
-        break;
-      case ASTNodeType::ID:
-        analyze_id(p);
-        break;
-      case ASTNodeType::STRING_LITERAL:
-        analyze_string_literal(p);
-        break;
-      case ASTNodeType::CHAR_LITERAL:
-        analyze_char_literal(p);
-        break;
-      case ASTNodeType::BOOL_LITERAL:
-        analyze_bool_literal(p);
-        break;
-      case ASTNodeType::INTEGER_LITERAL:
-        analyze_integer_literal(p);
-        break;
-      case ASTNodeType::FLOAT_LITERAL:
-        analyze_float_literal(p);
-        break;
-      case ASTNodeType::ARRAY_LITERAL:
-        analyze_array_literal(p);
         break;
       case ASTNodeType::IF:
         analyze_if(p);
         break;
-      case ASTNodeType::INTRINSIC:
-        analyze_intrinsic(p);
-        break;
       case ASTNodeType::IMPORT:
         analyze_import(p);
-        break;
-      case ASTNodeType::PARENTHESIS:
-        analyze_parenthesis(p);
-        break;
-      case ASTNodeType::FUNC_CALL:
-        analyze_func_call(p);
-        break;
-      case ASTNodeType::ENUM_DECL:
-        analyze_enum_decl(p);
-        break;
-      case ASTNodeType::FUNC_DECL:
-        analyze_func_decl(p);
-        break;
-      case ASTNodeType::ARG_DECL:
-        analyze_arg_decl(p);
-        break;
-      case ASTNodeType::VAR_DECL:
-        analyze_var_decl(p);
-        break;
-      case ASTNodeType::STRUCT_DECL:
-        analyze_struct_decl(p);
-        break;
-      case ASTNodeType::BOP_OR_UOP:
-        analyze_bop_or_uop(p);
         break;
       case ASTNodeType::LOOP:
         analyze_loop(p);
@@ -106,6 +48,29 @@ public:
         break;
       case ASTNodeType::TY:
         analyze_ty(p);
+        break;
+        /// expressions
+      case ASTNodeType::ASSIGN:
+      case ASTNodeType::CAST:
+      case ASTNodeType::BOP:
+      case ASTNodeType::UOP:
+      case ASTNodeType::BOP_OR_UOP:
+      case ASTNodeType::ID:
+      case ASTNodeType::STRING_LITERAL:
+      case ASTNodeType::CHAR_LITERAL:
+      case ASTNodeType::BOOL_LITERAL:
+      case ASTNodeType::INTEGER_LITERAL:
+      case ASTNodeType::FLOAT_LITERAL:
+      case ASTNodeType::ARRAY_LITERAL:
+      case ASTNodeType::INTRINSIC:
+      case ASTNodeType::PARENTHESIS:
+      case ASTNodeType::FUNC_CALL:
+      case ASTNodeType::ENUM_DECL:
+      case ASTNodeType::FUNC_DECL:
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::VAR_DECL:
+      case ASTNodeType::STRUCT_DECL:
+        analyze_expr(ast_must_cast<Expr>(p));
         break;
       default:
         TAN_ASSERT(false);
@@ -120,6 +85,20 @@ private:
   [[noreturn]] void report_error(ASTBase *p, const str &message) {
     Error err(_ctx->_filename, _sm->get_token(p->loc()), message);
     err.raise();
+  }
+
+  void analyze_expr(Expr *p) {
+    (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p);
+
+    /// assign p's type directly to the canonical type, skip TypeRef etc.
+    ///  exceptions:
+    ///     - VAR_DECL: type may be inferred in assignment expression
+    ///     - INTRINSIC: could be statement
+    if (p->get_node_type() == ASTNodeType::VAR_DECL || p->get_node_type() == ASTNodeType::INTRINSIC) { return; }
+    if (!p->get_type()) {
+      report_error(p, "[DEV] Expression must have a type after analysis");
+    }
+    p->set_type(p->get_type());
   }
 
   void analyze_ty(ASTBase *_p) {
@@ -150,9 +129,7 @@ private:
 
   void analyze_parenthesis(ASTBase *_p) {
     auto p = ast_must_cast<Parenthesis>(_p);
-
     analyze(p->get_sub());
-
     p->set_type(p->get_sub()->get_type());
   }
 
@@ -316,7 +293,9 @@ private:
     }
   }
 
-  void analyze_cast(Cast *p) {
+  void analyze_cast(ASTBase *_p) {
+    auto *p = ast_must_cast<Cast>(_p);
+
     Expr *lhs = p->get_lhs();
     ASTBase *rhs = p->get_rhs();
     analyze(lhs);
@@ -340,7 +319,9 @@ private:
     // FIXME: check if the cast is valid
   }
 
-  void analyze_assignment(Assignment *p) {
+  void analyze_assignment(ASTBase *_p) {
+    auto *p = ast_must_cast<Assignment>(_p);
+
     Expr *rhs = p->get_rhs();
     analyze(rhs);
 
@@ -351,10 +332,8 @@ private:
         analyze(lhs);
         lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
         break;
-      case ASTNodeType::STRUCT_DECL:
       case ASTNodeType::VAR_DECL:
       case ASTNodeType::ARG_DECL:
-      case ASTNodeType::ENUM_DECL:
       case ASTNodeType::BOP_OR_UOP:
       case ASTNodeType::UOP:
       case ASTNodeType::BOP:
@@ -366,21 +345,17 @@ private:
     }
 
     /// if the type of lhs is not set, we deduce it
-    /// NOTE: we only allow type deduction for declarations
+    /// NOTE: we only allow type deduction for variable declarations
     if (!lhs_type) {
       lhs_type = rhs->get_type();
 
       /// set type of lhs
       switch (lhs->get_node_type()) {
-        case ASTNodeType::STRUCT_DECL:
         case ASTNodeType::VAR_DECL:
-        case ASTNodeType::ARG_DECL:
-        case ASTNodeType::ENUM_DECL:
           ast_must_cast<Decl>(lhs)->set_type(lhs_type);
           break;
         default:
           TAN_ASSERT(false);
-          break;
       }
       /// analyze again just to make sure
       analyze(lhs);
@@ -417,6 +392,7 @@ private:
     _ctx->add_function(p);
 
     /// analyze return type
+    p->set_ret_type(p->get_ret_ty()->get_canonical());
     analyze(p->get_ret_ty());
 
     _ctx->push_scope(); /// new scope
@@ -431,6 +407,9 @@ private:
     if (!p->is_external()) {
       analyze(p->get_body());
     }
+
+    // TODO IMPORTANT: function type
+    p->set_type(p->get_ret_ty());
 
     _ctx->pop_scope(); /// pop scope
   }
@@ -846,6 +825,30 @@ private:
     */
     TAN_ASSERT(false);
   }
+
+private:
+  static inline umap<ASTNodeType, analyze_func_t> EXPRESSION_ANALYZER_TABLE{ //
+      {ASTNodeType::ASSIGN, &AnalyzerImpl::analyze_assignment}, //
+      {ASTNodeType::CAST, &AnalyzerImpl::analyze_cast}, //
+      {ASTNodeType::BOP, &AnalyzerImpl::analyze_bop}, //
+      {ASTNodeType::UOP, &AnalyzerImpl::analyze_uop}, //
+      {ASTNodeType::ID, &AnalyzerImpl::analyze_id}, //
+      {ASTNodeType::STRING_LITERAL, &AnalyzerImpl::analyze_string_literal}, //
+      {ASTNodeType::CHAR_LITERAL, &AnalyzerImpl::analyze_char_literal}, //
+      {ASTNodeType::BOOL_LITERAL, &AnalyzerImpl::analyze_bool_literal}, //
+      {ASTNodeType::INTEGER_LITERAL, &AnalyzerImpl::analyze_integer_literal}, //
+      {ASTNodeType::FLOAT_LITERAL, &AnalyzerImpl::analyze_float_literal}, //
+      {ASTNodeType::ARRAY_LITERAL, &AnalyzerImpl::analyze_array_literal}, //
+      {ASTNodeType::BOP_OR_UOP, &AnalyzerImpl::analyze_bop_or_uop}, //
+      {ASTNodeType::INTRINSIC, &AnalyzerImpl::analyze_intrinsic}, //
+      {ASTNodeType::PARENTHESIS, &AnalyzerImpl::analyze_parenthesis}, //
+      {ASTNodeType::FUNC_CALL, &AnalyzerImpl::analyze_func_call}, //
+      {ASTNodeType::ENUM_DECL, &AnalyzerImpl::analyze_enum_decl}, //
+      {ASTNodeType::FUNC_DECL, &AnalyzerImpl::analyze_func_decl}, //
+      {ASTNodeType::ARG_DECL, &AnalyzerImpl::analyze_arg_decl}, //
+      {ASTNodeType::VAR_DECL, &AnalyzerImpl::analyze_var_decl}, //
+      {ASTNodeType::STRUCT_DECL, &AnalyzerImpl::analyze_struct_decl}, //
+  };
 };
 
 void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }

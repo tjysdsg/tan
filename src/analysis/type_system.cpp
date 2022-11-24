@@ -86,7 +86,7 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
 
 llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
-  p = p->get_canonical();
+  TAN_ASSERT(p == p->get_canonical());
 
   auto it = cs->llvm_type_cache.find(p);
   if (it != cs->llvm_type_cache.end()) {
@@ -143,7 +143,7 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
 
 Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
   TAN_ASSERT(p);
-  p = p->get_canonical();
+  TAN_ASSERT(p == p->get_canonical());
 
   auto it = cs->llvm_metadata_cache.find(p);
   if (it != cs->llvm_metadata_cache.end()) {
