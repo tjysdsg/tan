@@ -1,7 +1,7 @@
 #include "src/ast/expr.h"
-
-#include <utility>
 #include "src/ast/ast_context.h"
+#include "src/ast/type.h"
+#include <utility>
 
 using namespace tanlang;
 
@@ -112,9 +112,9 @@ VarRef *Identifier::get_var_ref() const {
   return _var_ref;
 }
 
-ASTType *Identifier::get_type_ref() const {
+Type *Identifier::get_type_ref() const {
   TAN_ASSERT(_id_type == IdentifierType::ID_TYPE_DECL);
-  return _type_ref;
+  return _type_ref->get_canonical();
 }
 
 void Identifier::set_var_ref(VarRef *var_ref) {
@@ -122,9 +122,9 @@ void Identifier::set_var_ref(VarRef *var_ref) {
   _var_ref = var_ref;
 }
 
-void Identifier::set_type_ref(ASTType *type_ref) {
+void Identifier::set_type_ref(Type *type_ref) {
   _id_type = IdentifierType::ID_TYPE_DECL;
-  _type_ref = type_ref;
+  _type_ref = type_ref->get_canonical();
 }
 
 bool Identifier::is_lvalue() {
@@ -306,15 +306,14 @@ Expr *BinaryOrUnary::get_expr_ptr() const {
       return _uop;
     default:
       TAN_ASSERT(false);
-      break;
   }
 }
 
 ASTBase *BinaryOrUnary::get() const { return get_expr_ptr(); }
 
-ASTType *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
+Type *BinaryOrUnary::get_type() const { return get_expr_ptr()->get_type(); }
 
-void BinaryOrUnary::set_type(ASTType *type) { get_expr_ptr()->set_type(type); }
+void BinaryOrUnary::set_type(Type *type) { get_expr_ptr()->set_type(type->get_canonical()); }
 
 vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->get_children(); }
 
