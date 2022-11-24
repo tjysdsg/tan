@@ -141,6 +141,9 @@ public:
   static VarRef *Create(SrcLoc loc, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
+  Type *get_type() const override;
+  void set_type(Type *) override;
+
 private:
   Decl *_referred = nullptr;
 };

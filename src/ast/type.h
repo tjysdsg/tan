@@ -153,12 +153,6 @@ protected:
   }
 };
 
-class TypeRef : public Type {
-public:
-  TypeRef(const str &name);
-  bool is_ref() { return true; }
-};
-
 }
 
 #endif //__TAN_SRC_AST_TYPE_H__

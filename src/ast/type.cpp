@@ -169,7 +169,6 @@ bool Type::is_enum() {
 }
 
 int PrimitiveType::get_size_bits() {
-  TAN_ASSERT(_kind != VOID);
   return SIZE_BITS[_kind];
 }
 
@@ -185,7 +184,5 @@ PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
 ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
 }
-
-TypeRef::TypeRef(const str &name) { _type_name = name; }
 
 StringType::StringType() { _type_name = "str"; }

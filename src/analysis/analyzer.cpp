@@ -105,6 +105,9 @@ public:
       case ASTNodeType::CONTINUE:
         analyze_break_or_continue(p);
         break;
+      case ASTNodeType::TY:
+        analyze_ty(p);
+        break;
       default:
         TAN_ASSERT(false);
     }
@@ -120,6 +123,11 @@ private:
     err.raise();
   }
 
+  void analyze_ty(ASTBase *_p) {
+    auto *p = ast_must_cast<Type>(_p);
+    // TODO IMPORTANT
+  }
+
   void analyze_id(ASTBase *_p) {
     auto p = ast_must_cast<Identifier>(_p);
     auto *referred = _ctx->get_decl(p->get_name());
@@ -127,7 +135,7 @@ private:
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
       p->set_type(referred->get_type());
     } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = new TypeRef(p->get_name());
+      auto *ty = _ctx->get_type_decl(p->get_name())->get_type();
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
@@ -631,27 +639,27 @@ private:
     }
 
     auto *lhs_type = lhs->get_type();
-    if (!lhs_type->is_pointer() || !lhs_type->is_array()) {
-      report_error(p, "Expect a pointer or an array");
+    if (!(lhs_type->is_pointer() || lhs_type->is_array() || lhs_type->is_string())) {
+      report_error(p, "Expect a type that supports bracket access");
     }
-    if (rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) {
-      report_error(rhs, "Expect an integer literal");
-    }
-    uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
+    if (!rhs->get_type()->is_int()) { report_error(rhs, "Expect an integer"); }
 
     Type *sub_type = nullptr;
     if (lhs_type->is_pointer()) {
       sub_type = ast_must_cast<PointerType>(lhs_type)->get_pointee();
-    } else if (!lhs_type->is_array()) { /// check if array index is out-of-bound
+    } else if (lhs_type->is_array()
+        && rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) { /// check if array index is out-of-bound
+      uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
       auto *array_type = ast_must_cast<ArrayType>(lhs_type);
       sub_type = array_type->get_element_type();
-
       if (lhs->get_type()->is_array() && (int) size >= array_type->get_size()) {
         report_error(p,
             fmt::format("Index {} out of bound, the array size is {}",
                 std::to_string(size),
                 std::to_string(array_type->get_size())));
       }
+    } else if (lhs_type->is_string()) {
+      sub_type = Type::GetCharType();
     }
 
     p->set_type(sub_type);

@@ -1,6 +1,7 @@
 #include "src/ast/expr.h"
 #include "src/ast/ast_context.h"
 #include "src/ast/type.h"
+#include "src/ast/decl.h"
 #include <utility>
 
 using namespace tanlang;
@@ -96,6 +97,13 @@ VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {
 }
 
 Decl *VarRef::get_referred() const { return _referred; }
+
+Type *VarRef::get_type() const {
+  TAN_ASSERT(_referred);
+  return _referred->get_type();
+}
+
+void VarRef::set_type(Type *) { TAN_ASSERT(false); }
 
 Identifier::Identifier(SrcLoc loc) : Expr(ASTNodeType::ID, loc, 0) {}
 

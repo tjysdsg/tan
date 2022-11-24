@@ -634,7 +634,7 @@ private:
       error(_curr, "Expect a type");
     }
     parse_node(ret_type);
-    p->set_ret_type(ast_must_cast<Type>(ret_type));
+    p->set_ret_type(ast_must_cast<Type>(ret_type)->get_canonical());
 
     /// body
     if (!is_external) {
@@ -884,11 +884,11 @@ private:
         canonical = PrimitiveType::Create(it->second);
       } else if (token->get_value() == "*") { /// pointer
         canonical = Type::GetPointerType(canonical);
+      } else if (token->get_value() == "str") {
+        canonical = Type::GetStringType();
       } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
         /// type referred will be resolved in analysis phase
         canonical = new Type();
-      } else if (token->get_value() == "str") {
-        canonical = Type::GetStringType();
       } else {
         break;
       }
