@@ -8,7 +8,7 @@ namespace tanlang {
 /**
  * \brief All typed AST nodes should inherit this class
  */
-class Typed : public TypeAccessor {
+class Typed {
 public:
   virtual Type *get_type() const;
   virtual void set_type(Type *type);
