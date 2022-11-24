@@ -305,7 +305,7 @@ private:
         break;
       case UnaryOpKind::PLUS:
       case UnaryOpKind::MINUS: /// unary plus/minus
-        if (!rhs_type->is_int()) { report_error(rhs, "Expect an integer type"); }
+        if (!(rhs_type->is_int() || rhs_type->is_float())) { report_error(rhs, "Expect an numerical type"); }
         p->set_type(rhs_type);
         break;
       default:

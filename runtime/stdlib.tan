@@ -1,8 +1,8 @@
-fn reverse(s: i8*, len: u32) : void {
+fn reverse(s: str, len: u32) : void {
     var start: u32 = 0u;
     var end: u32 = len - 1u;
     while (start < end) {
-        var tmp: i8 = s[start];
+        var tmp: char = s[start];
         s[start] = s[end];
         s[end] = tmp;
         start = start + 1u;
@@ -35,9 +35,9 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
     while (num != 0) {
         var rem: u32 = num as u32 % base;
         if (rem > 9u) {
-            s[i] = (rem - 10u) as i8 + 'a';
+            s[i] = (rem - 10u) as char + 'a';
         } else {
-            s[i] = rem as i8 + '0';
+            s[i] = rem as char + '0';
         }
         i = i + 1u;
         num = num / base as i32;
@@ -49,10 +49,10 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
         i = i + 1u;
     }
 
-    s[i] = 0 as i8;
+    s[i] = 0 as char;
 
     // reverse the string
-    reverse(s as i8*, i);
+    reverse(s, i);
     return s;
 }
 

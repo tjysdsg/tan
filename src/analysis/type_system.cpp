@@ -31,7 +31,7 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
     return builder->CreateBitCast(loaded, ToLLVMType(cs, dest));
   } else if ((orig->is_enum() && dest->is_int()) || (dest->is_enum() && orig->is_int())) {
     return builder->CreateZExtOrTrunc(loaded, ToLLVMType(cs, dest));
-  } else if (orig->is_int() && dest->is_int()) {
+  } else if ((orig->is_int() || orig->is_char()) && (dest->is_char() || dest->is_int())) { /// between int
     return builder->CreateZExtOrTrunc(loaded, ToLLVMType(cs, dest));
   } else if (orig->is_int() && dest->is_float()) { /// int to float/double
     if (orig->is_unsigned()) {
@@ -65,9 +65,11 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
   } else if (orig->is_array() && dest->is_array()) {
     // FIXME: casting array of float to/from array of integer is broken
     TAN_ASSERT(false);
+  } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
   }
 
-  TAN_ASSERT(false);
+  Error err(cs->_filename, cs->get_source_manager()->get_token(expr->loc()), "Cannot perform type conversion");
+  err.raise();
 }
 
 DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata *ret, vector<Metadata *> args) {
