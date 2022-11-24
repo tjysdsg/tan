@@ -6,7 +6,7 @@
 #include "src/ast/decl.h"
 #include "src/ast/ast_context.h"
 #include "src/parser/token_check.h"
-#include "src/ast/ast_type.h"
+#include "src/ast/type.h"
 #include "src/common.h"
 #include "src/ast/intrinsic.h"
 #include "token.h"
@@ -177,7 +177,7 @@ private:
     } else if (token->get_type() == TokenType::CHAR) { /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) { /// types, must be before ID
-      node = ASTType::Create(_cs, _curr);
+      node = new Type(); // placeholder
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       next.offset_by(1);
@@ -600,7 +600,7 @@ private:
 
     /// arguments
     vector<str> arg_names{};
-    vector<ASTType *> arg_types{};
+    vector<Type *> arg_types{};
     vector<ArgDecl *> arg_decls{};
     if (at(_curr)->get_value() != ")") {
       while (!eof(_curr)) {
@@ -634,7 +634,7 @@ private:
       error(_curr, "Expect a type");
     }
     parse_node(ret_type);
-    p->set_ret_type(ast_must_cast<ASTType>(ret_type));
+    p->set_ret_type(ast_must_cast<Type>(ret_type));
 
     /// body
     if (!is_external) {
@@ -835,17 +835,10 @@ private:
     }
   }
 
-  void parse_ty_array(ASTType *p) {
-    bool done = false;
-    while (!done) {
-      /// current token should be "[" right now
+  ArrayType *parse_ty_array(Type *p) {
+    ArrayType *ret = nullptr;
+    while (true) {
       _curr.offset_by(1); /// skip "["
-
-      /// subtype
-      auto *sub = new ASTType(*p);
-      p->set_ty(Ty::ARRAY);
-      p->get_sub_types().clear();
-      p->get_sub_types().push_back(sub);
 
       /// size
       ASTBase *_size = peek();
@@ -860,50 +853,56 @@ private:
         error(_curr, "Expect an unsigned integer as the array size");
       }
 
-      p->set_array_size(array_size);
+      ret = Type::GetArrayType(p, (int) array_size);
 
       /// skip "]"
       peek(TokenType::PUNCTUATION, "]");
       _curr.offset_by(1);
 
       /// if followed by a "[", this is a multi-dimension array
-      if (at(_curr)->get_value() != "[") {
-        done = true;
+      if (at(_curr)->get_value() == "[") {
+        p = ret;
+        ret = nullptr;
+      } else {
+        break;
       }
     }
+
+    TAN_ASSERT(ret);
+    return ret;
   }
 
   void parse_ty(ASTBase *_p) {
-    ASTType *p = ast_must_cast<ASTType>(_p);
+    Type *p = ast_must_cast<Type>(_p);
+    Type *canonical = nullptr;
 
     while (!eof(_curr)) {
       Token *token = at(_curr);
-      auto qb = ASTType::BASIC_TYS.find(token->get_value());
-      auto qq = ASTType::QUALIFIER_TYS.find(token->get_value());
 
-      if (qb != ASTType::BASIC_TYS.end()) { /// base types
-        p->set_ty(TY_OR(p->get_ty(), qb->second));
-      } else if (qq != ASTType::QUALIFIER_TYS.end()) { /// TODO: qualifiers
-        if (token->get_value() == "*") { /// pointer
-          auto sub = new ASTType(*p);
-          p->set_ty(Ty::POINTER);
-          p->get_sub_types().clear();
-          p->get_sub_types().push_back(sub);
-        }
-      } else if (token->get_type() == TokenType::ID) { /// struct or enum
-        /// type is resolved in analysis phase
-        p->set_ty(Ty::TYPE_REF);
+      auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
+      if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
+        canonical = PrimitiveType::Create(it->second);
+      } else if (token->get_value() == "*") { /// pointer
+        canonical = Type::GetPointerType(canonical);
+      } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
+        /// type referred will be resolved in analysis phase
+        canonical = new Type();
+      } else if (token->get_value() == "str") {
+        canonical = Type::GetStringType();
       } else {
         break;
       }
       _curr.offset_by(1);
     }
 
-    /// composite types
+    /// array
+    TAN_ASSERT(canonical);
     Token *token = at(_curr);
-    if (token->get_value() == "[") { /// array
-      parse_ty_array(p);
+    if (token->get_value() == "[") {
+      canonical = parse_ty_array(canonical);
     }
+
+    p->set_canonical(canonical);
   }
 
   void parse_var_decl(ASTBase *_p) {
@@ -919,9 +918,12 @@ private:
     /// type
     if (at(_curr)->get_value() == ":") {
       _curr.offset_by(1);
-      ASTType *ty = ASTType::Create(_cs, _curr);
-      parse_node(ty);
-      p->set_type(ty);
+      ASTBase *node = peek();
+      if (node->get_node_type() != ASTNodeType::TY) {
+        error(_curr, "Expect a type");
+      }
+      parse_node(node);
+      p->set_type(ast_must_cast<Type>(node));
     }
   }
 
@@ -939,9 +941,12 @@ private:
     _curr.offset_by(1);
 
     /// type
-    ASTType *ty = ASTType::Create(_cs, _curr);
-    parse_node(ty);
-    p->set_type(ty);
+    ASTBase *node = peek();
+    if (node->get_node_type() != ASTNodeType::TY) {
+      error(_curr, "Expect a type");
+    }
+    parse_node(node);
+    p->set_type(ast_must_cast<Type>(node));
   }
 
   void parse_enum_decl(ASTBase *_p) {
