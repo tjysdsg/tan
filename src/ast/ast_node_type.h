@@ -22,7 +22,6 @@ enum class ASTNodeType {
   LOOP,        /// for, while, ...
   CONTINUE,    /// continue
   BREAK,       /// break
-  TY,          /// type name
   PARENTHESIS, /// ()
   RET,         /// return
   IF,          /// if

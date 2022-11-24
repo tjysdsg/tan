@@ -181,8 +181,8 @@ private:
       node = StringLiteral::Create(_curr, token->get_value());
     } else if (token->get_type() == TokenType::CHAR) { /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
-    } else if (check_typename_token(token)) { /// types, must be before ID
-      node = peek_type();
+    } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
+      TAN_ASSERT(false);
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       next.offset_by(1);
@@ -410,8 +410,9 @@ private:
     p->set_lhs(lhs);
 
     /// rhs
-    auto rhs = next_expression(p->get_bp());
-    p->set_rhs(rhs);
+    auto* ty = peek_type();
+    parse_ty(ty);
+    p->set_type(ty->get_canonical());
   }
 
   void parse_generic_token(ASTBase *) {
@@ -483,7 +484,6 @@ private:
       case ASTLoopType::FOR:
         // TODO: implement for loop
         TAN_ASSERT(false);
-        break;
     }
   }
 
@@ -634,12 +634,9 @@ private:
     _curr.offset_by(1);
 
     /// function return type
-    auto ret_type = peek();
-    if (ret_type->get_node_type() != ASTNodeType::TY) {
-      error(_curr, "Expect a type");
-    }
-    parse_node(ret_type);
-    p->set_ret_type(ast_must_cast<Type>(ret_type));
+    auto *ret_type = peek_type();
+    parse_ty(ret_type);
+    p->set_ret_type(ret_type);
 
     /// body
     if (!is_external) {
@@ -877,8 +874,7 @@ private:
     return ret;
   }
 
-  void parse_ty(ASTBase *_p) {
-    Type *p = ast_must_cast<Type>(_p);
+  void parse_ty(Type *p) {
     Type *canonical = nullptr;
 
     while (!eof(_curr)) {
@@ -924,7 +920,6 @@ private:
     if (at(_curr)->get_value() == ":") {
       _curr.offset_by(1);
       Type *ty = peek_type();
-      if (ty->get_node_type() != ASTNodeType::TY) { error(_curr, "Expect a type"); }
       parse_ty(ty);
       p->set_type(ty);
     }
@@ -943,7 +938,6 @@ private:
 
     /// type
     Type *ty = peek_type();
-    if (ty->get_node_type() != ASTNodeType::TY) { error(_curr, "Expect a type"); }
     parse_ty(ty);
     p->set_type(ty);
   }
@@ -1008,7 +1002,7 @@ const umap<ASTNodeType, nud_parsing_func_t>ParserImpl::NUD_PARSING_FUNC_TABLE =
         {ASTNodeType::INTRINSIC, &ParserImpl::parse_intrinsic}, {ASTNodeType::IF, &ParserImpl::parse_if},
         {ASTNodeType::LOOP, &ParserImpl::parse_loop}, {ASTNodeType::UOP, &ParserImpl::parse_uop},
         {ASTNodeType::RET, &ParserImpl::parse_return}, {ASTNodeType::FUNC_CALL, &ParserImpl::parse_func_call},
-        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal}, {ASTNodeType::TY, &ParserImpl::parse_ty},
+        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal},
         {ASTNodeType::STRUCT_DECL, &ParserImpl::parse_struct_decl},
         {ASTNodeType::VAR_DECL, &ParserImpl::parse_var_decl}, {ASTNodeType::ARG_DECL, &ParserImpl::parse_arg_decl},
         {ASTNodeType::FUNC_DECL, &ParserImpl::parse_func_decl}, {ASTNodeType::ENUM_DECL, &ParserImpl::parse_enum_decl},

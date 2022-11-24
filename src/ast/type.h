@@ -13,11 +13,10 @@ class TypeRef;
 class StructType;
 class StructDecl;
 
-// TODO IMPORTANT: remove dependency from ASTBase
 /**
  * \brief Type is immutable once created, and it's made sure that each type has only one instance
  */
-class Type : public ASTBase {
+class Type {
 public:
   // TODO IMPORTANT: move these into CompilerSession
   [[nodiscard]] static PrimitiveType *GetVoidType();
@@ -33,6 +32,8 @@ public:
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
 public:
+  virtual ~Type() = default;
+
   virtual bool is_primitive();
   virtual bool is_pointer();
   virtual bool is_array();
@@ -52,7 +53,7 @@ public:
   void set_canonical(Type *t);
 
 protected:
-  Type() : ASTBase(ASTNodeType::TY, SrcLoc(0), 0) {};
+  Type() = default;
 
 protected:
   str _type_name{};

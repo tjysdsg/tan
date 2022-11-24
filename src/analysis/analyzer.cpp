@@ -46,9 +46,6 @@ public:
       case ASTNodeType::CONTINUE:
         analyze_break_or_continue(p);
         break;
-      case ASTNodeType::TY:
-        analyze_ty(p);
-        break;
         /// expressions
       case ASTNodeType::ASSIGN:
       case ASTNodeType::CAST:
@@ -101,13 +98,15 @@ private:
     p->set_type(p->get_type());
   }
 
-  void analyze_ty(ASTBase *_p) {
+  void analyze_ty(Type *p, SrcLoc loc) {
     /// Resolve type references
 
-    auto *p = ast_must_cast<Type>(_p);
     if (p->is_ref() && p->get_canonical() == p) {
       auto *decl = _ctx->get_type_decl(p->get_typename());
-      if (!decl) { report_error(p, fmt::format("Unknown type {}", p->get_typename())); }
+      if (!decl) {
+        Error err(_ctx->_filename, _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+        err.raise();
+      }
       p->set_canonical(decl->get_type());
     }
   }
@@ -156,7 +155,7 @@ private:
 
     /// analyze type if specified
     Type *ty = p->get_type();
-    if (ty) { analyze_ty(ty); }
+    if (ty) { analyze_ty(ty, p->loc()); }
 
     _ctx->add_decl(p->get_name(), p);
   }
@@ -164,7 +163,7 @@ private:
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_must_cast<ArgDecl>(_p);
     Type *ty = p->get_type();
-    analyze(ty);
+    analyze_ty(ty, p->loc());
     _ctx->add_decl(p->get_name(), p);
   }
 
@@ -281,7 +280,7 @@ private:
         if (!rhs_type->is_pointer()) { report_error(rhs, "Expect a pointer type"); }
         TAN_ASSERT(rhs->is_lvalue());
         p->set_lvalue(true);
-        p->set_type(ast_must_cast<PointerType>(rhs_type)->get_pointee());
+        p->set_type(((PointerType *) rhs_type)->get_pointee());
         break;
       case UnaryOpKind::PLUS:
       case UnaryOpKind::MINUS: /// unary plus/minus
@@ -295,28 +294,9 @@ private:
 
   void analyze_cast(ASTBase *_p) {
     auto *p = ast_must_cast<Cast>(_p);
-
     Expr *lhs = p->get_lhs();
-    ASTBase *rhs = p->get_rhs();
     analyze(lhs);
-    analyze(rhs);
-
-    Type *ty = nullptr;
-    switch (rhs->get_node_type()) {
-      case ASTNodeType::ID:
-        ty = ast_must_cast<Identifier>(rhs)->get_type();
-        if (!ty) { report_error(rhs, "Unknown type"); }
-        break;
-      case ASTNodeType::TY:
-        ty = ast_must_cast<Type>(rhs);
-        break;
-      default:
-        report_error(lhs, "Invalid right-hand operand");
-        break;
-    }
-
-    p->set_type(ty);
-    // FIXME: check if the cast is valid
+    analyze_ty(p->get_type(), p->loc());
   }
 
   void analyze_assignment(ASTBase *_p) {
@@ -393,7 +373,7 @@ private:
 
     /// analyze return type
     p->set_ret_type(p->get_ret_ty()->get_canonical());
-    analyze(p->get_ret_ty());
+    analyze_ty(p->get_ret_ty(), p->loc());
 
     _ctx->push_scope(); /// new scope
 
@@ -628,9 +608,9 @@ private:
 
     Type *sub_type = nullptr;
     if (lhs_type->is_pointer()) {
-      sub_type = ast_must_cast<PointerType>(lhs_type)->get_pointee();
+      sub_type = ((PointerType *) lhs_type)->get_pointee();
     } else if (lhs_type->is_array()) {
-      auto *array_type = ast_must_cast<ArrayType>(lhs_type);
+      auto *array_type = (ArrayType *) lhs_type;
       sub_type = array_type->get_element_type();
       /// check if array index is out-of-bound
       if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
@@ -670,7 +650,7 @@ private:
     Type *struct_ty = nullptr;
     /// auto dereference pointers
     if (lhs->get_type()->is_pointer()) {
-      struct_ty = ast_must_cast<PointerType>(lhs->get_type())->get_pointee();
+      struct_ty = ((PointerType *) lhs->get_type())->get_pointee();
     } else {
       struct_ty = lhs->get_type();
     }

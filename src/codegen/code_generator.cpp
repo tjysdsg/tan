@@ -93,10 +93,6 @@ public:
       case ASTNodeType::BOP_OR_UOP:
         ret = codegen_binary_or_unary(p);
         break;
-      case ASTNodeType::TY:
-        /// codegen() should not handle this, use codegen_type_instantiation() instead
-        TAN_ASSERT(false);
-        break;
       default:
         break;
     }
@@ -473,7 +469,7 @@ private:
 
     Value *ret = nullptr;
     if (p->is_primitive()) { /// primitive types
-      int size_bits = ast_must_cast<PrimitiveType>(p)->get_size_bits();
+      int size_bits = ((PrimitiveType *) p)->get_size_bits();
 
       if (p->is_int()) {
         ret = codegen_constructor(BasicConstructor::CreateIntegerConstructor(SrcLoc(0),
@@ -496,7 +492,7 @@ private:
       TAN_ASSERT(false);
     } else if (p->is_struct()) { /// struct
       // TODO: use codegen_constructor()
-      auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+      auto member_types = ((StructType *) p)->get_member_types();
       vector<Constant *> values(member_types.size(), nullptr);
       for (size_t i = 0; i < member_types.size(); ++i) {
         values[i] = (llvm::Constant *) codegen_type_instantiation(member_types[i]);
@@ -504,10 +500,10 @@ private:
       ret = ConstantStruct::get((llvm::StructType *) TypeSystem::ToLLVMType(_cs, p), values);
     } else if (p->is_array()) { /// array as pointer
       ret = codegen_constructor(BasicConstructor::CreateArrayConstructor(SrcLoc(0),
-          ast_must_cast<ArrayType>(p)->get_element_type()));
+          ((ArrayType *) p)->get_element_type()));
     } else if (p->is_pointer()) { /// the pointer literal is nullptr
       ret = codegen_constructor(BasicConstructor::CreateNullPointerConstructor(SrcLoc(0),
-          ast_must_cast<PointerType>(p)->get_pointee()));
+          ((PointerType *) p)->get_pointee()));
     } else {
       TAN_ASSERT(false);
     }
@@ -525,7 +521,7 @@ private:
     Value *ret = nullptr;
     Type *ptype = p->get_type();
     if (ptype->is_primitive()) { /// primitive types
-      int size_bits = ast_must_cast<PrimitiveType>(ptype)->get_size_bits();
+      int size_bits = ((PrimitiveType *) ptype)->get_size_bits();
 
       if (ptype->is_int()) {
         auto pp = ast_must_cast<IntegerLiteral>(p);
@@ -546,14 +542,14 @@ private:
       // TODO IMPORTANT
       TAN_ASSERT(false);
     } else if (ptype->is_struct()) { /// struct
-      // TODO IMPORTANT
+      // TODO: Implement struct literal
       TAN_ASSERT(false);
     } else if (ptype->is_array()) { /// array as pointer
       auto arr = ast_must_cast<ArrayLiteral>(p);
 
       /// element type
       auto elements = arr->get_elements();
-      auto *e_type = TypeSystem::ToLLVMType(_cs, ast_must_cast<ArrayType>(ptype)->get_element_type());
+      auto *e_type = TypeSystem::ToLLVMType(_cs, ((ArrayType *) ptype)->get_element_type());
 
       /// codegen element values
       size_t n = elements.size();
@@ -1095,8 +1091,7 @@ private:
         break;
       }
       case MemberAccess::MemberAccessMemberVariable: {
-        if (lhs->is_lvalue() && lhs->get_type()->is_pointer()
-            && ast_must_cast<PointerType>(lhs->get_type())->get_pointee()) {
+        if (lhs->is_lvalue() && lhs->get_type()->is_pointer() && ((PointerType *) lhs->get_type())->get_pointee()) {
           /// auto dereference pointers
           from = builder->CreateLoad(from);
         }

@@ -11,9 +11,8 @@ class ParserImpl;
 class Token;
 
 /**
- * \brief Parser
- * \details Operator precedence parsing
- * */
+ * \brief Top Down Operator Precedence Parsing
+ */
 class Parser final {
 public:
   Parser() = delete;

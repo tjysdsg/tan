@@ -371,8 +371,6 @@ public:
   static Cast *Create(SrcLoc loc);
   [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
-  [[nodiscard]] ASTBase *get_rhs() const;
-  void set_rhs(ASTBase *rhs);
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
@@ -381,7 +379,6 @@ public:
 
 protected:
   Expr *_lhs = nullptr;
-  ASTBase *_rhs = nullptr;
 };
 
 }

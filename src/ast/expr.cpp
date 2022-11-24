@@ -284,11 +284,7 @@ Cast *Cast::Create(SrcLoc loc) { return new Cast(loc); }
 
 Cast::Cast(SrcLoc loc) : Expr(ASTNodeType::CAST, loc, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
 
-ASTBase *Cast::get_rhs() const { return _rhs; }
-
-void Cast::set_rhs(ASTBase *rhs) { _rhs = rhs; }
-
-vector<ASTBase *> Cast::get_children() const { return {_lhs, _rhs}; }
+vector<ASTBase *> Cast::get_children() const { return {_lhs}; }
 
 BinaryOrUnary::BinaryOrUnary(SrcLoc loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP, loc, bp) {}
 

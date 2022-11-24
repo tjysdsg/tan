@@ -55,10 +55,9 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
       loaded = builder->CreateIntToPtr(loaded, builder->getIntNTy((unsigned) s1));
       return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned) s1), 0, false));
     } else if (orig->is_int()) {
+      auto *t = (PrimitiveType *) orig;
       return builder->CreateICmpNE(loaded,
-          ConstantInt::get(builder->getIntNTy((unsigned) ast_must_cast<PrimitiveType>(orig)->get_size_bits()),
-              0,
-              false));
+          ConstantInt::get(builder->getIntNTy((unsigned) t->get_size_bits()), 0, false));
     }
   } else if (orig->is_array() && dest->is_array()) {
     // FIXME: casting array of float to/from array of integer is broken
@@ -97,7 +96,7 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
   llvm::Type *ret = nullptr;
 
   if (p->is_primitive()) { /// primitive types
-    int size_bits = ast_must_cast<PrimitiveType>(p)->get_size_bits();
+    int size_bits = ((PrimitiveType *) p)->get_size_bits();
     if (p->is_int()) {
       ret = builder->getIntNTy((unsigned) size_bits);
     } else if (p->is_char()) {
@@ -121,17 +120,17 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
     // TODO IMPORTANT: ret = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
     TAN_ASSERT(false);
   } else if (p->is_struct()) { /// struct
-    auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+    auto member_types = ((StructType *) p)->get_member_types();
     vector<llvm::Type *> elements(member_types.size(), nullptr);
     for (size_t i = 0; i < member_types.size(); ++i) {
       elements[i] = TypeSystem::ToLLVMType(cs, member_types[i]);
     }
     ret = llvm::StructType::create(elements, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
-    auto *e_type = TypeSystem::ToLLVMType(cs, ast_must_cast<ArrayType>(p)->get_element_type());
+    auto *e_type = TypeSystem::ToLLVMType(cs, ((ArrayType *) p)->get_element_type());
     ret = e_type->getPointerTo();
   } else if (p->is_pointer()) { /// pointer
-    auto *e_type = TypeSystem::ToLLVMType(cs, ast_must_cast<PointerType>(p)->get_pointee());
+    auto *e_type = TypeSystem::ToLLVMType(cs, ((PointerType *) p)->get_pointee());
     ret = e_type->getPointerTo();
   } else {
     TAN_ASSERT(false);
@@ -155,7 +154,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
 
   if (p->is_primitive()) { /// primitive types
     unsigned dwarf_encoding = 0;
-    auto *pp = ast_must_cast<PrimitiveType>(p);
+    auto *pp = (PrimitiveType *) p;
     int size_bits = pp->get_size_bits();
     if (pp->is_int()) {
       if (pp->is_unsigned()) {
@@ -194,7 +193,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
     // TODO IMPORTANT
   } else if (p->is_struct()) { /// struct
     DIFile *di_file = cs->get_di_file();
-    auto member_types = ast_must_cast<StructType>(p)->get_member_types();
+    auto member_types = ((StructType *) p)->get_member_types();
     vector<Metadata *> elements(member_types.size(), nullptr);
     for (size_t i = 1; i < member_types.size(); ++i) {
       elements[i] = TypeSystem::ToLLVMMeta(cs, member_types[i]);
@@ -203,7 +202,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
         ->createStructType(cs->get_current_di_scope(),
             p->get_typename(),
             di_file,
-            (unsigned) cs->get_source_manager()->get_line(p->loc()),
+            0, // TODO IMPORTANT: (unsigned) cs->get_source_manager()->get_line(p->loc()),
             0, // TODO IMPORTANT: p->get_size_bits(),
             0, // TODO IMPORTANT: (unsigned) p->get_align_bits(),
             DINode::DIFlags::FlagZero,
@@ -213,7 +212,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
             nullptr,
             p->get_typename());
   } else if (p->is_array()) { /// array as pointer
-    auto *sub = TypeSystem::ToLLVMMeta(cs, ast_must_cast<ArrayType>(p)->get_element_type());
+    auto *sub = TypeSystem::ToLLVMMeta(cs, ((ArrayType *) p)->get_element_type());
     ret = cs->_di_builder
         ->createPointerType((DIType *) sub,
             tm->getPointerSizeInBits(0),
@@ -221,7 +220,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
             llvm::None,
             p->get_typename());
   } else if (p->is_pointer()) { /// pointer
-    auto *sub = TypeSystem::ToLLVMMeta(cs, ast_must_cast<PointerType>(p)->get_pointee());
+    auto *sub = TypeSystem::ToLLVMMeta(cs, ((PointerType *) p)->get_pointee());
     ret = cs->_di_builder
         ->createPointerType((DIType *) sub,
             tm->getPointerSizeInBits(0),
