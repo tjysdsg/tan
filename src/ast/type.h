@@ -47,8 +47,7 @@ public:
   virtual bool is_enum();
 
   const str &get_typename() { return _type_name; }
-  Type *get_canonical();
-  bool is_canonical();
+  Type *get_canonical() const;
   void set_canonical(Type *t);
 
 protected:
@@ -83,6 +82,15 @@ public:
   [[nodiscard]] static PrimitiveType *Create(Kind kind);
 
   bool is_primitive() override { return true; }
+  bool is_float() override { return _kind == F32 || _kind == F64; }
+  bool is_int() override { return _kind >= I8 && _kind <= U64; }
+  bool is_unsigned() override { return _kind >= U8 && _kind <= U64; };
+  bool is_bool() override { return _kind == BOOL; }
+  bool is_void() override { return _kind == VOID; }
+  bool is_char() override { return _kind == CHAR; }
+
+  int get_align_bits();
+  int get_size_bits();
 
 protected:
   PrimitiveType() = default;
@@ -91,17 +99,6 @@ private:
   static inline umap<PrimitiveType::Kind, PrimitiveType *> CACHE{};
 
   Kind _kind;
-  Constructor *_constructor = nullptr;
-
-  bool is_float() override { return _kind == F32 || _kind == F64; }
-  bool is_int() override { return _kind >= I8 && _kind <= U64; }
-  bool is_unsigned() override { return _kind >= U8 && _kind <= U64; };
-  bool is_bool() override { return _kind == BOOL; }
-  bool is_void() override { return _kind == VOID; }
-  bool is_char() override { return _kind == CHAR; }
-
-  int get_size_bits();
-  int get_align_bits();
 };
 
 class PointerType : public Type {
@@ -143,16 +140,24 @@ protected:
   StringType();
 };
 
+class StructDecl;
 class StructType : public Type {
+public:
+  bool is_struct() override { return true; }
+
+  friend class Type;
+
+protected:
+  StructType(const str &name, StructDecl *struct_decl) {
+    _type_name = name;
+  }
 };
 
 class TypeRef : public Type {
 public:
-  TypeRef(str name);
+  TypeRef(const str &name);
   bool is_ref() { return true; }
 };
-
-// TODO: FunctionType
 
 }
 

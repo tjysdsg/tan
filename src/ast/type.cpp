@@ -4,13 +4,11 @@ using namespace tanlang;
 
 StringType *Type::STRING_TYPE = new StringType();
 
-Type *Type::get_canonical() {
+Type *Type::get_canonical() const {
   TAN_ASSERT(_canonical_type != this);
-  if (!_canonical_type) { return this; }
+  if (!_canonical_type) { return (Type *) this; }
   return _canonical_type;
 }
-
-bool Type::is_canonical() { return !_canonical_type; }
 
 void Type::set_canonical(Type *t) { _canonical_type = t; }
 
@@ -188,10 +186,6 @@ ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type)
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
 }
 
-TypeRef::TypeRef(str name) {
-  _type_name = name;
-}
+TypeRef::TypeRef(const str &name) { _type_name = name; }
 
-StringType::StringType() {
-  _type_name = "str";
-}
+StringType::StringType() { _type_name = "str"; }

@@ -21,17 +21,6 @@ public:
           ASTNodeType::ARRAY_LITERAL};
 
   /**
-   * \brief Set the fields of an ASTType according to the type and target machine
-   */
-  static void ResolveTy(ASTContext *ctx, ASTType *const &p);
-
-  /**
-   * \brief Set the default constructor of a type
-   * \details Only works for basic types, not struct
-   */
-  static void SetDefaultConstructor(ASTContext *ctx, ASTType *const &p);
-
-  /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
    * \param dest Destination type.
@@ -39,16 +28,23 @@ public:
    * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To
    * get an lvalue, create a temporary variable and store the value to it.
    * */
-  static llvm::Value *ConvertTo(CompilerSession *cs, Expr *expr, ASTType *dest);
+  static llvm::Value *ConvertTo(CompilerSession *cs, Expr *expr, Type *dest);
+
+  /**
+   * \brief Check whether it's legal to implicitly convert from type `from` to type `to`
+   * \param from Source type.
+   * \param to Destination type.
+   */
+  static bool CanImplicitlyConvert(Type *from, Type *to);
 
   /**
    * \brief Create a load instruction if the type is lvalue. Otherwise return the original value.
    */
-  static llvm::Value *LoadIfLValue(CompilerSession *cs, Expr* expr);
+  static llvm::Value *LoadIfLValue(CompilerSession *cs, Expr *expr);
 
-  static llvm::Type *ToLLVMType(CompilerSession *cs, ASTType *p);
+  static llvm::Type *ToLLVMType(CompilerSession *cs, Type *p);
 
-  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, ASTType *p);
+  static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, Type *p);
 
   static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *cs,
       llvm::Metadata *ret,
