@@ -1,5 +1,5 @@
 #include "ast/ast_context.h"
-#include "src/compiler/function_table.h"
+#include "ast/function_table.h"
 #include "ast/source_manager.h"
 #include "ast/ast_base.h"
 #include "src/scope.h"

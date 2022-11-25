@@ -1,4 +1,4 @@
-#include "src/compiler/function_table.h"
+#include "ast/function_table.h"
 #include "ast/type.h"
 #include "ast/decl.h"
 
