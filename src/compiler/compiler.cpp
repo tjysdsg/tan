@@ -2,7 +2,7 @@
 #include "lexer.h"
 #include "token.h"
 #include "compiler_session.h"
-#include "src/analysis/analyzer.h"
+#include "analysis/analyzer.h"
 #include "src/codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/ast_context.h"

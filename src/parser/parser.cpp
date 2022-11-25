@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "compiler_session.h"
-#include "src/analysis/type_system.h"
+#include "analysis/type_system.h"
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"

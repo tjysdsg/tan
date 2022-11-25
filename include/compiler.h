@@ -4,6 +4,11 @@
 #include "libtanc.h"
 #include "ast/fwd.h"
 
+namespace llvm {
+class TargetMachine;
+class Value;
+}
+
 namespace tanlang {
 
 class CompilerSession;
@@ -22,7 +27,7 @@ public:
   /**
    * \brief Get information about the current machine
    * */
-  static TargetMachine *GetDefaultTargetMachine();
+  static llvm::TargetMachine *GetDefaultTargetMachine();
 
   /**
    * \brief Import search directories
@@ -55,7 +60,7 @@ private:
    * \details These instances do NOT generate any code, they only serve as a parser
    * */
   static inline vector<Compiler *> sub_compilers{};
-  static inline TargetMachine *target_machine = nullptr;
+  static inline llvm::TargetMachine *target_machine = nullptr;
 
 public:
   Compiler() = delete;
@@ -73,7 +78,7 @@ public:
   /**
    * \brief Generate LLVM IR code
    * */
-  Value *codegen();
+  llvm::Value *codegen();
 
   /**
    * \brief Emit object files

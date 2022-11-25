@@ -7,7 +7,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
-#include "src/analysis/type_system.h"
+#include "analysis/type_system.h"
 #include "src/common.h"
 #include "compiler_session.h"
 

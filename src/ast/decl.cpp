@@ -2,7 +2,7 @@
 #include "ast/ast_context.h"
 #include "ast/type.h"
 #include "compiler_session.h"
-#include "src/analysis/type_system.h"
+#include "analysis/type_system.h"
 
 using namespace tanlang;
 
