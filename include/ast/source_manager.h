@@ -4,6 +4,8 @@
 
 namespace tanlang {
 
+class ASTBase;
+
 /**
  * \brief Stores the location information of a token in SourceManager
  */

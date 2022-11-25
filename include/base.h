@@ -1,5 +1,5 @@
-#ifndef TAN_BASE_H
-#define TAN_BASE_H
+#ifndef __TAN_BASE_H__
+#define __TAN_BASE_H__
 
 /**
  * \file Include bunch of basic utilities
@@ -7,8 +7,8 @@
 
 #include <fmt/core.h>
 #include "error.h"
-#include "src/base/macro.h"
-#include "src/base/container.h"
-#include "src/base/hashed_string.hpp"
+#include "base/macro.h"
+#include "base/container.h"
+#include "base/hashed_string.hpp"
 
-#endif // TAN_BASE_H
+#endif

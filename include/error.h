@@ -1,7 +1,6 @@
 #ifndef __TAN_SRC_BASE_ERROR_H__
 #define __TAN_SRC_BASE_ERROR_H__
-#include "src/base/container.h"
-#include "ast/fwd.h"
+#include "base/container.h"
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
 [[noreturn]] void __tan_abort();
@@ -21,6 +20,8 @@ namespace tanlang {
 #else
 #define ABORT() exit(1)
 #endif
+
+class Token;
 
 class ErrorCatcher {
 public:

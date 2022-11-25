@@ -1,7 +1,7 @@
 add_subdirectory(ast)
+add_subdirectory(base)
 
 # common source files shared by multiple targets
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/analysis COMMON_SRCS)
@@ -13,7 +13,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 # ===== libtan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan ${DEP_LIBS} tan_backtrace ast)
+target_link_libraries(tan ${DEP_LIBS} tan_backtrace TanBase TanAST)
 set_target_common_compile_options(tan)
 
 # ======= ENABLE sanitizers =======

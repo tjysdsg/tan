@@ -12,6 +12,8 @@ class Function;
 
 namespace tanlang {
 
+class CompilerSession;
+
 enum class IntrinsicType {
   INVALID = 0,
 

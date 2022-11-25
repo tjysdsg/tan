@@ -1,11 +1,12 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
 #include "base.h"
-#include "src/llvm_include.h"
 #include "libtanc.h"
 #include "ast/fwd.h"
 
 namespace tanlang {
+
+class CompilerSession;
 
 /**
  * \class Compiler

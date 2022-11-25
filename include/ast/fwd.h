@@ -30,7 +30,6 @@ class FunctionTable;
 class Loop;
 struct Scope;
 class SourceTraceable;
-class CompilerSession;
 class ASTContext;
 class ASTNamed;
 class Token;

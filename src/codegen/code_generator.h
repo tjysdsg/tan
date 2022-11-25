@@ -1,6 +1,7 @@
 #ifndef __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #include "base.h"
+#include "compiler_session.h"
 
 namespace llvm {
 class Value;

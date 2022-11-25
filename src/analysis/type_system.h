@@ -14,6 +14,8 @@ class Value;
 
 namespace tanlang {
 
+class CompilerSession;
+
 class TypeSystem {
 public:
   static constexpr std::array LiteralTypes =
