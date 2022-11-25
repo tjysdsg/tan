@@ -1,5 +1,5 @@
-#include "error.h"
-#include "token.h"
+#include "base/error.h"
+#include "lexer/token.h"
 #include <fmt/core.h>
 #include <iostream>
 #include "backtrace/tan_backtrace.h"

@@ -2,9 +2,9 @@
 #define TAN_LEXER_TEST_H
 
 #include "base.h"
-#include "lexer.h"
-#include "token.h"
-#include "reader.h"
+#include "lexer/lexer.h"
+#include "lexer/token.h"
+#include "lexer/reader.h"
 #include <gtest/gtest.h>
 #include <iostream>
 

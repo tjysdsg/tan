@@ -9,7 +9,7 @@
 #include "ast/type.h"
 #include "src/common.h"
 #include "ast/intrinsic.h"
-#include "token.h"
+#include "lexer/token.h"
 #include <iostream>
 
 using namespace tanlang;

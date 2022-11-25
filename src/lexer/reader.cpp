@@ -1,6 +1,6 @@
 #include <fstream>
 #include <algorithm>
-#include "reader.h"
+#include "lexer/reader.h"
 
 namespace tanlang {
 

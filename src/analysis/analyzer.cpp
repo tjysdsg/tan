@@ -10,7 +10,7 @@
 #include "src/scope.h"
 #include "ast/ast_context.h"
 #include "compiler.h"
-#include "token.h"
+#include "lexer/token.h"
 #include <iostream>
 #include <csetjmp>
 

@@ -1,6 +1,6 @@
 #include "libtanc.h"
 #include "compiler.h"
-#include "lexer.h"
+#include "lexer/lexer.h"
 #include "linker.h"
 #include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"

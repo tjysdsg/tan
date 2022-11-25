@@ -1,6 +1,6 @@
 #include "ast/source_manager.h"
 #include "ast/ast_base.h"
-#include "token.h"
+#include "lexer/token.h"
 
 using namespace tanlang;
 

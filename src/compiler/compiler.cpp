@@ -1,12 +1,12 @@
 #include "compiler.h"
-#include "lexer.h"
-#include "token.h"
+#include "lexer/lexer.h"
+#include "lexer/token.h"
 #include "compiler_session.h"
 #include "analysis/analyzer.h"
 #include "src/codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/ast_context.h"
-#include "reader.h"
+#include "lexer/reader.h"
 #include "parser.h"
 #include <filesystem>
 

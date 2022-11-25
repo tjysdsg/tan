@@ -1,7 +1,7 @@
-#include "lexer.h"
+#include "lexer/lexer.h"
 #include "base.h"
-#include "token.h"
-#include "reader.h"
+#include "lexer/token.h"
+#include "lexer/reader.h"
 #include <algorithm>
 #include <cctype>
 #include <regex>
