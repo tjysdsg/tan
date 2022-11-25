@@ -2,7 +2,7 @@
 #include "token.h"
 #include <fmt/core.h>
 #include <iostream>
-#include "src/backtrace/tan_backtrace.h"
+#include "backtrace/tan_backtrace.h"
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {
   std::cerr << "ASSERTION FAILED: " << expr << "\n";

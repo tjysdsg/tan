@@ -235,7 +235,6 @@ set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
         ${DEP_DIR}/fmt/include
-        ${LIBBACKTRACE_INCLUDE_DIR}
         CACHE INTERNAL "Include dependencies"
         )
 message(STATUS "Include dirs of dependencies: ${DEP_INCLUDES}")
@@ -248,7 +247,7 @@ if (WIN32)
 else ()
     set(DEP_LIBS ${DEP_LIBS}
             z dl rt tinfo pthread m xml2
-            gcov backtrace
+            gcov
             CACHE INTERNAL "Dependency libs")
 endif ()
 

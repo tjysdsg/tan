@@ -4,7 +4,7 @@
 #include "linker.h"
 #include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"
-#include "src/backtrace/tan_backtrace.h"
+#include "backtrace/tan_backtrace.h"
 #include <filesystem>
 
 #ifndef DEBUG

@@ -88,18 +88,6 @@ macro(set_target_common_compile_options target_name)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
-# ===== target library tan_backtrace =====
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
-if (WIN32)
-    add_library(tan_backtrace ${BACKTRACE_SRCS})
-else ()
-    add_library(tan_backtrace SHARED ${BACKTRACE_SRCS})
-endif ()
-add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
-target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
-target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
-set_target_common_compile_options(tan_backtrace)
-
 # ===== tan libraries =====
 # targets:
 #   - ast
