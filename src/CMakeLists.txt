@@ -18,10 +18,10 @@ target_link_libraries(tan ${DEP_LIBS} TanBackTrace TanBase TanAST TanLexer TanPa
 set_target_common_compile_options(tan)
 
 # ======= ENABLE sanitizers =======
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_options(tan PUBLIC -fsanitize=address,undefined)
-    target_link_options(tan PUBLIC -fsanitize=address,undefined)
-endif ()
+# if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+#     target_compile_options(tan PUBLIC -fsanitize=address,undefined)
+#     target_link_options(tan PUBLIC -fsanitize=address,undefined)
+# endif ()
 
 # ======= precompile headers =======
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})

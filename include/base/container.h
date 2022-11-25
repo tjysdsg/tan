@@ -24,4 +24,8 @@ struct PairHash {
   }
 };
 
+inline bool is_string_in(const str &s, const vector<str> &list) {
+  return std::find(list.begin(), list.end(), s) != list.end();
+}
+
 #endif //__TAN_SRC_BASE_CONTAINER_H__

@@ -8,7 +8,6 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "analysis/type_system.h"
-#include "src/common.h"
 #include "compiler_session.h"
 
 namespace tanlang {

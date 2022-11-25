@@ -6,7 +6,6 @@
 #include "ast/decl.h"
 #include "ast/ast_context.h"
 #include "ast/type.h"
-#include "src/common.h"
 #include "ast/intrinsic.h"
 #include "lexer/token.h"
 #include <iostream>
@@ -512,7 +511,7 @@ private:
       }
 
       auto node = peek();
-      if (!is_ast_type_in(node->get_node_type(), TypeSystem::LiteralTypes)) {
+      if (!std::find(TypeSystem::LiteralTypes.begin(), TypeSystem::LiteralTypes.end(), node->get_node_type())) {
         // TODO: support array of constexpr
         error(p->loc(), "Expected a literal");
       }
@@ -829,7 +828,11 @@ private:
       auto children = comp_stmt->get_children();
       vector<Expr *> member_decls{};
       for (const auto &c: children) {
-        if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::VAR_DECL, ASTNodeType::ASSIGN, ASTNodeType::FUNC_DECL})) {
+        if (!(                                                  //
+            c->get_node_type() == ASTNodeType::VAR_DECL         //
+                || c->get_node_type() == ASTNodeType::ASSIGN    //
+                || c->get_node_type() == ASTNodeType::FUNC_DECL //
+        )) {
           error(c->loc(), "Invalid struct member");
         }
         member_decls.push_back(ast_cast<Expr>(c));
@@ -969,7 +972,7 @@ private:
       vector<Expr *> elements{};
       elements.reserve(children.size());
       for (const auto &c: children) {
-        if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::ASSIGN, ASTNodeType::ID})) {
+        if (!(c->get_node_type() == ASTNodeType::ASSIGN || c->get_node_type() == ASTNodeType::ID)) {
           error(c->loc(), "Invalid enum elements");
         }
         elements.push_back(ast_cast<Expr>(c));
