@@ -24,10 +24,3 @@ set_target_common_compile_options(tan)
 #     target_compile_options(tan PUBLIC -fsanitize=address,undefined)
 #     target_link_options(tan PUBLIC -fsanitize=address,undefined)
 # endif ()
-
-# ======= precompile headers =======
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
-    message(STATUS "precompiled headers are enabled")
-    target_precompile_headers(tan PUBLIC ${PROJECT_SOURCE_DIR}/include/base.h ${PROJECT_SOURCE_DIR}/include/config.h)
-endif ()
-
