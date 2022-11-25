@@ -1,6 +1,6 @@
-#include "src/ast/decl.h"
-#include "src/ast/ast_context.h"
-#include "src/ast/type.h"
+#include "ast/decl.h"
+#include "ast/ast_context.h"
+#include "ast/type.h"
 #include "compiler_session.h"
 #include "src/analysis/type_system.h"
 

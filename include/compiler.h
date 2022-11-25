@@ -3,7 +3,7 @@
 #include "base.h"
 #include "src/llvm_include.h"
 #include "libtanc.h"
-#include "src/ast/fwd.h"
+#include "ast/fwd.h"
 
 namespace tanlang {
 

@@ -1,7 +1,7 @@
 #ifndef TAN_SRC_AST_SCOPE_H_
 #define TAN_SRC_AST_SCOPE_H_
 #include "base.h"
-#include "src/ast/fwd.h"
+#include "ast/fwd.h"
 
 namespace tanlang {
 

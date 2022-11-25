@@ -1,8 +1,8 @@
 #ifndef __TAN_SRC_AST_TYPE_SYSTEM_H__
 #define __TAN_SRC_AST_TYPE_SYSTEM_H__
 #include "base.h"
-#include "src/ast/ast_node_type.h"
-#include "src/ast/fwd.h"
+#include "ast/ast_node_type.h"
+#include "ast/fwd.h"
 #include <array>
 
 namespace llvm {

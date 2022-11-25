@@ -2,7 +2,7 @@
 #define TAN_SRC_AST_COMMON_H_
 #include "base.h"
 #include "src/llvm_include.h"
-#include "src/ast/ast_node_type.h"
+#include "ast/ast_node_type.h"
 
 namespace tanlang {
 

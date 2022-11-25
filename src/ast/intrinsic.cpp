@@ -1,8 +1,8 @@
-#include "src/ast/intrinsic.h"
+#include "ast/intrinsic.h"
 #include "compiler_session.h"
-#include "src/ast/decl.h"
-#include "src/ast/type.h"
-#include "src/ast/ast_context.h"
+#include "ast/decl.h"
+#include "ast/type.h"
+#include "ast/ast_context.h"
 
 namespace tanlang {
 

@@ -1,8 +1,8 @@
 #ifndef __TAN_SRC_AST_STMT_H__
 #define __TAN_SRC_AST_STMT_H__
-#include "base.h"
-#include "src/ast/ast_base.h"
-#include "src/ast/fwd.h"
+#include "../base.h"
+#include "ast_base.h"
+#include "fwd.h"
 
 namespace llvm {
 class BasicBlock;

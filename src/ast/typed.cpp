@@ -1,5 +1,5 @@
-#include "src/ast/typed.h"
-#include "src/ast/type.h"
+#include "ast/typed.h"
+#include "ast/type.h"
 
 using namespace tanlang;
 

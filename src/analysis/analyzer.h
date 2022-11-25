@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__
 #define __TAN_SRC_ANALYSIS_ANALYZER_H__
 #include "base.h"
-#include "src/ast/fwd.h"
+#include "ast/fwd.h"
 
 namespace tanlang {
 

@@ -1,7 +1,7 @@
-#include "src/ast/expr.h"
-#include "src/ast/ast_context.h"
-#include "src/ast/type.h"
-#include "src/ast/decl.h"
+#include "ast/expr.h"
+#include "ast/ast_context.h"
+#include "ast/type.h"
+#include "ast/decl.h"
 #include <utility>
 
 using namespace tanlang;

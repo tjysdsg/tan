@@ -1,10 +1,10 @@
 #ifndef __TAN_SRC_AST_AST_BASE_H__
 #define __TAN_SRC_AST_AST_BASE_H__
-#include "base.h"
-#include "src/ast/source_traceable.h"
-#include "src/ast/precedence.h"
-#include "src/ast/ast_node_type.h"
-#include "src/ast/fwd.h"
+#include "../base.h"
+#include "source_traceable.h"
+#include "precedence.h"
+#include "ast_node_type.h"
+#include "fwd.h"
 #include <typeinfo>
 
 namespace llvm {

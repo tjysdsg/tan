@@ -1,6 +1,6 @@
 #ifndef __TAN_SRC_AST_AST_NAMED_H__
 #define __TAN_SRC_AST_AST_NAMED_H__
-#include "base.h"
+#include "../base.h"
 
 namespace tanlang {
 

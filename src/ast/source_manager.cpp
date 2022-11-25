@@ -1,5 +1,5 @@
-#include "source_manager.h"
-#include "src/ast/ast_base.h"
+#include "ast/source_manager.h"
+#include "ast/ast_base.h"
 #include "token.h"
 
 using namespace tanlang;

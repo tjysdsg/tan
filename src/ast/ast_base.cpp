@@ -1,5 +1,5 @@
-#include "src/ast/ast_node_type.h"
-#include "src/ast/ast_base.h"
+#include "ast/ast_node_type.h"
+#include "ast/ast_base.h"
 #include <iostream>
 
 using namespace tanlang;

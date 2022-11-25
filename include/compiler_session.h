@@ -2,7 +2,7 @@
 #define TAN_INCLUDE_COMPILER_SESSION_H_
 #include "src/llvm_include.h"
 #include "base.h"
-#include "src/ast/fwd.h"
+#include "ast/fwd.h"
 
 namespace tanlang {
 

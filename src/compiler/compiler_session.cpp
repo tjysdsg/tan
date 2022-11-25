@@ -1,5 +1,5 @@
 #include "compiler_session.h"
-#include "src/ast/ast_base.h"
+#include "ast/ast_base.h"
 #include "compiler.h"
 
 using namespace tanlang;

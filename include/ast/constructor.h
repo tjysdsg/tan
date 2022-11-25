@@ -1,8 +1,8 @@
 #ifndef __TAN_SRC_AST_CONSTRUCTOR_H__
 #define __TAN_SRC_AST_CONSTRUCTOR_H__
-#include "base.h"
-#include "src/ast/fwd.h"
-#include "src/ast/source_manager.h"
+#include "../base.h"
+#include "fwd.h"
+#include "source_manager.h"
 #include <variant>
 
 namespace llvm { class Value; }

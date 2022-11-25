@@ -1,4 +1,4 @@
-#include "src/ast/type.h"
+#include "ast/type.h"
 
 using namespace tanlang;
 

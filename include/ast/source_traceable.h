@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_SOURCE_TRACEABLE_H__
 #define __TAN_SRC_AST_SOURCE_TRACEABLE_H__
-#include "base.h"
-#include "src/ast/source_manager.h"
+#include "../base.h"
+#include "source_manager.h"
 
 namespace tanlang {
 

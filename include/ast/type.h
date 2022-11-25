@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_TYPE_H__
 #define __TAN_SRC_AST_TYPE_H__
-#include "src/ast/ast_base.h"
-#include "src/ast/fwd.h"
+#include "ast_base.h"
+#include "fwd.h"
 
 namespace tanlang {
 

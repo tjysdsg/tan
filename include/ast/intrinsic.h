@@ -1,8 +1,8 @@
 #ifndef __TAN_INCLUDE_INTRINSIC_H__
 #define __TAN_INCLUDE_INTRINSIC_H__
-#include "src/ast/expr.h"
-#include "src/ast/ast_named.h"
-#include "src/ast/fwd.h"
+#include "expr.h"
+#include "ast_named.h"
+#include "fwd.h"
 #include <memory>
 
 namespace llvm {

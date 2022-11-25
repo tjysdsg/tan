@@ -3,14 +3,14 @@
 
 #include "lexer.h"
 #include "token.h"
-#include "src/ast/source_manager.h"
-#include "src/ast/ast_context.h"
+#include "include/ast/source_manager.h"
+#include "include/ast/ast_context.h"
 #include "compiler.h"
 #include "reader.h"
 #include "parser.h"
-#include "src/ast/ast_base.h"
-#include "src/ast/ast_node_type.h"
-#include "src/ast/stmt.h"
+#include "include/ast/ast_base.h"
+#include "include/ast/ast_node_type.h"
+#include "include/ast/stmt.h"
 #include <gtest/gtest.h>
 #include <iostream>
 

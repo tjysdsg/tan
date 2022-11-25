@@ -88,17 +88,6 @@ macro(set_target_common_compile_options target_name)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
-# common source files shared by multiple targets
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/base COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/lexer COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/parser COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/analysis COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/ast COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/codegen COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
-
 # ===== target library tan_backtrace =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/backtrace BACKTRACE_SRCS)
 if (WIN32)
@@ -111,23 +100,11 @@ target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
 target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
 set_target_common_compile_options(tan_backtrace)
 
-# ===== target library tan =====
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
-add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan ${DEP_LIBS} tan_backtrace)
-set_target_common_compile_options(tan)
-
-# ======= ENABLE sanitizers =======
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    target_compile_options(tan PUBLIC -fsanitize=address,undefined)
-    target_link_options(tan PUBLIC -fsanitize=address,undefined)
-endif ()
-# =================================
-
-if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
-    message(STATUS "precompiled headers are enabled")
-    target_precompile_headers(tan PRIVATE src/llvm_include.h include/base.h include/config.h include/clang-frontend.h)
-endif ()
+# ===== tan libraries =====
+# targets:
+#   - ast
+#   - tan
+add_subdirectory(src)
 
 # ===== target CLI compiler =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)

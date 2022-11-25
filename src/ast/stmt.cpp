@@ -1,4 +1,4 @@
-#include "src/ast/stmt.h"
+#include "ast/stmt.h"
 
 using namespace tanlang;
 

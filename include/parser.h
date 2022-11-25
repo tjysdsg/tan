@@ -1,7 +1,7 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
 #include "base.h"
-#include "src/ast/fwd.h"
+#include "ast/fwd.h"
 #include <memory>
 #include <stack>
 

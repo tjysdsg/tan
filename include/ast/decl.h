@@ -1,11 +1,11 @@
 #ifndef TAN_SRC_AST_AST_ARG_DECL_H
 #define TAN_SRC_AST_AST_ARG_DECL_H
-#include "base.h"
-#include "src/ast/ast_base.h"
-#include "src/ast/ast_named.h"
-#include "src/ast/typed.h"
-#include "src/ast/expr.h"
-#include "src/ast/fwd.h"
+#include "../base.h"
+#include "ast_base.h"
+#include "ast_named.h"
+#include "typed.h"
+#include "expr.h"
+#include "fwd.h"
 
 namespace tanlang {
 

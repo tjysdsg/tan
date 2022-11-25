@@ -1,6 +1,6 @@
 #include "src/compiler/function_table.h"
-#include "src/ast/type.h"
-#include "src/ast/decl.h"
+#include "ast/type.h"
+#include "ast/decl.h"
 
 namespace tanlang {
 

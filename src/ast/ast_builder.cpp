@@ -1,6 +1,6 @@
-#include "src/ast/ast_builder.h"
-#include "src/ast/expr.h"
-#include "src/ast/type.h"
+#include "ast/ast_builder.h"
+#include "ast/expr.h"
+#include "ast/type.h"
 
 using namespace tanlang;
 
