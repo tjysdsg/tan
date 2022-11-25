@@ -3,7 +3,7 @@
 #include "lexer/lexer.h"
 #include "linker.h"
 #include "src/lib/misc.h"
-#include "src/lib/llvm-ar.h"
+#include "llvm_api.h"
 #include "backtrace/tan_backtrace.h"
 #include <filesystem>
 

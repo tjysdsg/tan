@@ -1,7 +1,6 @@
 #include "cli.h"
 #include "libtanc.h"
-#include "src/llvm_include.h"
-#include "clang-frontend.h"
+#include "llvm_api.h"
 #include <iostream>
 #include <filesystem>
 

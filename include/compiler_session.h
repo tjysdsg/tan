@@ -1,6 +1,6 @@
 #ifndef TAN_INCLUDE_COMPILER_SESSION_H_
 #define TAN_INCLUDE_COMPILER_SESSION_H_
-#include "src/llvm_include.h"
+#include "llvm_api.h"
 #include "base.h"
 #include "ast/fwd.h"
 

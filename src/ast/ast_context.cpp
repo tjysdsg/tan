@@ -2,7 +2,7 @@
 #include "ast/function_table.h"
 #include "ast/source_manager.h"
 #include "ast/ast_base.h"
-#include "src/scope.h"
+#include "analysis/scope.h"
 
 using namespace tanlang;
 

@@ -12,8 +12,8 @@
 // bitcode or other files.
 //
 //===----------------------------------------------------------------------===//
-#include "src/lib/llvm-ar.h"
-#include "src/llvm_include.h"
+#include "llvm_api/llvm_ar.h"
+#include "llvm_api/llvm_include.h"
 
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
 #include <unistd.h>

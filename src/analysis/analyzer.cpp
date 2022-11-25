@@ -7,7 +7,7 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "analysis/type_system.h"
-#include "src/scope.h"
+#include "analysis/scope.h"
 #include "ast/ast_context.h"
 #include "compiler.h"
 #include "lexer/token.h"

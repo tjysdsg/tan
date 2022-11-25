@@ -7,7 +7,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
-#include "src/llvm_include.h"
+#include "llvm_api/llvm_include.h"
 #include "src/lib/misc.h"
 #include "base.h"
 #include <iostream>

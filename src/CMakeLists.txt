@@ -5,16 +5,18 @@ add_subdirectory(lexer)
 add_subdirectory(parser)
 add_subdirectory(analysis)
 add_subdirectory(codegen)
+add_subdirectory(llvm_api)
 
 # common source files shared by multiple targets
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src COMMON_SRCS)
 
 # ===== libtan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
-target_link_libraries(tan ${DEP_LIBS} TanBackTrace TanBase TanAST TanLexer TanParser TanAnalysis TanCodeGenerator)
+target_link_libraries(tan ${DEP_LIBS}
+        TanBackTrace TanBase TanAST TanLexer TanParser TanAnalysis TanCodeGenerator
+        TanLLVMAPI)
 set_target_common_compile_options(tan)
 
 # ======= ENABLE sanitizers =======
@@ -26,10 +28,6 @@ set_target_common_compile_options(tan)
 # ======= precompile headers =======
 if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16" AND ${ENABLE_PRECOMPILED_HEADERS})
     message(STATUS "precompiled headers are enabled")
-    target_precompile_headers(tan PRIVATE
-            ${PROJECT_SOURCE_DIR}/src/llvm_include.h
-            ${PROJECT_SOURCE_DIR}/include/base.h
-            ${PROJECT_SOURCE_DIR}/include/config.h
-            ${PROJECT_SOURCE_DIR}/include/clang-frontend.h)
+    target_precompile_headers(tan PUBLIC ${PROJECT_SOURCE_DIR}/include/base.h ${PROJECT_SOURCE_DIR}/include/config.h)
 endif ()
 

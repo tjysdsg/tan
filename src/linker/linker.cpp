@@ -1,7 +1,7 @@
 #include "linker.h"
 #include <string>
 #include <vector>
-#include "clang-frontend.h"
+#include "llvm_api.h"
 #include <iostream>
 
 namespace tanlang {
