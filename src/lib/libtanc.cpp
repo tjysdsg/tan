@@ -5,6 +5,7 @@
 #include "src/lib/misc.h"
 #include "src/lib/llvm-ar.h"
 #include "src/backtrace/tan_backtrace.h"
+#include <filesystem>
 
 #ifndef DEBUG
 #define BEGIN_TRY try {
@@ -23,6 +24,8 @@
 #else
 #define END_TRY
 #endif
+
+namespace fs = std::filesystem;
 
 static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
   for (const str &dir: lib_dirs) {

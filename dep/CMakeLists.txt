@@ -234,7 +234,6 @@ endif ()
 set(DEP_INCLUDES
         ${LLVM_INCLUDE_DIRS}
         ${CLANG_INCLUDE_DIRS}
-        ${DEP_DIR}/filesystem/include
         ${DEP_DIR}/fmt/include
         ${LIBBACKTRACE_INCLUDE_DIR}
         CACHE INTERNAL "Include dependencies"

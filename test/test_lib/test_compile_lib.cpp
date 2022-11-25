@@ -31,7 +31,7 @@ public:
     }
     std::cout << '\n';
     int argc = static_cast<int>(cmd.size());
-    auto *argv = c_cast(char**, cmd.data());
+    auto *argv = (char **) cmd.data();
     ASSERT_EQ(cli_main(argc, argv), 0);
   }
 };

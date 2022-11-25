@@ -8,8 +8,10 @@
 #include "ast/ast_context.h"
 #include "reader.h"
 #include "parser.h"
+#include <filesystem>
 
 using namespace tanlang;
+namespace fs = std::filesystem;
 
 Compiler::~Compiler() {
   Compiler::sessions.erase(_filename);

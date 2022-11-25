@@ -269,7 +269,7 @@ private:
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      auto *pp = ast_must_cast<BinaryOrUnary>(p);
+      auto *pp = ast_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
@@ -311,7 +311,7 @@ private:
   void parse_node(ASTBase *left, ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      auto *pp = ast_must_cast<BinaryOrUnary>(p);
+      auto *pp = ast_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
@@ -388,7 +388,7 @@ private:
   }
 
   void parse_assignment(ASTBase *left, ASTBase *_p) {
-    auto p = ast_must_cast<Assignment>(_p);
+    auto p = ast_cast<Assignment>(_p);
 
     _curr.offset_by(1); /// skip =
 
@@ -401,8 +401,8 @@ private:
   }
 
   void parse_cast(ASTBase *left, ASTBase *_p) {
-    auto lhs = ast_must_cast<Expr>(left);
-    auto p = ast_must_cast<Cast>(_p);
+    auto lhs = ast_cast<Expr>(left);
+    auto p = ast_cast<Cast>(_p);
 
     _curr.offset_by(1); /// skip as
 
@@ -419,7 +419,7 @@ private:
   }
 
   void parse_if(ASTBase *_p) {
-    auto p = ast_must_cast<If>(_p);
+    auto p = ast_cast<If>(_p);
 
     /// if then
     parse_if_then_branch(p);
@@ -454,7 +454,7 @@ private:
   }
 
   void parse_loop(ASTBase *_p) {
-    auto p = ast_must_cast<Loop>(_p);
+    auto p = ast_cast<Loop>(_p);
 
     if (at(_curr)->get_value() == "for") {
       // TODO: implement for loop
@@ -487,7 +487,7 @@ private:
   }
 
   void parse_array_literal(ASTBase *_p) {
-    auto *p = ast_must_cast<ArrayLiteral>(_p);
+    auto *p = ast_cast<ArrayLiteral>(_p);
 
     _curr.offset_by(1); /// skip '['
 
@@ -513,22 +513,22 @@ private:
       }
 
       parse_node(node);
-      elements.push_back(ast_must_cast<Literal>(node));
+      elements.push_back(ast_cast<Literal>(node));
     }
 
     p->set_elements(elements);
   }
 
   void parse_bop(ASTBase *_lhs, ASTBase *_p) {
-    Expr *lhs = ast_must_cast<Expr>(_lhs);
+    Expr *lhs = ast_cast<Expr>(_lhs);
 
     Token *token = at(_p->loc());
     if (token->get_value() == "." || token->get_value() == "[") { /// delegate to parse_member_access
-      parse_member_access(lhs, ast_must_cast<MemberAccess>(_p));
+      parse_member_access(lhs, ast_cast<MemberAccess>(_p));
       return;
     }
 
-    auto *p = ast_must_cast<BinaryOperator>(_p);
+    auto *p = ast_cast<BinaryOperator>(_p);
     _curr.offset_by(1); /// skip the operator
 
     p->set_lhs(lhs); /// lhs
@@ -539,7 +539,7 @@ private:
   }
 
   void parse_uop(ASTBase *_p) {
-    auto *p = ast_must_cast<UnaryOperator>(_p);
+    auto *p = ast_cast<UnaryOperator>(_p);
 
     /// rhs
     _curr.offset_by(1);
@@ -551,7 +551,7 @@ private:
   }
 
   void parse_parenthesis(ASTBase *_p) {
-    auto *p = ast_must_cast<Parenthesis>(_p);
+    auto *p = ast_cast<Parenthesis>(_p);
 
     _curr.offset_by(1); /// skip "("
     while (true) {
@@ -648,7 +648,7 @@ private:
   }
 
   void parse_func_call(ASTBase *_p) {
-    auto *p = ast_must_cast<FunctionCall>(_p);
+    auto *p = ast_cast<FunctionCall>(_p);
 
     p->set_name(at(_curr)->get_value()); /// function name
     _curr.offset_by(1);
@@ -684,7 +684,7 @@ private:
     }
     parse_node(e);
 
-    auto *test_name = ast_must_cast<Parenthesis>(e)->get_sub();
+    auto *test_name = ast_cast<Parenthesis>(e)->get_sub();
     if (test_name->get_node_type() != ASTNodeType::ID) {
       error(_curr, "Expect a test name");
     }
@@ -699,7 +699,7 @@ private:
   }
 
   void parse_intrinsic(ASTBase *_p) {
-    auto *p = ast_must_cast<Intrinsic>(_p);
+    auto *p = ast_cast<Intrinsic>(_p);
 
     _curr.offset_by(1); /// skip "@"
 
@@ -718,7 +718,7 @@ private:
   }
 
   void parse_import(ASTBase *_p) {
-    auto *p = ast_must_cast<Import>(_p);
+    auto *p = ast_cast<Import>(_p);
 
     _curr.offset_by(1); /// skip "import"
     auto rhs = peek();
@@ -726,7 +726,7 @@ private:
       error(_curr, "Invalid import statement");
     }
     parse_node(rhs);
-    str filename = ast_must_cast<StringLiteral>(rhs)->get_value();
+    str filename = ast_cast<StringLiteral>(rhs)->get_value();
     p->set_filename(filename);
   }
 
@@ -752,7 +752,7 @@ private:
   }
 
   void parse_program(ASTBase *_p) {
-    auto *p = ast_must_cast<Program>(_p);
+    auto *p = ast_cast<Program>(_p);
     while (!eof(_curr)) {
       auto stmt = CompoundStmt::Create(_curr);
       parse_node(stmt);
@@ -761,7 +761,7 @@ private:
   }
 
   void parse_stmt(ASTBase *_p) {
-    auto p = ast_must_cast<CompoundStmt>(_p);
+    auto p = ast_cast<CompoundStmt>(_p);
     if (at(_curr)->get_value() == "{") { /// compound statement
       _curr.offset_by(1); /// skip "{"
       while (!eof(_curr)) {
@@ -787,7 +787,7 @@ private:
   }
 
   void parse_return(ASTBase *_p) {
-    auto *p = ast_must_cast<Return>(_p);
+    auto *p = ast_cast<Return>(_p);
 
     _curr.offset_by(1);
 
@@ -799,7 +799,7 @@ private:
   }
 
   void parse_struct_decl(ASTBase *_p) {
-    auto *p = ast_must_cast<StructDecl>(_p);
+    auto *p = ast_cast<StructDecl>(_p);
 
     _curr.offset_by(1); /// skip "struct"
 
@@ -809,7 +809,7 @@ private:
       error(_curr, "Expecting a typename");
     }
     parse_node(_id);
-    auto id = ast_must_cast<Identifier>(_id);
+    auto id = ast_cast<Identifier>(_id);
     p->set_name(id->get_name());
 
     /// struct body
@@ -818,7 +818,7 @@ private:
       if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
         error(_curr, "struct definition requires a valid body");
       }
-      auto comp_stmt = ast_must_cast<CompoundStmt>(_comp_stmt);
+      auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
 
       /// copy member declarations
       auto children = comp_stmt->get_children();
@@ -827,7 +827,7 @@ private:
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::VAR_DECL, ASTNodeType::ASSIGN, ASTNodeType::FUNC_DECL})) {
           error(c->loc(), "Invalid struct member");
         }
-        member_decls.push_back(ast_must_cast<Expr>(c));
+        member_decls.push_back(ast_cast<Expr>(c));
       }
       p->set_member_decls(member_decls);
     } else {
@@ -847,7 +847,7 @@ private:
       }
       parse_node(_size);
 
-      auto size = ast_must_cast<IntegerLiteral>(_size);
+      auto size = ast_cast<IntegerLiteral>(_size);
       size_t array_size = size->get_value();
       if (static_cast<int64_t>(array_size) < 0) {
         error(_curr, "Expect an unsigned integer as the array size");
@@ -905,7 +905,7 @@ private:
   }
 
   void parse_var_decl(ASTBase *_p) {
-    auto *p = ast_must_cast<VarDecl>(_p);
+    auto *p = ast_cast<VarDecl>(_p);
 
     _curr.offset_by(1); /// skip 'var'
 
@@ -923,7 +923,7 @@ private:
   }
 
   void parse_arg_decl(ASTBase *_p) {
-    auto *p = ast_must_cast<ArgDecl>(_p);
+    auto *p = ast_cast<ArgDecl>(_p);
 
     /// name
     auto name_token = at(_curr);
@@ -939,7 +939,7 @@ private:
   }
 
   void parse_enum_decl(ASTBase *_p) {
-    auto *p = ast_must_cast<EnumDecl>(_p);
+    auto *p = ast_cast<EnumDecl>(_p);
 
     /// skip enum
     _curr.offset_by(1);
@@ -948,7 +948,7 @@ private:
     auto _id = peek();
     if (_id->get_node_type() != ASTNodeType::ID) { error(_curr, "Expect an identifier"); }
     parse_node(_id);
-    auto id = ast_must_cast<Identifier>(_id);
+    auto id = ast_cast<Identifier>(_id);
     p->set_name(id->get_name());
 
     /// body
@@ -957,7 +957,7 @@ private:
       if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
         error(_curr, "struct definition requires a valid body");
       }
-      auto comp_stmt = ast_must_cast<CompoundStmt>(_comp_stmt);
+      auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
 
       /// copy member declarations
       auto children = comp_stmt->get_children();
@@ -967,7 +967,7 @@ private:
         if (!is_ast_type_in(c->get_node_type(), {ASTNodeType::ASSIGN, ASTNodeType::ID})) {
           error(c->loc(), "Invalid enum elements");
         }
-        elements.push_back(ast_must_cast<Expr>(c));
+        elements.push_back(ast_cast<Expr>(c));
       }
       p->set_elements(elements);
     } else {

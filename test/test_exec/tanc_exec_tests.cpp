@@ -26,7 +26,7 @@ public:
     }
     std::cout << '\n';
     int argc = static_cast<int>(cmd.size());
-    auto *argv = c_cast(char**, cmd.data());
+    auto *argv = (char **) cmd.data();
     ASSERT_EQ(0, cli_main(argc, argv));
     EXPECT_EQ(0, system("./a.out"));
   }

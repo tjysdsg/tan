@@ -132,7 +132,7 @@ str Reader::get_line(size_t index) const {
   return _lines[index];
 }
 
-Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader(c_cast(Reader *, reader)) {}
+Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *) reader) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 

@@ -67,7 +67,7 @@ public:
       case ASTNodeType::ARG_DECL:
       case ASTNodeType::VAR_DECL:
       case ASTNodeType::STRUCT_DECL:
-        analyze_expr(ast_must_cast<Expr>(p));
+        analyze_expr(ast_cast<Expr>(p));
         break;
       default:
         TAN_ASSERT(false);
@@ -118,7 +118,7 @@ private:
   }
 
   void analyze_id(ASTBase *_p) {
-    auto p = ast_must_cast<Identifier>(_p);
+    auto p = ast_cast<Identifier>(_p);
     auto *referred = _ctx->get_decl(p->get_name());
     if (referred) { /// refers to a variable
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
@@ -133,13 +133,13 @@ private:
   }
 
   void analyze_parenthesis(ASTBase *_p) {
-    auto p = ast_must_cast<Parenthesis>(_p);
+    auto p = ast_cast<Parenthesis>(_p);
     analyze(p->get_sub());
     p->set_type(p->get_sub()->get_type());
   }
 
   void analyze_if(ASTBase *_p) {
-    auto p = ast_must_cast<If>(_p);
+    auto p = ast_cast<If>(_p);
 
     size_t n = p->get_num_branches();
     for (size_t i = 0; i < n; ++i) {
@@ -157,7 +157,7 @@ private:
   }
 
   void analyze_var_decl(ASTBase *_p) {
-    auto p = ast_must_cast<VarDecl>(_p);
+    auto p = ast_cast<VarDecl>(_p);
 
     /// analyze type if specified
     Type *ty = p->get_type();
@@ -167,20 +167,20 @@ private:
   }
 
   void analyze_arg_decl(ASTBase *_p) {
-    auto p = ast_must_cast<ArgDecl>(_p);
+    auto p = ast_cast<ArgDecl>(_p);
     p->set_type(analyze_ty(p->get_type(), p->loc()));
     _ctx->add_decl(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
     // TODO: check if return type is the same as the function return type
-    auto p = ast_must_cast<Return>(_p);
+    auto p = ast_cast<Return>(_p);
     auto *rhs = p->get_rhs();
     if (rhs) { analyze(rhs); }
   }
 
   void analyze_stmt(ASTBase *_p) {
-    auto p = ast_must_cast<CompoundStmt>(_p);
+    auto p = ast_cast<CompoundStmt>(_p);
 
     if (p->is_new_scope()) { _ctx->push_scope(); }
 
@@ -192,12 +192,12 @@ private:
   }
 
   void analyze_bop_or_uop(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOrUnary>(_p);
+    auto p = ast_cast<BinaryOrUnary>(_p);
     analyze(p->get_expr_ptr());
   }
 
   void analyze_bop(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOperator>(_p);
+    auto p = ast_cast<BinaryOperator>(_p);
     Expr *lhs = p->get_lhs();
     Expr *rhs = p->get_rhs();
 
@@ -256,7 +256,7 @@ private:
         p->set_type(PrimitiveType::GetBoolType());
         break;
       case BinaryOpKind::MEMBER_ACCESS:
-        analyze_member_access(ast_must_cast<MemberAccess>(p));
+        analyze_member_access(ast_cast<MemberAccess>(p));
         break;
       default:
         TAN_ASSERT(false);
@@ -264,7 +264,7 @@ private:
   }
 
   void analyze_uop(ASTBase *_p) {
-    auto *p = ast_must_cast<UnaryOperator>(_p);
+    auto *p = ast_cast<UnaryOperator>(_p);
     auto *rhs = p->get_rhs();
     analyze(rhs);
 
@@ -298,14 +298,14 @@ private:
   }
 
   void analyze_cast(ASTBase *_p) {
-    auto *p = ast_must_cast<Cast>(_p);
+    auto *p = ast_cast<Cast>(_p);
     Expr *lhs = p->get_lhs();
     analyze(lhs);
     p->set_type(analyze_ty(p->get_type(), p->loc()));
   }
 
   void analyze_assignment(ASTBase *_p) {
-    auto *p = ast_must_cast<Assignment>(_p);
+    auto *p = ast_cast<Assignment>(_p);
 
     Expr *rhs = p->get_rhs();
     analyze(rhs);
@@ -315,7 +315,7 @@ private:
     switch (lhs->get_node_type()) {
       case ASTNodeType::ID:
         analyze(lhs);
-        lhs_type = ast_must_cast<Identifier>(lhs)->get_type();
+        lhs_type = ast_cast<Identifier>(lhs)->get_type();
         break;
       case ASTNodeType::VAR_DECL:
       case ASTNodeType::ARG_DECL:
@@ -323,7 +323,7 @@ private:
       case ASTNodeType::UOP:
       case ASTNodeType::BOP:
         analyze(lhs);
-        lhs_type = ast_must_cast<Expr>(lhs)->get_type();
+        lhs_type = ast_cast<Expr>(lhs)->get_type();
         break;
       default:
         report_error(lhs, "Invalid left-hand operand");
@@ -337,7 +337,7 @@ private:
       /// set type of lhs
       switch (lhs->get_node_type()) {
         case ASTNodeType::VAR_DECL:
-          ast_must_cast<Decl>(lhs)->set_type(lhs_type);
+          ast_cast<Decl>(lhs)->set_type(lhs_type);
           break;
         default:
           TAN_ASSERT(false);
@@ -356,7 +356,7 @@ private:
   }
 
   void analyze_func_call(ASTBase *_p) {
-    auto p = ast_must_cast<FunctionCall>(_p);
+    auto p = ast_cast<FunctionCall>(_p);
 
     for (const auto &a: p->_args) {
       analyze(a);
@@ -368,7 +368,7 @@ private:
   }
 
   void analyze_func_decl(ASTBase *_p) {
-    auto *p = ast_must_cast<FunctionDecl>(_p);
+    auto *p = ast_cast<FunctionDecl>(_p);
 
     /// add_decl to external function table
     if (p->is_public() || p->is_external()) {
@@ -404,7 +404,7 @@ private:
   }
 
   void analyze_import(ASTBase *_p) {
-    auto p = ast_must_cast<Import>(_p);
+    auto p = ast_cast<Import>(_p);
 
     str file = p->get_filename();
     auto imported = Compiler::resolve_import(_ctx->_filename, file);
@@ -427,17 +427,17 @@ private:
   }
 
   void analyze_intrinsic(ASTBase *_p) {
-    auto p = ast_must_cast<Intrinsic>(_p);
+    auto p = ast_cast<Intrinsic>(_p);
     auto c = p->get_sub();
 
     /// name
     str name;
     switch (c->get_node_type()) {
       case ASTNodeType::FUNC_CALL:
-        name = ast_must_cast<FunctionCall>(c)->get_name();
+        name = ast_cast<FunctionCall>(c)->get_name();
         break;
       case ASTNodeType::ID:
-        name = ast_must_cast<Identifier>(c)->get_name();
+        name = ast_cast<Identifier>(c)->get_name();
         break;
       default:
         name = p->get_name();
@@ -479,7 +479,7 @@ private:
       }
       case IntrinsicType::GET_DECL: {
         TAN_ASSERT(c->get_node_type() == ASTNodeType::FUNC_CALL);
-        auto *func_call = ast_must_cast<FunctionCall>(c);
+        auto *func_call = ast_cast<FunctionCall>(c);
         if (func_call->get_n_args() != 1) {
           report_error(func_call, "Expect the number of args to be 1");
         }
@@ -493,13 +493,13 @@ private:
       case IntrinsicType::COMP_PRINT: {
         p->set_type(void_type);
 
-        auto func_call = ast_must_cast<FunctionCall>(c);
+        auto func_call = ast_cast<FunctionCall>(c);
         auto args = func_call->_args;
 
         if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
           report_error(p, "Invalid call to compprint, one argument with type 'str' required");
         }
-        str msg = ast_must_cast<StringLiteral>(args[0])->get_value();
+        str msg = ast_cast<StringLiteral>(args[0])->get_value();
         std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
         break;
       }
@@ -529,19 +529,19 @@ private:
   }
 
   void analyze_string_literal(ASTBase *_p) {
-    auto p = ast_must_cast<StringLiteral>(_p);
+    auto p = ast_cast<StringLiteral>(_p);
     p->set_value(_sm->get_token_str(p->loc()));
     p->set_type(Type::GetStringType());
   }
 
   void analyze_char_literal(ASTBase *_p) {
-    auto p = ast_must_cast<CharLiteral>(_p);
+    auto p = ast_cast<CharLiteral>(_p);
     p->set_type(Type::GetCharType());
     p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->loc())[0]));
   }
 
   void analyze_integer_literal(ASTBase *_p) {
-    auto p = ast_must_cast<IntegerLiteral>(_p);
+    auto p = ast_cast<IntegerLiteral>(_p);
 
     Type *ty;
     if (_ctx->get_source_manager()->get_token(p->loc())->is_unsigned()) {
@@ -553,17 +553,17 @@ private:
   }
 
   void analyze_bool_literal(ASTBase *_p) {
-    auto p = ast_must_cast<BoolLiteral>(_p);
+    auto p = ast_cast<BoolLiteral>(_p);
     p->set_type(Type::GetBoolType());
   }
 
   void analyze_float_literal(ASTBase *_p) {
-    auto p = ast_must_cast<FloatLiteral>(_p);
+    auto p = ast_cast<FloatLiteral>(_p);
     p->set_type(Type::GetFloatType(32));
   }
 
   void analyze_array_literal(ASTBase *_p) {
-    auto p = ast_must_cast<ArrayLiteral>(_p);
+    auto p = ast_cast<ArrayLiteral>(_p);
 
     // TODO IMPORTANT: find the type that all elements can implicitly convert to
     //  for example: [1, 2.2, 3u] has element type float
@@ -623,7 +623,7 @@ private:
       sub_type = array_type->get_element_type();
       /// check if array index is out-of-bound
       if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
-        uint64_t size = ast_must_cast<IntegerLiteral>(rhs)->get_value();
+        uint64_t size = ast_cast<IntegerLiteral>(rhs)->get_value();
         if (lhs->get_type()->is_array() && (int) size >= array_type->get_size()) {
           report_error(p,
               fmt::format("Index {} out of bound, the array size is {}",
@@ -642,12 +642,12 @@ private:
   void analyze_enum_member_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     p->set_type(lhs->get_type());
 
-    str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
-    auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
+    str enum_name = ast_cast<Identifier>(lhs)->get_name();
+    auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
 
     /// enum element
     if (rhs->get_node_type() != ASTNodeType::ID) { report_error(rhs, "Unknown enum element"); }
-    str name = ast_must_cast<Identifier>(rhs)->get_name();
+    str name = ast_cast<Identifier>(rhs)->get_name();
     if (!enum_decl->contain_element(name)) { report_error(rhs, "Unknown enum element"); }
   }
 
@@ -655,7 +655,7 @@ private:
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze(rhs);
 
-    str m_name = ast_must_cast<Identifier>(rhs)->get_name();
+    str m_name = ast_cast<Identifier>(rhs)->get_name();
     Type *struct_ty = nullptr;
     /// auto dereference pointers
     if (lhs->get_type()->is_pointer()) {
@@ -667,7 +667,7 @@ private:
     struct_ty = analyze_ty(struct_ty, lhs->loc());
     if (!struct_ty->is_struct()) { report_error(lhs, "Expect a struct type"); }
 
-    auto *struct_decl = ast_must_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
+    auto *struct_decl = ast_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
     auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
     p->set_type(analyze_ty(ty, p->loc()));
@@ -680,7 +680,7 @@ private:
 
     if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
       p->_access_type = MemberAccess::MemberAccessMemberFunction;
-      auto func_call = ast_must_cast<FunctionCall>(rhs);
+      auto func_call = ast_cast<FunctionCall>(rhs);
       analyze_member_func_call(p, lhs, func_call);
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze_bracket_access(p, lhs, rhs);
@@ -698,7 +698,7 @@ private:
   }
 
   void analyze_struct_decl(ASTBase *_p) {
-    auto p = ast_must_cast<StructDecl>(_p);
+    auto p = ast_cast<StructDecl>(_p);
 
     /// check if struct name is in conflicts of variable/function names
     /// or if there's a forward declaration
@@ -706,7 +706,7 @@ private:
     auto *prev_decl = _ctx->get_type_decl(struct_name);
     if (prev_decl) {
       if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL
-          && ast_must_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
+          && ast_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
         report_error(p, "Cannot redeclare type as a struct");
       }
     }
@@ -721,17 +721,17 @@ private:
 
       if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
         /// fill members
-        str name = ast_must_cast<VarDecl>(m)->get_name();
+        str name = ast_cast<VarDecl>(m)->get_name();
         p->set_member_index(name, i);
         child_types[i] = m->get_type();
       } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
-        auto bm = ast_must_cast<Assignment>(m);
+        auto bm = ast_cast<Assignment>(m);
         auto init_val = bm->get_rhs();
 
         if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
           report_error(bm, "Expect a member variable declaration");
         }
-        auto decl = ast_must_cast<VarDecl>(bm->get_lhs());
+        auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
         /// fill members
         child_types[i] = decl->get_type();
@@ -742,9 +742,9 @@ private:
           report_error(p, "Initial value of a member variable must be compile-time known");
         }
         // TODO IMPORTANT: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
-        //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_must_cast<CompTimeExpr>(init_val)));
+        //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_cast<CompTimeExpr>(init_val)));
       } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
-        auto f = ast_must_cast<FunctionDecl>(m);
+        auto f = ast_cast<FunctionDecl>(m);
 
         /// fill members
         child_types[i] = f->get_type();
@@ -761,7 +761,7 @@ private:
   }
 
   void analyze_loop(ASTBase *_p) {
-    auto *p = ast_must_cast<Loop>(_p);
+    auto *p = ast_cast<Loop>(_p);
     analyze(p->get_predicate());
 
     _ctx->push_scope();
@@ -771,7 +771,7 @@ private:
   }
 
   void analyze_break_or_continue(ASTBase *_p) {
-    auto *p = ast_must_cast<BreakContinue>(_p);
+    auto *p = ast_cast<BreakContinue>(_p);
     Loop *loop = _ctx->get_current_loop();
     if (!loop) {
       report_error(p, "Break or continue must be inside a loop");
@@ -796,7 +796,7 @@ private:
       if (e->get_node_type() == ASTNodeType::ID) {
         p->set_value(ast_must_cast<Identifier>(e)->get_name(), val);
       } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
-        auto *assignment = ast_must_cast<Assignment>(e);
+        auto *assignment = ast_cast<Assignment>(e);
         auto *_lhs = assignment->get_lhs();
         auto *_rhs = assignment->get_rhs();
 

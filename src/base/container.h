@@ -24,12 +24,4 @@ struct PairHash {
   }
 };
 
-template<typename To, typename From> To *cast_ptr(From *p) {
-  #ifdef DEBUG
-  return dynamic_cast<To *>(p);
-  #else
-  return reinterpret_cast<To *>(p);
-  #endif
-}
-
 #endif //__TAN_SRC_BASE_CONTAINER_H__

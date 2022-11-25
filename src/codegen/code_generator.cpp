@@ -59,10 +59,10 @@ public:
         ret = codegen_literals(p);
         break;
       case ASTNodeType::INTRINSIC:
-        ret = codegen_intrinsic(ast_must_cast<Intrinsic>(p));
+        ret = codegen_intrinsic(ast_cast<Intrinsic>(p));
         break;
       case ASTNodeType::FUNC_DECL:
-        ret = codegen_func_decl(ast_must_cast<FunctionDecl>(p));
+        ret = codegen_func_decl(ast_cast<FunctionDecl>(p));
         break;
       case ASTNodeType::FUNC_CALL:
         ret = codegen_func_call(p);
@@ -149,7 +149,7 @@ private:
   }
 
   Value *codegen_func_call(ASTBase *_p) {
-    auto p = ast_must_cast<FunctionCall>(_p);
+    auto p = ast_cast<FunctionCall>(_p);
 
     FunctionDecl *callee = p->_callee;
     size_t n = callee->get_n_args();
@@ -284,7 +284,7 @@ private:
   }
 
   Value *codegen_bnot(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
+    auto p = ast_cast<UnaryOperator>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -300,7 +300,7 @@ private:
   }
 
   Value *codegen_lnot(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
+    auto p = ast_cast<UnaryOperator>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -326,7 +326,7 @@ private:
   }
 
   Value *codegen_return(ASTBase *_p) {
-    auto p = ast_must_cast<Return>(_p);
+    auto p = ast_cast<Return>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -345,7 +345,7 @@ private:
   }
 
   Value *codegen_var_arg_decl(ASTBase *_p) {
-    auto p = ast_must_cast<Decl>(_p);
+    auto p = ast_cast<Decl>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -382,7 +382,7 @@ private:
   }
 
   Value *codegen_address_of(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
+    auto p = ast_cast<UnaryOperator>(_p);
     set_current_debug_location(p);
 
     auto *val = codegen(p->get_rhs());
@@ -396,7 +396,7 @@ private:
   }
 
   Value *codegen_parenthesis(ASTBase *_p) {
-    auto p = ast_must_cast<Parenthesis>(_p);
+    auto p = ast_cast<Parenthesis>(_p);
 
     set_current_debug_location(p);
 
@@ -404,7 +404,7 @@ private:
   }
 
   Value *codegen_import(ASTBase *_p) {
-    auto p = ast_must_cast<Import>(_p);
+    auto p = ast_cast<Import>(_p);
 
     set_current_debug_location(p);
     for (FunctionDecl *f: p->get_imported_funcs()) {
@@ -444,10 +444,10 @@ private:
     Value *ret = nullptr;
     switch (p->get_type()) {
       case ConstructorType::BASIC:
-        ret = codegen(cast_ptr<BasicConstructor>(p)->get_value());
+        ret = codegen(((BasicConstructor *) p)->get_value());
         break;
       case ConstructorType::STRUCT: {
-        auto *ctr = cast_ptr<StructConstructor>(p);
+        auto *ctr = (StructConstructor *) p;
         vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
         vector<Constant *> values{};
         values.reserve(sub_ctrs.size());
@@ -512,7 +512,7 @@ private:
   }
 
   Value *codegen_literals(ASTBase *_p) {
-    auto p = ast_must_cast<Literal>(_p);
+    auto p = ast_cast<Literal>(_p);
 
     set_current_debug_location(p);
     auto *builder = _cs->_builder;
@@ -524,20 +524,20 @@ private:
       int size_bits = ((PrimitiveType *) ptype)->get_size_bits();
 
       if (ptype->is_int()) {
-        auto pp = ast_must_cast<IntegerLiteral>(p);
+        auto pp = ast_cast<IntegerLiteral>(p);
         ret = CodegenIntegerLiteral(_cs, pp->get_value(), (size_t) size_bits, pp->is_unsigned());
       } else if (ptype->is_char()) {
-        ret = ConstantInt::get(type, ast_must_cast<CharLiteral>(p)->get_value());
+        ret = ConstantInt::get(type, ast_cast<CharLiteral>(p)->get_value());
       } else if (ptype->is_bool()) {
-        auto pp = ast_must_cast<BoolLiteral>(p);
+        auto pp = ast_cast<BoolLiteral>(p);
         ret = ConstantInt::get(type, (uint64_t) pp->get_value());
       } else if (ptype->is_float()) {
-        ret = ConstantFP::get(type, ast_must_cast<FloatLiteral>(p)->get_value());
+        ret = ConstantFP::get(type, ast_cast<FloatLiteral>(p)->get_value());
       } else {
         TAN_ASSERT(false);
       }
     } else if (ptype->is_string()) { /// str as char*
-      ret = builder->CreateGlobalStringPtr(ast_must_cast<StringLiteral>(p)->get_value());
+      ret = builder->CreateGlobalStringPtr(ast_cast<StringLiteral>(p)->get_value());
     } else if (ptype->is_enum()) { /// enums
       // TODO IMPORTANT
       TAN_ASSERT(false);
@@ -545,7 +545,7 @@ private:
       // TODO: Implement struct literal
       TAN_ASSERT(false);
     } else if (ptype->is_array()) { /// array as pointer
-      auto arr = ast_must_cast<ArrayLiteral>(p);
+      auto arr = ast_cast<ArrayLiteral>(p);
 
       /// element type
       auto elements = arr->get_elements();
@@ -570,7 +570,7 @@ private:
   }
 
   Value *codegen_stmt(ASTBase *_p) {
-    auto p = ast_must_cast<CompoundStmt>(_p);
+    auto p = ast_cast<CompoundStmt>(_p);
 
     for (const auto &e: p->get_children()) {
       codegen(e);
@@ -579,7 +579,7 @@ private:
   }
 
   Value *codegen_uop(ASTBase *_p) {
-    auto p = ast_must_cast<UnaryOperator>(_p);
+    auto p = ast_cast<UnaryOperator>(_p);
     Value *ret = nullptr;
 
     auto *builder = _cs->_builder;
@@ -622,7 +622,7 @@ private:
   }
 
   Value *codegen_bop(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOperator>(_p);
+    auto p = ast_cast<BinaryOperator>(_p);
     Value *ret = nullptr;
 
     switch (p->get_op()) {
@@ -649,7 +649,7 @@ private:
         ret = codegen_comparison(p);
         break;
       case BinaryOpKind::MEMBER_ACCESS:
-        ret = codegen_member_access(ast_must_cast<MemberAccess>(p));
+        ret = codegen_member_access(ast_cast<MemberAccess>(p));
         break;
       default:
         TAN_ASSERT(false);
@@ -660,13 +660,13 @@ private:
   }
 
   Value *codegen_assignment(ASTBase *_p) {
-    auto p = ast_must_cast<Assignment>(_p);
+    auto p = ast_cast<Assignment>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
     /// _codegen the lhs and rhs
-    auto lhs = ast_must_cast<Expr>(p->get_lhs());
+    auto lhs = ast_cast<Expr>(p->get_lhs());
     auto rhs = p->get_rhs();
     Value *from = codegen(rhs);
     Value *to = codegen(lhs);
@@ -683,7 +683,7 @@ private:
   }
 
   Value *codegen_arithmetic(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOperator>(_p);
+    auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -759,7 +759,7 @@ private:
   }
 
   Value *codegen_comparison(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOperator>(_p);
+    auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -843,7 +843,7 @@ private:
   }
 
   Value *codegen_relop(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOperator>(_p);
+    auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -881,7 +881,7 @@ private:
   }
 
   Value *codegen_cast(ASTBase *_p) {
-    auto p = ast_must_cast<Cast>(_p);
+    auto p = ast_cast<Cast>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -907,13 +907,13 @@ private:
   }
 
   Value *codegen_var_ref(ASTBase *_p) {
-    auto p = ast_must_cast<VarRef>(_p);
+    auto p = ast_cast<VarRef>(_p);
     set_current_debug_location(p);
     return codegen(p->get_referred());
   }
 
   Value *codegen_identifier(ASTBase *_p) {
-    auto p = ast_must_cast<Identifier>(_p);
+    auto p = ast_cast<Identifier>(_p);
     set_current_debug_location(p);
 
     switch (p->get_id_type()) {
@@ -931,13 +931,13 @@ private:
   }
 
   Value *codegen_binary_or_unary(ASTBase *_p) {
-    auto p = ast_must_cast<BinaryOrUnary>(_p);
+    auto p = ast_cast<BinaryOrUnary>(_p);
     set_current_debug_location(p);
     return p->_llvm_value = codegen(p->get_expr_ptr());
   }
 
   Value *codegen_break_continue(ASTBase *_p) {
-    auto *p = ast_must_cast<BreakContinue>(_p);
+    auto *p = ast_cast<BreakContinue>(_p);
     auto *builder = _cs->_builder;
     auto loop = p->get_parent_loop();
     TAN_ASSERT(loop);
@@ -958,7 +958,7 @@ private:
   }
 
   Value *codegen_loop(ASTBase *_p) {
-    auto p = ast_must_cast<Loop>(_p);
+    auto p = ast_cast<Loop>(_p);
     auto *builder = _cs->_builder;
 
     set_current_debug_location(p);
@@ -1018,7 +1018,7 @@ private:
   }
 
   Value *codegen_if(ASTBase *_p) {
-    auto p = ast_must_cast<If>(_p);
+    auto p = ast_cast<If>(_p);
 
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
@@ -1102,9 +1102,9 @@ private:
         ret = codegen(rhs);
         break;
       case MemberAccess::MemberAccessEnumValue: {
-        str enum_name = ast_must_cast<Identifier>(lhs)->get_name();
-        auto *enum_decl = ast_must_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
-        str element_name = ast_must_cast<Identifier>(rhs)->get_name();
+        str enum_name = ast_cast<Identifier>(lhs)->get_name();
+        auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
+        str element_name = ast_cast<Identifier>(rhs)->get_name();
         int64_t val = enum_decl->get_value(element_name);
 
         // TODO IMPORTANT: ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
