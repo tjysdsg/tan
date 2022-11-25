@@ -32,6 +32,10 @@ public:
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
+  static inline vector<str> ALL_TYPE_NAMES
+      {"bool", "int", "float", "f32", "str", "char", "f64", "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64",
+          "void"};
+
 public:
   virtual ~Type() = default;
 

@@ -1,11 +1,10 @@
-#include "parser.h"
+#include "parser/parser.h"
 #include "compiler_session.h"
 #include "analysis/type_system.h"
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"
 #include "ast/ast_context.h"
-#include "src/parser/token_check.h"
 #include "ast/type.h"
 #include "src/common.h"
 #include "ast/intrinsic.h"
@@ -14,6 +13,12 @@
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
+
+// ========= helper functions' prototypes ========= //
+
+static bool check_typename_token(Token *token);
+static bool check_terminal_token(Token *token);
+static bool check_arithmetic_token(Token *token);
 
 namespace tanlang {
 
@@ -1014,3 +1019,17 @@ const umap<ASTNodeType, nud_parsing_func_t>ParserImpl::NUD_PARSING_FUNC_TABLE =
 const umap<ASTNodeType, led_parsing_func_t>ParserImpl::LED_PARSING_FUNC_TABLE =
     {{ASTNodeType::BOP, &ParserImpl::parse_bop}, {ASTNodeType::ASSIGN, &ParserImpl::parse_assignment},
         {ASTNodeType::CAST, &ParserImpl::parse_cast}};
+
+// implementations of helper functions
+
+static bool check_typename_token(Token *token) {
+  return is_string_in(token->get_value(), tanlang::Type::ALL_TYPE_NAMES);
+}
+
+static bool check_terminal_token(Token *token) {
+  return token->get_type() == TokenType::PUNCTUATION && is_string_in(token->get_value(), TERMINAL_TOKENS);
+}
+
+static bool check_arithmetic_token(Token *token) {
+  return token->get_type() == TokenType::BOP && is_string_in(token->get_value(), ARITHMETIC_TOKENS);
+}

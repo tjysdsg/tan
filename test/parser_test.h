@@ -7,7 +7,7 @@
 #include "include/ast/ast_context.h"
 #include "compiler.h"
 #include "lexer/reader.h"
-#include "parser.h"
+#include "parser/parser.h"
 #include "include/ast/ast_base.h"
 #include "include/ast/ast_node_type.h"
 #include "include/ast/stmt.h"

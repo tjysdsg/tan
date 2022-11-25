@@ -22,8 +22,9 @@ enum class TokenType {
 
 extern umap<TokenType, str> token_type_names;
 extern const vector<str> KEYWORDS;
-extern const vector<str> TYPE_NAMES;
 extern const vector<char> PUNCTUATIONS;
+extern const vector<str> TERMINAL_TOKENS;
+extern const vector<str> ARITHMETIC_TOKENS;
 // any symbol in OP can both be an operator itself or the start of an operator
 extern const vector<char> OP;
 extern const vector<str> OP_ALL;

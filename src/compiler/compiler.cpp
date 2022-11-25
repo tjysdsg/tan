@@ -7,7 +7,7 @@
 #include "ast/intrinsic.h"
 #include "ast/ast_context.h"
 #include "lexer/reader.h"
-#include "parser.h"
+#include "parser/parser.h"
 #include <filesystem>
 
 using namespace tanlang;
