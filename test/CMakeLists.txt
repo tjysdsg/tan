@@ -1,4 +1,7 @@
 macro(enable_tests)
+    # googletest
+    add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
+
     if (${ENABLE_COVERAGE})
         message(STATUS "Enabling test coverage")
         set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
@@ -13,14 +16,14 @@ macro(enable_tests)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/test)
     target_link_libraries(lexer_tests tan gtest ${DEP_LIBS})
-    set_other_options(lexer_tests)
+    set_target_common_compile_options(lexer_tests)
 
     # parser tests
     add_executable(parser_tests ${TEST_DIR}/parser_test.cpp)
     target_include_directories(parser_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/test)
     target_link_libraries(parser_tests tan gtest ${DEP_LIBS})
-    set_other_options(parser_tests)
+    set_target_common_compile_options(parser_tests)
 
     # tanc exec tests
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_exec)

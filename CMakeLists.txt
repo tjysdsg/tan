@@ -47,8 +47,6 @@ endif (CCACHE_FOUND)
 add_link_options("-fuse-ld=lld")
 
 # ================================ thirdparty dependencies ========================== #
-# googletest
-add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
 # others in dep/
 add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
 
@@ -63,9 +61,7 @@ link_directories(${DEP_LIB_DIRS})
 # generate include/config.h using include/config.h.in
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
-macro(set_other_options target_name)
-    message(DEBUG "Generating target: ${target_name}")
-
+macro(set_target_common_compile_options target_name)
     if (MSVC)
         target_compile_options(${target_name}
                 PRIVATE /w
@@ -113,13 +109,13 @@ endif ()
 add_dependencies(tan_backtrace libbacktrace) # libbacktrace custom target defined in dep/CMakeLists.txt
 target_include_directories(tan_backtrace PRIVATE ${LIBBACKTRACE_INCLUDE_DIRS})
 target_link_libraries(tan_backtrace ${LIBBACKTRACE_LIBS})
-set_other_options(tan_backtrace)
+set_target_common_compile_options(tan_backtrace)
 
 # ===== target library tan =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
 add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
 target_link_libraries(tan ${DEP_LIBS} tan_backtrace)
-set_other_options(tan)
+set_target_common_compile_options(tan)
 
 # ======= ENABLE sanitizers =======
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -137,7 +133,7 @@ endif ()
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${CLI_SRCS})
 target_link_libraries(tanc tan)
-set_other_options(tanc)
+set_target_common_compile_options(tanc)
 
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)

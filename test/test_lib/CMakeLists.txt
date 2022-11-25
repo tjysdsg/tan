@@ -8,7 +8,7 @@
 # and a "run_tanc_lib_tests" custom target that runs this test on build
 
 add_executable(test_compile_lib test_compile_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
-set_other_options(test_compile_lib)
+set_target_common_compile_options(test_compile_lib)
 target_link_libraries(test_compile_lib tan gtest)
 target_compile_definitions(test_compile_lib PRIVATE
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
@@ -18,7 +18,7 @@ add_dependencies(test_compile_lib runtime)
 
 add_executable(test_use_lib test_use_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 add_dependencies(test_use_lib test_compile_lib)
-set_other_options(test_use_lib)
+set_target_common_compile_options(test_use_lib)
 target_link_libraries(test_use_lib tan gtest)
 target_compile_definitions(test_use_lib PRIVATE
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}

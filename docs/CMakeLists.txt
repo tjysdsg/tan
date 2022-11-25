@@ -18,5 +18,5 @@ if (DOXYGEN_FOUND)
             COMMENT "Generating API documentation with Doxygen"
             )
 else ()
-    message(WARNING "Not generating documentation because Doxygen is not installed")
+    message(STATUS "Not generating documentation because Doxygen is not installed")
 endif ()
