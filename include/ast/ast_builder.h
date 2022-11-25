@@ -2,7 +2,7 @@
 #define __TAN_SRC_AST_AST_BUILDER_H__
 #include "fwd.h"
 #include "source_manager.h"
-#include "../base.h"
+#include "base.h"
 
 namespace tanlang {
 

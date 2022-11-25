@@ -2,7 +2,7 @@
 #define __TAN_SRC_AST_EXPR_H__
 #include <utility>
 
-#include "../base.h"
+#include "base.h"
 #include "ast_base.h"
 #include "ast_named.h"
 #include "typed.h"

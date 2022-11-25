@@ -1,6 +1,6 @@
 #ifndef __TAN_SRC_AST_CONSTRUCTOR_H__
 #define __TAN_SRC_AST_CONSTRUCTOR_H__
-#include "../base.h"
+#include "base.h"
 #include "fwd.h"
 #include "source_manager.h"
 #include <variant>

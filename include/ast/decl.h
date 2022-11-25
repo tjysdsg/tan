@@ -1,6 +1,6 @@
 #ifndef TAN_SRC_AST_AST_ARG_DECL_H
 #define TAN_SRC_AST_AST_ARG_DECL_H
-#include "../base.h"
+#include "base.h"
 #include "ast_base.h"
 #include "ast_named.h"
 #include "typed.h"
