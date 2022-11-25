@@ -1,4 +1,4 @@
-#include "src/codegen/code_generator.h"
+#include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
 #include "ast/ast_context.h"
@@ -12,6 +12,15 @@
 #include "compiler_session.h"
 
 namespace tanlang {
+
+/**
+ * \brief create_ty an `alloca` instruction in the beginning of a block.
+ * \param block BasicBlock to insert to.
+ * \param type Intended type to store.
+ * \param name Name of the `alloca` instruction.
+ * \param size size of the array if greater than 1
+ */
+static AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size = 1, const str &name = "");
 
 class CodeGeneratorImpl {
 public:
@@ -1144,5 +1153,15 @@ CodeGenerator::CodeGenerator(CompilerSession *cs, ASTContext *ctx) { _impl = new
 llvm::Value *CodeGenerator::codegen(ASTBase *p) { return _impl->codegen(p); }
 
 CodeGenerator::~CodeGenerator() { delete _impl; }
+
+static AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
+  block = &block->getParent()->getEntryBlock();
+  IRBuilder<> tmp_builder(block, block->begin());
+  if (size <= 1) {
+    return tmp_builder.CreateAlloca(type, nullptr, name);
+  } else {
+    return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned) size), name);
+  }
+}
 
 }

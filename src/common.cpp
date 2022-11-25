@@ -2,16 +2,6 @@
 
 namespace tanlang {
 
-AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
-  block = &block->getParent()->getEntryBlock();
-  IRBuilder<> tmp_builder(block, block->begin());
-  if (size <= 1) {
-    return tmp_builder.CreateAlloca(type, nullptr, name);
-  } else {
-    return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned) size), name);
-  }
-}
-
 bool is_ast_type_in(ASTNodeType t, const vector<ASTNodeType> &list) {
   return std::find(list.begin(), list.end(), t) != list.end();
 }

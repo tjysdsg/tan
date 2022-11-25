@@ -3,7 +3,7 @@
 #include "lexer/token.h"
 #include "compiler_session.h"
 #include "analysis/analyzer.h"
-#include "src/codegen/code_generator.h"
+#include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/ast_context.h"
 #include "lexer/reader.h"

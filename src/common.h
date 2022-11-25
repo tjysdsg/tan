@@ -1,19 +1,9 @@
 #ifndef TAN_SRC_AST_COMMON_H_
 #define TAN_SRC_AST_COMMON_H_
 #include "base.h"
-#include "src/llvm_include.h"
 #include "ast/ast_node_type.h"
 
 namespace tanlang {
-
-/**
- * \brief create_ty an `alloca` instruction in the beginning of a block.
- * \param block BasicBlock to insert to.
- * \param type Intended type to store.
- * \param name Name of the `alloca` instruction.
- * \param size size of the array if greater than 1
- */
-AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size = 1, const str &name = "");
 
 bool is_ast_type_in(ASTNodeType t, const vector<ASTNodeType> &list);
 
