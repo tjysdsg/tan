@@ -10,8 +10,7 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
   return ret;
 }
 
-BasicConstructor *BasicConstructor::CreateIntegerConstructor(
-    SrcLoc loc,
+BasicConstructor *BasicConstructor::CreateIntegerConstructor(SrcLoc loc,
     uint64_t default_val,
     size_t bit_size,
     bool is_unsigned) {
@@ -22,10 +21,7 @@ BasicConstructor *BasicConstructor::CreateBoolConstructor(SrcLoc loc, bool defau
   return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(loc, default_val));
 }
 
-BasicConstructor *BasicConstructor::CreateFPConstructor(
-    SrcLoc loc,
-    double default_val,
-    size_t bit_size) {
+BasicConstructor *BasicConstructor::CreateFPConstructor(SrcLoc loc, double default_val, size_t bit_size) {
   return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(loc, default_val, bit_size));
 }
 
