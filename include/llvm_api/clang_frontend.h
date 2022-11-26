@@ -2,7 +2,9 @@
 #define __TAN_INCLUDE_CLANG_FRONTEND_H__
 #include "base.h"
 
+namespace tanlang {
 struct TanCompilation;
+}
 
 /**
  * \brief Clang main function
@@ -17,6 +19,6 @@ int clang_main(int argc, const char **argv);
  * \note This function requires the system to have clang executable installed
  * \return Error code returned by clang::driver::Driver::ExecuteCompilation
  * */
-int clang_compile(vector<str> input_files, TanCompilation *config);
+int clang_compile(vector<str> input_files, tanlang::TanCompilation *config);
 
 #endif /* __TAN_INCLUDE_CLANG_FRONTEND_H__ */

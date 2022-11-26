@@ -173,6 +173,8 @@ int clang_main(int argc, const char **argv) {
   return ret;
 }
 
+using tanlang::TanCompilation;
+
 int clang_compile(vector<str> input_files, TanCompilation *config) {
   vector<const char *> args;
   size_t n_import = config->import_dirs.size();

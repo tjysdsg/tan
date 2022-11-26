@@ -24,6 +24,8 @@
 #define END_TRY
 #endif
 
+namespace tanlang {
+
 namespace fs = std::filesystem;
 
 static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
@@ -154,3 +156,5 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
 bool init_compiler(int argc, char **argv) {
   return init_back_trace(argv[0]);
 }
+
+} // namespace tanlang

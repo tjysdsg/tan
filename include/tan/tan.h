@@ -8,14 +8,10 @@
  * */
 
 namespace tanlang {
+
 class Parser;
 class Reader;
 class Compiler;
-}
-
-using tanlang::Parser;
-using tanlang::Reader;
-using tanlang::Compiler;
 
 /**
  * \enum TanCompileType
@@ -91,5 +87,7 @@ inline str opt_level_to_string(TanOptLevel l) {
       TAN_ASSERT(false);
   }
 }
+
+} // namespace tanlang
 
 #endif /* TAN_SRC_LIB_LIBTANC_H_ */

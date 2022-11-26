@@ -6,6 +6,7 @@
 
 namespace cmd = llvm::cl;
 namespace fs = std::filesystem;
+using namespace tanlang;
 
 /// \see https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html
 static constexpr std::array cxx_ext
