@@ -57,4 +57,4 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
 }
 
 extern fn abort() : void;
-extern fn stack_trace() : void;
+extern fn __tan_runtime_stack_trace() : void;

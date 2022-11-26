@@ -454,9 +454,22 @@ private:
 
     auto void_type = Type::GetVoidType();
     switch (p->get_intrinsic_type()) {
-      case IntrinsicType::STACK_TRACE:
+      case IntrinsicType::STACK_TRACE: {
+        auto *sub = p->get_sub();
+        if (sub->get_node_type() != ASTNodeType::FUNC_CALL) {
+          report_error(p->get_sub(), "Expect an intrinsic function call");
+        }
+        auto *func_call = ast_cast<FunctionCall>(sub);
+        func_call->set_name("__tan_runtime_stack_trace");
+        analyze(func_call);
+        p->set_type(void_type);
+        break;
+      }
       case IntrinsicType::ABORT:
       case IntrinsicType::NOOP: {
+        if (p->get_sub()->get_node_type() != ASTNodeType::FUNC_CALL) {
+          report_error(p->get_sub(), "Expect an intrinsic function call");
+        }
         analyze(p->get_sub());
         p->set_type(void_type);
         break;

@@ -14,7 +14,8 @@ umap<str, IntrinsicType>
     {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
     {"is_unsigned", IntrinsicType::IS_UNSIGNED}, {"unlikely", IntrinsicType::UNLIKELY},
     {"likely", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP},
-    {"get_decl", IntrinsicType::GET_DECL}, {"test_comp_error", IntrinsicType::TEST_COMP_ERROR}};
+    {"get_decl", IntrinsicType::GET_DECL}, {"test_comp_error", IntrinsicType::TEST_COMP_ERROR},
+    {"stack_trace", IntrinsicType::STACK_TRACE}};
 
 static void init_noop(CompilerSession *cs);
 

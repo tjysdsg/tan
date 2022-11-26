@@ -2,7 +2,7 @@ import "stdlib.tan"
 
 pub fn assert(b: bool) : void {
     if(!b) {
-        stack_trace();
+        @stack_trace();
         abort();
     }
 }

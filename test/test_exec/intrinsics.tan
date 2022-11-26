@@ -14,9 +14,14 @@ pub fn main(argc: int, argv: char**) : int {
     print("\nSource code of variable argc is:");
     print(@get_decl(argc));
 
-    print("\nPrinting stack trace...");
-    stack_trace();
-    print("Stack trace printed\n");
+    @stack_trace();
+
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @abort;
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @stack_trace(100);
+    }
 
     print("SUCCESS\n");
     @compprint("main function ends");
