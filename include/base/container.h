@@ -10,6 +10,7 @@
 template <typename T> using vector = std::vector<T>;
 
 using str = std::string;
+using str_view = std::string_view;
 
 template <typename Key, typename Value, typename Hash = std::hash<Key>> // support custom hash
 using umap = std::unordered_map<Key, Value, Hash>;
