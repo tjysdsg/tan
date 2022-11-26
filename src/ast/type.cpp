@@ -17,57 +17,51 @@ PrimitiveType *PrimitiveType::Create(PrimitiveType::Kind kind) {
   }
 }
 
-PrimitiveType *Type::GetVoidType() {
-  return PrimitiveType::Create(PrimitiveType::VOID);
-}
+PrimitiveType *Type::GetVoidType() { return PrimitiveType::Create(PrimitiveType::VOID); }
 
-PrimitiveType *Type::GetBoolType() {
-  return PrimitiveType::Create(PrimitiveType::BOOL);
-}
+PrimitiveType *Type::GetBoolType() { return PrimitiveType::Create(PrimitiveType::BOOL); }
 
-PrimitiveType *Type::GetCharType() {
-  return PrimitiveType::Create(PrimitiveType::CHAR);
-}
+PrimitiveType *Type::GetCharType() { return PrimitiveType::Create(PrimitiveType::CHAR); }
 
 PrimitiveType *Type::GetIntegerType(size_t bit_size, bool is_unsigned) {
   switch (bit_size) {
-    case 8:
-      if (is_unsigned) {
-        return PrimitiveType::Create(PrimitiveType::U8);
-      } else {
-        return PrimitiveType::Create(PrimitiveType::I8);
-      }
-    case 16:
-      if (is_unsigned) {
-        return PrimitiveType::Create(PrimitiveType::U16);
-      } else {
-        return PrimitiveType::Create(PrimitiveType::I16);
-      }
-    case 32:
-      if (is_unsigned) {
-        return PrimitiveType::Create(PrimitiveType::U32);
-      } else {
-        return PrimitiveType::Create(PrimitiveType::I32);
-      }
-    case 64:
-      if (is_unsigned) {
-        return PrimitiveType::Create(PrimitiveType::U64);
-      } else {
-        return PrimitiveType::Create(PrimitiveType::I64);
-      }
-    default:
-      TAN_ASSERT(false);
+  case 8:
+    if (is_unsigned) {
+      return PrimitiveType::Create(PrimitiveType::U8);
+    } else {
+      return PrimitiveType::Create(PrimitiveType::I8);
+    }
+  case 16:
+    if (is_unsigned) {
+      return PrimitiveType::Create(PrimitiveType::U16);
+    } else {
+      return PrimitiveType::Create(PrimitiveType::I16);
+    }
+  case 32:
+    if (is_unsigned) {
+      return PrimitiveType::Create(PrimitiveType::U32);
+    } else {
+      return PrimitiveType::Create(PrimitiveType::I32);
+    }
+  case 64:
+    if (is_unsigned) {
+      return PrimitiveType::Create(PrimitiveType::U64);
+    } else {
+      return PrimitiveType::Create(PrimitiveType::I64);
+    }
+  default:
+    TAN_ASSERT(false);
   }
 }
 
 PrimitiveType *Type::GetFloatType(size_t bit_size) {
   switch (bit_size) {
-    case 32:
-      return PrimitiveType::Create(PrimitiveType::F32);
-    case 64:
-      return PrimitiveType::Create(PrimitiveType::F64);
-    default:
-      TAN_ASSERT(false);
+  case 32:
+    return PrimitiveType::Create(PrimitiveType::F32);
+  case 64:
+    return PrimitiveType::Create(PrimitiveType::F64);
+  default:
+    TAN_ASSERT(false);
   }
 }
 

@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 
 /// fix bunch of errors caused by macros defined in windows.h
-#pragma warning(disable:4596)
+#pragma warning(disable : 4596)
 #include <windows.h>
 #include <DbgHelp.h>
 #undef min
@@ -204,48 +204,47 @@
 
 namespace tanlang {
 
-using llvm::Expected;
-using llvm::StringRef;
-using llvm::Value;
 using llvm::AllocaInst;
-using llvm::Constant;
-using llvm::ConstantFP;
-using llvm::ConstantInt;
 using llvm::APFloat;
 using llvm::APInt;
-using llvm::Function;
-using llvm::PHINode;
-using llvm::verifyFunction;
-using llvm::IRBuilder;
 using llvm::BasicBlock;
-using llvm::Module;
-using llvm::DataLayout;
-using llvm::LLVMContext;
-using llvm::GlobalVariable;
-using llvm::GlobalValue;
+using llvm::Constant;
+using llvm::ConstantArray;
+using llvm::ConstantFP;
+using llvm::ConstantInt;
 using llvm::ConstantPointerNull;
 using llvm::ConstantStruct;
-using llvm::ConstantArray;
+using llvm::DataLayout;
+using llvm::Expected;
+using llvm::Function;
+using llvm::GlobalValue;
+using llvm::GlobalVariable;
+using llvm::IRBuilder;
+using llvm::LLVMContext;
+using llvm::Module;
+using llvm::PHINode;
+using llvm::StringRef;
+using llvm::Value;
+using llvm::verifyFunction;
 
-using llvm::TargetMachine;
+using llvm::PassManagerBuilder;
 using llvm::SectionMemoryManager;
+using llvm::TargetMachine;
+using llvm::Triple;
 using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
-using llvm::PassManagerBuilder;
-using llvm::Triple;
 
+using llvm::DebugLoc;
 using llvm::DIBuilder;
 using llvm::DICompileUnit;
-using llvm::DIType;
 using llvm::DIFile;
-using llvm::DIType;
+using llvm::DINode;
 using llvm::DIScope;
 using llvm::DISubprogram;
 using llvm::DISubroutineType;
+using llvm::DIType;
 using llvm::MDNode;
 using llvm::Metadata;
-using llvm::DINode;
-using llvm::DebugLoc;
 
 } // namespace tanlang
 

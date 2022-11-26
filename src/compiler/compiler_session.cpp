@@ -11,7 +11,7 @@ CompilerSession::CompilerSession(const str &module_name, TargetMachine *tm)
   _module = new Module(module_name, *_context);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
-  auto opt_level = (llvm::CodeGenOpt::Level) Compiler::compile_config.opt_level;
+  auto opt_level = (llvm::CodeGenOpt::Level)Compiler::compile_config.opt_level;
   _target_machine->setOptLevel(opt_level);
 
   /// add the current debug info version into the module
@@ -79,9 +79,9 @@ void CompilerSession::emit_object(const str &filename) {
   fpm.add(llvm::createVerifierPass());
   pm_builder->populateFunctionPassManager(fpm);
   fpm.doInitialization();
-  for (auto &f: *_module) {
+  for (auto &f : *_module) {
     if (f.getName() == "tan_main") { /// mark tan_main as used, prevent LLVM from deleting it
-      llvm::appendToUsed(*_module, {(GlobalValue *) &f});
+      llvm::appendToUsed(*_module, {(GlobalValue *)&f});
     }
     fpm.run(f);
   }
@@ -111,9 +111,7 @@ void CompilerSession::push_di_scope(DIScope *scope) { _di_scope.push_back(scope)
 void CompilerSession::pop_di_scope() { _di_scope.pop_back(); }
 
 void CompilerSession::set_current_debug_location(size_t l, size_t c) {
-  _builder->SetCurrentDebugLocation(DebugLoc::get((unsigned) (l + 1),
-      (unsigned) (c + 1),
-      this->get_current_di_scope()));
+  _builder->SetCurrentDebugLocation(DebugLoc::get((unsigned)(l + 1), (unsigned)(c + 1), this->get_current_di_scope()));
 }
 
 unsigned CompilerSession::get_ptr_size() const { return _target_machine->getPointerSizeInBits(0); }

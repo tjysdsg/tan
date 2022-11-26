@@ -20,7 +20,7 @@ public:
   explicit SrcLoc(size_t index) { _index = index; }
   static SrcLoc CreateInvalidIndex() { return SrcLoc(static_cast<size_t>(-1)); }
   size_t get_index() const { return _index; }
-  void offset_by(int64_t offset) { _index = (size_t) ((int64_t) _index + offset); }
+  void offset_by(int64_t offset) { _index = (size_t)((int64_t)_index + offset); }
 
 private:
   size_t _index = 0;
@@ -43,6 +43,6 @@ private:
   vector<Token *> _tokens;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_SOURCE_MANAGER_H__

@@ -23,6 +23,6 @@ enum PrecedenceLevel {
   PREC_HIGHEST = 500,
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_PRECEDENCE_H__

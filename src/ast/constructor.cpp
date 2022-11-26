@@ -10,10 +10,8 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
   return ret;
 }
 
-BasicConstructor *BasicConstructor::CreateIntegerConstructor(SrcLoc loc,
-    uint64_t default_val,
-    size_t bit_size,
-    bool is_unsigned) {
+BasicConstructor *BasicConstructor::CreateIntegerConstructor(SrcLoc loc, uint64_t default_val, size_t bit_size,
+                                                             bool is_unsigned) {
   return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(loc, default_val, bit_size, is_unsigned));
 }
 
@@ -48,9 +46,7 @@ void BasicConstructor::set_value(CompTimeExpr *val) { _value = val; }
 StructConstructor::StructConstructor(Type *struct_type)
     : Constructor(ConstructorType::STRUCT), _struct_type(struct_type) {}
 
-StructConstructor *StructConstructor::Create(Type *struct_type) {
-  return new StructConstructor(struct_type);
-}
+StructConstructor *StructConstructor::Create(Type *struct_type) { return new StructConstructor(struct_type); }
 
 StructConstructor *StructConstructor::Create(Type *struct_type, vector<Constructor *> member_ctrs) {
   auto *ret = new StructConstructor(struct_type);

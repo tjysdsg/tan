@@ -15,4 +15,4 @@ struct Scope {
 
 } // namespace tanlang
 
-#endif //TAN_SRC_AST_SCOPE_H_
+#endif // TAN_SRC_AST_SCOPE_H_

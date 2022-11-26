@@ -70,20 +70,20 @@ private:
  * \param p Pointer
  * \return Converted pointer
  */
-template<typename To, typename From> To *ast_cast(From *p) {
+template <typename To, typename From> To *ast_cast(From *p) {
   static_assert(std::is_base_of<ASTBase, From>::value, "Input type can only be a subclass of ASTBase");
   static_assert(std::is_base_of<ASTBase, To>::value, "Target type can only be a subclass of ASTBase");
 
-  #ifdef DEBUG
+#ifdef DEBUG
   auto *ret = dynamic_cast<To *>(p);
-  #else
-  auto *ret = (To *) p;
-  #endif
+#else
+  auto *ret = (To *)p;
+#endif
 
   TAN_ASSERT(ret);
   return ret;
 }
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_BASE_H__

@@ -20,8 +20,10 @@ bool Linker::link() {
   args.push_back("-lm"); /// link to libm by default
 
   vector<const char *> cargs{};
-  for (const auto &a: args) {
-    if (a.length() == 0) { continue; }
+  for (const auto &a : args) {
+    if (a.length() == 0) {
+      continue;
+    }
     cargs.push_back(a.c_str());
     std::cout << a << " ";
   }
@@ -29,12 +31,8 @@ bool Linker::link() {
   return !clang_main(static_cast<int>(cargs.size()), cargs.data());
 }
 
-void Linker::add_flag(const str &flag) {
-  _flags.push_back(flag);
-}
+void Linker::add_flag(const str &flag) { _flags.push_back(flag); }
 
-void Linker::add_flags(vector<str> flags) {
-  _flags.insert(_flags.begin(), flags.begin(), flags.end());
-}
+void Linker::add_flags(vector<str> flags) { _flags.insert(_flags.begin(), flags.begin(), flags.end()); }
 
 } // namespace tanlang

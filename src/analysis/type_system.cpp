@@ -23,7 +23,9 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
    * */
 
   /// early return if types are the same
-  if (orig == dest) { return loaded; };
+  if (orig == dest) {
+    return loaded;
+  };
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return builder->CreateBitCast(loaded, ToLLVMType(cs, dest));
@@ -52,12 +54,12 @@ Value *TypeSystem::ConvertTo(CompilerSession *cs, Expr *expr, Type *dest) {
       return builder->CreateFCmpONE(loaded, ConstantFP::get(builder->getFloatTy(), 0.0f));
     } else if (orig->is_pointer()) {
       size_t s1 = cs->get_ptr_size();
-      loaded = builder->CreateIntToPtr(loaded, builder->getIntNTy((unsigned) s1));
-      return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned) s1), 0, false));
+      loaded = builder->CreateIntToPtr(loaded, builder->getIntNTy((unsigned)s1));
+      return builder->CreateICmpNE(loaded, ConstantInt::get(builder->getIntNTy((unsigned)s1), 0, false));
     } else if (orig->is_int()) {
-      auto *t = (PrimitiveType *) orig;
+      auto *t = (PrimitiveType *)orig;
       return builder->CreateICmpNE(loaded,
-          ConstantInt::get(builder->getIntNTy((unsigned) t->get_size_bits()), 0, false));
+                                   ConstantInt::get(builder->getIntNTy((unsigned)t->get_size_bits()), 0, false));
     }
   } else if (orig->is_array() && dest->is_array()) {
     // FIXME: casting array of float to/from array of integer is broken
@@ -79,7 +81,8 @@ DISubroutineType *TypeSystem::CreateFunctionDIType(CompilerSession *cs, Metadata
   types.reserve(args.size());
   types.insert(types.begin() + 1, args.begin(), args.end());
   //  return cs->_di_builder
-  //    ->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types), DINode::FlagZero, llvm::dwarf::DW_CC_normal);
+  //    ->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types), DINode::FlagZero,
+  //    llvm::dwarf::DW_CC_normal);
   return cs->_di_builder->createSubroutineType(cs->_di_builder->getOrCreateTypeArray(types));
 }
 
@@ -96,9 +99,9 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
   llvm::Type *ret = nullptr;
 
   if (p->is_primitive()) { /// primitive types
-    int size_bits = ((PrimitiveType *) p)->get_size_bits();
+    int size_bits = ((PrimitiveType *)p)->get_size_bits();
     if (p->is_int()) {
-      ret = builder->getIntNTy((unsigned) size_bits);
+      ret = builder->getIntNTy((unsigned)size_bits);
     } else if (p->is_char()) {
       ret = builder->getInt8Ty();
     } else if (p->is_bool()) {
@@ -120,17 +123,17 @@ llvm::Type *TypeSystem::ToLLVMType(CompilerSession *cs, Type *p) {
     // TODO IMPORTANT: ret = TypeSystem::ToLLVMType(cs, p->get_sub_types()[0]);
     TAN_ASSERT(false);
   } else if (p->is_struct()) { /// struct
-    auto member_types = ((StructType *) p)->get_member_types();
+    auto member_types = ((StructType *)p)->get_member_types();
     vector<llvm::Type *> elements(member_types.size(), nullptr);
     for (size_t i = 0; i < member_types.size(); ++i) {
       elements[i] = TypeSystem::ToLLVMType(cs, member_types[i]);
     }
     ret = llvm::StructType::create(elements, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
-    auto *e_type = TypeSystem::ToLLVMType(cs, ((ArrayType *) p)->get_element_type());
+    auto *e_type = TypeSystem::ToLLVMType(cs, ((ArrayType *)p)->get_element_type());
     ret = e_type->getPointerTo();
   } else if (p->is_pointer()) { /// pointer
-    auto *e_type = TypeSystem::ToLLVMType(cs, ((PointerType *) p)->get_pointee());
+    auto *e_type = TypeSystem::ToLLVMType(cs, ((PointerType *)p)->get_pointee());
     ret = e_type->getPointerTo();
   } else {
     TAN_ASSERT(false);
@@ -154,7 +157,7 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
 
   if (p->is_primitive()) { /// primitive types
     unsigned dwarf_encoding = 0;
-    auto *pp = (PrimitiveType *) p;
+    auto *pp = (PrimitiveType *)p;
     int size_bits = pp->get_size_bits();
     if (pp->is_int()) {
       if (pp->is_unsigned()) {
@@ -180,53 +183,34 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
       dwarf_encoding = llvm::dwarf::DW_ATE_signed;
     }
 
-    ret = cs->_di_builder->createBasicType(p->get_typename(), (uint64_t) size_bits, dwarf_encoding);
+    ret = cs->_di_builder->createBasicType(p->get_typename(), (uint64_t)size_bits, dwarf_encoding);
   } else if (p->is_string()) { /// str as char*
     auto *e_di_type = cs->_di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
-    ret = cs->_di_builder
-        ->createPointerType(e_di_type,
-            tm->getPointerSizeInBits(0),
-            (unsigned) tm->getPointerSizeInBits(0),
-            llvm::None,
-            p->get_typename());
+    ret = cs->_di_builder->createPointerType(e_di_type, tm->getPointerSizeInBits(0),
+                                             (unsigned)tm->getPointerSizeInBits(0), llvm::None, p->get_typename());
   } else if (p->is_enum()) { /// enums
     // TODO IMPORTANT
   } else if (p->is_struct()) { /// struct
     DIFile *di_file = cs->get_di_file();
-    auto member_types = ((StructType *) p)->get_member_types();
+    auto member_types = ((StructType *)p)->get_member_types();
     vector<Metadata *> elements(member_types.size(), nullptr);
     for (size_t i = 1; i < member_types.size(); ++i) {
       elements[i] = TypeSystem::ToLLVMMeta(cs, member_types[i]);
     }
-    ret = cs->_di_builder
-        ->createStructType(cs->get_current_di_scope(),
-            p->get_typename(),
-            di_file,
-            0, // TODO IMPORTANT: (unsigned) cs->get_source_manager()->get_line(p->loc()),
-            0, // TODO IMPORTANT: p->get_size_bits(),
-            0, // TODO IMPORTANT: (unsigned) p->get_align_bits(),
-            DINode::DIFlags::FlagZero,
-            nullptr,
-            cs->_di_builder->getOrCreateArray(elements),
-            0,
-            nullptr,
-            p->get_typename());
+    ret = cs->_di_builder->createStructType(
+        cs->get_current_di_scope(), p->get_typename(), di_file,
+        0, // TODO IMPORTANT: (unsigned) cs->get_source_manager()->get_line(p->loc()),
+        0, // TODO IMPORTANT: p->get_size_bits(),
+        0, // TODO IMPORTANT: (unsigned) p->get_align_bits(),
+        DINode::DIFlags::FlagZero, nullptr, cs->_di_builder->getOrCreateArray(elements), 0, nullptr, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
-    auto *sub = TypeSystem::ToLLVMMeta(cs, ((ArrayType *) p)->get_element_type());
-    ret = cs->_di_builder
-        ->createPointerType((DIType *) sub,
-            tm->getPointerSizeInBits(0),
-            (unsigned) tm->getPointerSizeInBits(0),
-            llvm::None,
-            p->get_typename());
+    auto *sub = TypeSystem::ToLLVMMeta(cs, ((ArrayType *)p)->get_element_type());
+    ret = cs->_di_builder->createPointerType((DIType *)sub, tm->getPointerSizeInBits(0),
+                                             (unsigned)tm->getPointerSizeInBits(0), llvm::None, p->get_typename());
   } else if (p->is_pointer()) { /// pointer
-    auto *sub = TypeSystem::ToLLVMMeta(cs, ((PointerType *) p)->get_pointee());
-    ret = cs->_di_builder
-        ->createPointerType((DIType *) sub,
-            tm->getPointerSizeInBits(0),
-            (unsigned) tm->getPointerSizeInBits(0),
-            llvm::None,
-            p->get_typename());
+    auto *sub = TypeSystem::ToLLVMMeta(cs, ((PointerType *)p)->get_pointee());
+    ret = cs->_di_builder->createPointerType((DIType *)sub, tm->getPointerSizeInBits(0),
+                                             (unsigned)tm->getPointerSizeInBits(0), llvm::None, p->get_typename());
   } else {
     TAN_ASSERT(false);
   }
@@ -238,7 +222,9 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
 Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Expr *expr) {
   Value *val = expr->_llvm_value;
   TAN_ASSERT(val);
-  if (expr->is_lvalue()) { return cs->_builder->CreateLoad(val); }
+  if (expr->is_lvalue()) {
+    return cs->_builder->CreateLoad(val);
+  }
   return val;
 }
 

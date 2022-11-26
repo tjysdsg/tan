@@ -23,6 +23,6 @@ public:
   static NullPointerLiteral *CreateNullPointerLiteral(SrcLoc loc, Type *element_type);
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_BUILDER_H__

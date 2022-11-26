@@ -7,7 +7,7 @@
 namespace llvm {
 class TargetMachine;
 class Value;
-}
+} // namespace llvm
 
 namespace tanlang {
 

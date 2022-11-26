@@ -32,9 +32,8 @@ public:
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
-  static inline vector<str> ALL_TYPE_NAMES
-      {"bool", "int", "float", "f32", "str", "char", "f64", "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64",
-          "void"};
+  static inline vector<str> ALL_TYPE_NAMES{"bool", "int", "float", "f32", "str", "char", "f64", "i8",
+                                           "u8",   "i16", "u16",   "i32", "u32", "i64",  "u64", "void"};
 
 public:
   virtual ~Type() = default;
@@ -65,24 +64,72 @@ protected:
   static StringType *STRING_TYPE;
   static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{}; // pointee type -> pointer type
   static inline umap<std::pair<Type *, int>, ArrayType *, PairHash>
-      ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
+      ARRAY_TYPE_CACHE{};                                    // (element type, size) -> array type
   static inline umap<str, StructType *> STRUCT_TYPE_CACHE{}; // struct_name -> pointer type
 };
 
 class PrimitiveType : public Type {
 public:
   enum Kind {
-    VOID, CHAR, I8, I16, I32, I64, U8, U16, U32, U64, BOOL, F32, F64,
+    VOID,
+    CHAR,
+    I8,
+    I16,
+    I32,
+    I64,
+    U8,
+    U16,
+    U32,
+    U64,
+    BOOL,
+    F32,
+    F64,
   };
-  static inline umap<Kind, int> SIZE_BITS
-      {{VOID, 0}, {CHAR, 8}, {I8, 8}, {I16, 16}, {I32, 32}, {I64, 64}, {U8, 8}, {U16, 16}, {U32, 32}, {U64, 64},
-          {F32, 32}, {F64, 64}};
-  static inline umap<Kind, str> TYPE_NAMES
-      {{VOID, "void"}, {CHAR, "char"}, {I8, "i8"}, {I16, "i16"}, {I32, "i32"}, {I64, "i64"}, {U8, "u8"}, {U16, "u16"},
-          {U32, "u32"}, {U64, "u64"}, {F32, "f32"}, {F64, "f64"}};
-  static const inline umap<str, Kind> TYPENAME_TO_KIND =
-      {{"int", I32}, {"i8", I8}, {"u8", U8}, {"i16", I16}, {"u16", U16}, {"i32", I32}, {"u32", U32}, {"i64", I64},
-          {"u64", U64}, {"float", F32}, {"f32", F32}, {"f64", F64}, {"void", VOID}, {"char", CHAR}, {"bool", BOOL}};
+  static inline umap<Kind, int> SIZE_BITS{
+      {VOID, 0 },
+      {CHAR, 8 },
+      {I8,   8 },
+      {I16,  16},
+      {I32,  32},
+      {I64,  64},
+      {U8,   8 },
+      {U16,  16},
+      {U32,  32},
+      {U64,  64},
+      {F32,  32},
+      {F64,  64}
+  };
+  static inline umap<Kind, str> TYPE_NAMES{
+      {VOID, "void"},
+      {CHAR, "char"},
+      {I8,   "i8"  },
+      {I16,  "i16" },
+      {I32,  "i32" },
+      {I64,  "i64" },
+      {U8,   "u8"  },
+      {U16,  "u16" },
+      {U32,  "u32" },
+      {U64,  "u64" },
+      {F32,  "f32" },
+      {F64,  "f64" }
+  };
+  static const inline umap<str, Kind> TYPENAME_TO_KIND = {
+      {"int",   I32 },
+      {"i8",    I8  },
+      {"u8",    U8  },
+      {"i16",   I16 },
+      {"u16",   U16 },
+      {"i32",   I32 },
+      {"u32",   U32 },
+      {"i64",   I64 },
+      {"u64",   U64 },
+      {"float", F32 },
+      {"f32",   F32 },
+      {"f64",   F64 },
+      {"void",  VOID},
+      {"char",  CHAR},
+      {"bool",  BOOL}
+  };
 
 public:
   [[nodiscard]] static PrimitiveType *Create(Kind kind);
@@ -173,6 +220,6 @@ protected:
   TypeRef(const str &name);
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_TYPE_H__

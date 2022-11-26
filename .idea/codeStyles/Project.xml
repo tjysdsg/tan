@@ -59,6 +59,9 @@
         <rule entity="GLOBAL_VARIABLE,LOCAL_VARIABLE" visibility="ANY" specifier="CONST" prefix="" style="SNAKE_CASE" suffix="" />
       </rules>
     </Objective-C-extensions>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
     <editorconfig>
       <option name="ENABLED" value="false" />
     </editorconfig>

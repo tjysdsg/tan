@@ -19,6 +19,6 @@ protected:
   SrcLoc _loc = SrcLoc(0);
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_SOURCE_TRACEABLE_H__

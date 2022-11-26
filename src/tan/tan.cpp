@@ -13,12 +13,11 @@
 #endif
 
 #ifndef DEBUG
-#define END_TRY                                                                \
-  }                                                                            \
-  catch (const std::exception &e) {                                            \
-    std::cerr << "Error encountered in file " << files[i]                      \
-              << ": " << e.what() << '\n';                                     \
-    return false;                                                              \
+#define END_TRY                                                                        \
+  }                                                                                    \
+  catch (const std::exception &e) {                                                    \
+    std::cerr << "Error encountered in file " << files[i] << ": " << e.what() << '\n'; \
+    return false;                                                                      \
   }
 #else
 #define END_TRY
@@ -29,15 +28,16 @@ namespace tanlang {
 namespace fs = std::filesystem;
 
 static str search_library(const vector<str> &lib_dirs, const str &lib_name) {
-  for (const str &dir: lib_dirs) {
-    vector<fs::path> candidates = { /// possible filenames
+  for (const str &dir : lib_dirs) {
+    vector<fs::path> candidates = {
+        /// possible filenames
         fs::path(dir) / fs::path(lib_name),                 //
         fs::path(dir) / fs::path(lib_name + ".a"),          //
         fs::path(dir) / fs::path(lib_name + ".so"),         //
         fs::path(dir) / fs::path("lib" + lib_name + ".a"),  //
         fs::path(dir) / fs::path("lib" + lib_name + ".so"), //
     };
-    for (const auto &p: candidates) {
+    for (const auto &p : candidates) {
       if (fs::exists(p)) {
         return p.string();
       }
@@ -50,7 +50,7 @@ static bool _link(vector<str> input_paths, TanCompilation *config) {
   /// static
   if (config->type == SLIB) {
     /// also add files specified by -l option
-    for (const auto &lib: config->link_files) {
+    for (const auto &lib : config->link_files) {
       str path = search_library(config->lib_dirs, lib);
 
       if (path.empty()) {
@@ -126,14 +126,18 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
     auto compiler = new Compiler(files[i]);
     compilers.push_back(compiler);
     compiler->parse();
-    if (print_ast) { compiler->dump_ast(); }
+    if (print_ast) {
+      compiler->dump_ast();
+    }
     END_TRY
   }
   /// _codegen
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
     compilers[i]->codegen();
-    if (print_ir_code) { compilers[i]->dump_ir(); }
+    if (print_ir_code) {
+      compilers[i]->dump_ir();
+    }
     /// prepare filename for linking
     files[i] += ".o";
     files[i] = fs::path(files[i]).filename().string();
@@ -146,15 +150,15 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   files.insert(files.begin(), obj_files.begin(), obj_files.end());
   if (config->type != OBJ) {
     bool ret = _link(files, config);
-    if (!ret) { std::cerr << "Error linking files\n"; }
+    if (!ret) {
+      std::cerr << "Error linking files\n";
+    }
     return ret;
   } else {
     return true;
   }
 }
 
-bool init_compiler(int argc, char **argv) {
-  return init_back_trace(argv[0]);
-}
+bool init_compiler(int argc, char **argv) { return init_back_trace(argv[0]); }
 
 } // namespace tanlang

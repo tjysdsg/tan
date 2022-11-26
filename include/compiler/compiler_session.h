@@ -44,7 +44,7 @@ public:
 public:
   str _filename = "";
   SourceManager *_sm = nullptr;
-  IRBuilder<> *_builder = nullptr; /// IR builder
+  IRBuilder<> *_builder = nullptr;  /// IR builder
   DIBuilder *_di_builder = nullptr; /// Debug information builder
 
 private:

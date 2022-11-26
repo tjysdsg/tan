@@ -8,9 +8,7 @@
 namespace tanlang {
 
 #ifdef DEBUG
-#define TAN_ASSERT(expr) (static_cast<bool>((expr)) ?  \
-  void (0) :                                           \
-  __tan_assert_fail(#expr, __FILE__, __LINE__))
+#define TAN_ASSERT(expr) (static_cast<bool>((expr)) ? void(0) : __tan_assert_fail(#expr, __FILE__, __LINE__))
 #else
 #define TAN_ASSERT(expr)
 #endif

@@ -29,14 +29,15 @@ static const char *GetStableCStr(std::set<str> &SavedStrings, StringRef S) {
   return SavedStrings.insert(std::string(S)).first->c_str();
 }
 
-static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
-    SmallVectorImpl<const char *> &ArgVector,
-    std::set<str> &SavedStrings) {
+static void insertTargetAndModeArgs(const ParsedClangName &NameParts, SmallVectorImpl<const char *> &ArgVector,
+                                    std::set<str> &SavedStrings) {
   // Put target and mode arguments at the start of argument list so that
   // arguments specified in command line could override them. Avoid putting
   // them at index 0, as an option like '-cc1' must remain the first.
   int InsertionPoint = 0;
-  if (ArgVector.size() > 0) { ++InsertionPoint; }
+  if (ArgVector.size() > 0) {
+    ++InsertionPoint;
+  }
 
   if (NameParts.DriverMode) {
     // Add the mode flag to the arguments.
@@ -87,7 +88,7 @@ static DiagnosticOptions *CreateAndPopulateDiagOpts(ArrayRef<const char *> argv)
   // We ignore MissingArgCount and the return value of ParseDiagnosticArgs.
   // Any errors that would be diagnosed here will also be diagnosed later,
   // when the DiagnosticsEngine actually exists.
-  (void) ParseDiagnosticArgs(*DiagOpts, Args);
+  (void)ParseDiagnosticArgs(*DiagOpts, Args);
   return DiagOpts;
 }
 
@@ -95,7 +96,9 @@ int main0(int argc_, const char **argv_) {
   noteBottomOfStack();
   llvm::InitLLVM X(argc_, argv_);
   SmallVector<const char *, 256> argv(argv_, argv_ + argc_);
-  if (llvm::sys::Process::FixupStandardFileDescriptors()) { return 1; }
+  if (llvm::sys::Process::FixupStandardFileDescriptors()) {
+    return 1;
+  }
 
   llvm::InitializeAllTargets();
   auto TargetAndMode = ToolChain::getTargetAndModeFromProgramName(argv[0]);
@@ -132,7 +135,7 @@ int main0(int argc_, const char **argv_) {
     SmallVector<std::pair<int, const Command *>, 4> FailingCommands;
     Res = TheDriver.ExecuteCompilation(*C, FailingCommands);
 
-    for (const auto &P: FailingCommands) {
+    for (const auto &P : FailingCommands) {
       int CommandRes = P.first;
       const Command *FailingCommand = P.second;
       if (!Res) {
@@ -144,9 +147,9 @@ int main0(int argc_, const char **argv_) {
       // On Windows, abort will return an exit code of 3.  In these cases,
       // generate additional diagnostic information if possible.
       bool DiagnoseCrash = CommandRes < 0 || CommandRes == 70;
-      #ifdef _WIN32
+#ifdef _WIN32
       DiagnoseCrash |= CommandRes == 3;
-      #endif
+#endif
       if (DiagnoseCrash) {
         TheDriver.generateCompilationDiagnostics(*C, *FailingCommand);
         break;
@@ -155,13 +158,13 @@ int main0(int argc_, const char **argv_) {
   }
   Diags.getClient()->finish();
 
-  #ifdef _WIN32
+#ifdef _WIN32
   // Exit status should not be negative on Win32, unless abnormal termination.
   // Once abnormal termination was caught, negative status should not be
   // propagated.
   if (Res < 0)
     Res = 1;
-  #endif
+#endif
 
   /// if we have multiple failing commands, we return the result of the first failing command
   return Res;
@@ -191,12 +194,14 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
 
   llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diag_id(new clang::DiagnosticIDs());
   auto diag_options = new clang::DiagnosticOptions();
-  clang::DiagnosticsEngine
-      diag_engine(diag_id, diag_options, new clang::TextDiagnosticPrinter(llvm::errs(), diag_options));
+  clang::DiagnosticsEngine diag_engine(diag_id, diag_options,
+                                       new clang::TextDiagnosticPrinter(llvm::errs(), diag_options));
   clang::driver::Driver driver(GetExecutablePath("clang"), llvm::sys::getDefaultTargetTriple(), diag_engine);
 
   auto *compilation = driver.BuildCompilation(args);
   SmallVector<std::pair<int, const Command *>, 0> failing_commands;
-  if (compilation) { return driver.ExecuteCompilation(*compilation, failing_commands); }
+  if (compilation) {
+    return driver.ExecuteCompilation(*compilation, failing_commands);
+  }
   return 1;
 }

@@ -23,6 +23,6 @@ private:
   CodeGeneratorImpl *_impl = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_CODEGEN_CODE_GENERATOR_H__

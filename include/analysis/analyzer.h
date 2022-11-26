@@ -17,6 +17,6 @@ private:
   AnalyzerImpl *_analyzer_impl = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_ANALYSIS_ANALYZER_H__

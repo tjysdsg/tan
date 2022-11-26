@@ -8,13 +8,11 @@
 
 namespace tanlang {
 
-#define IS_DELIMITER(x)                                                        \
-  (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' ||          \
-   x == '@' || x == '#' || x == '$' || x == '%' || x == '^' || x == '&' ||     \
-   x == '*' || x == '(' || x == ')' || x == '-' || x == '+' || x == '=' ||     \
-   x == ';' || x == '<' || x == '>' || x == '/' || x == '?' || x == '\\' ||    \
-   x == '|' || x == '{' || x == '}' || x == '[' || x == ']' || x == '\'' ||    \
-   x == '"' || x == ':')
+#define IS_DELIMITER(x)                                                                                               \
+  (x == ';' || std::isspace(x) || x == ',' || x == '.' || x == '!' || x == '@' || x == '#' || x == '$' || x == '%' || \
+   x == '^' || x == '&' || x == '*' || x == '(' || x == ')' || x == '-' || x == '+' || x == '=' || x == ';' ||        \
+   x == '<' || x == '>' || x == '/' || x == '?' || x == '\\' || x == '|' || x == '{' || x == '}' || x == '[' ||       \
+   x == ']' || x == '\'' || x == '"' || x == ':')
 
 [[noreturn]] static void report_error(Reader *reader, Cursor c, const str &message) {
   Error err(reader->get_filename(), reader->get_line(c.l), c.l + 1, c.c + 1, message);
@@ -73,21 +71,21 @@ Token *tokenize_keyword(Reader *reader, Cursor &start) {
 Token *tokenize_comments(Reader *reader, Cursor &start) {
   Token *t = nullptr;
   auto next = reader->forward(start);
-  if (*next == '/') {  /// line comments
+  if (*next == '/') { /// line comments
     auto value = reader->substr(reader->forward(next));
     t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
     start.c = reader->get_line(start.l).length();
     start = reader->forward(start);
-  } else if (*next == '*') {  /// block comments
+  } else if (*next == '*') {                      /// block comments
     auto forward = start = reader->forward(next); /// forward now points to the character after "/*"
 
     /// trying to find "*/"
-    while ((size_t) forward.l < reader->size()) {
+    while ((size_t)forward.l < reader->size()) {
       auto re = std::regex(R"(\*\/)");
       auto s = reader->get_line(forward.l);
       std::smatch result;
       if (std::regex_search(s, result, re)) {
-        forward.c = (size_t) result.position(0);  // forward is the position of */
+        forward.c = (size_t)result.position(0); // forward is the position of */
         str comment_val = reader->substr(start, forward);
         t = new Token(TokenType::COMMENTS, start.l, start.c, comment_val, reader->get_line(start.l));
         forward.c += 2;
@@ -117,8 +115,8 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
     const char ch = *forward;
     if (std::isdigit(ch)) {
       contains_digit = true;
-    } else if (*start_digit_i == '0' && contains_digit
-        && ((ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X')) {
+    } else if (*start_digit_i == '0' && contains_digit &&
+               ((ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X')) {
     } else if (contains_digit && !is_float && ch == 'u') { /// explicitly unsigned
       is_unsigned = true;
     } else if (contains_digit && ch == '.') {
@@ -131,11 +129,8 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
     forward = (*reader).forward(forward);
   }
 
-  auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT,
-      start.l,
-      start.c,
-      reader->substr(start, forward),
-      reader->get_line(start.l));
+  auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT, start.l, start.c, reader->substr(start, forward),
+                      reader->get_line(start.l));
   t->set_is_unsigned(is_unsigned);
   start = forward;
   return t;
@@ -144,30 +139,30 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
 char escape_char(char c) {
   /// https://en.cppreference.com/w/cpp/language/escape
   switch (c) {
-    case '\'':
-      return '\'';
-    case '\"':
-      return '\"';
-    case '\\':
-      return '\\';
-    case '?':
-      return '\?';
-    case 'a':
-      return '\a';
-    case 'b':
-      return '\b';
-    case 'f':
-      return '\f';
-    case 'n':
-      return '\n';
-    case 'r':
-      return '\r';
-    case 't':
-      return '\t';
-    case 'v':
-      return '\v';
-    default:
-      return -1;
+  case '\'':
+    return '\'';
+  case '\"':
+    return '\"';
+  case '\\':
+    return '\\';
+  case '?':
+    return '\?';
+  case 'a':
+    return '\a';
+  case 'b':
+    return '\b';
+  case 'f':
+    return '\f';
+  case 'n':
+    return '\n';
+  case 'r':
+    return '\r';
+  case 't':
+    return '\t';
+  case 'v':
+    return '\v';
+  default:
+    return -1;
   }
 }
 
@@ -264,8 +259,8 @@ Token *tokenize_punctuation(Reader *reader, Cursor &start) {
       str two = reader->substr(start, nnext);
       str three = reader->substr(start, reader->forward(nnext));
 
-      if (next < back_ptr && nnext < back_ptr
-          && std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
+      if (next < back_ptr && nnext < back_ptr &&
+          std::find(OP_ALL.begin(), OP_ALL.end(), three) != OP_ALL.end()) { /// operator containing three characters
         value = reader->substr(start, nnnext);
         start = nnnext;
       } else if (next < back_ptr && std::find(OP_ALL.begin(), OP_ALL.end(), two) != OP_ALL.end()) {
@@ -295,7 +290,9 @@ Token *tokenize_punctuation(Reader *reader, Cursor &start) {
 
 vector<Token *> tokenize(Reader *reader) {
   Cursor start = reader->begin();
-  if (reader->size() == 0) { return {}; }
+  if (reader->size() == 0) {
+    return {};
+  }
   vector<Token *> tokens;
   const auto end = reader->end();
   while (start < end) {

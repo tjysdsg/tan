@@ -6,32 +6,41 @@
 
 namespace tanlang {
 
-umap<str, IntrinsicType>
-    Intrinsic::intrinsics{{"asm", IntrinsicType::ASM}, {"swap", IntrinsicType::SWAP}, {"memset", IntrinsicType::MEMSET},
-    {"memcpy", IntrinsicType::MEMCPY}, {"range", IntrinsicType::RANGE}, {"compprint", IntrinsicType::COMP_PRINT},
-    {"file", IntrinsicType::FILENAME}, {"line", IntrinsicType::LINENO}, {"define", IntrinsicType::DEFINE},
-    {"sizeof", IntrinsicType::SIZE_OF}, {"offsetof", IntrinsicType::OFFSET_OF}, {"isa", IntrinsicType::ISA},
-    {"alignof", IntrinsicType::ALIGN_OF}, {"min_of", IntrinsicType::MIN_OF}, {"max_of", IntrinsicType::MAX_OF},
-    {"is_unsigned", IntrinsicType::IS_UNSIGNED}, {"unlikely", IntrinsicType::UNLIKELY},
-    {"likely", IntrinsicType::LIKELY}, {"expect", IntrinsicType::EXPECT}, {"noop", IntrinsicType::NOOP},
-    {"get_decl", IntrinsicType::GET_DECL}, {"test_comp_error", IntrinsicType::TEST_COMP_ERROR},
-    {"stack_trace", IntrinsicType::STACK_TRACE}};
+umap<str, IntrinsicType> Intrinsic::intrinsics{
+    {"asm",             IntrinsicType::ASM            },
+    {"swap",            IntrinsicType::SWAP           },
+    {"memset",          IntrinsicType::MEMSET         },
+    {"memcpy",          IntrinsicType::MEMCPY         },
+    {"range",           IntrinsicType::RANGE          },
+    {"compprint",       IntrinsicType::COMP_PRINT     },
+    {"file",            IntrinsicType::FILENAME       },
+    {"line",            IntrinsicType::LINENO         },
+    {"define",          IntrinsicType::DEFINE         },
+    {"sizeof",          IntrinsicType::SIZE_OF        },
+    {"offsetof",        IntrinsicType::OFFSET_OF      },
+    {"isa",             IntrinsicType::ISA            },
+    {"alignof",         IntrinsicType::ALIGN_OF       },
+    {"min_of",          IntrinsicType::MIN_OF         },
+    {"max_of",          IntrinsicType::MAX_OF         },
+    {"is_unsigned",     IntrinsicType::IS_UNSIGNED    },
+    {"unlikely",        IntrinsicType::UNLIKELY       },
+    {"likely",          IntrinsicType::LIKELY         },
+    {"expect",          IntrinsicType::EXPECT         },
+    {"noop",            IntrinsicType::NOOP           },
+    {"get_decl",        IntrinsicType::GET_DECL       },
+    {"test_comp_error", IntrinsicType::TEST_COMP_ERROR},
+    {"stack_trace",     IntrinsicType::STACK_TRACE    }
+};
 
 static void init_noop(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
-  ctx->add_function(FunctionDecl::Create(SrcLoc(0),
-      "compprint",
-      Type::GetVoidType(),
-      {Type::GetStringType()},
-      true,
-      false));
+  ctx->add_function(
+      FunctionDecl::Create(SrcLoc(0), "compprint", Type::GetVoidType(), {Type::GetStringType()}, true, false));
 }
 
-void Intrinsic::InitCodegen(CompilerSession *cs) {
-  init_noop(cs);
-}
+void Intrinsic::InitCodegen(CompilerSession *cs) { init_noop(cs); }
 
 Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }
 

@@ -57,8 +57,8 @@ static void failIfError(std::error_code E, Twine Context = "") {
   failIfError(llvm::createStringError(E, "Runtime error"), Context);
 }
 
-static bool Symtab = true;                ///< 's' modifier
-static bool Deterministic = true;         ///< 'D' and 'U' modifiers
+static bool Symtab = true;        ///< 's' modifier
+static bool Deterministic = true; ///< 'D' and 'U' modifiers
 
 // Relative Positional Argument (for insert/move). This variable holds
 // the name of the archive member to which the 'a', 'b' or 'i' modifier
@@ -71,26 +71,24 @@ static std::string ArchiveName;
 static std::vector<str> Members;
 ///
 
-inline std::string normalizePath(StringRef Path) {
-  return std::string(sys::path::filename(Path));
-}
+inline std::string normalizePath(StringRef Path) { return std::string(sys::path::filename(Path)); }
 
 static bool comparePaths(StringRef Path1, StringRef Path2) {
-  /**
-   * when on Windows this function calls CompareStringOrdinal
-   * as Windows file paths are case-insensitive.
-   * CompareStringOrdinal compares two Unicode strings for
-   * binary equivalence and allows for case insensitivity.
-   */
-  #ifdef _WIN32
+/**
+ * when on Windows this function calls CompareStringOrdinal
+ * as Windows file paths are case-insensitive.
+ * CompareStringOrdinal compares two Unicode strings for
+ * binary equivalence and allows for case insensitivity.
+ */
+#ifdef _WIN32
   SmallVector<wchar_t, 128> WPath1, WPath2;
   failIfError(sys::path::widenPath(normalizePath(Path1), WPath1));
   failIfError(sys::path::widenPath(normalizePath(Path2), WPath2));
 
   return CompareStringOrdinal(WPath1.data(), WPath1.size(), WPath2.data(), WPath2.size(), true) == CSTR_EQUAL;
-  #else
+#else
   return normalizePath(Path1) == normalizePath(Path2);
-  #endif
+#endif
 }
 
 static void addChildMember(std::vector<NewArchiveMember> &members, const object::Archive::Child &M) {
@@ -106,15 +104,17 @@ static void addMember(std::vector<NewArchiveMember> &members, StringRef FileName
   members.push_back(std::move(*NMOrErr));
 }
 
-enum InsertAction {
-  IA_AddOldMember, IA_AddNewMember, IA_MoveOldMember, IA_MoveNewMember
-};
+enum InsertAction { IA_AddOldMember, IA_AddNewMember, IA_MoveOldMember, IA_MoveNewMember };
 
 static InsertAction computeInsertAction(StringRef Name, std::vector<str>::iterator &Pos) {
   auto MI = find_if(Members, [Name](StringRef Path) { return comparePaths(Name, Path); });
-  if (MI == Members.end()) { return IA_AddOldMember; }
+  if (MI == Members.end()) {
+    return IA_AddOldMember;
+  }
   Pos = MI;
-  if (RelPos.empty()) { return IA_AddNewMember; }
+  if (RelPos.empty()) {
+    return IA_AddNewMember;
+  }
   return IA_MoveNewMember;
 }
 
@@ -126,47 +126,55 @@ static std::vector<NewArchiveMember> computeNewArchiveMembers(object::Archive *O
   int InsertPos = -1;
   if (OldArchive) {
     Error Err = Error::success();
-    for (auto &Child: OldArchive->children(Err)) {
-      int Pos = (int) Ret.size();
+    for (auto &Child : OldArchive->children(Err)) {
+      int Pos = (int)Ret.size();
       Expected<StringRef> NameOrErr = Child.getName();
       failIfError(NameOrErr.takeError());
       std::string Name = std::string(NameOrErr.get());
-      if (comparePaths(Name, RelPos)) { InsertPos = Pos + 1; }
+      if (comparePaths(Name, RelPos)) {
+        InsertPos = Pos + 1;
+      }
       auto MemberI = Members.end();
       InsertAction Action = computeInsertAction(Name, MemberI);
       switch (Action) {
-        case IA_AddOldMember:
-          addChildMember(Ret, Child);
-          break;
-        case IA_AddNewMember:
-          addMember(Ret, *MemberI);
-          break;
-        case IA_MoveOldMember:
-          addChildMember(Moved, Child);
-          break;
-        case IA_MoveNewMember:
-          addMember(Moved, *MemberI);
-          break;
-        default:
-          break;
+      case IA_AddOldMember:
+        addChildMember(Ret, Child);
+        break;
+      case IA_AddNewMember:
+        addMember(Ret, *MemberI);
+        break;
+      case IA_MoveOldMember:
+        addChildMember(Moved, Child);
+        break;
+      case IA_MoveNewMember:
+        addMember(Moved, *MemberI);
+        break;
+      default:
+        break;
       }
-      if (MemberI != Members.end()) { Members.erase(MemberI); }
+      if (MemberI != Members.end()) {
+        Members.erase(MemberI);
+      }
     }
     failIfError(std::move(Err));
   }
 
-  if (!RelPos.empty() && InsertPos == -1) { fail("insertion point not found"); }
-  if (RelPos.empty()) { InsertPos = (int) Ret.size(); }
+  if (!RelPos.empty() && InsertPos == -1) {
+    fail("insertion point not found");
+  }
+  if (RelPos.empty()) {
+    InsertPos = (int)Ret.size();
+  }
 
   assert(unsigned(InsertPos) <= Ret.size());
   int Pos = InsertPos;
-  for (auto &M: Moved) {
+  for (auto &M : Moved) {
     Ret.insert(Ret.begin() + Pos, std::move(M));
     ++Pos;
   }
 
   std::vector<NewArchiveMember> NewMembers;
-  for (auto &Member: Members) {
+  for (auto &Member : Members) {
     addMember(NewMembers, Member);
   }
   Ret.reserve(Ret.size() + NewMembers.size());
@@ -226,7 +234,9 @@ extern int llvm_ar_create_static_lib(const str &archive_name, const vector<str> 
   /// create or open the archive object.
   ErrorOr<std::unique_ptr<MemoryBuffer>> Buf = MemoryBuffer::getFile(archive_name, -1, false);
   std::error_code EC = Buf.getError();
-  if (EC && EC != errc::no_such_file_or_directory) { fail("error opening '" + archive_name + "': " + EC.message()); }
+  if (EC && EC != errc::no_such_file_or_directory) {
+    fail("error opening '" + archive_name + "': " + EC.message());
+  }
   if (!EC) {
     Error Err = Error::success();
     object::Archive Archive(Buf.get()->getMemBufferRef(), Err);

@@ -5,12 +5,15 @@
 #include "source_manager.h"
 #include <variant>
 
-namespace llvm { class Value; }
+namespace llvm {
+class Value;
+}
 
 namespace tanlang {
 
 enum class ConstructorType {
-  BASIC, STRUCT,
+  BASIC,
+  STRUCT,
 };
 
 class Constructor {
@@ -18,7 +21,7 @@ public:
   Constructor() = delete;
 
 protected:
-  explicit Constructor(ConstructorType type) : _type(type) {};
+  explicit Constructor(ConstructorType type) : _type(type){};
 
 public:
   virtual ~Constructor() {}
@@ -37,10 +40,8 @@ public:
    * \note Make sure default_val's type is resolved
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(SrcLoc loc,
-      uint64_t default_val = 0,
-      size_t bit_size = 32,
-      bool is_unsigned = false);
+  static BasicConstructor *CreateIntegerConstructor(SrcLoc loc, uint64_t default_val = 0, size_t bit_size = 32,
+                                                    bool is_unsigned = false);
   static BasicConstructor *CreateBoolConstructor(SrcLoc loc, bool default_val = false);
   static BasicConstructor *CreateFPConstructor(SrcLoc loc, double default_val = 0, size_t bit_size = 32);
   static BasicConstructor *CreateStringConstructor(SrcLoc loc, str default_val = "");
@@ -52,7 +53,7 @@ public:
   void set_value(CompTimeExpr *val);
 
 protected:
-  BasicConstructor() : Constructor(ConstructorType::BASIC) {};
+  BasicConstructor() : Constructor(ConstructorType::BASIC){};
 
 private:
   CompTimeExpr *_value = nullptr;
@@ -77,6 +78,6 @@ private:
   Type *_struct_type = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_CONSTRUCTOR_H__

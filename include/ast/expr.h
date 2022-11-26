@@ -149,7 +149,9 @@ private:
 };
 
 enum class IdentifierType {
-  INVALID, ID_VAR_DECL, ID_TYPE_DECL,
+  INVALID,
+  ID_VAR_DECL,
+  ID_TYPE_DECL,
 };
 
 class Identifier : public Expr, public ASTNamed {
@@ -177,23 +179,23 @@ private:
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
 enum class BinaryOpKind {
-  INVALID,      ///
-  SUM,          /// +
-  SUBTRACT,     /// -
-  MULTIPLY,     /// *
-  DIVIDE,       /// /
-  MOD,          /// %
-  BAND,         /// binary and
-  LAND,         /// logical and
-  BOR,          /// binary or
-  LOR,          /// logical or
-  GT,           /// >
-  GE,           /// >=
-  LT,           /// <
-  LE,           /// <=
-  EQ,           /// ==
-  NE,           /// !=
-  XOR,          /// ^
+  INVALID,       ///
+  SUM,           /// +
+  SUBTRACT,      /// -
+  MULTIPLY,      /// *
+  DIVIDE,        /// /
+  MOD,           /// %
+  BAND,          /// binary and
+  LAND,          /// logical and
+  BOR,           /// binary or
+  LOR,           /// logical or
+  GT,            /// >
+  GE,            /// >=
+  LT,            /// <
+  LE,            /// <=
+  EQ,            /// ==
+  NE,            /// !=
+  XOR,           /// ^
   MEMBER_ACCESS, /// . or []
 };
 
@@ -238,18 +240,18 @@ public:
     MemberAccessMemberFunction,
     MemberAccessEnumValue,
   } _access_type = MemberAccessInvalid;
-  size_t _access_idx = (size_t) -1; /// struct member variable index
+  size_t _access_idx = (size_t)-1; /// struct member variable index
 };
 
 /// make sure to sync this with UnaryOperator::UOPPrecedence
 enum class UnaryOpKind {
-  INVALID,     ///
-  BNOT,        /// bitwise not
-  LNOT,        /// logical not
-  PLUS,        /// +
-  MINUS,       /// -
-  ADDRESS_OF,  /// var v: int; &v
-  PTR_DEREF,   /// poitner dereference
+  INVALID,    ///
+  BNOT,       /// bitwise not
+  LNOT,       /// logical not
+  PLUS,       /// +
+  MINUS,      /// -
+  ADDRESS_OF, /// var v: int; &v
+  PTR_DEREF,  /// poitner dereference
 };
 
 class UnaryOperator : public Expr {
@@ -286,7 +288,9 @@ public:
   static BinaryOrUnary *Create(SrcLoc loc, int bp);
 
   enum BinaryOrUnaryKind {
-    UNKNOWN, BINARY, UNARY,
+    UNKNOWN,
+    BINARY,
+    UNARY,
   };
 
   void set_bop(BinaryOperator *bop);
@@ -381,6 +385,6 @@ protected:
   Expr *_lhs = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_EXPR_H__

@@ -105,13 +105,17 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
   {
     auto p = fs::path(callee_path).parent_path() / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) { ret.push_back(p.string()); }
+    if (fs::exists(p)) {
+      ret.push_back(p.string());
+    }
   }
   /// search relative to directories in Compiler::import_dirs
-  for (const auto &rel: Compiler::import_dirs) {
+  for (const auto &rel : Compiler::import_dirs) {
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) { ret.push_back(p.string()); }
+    if (fs::exists(p)) {
+      ret.push_back(p.string());
+    }
   }
   return ret;
 }

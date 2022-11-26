@@ -3,20 +3,27 @@
 namespace tanlang {
 
 /// map TokenType to string
-umap<TokenType, str> token_type_names
-    {{TokenType::COMMENTS, "COMMENTS"}, {TokenType::KEYWORD, "KEYWORD"}, {TokenType::INT, "INT"},
-        {TokenType::FLOAT, "FLOAT"}, {TokenType::ID, "ID"}, {TokenType::CHAR, "CHAR"}, {TokenType::STRING, "STRING"},
-        {TokenType::PUNCTUATION, "PUNCTUATION"}, {TokenType::RELOP, "RELOP"}, {TokenType::UOP, "UOP"},
-        {TokenType::BOP, "BOP"},};
+umap<TokenType, str> token_type_names{
+    {TokenType::COMMENTS,    "COMMENTS"   },
+    {TokenType::KEYWORD,     "KEYWORD"    },
+    {TokenType::INT,         "INT"        },
+    {TokenType::FLOAT,       "FLOAT"      },
+    {TokenType::ID,          "ID"         },
+    {TokenType::CHAR,        "CHAR"       },
+    {TokenType::STRING,      "STRING"     },
+    {TokenType::PUNCTUATION, "PUNCTUATION"},
+    {TokenType::RELOP,       "RELOP"      },
+    {TokenType::UOP,         "UOP"        },
+    {TokenType::BOP,         "BOP"        },
+};
 
 /// keywords/reserved words
-const vector<str> KEYWORDS
-    {"for", "while", "if", "else", "fn", "var", "continue", "break", "let", "struct", "enum", "union", "switch", "case",
-        "return", "pub", "extern", "import", "as", "true", "false"};
+const vector<str> KEYWORDS{"for",    "while", "if",     "else",   "fn",    "var",    "continue",
+                           "break",  "let",   "struct", "enum",   "union", "switch", "case",
+                           "return", "pub",   "extern", "import", "as",    "true",   "false"};
 
-const vector<char> PUNCTUATIONS
-    {'~', '!', '#', '%', '^', '&', '*', '(', ')', '-', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"',
-        ',', '.', '<', '>', '/', '?', '@'};
+const vector<char> PUNCTUATIONS{'~', '!',  '#', '%', '^', '&',  '*', '(', ')', '-', '=', '+', '[', ']', '{',
+                                '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '<', '>', '/', '?', '@'};
 
 const vector<str> TERMINAL_TOKENS{";", "}", ")", ":", ",", "]"};
 const vector<str> ARITHMETIC_TOKENS{"+", "-", "*", "/", "%"};
@@ -24,9 +31,8 @@ const vector<str> ARITHMETIC_TOKENS{"+", "-", "*", "/", "%"};
 /// any symbol in OP can both be an operator itself or the first character of an operator
 const vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
 
-const vector<str> OP_ALL
-    {"==", "!=", ">=", "<=", ">", "<", "&&", "||", "~", "%=", "%", "^=", "^", "&=", "&", "+=", "+", "-=", "-", "*=",
-        "*", "/=", "/", "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
+const vector<str> OP_ALL{"==", "!=", ">=", "<=", ">", "<",  "&&", "||", "~", "%=",  "%",  "^=",  "^",  "&=", "&", "+=",
+                         "+",  "-=", "-",  "*=", "*", "/=", "/",  "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 
 umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     // RELOP
@@ -46,11 +52,8 @@ umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP), std::pair("=", TokenType::BOP)};
 
 str Token::to_string() const {
-  return fmt::format("<'{}' {} L{}:C{}>",
-      _value,
-      token_type_names[_type],
-      std::to_string(_loc->get_line()),
-      std::to_string(_loc->get_col()));
+  return fmt::format("<'{}' {} L{}:C{}>", _value, token_type_names[_type], std::to_string(_loc->get_line()),
+                     std::to_string(_loc->get_col()));
 }
 
 std::ostream &Token::operator<<(std::ostream &os) const {
@@ -58,15 +61,11 @@ std::ostream &Token::operator<<(std::ostream &os) const {
   return os;
 }
 
-Token::~Token() {
-  delete _loc;
-}
+Token::~Token() { delete _loc; }
 
 Token::Token(TokenType tokenType, size_t line, size_t col, str value, str source_line)
-    : _type(tokenType),
-    _value(std::move(value)),
-    _loc(new SourceLoc(line, col)),
-    _source_line(std::move(source_line)) {}
+    : _type(tokenType), _value(std::move(value)), _loc(new SourceLoc(line, col)), _source_line(std::move(source_line)) {
+}
 
 TokenType Token::get_type() const { return _type; }
 

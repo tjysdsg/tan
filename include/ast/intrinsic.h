@@ -8,7 +8,7 @@
 namespace llvm {
 class Value;
 class Function;
-}
+} // namespace llvm
 
 namespace tanlang {
 

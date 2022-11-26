@@ -43,13 +43,8 @@ protected:
 
 public:
   static FunctionDecl *Create(SrcLoc loc);
-  static FunctionDecl *Create(SrcLoc loc,
-      const str &name,
-      Type *ret_type,
-      vector<Type *> arg_types,
-      bool is_external,
-      bool is_public,
-      Stmt *body = nullptr);
+  static FunctionDecl *Create(SrcLoc loc, const str &name, Type *ret_type, vector<Type *> arg_types, bool is_external,
+                              bool is_public, Stmt *body = nullptr);
   static FunctionDecl *GetCallee(ASTContext *ctx, FunctionCall *p);
 
   [[nodiscard]] Type *get_ret_ty() const;

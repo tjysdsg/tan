@@ -29,13 +29,13 @@ size_t CompoundStmt::get_children_size() const { return _children.size(); }
 
 vector<ASTBase *> &CompoundStmt::get_children() { return _children; }
 
-template<typename T> T *CompoundStmt::get_child_at(size_t idx) const {
+template <typename T> T *CompoundStmt::get_child_at(size_t idx) const {
   static_assert(std::is_base_of_v<Stmt, T>, "Return type can only be a subclass of Stmt");
   TAN_ASSERT(_children.size() > idx);
   return ast_cast<T>(_children[idx]);
 }
 
-template<> ASTBase *CompoundStmt::get_child_at<ASTBase>(size_t idx) const {
+template <> ASTBase *CompoundStmt::get_child_at<ASTBase>(size_t idx) const {
   TAN_ASSERT(_children.size() > idx);
   return _children[idx];
 }
@@ -60,7 +60,7 @@ void Return::set_rhs(Expr *rhs) { _rhs = rhs; }
 
 Expr *Return::get_rhs() const { return _rhs; }
 
-vector<ASTBase *> Return::get_children() const { return {(ASTBase *) _rhs}; }
+vector<ASTBase *> Return::get_children() const { return {(ASTBase *)_rhs}; }
 
 /// \section Import
 
@@ -108,7 +108,7 @@ Expr *Loop::get_predicate() const { return _predicate; }
 
 Stmt *Loop::get_body() const { return _body; }
 
-vector<ASTBase *> Loop::get_children() const { return {(ASTBase *) _predicate, _body}; }
+vector<ASTBase *> Loop::get_children() const { return {(ASTBase *)_predicate, _body}; }
 
 /// \section If-else
 
@@ -144,7 +144,7 @@ size_t If::get_num_branches() const { return _branches.size(); }
 
 vector<ASTBase *> If::get_children() const {
   vector<ASTBase *> ret = {};
-  std::for_each(_predicates.begin(), _predicates.end(), [&](Expr *e) { ret.push_back((ASTBase *) e); });
-  std::for_each(_branches.begin(), _branches.end(), [&](Stmt *e) { ret.push_back((ASTBase *) e); });
+  std::for_each(_predicates.begin(), _predicates.end(), [&](Expr *e) { ret.push_back((ASTBase *)e); });
+  std::for_each(_branches.begin(), _branches.end(), [&](Stmt *e) { ret.push_back((ASTBase *)e); });
   return ret;
 }

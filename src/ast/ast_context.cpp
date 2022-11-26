@@ -107,7 +107,9 @@ Loop *ASTContext::get_current_loop() const {
   --scope;
   while (scope >= _scope.begin()) {
     Loop *loop = (*scope)->_current_loop;
-    if (loop) { return loop; }
+    if (loop) {
+      return loop;
+    }
     --scope;
   }
   return nullptr;

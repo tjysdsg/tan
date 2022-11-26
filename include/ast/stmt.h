@@ -28,7 +28,7 @@ public:
   [[nodiscard]] size_t get_children_size() const;
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   vector<ASTBase *> &get_children();
-  template<typename T = ASTBase> T *get_child_at(size_t idx) const;
+  template <typename T = ASTBase> T *get_child_at(size_t idx) const;
   [[nodiscard]] bool is_new_scope() const;
 
 protected:
@@ -167,6 +167,6 @@ private:
   bool _last_branch_else = false;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_STMT_H__

@@ -10,7 +10,7 @@ class DISubroutineType;
 class Type;
 class Metadata;
 class Value;
-}
+} // namespace llvm
 
 namespace tanlang {
 
@@ -18,9 +18,8 @@ class CompilerSession;
 
 class TypeSystem {
 public:
-  static constexpr std::array LiteralTypes =
-      {ASTNodeType::INTEGER_LITERAL, ASTNodeType::FLOAT_LITERAL, ASTNodeType::STRING_LITERAL,
-          ASTNodeType::ARRAY_LITERAL};
+  static constexpr std::array LiteralTypes = {ASTNodeType::INTEGER_LITERAL, ASTNodeType::FLOAT_LITERAL,
+                                              ASTNodeType::STRING_LITERAL, ASTNodeType::ARRAY_LITERAL};
 
   /**
    * \brief Convert a value to from orig type to dest type.
@@ -48,11 +47,10 @@ public:
 
   static llvm::Metadata *ToLLVMMeta(CompilerSession *cs, Type *p);
 
-  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *cs,
-      llvm::Metadata *ret,
-      vector<llvm::Metadata *> args);
+  static llvm::DISubroutineType *CreateFunctionDIType(CompilerSession *cs, llvm::Metadata *ret,
+                                                      vector<llvm::Metadata *> args);
 };
 
-} // namespace
+} // namespace tanlang
 
 #endif /* __TAN_SRC_AST_TYPE_SYSTEM_H__ */

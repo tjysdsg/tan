@@ -21,28 +21,29 @@ public:
 
   void TestBody() override {
     // compile the executable that uses the library and run it
-    vector<const char *> cmd = {__STR__(TAN_PROJECT_SOURCE_DIR)"/bin/tanc", "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
-        "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime", "-lruntime", "-L" __STR__(TAN_PROJECT_SOURCE_DIR), "-ltest",
-        "-o", "a.out", __STR__(TAN_TEST_SOURCE_DIR)"/cli.tan"};
-    for (auto *c: cmd) {
+    vector<const char *> cmd = {__STR__(TAN_PROJECT_SOURCE_DIR) "/bin/tanc",
+                                "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
+                                "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
+                                "-lruntime",
+                                "-L" __STR__(TAN_PROJECT_SOURCE_DIR),
+                                "-ltest",
+                                "-o",
+                                "a.out",
+                                __STR__(TAN_TEST_SOURCE_DIR) "/cli.tan"};
+    for (auto *c : cmd) {
       std::cout << c << " ";
     }
     std::cout << '\n';
     int argc = static_cast<int>(cmd.size());
-    char **argv = (char **) cmd.data();
+    char **argv = (char **)cmd.data();
     ASSERT_EQ(cli_main(argc, argv), 0);
     EXPECT_EQ(system("./a.out"), 0);
   }
 };
 
 void register_tanc_test() {
-  ::testing::RegisterTest("tanc_test_fixture",
-      "lib_test",
-      nullptr,
-      "",
-      __FILE__,
-      __LINE__,
-      [=]() -> MyFixture * { return new TestUseLib(); });
+  ::testing::RegisterTest("tanc_test_fixture", "lib_test", nullptr, "", __FILE__, __LINE__,
+                          [=]() -> MyFixture * { return new TestUseLib(); });
 }
 
 int main(int argc, char **argv) {

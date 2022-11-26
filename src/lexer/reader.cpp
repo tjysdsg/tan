@@ -16,7 +16,7 @@ void Reader::open(const str &filename) {
   /// read the whole file at once
   str content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
   /// count the number of lines
-  size_t n_lines = (size_t) std::count(content.begin(), content.end(), '\n');
+  size_t n_lines = (size_t)std::count(content.begin(), content.end(), '\n');
   /// reserve memory ahead
   _lines.reserve(n_lines);
   from_string(content);
@@ -49,7 +49,9 @@ void Reader::from_string(const str &code) {
 }
 
 bool Reader::is_cursor_valid(const Cursor &c) const {
-  if (c.l >= _lines.size()) { return false; }
+  if (c.l >= _lines.size()) {
+    return false;
+  }
 
   str line = _lines[c.l];
   if (line.empty()) {
@@ -107,32 +109,34 @@ Cursor Reader::forward(Cursor ptr) {
   return ptr;
 }
 
-str Reader::get_filename() const {
-  return _filename;
-}
+str Reader::get_filename() const { return _filename; }
 
 Cursor Reader::end() const {
-  if (_lines.empty()) { return Cursor(0, 1, this); }
+  if (_lines.empty()) {
+    return Cursor(0, 1, this);
+  }
   return Cursor(_lines.size() - 1, _lines.back().length(), this);
 }
 
 char Reader::at(const Cursor &ptr) const {
-  TAN_ASSERT(ptr.l != (size_t) -1 && ptr.c != (size_t) -1);
-  if (ptr.l >= this->size()) { return '\0'; }
-  if (ptr.c >= this->_lines[ptr.l].length()) { return '\0'; }
+  TAN_ASSERT(ptr.l != (size_t)-1 && ptr.c != (size_t)-1);
+  if (ptr.l >= this->size()) {
+    return '\0';
+  }
+  if (ptr.c >= this->_lines[ptr.l].length()) {
+    return '\0';
+  }
   return _lines[ptr.l][ptr.c];
 }
 
-Cursor Reader::begin() const {
-  return Cursor(0, 0, this);
-}
+Cursor Reader::begin() const { return Cursor(0, 0, this); }
 
 str Reader::get_line(size_t index) const {
   TAN_ASSERT(index < _lines.size());
   return _lines[index];
 }
 
-Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *) reader) {}
+Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *)reader) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 

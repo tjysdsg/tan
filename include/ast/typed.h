@@ -18,6 +18,6 @@ private:
   Type *_type = nullptr;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_TYPED_H__

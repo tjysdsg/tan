@@ -92,9 +92,7 @@ VarRef *VarRef::Create(SrcLoc loc, const str &name, Decl *referred) {
   return ret;
 }
 
-VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) {
-  _is_lvalue = true;
-}
+VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) { _is_lvalue = true; }
 
 Decl *VarRef::get_referred() const { return _referred; }
 
@@ -136,7 +134,9 @@ void Identifier::set_type_ref(Type *type_ref) {
 }
 
 bool Identifier::is_lvalue() {
-  if (_id_type == IdentifierType::ID_VAR_DECL) { return true; }
+  if (_id_type == IdentifierType::ID_VAR_DECL) {
+    return true;
+  }
   return false;
 }
 
@@ -144,18 +144,28 @@ void Identifier::set_lvalue(bool) { TAN_ASSERT(false); }
 
 /// \section Binary operators
 
-BinaryOperator::BinaryOperator(BinaryOpKind op, SrcLoc loc) : Expr(ASTNodeType::BOP,
-    loc,
-    BinaryOperator::BOPPrecedence[op]), _op(op) {}
+BinaryOperator::BinaryOperator(BinaryOpKind op, SrcLoc loc)
+    : Expr(ASTNodeType::BOP, loc, BinaryOperator::BOPPrecedence[op]), _op(op) {}
 
-umap<BinaryOpKind, int>BinaryOperator::BOPPrecedence =
-    {{BinaryOpKind::SUM, PREC_TERM}, {BinaryOpKind::SUBTRACT, PREC_TERM}, {BinaryOpKind::BOR, PREC_TERM},
-        {BinaryOpKind::XOR, PREC_TERM}, {BinaryOpKind::MULTIPLY, PREC_FACTOR}, {BinaryOpKind::DIVIDE, PREC_FACTOR},
-        {BinaryOpKind::MOD, PREC_FACTOR}, {BinaryOpKind::BAND, PREC_FACTOR}, {BinaryOpKind::GT, PREC_COMPARISON},
-        {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},
-        {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON},
-        {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},
-        {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}};
+umap<BinaryOpKind, int> BinaryOperator::BOPPrecedence = {
+    {BinaryOpKind::SUM,           PREC_TERM       },
+    {BinaryOpKind::SUBTRACT,      PREC_TERM       },
+    {BinaryOpKind::BOR,           PREC_TERM       },
+    {BinaryOpKind::XOR,           PREC_TERM       },
+    {BinaryOpKind::MULTIPLY,      PREC_FACTOR     },
+    {BinaryOpKind::DIVIDE,        PREC_FACTOR     },
+    {BinaryOpKind::MOD,           PREC_FACTOR     },
+    {BinaryOpKind::BAND,          PREC_FACTOR     },
+    {BinaryOpKind::GT,            PREC_COMPARISON },
+    {BinaryOpKind::GE,            PREC_COMPARISON },
+    {BinaryOpKind::NE,            PREC_COMPARISON },
+    {BinaryOpKind::LT,            PREC_COMPARISON },
+    {BinaryOpKind::LE,            PREC_COMPARISON },
+    {BinaryOpKind::EQ,            PREC_COMPARISON },
+    {BinaryOpKind::LAND,          PREC_LOGICAL_AND},
+    {BinaryOpKind::LOR,           PREC_LOGICAL_OR },
+    {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST    }
+};
 
 BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SrcLoc loc) { return new BinaryOperator(op, loc); }
 
@@ -180,13 +190,17 @@ vector<ASTBase *> BinaryOperator::get_children() const { return {_lhs, _rhs}; }
 
 /// \section Unary operators
 
-umap<UnaryOpKind, int>UnaryOperator::UOPPrecedence =
-    {{UnaryOpKind::BNOT, PREC_UNARY}, {UnaryOpKind::LNOT, PREC_UNARY}, {UnaryOpKind::ADDRESS_OF, PREC_UNARY},
-        {UnaryOpKind::PLUS, PREC_UNARY}, {UnaryOpKind::MINUS, PREC_UNARY}, {UnaryOpKind::PTR_DEREF, PREC_HIGHEST}};
+umap<UnaryOpKind, int> UnaryOperator::UOPPrecedence = {
+    {UnaryOpKind::BNOT,       PREC_UNARY  },
+    {UnaryOpKind::LNOT,       PREC_UNARY  },
+    {UnaryOpKind::ADDRESS_OF, PREC_UNARY  },
+    {UnaryOpKind::PLUS,       PREC_UNARY  },
+    {UnaryOpKind::MINUS,      PREC_UNARY  },
+    {UnaryOpKind::PTR_DEREF,  PREC_HIGHEST}
+};
 
-UnaryOperator::UnaryOperator(UnaryOpKind op, SrcLoc loc) : Expr(ASTNodeType::UOP,
-    loc,
-    UnaryOperator::UOPPrecedence[op]), _op(op) {}
+UnaryOperator::UnaryOperator(UnaryOpKind op, SrcLoc loc)
+    : Expr(ASTNodeType::UOP, loc, UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
 void UnaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
@@ -208,9 +222,8 @@ vector<ASTBase *> UnaryOperator::get_children() const { return {_rhs}; }
 
 Parenthesis *Parenthesis::Create(SrcLoc loc) { return new Parenthesis(loc); }
 
-Parenthesis::Parenthesis(SrcLoc loc) : Expr(ASTNodeType::PARENTHESIS,
-    loc,
-    ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
+Parenthesis::Parenthesis(SrcLoc loc)
+    : Expr(ASTNodeType::PARENTHESIS, loc, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
 
 void Parenthesis::set_sub(Expr *sub) { _sub = sub; }
 
@@ -249,7 +262,7 @@ Expr *FunctionCall::get_arg(size_t i) const {
 }
 
 vector<ASTBase *> FunctionCall::get_children() const {
-  vector<ASTBase *> ret = {(ASTBase *) _callee};
+  vector<ASTBase *> ret = {(ASTBase *)_callee};
   std::for_each(_args.begin(), _args.end(), [&](Expr *e) { ret.push_back(e); });
   return ret;
 }
@@ -304,12 +317,12 @@ void BinaryOrUnary::set_uop(UnaryOperator *uop) {
 
 Expr *BinaryOrUnary::get_expr_ptr() const {
   switch (_kind) {
-    case BINARY:
-      return _bop;
-    case UNARY:
-      return _uop;
-    default:
-      TAN_ASSERT(false);
+  case BINARY:
+    return _bop;
+  case UNARY:
+    return _uop;
+  default:
+    TAN_ASSERT(false);
   }
 }
 

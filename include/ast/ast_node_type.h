@@ -26,7 +26,7 @@ enum class ASTNodeType {
   RET,         /// return
   IF,          /// if
   IMPORT,      /// import
-  VAR_REF,         /// variable reference
+  VAR_REF,     /// variable reference
 
   // types in tan
   BOOL_LITERAL,    /// bool literal

@@ -20,11 +20,11 @@ void init_back_trace(const char *) {}
 
 inline std::vector<StackFrame> stack_trace() {
   using std::cerr;
-  #if _WIN64
+#if _WIN64
   DWORD machine = IMAGE_FILE_MACHINE_AMD64;
-  #else
+#else
   DWORD machine = IMAGE_FILE_MACHINE_I386;
-  #endif
+#endif
   HANDLE process = GetCurrentProcess();
   HANDLE thread = GetCurrentThread();
 
@@ -39,7 +39,7 @@ inline std::vector<StackFrame> stack_trace() {
   context.ContextFlags = CONTEXT_FULL;
   RtlCaptureContext(&context);
 
-  #if _WIN64
+#if _WIN64
   STACKFRAME frame = {};
   frame.AddrPC.Offset = context.Rip;
   frame.AddrPC.Mode = AddrModeFlat;
@@ -47,7 +47,7 @@ inline std::vector<StackFrame> stack_trace() {
   frame.AddrFrame.Mode = AddrModeFlat;
   frame.AddrStack.Offset = context.Rsp;
   frame.AddrStack.Mode = AddrModeFlat;
-  #else
+#else
   STACKFRAME frame = {};
   frame.AddrPC.Offset = context.Eip;
   frame.AddrPC.Mode = AddrModeFlat;
@@ -55,37 +55,30 @@ inline std::vector<StackFrame> stack_trace() {
   frame.AddrFrame.Mode = AddrModeFlat;
   frame.AddrStack.Offset = context.Esp;
   frame.AddrStack.Mode = AddrModeFlat;
-  #endif
+#endif
 
   bool first = true;
 
   std::vector<StackFrame> frames;
-  while (StackWalk(machine,
-      process,
-      thread,
-      &frame,
-      &context,
-      nullptr,
-      SymFunctionTableAccess,
-      SymGetModuleBase,
-      nullptr)) {
+  while (StackWalk(machine, process, thread, &frame, &context, nullptr, SymFunctionTableAccess, SymGetModuleBase,
+                   nullptr)) {
     StackFrame f{};
 
-    #if _WIN64
+#if _WIN64
     DWORD64 moduleBase = 0;
-    #else
+#else
     DWORD moduleBase = 0;
-    #endif
+#endif
 
     moduleBase = SymGetModuleBase(process, frame.AddrPC.Offset);
 
-    #if _WIN64
+#if _WIN64
     DWORD64 offset = 0;
-    #else
+#else
     DWORD offset = 0;
-    #endif
+#endif
     char symbolBuffer[sizeof(IMAGEHLP_SYMBOL) + 255]{0};
-    auto symbol = (PIMAGEHLP_SYMBOL) symbolBuffer;
+    auto symbol = (PIMAGEHLP_SYMBOL)symbolBuffer;
     symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL) + 255;
     symbol->MaxNameLength = 254;
 
@@ -152,13 +145,13 @@ void bt_error_callback(void *, const char *msg, int errnum) {
 
 void bt_error_callback_create(void *data, const char *msg, int errnum) {
   printf("Error %d occurred when initializing the stacktrace: %s", errnum, msg);
-  bool *status = (bool *) data;
+  bool *status = (bool *)data;
   *status = false;
 }
 
 bool init_back_trace(const char *filename) {
   bool status = true;
-  __bt_state = backtrace_create_state(filename, 0, bt_error_callback_create, (void *) status);
+  __bt_state = backtrace_create_state(filename, 0, bt_error_callback_create, (void *)status);
   return status;
 }
 
@@ -167,7 +160,7 @@ void print_back_trace() {
     printf("Make sure init_back_trace() is called before calling print_stack_trace()\n");
     abort();
   }
-  backtrace_full((backtrace_state *) __bt_state, 0, bt_callback, bt_error_callback, nullptr);
+  backtrace_full((backtrace_state *)__bt_state, 0, bt_callback, bt_error_callback, nullptr);
 }
 
 #endif

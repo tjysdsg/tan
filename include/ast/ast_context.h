@@ -113,6 +113,6 @@ private:
   void initialize_scope();
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_CONTEXT_H__

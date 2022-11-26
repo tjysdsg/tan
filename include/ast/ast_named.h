@@ -16,6 +16,6 @@ private:
   str _name;
 };
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_NAMED_H__

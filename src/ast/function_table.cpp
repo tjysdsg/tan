@@ -20,7 +20,7 @@ vector<FunctionDecl *> FunctionTable::get(const str &name) {
 vector<FunctionDecl *> FunctionTable::get_all() const {
   vector<FunctionDecl *> ret{};
   ret.reserve(_table.size());
-  for (const auto &p: _table) {
+  for (const auto &p : _table) {
     ret.insert(ret.end(), p.second.begin(), p.second.end());
   }
   return ret;

@@ -40,6 +40,6 @@ class If;
 class Constructor;
 class CompTimeExpr;
 
-}
+} // namespace tanlang
 
 #endif //__TAN_SRC_AST_FWD_H__

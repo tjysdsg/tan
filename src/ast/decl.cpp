@@ -47,9 +47,11 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
   FunctionDecl *ret = nullptr;
   auto func_candidates = ctx->get_functions(name);
   /// find the function with the same argument types
-  for (const auto &f: func_candidates) {
+  for (const auto &f : func_candidates) {
     size_t n = f->get_n_args();
-    if (n != args.size()) { continue; }
+    if (n != args.size()) {
+      continue;
+    }
     bool good = true;
     for (size_t i = 0; i < n; ++i) { /// check every argument (return type not checked)
       auto actual_arg = args[i];
@@ -64,8 +66,8 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
     if (good) {
       if (ret) {
         // TODO: print all valid candidates
-        Error err
-            (ctx->get_filename(), ctx->get_source_manager()->get_token(f->loc()), "Ambiguous function call: " + name);
+        Error err(ctx->get_filename(), ctx->get_source_manager()->get_token(f->loc()),
+                  "Ambiguous function call: " + name);
         err.raise();
       }
       ret = f;
@@ -80,13 +82,8 @@ FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
 
 FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
 
-FunctionDecl *FunctionDecl::Create(SrcLoc loc,
-    const str &name,
-    Type *ret_type,
-    vector<Type *> arg_types,
-    bool is_external,
-    bool is_public,
-    Stmt *body) {
+FunctionDecl *FunctionDecl::Create(SrcLoc loc, const str &name, Type *ret_type, vector<Type *> arg_types,
+                                   bool is_external, bool is_public, Stmt *body) {
   auto ret = new FunctionDecl(loc);
 
   /// name and return type
@@ -100,7 +97,9 @@ FunctionDecl *FunctionDecl::Create(SrcLoc loc,
   }
 
   /// body
-  if (!body) { ret->set_body(body); }
+  if (!body) {
+    ret->set_body(body);
+  }
 
   /// flags
   ret->_is_external = is_external;
@@ -139,9 +138,9 @@ const vector<ArgDecl *> &FunctionDecl::get_arg_decls() const { return _arg_decls
 void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decls = arg_decls; }
 
 vector<ASTBase *> FunctionDecl::get_children() const {
-  vector<ASTBase *> ret = {(ASTBase *) _ret_type};
+  vector<ASTBase *> ret = {(ASTBase *)_ret_type};
   std::for_each(_arg_decls.begin(), _arg_decls.end(), [&](ArgDecl *e) { ret.push_back(e); });
-  ret.push_back((ASTBase *) _body);
+  ret.push_back((ASTBase *)_body);
   return ret;
 }
 
@@ -167,7 +166,7 @@ Type *StructDecl::get_struct_member_ty(size_t i) const {
 size_t StructDecl::get_struct_member_index(const str &name) const {
   auto search = _member_indices.find(name);
   if (search == _member_indices.end()) {
-    return (size_t) (-1);
+    return (size_t)(-1);
   }
   return search->second;
 }

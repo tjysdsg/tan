@@ -51,51 +51,51 @@ private:
   ASTBase *peek_keyword(Token *token) {
     ASTBase *ret = nullptr;
     switch (hashed_string{token->get_value().c_str()}) {
-      case "var"_hs:
-        ret = VarDecl::Create(_curr);
-        break;
-      case "enum"_hs:
-        ret = EnumDecl::Create(_curr);
-        break;
-      case "fn"_hs:
-      case "pub"_hs:
-      case "extern"_hs:
-        ret = FunctionDecl::Create(_curr);
-        break;
-      case "import"_hs:
-        ret = Import::Create(_curr);
-        break;
-      case "if"_hs:
-        ret = If::Create(_curr);
-        break;
-        /// else clause should be covered by If statement
-      case "return"_hs:
-        ret = Return::Create(_curr);
-        break;
-      case "while"_hs:
-      case "for"_hs:
-        ret = Loop::Create(_curr);
-        break;
-      case "struct"_hs:
-        ret = StructDecl::Create(_curr);
-        break;
-      case "break"_hs:
-        ret = Break::Create(_curr);
-        break;
-      case "continue"_hs:
-        ret = Continue::Create(_curr);
-        break;
-      case "as"_hs:
-        ret = Cast::Create(_curr);
-        break;
-      case "true"_hs:
-        ret = BoolLiteral::Create(_curr, true);
-        break;
-      case "false"_hs:
-        ret = BoolLiteral::Create(_curr, false);
-        break;
-      default:
-        return nullptr;
+    case "var"_hs:
+      ret = VarDecl::Create(_curr);
+      break;
+    case "enum"_hs:
+      ret = EnumDecl::Create(_curr);
+      break;
+    case "fn"_hs:
+    case "pub"_hs:
+    case "extern"_hs:
+      ret = FunctionDecl::Create(_curr);
+      break;
+    case "import"_hs:
+      ret = Import::Create(_curr);
+      break;
+    case "if"_hs:
+      ret = If::Create(_curr);
+      break;
+      /// else clause should be covered by If statement
+    case "return"_hs:
+      ret = Return::Create(_curr);
+      break;
+    case "while"_hs:
+    case "for"_hs:
+      ret = Loop::Create(_curr);
+      break;
+    case "struct"_hs:
+      ret = StructDecl::Create(_curr);
+      break;
+    case "break"_hs:
+      ret = Break::Create(_curr);
+      break;
+    case "continue"_hs:
+      ret = Continue::Create(_curr);
+      break;
+    case "as"_hs:
+      ret = Cast::Create(_curr);
+      break;
+    case "true"_hs:
+      ret = BoolLiteral::Create(_curr, true);
+      break;
+    case "false"_hs:
+      ret = BoolLiteral::Create(_curr, false);
+      break;
+    default:
+      return nullptr;
     }
     return ret;
   }
@@ -105,12 +105,16 @@ private:
   }
 
   ASTBase *peek() {
-    if (eof(_curr)) { return nullptr; }
+    if (eof(_curr)) {
+      return nullptr;
+    }
     Token *token = at(_curr);
     /// skip comments
     while (token && token->get_type() == TokenType::COMMENTS) {
       _curr.offset_by(1);
-      if (eof(_curr)) { return nullptr; }
+      if (eof(_curr)) {
+        return nullptr;
+      }
       token = at(_curr);
     }
 
@@ -139,37 +143,37 @@ private:
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op = BinaryOpKind::INVALID;
       switch (hashed_string{token->get_value().c_str()}) {
-        case ">"_hs:
-          op = BinaryOpKind::GT;
-          break;
-        case ">="_hs:
-          op = BinaryOpKind::GE;
-          break;
-        case "<"_hs:
-          op = BinaryOpKind::LT;
-          break;
-        case "<="_hs:
-          op = BinaryOpKind::LE;
-          break;
-        case "=="_hs:
-          op = BinaryOpKind::EQ;
-          break;
-        case "!="_hs:
-          op = BinaryOpKind::NE;
-          break;
-        case "&&"_hs:
-          op = BinaryOpKind::LAND;
-          break;
-        case "||"_hs:
-          op = BinaryOpKind::LOR;
-          break;
-        default:
-          error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
-          return nullptr;
+      case ">"_hs:
+        op = BinaryOpKind::GT;
+        break;
+      case ">="_hs:
+        op = BinaryOpKind::GE;
+        break;
+      case "<"_hs:
+        op = BinaryOpKind::LT;
+        break;
+      case "<="_hs:
+        op = BinaryOpKind::LE;
+        break;
+      case "=="_hs:
+        op = BinaryOpKind::EQ;
+        break;
+      case "!="_hs:
+        op = BinaryOpKind::NE;
+        break;
+      case "&&"_hs:
+        op = BinaryOpKind::LAND;
+        break;
+      case "||"_hs:
+        op = BinaryOpKind::LOR;
+        break;
+      default:
+        error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
+        return nullptr;
       }
       node = BinaryOperator::Create(op, _curr);
     } else if (token->get_type() == TokenType::INT) {
-      node = IntegerLiteral::Create(_curr, (uint64_t) std::stol(token->get_value()), token->is_unsigned());
+      node = IntegerLiteral::Create(_curr, (uint64_t)std::stol(token->get_value()), token->is_unsigned());
     } else if (token->get_type() == TokenType::FLOAT) {
       node = FloatLiteral::Create(_curr, std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
@@ -206,35 +210,35 @@ private:
       node = CompoundStmt::Create(_curr, true);
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       switch (hashed_string{token->get_value().c_str()}) {
-        case "/"_hs:
-          node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _curr);
-          break;
-        case "%"_hs:
-          node = BinaryOperator::Create(BinaryOpKind::MOD, _curr);
-          break;
-        case "|"_hs:
-          node = BinaryOperator::Create(BinaryOpKind::BOR, _curr);
-          break;
-        case "^"_hs:
-          node = BinaryOperator::Create(BinaryOpKind::XOR, _curr);
-          break;
-          /// Operators that are possibly BOP or UOP at this stage
-          /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
-        case "*"_hs:
-          // MULTIPLY / PTR_DEREF
-          node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
-          break;
-        case "+"_hs:
-          // SUM / PLUS
-          node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
-          break;
-        case "-"_hs:
-          // SUBTRACT / MINUS
-          node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
-          break;
-        default:
-          TAN_ASSERT(false);
-          return nullptr;
+      case "/"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _curr);
+        break;
+      case "%"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::MOD, _curr);
+        break;
+      case "|"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::BOR, _curr);
+        break;
+      case "^"_hs:
+        node = BinaryOperator::Create(BinaryOpKind::XOR, _curr);
+        break;
+        /// Operators that are possibly BOP or UOP at this stage
+        /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
+      case "*"_hs:
+        // MULTIPLY / PTR_DEREF
+        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
+        break;
+      case "+"_hs:
+        // SUM / PLUS
+        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        break;
+      case "-"_hs:
+        // SUBTRACT / MINUS
+        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        break;
+      default:
+        TAN_ASSERT(false);
+        return nullptr;
       }
     } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
       return nullptr;
@@ -247,19 +251,25 @@ private:
 
   ASTBase *next_expression(int rbp) {
     ASTBase *node = peek();
-    if (!node) { return nullptr; }
+    if (!node) {
+      return nullptr;
+    }
     auto n = node;
     parse_node(n);
     auto left = n;
     node = peek();
-    if (!node) { return left; }
+    if (!node) {
+      return left;
+    }
     while (rbp < node->get_bp()) {
       node = peek();
       n = node;
       parse_node(left, n);
       left = n;
       node = peek();
-      if (!node) { break; }
+      if (!node) {
+        break;
+      }
     }
     return left;
   }
@@ -274,21 +284,21 @@ private:
       UnaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
-        case "*"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->loc());
-          break;
-        case "&"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->loc());
-          break;
-        case "+"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->loc());
-          break;
-        case "-"_hs:
-          actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->loc());
-          break;
-        default:
-          TAN_ASSERT(false);
-          break;
+      case "*"_hs:
+        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->loc());
+        break;
+      case "&"_hs:
+        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->loc());
+        break;
+      case "+"_hs:
+        actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->loc());
+        break;
+      case "-"_hs:
+        actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->loc());
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
       }
       pp->set_uop(actual);
 
@@ -316,21 +326,21 @@ private:
       BinaryOperator *actual = nullptr;
       str token_str = _sm->get_token_str(p->loc());
       switch (hashed_string{token_str.c_str()}) {
-        case "*"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->loc());
-          break;
-        case "&"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::BAND, p->loc());
-          break;
-        case "+"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::SUM, p->loc());
-          break;
-        case "-"_hs:
-          actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->loc());
-          break;
-        default:
-          TAN_ASSERT(false);
-          break;
+      case "*"_hs:
+        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->loc());
+        break;
+      case "&"_hs:
+        actual = BinaryOperator::Create(BinaryOpKind::BAND, p->loc());
+        break;
+      case "+"_hs:
+        actual = BinaryOperator::Create(BinaryOpKind::SUM, p->loc());
+        break;
+      case "-"_hs:
+        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->loc());
+        break;
+      default:
+        TAN_ASSERT(false);
+        break;
       }
       pp->set_bop(actual);
       parse_node(left, pp->get_expr_ptr());
@@ -415,9 +425,7 @@ private:
     p->set_type(parse_ty(ty));
   }
 
-  void parse_generic_token(ASTBase *) {
-    _curr.offset_by(1);
-  }
+  void parse_generic_token(ASTBase *) { _curr.offset_by(1); }
 
   void parse_if(ASTBase *_p) {
     auto p = ast_cast<If>(_p);
@@ -427,7 +435,7 @@ private:
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
-      _curr.offset_by(1); /// skip "else"
+      _curr.offset_by(1);                   /// skip "else"
       if (at(_curr)->get_value() == "if") { /// elif
         parse_if_then_branch(p);
       } else { /// else
@@ -467,23 +475,23 @@ private:
     }
     _curr.offset_by(1); /// skip while/for
     switch (p->_loop_type) {
-      case ASTLoopType::WHILE: {
-        /// predicate
-        peek(TokenType::PUNCTUATION, "(");
-        auto _pred = next_expression(PREC_LOWEST);
-        Expr *pred = expect_expression(_pred);
-        p->set_predicate(pred);
-        peek(TokenType::PUNCTUATION, "{");
+    case ASTLoopType::WHILE: {
+      /// predicate
+      peek(TokenType::PUNCTUATION, "(");
+      auto _pred = next_expression(PREC_LOWEST);
+      Expr *pred = expect_expression(_pred);
+      p->set_predicate(pred);
+      peek(TokenType::PUNCTUATION, "{");
 
-        /// loop body
-        auto _body = next_expression(PREC_LOWEST);
-        Stmt *body = expect_stmt(_body);
-        p->set_body(body);
-        break;
-      }
-      case ASTLoopType::FOR:
-        // TODO: implement for loop
-        TAN_ASSERT(false);
+      /// loop body
+      auto _body = next_expression(PREC_LOWEST);
+      Stmt *body = expect_stmt(_body);
+      p->set_body(body);
+      break;
+    }
+    case ASTLoopType::FOR:
+      // TODO: implement for loop
+      TAN_ASSERT(false);
     }
   }
 
@@ -748,7 +756,7 @@ private:
     p->set_rhs(right);
 
     if (p->_access_type == MemberAccess::MemberAccessBracket) { /// bracket access
-      _curr.offset_by(1); /// skip ]
+      _curr.offset_by(1);                                       /// skip ]
     }
   }
 
@@ -764,7 +772,7 @@ private:
   void parse_stmt(ASTBase *_p) {
     auto p = ast_cast<CompoundStmt>(_p);
     if (at(_curr)->get_value() == "{") { /// compound statement
-      _curr.offset_by(1); /// skip "{"
+      _curr.offset_by(1);                /// skip "{"
       while (!eof(_curr)) {
         auto node = peek();
         while (node) { /// stops at a terminal token
@@ -824,12 +832,12 @@ private:
       /// copy member declarations
       auto children = comp_stmt->get_children();
       vector<Expr *> member_decls{};
-      for (const auto &c: children) {
+      for (const auto &c : children) {
         if (!(                                                  //
-            c->get_node_type() == ASTNodeType::VAR_DECL         //
+                c->get_node_type() == ASTNodeType::VAR_DECL     //
                 || c->get_node_type() == ASTNodeType::ASSIGN    //
                 || c->get_node_type() == ASTNodeType::FUNC_DECL //
-        )) {
+                )) {
           error(c->loc(), "Invalid struct member");
         }
         member_decls.push_back(ast_cast<Expr>(c));
@@ -858,7 +866,7 @@ private:
         error(_curr, "Expect an unsigned integer as the array size");
       }
 
-      ret = Type::GetArrayType(p, (int) array_size);
+      ret = Type::GetArrayType(p, (int)array_size);
 
       /// skip "]"
       peek(TokenType::PUNCTUATION, "]");
@@ -935,7 +943,9 @@ private:
     p->set_name(name_token->get_value());
     _curr.offset_by(1);
 
-    if (at(_curr)->get_value() != ":") { error(_curr, "Expect a type being specified"); }
+    if (at(_curr)->get_value() != ":") {
+      error(_curr, "Expect a type being specified");
+    }
     _curr.offset_by(1);
 
     /// type
@@ -951,7 +961,9 @@ private:
 
     /// enum class name
     auto _id = peek();
-    if (_id->get_node_type() != ASTNodeType::ID) { error(_curr, "Expect an identifier"); }
+    if (_id->get_node_type() != ASTNodeType::ID) {
+      error(_curr, "Expect an identifier");
+    }
     parse_node(_id);
     auto id = ast_cast<Identifier>(_id);
     p->set_name(id->get_name());
@@ -968,7 +980,7 @@ private:
       auto children = comp_stmt->get_children();
       vector<Expr *> elements{};
       elements.reserve(children.size());
-      for (const auto &c: children) {
+      for (const auto &c : children) {
         if (!(c->get_node_type() == ASTNodeType::ASSIGN || c->get_node_type() == ASTNodeType::ID)) {
           error(c->loc(), "Invalid enum elements");
         }
@@ -997,28 +1009,39 @@ ASTBase *Parser::parse() { return _impl->parse(); }
 
 Parser::~Parser() { delete _impl; }
 
-const umap<ASTNodeType, nud_parsing_func_t>ParserImpl::NUD_PARSING_FUNC_TABLE =
-    {{ASTNodeType::PROGRAM, &ParserImpl::parse_program}, {ASTNodeType::STATEMENT, &ParserImpl::parse_stmt},
-        {ASTNodeType::PARENTHESIS, &ParserImpl::parse_parenthesis}, {ASTNodeType::IMPORT, &ParserImpl::parse_import},
-        {ASTNodeType::INTRINSIC, &ParserImpl::parse_intrinsic}, {ASTNodeType::IF, &ParserImpl::parse_if},
-        {ASTNodeType::LOOP, &ParserImpl::parse_loop}, {ASTNodeType::UOP, &ParserImpl::parse_uop},
-        {ASTNodeType::RET, &ParserImpl::parse_return}, {ASTNodeType::FUNC_CALL, &ParserImpl::parse_func_call},
-        {ASTNodeType::ARRAY_LITERAL, &ParserImpl::parse_array_literal},
-        {ASTNodeType::STRUCT_DECL, &ParserImpl::parse_struct_decl},
-        {ASTNodeType::VAR_DECL, &ParserImpl::parse_var_decl}, {ASTNodeType::ARG_DECL, &ParserImpl::parse_arg_decl},
-        {ASTNodeType::FUNC_DECL, &ParserImpl::parse_func_decl}, {ASTNodeType::ENUM_DECL, &ParserImpl::parse_enum_decl},
-        {ASTNodeType::BREAK, &ParserImpl::parse_generic_token},
-        {ASTNodeType::CONTINUE, &ParserImpl::parse_generic_token}, {ASTNodeType::ID, &ParserImpl::parse_generic_token},
-        {ASTNodeType::INTEGER_LITERAL, &ParserImpl::parse_generic_token},
-        {ASTNodeType::FLOAT_LITERAL, &ParserImpl::parse_generic_token},
-        {ASTNodeType::CHAR_LITERAL, &ParserImpl::parse_generic_token},
-        {ASTNodeType::STRING_LITERAL, &ParserImpl::parse_generic_token},
-        {ASTNodeType::BOOL_LITERAL, &ParserImpl::parse_generic_token}};
-}
+const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE = {
+    {ASTNodeType::PROGRAM,         &ParserImpl::parse_program      },
+    {ASTNodeType::STATEMENT,       &ParserImpl::parse_stmt         },
+    {ASTNodeType::PARENTHESIS,     &ParserImpl::parse_parenthesis  },
+    {ASTNodeType::IMPORT,          &ParserImpl::parse_import       },
+    {ASTNodeType::INTRINSIC,       &ParserImpl::parse_intrinsic    },
+    {ASTNodeType::IF,              &ParserImpl::parse_if           },
+    {ASTNodeType::LOOP,            &ParserImpl::parse_loop         },
+    {ASTNodeType::UOP,             &ParserImpl::parse_uop          },
+    {ASTNodeType::RET,             &ParserImpl::parse_return       },
+    {ASTNodeType::FUNC_CALL,       &ParserImpl::parse_func_call    },
+    {ASTNodeType::ARRAY_LITERAL,   &ParserImpl::parse_array_literal},
+    {ASTNodeType::STRUCT_DECL,     &ParserImpl::parse_struct_decl  },
+    {ASTNodeType::VAR_DECL,        &ParserImpl::parse_var_decl     },
+    {ASTNodeType::ARG_DECL,        &ParserImpl::parse_arg_decl     },
+    {ASTNodeType::FUNC_DECL,       &ParserImpl::parse_func_decl    },
+    {ASTNodeType::ENUM_DECL,       &ParserImpl::parse_enum_decl    },
+    {ASTNodeType::BREAK,           &ParserImpl::parse_generic_token},
+    {ASTNodeType::CONTINUE,        &ParserImpl::parse_generic_token},
+    {ASTNodeType::ID,              &ParserImpl::parse_generic_token},
+    {ASTNodeType::INTEGER_LITERAL, &ParserImpl::parse_generic_token},
+    {ASTNodeType::FLOAT_LITERAL,   &ParserImpl::parse_generic_token},
+    {ASTNodeType::CHAR_LITERAL,    &ParserImpl::parse_generic_token},
+    {ASTNodeType::STRING_LITERAL,  &ParserImpl::parse_generic_token},
+    {ASTNodeType::BOOL_LITERAL,    &ParserImpl::parse_generic_token}
+};
+} // namespace tanlang
 
-const umap<ASTNodeType, led_parsing_func_t>ParserImpl::LED_PARSING_FUNC_TABLE =
-    {{ASTNodeType::BOP, &ParserImpl::parse_bop}, {ASTNodeType::ASSIGN, &ParserImpl::parse_assignment},
-        {ASTNodeType::CAST, &ParserImpl::parse_cast}};
+const umap<ASTNodeType, led_parsing_func_t> ParserImpl::LED_PARSING_FUNC_TABLE = {
+    {ASTNodeType::BOP,    &ParserImpl::parse_bop       },
+    {ASTNodeType::ASSIGN, &ParserImpl::parse_assignment},
+    {ASTNodeType::CAST,   &ParserImpl::parse_cast      }
+};
 
 // implementations of helper functions
 
