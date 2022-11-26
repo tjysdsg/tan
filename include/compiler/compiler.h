@@ -1,7 +1,7 @@
 #ifndef TAN_INCLUDE_COMPILER_H_
 #define TAN_INCLUDE_COMPILER_H_
 #include "base.h"
-#include "libtanc.h"
+#include "tan/tan.h"
 #include "ast/fwd.h"
 
 namespace llvm {

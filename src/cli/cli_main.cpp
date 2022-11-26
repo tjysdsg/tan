@@ -1,5 +1,5 @@
 #include "cli.h"
-#include "compiler/libtanc.h"
+#include "tan/tan.h"
 #include "llvm_api.h"
 #include <iostream>
 #include <filesystem>

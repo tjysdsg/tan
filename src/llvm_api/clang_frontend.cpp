@@ -9,8 +9,8 @@
 //===----------------------------------------------------------------------===//
 #include "llvm_api/llvm_include.h"
 #include "base.h"
+#include "tan/tan.h"
 #include <iostream>
-#include "compiler/libtanc.h"
 
 using namespace clang;
 using namespace clang::driver;

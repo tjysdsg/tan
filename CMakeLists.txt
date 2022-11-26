@@ -88,16 +88,12 @@ macro(set_target_common_compile_options target_name)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
-# ===== tan libraries =====
-# targets:
-#   - ast
-#   - tan
 add_subdirectory(src)
 
 # ===== target CLI compiler =====
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
 add_executable(tanc ${CLI_SRCS})
-target_link_libraries(tanc tan)
+target_link_libraries(tanc Tan)
 set_target_common_compile_options(tanc)
 
 # ===== target runtime =====

@@ -1,6 +1,5 @@
-#include "compiler/linker.h"
+#include "linker/linker.h"
 #include <string>
-#include <vector>
 #include "llvm_api.h"
 #include <iostream>
 

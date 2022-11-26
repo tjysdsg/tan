@@ -23,7 +23,7 @@ set(TAN_EXEC_TEST_SRCS
         )
 add_executable(tanc_exec_tests tanc_exec_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 set_target_common_compile_options(tanc_exec_tests)
-target_link_libraries(tanc_exec_tests tan gtest)
+target_link_libraries(tanc_exec_tests Tan gtest)
 target_compile_definitions(tanc_exec_tests PRIVATE
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}

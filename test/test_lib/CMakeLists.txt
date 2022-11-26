@@ -9,7 +9,7 @@
 
 add_executable(test_compile_lib test_compile_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 set_target_common_compile_options(test_compile_lib)
-target_link_libraries(test_compile_lib tan gtest)
+target_link_libraries(test_compile_lib Tan gtest)
 target_compile_definitions(test_compile_lib PRIVATE
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
@@ -19,7 +19,7 @@ add_dependencies(test_compile_lib runtime)
 add_executable(test_use_lib test_use_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 add_dependencies(test_use_lib test_compile_lib)
 set_target_common_compile_options(test_use_lib)
-target_link_libraries(test_use_lib tan gtest)
+target_link_libraries(test_use_lib Tan gtest)
 target_compile_definitions(test_use_lib PRIVATE
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
