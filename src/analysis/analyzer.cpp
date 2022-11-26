@@ -210,6 +210,8 @@ private:
       case BinaryOpKind::SUBTRACT:
       case BinaryOpKind::MULTIPLY:
       case BinaryOpKind::DIVIDE:
+      case BinaryOpKind::BAND:
+      case BinaryOpKind::BOR:
       case BinaryOpKind::MOD: {
         analyze(lhs);
         analyze(rhs);
@@ -222,9 +224,7 @@ private:
         p->set_type(lhs->get_type());
         break;
       }
-      case BinaryOpKind::BAND:
       case BinaryOpKind::LAND:
-      case BinaryOpKind::BOR:
       case BinaryOpKind::LOR:
       case BinaryOpKind::XOR: {
         analyze(lhs);

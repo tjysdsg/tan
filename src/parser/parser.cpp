@@ -163,15 +163,6 @@ private:
         case "||"_hs:
           op = BinaryOpKind::LOR;
           break;
-        case "|"_hs:
-          op = BinaryOpKind::BOR;
-          break;
-        case "&"_hs:
-          op = BinaryOpKind::BAND;
-          break;
-        case "^"_hs:
-          op = BinaryOpKind::XOR;
-          break;
         default:
           error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
           return nullptr;
@@ -210,16 +201,22 @@ private:
       node = MemberAccess::Create(_curr);
     } else if (token->get_value() == "&") {
       /// BOP or UOP? ambiguous
-      node = BinaryOrUnary::Create(_curr, PREC_LOWEST);
+      node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
       node = CompoundStmt::Create(_curr, true);
-    } else if (token->get_type() == TokenType::BOP && check_arithmetic_token(token)) { /// arithmetic operators
+    } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       switch (hashed_string{token->get_value().c_str()}) {
         case "/"_hs:
           node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _curr);
           break;
         case "%"_hs:
           node = BinaryOperator::Create(BinaryOpKind::MOD, _curr);
+          break;
+        case "|"_hs:
+          node = BinaryOperator::Create(BinaryOpKind::BOR, _curr);
+          break;
+        case "^"_hs:
+          node = BinaryOperator::Create(BinaryOpKind::XOR, _curr);
           break;
           /// Operators that are possibly BOP or UOP at this stage
           /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
