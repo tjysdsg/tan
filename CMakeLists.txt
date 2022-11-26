@@ -88,6 +88,7 @@ macro(set_target_common_compile_options target_name)
                     PRIVATE -Wall
                     PRIVATE -fprofile-arcs
                     PRIVATE -ftest-coverage)
+            target_link_options(${target_name} PUBLIC -fprofile-arcs)
         endif ()
     else ()
         target_compile_options(${target_name} PRIVATE -O3)

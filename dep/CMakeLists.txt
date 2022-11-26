@@ -247,7 +247,6 @@ if (WIN32)
 else ()
     set(DEP_LIBS ${DEP_LIBS}
             z dl rt tinfo pthread m xml2
-            gcov
             CACHE INTERNAL "Dependency libs")
 endif ()
 
