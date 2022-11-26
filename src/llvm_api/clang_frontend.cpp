@@ -132,7 +132,7 @@ int main0(int argc_, const char **argv_) {
   std::unique_ptr<Compilation> C(TheDriver.BuildCompilation(argv));
   int Res = 1;
   if (C && !C->containsError()) {
-    SmallVector<std::pair<int, const Command *>, 4> FailingCommands;
+    SmallVector<pair<int, const Command *>, 4> FailingCommands;
     Res = TheDriver.ExecuteCompilation(*C, FailingCommands);
 
     for (const auto &P : FailingCommands) {
@@ -199,7 +199,7 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
   clang::driver::Driver driver(GetExecutablePath("clang"), llvm::sys::getDefaultTargetTriple(), diag_engine);
 
   auto *compilation = driver.BuildCompilation(args);
-  SmallVector<std::pair<int, const Command *>, 0> failing_commands;
+  SmallVector<pair<int, const Command *>, 0> failing_commands;
   if (compilation) {
     return driver.ExecuteCompilation(*compilation, failing_commands);
   }

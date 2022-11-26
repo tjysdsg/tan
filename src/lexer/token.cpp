@@ -26,7 +26,6 @@ const vector<char> PUNCTUATIONS{'~', '!',  '#', '%', '^', '&',  '*', '(', ')', '
                                 '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '<', '>', '/', '?', '@'};
 
 const vector<str> TERMINAL_TOKENS{";", "}", ")", ":", ",", "]"};
-const vector<str> ARITHMETIC_TOKENS{"+", "-", "*", "/", "%"};
 
 /// any symbol in OP can both be an operator itself or the first character of an operator
 const vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>', '/', '.'};
@@ -36,20 +35,18 @@ const vector<str> OP_ALL{"==", "!=", ">=", "<=", ">", "<",  "&&", "||", "~", "%=
 
 umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     // RELOP
-    std::pair("==", TokenType::RELOP), std::pair("!=", TokenType::RELOP), std::pair(">=", TokenType::RELOP),
-    std::pair("<=", TokenType::RELOP), std::pair(">", TokenType::RELOP), std::pair("<", TokenType::RELOP),
-    std::pair("&&", TokenType::RELOP), std::pair("||", TokenType::RELOP),
+    pair("==", TokenType::RELOP), pair("!=", TokenType::RELOP), pair(">=", TokenType::RELOP),
+    pair("<=", TokenType::RELOP), pair(">", TokenType::RELOP), pair("<", TokenType::RELOP),
+    pair("&&", TokenType::RELOP), pair("||", TokenType::RELOP),
     // UOP
-    std::pair("~", TokenType::UOP), std::pair("!", TokenType::UOP),
+    pair("~", TokenType::UOP), pair("!", TokenType::UOP),
     // BOP
-    std::pair("%=", TokenType::BOP), std::pair("%", TokenType::BOP), std::pair("^=", TokenType::BOP),
-    std::pair("^", TokenType::BOP), std::pair("&=", TokenType::BOP), std::pair("&", TokenType::BOP),
-    std::pair("+=", TokenType::BOP), std::pair("+", TokenType::BOP), std::pair("-=", TokenType::BOP),
-    std::pair("-", TokenType::BOP), std::pair("*=", TokenType::BOP), std::pair("*", TokenType::BOP),
-    std::pair("/=", TokenType::BOP), std::pair("/", TokenType::BOP), std::pair("|=", TokenType::BOP),
-    std::pair("|", TokenType::BOP), std::pair("<<=", TokenType::BOP), std::pair("<<", TokenType::BOP),
-    std::pair(">>=", TokenType::BOP), std::pair(">>", TokenType::BOP), std::pair("!=", TokenType::BOP),
-    std::pair(",", TokenType::BOP), std::pair(".", TokenType::BOP), std::pair("=", TokenType::BOP)};
+    pair("%=", TokenType::BOP), pair("%", TokenType::BOP), pair("^=", TokenType::BOP), pair("^", TokenType::BOP),
+    pair("&=", TokenType::BOP), pair("&", TokenType::BOP), pair("+=", TokenType::BOP), pair("+", TokenType::BOP),
+    pair("-=", TokenType::BOP), pair("-", TokenType::BOP), pair("*=", TokenType::BOP), pair("*", TokenType::BOP),
+    pair("/=", TokenType::BOP), pair("/", TokenType::BOP), pair("|=", TokenType::BOP), pair("|", TokenType::BOP),
+    pair("<<=", TokenType::BOP), pair("<<", TokenType::BOP), pair(">>=", TokenType::BOP), pair(">>", TokenType::BOP),
+    pair("!=", TokenType::BOP), pair(",", TokenType::BOP), pair(".", TokenType::BOP), pair("=", TokenType::BOP)};
 
 str Token::to_string() const {
   return fmt::format("<'{}' {} L{}:C{}>", _value, token_type_names[_type], std::to_string(_loc->get_line()),

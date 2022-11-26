@@ -18,8 +18,6 @@ public:
   SrcLoc &operator=(const SrcLoc &) = default;
 
   explicit SrcLoc(size_t index) { _index = index; }
-  static SrcLoc CreateInvalidIndex() { return SrcLoc(static_cast<size_t>(-1)); }
-  size_t get_index() const { return _index; }
   void offset_by(int64_t offset) { _index = (size_t)((int64_t)_index + offset); }
 
 private:

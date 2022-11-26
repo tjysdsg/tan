@@ -17,7 +17,6 @@ using tanlang::TokenType; // distinguish from the one in winnt.h
 
 static bool check_typename_token(Token *token);
 static bool check_terminal_token(Token *token);
-static bool check_arithmetic_token(Token *token);
 
 namespace tanlang {
 
@@ -141,7 +140,7 @@ private:
         node = MemberAccess::Create(_curr);
       }
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
-      BinaryOpKind op = BinaryOpKind::INVALID;
+      BinaryOpKind op;
       switch (hashed_string{token->get_value().c_str()}) {
       case ">"_hs:
         op = BinaryOpKind::GT;
@@ -169,7 +168,6 @@ private:
         break;
       default:
         error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
-        return nullptr;
       }
       node = BinaryOperator::Create(op, _curr);
     } else if (token->get_type() == TokenType::INT) {
@@ -1051,8 +1049,4 @@ static bool check_typename_token(Token *token) {
 
 static bool check_terminal_token(Token *token) {
   return token->get_type() == TokenType::PUNCTUATION && is_string_in(token->get_value(), TERMINAL_TOKENS);
-}
-
-static bool check_arithmetic_token(Token *token) {
-  return token->get_type() == TokenType::BOP && is_string_in(token->get_value(), ARITHMETIC_TOKENS);
 }

@@ -14,8 +14,10 @@ using str = std::string;
 template <typename Key, typename Value, typename Hash = std::hash<Key>> // support custom hash
 using umap = std::unordered_map<Key, Value, Hash>;
 
+using std::pair;
+
 struct PairHash {
-  template <class T1, class T2> std::size_t operator()(const std::pair<T1, T2> &p) const {
+  template <class T1, class T2> std::size_t operator()(const pair<T1, T2> &p) const {
     // https://stackoverflow.com/questions/5889238/why-is-xor-the-default-way-to-combine-hashes/27952689#27952689
     size_t lhs = std::hash<T1>{}(p.first);
     size_t rhs = std::hash<T2>{}(p.second);

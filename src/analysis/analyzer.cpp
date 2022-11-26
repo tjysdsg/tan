@@ -79,7 +79,7 @@ private:
   SourceManager *_sm = nullptr;
 
 private:
-  [[noreturn]] void report_error(ASTBase *p, const str &message) {
+  [[noreturn]] void error(ASTBase *p, const str &message) {
     Error err(_ctx->_filename, _sm->get_token(p->loc()), message);
     err.raise();
   }
@@ -95,7 +95,7 @@ private:
       return;
     }
     if (!p->get_type()) {
-      report_error(p, "[DEV] Expression must have a type after analysis");
+      error(p, "[DEV] Expression must have a type after analysis");
     }
     p->set_type(p->get_type());
   }
@@ -111,9 +111,8 @@ private:
       }
       ret = decl->get_type();
     } else if (p->is_pointer()) {
-      ret = Type::GetPointerType(                            /// "flatten" pointer that points to a TypeRef
-          analyze_ty(((PointerType *)p)->get_pointee(), loc) //
-      );
+      /// "flatten" pointer that points to a TypeRef
+      ret = Type::GetPointerType(analyze_ty(((PointerType *)p)->get_pointee(), loc));
     }
 
     return ret;
@@ -130,7 +129,7 @@ private:
       p->set_type_ref(ty);
       p->set_type(ty);
     } else {
-      report_error(p, "Unknown identifier");
+      error(p, "Unknown identifier");
     }
   }
 
@@ -150,7 +149,7 @@ private:
         analyze(cond);
 
         if (!TypeSystem::CanImplicitlyConvert(cond->get_type(), PrimitiveType::GetBoolType())) {
-          report_error(cond, "Cannot implicitly convert expression to bool");
+          error(cond, "Cannot implicitly convert expression to bool");
         }
       }
 
@@ -228,7 +227,7 @@ private:
 
       if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type()) &&
           !TypeSystem::CanImplicitlyConvert(rhs->get_type(), lhs->get_type())) {
-        report_error(p, "Cannot implicitly convert between two expressions");
+        error(p, "Cannot implicitly convert between two expressions");
       }
 
       p->set_type(lhs->get_type());
@@ -243,10 +242,10 @@ private:
       // check if both operators are bool
       auto *bool_type = PrimitiveType::GetBoolType();
       if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), bool_type)) {
-        report_error(p, "Cannot implicitly convert lhs to bool");
+        error(p, "Cannot implicitly convert lhs to bool");
       }
       if (!TypeSystem::CanImplicitlyConvert(rhs->get_type(), bool_type)) {
-        report_error(p, "Cannot implicitly convert rhs to bool");
+        error(p, "Cannot implicitly convert rhs to bool");
       }
 
       p->set_type(bool_type);
@@ -261,7 +260,7 @@ private:
       analyze(lhs);
       analyze(rhs);
       if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type())) {
-        report_error(p, "Cannot implicitly convert between lhs and rhs");
+        error(p, "Cannot implicitly convert between lhs and rhs");
       }
       p->set_type(PrimitiveType::GetBoolType());
       break;
@@ -282,13 +281,13 @@ private:
     switch (p->get_op()) {
     case UnaryOpKind::LNOT:
       if (!rhs_type->is_bool()) {
-        report_error(rhs, "Expect a bool type");
+        error(rhs, "Expect a bool type");
       }
       p->set_type(PrimitiveType::GetBoolType());
       break;
     case UnaryOpKind::BNOT:
       if (!rhs_type->is_int()) {
-        report_error(rhs, "Expect an integer type");
+        error(rhs, "Expect an integer type");
       }
       p->set_type(rhs_type);
       break;
@@ -297,7 +296,7 @@ private:
       break;
     case UnaryOpKind::PTR_DEREF:
       if (!rhs_type->is_pointer()) {
-        report_error(rhs, "Expect a pointer type");
+        error(rhs, "Expect a pointer type");
       }
       TAN_ASSERT(rhs->is_lvalue());
       p->set_lvalue(true);
@@ -306,7 +305,7 @@ private:
     case UnaryOpKind::PLUS:
     case UnaryOpKind::MINUS: /// unary plus/minus
       if (!(rhs_type->is_int() || rhs_type->is_float())) {
-        report_error(rhs, "Expect an numerical type");
+        error(rhs, "Expect an numerical type");
       }
       p->set_type(rhs_type);
       break;
@@ -344,7 +343,7 @@ private:
       lhs_type = ast_cast<Expr>(lhs)->get_type();
       break;
     default:
-      report_error(lhs, "Invalid left-hand operand");
+      error(lhs, "Invalid left-hand operand");
     }
 
     /// if the type of lhs is not set, we deduce it
@@ -368,7 +367,7 @@ private:
 
     Type *rhs_type = rhs->get_type();
     if (!TypeSystem::CanImplicitlyConvert(rhs_type, lhs_type)) {
-      report_error(p, "Cannot implicitly cast rhs to lhs");
+      error(p, "Cannot implicitly cast rhs to lhs");
     }
     p->set_type(lhs_type);
   }
@@ -427,7 +426,7 @@ private:
     str file = p->get_filename();
     auto imported = Compiler::resolve_import(_ctx->_filename, file);
     if (imported.empty()) {
-      report_error(p, "Cannot import: " + file);
+      error(p, "Cannot import: " + file);
     }
 
     /// it might be already parsed
@@ -460,7 +459,7 @@ private:
       break;
     case IntrinsicType::GET_DECL: {
       if (func_call->get_n_args() != 1) {
-        report_error(func_call, "Expect the number of args to be 1");
+        error(func_call, "Expect the number of args to be 1");
       }
       auto *target = func_call->get_arg(0);
       auto *source_str = ASTBuilder::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
@@ -476,7 +475,7 @@ private:
       // FEATURE: print with var args
       auto args = func_call->_args;
       if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
-        report_error(p, "Invalid call to compprint, one argument with type 'str' required");
+        error(p, "Invalid call to compprint, one argument with type 'str' required");
       }
 
       str msg = ast_cast<StringLiteral>(args[0])->get_value();
@@ -492,7 +491,7 @@ private:
   inline void find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
     auto q = Intrinsic::intrinsics.find(name);
     if (q == Intrinsic::intrinsics.end()) {
-      report_error(p, "Unknown intrinsic");
+      error(p, "Unknown intrinsic");
     }
     p->set_intrinsic_type(q->second);
   }
@@ -552,7 +551,7 @@ private:
 
       Error::ResetErrorCatcher();
       if (!error_catched) {
-        report_error(p, "Expect a compile error");
+        error(p, "Expect a compile error");
       }
       break;
     }
@@ -608,7 +607,7 @@ private:
         element_type = e->get_type();
       }
       if (!TypeSystem::CanImplicitlyConvert(e->get_type(), element_type)) {
-        report_error(p, "All elements in an array must have the same type");
+        error(p, "All elements in an array must have the same type");
       }
     }
 
@@ -619,7 +618,7 @@ private:
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
     if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
-      report_error(p, "Invalid member function call");
+      error(p, "Invalid member function call");
     }
 
     /// get address of the struct instance
@@ -641,15 +640,15 @@ private:
     analyze(rhs);
 
     if (!lhs->is_lvalue()) {
-      report_error(p, "Expect lhs to be an lvalue");
+      error(p, "Expect lhs to be an lvalue");
     }
 
     auto *lhs_type = lhs->get_type();
     if (!(lhs_type->is_pointer() || lhs_type->is_array() || lhs_type->is_string())) {
-      report_error(p, "Expect a type that supports bracket access");
+      error(p, "Expect a type that supports bracket access");
     }
     if (!rhs->get_type()->is_int()) {
-      report_error(rhs, "Expect an integer");
+      error(rhs, "Expect an integer");
     }
 
     Type *sub_type = nullptr;
@@ -662,8 +661,8 @@ private:
       if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
         uint64_t size = ast_cast<IntegerLiteral>(rhs)->get_value();
         if (lhs->get_type()->is_array() && (int)size >= array_type->get_size()) {
-          report_error(p, fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
-                                      std::to_string(array_type->get_size())));
+          error(p, fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
+                               std::to_string(array_type->get_size())));
         }
       }
     } else if (lhs_type->is_string()) {
@@ -682,11 +681,11 @@ private:
 
     /// enum element
     if (rhs->get_node_type() != ASTNodeType::ID) {
-      report_error(rhs, "Unknown enum element");
+      error(rhs, "Unknown enum element");
     }
     str name = ast_cast<Identifier>(rhs)->get_name();
     if (!enum_decl->contain_element(name)) {
-      report_error(rhs, "Unknown enum element");
+      error(rhs, "Unknown enum element");
     }
   }
 
@@ -705,7 +704,7 @@ private:
 
     struct_ty = analyze_ty(struct_ty, lhs->loc());
     if (!struct_ty->is_struct()) {
-      report_error(lhs, "Expect a struct type");
+      error(lhs, "Expect a struct type");
     }
 
     auto *struct_decl = ast_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
@@ -734,7 +733,7 @@ private:
         analyze_member_access_member_variable(p, lhs, rhs);
       }
     } else {
-      report_error(p, "Invalid right-hand operand");
+      error(p, "Invalid right-hand operand");
     }
   }
 
@@ -748,7 +747,7 @@ private:
     if (prev_decl) {
       if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
             ast_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
-        report_error(p, "Cannot redeclare type as a struct");
+        error(p, "Cannot redeclare type as a struct");
       }
     }
 
@@ -770,7 +769,7 @@ private:
         auto init_val = bm->get_rhs();
 
         if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
-          report_error(bm, "Expect a member variable declaration");
+          error(bm, "Expect a member variable declaration");
         }
         auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
@@ -780,7 +779,7 @@ private:
 
         /// initial values
         if (!init_val->is_comptime_known()) {
-          report_error(p, "Initial value of a member variable must be compile-time known");
+          error(p, "Initial value of a member variable must be compile-time known");
         }
         // TODO IMPORTANT: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
         //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_cast<CompTimeExpr>(init_val)));
@@ -791,7 +790,7 @@ private:
         child_types[i] = f->get_type();
         p->set_member_index(f->get_name(), i);
       } else {
-        report_error(p, "Invalid struct member");
+        error(p, "Invalid struct member");
       }
     }
 
@@ -815,7 +814,7 @@ private:
     auto *p = ast_cast<BreakContinue>(_p);
     Loop *loop = _ctx->get_current_loop();
     if (!loop) {
-      report_error(p, "Break or continue must be inside a loop");
+      error(p, "Break or continue must be inside a loop");
     }
     p->set_parent_loop(loop);
   }
@@ -844,7 +843,7 @@ private:
         auto *lhs = ast_cast<ASTNamed>(_lhs);
         if (!lhs) { report_error(_lhs, "Expect a name"); }
 
-        if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { report_error(_rhs, "Expect an integer literal"); }
+        if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { error(_rhs, "Expect an integer literal"); }
         auto *rhs = ast_cast<IntegerLiteral>(_rhs);
         TAN_ASSERT(rhs);
 

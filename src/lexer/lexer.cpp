@@ -22,7 +22,7 @@ namespace tanlang {
 Cursor skip_whitespace(Reader *reader, Cursor ptr) {
   const auto end = reader->end();
   while (ptr < end && (std::isspace(*ptr) || *ptr == '\0')) {
-    ptr = reader->forward(ptr);
+    ++ptr;
   }
   return ptr;
 }
@@ -75,7 +75,7 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
     auto value = reader->substr(reader->forward(next));
     t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
     start.c = reader->get_line(start.l).length();
-    start = reader->forward(start);
+    ++start;
   } else if (*next == '*') {                      /// block comments
     auto forward = start = reader->forward(next); /// forward now points to the character after "/*"
 
@@ -126,7 +126,7 @@ Token *tokenize_number(Reader *reader, Cursor &start) {
     } else {
       report_error(reader, forward, "Unexpected character within a number literal");
     }
-    forward = (*reader).forward(forward);
+    ++forward;
   }
 
   auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT, start.l, start.c, reader->substr(start, forward),
@@ -173,9 +173,9 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
 
   while (forward < end && *forward != '\'') {
     if (*forward == '\\') {
-      forward = reader->forward(forward);
+      ++forward;
     }
-    forward = reader->forward(forward);
+    ++forward;
   }
 
   if (end <= forward) {
@@ -194,7 +194,7 @@ Token *tokenize_char(Reader *reader, Cursor &start) {
       report_error(reader, forward, "Invalid character literal");
     }
     t = new Token(TokenType::CHAR, start.l, start.c, value, reader->get_line(start.l));
-    start = (*reader).forward(forward);
+    start = reader->forward(forward);
   }
   return t;
 }

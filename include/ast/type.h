@@ -63,7 +63,7 @@ protected:
   // type cache
   static StringType *STRING_TYPE;
   static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{}; // pointee type -> pointer type
-  static inline umap<std::pair<Type *, int>, ArrayType *, PairHash>
+  static inline umap<pair<Type *, int>, ArrayType *, PairHash>
       ARRAY_TYPE_CACHE{};                                    // (element type, size) -> array type
   static inline umap<str, StructType *> STRUCT_TYPE_CACHE{}; // struct_name -> pointer type
 };

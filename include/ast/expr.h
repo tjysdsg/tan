@@ -179,7 +179,6 @@ private:
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence
 enum class BinaryOpKind {
-  INVALID,       ///
   SUM,           /// +
   SUBTRACT,      /// -
   MULTIPLY,      /// *
