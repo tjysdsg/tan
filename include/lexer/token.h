@@ -37,7 +37,7 @@ public:
   TokenType get_type() const;
   void set_type(TokenType type);
   const str &get_value() const;
-  str_view get_source_line() const;
+  str get_source_line() const;
   bool is_unsigned() const;
   void set_is_unsigned(bool is_unsigned);
   uint32_t get_line() const;
@@ -48,7 +48,7 @@ private:
   str _value{};
   uint32_t _line = 0;
   uint32_t _col = 0;
-  str_view _source_line{};
+  str _source_line{};
   bool _is_unsigned = false;
 };
 

@@ -57,7 +57,7 @@ void Token::set_type(TokenType type) { _type = type; }
 
 const str &Token::get_value() const { return _value; }
 
-str_view Token::get_source_line() const { return _source_line; }
+str Token::get_source_line() const { return _source_line; }
 
 bool Token::is_unsigned() const { return _is_unsigned; }
 
