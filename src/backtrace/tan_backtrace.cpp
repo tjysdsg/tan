@@ -134,8 +134,9 @@ int bt_callback(void *, uintptr_t, const char *filename, int lineno, const char 
     func_name = demangled;
   }
 
-  /// print
-  printf("%s:%d in function %s\n", filename, lineno, func_name);
+  if (filename && func_name) {
+    printf("%s:%d in function %s\n", filename, lineno, func_name);
+  }
   return 0;
 }
 
