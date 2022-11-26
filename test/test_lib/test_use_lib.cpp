@@ -2,7 +2,7 @@
  * \brief Tests for using tanc to compile and generate libraries
  */
 
-#include "cli.h"
+#include "cli/cli.h"
 #include "base.h"
 #include <gtest/gtest.h>
 
