@@ -426,6 +426,58 @@ private:
     }
   }
 
+  void analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
+    auto *void_type = Type::GetVoidType();
+    switch (p->get_intrinsic_type()) {
+      case IntrinsicType::STACK_TRACE: {
+        func_call->set_name("__tan_runtime_stack_trace");
+        analyze(func_call);
+        p->set_type(void_type);
+        break;
+      }
+      case IntrinsicType::ABORT:
+      case IntrinsicType::NOOP:
+        analyze(func_call);
+        p->set_type(void_type);
+        break;
+      case IntrinsicType::GET_DECL: {
+        if (func_call->get_n_args() != 1) {
+          report_error(func_call, "Expect the number of args to be 1");
+        }
+        auto *target = func_call->get_arg(0);
+        auto *source_str =
+            ASTBuilder::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
+
+        // FEATURE: Return AST?
+        p->set_sub(source_str);
+        p->set_type(source_str->get_type());
+        break;
+      }
+      case IntrinsicType::COMP_PRINT: {
+        p->set_type(void_type);
+
+        // FEATURE: print with var args
+        auto args = func_call->_args;
+        if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
+          report_error(p, "Invalid call to compprint, one argument with type 'str' required");
+        }
+
+        str msg = ast_cast<StringLiteral>(args[0])->get_value();
+        std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
+        break;
+      }
+      default:
+        TAN_ASSERT(false);
+    }
+  }
+
+  /// search for the intrinsic type
+  inline void find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
+    auto q = Intrinsic::intrinsics.find(name);
+    if (q == Intrinsic::intrinsics.end()) { report_error(p, "Unknown intrinsic"); }
+    p->set_intrinsic_type(q->second);
+  }
+
   void analyze_intrinsic(ASTBase *_p) {
     auto p = ast_cast<Intrinsic>(_p);
     auto c = p->get_sub();
@@ -433,9 +485,13 @@ private:
     /// name
     str name;
     switch (c->get_node_type()) {
-      case ASTNodeType::FUNC_CALL:
-        name = ast_cast<FunctionCall>(c)->get_name();
-        break;
+      case ASTNodeType::FUNC_CALL: {
+        auto *func_call = ast_cast<FunctionCall>(c);
+        name = func_call->get_name();
+        find_and_assign_intrinsic_type(p, name);
+        analyze_intrinsic_func_call(p, func_call);
+        return;
+      }
       case ASTNodeType::ID:
         name = ast_cast<Identifier>(c)->get_name();
         break;
@@ -444,36 +500,9 @@ private:
         break;
     }
     TAN_ASSERT(!name.empty());
+    find_and_assign_intrinsic_type(p, name);
 
-    /// search for the intrinsic type
-    auto q = Intrinsic::intrinsics.find(name);
-    if (q == Intrinsic::intrinsics.end()) {
-      report_error(p, "Invalid intrinsic");
-    }
-    p->set_intrinsic_type(q->second);
-
-    auto void_type = Type::GetVoidType();
     switch (p->get_intrinsic_type()) {
-      case IntrinsicType::STACK_TRACE: {
-        auto *sub = p->get_sub();
-        if (sub->get_node_type() != ASTNodeType::FUNC_CALL) {
-          report_error(p->get_sub(), "Expect an intrinsic function call");
-        }
-        auto *func_call = ast_cast<FunctionCall>(sub);
-        func_call->set_name("__tan_runtime_stack_trace");
-        analyze(func_call);
-        p->set_type(void_type);
-        break;
-      }
-      case IntrinsicType::ABORT:
-      case IntrinsicType::NOOP: {
-        if (p->get_sub()->get_node_type() != ASTNodeType::FUNC_CALL) {
-          report_error(p->get_sub(), "Expect an intrinsic function call");
-        }
-        analyze(p->get_sub());
-        p->set_type(void_type);
-        break;
-      }
       case IntrinsicType::LINENO: {
         auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
         auto type = PrimitiveType::GetIntegerType(32, true);
@@ -490,34 +519,8 @@ private:
         p->set_sub(sub);
         break;
       }
-      case IntrinsicType::GET_DECL: {
-        TAN_ASSERT(c->get_node_type() == ASTNodeType::FUNC_CALL);
-        auto *func_call = ast_cast<FunctionCall>(c);
-        if (func_call->get_n_args() != 1) {
-          report_error(func_call, "Expect the number of args to be 1");
-        }
-        auto *target = func_call->get_arg(0);
-        auto *source_str =
-            ASTBuilder::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
-        p->set_sub(source_str);
-        p->set_type(source_str->get_type());
-        break;
-      }
-      case IntrinsicType::COMP_PRINT: {
-        p->set_type(void_type);
-
-        auto func_call = ast_cast<FunctionCall>(c);
-        auto args = func_call->_args;
-
-        if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
-          report_error(p, "Invalid call to compprint, one argument with type 'str' required");
-        }
-        str msg = ast_cast<StringLiteral>(args[0])->get_value();
-        std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
-        break;
-      }
       case IntrinsicType::TEST_COMP_ERROR: {
-        // FIXME: memory leaks
+        // FIXME: avoid setjmp and longjmp
         bool error_catched = false;
         std::jmp_buf buf;
         if (setjmp(buf) > 0) {
@@ -537,7 +540,7 @@ private:
         break;
       }
       default:
-        report_error(p, "Unknown intrinsic");
+        TAN_ASSERT(false);
     }
   }
 
