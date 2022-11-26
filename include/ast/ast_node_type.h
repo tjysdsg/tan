@@ -27,8 +27,8 @@ enum class ASTNodeType {
   IF,          /// if
   IMPORT,      /// import
   VAR_REF,     /// variable reference
+  INTRINSIC,       /// intrinsic functions, operators, qualifiers, etc.
 
-  // types in tan
   BOOL_LITERAL,    /// bool literal
   INTEGER_LITERAL, /// int literal
   FLOAT_LITERAL,   /// float literal
@@ -36,8 +36,6 @@ enum class ASTNodeType {
   STRING_LITERAL,  /// "xxx"
   ARRAY_LITERAL,   /// [1, 2, 3]
   NULLPTR_LITERAL, /// nullptr
-  INTRINSIC,       /// intrinsic functions, operators, qualifiers, etc.
-  INVALID,
 };
 
 }

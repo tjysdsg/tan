@@ -13,6 +13,7 @@ class Decl : public Expr, public ASTNamed {
 public:
   bool is_lvalue() override { return true; }
   void set_lvalue(bool) override { TAN_ASSERT(false); }
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
   Decl(ASTNodeType type, SrcLoc loc, int bp);

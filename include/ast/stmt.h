@@ -11,6 +11,9 @@ class BasicBlock;
 namespace tanlang {
 
 class Stmt : public ASTBase {
+public:
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
+
 protected:
   Stmt(ASTNodeType type, SrcLoc loc);
 };

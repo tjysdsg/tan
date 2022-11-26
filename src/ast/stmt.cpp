@@ -6,6 +6,8 @@ using namespace tanlang;
 
 Stmt::Stmt(ASTNodeType type, SrcLoc loc) : ASTBase(type, loc, PREC_LOWEST) {}
 
+vector<ASTBase *> Stmt::get_children() const { return {}; }
+
 /// \section Compound statement
 
 CompoundStmt *CompoundStmt::Create(SrcLoc loc, bool new_scope) {

@@ -17,6 +17,7 @@ public:
   virtual bool is_comptime_known() { return false; }
   virtual bool is_lvalue() { return _is_lvalue; }
   virtual void set_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
+  [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
   bool _is_lvalue = false;

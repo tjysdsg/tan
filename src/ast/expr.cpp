@@ -8,6 +8,8 @@ using namespace tanlang;
 
 Expr::Expr(ASTNodeType type, SrcLoc loc, int bp) : ASTBase(type, loc, bp) {}
 
+vector<ASTBase *> Expr::get_children() const { return {}; }
+
 /// \section Literals
 
 Literal::Literal(ASTNodeType type, SrcLoc loc, int bp) : CompTimeExpr(type, loc, bp) {}
