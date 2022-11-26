@@ -7,18 +7,41 @@ noticed if explicit type cast is written.
 
 ## Supported Implicit Type Cast
 
-TODO: add more
+The specific behaviors of these casts is the same as explicit cast listed in the next section.
 
-- signed int to unsigned int with equal or bigger size
+The table specifies all legal implicit type conversion in this language.
+`char` is considered as an unsigned int whose size is 1 byte.
 
-Any implicit cast can be done the same way using explicit cast. Therefore, the exact behaviors will be listed in the
-sections below.
+| index | From                                 | To                                               |
+|-------|--------------------------------------|--------------------------------------------------|
+| 1     | int                                  | int with the same signedness with a bigger size  |
+| 2     | signed int                           | unsigned int with the same or bigger size        |
+| 3     | unsigned int                         | signed int with a bigger size                    |
+| 4     | float                                | float with a bigger size                         |
+| 5     | int                                  | float                                            |
+| 6     | int/float/pointer                    | bool                                             |
+| 7     | bool                                 | any type of int or float (true => 1, false => 0) |
+| 8     | pointer of a derived class           | pointer to the base class                        |
+| 9     | int/float that is compile-time known | int/float that can fit the value                 |
+
+In many binary operations where two operands have different types, one of the operands will have its type promoted
+according to these rules. Note that, if multiple implicit cast rules can apply, the compiler use the one with lower
+index.
+For example,
+
+```
+// rule #6 or #7?
+var b = true;
+var i = 100;
+print(b + i); // 101
+
+// rule #2 or #3?
+var u: u32 = 100;
+var s = 100;
+var res = s + u; // type is unsigned
+```
 
 # Explicit Type Cast Rules
-
-The philosophy of explicit type cast rules is to provide extensive and clear definition of the behaviors of type cast.
-
-TODO: the majority of the following is copied from rust, should add tests
 
 ## Cast between Numerical Types
 
@@ -31,8 +54,8 @@ Unlike implicit csat, arbitrary cast between numerical types can be performed, a
     - sign-extend if the source is signed
 - Casting from a float to an integer will round the float towards zero
     - NaN will return 0
-    - Values larger than the maximum integer value will saturate to the maximum value of the integer type.
-    - Values smaller than the minimum integer value will saturate to the minimum value of the integer type.
+    - Values larger than the maximum integer value will saturate to the maximum value of the integer type
+    - Values smaller than the minimum integer value will saturate to the minimum value of the integer type
 - Casting from an integer to float will produce the closest possible float
     - if necessary, rounding is according to roundTiesToEven mode
     - on overflow, infinity (of the same sign as the input) is produced
