@@ -1,6 +1,5 @@
 #include "analysis/analyzer.h"
 #include "ast/ast_base.h"
-#include "ast/ast_builder.h"
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -462,7 +461,7 @@ private:
         error(func_call, "Expect the number of args to be 1");
       }
       auto *target = func_call->get_arg(0);
-      auto *source_str = ASTBuilder::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
+      auto *source_str = Literal::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
 
       // FEATURE: Return AST?
       p->set_sub(source_str);

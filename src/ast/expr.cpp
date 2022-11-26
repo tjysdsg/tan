@@ -341,3 +341,46 @@ void BinaryOrUnary::set_lvalue(bool is_lvalue) { get_expr_ptr()->set_lvalue(is_l
 bool CompTimeExpr::is_comptime_known() { return true; }
 
 CompTimeExpr::CompTimeExpr(ASTNodeType type, SrcLoc loc, int bp) : Expr(type, loc, bp) {}
+
+IntegerLiteral *Literal::CreateIntegerLiteral(SrcLoc loc, uint64_t val, size_t bit_size, bool is_unsigned) {
+  auto *ret = IntegerLiteral::Create(loc, val, is_unsigned);
+  ret->set_type(Type::GetIntegerType(bit_size, is_unsigned));
+  return ret;
+}
+
+BoolLiteral *Literal::CreateBoolLiteral(SrcLoc loc, bool val) {
+  auto *ret = BoolLiteral::Create(loc, val);
+  ret->set_type(Type::GetBoolType());
+  return ret;
+}
+
+FloatLiteral *Literal::CreateFloatLiteral(SrcLoc loc, double val, size_t bit_size) {
+  auto *ret = FloatLiteral::Create(loc, val);
+  ret->set_type(Type::GetFloatType(bit_size));
+  return ret;
+}
+
+StringLiteral *Literal::CreateStringLiteral(SrcLoc loc, str val) {
+  auto *ret = StringLiteral::Create(loc, val);
+  ret->set_type(Type::GetStringType());
+  return ret;
+}
+
+CharLiteral *Literal::CreateCharLiteral(SrcLoc loc, uint8_t val) {
+  auto *ret = CharLiteral::Create(loc, val);
+  ret->set_type(Type::GetCharType());
+  return ret;
+}
+
+ArrayLiteral *Literal::CreateArrayLiteral(SrcLoc loc, Type *element_type, int size) {
+  auto *ret = ArrayLiteral::Create(loc);
+  vector<Type *> sub_types{};
+  ret->set_type(Type::GetArrayType(element_type, size));
+  return ret;
+}
+
+NullPointerLiteral *Literal::CreateNullPointerLiteral(SrcLoc loc, Type *element_type) {
+  auto *ret = NullPointerLiteral::Create(loc);
+  ret->set_type(Type::GetPointerType(element_type));
+  return ret;
+}

@@ -1,7 +1,6 @@
 #ifndef __TAN_SRC_AST_EXPR_H__
 #define __TAN_SRC_AST_EXPR_H__
 #include <utility>
-
 #include "base.h"
 #include "ast_base.h"
 #include "ast_named.h"
@@ -40,6 +39,15 @@ public:
 class Literal : public CompTimeExpr {
 protected:
   Literal(ASTNodeType type, SrcLoc loc, int bp);
+
+public:
+  static IntegerLiteral *CreateIntegerLiteral(SrcLoc loc, uint64_t val, size_t bit_size, bool is_unsigned);
+  static BoolLiteral *CreateBoolLiteral(SrcLoc loc, bool val);
+  static FloatLiteral *CreateFloatLiteral(SrcLoc loc, double val, size_t bit_size);
+  static StringLiteral *CreateStringLiteral(SrcLoc loc, str val);
+  static CharLiteral *CreateCharLiteral(SrcLoc loc, uint8_t val);
+  static ArrayLiteral *CreateArrayLiteral(SrcLoc loc, Type *element_type, int size);
+  static NullPointerLiteral *CreateNullPointerLiteral(SrcLoc loc, Type *element_type);
 };
 
 class BoolLiteral : public Literal {

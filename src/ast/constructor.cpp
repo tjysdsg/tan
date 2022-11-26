@@ -1,6 +1,5 @@
 #include "ast/constructor.h"
 #include "ast/expr.h"
-#include "ast/ast_builder.h"
 
 using namespace tanlang;
 
@@ -12,31 +11,31 @@ BasicConstructor *BasicConstructor::Create(CompTimeExpr *val) {
 
 BasicConstructor *BasicConstructor::CreateIntegerConstructor(SrcLoc loc, uint64_t default_val, size_t bit_size,
                                                              bool is_unsigned) {
-  return BasicConstructor::Create(ASTBuilder::CreateIntegerLiteral(loc, default_val, bit_size, is_unsigned));
+  return BasicConstructor::Create(Literal::CreateIntegerLiteral(loc, default_val, bit_size, is_unsigned));
 }
 
 BasicConstructor *BasicConstructor::CreateBoolConstructor(SrcLoc loc, bool default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateBoolLiteral(loc, default_val));
+  return BasicConstructor::Create(Literal::CreateBoolLiteral(loc, default_val));
 }
 
 BasicConstructor *BasicConstructor::CreateFPConstructor(SrcLoc loc, double default_val, size_t bit_size) {
-  return BasicConstructor::Create(ASTBuilder::CreateFloatLiteral(loc, default_val, bit_size));
+  return BasicConstructor::Create(Literal::CreateFloatLiteral(loc, default_val, bit_size));
 }
 
 BasicConstructor *BasicConstructor::CreateStringConstructor(SrcLoc loc, str default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateStringLiteral(loc, default_val));
+  return BasicConstructor::Create(Literal::CreateStringLiteral(loc, default_val));
 }
 
 BasicConstructor *BasicConstructor::CreateCharConstructor(SrcLoc loc, uint8_t default_val) {
-  return BasicConstructor::Create(ASTBuilder::CreateCharLiteral(loc, default_val));
+  return BasicConstructor::Create(Literal::CreateCharLiteral(loc, default_val));
 }
 
 BasicConstructor *BasicConstructor::CreateArrayConstructor(SrcLoc loc, Type *element_type) {
-  return BasicConstructor::Create(ASTBuilder::CreateArrayLiteral(loc, element_type, 0));
+  return BasicConstructor::Create(Literal::CreateArrayLiteral(loc, element_type, 0));
 }
 
 BasicConstructor *BasicConstructor::CreateNullPointerConstructor(SrcLoc loc, Type *element_type) {
-  return BasicConstructor::Create(ASTBuilder::CreateNullPointerLiteral(loc, element_type));
+  return BasicConstructor::Create(Literal::CreateNullPointerLiteral(loc, element_type));
 }
 
 CompTimeExpr *BasicConstructor::get_value() const { return _value; }
