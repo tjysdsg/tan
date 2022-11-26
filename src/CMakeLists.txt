@@ -4,19 +4,17 @@ add_subdirectory(ast)
 add_subdirectory(lexer)
 add_subdirectory(parser)
 add_subdirectory(analysis)
-add_subdirectory(codegen)
-add_subdirectory(llvm_api)
 
-# common source files shared by multiple targets
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/compiler COMMON_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker COMMON_SRCS)
+add_subdirectory(llvm_api)
+add_subdirectory(codegen)
+add_subdirectory(compiler)
 
 # ===== libtan =====
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/lib LIB_SRCS)
-add_library(tan ${COMMON_SRCS} ${LIB_SRCS})
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/linker SRCS)
+add_library(tan ${SRCS})
 target_link_libraries(tan ${DEP_LIBS}
         TanBackTrace TanBase TanAST TanLexer TanParser TanAnalysis TanCodeGenerator
-        TanLLVMAPI)
+        TanCompiler)
 set_target_common_compile_options(tan)
 
 # ======= ENABLE sanitizers =======

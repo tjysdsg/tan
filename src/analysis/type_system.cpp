@@ -1,6 +1,6 @@
 #include "analysis/type_system.h"
-#include "compiler_session.h"
-#include "compiler.h"
+#include "compiler/compiler_session.h"
+#include "compiler/compiler.h"
 #include "ast/type.h"
 #include "ast/ast_context.h"
 #include "ast/expr.h"

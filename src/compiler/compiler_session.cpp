@@ -1,6 +1,6 @@
-#include "compiler_session.h"
+#include "compiler/compiler_session.h"
 #include "ast/ast_base.h"
-#include "compiler.h"
+#include "compiler/compiler.h"
 
 using namespace tanlang;
 

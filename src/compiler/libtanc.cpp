@@ -1,8 +1,7 @@
-#include "libtanc.h"
-#include "compiler.h"
+#include "compiler/libtanc.h"
+#include "compiler/compiler.h"
 #include "lexer/lexer.h"
-#include "linker.h"
-#include "src/lib/misc.h"
+#include "compiler/linker.h"
 #include "llvm_api.h"
 #include "backtrace/tan_backtrace.h"
 #include <filesystem>

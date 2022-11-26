@@ -9,7 +9,7 @@
 #include "analysis/type_system.h"
 #include "analysis/scope.h"
 #include "ast/ast_context.h"
-#include "compiler.h"
+#include "compiler/compiler.h" // TODO IMPORTANT: remove this dependency
 #include "lexer/token.h"
 #include <iostream>
 #include <csetjmp>

@@ -1,5 +1,5 @@
 #include "parser/parser.h"
-#include "compiler_session.h"
+#include "compiler/compiler_session.h"
 #include "analysis/type_system.h"
 #include "ast/stmt.h"
 #include "ast/expr.h"

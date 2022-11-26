@@ -8,10 +8,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "llvm_api/llvm_include.h"
-#include "src/lib/misc.h"
 #include "base.h"
 #include <iostream>
-#include "libtanc.h"
+#include "compiler/libtanc.h"
+
 using namespace clang;
 using namespace clang::driver;
 using namespace llvm::opt;

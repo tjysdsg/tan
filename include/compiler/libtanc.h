@@ -18,9 +18,9 @@ using tanlang::Reader;
 using tanlang::Compiler;
 
 /**
-* \enum TanCompileType
-* \brief Output file type
-* */
+ * \enum TanCompileType
+ * \brief Output file type
+ */
 enum TanCompileType {
   OBJ = 0, /// Object file, use as default
   EXE, /// Executable
@@ -43,7 +43,7 @@ enum TanOptLevel {
 /**
  * \struct TanCompilation
  * \brief Compilation configuration
- * */
+ */
 struct TanCompilation {
   TanCompileType type = OBJ; /// Type of compilation, \see TanCompileType
   TanOptLevel opt_level = O0; /// Optimization level, \see TanOptLevel
@@ -74,7 +74,22 @@ bool init_compiler(int argc, char **argv);
  * \return If current build is release, returns true if no error occurred, and vice versa.
  *  If current build is debug, either returns true or doesn't return, because all errors are captured by
  *         a try-catch clause.
- * */
+ */
 bool compile_files(vector<str> input_paths, TanCompilation *config);
+
+inline str opt_level_to_string(TanOptLevel l) {
+  switch (l) {
+    case O0:
+      return "-O0";
+    case O1:
+      return "-O1";
+    case O2:
+      return "-O2";
+    case O3:
+      return "-O3";
+    default:
+      TAN_ASSERT(false);
+  }
+}
 
 #endif /* TAN_SRC_LIB_LIBTANC_H_ */
