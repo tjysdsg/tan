@@ -46,11 +46,15 @@ public:
   virtual bool is_ref();
   virtual bool is_float();
   virtual bool is_int();
+  virtual bool is_num();
   virtual bool is_unsigned();
   virtual bool is_bool();
   virtual bool is_void();
   virtual bool is_char();
   virtual bool is_enum();
+
+  virtual int get_align_bits();
+  virtual int get_size_bits();
 
   const str &get_typename() { return _type_name; }
 
@@ -62,26 +66,25 @@ protected:
 
   // type cache
   static StringType *STRING_TYPE;
-  static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{}; // pointee type -> pointer type
-  static inline umap<pair<Type *, int>, ArrayType *, PairHash>
-      ARRAY_TYPE_CACHE{};                                    // (element type, size) -> array type
-  static inline umap<str, StructType *> STRUCT_TYPE_CACHE{}; // struct_name -> pointer type
+  static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{};                  // pointee type -> pointer type
+  static inline umap<pair<Type *, int>, ArrayType *, PairHash> ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
+  static inline umap<str, StructType *> STRUCT_TYPE_CACHE{};                       // struct_name -> pointer type
 };
 
 class PrimitiveType : public Type {
 public:
   enum Kind {
     VOID,
-    CHAR,
+    BOOL,
     I8,
     I16,
     I32,
     I64,
+    CHAR,
     U8,
     U16,
     U32,
     U64,
-    BOOL,
     F32,
     F64,
   };
@@ -137,13 +140,14 @@ public:
   bool is_primitive() override { return true; }
   bool is_float() override { return _kind == F32 || _kind == F64; }
   bool is_int() override { return _kind >= I8 && _kind <= U64; }
-  bool is_unsigned() override { return _kind >= U8 && _kind <= U64; };
+  bool is_num() override { return _kind >= I8 && _kind <= F64; }
+  bool is_unsigned() override { return _kind >= CHAR && _kind <= U64; };
   bool is_bool() override { return _kind == BOOL; }
   bool is_void() override { return _kind == VOID; }
   bool is_char() override { return _kind == CHAR; }
 
-  int get_align_bits();
-  int get_size_bits();
+  int get_align_bits() override;
+  int get_size_bits() override;
 
 protected:
   PrimitiveType() = default;
@@ -158,6 +162,8 @@ class PointerType : public Type {
 public:
   bool is_pointer() { return true; }
   Type *get_pointee() { return _pointee_type; }
+  int get_align_bits() override;
+  int get_size_bits() override;
 
   friend class Type;
 

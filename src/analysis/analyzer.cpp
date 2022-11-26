@@ -83,6 +83,52 @@ private:
     err.raise();
   }
 
+  Cast *create_implicit_conversion(Expr *from, Type *to) {
+    if (!TypeSystem::CanImplicitlyConvert(from->get_type(), to)) {
+      error(from, fmt::format("Cannot implicitly convert type {} to {}", from->get_type()->get_typename(),
+                              to->get_typename()));
+    }
+
+    auto *cast = Cast::Create(from->loc());
+    cast->set_lhs(from);
+    cast->set_type(to);
+    return cast;
+  }
+
+  /**
+   * \brief Find the type that operands of a BOP should promote to, and add a Cast node to the AST.
+   *        Raise an error if can't find a valid type promotion.
+   * \note This could modify the lhs or rhs of `bop`, make sure to update the references to any of them after calling.
+   * \return The promoted type.
+   */
+  Type *auto_promote_bop_operand_types(BinaryOperator *bop) {
+    auto *lhs = bop->get_lhs();
+    auto *rhs = bop->get_rhs();
+    auto *lhs_type = lhs->get_type();
+    auto *rhs_type = rhs->get_type();
+
+    auto *promoted_type = TypeSystem::ImplicitTypePromote(lhs_type, rhs_type);
+    if (!promoted_type) {
+      error(bop, fmt::format("Cannot find a valid type promotion between {} and {}", lhs_type->get_typename(),
+                             rhs_type->get_typename()));
+    }
+
+    TAN_ASSERT(promoted_type == lhs_type || promoted_type == rhs_type);
+    if (promoted_type != lhs_type) {
+      auto *cast = Cast::Create(bop->loc());
+      cast->set_lhs(lhs);
+      cast->set_type(promoted_type);
+      bop->set_lhs(cast);
+    } else {
+      auto *cast = Cast::Create(bop->loc());
+      cast->set_lhs(rhs);
+      cast->set_type(promoted_type);
+      bop->set_rhs(cast);
+    }
+
+    return promoted_type;
+  }
+
   void analyze_expr(Expr *p) {
     (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p);
 
@@ -143,13 +189,10 @@ private:
 
     size_t n = p->get_num_branches();
     for (size_t i = 0; i < n; ++i) {
-      auto cond = p->get_predicate(i);
+      auto *cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
         analyze(cond);
-
-        if (!TypeSystem::CanImplicitlyConvert(cond->get_type(), PrimitiveType::GetBoolType())) {
-          error(cond, "Cannot implicitly convert expression to bool");
-        }
+        p->set_predicate(i, create_implicit_conversion(cond, Type::GetBoolType()));
       }
 
       analyze(p->get_branch(i));
@@ -212,7 +255,6 @@ private:
     /// NOTE: do not analyze lhs and rhs just yet, because analyze_assignment
     /// and analyze_member_access have their own ways of analyzing
 
-    // TODO: IMPORTANT determine which operand's type should the other one implicitly convert to
     switch (p->get_op()) {
     case BinaryOpKind::SUM:
     case BinaryOpKind::SUBTRACT:
@@ -223,13 +265,7 @@ private:
     case BinaryOpKind::MOD: {
       analyze(lhs);
       analyze(rhs);
-
-      if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type()) &&
-          !TypeSystem::CanImplicitlyConvert(rhs->get_type(), lhs->get_type())) {
-        error(p, "Cannot implicitly convert between two expressions");
-      }
-
-      p->set_type(lhs->get_type());
+      p->set_type(auto_promote_bop_operand_types(p));
       break;
     }
     case BinaryOpKind::LAND:
@@ -240,13 +276,8 @@ private:
 
       // check if both operators are bool
       auto *bool_type = PrimitiveType::GetBoolType();
-      if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), bool_type)) {
-        error(p, "Cannot implicitly convert lhs to bool");
-      }
-      if (!TypeSystem::CanImplicitlyConvert(rhs->get_type(), bool_type)) {
-        error(p, "Cannot implicitly convert rhs to bool");
-      }
-
+      p->set_lhs(create_implicit_conversion(lhs, bool_type));
+      p->set_rhs(create_implicit_conversion(rhs, bool_type));
       p->set_type(bool_type);
       break;
     }
@@ -255,14 +286,13 @@ private:
     case BinaryOpKind::LT:
     case BinaryOpKind::LE:
     case BinaryOpKind::EQ:
-    case BinaryOpKind::NE:
+    case BinaryOpKind::NE: {
       analyze(lhs);
       analyze(rhs);
-      if (!TypeSystem::CanImplicitlyConvert(lhs->get_type(), rhs->get_type())) {
-        error(p, "Cannot implicitly convert between lhs and rhs");
-      }
+      auto_promote_bop_operand_types(p);
       p->set_type(PrimitiveType::GetBoolType());
       break;
+    }
     case BinaryOpKind::MEMBER_ACCESS:
       analyze_member_access(ast_cast<MemberAccess>(p));
       break;
@@ -279,9 +309,8 @@ private:
     auto *rhs_type = rhs->get_type();
     switch (p->get_op()) {
     case UnaryOpKind::LNOT:
-      if (!rhs_type->is_bool()) {
-        error(rhs, "Expect a bool type");
-      }
+      rhs = create_implicit_conversion(rhs, Type::GetBoolType());
+      p->set_rhs(rhs);
       p->set_type(PrimitiveType::GetBoolType());
       break;
     case UnaryOpKind::BNOT:
@@ -362,12 +391,10 @@ private:
       analyze(lhs);
     }
 
-    p->set_lvalue(true);
+    rhs = create_implicit_conversion(rhs, lhs_type);
+    p->set_rhs(rhs);
 
-    Type *rhs_type = rhs->get_type();
-    if (!TypeSystem::CanImplicitlyConvert(rhs_type, lhs_type)) {
-      error(p, "Cannot implicitly cast rhs to lhs");
-    }
+    p->set_lvalue(true);
     p->set_type(lhs_type);
   }
 
@@ -605,9 +632,7 @@ private:
       if (!element_type) {
         element_type = e->get_type();
       }
-      if (!TypeSystem::CanImplicitlyConvert(e->get_type(), element_type)) {
-        error(p, "All elements in an array must have the same type");
-      }
+      create_implicit_conversion(e, element_type);
     }
 
     TAN_ASSERT(element_type);
@@ -858,7 +883,6 @@ private:
 
 private:
   static inline umap<ASTNodeType, analyze_func_t> EXPRESSION_ANALYZER_TABLE{
-  //
       {ASTNodeType::ASSIGN,          &AnalyzerImpl::analyze_assignment     },
       {ASTNodeType::CAST,            &AnalyzerImpl::analyze_cast           },
       {ASTNodeType::BOP,             &AnalyzerImpl::analyze_bop            },

@@ -15,17 +15,21 @@ The table specifies all legal implicit type conversion in this language.
 | index | From                                 | To                                               |
 |-------|--------------------------------------|--------------------------------------------------|
 | 1     | int                                  | int with the same signedness with a bigger size  |
-| 2     | signed int                           | unsigned int with the same or bigger size        |
-| 3     | unsigned int                         | signed int with a bigger size                    |
+| 2     | unsigned int                         | signed int with a bigger size                    |
+| 3     | signed int                           | unsigned int that with a bigger size             |
 | 4     | float                                | float with a bigger size                         |
 | 5     | int                                  | float                                            |
-| 6     | int/float/pointer                    | bool                                             |
+| 6     | int/float/pointer                    | bool (xx != 0, for float, NaN is false)          |
 | 7     | bool                                 | any type of int or float (true => 1, false => 0) |
 | 8     | pointer of a derived class           | pointer to the base class                        |
 | 9     | int/float that is compile-time known | int/float that can fit the value                 |
 
 In many binary operations where two operands have different types, one of the operands will have its type promoted
-according to these rules. Note that, if multiple implicit cast rules can apply, the compiler use the one with lower
+according to these rules.
+
+The resulting promoted type is guaranteed to be one of the two types.
+
+NOTE: if multiple implicit cast rules can apply, the compiler use the one with lower
 index.
 For example,
 
@@ -39,6 +43,35 @@ print(b + i); // 101
 var u: u32 = 100;
 var s = 100;
 var res = s + u; // type is unsigned
+```
+
+## Implicit Type Casting in Function Overloading
+
+In function call, arguments can be implicitly converted into the type(s) specified in the function signature.
+
+```
+fn square(a: float): float {
+    return a * 2;
+}
+
+square(-100); // works
+```
+
+Implicit type conversion can lead to multiple legal function overloads.
+In these cases, the compiler will select the candidate that exactly matches the given argument types.
+
+```
+fn work(a: float, b: float): void {
+    print("float");
+}
+
+fn work(a: int, b: int) : void {
+    print("int");
+}
+
+work(1, 2); // prints "int"
+work(1.0, 2.0); // prints "float"
+// work(1.0, 2); // error!
 ```
 
 # Explicit Type Cast Rules

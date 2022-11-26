@@ -151,6 +151,7 @@ public:
    * \note Return value can be a nullptr if the branch is an "else"
    */
   [[nodiscard]] Expr *get_predicate(size_t i) const;
+  void set_predicate(size_t i, Expr *expr);
 
   [[nodiscard]] Stmt *get_branch(size_t i) const;
   [[nodiscard]] size_t get_num_branches() const;

@@ -9,6 +9,79 @@ import "runtime/debug.tan";
     var a: i32 = 8.;
 }
 
+fn test_implicit_cast() : void {
+    // rule #1
+    var signed: i32 = 1 as i16;
+    assert(signed == 1);
+    var unsigned: u32 = 2 as u16;
+    assert(unsigned == 2);
+    @test_comp_error(int_narrowing) {
+        var a: i16 = signed;
+        var b: u16 = unsigned;
+    }
+
+    // rule #2
+    signed = 5 as u16;
+    assert(signed == 5);
+    @test_comp_error(u64_to_i32) {
+        signed = 5 as u64;
+    }
+
+    // rule #3
+    unsigned = 3 as i32;
+    assert(unsigned == 3);
+    unsigned = 4 as i16;
+    assert(unsigned == 4);
+    @test_comp_error(i64_to_u32) {
+        unsigned = -1 as i64;
+    }
+
+    // rule #4
+    var f: f32 = 1.0;
+    var d: f64 = 2.0;
+    d = f;
+    assert(d == 1.0);
+    @test_comp_error(f64_to_f32) {
+        f = d;
+    }
+
+    // rule #5
+    signed = -5;
+    f = signed;
+    d = signed;
+    assert(f == -5.0);
+    assert(d == -5.0);
+    @test_comp_error(float_to_int) {
+        signed = f;
+    }
+
+    // rule #6
+    assert(400);
+    assert(signed);
+    assert(unsigned);
+    assert(f);
+    assert(d);
+    var pi = &signed;
+    var pf = &f;
+    assert(pi);
+    assert(pf);
+    assert(f && signed);
+
+    // rule #7
+    signed = true;
+    assert(signed);
+    assert(signed == 1);
+    signed = false;
+    assert(!signed);
+    assert(signed == 0);
+    f = true;
+    assert(f);
+    assert(f == 1.0);
+    f = false;
+    assert(!f);
+    assert(f == 0);
+}
+
 pub fn main() : int {
     var a1: i32 = 100;
     assert(a1 == 100);
@@ -39,12 +112,8 @@ pub fn main() : int {
     var array1: i32[3] = [0, 1, 2];
     var parray1: i32* = &array1[0];
     assert(*parray1 == array1[0]);
-    // TODO: array assignment
-    // var array2: float[3] = array1;
-    // assert(array1[0] == array2[0]);
-    // assert(array1[1] == array2[1]);
-    // assert(array1[2] == array2[2]);
 
+    test_implicit_cast();
     print("SUCCESS\n");
     return 0;
 }

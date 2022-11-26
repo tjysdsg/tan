@@ -133,6 +133,11 @@ Expr *If::get_predicate(size_t i) const {
   return _predicates[i];
 }
 
+void If::set_predicate(size_t i, Expr *expr) {
+  TAN_ASSERT(i < _predicates.size());
+  _predicates[i] = expr;
+}
+
 Stmt *If::get_branch(size_t i) const {
   TAN_ASSERT(i < _branches.size());
   return _branches[i];

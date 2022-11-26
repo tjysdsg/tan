@@ -120,6 +120,8 @@ bool Type::is_float() { return false; }
 
 bool Type::is_int() { return false; }
 
+bool Type::is_num() { return false; }
+
 bool Type::is_unsigned() { return false; }
 
 bool Type::is_bool() { return false; }
@@ -129,6 +131,16 @@ bool Type::is_void() { return false; }
 bool Type::is_char() { return false; }
 
 bool Type::is_enum() { return false; }
+
+int Type::get_align_bits() {
+  TAN_ASSERT(false);
+  return 0;
+}
+
+int Type::get_size_bits() {
+  TAN_ASSERT(false);
+  return 0;
+}
 
 int PrimitiveType::get_size_bits() { return SIZE_BITS[_kind]; }
 
@@ -140,6 +152,11 @@ int PrimitiveType::get_align_bits() {
 PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
   _type_name = pointee_type->get_typename() + "*";
 }
+
+// TODO: find out the pointer size from llvm::TargetMachine
+int PointerType::get_align_bits() { return 64; }
+
+int PointerType::get_size_bits() { return 64; }
 
 ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";

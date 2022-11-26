@@ -499,11 +499,11 @@ private:
     if (ptype->is_primitive()) { /// primitive types
       int size_bits = ((PrimitiveType *)ptype)->get_size_bits();
 
-      if (ptype->is_int()) {
+      if (ptype->is_char()) { // NOTE: must be before is_int() check because char is technically an integer
+        ret = ConstantInt::get(type, ast_cast<CharLiteral>(p)->get_value());
+      } else if (ptype->is_int()) {
         auto pp = ast_cast<IntegerLiteral>(p);
         ret = CodegenIntegerLiteral(_cs, pp->get_value(), (size_t)size_bits, pp->is_unsigned());
-      } else if (ptype->is_char()) {
-        ret = ConstantInt::get(type, ast_cast<CharLiteral>(p)->get_value());
       } else if (ptype->is_bool()) {
         auto pp = ast_cast<BoolLiteral>(p);
         ret = ConstantInt::get(type, (uint64_t)pp->get_value());
@@ -641,24 +641,20 @@ private:
     auto *builder = _cs->_builder;
     set_current_debug_location(p);
 
-    /// _codegen the lhs and rhs
-    auto lhs = ast_cast<Expr>(p->get_lhs());
-    auto rhs = p->get_rhs();
-    Value *from = codegen(rhs);
-    Value *to = codegen(lhs);
-    if (!from) {
-      report_error(lhs, "Invalid expression for right-hand operand of the assignment");
-    }
-    if (!to) {
-      report_error(rhs, "Invalid left-hand operand of the assignment");
-    }
+    /// codegen the lhs and rhs
+    auto *lhs = ast_cast<Expr>(p->get_lhs());
+    auto *rhs = p->get_rhs();
 
     // type of lhs is the same as type of the assignment
     if (!lhs->is_lvalue()) {
-      report_error(lhs, "Value can only be assigned to lvalue");
+      report_error(lhs, "Value can only be assigned to an lvalue");
     }
 
-    from = TypeSystem::ConvertTo(_cs, rhs, p->get_type());
+    Value *from = codegen(rhs);
+    from = TypeSystem::LoadIfLValue(_cs, rhs);
+    Value *to = codegen(lhs);
+    TAN_ASSERT(from && to);
+
     builder->CreateStore(from, to);
     p->_llvm_value = to;
     return to;
@@ -671,19 +667,13 @@ private:
     set_current_debug_location(p);
 
     /// binary operator
-    auto lhs = p->get_lhs();
-    auto rhs = p->get_rhs();
+    auto *lhs = p->get_lhs();
+    auto *rhs = p->get_rhs();
     Value *l = codegen(lhs);
     Value *r = codegen(rhs);
-    if (!l) {
-      report_error(lhs, "Invalid expression for right-hand operand");
-    }
-    if (!r) {
-      report_error(rhs, "Invalid expression for left-hand operand");
-    }
-
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
+
     if (l->getType()->isFloatingPointTy()) {
       /// float arithmetic
       switch (p->get_op()) {
@@ -754,16 +744,11 @@ private:
     auto rhs = p->get_rhs();
     Value *l = codegen(lhs);
     Value *r = codegen(rhs);
-    if (!l) {
-      report_error(lhs, "Invalid expression for right-hand operand");
-    }
-    if (!r) {
-      report_error(rhs, "Invalid expression for left-hand operand");
-    }
 
     bool is_signed = !lhs->get_type()->is_unsigned();
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
+
     if (l->getType()->isFloatingPointTy()) {
       switch (p->get_op()) {
       case BinaryOpKind::EQ:
@@ -842,15 +827,10 @@ private:
     auto rhs = p->get_rhs();
     Value *l = codegen(lhs);
     Value *r = codegen(rhs);
-    if (!l) {
-      report_error(lhs, "Invalid expression for right-hand operand");
-    }
-    if (!r) {
-      report_error(rhs, "Invalid expression for left-hand operand");
-    }
 
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
+
     switch (p->get_op()) {
     case BinaryOpKind::BAND:
       p->_llvm_value = builder->CreateAnd(l, r, "binary_and");
@@ -884,14 +864,11 @@ private:
     auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_type());
 
     Value *val = codegen(lhs);
-    if (!val) {
-      report_error(lhs, "Invalid expression for left-hand operand");
-    }
+    TAN_ASSERT(val);
 
     Value *ret = nullptr;
 
-    // lvalue will be loaded here
-    val = TypeSystem::ConvertTo(_cs, lhs, p->get_type());
+    val = TypeSystem::ConvertTo(_cs, lhs, p->get_type()); // lvalue will be loaded here
     if (lhs->is_lvalue()) {
       ret = create_block_alloca(builder->GetInsertBlock(), dest_type, 1, "casted");
       builder->CreateStore(val, ret);
@@ -1043,11 +1020,7 @@ private:
         builder->CreateBr(then_blocks[i]);
       } else {
         Value *cond_v = codegen(cond);
-        if (!cond_v) {
-          report_error(p, "Invalid condition expression ");
-        }
-        /// convert to bool
-        cond_v = TypeSystem::ConvertTo(_cs, cond, Type::GetBoolType());
+        cond_v = TypeSystem::LoadIfLValue(_cs, cond);
         if (i < n - 1) {
           builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
         } else {
