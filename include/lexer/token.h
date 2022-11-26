@@ -29,40 +29,26 @@ extern const vector<char> OP;
 extern const vector<str> OP_ALL;
 extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
-class SourceLoc {
-public:
-  SourceLoc() = delete;
-  SourceLoc(size_t line, size_t col) : _line(line), _col(col) {}
-  size_t get_line() const { return _line; }
-  size_t get_col() const { return _col; }
-
-private:
-  size_t _line = 0;
-  size_t _col = 0;
-};
-
 class Token {
 public:
   Token() = delete;
-  ~Token();
-  Token(TokenType tokenType, size_t line, size_t col, str value, str source_line);
-  [[nodiscard]] str to_string() const;
-  std::ostream &operator<<(std::ostream &os) const;
+  ~Token() = default;
+  Token(TokenType tokenType, uint32_t line, uint32_t col, str value, str source_line);
   TokenType get_type() const;
   void set_type(TokenType type);
   const str &get_value() const;
-  SourceLoc *get_loc() const;
   const str &get_source_line() const;
   bool is_unsigned() const;
   void set_is_unsigned(bool is_unsigned);
-  size_t get_line() const;
-  size_t get_col() const;
+  uint32_t get_line() const;
+  uint32_t get_col() const;
 
 private:
   TokenType _type = TokenType::END;
-  str _value;
-  SourceLoc *_loc = nullptr;
-  str _source_line;
+  str _value{};
+  uint32_t _line = 0;
+  uint32_t _col = 0;
+  str _source_line{};
   bool _is_unsigned = false;
 };
 

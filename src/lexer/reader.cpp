@@ -2,6 +2,10 @@
 #include <algorithm>
 #include "lexer/reader.h"
 
+/// we always assume that the line number and column number can be contained within 32bit int
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+
 namespace tanlang {
 
 void Reader::open(const str &filename) {
@@ -119,7 +123,7 @@ Cursor Reader::end() const {
 }
 
 char Reader::at(const Cursor &ptr) const {
-  TAN_ASSERT(ptr.l != (size_t)-1 && ptr.c != (size_t)-1);
+  TAN_ASSERT(ptr.l != -1u && ptr.c != -1u);
   if (ptr.l >= this->size()) {
     return '\0';
   }
@@ -136,7 +140,7 @@ str Reader::get_line(size_t index) const {
   return _lines[index];
 }
 
-Cursor::Cursor(size_t r, size_t c, const Reader *reader) : l(r), c(c), _reader((Reader *)reader) {}
+Cursor::Cursor(uint32_t r, uint32_t c, const Reader *reader) : l(r), c(c), _reader((Reader *)reader) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 
@@ -189,3 +193,5 @@ char Cursor::operator*() {
 }
 
 } // namespace tanlang
+
+#pragma clang diagnostic pop

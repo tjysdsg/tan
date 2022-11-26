@@ -29,8 +29,8 @@ public:
   SourceManager() = delete;
   SourceManager(str filename, vector<Token *> tokens);
   Token *get_token(SrcLoc loc) const;
-  size_t get_line(SrcLoc loc) const;
-  size_t get_col(SrcLoc loc) const;
+  uint32_t get_line(SrcLoc loc) const;
+  uint32_t get_col(SrcLoc loc) const;
   str get_token_str(SrcLoc loc) const;
   Token *get_last_token() const;
   bool is_eof(SrcLoc loc) const;

@@ -19,9 +19,9 @@ Token *SourceManager::get_token(SrcLoc loc) const {
   return _tokens[loc._index];
 }
 
-size_t SourceManager::get_line(SrcLoc loc) const { return get_token(loc)->get_line() + 1; }
+uint32_t SourceManager::get_line(SrcLoc loc) const { return get_token(loc)->get_line() + 1; }
 
-size_t SourceManager::get_col(SrcLoc loc) const { return get_token(loc)->get_col() + 1; }
+uint32_t SourceManager::get_col(SrcLoc loc) const { return get_token(loc)->get_col() + 1; }
 
 str SourceManager::get_token_str(SrcLoc loc) const { return get_token(loc)->get_value(); }
 

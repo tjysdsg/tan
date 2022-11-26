@@ -146,7 +146,7 @@ private:
 
 private:
   DebugLoc debug_loc_of_node(ASTBase *p, MDNode *scope = nullptr) {
-    return DebugLoc::get((unsigned)_sm->get_line(p->loc()), (unsigned)_sm->get_col(p->loc()), scope);
+    return DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
   }
 
   Value *codegen_func_call(ASTBase *_p) {
@@ -219,10 +219,9 @@ private:
       DIScope *di_scope = _cs->get_current_di_scope();
       auto *di_file = _cs->get_di_file();
       auto *di_func_t = TypeSystem::CreateFunctionDIType(_cs, ret_meta, arg_metas);
-      DISubprogram *subprogram =
-          _cs->_di_builder->createFunction(di_scope, func_name, func_name, di_file, (unsigned)_sm->get_line(p->loc()),
-                                           di_func_t, (unsigned)_sm->get_col(p->loc()), DINode::FlagPrototyped,
-                                           DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
+      DISubprogram *subprogram = _cs->_di_builder->createFunction(
+          di_scope, func_name, func_name, di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
+          DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
       F->setSubprogram(subprogram);
       _cs->push_di_scope(subprogram);
 
@@ -235,9 +234,8 @@ private:
 
         /// create a debug descriptor for the arguments
         auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_arg_type(i));
-        llvm::DILocalVariable *di_arg =
-            _cs->_di_builder->createParameterVariable(subprogram, arg_name, (unsigned)i + 1, di_file,
-                                                      (unsigned)_sm->get_line(p->loc()), (DIType *)arg_meta, true);
+        llvm::DILocalVariable *di_arg = _cs->_di_builder->createParameterVariable(
+            subprogram, arg_name, (unsigned)i + 1, di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
         _cs->_di_builder->insertDeclare(arg_val, di_arg, _cs->_di_builder->createExpression(),
                                         debug_loc_of_node(p->get_arg_decls()[i], subprogram),
                                         builder->GetInsertBlock());
@@ -354,11 +352,10 @@ private:
       auto *curr_di_scope = _cs->get_current_di_scope();
       auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_type());
       auto *di_arg = di_builder->createAutoVariable(curr_di_scope, p->get_name(), _cs->get_di_file(),
-                                                    (unsigned)_sm->get_line(p->loc()), (DIType *)arg_meta);
-      di_builder->insertDeclare(
-          p->_llvm_value, di_arg, _cs->_di_builder->createExpression(),
-          llvm::DebugLoc::get((unsigned)_sm->get_line(p->loc()), (unsigned)_sm->get_col(p->loc()), curr_di_scope),
-          builder->GetInsertBlock());
+                                                    _sm->get_line(p->loc()), (DIType *)arg_meta);
+      di_builder->insertDeclare(p->_llvm_value, di_arg, _cs->_di_builder->createExpression(),
+                                llvm::DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
+                                builder->GetInsertBlock());
     }
     return p->_llvm_value;
   }

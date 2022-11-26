@@ -55,11 +55,11 @@ private:
 
 struct Cursor {
   friend class Reader;
-  size_t l = 0;
-  size_t c = 0;
+  uint32_t l = 0;
+  uint32_t c = 0;
 
 private:
-  Cursor(size_t r, size_t c, const Reader *reader);
+  Cursor(uint32_t r, uint32_t c, const Reader *reader);
 
 public:
   Cursor() = delete;

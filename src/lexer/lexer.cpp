@@ -74,7 +74,7 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
   if (*next == '/') { /// line comments
     auto value = reader->substr(reader->forward(next));
     t = new Token(TokenType::COMMENTS, start.l, start.c, value, reader->get_line(start.l));
-    start.c = reader->get_line(start.l).length();
+    start.c = (uint32_t)reader->get_line(start.l).length();
     ++start;
   } else if (*next == '*') {                      /// block comments
     auto forward = start = reader->forward(next); /// forward now points to the character after "/*"
@@ -85,7 +85,7 @@ Token *tokenize_comments(Reader *reader, Cursor &start) {
       auto s = reader->get_line(forward.l);
       std::smatch result;
       if (std::regex_search(s, result, re)) {
-        forward.c = (size_t)result.position(0); // forward is the position of */
+        forward.c = (uint32_t)result.position(0); // forward is the position of */
         str comment_val = reader->substr(start, forward);
         t = new Token(TokenType::COMMENTS, start.l, start.c, comment_val, reader->get_line(start.l));
         forward.c += 2;

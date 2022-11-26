@@ -196,8 +196,7 @@ private:
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token);
       if (!node) {
-        Error err(_filename, token, "Keyword not implemented: " + token->to_string());
-        err.raise();
+        error(_curr, "Keyword not implemented: " + token->get_value());
       }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
       node = MemberAccess::Create(_curr);
@@ -241,8 +240,7 @@ private:
     } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
       return nullptr;
     } else {
-      Error err(_filename, token, "Unknown token " + token->to_string());
-      err.raise();
+      error(_curr, "Unknown token " + token->get_value());
     }
     return node;
   }
