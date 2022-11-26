@@ -14,6 +14,9 @@ add_subdirectory(linker)
 # libTan
 add_subdirectory(tan)
 
+# CLI
+add_subdirectory(cli)
+
 # ======= ENABLE sanitizers =======
 # if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 #     target_compile_options(tan PUBLIC -fsanitize=address,undefined)

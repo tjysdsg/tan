@@ -63,16 +63,13 @@ configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/i
 
 macro(set_target_common_compile_options target_name)
     if (MSVC)
-        target_compile_options(${target_name}
-                PRIVATE /w
-                )
+        target_compile_options(${target_name} PRIVATE /w)
     else ()
         target_compile_options(${target_name}
                 PRIVATE -Wall
                 PRIVATE -Wextra
                 PRIVATE -pedantic-errors
-                PRIVATE -Wconversion
-                )
+                PRIVATE -Wconversion)
     endif ()
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
 
@@ -80,6 +77,18 @@ macro(set_target_common_compile_options target_name)
         # add `DEBUG` and `_DEBUG` macro
         target_compile_definitions(${target_name} PRIVATE -DDEBUG)
         target_compile_definitions(${target_name} PRIVATE -D_DEBUG)
+
+        # =========== COVERAGE =========== #
+        if (${ENABLE_COVERAGE})
+            message(STATUS "Enabling test coverage")
+            set(COVERAGE_CXX_FLAGS "")
+            target_compile_options(${target_name}
+                    PRIVATE -g
+                    PRIVATE -O0
+                    PRIVATE -Wall
+                    PRIVATE -fprofile-arcs
+                    PRIVATE -ftest-coverage)
+        endif ()
     else ()
         target_compile_options(${target_name} PRIVATE -O3)
     endif ()
@@ -88,20 +97,13 @@ macro(set_target_common_compile_options target_name)
     set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
+# Library and CLI targets
 add_subdirectory(src)
-
-# ===== target CLI compiler =====
-aux_source_directory(${PROJECT_SOURCE_DIR}/src/cli CLI_SRCS)
-add_executable(tanc ${CLI_SRCS})
-target_link_libraries(tanc Tan)
-set_target_common_compile_options(tanc)
 
 # ===== target runtime =====
 add_subdirectory(${PROJECT_SOURCE_DIR}/runtime)
 
-# ===== tests and coverage =====
-# add all srcs before enabling tests (for gcov)
-set(ALL_SRCS ${COMMON_SRCS} ${LIB_SRCS} ${CLI_SRCS})
+# ===== tests =====
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_subdirectory(test)
     enable_tests()

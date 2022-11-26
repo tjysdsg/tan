@@ -1,14 +1,6 @@
 macro(enable_tests)
     # googletest
     add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
-
-    if (${ENABLE_COVERAGE})
-        message(STATUS "Enabling test coverage")
-        set(COVERAGE_CXX_FLAGS "-g -O0 -Wall -fprofile-arcs -ftest-coverage")
-    else ()
-        set(COVERAGE_CXX_FLAGS "-g -O0 -Wall")
-    endif ()
-    set_property(SOURCE ${ALL_SRCS} PROPERTY COMPILE_FLAGS ${COVERAGE_CXX_FLAGS})
     set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
     # lexer tests
@@ -42,8 +34,7 @@ macro(enable_tests)
         add_custom_target(coverage ALL
                 COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
                 DEPENDS tests
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                )
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
         add_custom_command(TARGET coverage POST_BUILD
                 COMMAND gcovr --xml
                 -r ${PROJECT_SOURCE_DIR}
