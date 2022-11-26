@@ -198,6 +198,10 @@
 #include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
 #include <clang/CodeGen/CodeGenAction.h>
 
+#ifdef _WIN32
+#include <llvm/Support/Windows/WindowsSupport.h>
+#endif
+
 namespace tanlang {
 
 using llvm::Expected;

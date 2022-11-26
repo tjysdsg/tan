@@ -5,7 +5,6 @@
 #include "cli.h"
 #include "base.h"
 #include <gtest/gtest.h>
-#include <llvm/Support/CommandLine.h>
 
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"

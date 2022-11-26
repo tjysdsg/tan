@@ -21,10 +21,6 @@
 #include <io.h>
 #endif
 
-#ifdef _WIN32
-#include <llvm/Support/Windows/WindowsSupport.h>
-#endif
-
 using namespace llvm;
 using llvm::Error;
 
