@@ -8,7 +8,7 @@ fn close(a: float, b: float) : bool {
 
 pub fn main(argc: int, argv: char**) : int {
     assert(1 * 2 == 2);
-    assert(1.5 * 2. as float == 3.0);
+    assert(+1.5 * 2. as float == 3.0);
     assert(1 + 1 == 2);
     assert(1.5 + 1.5 == 3.0);
     assert(3.1415926 * 2. == 3.1415926 * 2.);
