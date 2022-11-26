@@ -11,7 +11,7 @@ pub fn main(argc: int, argv: char**) : int {
     var array_str = array as str;
     array_str[0] = 'a';
     array_str[1] = 'b';
-    array_str[2] = 0 as char;
+    array_str[2] = '\0';
     print(array_str);
 
     array_str[0] = s[1];

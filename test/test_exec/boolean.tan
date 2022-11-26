@@ -2,9 +2,11 @@ import "runtime/print.tan";
 import "runtime/debug.tan";
 
 pub fn main(argc: int, argv: char**) : int {
-    assert(!(0.0 as bool));
-    assert(!(1. as bool) == false);
-    assert(!(0. as bool) == true);
+    assert(!0.0);
+    assert(!1. == false);
+    assert(!0. == true);
+    assert(!5 == false);
+    assert(3 == true);
     assert(1 < 2);
     assert(1.1 < 2.2);
     assert(1.0 + 2.0 > 2.8);

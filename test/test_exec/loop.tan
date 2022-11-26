@@ -42,12 +42,15 @@ pub fn main() : int {
 
     i = 0u;
     while (i < 20u) {
-        while (1 as bool) {
+        while (true) {
             if (i >= 50u) {
                 break;
             }
             i = i + 1u;
             continue;
+        }
+        while (false) {
+            i = i + 1000;
         }
         continue;
     }
