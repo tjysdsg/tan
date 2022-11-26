@@ -7,10 +7,6 @@
 #include "fwd.h"
 #include <typeinfo>
 
-namespace llvm {
-class Value;
-}
-
 namespace tanlang {
 
 class ASTBase : public SourceTraceable {
@@ -29,7 +25,6 @@ public:
 public:
   [[nodiscard]] ASTNodeType get_node_type() const;
   void set_node_type(ASTNodeType node_type);
-  void set_bp(int bp);
   [[nodiscard]] int get_bp() const;
 
   /**
@@ -37,9 +32,7 @@ public:
    */
   [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
-  /**
-   * \brief Pretty-print AST tree
-   */
+  /// Pretty-print AST tree
   void printTree() const;
 
 protected:
@@ -49,10 +42,6 @@ protected:
    * \brief Get the "actual" this. Used for implementing proxy classes.
    */
   [[nodiscard]] virtual ASTBase *get() const;
-
-public:
-  // FIXME: shouldn't be public
-  llvm::Value *_llvm_value = nullptr;
 
 private:
   void printTree(const str &prefix, bool last_child) const;

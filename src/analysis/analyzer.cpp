@@ -865,7 +865,7 @@ private:
         auto *_rhs = assignment->get_rhs();
 
         auto *lhs = ast_cast<ASTNamed>(_lhs);
-        if (!lhs) { report_error(_lhs, "Expect a name"); }
+        if (!lhs) { error(_lhs, "Expect a name"); }
 
         if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { error(_rhs, "Expect an integer literal"); }
         auto *rhs = ast_cast<IntegerLiteral>(_rhs);

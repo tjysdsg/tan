@@ -223,8 +223,9 @@ Metadata *TypeSystem::ToLLVMMeta(CompilerSession *cs, Type *p) {
 }
 
 Value *TypeSystem::LoadIfLValue(CompilerSession *cs, Expr *expr) {
-  Value *val = expr->_llvm_value;
+  Value *val = cs->llvm_value_cache[expr];
   TAN_ASSERT(val);
+
   if (expr->is_lvalue()) {
     return cs->_builder->CreateLoad(val);
   }

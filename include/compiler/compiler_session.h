@@ -21,6 +21,7 @@ public:
   /// avoid creating duplicated llvm::Type and llvm::Metadata
   umap<Type *, llvm::Type *> llvm_type_cache{};
   umap<Type *, llvm::Metadata *> llvm_metadata_cache{};
+  umap<ASTBase *, llvm::Value *> llvm_value_cache{};
 
 public:
   SourceManager *get_source_manager() const;

@@ -10,8 +10,6 @@ ASTNodeType ASTBase::get_node_type() const { return _node_type; }
 
 void ASTBase::set_node_type(ASTNodeType node_type) { _node_type = node_type; }
 
-void ASTBase::set_bp(int bp) { _bp = bp; }
-
 int ASTBase::get_bp() const { return _bp; }
 
 void ASTBase::printTree() const {

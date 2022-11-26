@@ -29,8 +29,9 @@ public:
       : _cs(cs), _ctx(ctx), _sm(cs->get_source_manager()) {}
 
   Value *codegen(ASTBase *p) {
-    if (p->_llvm_value) {
-      return p->_llvm_value;
+    auto it = _cs->llvm_value_cache.find(p);
+    if (it != _cs->llvm_value_cache.end()) {
+      return it->second;
     }
 
     Value *ret = nullptr;
@@ -104,8 +105,8 @@ public:
     default:
       break;
     }
-    p->_llvm_value = ret;
-    return ret;
+
+    return _cs->llvm_value_cache[p] = ret;
   }
 
   static Constant *CodegenIntegerLiteral(CompilerSession *cs, uint64_t val, size_t bit_size, bool is_unsigned = false) {
@@ -145,6 +146,11 @@ private:
   SourceManager *_sm = nullptr;
 
 private:
+  [[noreturn]] void error(ASTBase *p, const str &message) {
+    Error err(_cs->_filename, _sm->get_token(p->loc()), message);
+    err.raise();
+  }
+
   DebugLoc debug_loc_of_node(ASTBase *p, MDNode *scope = nullptr) {
     return DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
   }
@@ -161,7 +167,7 @@ private:
       auto actual_arg = p->_args[i];
       auto *a = codegen(actual_arg);
       if (!a) {
-        report_error(actual_arg, "Invalid function call argument");
+        error(actual_arg, "Invalid function call argument");
       }
 
       /// implicit cast
@@ -169,7 +175,7 @@ private:
       a = TypeSystem::ConvertTo(_cs, actual_arg, expected_ty);
       arg_vals.push_back(a);
     }
-    return p->_llvm_value = _cs->_builder->CreateCall(codegen(callee), arg_vals);
+    return _cs->_builder->CreateCall(_cs->llvm_value_cache[callee], arg_vals);
   }
 
   Value *codegen_func_prototype(FunctionDecl *p, bool import = false) {
@@ -179,9 +185,8 @@ private:
       arg_types.push_back(p->get_arg_type(i));
     }
 
-    p->_llvm_value =
-        CodegenFuncPrototype(_cs, p->get_ret_ty(), p->get_name(), arg_types, p->is_external(), p->is_public(), import);
-    return p->_llvm_value;
+    return CodegenFuncPrototype(_cs, p->get_ret_ty(), p->get_name(), arg_types, p->is_external(), p->is_public(),
+                                import);
   }
 
   Value *codegen_func_decl(FunctionDecl *p) {
@@ -258,7 +263,7 @@ private:
       _cs->pop_di_scope();
     }
 
-    return p->_llvm_value = F;
+    return F;
   }
 
   void set_current_debug_location(ASTBase *p) {
@@ -273,12 +278,12 @@ private:
 
     auto *rhs = codegen(p->get_rhs());
     if (!rhs) {
-      report_error(p, "Invalid operand");
+      error(p, "Invalid operand");
     }
     if (p->get_rhs()->is_lvalue()) {
       rhs = builder->CreateLoad(rhs);
     }
-    return p->_llvm_value = builder->CreateNot(rhs);
+    return builder->CreateNot(rhs);
   }
 
   Value *codegen_lnot(ASTBase *_p) {
@@ -290,7 +295,7 @@ private:
     auto *rhs = codegen(p->get_rhs());
 
     if (!rhs) {
-      report_error(p, "Invalid operand");
+      error(p, "Invalid operand");
     }
 
     if (p->get_rhs()->is_lvalue()) {
@@ -299,14 +304,12 @@ private:
     /// get value size in bits
     auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
     if (rhs->getType()->isFloatingPointTy()) {
-      p->_llvm_value = builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
+      return builder->CreateFCmpOEQ(rhs, ConstantFP::get(builder->getFloatTy(), 0.0f));
     } else if (rhs->getType()->isSingleValueType()) {
-      p->_llvm_value =
-          builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned)size_in_bits), 0, false));
-    } else {
-      report_error(p, "Invalid operand");
+      return builder->CreateICmpEQ(rhs, ConstantInt::get(builder->getIntNTy((unsigned)size_in_bits), 0, false));
     }
-    return p->_llvm_value;
+
+    error(p, "Invalid operand");
   }
 
   Value *codegen_return(ASTBase *_p) {
@@ -335,15 +338,15 @@ private:
     set_current_debug_location(p);
 
     llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
-    p->_llvm_value = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
+    auto *ret = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
 
     /// default value of only var declaration
     if (p->get_node_type() == ASTNodeType::VAR_DECL) {
       auto *default_value = codegen_type_instantiation(p->get_type());
       if (!default_value) {
-        report_error(p, "Fail to instantiate this type");
+        error(p, "Fail to instantiate this type");
       }
-      builder->CreateStore(default_value, p->_llvm_value);
+      builder->CreateStore(default_value, ret);
     }
 
     /// debug info
@@ -353,33 +356,28 @@ private:
       auto *arg_meta = TypeSystem::ToLLVMMeta(_cs, p->get_type());
       auto *di_arg = di_builder->createAutoVariable(curr_di_scope, p->get_name(), _cs->get_di_file(),
                                                     _sm->get_line(p->loc()), (DIType *)arg_meta);
-      di_builder->insertDeclare(p->_llvm_value, di_arg, _cs->_di_builder->createExpression(),
+      di_builder->insertDeclare(ret, di_arg, _cs->_di_builder->createExpression(),
                                 llvm::DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
                                 builder->GetInsertBlock());
     }
-    return p->_llvm_value;
+    return ret;
   }
 
   Value *codegen_address_of(ASTBase *_p) {
     auto p = ast_cast<UnaryOperator>(_p);
     set_current_debug_location(p);
 
-    auto *val = codegen(p->get_rhs());
-
     if (!p->get_rhs()->is_lvalue()) {
-      report_error(p, "Cannot get address of rvalue");
+      error(p, "Cannot get address of rvalue");
     }
 
-    p->_llvm_value = val;
-    return p->_llvm_value;
+    return codegen(p->get_rhs());
   }
 
   Value *codegen_parenthesis(ASTBase *_p) {
     auto p = ast_cast<Parenthesis>(_p);
-
     set_current_debug_location(p);
-
-    return p->_llvm_value = codegen(p->get_sub());
+    return codegen(p->get_sub());
   }
 
   Value *codegen_import(ASTBase *_p) {
@@ -389,12 +387,12 @@ private:
     for (FunctionDecl *f : p->get_imported_funcs()) {
       /// do nothing for already defined intrinsics
       auto *func = _cs->get_module()->getFunction(f->get_name());
-      if (!func) {
-        codegen_func_prototype(f);
-      } else {
-        f->_llvm_value = func;
+      if (func) {
+        _cs->llvm_value_cache[f] = func;
       }
+      _cs->llvm_value_cache[f] = codegen_func_prototype(f);
     }
+
     return nullptr;
   }
 
@@ -632,7 +630,7 @@ private:
       break;
     }
 
-    return p->_llvm_value = ret;
+    return ret;
   }
 
   Value *codegen_assignment(ASTBase *_p) {
@@ -647,7 +645,7 @@ private:
 
     // type of lhs is the same as type of the assignment
     if (!lhs->is_lvalue()) {
-      report_error(lhs, "Value can only be assigned to an lvalue");
+      error(lhs, "Value can only be assigned to an lvalue");
     }
 
     Value *from = codegen(rhs);
@@ -656,7 +654,6 @@ private:
     TAN_ASSERT(from && to);
 
     builder->CreateStore(from, to);
-    p->_llvm_value = to;
     return to;
   }
 
@@ -674,23 +671,24 @@ private:
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
 
+    Value *ret = nullptr;
     if (l->getType()->isFloatingPointTy()) {
       /// float arithmetic
       switch (p->get_op()) {
       case BinaryOpKind::MULTIPLY:
-        p->_llvm_value = builder->CreateFMul(l, r, "mul_tmp");
+        ret = builder->CreateFMul(l, r, "mul_tmp");
         break;
       case BinaryOpKind::DIVIDE:
-        p->_llvm_value = builder->CreateFDiv(l, r, "div_tmp");
+        ret = builder->CreateFDiv(l, r, "div_tmp");
         break;
       case BinaryOpKind::SUM:
-        p->_llvm_value = builder->CreateFAdd(l, r, "sum_tmp");
+        ret = builder->CreateFAdd(l, r, "sum_tmp");
         break;
       case BinaryOpKind::SUBTRACT:
-        p->_llvm_value = builder->CreateFSub(l, r, "sub_tmp");
+        ret = builder->CreateFSub(l, r, "sub_tmp");
         break;
       case BinaryOpKind::MOD:
-        p->_llvm_value = builder->CreateFRem(l, r, "mod_tmp");
+        ret = builder->CreateFRem(l, r, "mod_tmp");
         break;
       default:
         TAN_ASSERT(false);
@@ -700,29 +698,29 @@ private:
       /// integer arithmetic
       switch (p->get_op()) {
       case BinaryOpKind::MULTIPLY:
-        p->_llvm_value = builder->CreateMul(l, r, "mul_tmp");
+        ret = builder->CreateMul(l, r, "mul_tmp");
         break;
       case BinaryOpKind::DIVIDE: {
         auto ty = lhs->get_type();
         if (ty->is_unsigned()) {
-          p->_llvm_value = builder->CreateUDiv(l, r, "div_tmp");
+          ret = builder->CreateUDiv(l, r, "div_tmp");
         } else {
-          p->_llvm_value = builder->CreateSDiv(l, r, "div_tmp");
+          ret = builder->CreateSDiv(l, r, "div_tmp");
         }
         break;
       }
       case BinaryOpKind::SUM:
-        p->_llvm_value = builder->CreateAdd(l, r, "sum_tmp");
+        ret = builder->CreateAdd(l, r, "sum_tmp");
         break;
       case BinaryOpKind::SUBTRACT:
-        p->_llvm_value = builder->CreateSub(l, r, "sub_tmp");
+        ret = builder->CreateSub(l, r, "sub_tmp");
         break;
       case BinaryOpKind::MOD: {
         auto ty = lhs->get_type();
         if (ty->is_unsigned()) {
-          p->_llvm_value = builder->CreateURem(l, r, "mod_tmp");
+          ret = builder->CreateURem(l, r, "mod_tmp");
         } else {
-          p->_llvm_value = builder->CreateSRem(l, r, "mod_tmp");
+          ret = builder->CreateSRem(l, r, "mod_tmp");
         }
         break;
       }
@@ -731,7 +729,9 @@ private:
         break;
       }
     }
-    return p->_llvm_value;
+
+    TAN_ASSERT(ret);
+    return ret;
   }
 
   Value *codegen_comparison(ASTBase *_p) {
@@ -749,25 +749,26 @@ private:
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
 
+    Value *ret = nullptr;
     if (l->getType()->isFloatingPointTy()) {
       switch (p->get_op()) {
       case BinaryOpKind::EQ:
-        p->_llvm_value = builder->CreateFCmpOEQ(l, r, "eq");
+        ret = builder->CreateFCmpOEQ(l, r, "eq");
         break;
       case BinaryOpKind::NE:
-        p->_llvm_value = builder->CreateFCmpONE(l, r, "ne");
+        ret = builder->CreateFCmpONE(l, r, "ne");
         break;
       case BinaryOpKind::GT:
-        p->_llvm_value = builder->CreateFCmpOGT(l, r, "gt");
+        ret = builder->CreateFCmpOGT(l, r, "gt");
         break;
       case BinaryOpKind::GE:
-        p->_llvm_value = builder->CreateFCmpOGE(l, r, "ge");
+        ret = builder->CreateFCmpOGE(l, r, "ge");
         break;
       case BinaryOpKind::LT:
-        p->_llvm_value = builder->CreateFCmpOLT(l, r, "lt");
+        ret = builder->CreateFCmpOLT(l, r, "lt");
         break;
       case BinaryOpKind::LE:
-        p->_llvm_value = builder->CreateFCmpOLE(l, r, "le");
+        ret = builder->CreateFCmpOLE(l, r, "le");
         break;
       default:
         TAN_ASSERT(false);
@@ -776,37 +777,37 @@ private:
     } else {
       switch (p->get_op()) {
       case BinaryOpKind::EQ:
-        p->_llvm_value = builder->CreateICmpEQ(l, r, "eq");
+        ret = builder->CreateICmpEQ(l, r, "eq");
         break;
       case BinaryOpKind::NE:
-        p->_llvm_value = builder->CreateICmpNE(l, r, "ne");
+        ret = builder->CreateICmpNE(l, r, "ne");
         break;
       case BinaryOpKind::GT:
         if (is_signed) {
-          p->_llvm_value = builder->CreateICmpSGT(l, r, "gt");
+          ret = builder->CreateICmpSGT(l, r, "gt");
         } else {
-          p->_llvm_value = builder->CreateICmpUGT(l, r, "gt");
+          ret = builder->CreateICmpUGT(l, r, "gt");
         }
         break;
       case BinaryOpKind::GE:
         if (is_signed) {
-          p->_llvm_value = builder->CreateICmpSGE(l, r, "ge");
+          ret = builder->CreateICmpSGE(l, r, "ge");
         } else {
-          p->_llvm_value = builder->CreateICmpUGE(l, r, "ge");
+          ret = builder->CreateICmpUGE(l, r, "ge");
         }
         break;
       case BinaryOpKind::LT:
         if (is_signed) {
-          p->_llvm_value = builder->CreateICmpSLT(l, r, "lt");
+          ret = builder->CreateICmpSLT(l, r, "lt");
         } else {
-          p->_llvm_value = builder->CreateICmpULT(l, r, "lt");
+          ret = builder->CreateICmpULT(l, r, "lt");
         }
         break;
       case BinaryOpKind::LE:
         if (is_signed) {
-          p->_llvm_value = builder->CreateICmpSLE(l, r, "le");
+          ret = builder->CreateICmpSLE(l, r, "le");
         } else {
-          p->_llvm_value = builder->CreateICmpULE(l, r, "le");
+          ret = builder->CreateICmpULE(l, r, "le");
         }
         break;
       default:
@@ -814,7 +815,9 @@ private:
         break;
       }
     }
-    return p->_llvm_value;
+
+    TAN_ASSERT(ret);
+    return ret;
   }
 
   Value *codegen_relop(ASTBase *_p) {
@@ -831,27 +834,30 @@ private:
     r = TypeSystem::LoadIfLValue(_cs, rhs);
     l = TypeSystem::LoadIfLValue(_cs, lhs);
 
+    Value *ret = nullptr;
     switch (p->get_op()) {
     case BinaryOpKind::BAND:
-      p->_llvm_value = builder->CreateAnd(l, r, "binary_and");
+      ret = builder->CreateAnd(l, r, "binary_and");
       break;
     case BinaryOpKind::LAND:
-      p->_llvm_value = builder->CreateAnd(l, r, "logical_and");
+      ret = builder->CreateAnd(l, r, "logical_and");
       break;
     case BinaryOpKind::BOR:
-      p->_llvm_value = builder->CreateOr(l, r, "binary_or");
+      ret = builder->CreateOr(l, r, "binary_or");
       break;
     case BinaryOpKind::LOR:
-      p->_llvm_value = builder->CreateOr(l, r, "logical_or");
+      ret = builder->CreateOr(l, r, "logical_or");
       break;
     case BinaryOpKind::XOR:
-      p->_llvm_value = builder->CreateXor(l, r, "logical_or");
+      ret = builder->CreateXor(l, r, "logical_or");
       break;
     default:
       TAN_ASSERT(false);
       break;
     }
-    return p->_llvm_value;
+
+    TAN_ASSERT(ret);
+    return ret;
   }
 
   Value *codegen_cast(ASTBase *_p) {
@@ -876,7 +882,7 @@ private:
       ret = val;
     }
 
-    return p->_llvm_value = ret;
+    return ret;
   }
 
   Value *codegen_var_ref(ASTBase *_p) {
@@ -891,22 +897,18 @@ private:
 
     switch (p->get_id_type()) {
     case IdentifierType::ID_VAR_DECL:
-      p->_llvm_value = codegen(p->get_var_ref());
-      break;
+      return codegen(p->get_var_ref());
     case IdentifierType::ID_TYPE_DECL:
-      p->_llvm_value = nullptr;
-      break;
     default:
       TAN_ASSERT(false);
       break;
     }
-    return p->_llvm_value;
   }
 
   Value *codegen_binary_or_unary(ASTBase *_p) {
     auto p = ast_cast<BinaryOrUnary>(_p);
     set_current_debug_location(p);
-    return p->_llvm_value = codegen(p->get_expr_ptr());
+    return codegen(p->get_expr_ptr());
   }
 
   Value *codegen_break_continue(ASTBase *_p) {
@@ -967,7 +969,7 @@ private:
       builder->SetInsertPoint(p->_loop_start);
       auto *cond = codegen(p->get_predicate());
       if (!cond) {
-        report_error(p, "Expected a condition expression");
+        error(p, "Expected a condition expression");
       }
       builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
@@ -1089,7 +1091,7 @@ private:
       TAN_ASSERT(false);
     }
 
-    return p->_llvm_value = ret;
+    return ret;
   }
 
   Value *codegen_ptr_deref(UnaryOperator *p) {
@@ -1102,15 +1104,9 @@ private:
 
     /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
     if (rhs->is_lvalue()) {
-      p->_llvm_value = builder->CreateLoad(val, "ptr_deref");
+      val = builder->CreateLoad(val, "ptr_deref");
     }
-
-    return p->_llvm_value;
-  }
-
-  [[noreturn]] void report_error(ASTBase *p, const str &message) {
-    Error err(_cs->_filename, _sm->get_token(p->loc()), message);
-    err.raise();
+    return val;
   }
 };
 

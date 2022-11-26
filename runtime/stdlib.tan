@@ -18,7 +18,7 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
     if (num == 0) {
         s[i] = '0';
         i = i + 1u;
-        s[i] = 0 as char;
+        s[i] = '\0';
         return s;
     }
 
@@ -49,7 +49,7 @@ pub fn itoa(num: i32, s: str, base: u32) : str {
         i = i + 1u;
     }
 
-    s[i] = 0 as char;
+    s[i] = '\0';
 
     // reverse the string
     reverse(s, i);

@@ -160,7 +160,7 @@ private:
 
 class PointerType : public Type {
 public:
-  bool is_pointer() { return true; }
+  bool is_pointer() override { return true; }
   Type *get_pointee() { return _pointee_type; }
   int get_align_bits() override;
   int get_size_bits() override;
