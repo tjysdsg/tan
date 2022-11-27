@@ -3,6 +3,7 @@
 #include "ast/decl.h"
 #include "ast/type.h"
 #include "ast/ast_context.h"
+#include "llvm_api/llvm_include.h"
 
 namespace tanlang {
 
@@ -40,8 +41,6 @@ void Intrinsic::InitAnalysis(ASTContext *ctx) {
       FunctionDecl::Create(SrcLoc(0), "compprint", Type::GetVoidType(), {Type::GetStringType()}, true, false));
 }
 
-void Intrinsic::InitCodegen(CompilerSession *cs) { init_noop(cs); }
-
 Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }
 
 Intrinsic::Intrinsic(SrcLoc loc) : Expr(ASTNodeType::INTRINSIC, loc, 0) {}
@@ -59,16 +58,6 @@ vector<ASTBase *> Intrinsic::get_children() const {
     return _sub->get_children();
   }
   return {};
-}
-
-static void init_noop(CompilerSession *cs) {
-  /// fn llvm.donothing() : void;
-  Function *func = cs->get_module()->getFunction("llvm.donothing");
-  if (!func) {
-    llvm::Type *ret_type = cs->_builder->getVoidTy();
-    auto *FT = llvm::FunctionType::get(ret_type, {}, false);
-    Function::Create(FT, Function::ExternalWeakLinkage, "llvm.donothing", cs->get_module());
-  }
 }
 
 } // namespace tanlang

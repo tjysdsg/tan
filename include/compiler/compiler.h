@@ -12,6 +12,7 @@ class Value;
 namespace tanlang {
 
 class CompilerSession;
+class CodeGenerator;
 
 /**
  * \class Compiler
@@ -101,6 +102,7 @@ private:
   ASTContext *_ctx = nullptr;
   ASTBase *_ast = nullptr;
   str _filename = "";
+  CodeGenerator *_cg = nullptr;
 };
 
 } // namespace tanlang

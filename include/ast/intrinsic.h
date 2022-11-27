@@ -64,7 +64,6 @@ public:
   static Intrinsic *Create(SrcLoc loc);
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
-  static void InitCodegen(CompilerSession *);
   static void InitAnalysis(ASTContext *ctx);
 
 public:

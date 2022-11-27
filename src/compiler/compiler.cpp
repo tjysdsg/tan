@@ -8,6 +8,7 @@
 #include "ast/ast_context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
+#include "llvm_api/llvm_include.h"
 #include <filesystem>
 
 using namespace tanlang;
@@ -42,27 +43,24 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     auto RM = llvm::Reloc::Model::PIC_;
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
+
   _ctx = new ASTContext(filename);
-  _cs = new CompilerSession(filename, Compiler::target_machine);
+  _cs = new CompilerSession(filename);
 }
 
-void Compiler::emit_object(const str &filename) { _cs->emit_object(filename); }
+void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
 
 Value *Compiler::codegen() {
   TAN_ASSERT(_ast);
-  TAN_ASSERT(_ctx);
-  TAN_ASSERT(_cs);
-  TAN_ASSERT(_cs->get_module());
-  Intrinsic::InitCodegen(_cs);
-  CodeGenerator cg(_cs, _ctx);
-  auto *ret = cg.codegen(_ast);
+  TAN_ASSERT(!_cg);
+  _cg = new CodeGenerator(_cs, _ctx, target_machine);
+  auto *ret = _cg->codegen(_ast);
   return ret;
 }
 
 void Compiler::dump_ir() const {
-  TAN_ASSERT(_cs);
-  TAN_ASSERT(_cs->get_module());
-  _cs->get_module()->print(llvm::outs(), nullptr);
+  TAN_ASSERT(_cg);
+  _cg->dump_ir();
 }
 
 void Compiler::dump_ast() const {

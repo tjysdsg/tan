@@ -10,6 +10,7 @@ namespace tanlang {
 class ASTBase;
 class Type;
 class BinaryOperator;
+class UnaryOperator;
 class MemberAccess;
 class Assignment;
 class Cast;
