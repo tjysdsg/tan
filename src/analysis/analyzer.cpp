@@ -73,6 +73,21 @@ public:
     }
   }
 
+  /**
+   * \brief Check whether it's legal to implicitly convert from type `from` to type `to`
+   *        See TYPE_CASTING.md for specifications.
+   * \param from Source type.
+   * \param to Destination type.
+   */
+  static bool CanImplicitlyConvert(Type *from, Type *to);
+
+  /**
+   * \brief Find out which one of the two input types of a binary operation should operands promote to.
+   *        See TYPE_CASTING.md for specifications.
+   * \return Guaranteed to be one of `t1` and `t2`, or nullptr if cannot find a legal promotion.
+   */
+  static Type *ImplicitTypePromote(Type *t1, Type *t2);
+
 private:
   ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
@@ -84,7 +99,7 @@ private:
   }
 
   Cast *create_implicit_conversion(Expr *from, Type *to) {
-    if (!TypeSystem::CanImplicitlyConvert(from->get_type(), to)) {
+    if (!CanImplicitlyConvert(from->get_type(), to)) {
       error(from, fmt::format("Cannot implicitly convert type {} to {}", from->get_type()->get_typename(),
                               to->get_typename()));
     }
@@ -107,7 +122,7 @@ private:
     auto *lhs_type = lhs->get_type();
     auto *rhs_type = rhs->get_type();
 
-    auto *promoted_type = TypeSystem::ImplicitTypePromote(lhs_type, rhs_type);
+    auto *promoted_type = ImplicitTypePromote(lhs_type, rhs_type);
     if (!promoted_type) {
       error(bop, fmt::format("Cannot find a valid type promotion between {} and {}", lhs_type->get_typename(),
                              rhs_type->get_typename()));
@@ -127,6 +142,61 @@ private:
     }
 
     return promoted_type;
+  }
+
+  FunctionDecl *search_function_callee(FunctionCall *p) {
+    const str &name = p->get_name();
+    const vector<Expr *> &args = p->_args;
+
+    FunctionDecl *ret = nullptr;
+    auto func_candidates = _ctx->get_functions(name);
+    /// find a valid function overload to call
+    for (const auto &f : func_candidates) {
+      size_t n = f->get_n_args();
+      if (n != args.size()) {
+        continue;
+      }
+
+      /// check if argument types match (return type not checked)
+      /// allow implicit cast from actual arguments to expected arguments
+      bool good = true;
+      int cost = 0; /// number of implicit type conversion of arguments needed
+      for (size_t i = 0; i < n; ++i) {
+        auto *actual_type = args[i]->get_type();
+        auto *expected_type = f->get_arg_type(i);
+
+        if (actual_type != expected_type) {
+          ++cost;
+
+          if (!CanImplicitlyConvert(actual_type, expected_type)) {
+            good = false;
+            break;
+          }
+        }
+      }
+
+      /// remember valid candidate(s) and check for ambiguity
+      if (good) {
+        /// if there is an exact match, use it
+        if (cost == 0) {
+          ret = f;
+          break;
+        }
+
+        if (ret) {
+          // TODO: print all valid candidates
+          error(p, "Ambiguous function call: " + name);
+        }
+        ret = f;
+      }
+    }
+
+    if (!ret) {
+      Error err(_ctx->get_filename(), _ctx->get_source_manager()->get_token(p->loc()),
+                "Unknown function call: " + name);
+      err.raise();
+    }
+    return ret;
   }
 
   void analyze_expr(Expr *p) {
@@ -405,7 +475,7 @@ private:
       analyze(a);
     }
 
-    FunctionDecl *callee = FunctionDecl::GetCallee(_ctx, p);
+    FunctionDecl *callee = search_function_callee(p);
     p->_callee = callee;
     p->set_type(callee->get_ret_ty());
   }
@@ -911,5 +981,7 @@ void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
 Analyzer::Analyzer(ASTContext *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
 
 Analyzer::~Analyzer() { delete _analyzer_impl; }
+
+#include "implicit_cast.hpp"
 
 } // namespace tanlang

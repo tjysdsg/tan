@@ -41,63 +41,6 @@ VarDecl *VarDecl::Create(SrcLoc loc, const str &name, Type *ty) {
 
 FunctionDecl::FunctionDecl(SrcLoc loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
-// TODO: move this to analysis
-FunctionDecl *FunctionDecl::GetCallee(ASTContext *ctx, FunctionCall *p) {
-  const str &name = p->get_name();
-  const vector<Expr *> &args = p->_args;
-
-  FunctionDecl *ret = nullptr;
-  auto func_candidates = ctx->get_functions(name);
-  /// find a valid function overload to call
-  for (const auto &f : func_candidates) {
-    size_t n = f->get_n_args();
-    if (n != args.size()) {
-      continue;
-    }
-
-    /// check if argument types match (return type not checked)
-    /// allow implicit cast from actual arguments to expected arguments
-    bool good = true;
-    int cost = 0; /// number of implicit type conversion of arguments needed
-    for (size_t i = 0; i < n; ++i) {
-      auto *actual_type = args[i]->get_type();
-      auto *expected_type = f->get_arg_type(i);
-
-      if (actual_type != expected_type) {
-        ++cost;
-
-        if (!TypeSystem::CanImplicitlyConvert(actual_type, expected_type)) {
-          good = false;
-          break;
-        }
-      }
-    }
-
-    /// remember valid candidate(s) and check for ambiguity
-    if (good) {
-      /// if there is an exact match, use it
-      if (cost == 0) {
-        ret = f;
-        break;
-      }
-
-      if (ret) {
-        // TODO: print all valid candidates
-        Error err(ctx->get_filename(), ctx->get_source_manager()->get_token(f->loc()),
-                  "Ambiguous function call: " + name);
-        err.raise();
-      }
-      ret = f;
-    }
-  }
-
-  if (!ret) {
-    Error err(ctx->get_filename(), ctx->get_source_manager()->get_token(p->loc()), "Unknown function call: " + name);
-    err.raise();
-  }
-  return ret;
-}
-
 FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
 
 FunctionDecl *FunctionDecl::Create(SrcLoc loc, const str &name, Type *ret_type, vector<Type *> arg_types,

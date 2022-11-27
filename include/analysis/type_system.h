@@ -29,21 +29,6 @@ public:
   static llvm::Value *ConvertTo(CompilerSession *cs, Expr *expr, Type *dest);
 
   /**
-   * \brief Check whether it's legal to implicitly convert from type `from` to type `to`
-   *        See TYPE_CASTING.md for specifications.
-   * \param from Source type.
-   * \param to Destination type.
-   */
-  static bool CanImplicitlyConvert(Type *from, Type *to);
-
-  /**
-   * \brief Find out which one of the two input types of a binary operation should operands promote to.
-   *        See TYPE_CASTING.md for specifications.
-   * \return Guaranteed to be one of `t1` and `t2`, or nullptr if cannot find a legal promotion.
-   */
-  static Type *ImplicitTypePromote(Type *t1, Type *t2);
-
-  /**
    * \brief Create a load instruction if the type is lvalue. Otherwise return the original value.
    */
   static llvm::Value *LoadIfLValue(CompilerSession *cs, Expr *expr);
