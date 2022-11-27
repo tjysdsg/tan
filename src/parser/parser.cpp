@@ -49,53 +49,35 @@ private:
 
   ASTBase *peek_keyword(Token *token) {
     ASTBase *ret = nullptr;
-    switch (hashed_string{token->get_value().c_str()}) {
-    case "var"_hs:
+    str tok = token->get_value();
+    if (tok == "var")
       ret = VarDecl::Create(_curr);
-      break;
-    case "enum"_hs:
+    else if (tok == "enum")
       ret = EnumDecl::Create(_curr);
-      break;
-    case "fn"_hs:
-    case "pub"_hs:
-    case "extern"_hs:
+    else if (tok == "fn" || tok == "pub" || tok == "extern")
       ret = FunctionDecl::Create(_curr);
-      break;
-    case "import"_hs:
+    else if (tok == "import")
       ret = Import::Create(_curr);
-      break;
-    case "if"_hs:
+    else if (tok == "if") /// else clause should be covered by If statement as well
       ret = If::Create(_curr);
-      break;
-      /// else clause should be covered by If statement
-    case "return"_hs:
+    else if (tok == "return")
       ret = Return::Create(_curr);
-      break;
-    case "while"_hs:
-    case "for"_hs:
+    else if (tok == "while" || tok == "for")
       ret = Loop::Create(_curr);
-      break;
-    case "struct"_hs:
+    else if (tok == "struct")
       ret = StructDecl::Create(_curr);
-      break;
-    case "break"_hs:
+    else if (tok == "break")
       ret = Break::Create(_curr);
-      break;
-    case "continue"_hs:
+    else if (tok == "continue")
       ret = Continue::Create(_curr);
-      break;
-    case "as"_hs:
+    else if (tok == "as")
       ret = Cast::Create(_curr);
-      break;
-    case "true"_hs:
+    else if (tok == "true")
       ret = BoolLiteral::Create(_curr, true);
-      break;
-    case "false"_hs:
+    else if (tok == "false")
       ret = BoolLiteral::Create(_curr, false);
-      break;
-    default:
-      return nullptr;
-    }
+
+    TAN_ASSERT(ret);
     return ret;
   }
 
@@ -141,34 +123,26 @@ private:
       }
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op;
-      switch (hashed_string{token->get_value().c_str()}) {
-      case ">"_hs:
+      str tok = token->get_value();
+      if (tok == ">")
         op = BinaryOpKind::GT;
-        break;
-      case ">="_hs:
+      else if (tok == ">=")
         op = BinaryOpKind::GE;
-        break;
-      case "<"_hs:
+      else if (tok == "<")
         op = BinaryOpKind::LT;
-        break;
-      case "<="_hs:
+      else if (tok == "<=")
         op = BinaryOpKind::LE;
-        break;
-      case "=="_hs:
+      else if (tok == "==")
         op = BinaryOpKind::EQ;
-        break;
-      case "!="_hs:
+      else if (tok == "!=")
         op = BinaryOpKind::NE;
-        break;
-      case "&&"_hs:
+      else if (tok == "&&")
         op = BinaryOpKind::LAND;
-        break;
-      case "||"_hs:
+      else if (tok == "||")
         op = BinaryOpKind::LOR;
-        break;
-      default:
+      else
         error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
-      }
+
       node = BinaryOperator::Create(op, _curr);
     } else if (token->get_type() == TokenType::INT) {
       node = IntegerLiteral::Create(_curr, (uint64_t)std::stol(token->get_value()), token->is_unsigned());
@@ -206,30 +180,31 @@ private:
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
       node = CompoundStmt::Create(_curr, true);
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
-      switch (hashed_string{token->get_value().c_str()}) {
-      case "/"_hs:
+      TAN_ASSERT(token->get_value().length());
+      switch (token->get_value()[0]) {
+      case '/':
         node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _curr);
         break;
-      case "%"_hs:
+      case '%':
         node = BinaryOperator::Create(BinaryOpKind::MOD, _curr);
         break;
-      case "|"_hs:
+      case '|':
         node = BinaryOperator::Create(BinaryOpKind::BOR, _curr);
         break;
-      case "^"_hs:
+      case '^':
         node = BinaryOperator::Create(BinaryOpKind::XOR, _curr);
         break;
         /// Operators that are possibly BOP or UOP at this stage
         /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
-      case "*"_hs:
+      case '*':
         // MULTIPLY / PTR_DEREF
         node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
         break;
-      case "+"_hs:
+      case '+':
         // SUM / PLUS
         node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
-      case "-"_hs:
+      case '-':
         // SUBTRACT / MINUS
         node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
@@ -270,26 +245,25 @@ private:
     return left;
   }
 
-  /**
-   * \brief Parse NUD
-   */
+  /// Parse NUD
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
-      str token_str = _sm->get_token_str(p->loc());
-      switch (hashed_string{token_str.c_str()}) {
-      case "*"_hs:
+      str tok = _sm->get_token_str(p->loc());
+      TAN_ASSERT(tok.length());
+      switch (tok[0]) {
+      case '*':
         actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->loc());
         break;
-      case "&"_hs:
+      case '&':
         actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->loc());
         break;
-      case "+"_hs:
+      case '+':
         actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->loc());
         break;
-      case "-"_hs:
+      case '-':
         actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->loc());
         break;
       default:
@@ -312,26 +286,25 @@ private:
     (this->*func)(p);
   }
 
-  /**
-   * \brief Parse LED
-   */
+  /// Parse LED
   void parse_node(ASTBase *left, ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
-      str token_str = _sm->get_token_str(p->loc());
-      switch (hashed_string{token_str.c_str()}) {
-      case "*"_hs:
+      str tok = _sm->get_token_str(p->loc());
+      TAN_ASSERT(tok.length());
+      switch (tok[0]) {
+      case '*':
         actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->loc());
         break;
-      case "&"_hs:
+      case '&':
         actual = BinaryOperator::Create(BinaryOpKind::BAND, p->loc());
         break;
-      case "+"_hs:
+      case '+':
         actual = BinaryOperator::Create(BinaryOpKind::SUM, p->loc());
         break;
-      case "-"_hs:
+      case '-':
         actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->loc());
         break;
       default:
