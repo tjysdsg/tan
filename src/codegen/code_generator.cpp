@@ -251,7 +251,8 @@ private:
       codegen(p->get_body());
 
       /// create a return instruction if there is none, the return value is the default value of the return type
-      if (!builder->GetInsertBlock()->back().isTerminator()) {
+      auto *trailing_block = builder->GetInsertBlock();
+      if (trailing_block->sizeWithoutDebug() == 0 || !trailing_block->back().isTerminator()) {
         if (ret_ty->is_void()) {
           builder->CreateRetVoid();
         } else {
