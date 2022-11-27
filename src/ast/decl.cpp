@@ -1,7 +1,6 @@
 #include "ast/decl.h"
 #include "ast/ast_context.h"
 #include "ast/type.h"
-#include "analysis/type_system.h"
 
 using namespace tanlang;
 

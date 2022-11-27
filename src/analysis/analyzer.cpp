@@ -5,7 +5,6 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
-#include "analysis/type_system.h"
 #include "analysis/scope.h"
 #include "ast/ast_context.h"
 #include "compiler/compiler.h" // TODO IMPORTANT: remove this dependency
