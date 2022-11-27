@@ -1,10 +1,9 @@
 <map id="tanlang::EnumDecl" name="tanlang::EnumDecl">
-<area shape="rect" id="node1" title=" " alt="" coords="200,304,345,331"/>
-<area shape="rect" id="node2" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="219,229,327,256"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="143,155,251,181"/>
-<area shape="rect" id="node4" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="54,80,190,107"/>
+<area shape="rect" id="node1" title=" " alt="" coords="176,304,321,331"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="195,229,303,256"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="119,155,227,181"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,80,166,107"/>
 <area shape="rect" id="node5" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,5,191,32"/>
-<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="226,80,343,107"/>
-<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,5,381,32"/>
-<area shape="rect" id="node8" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="275,155,425,181"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,80,307,107"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="251,155,401,181"/>
 </map>

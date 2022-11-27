@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Reader.html">Reader</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1Reader.html">Reader</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -81,6 +82,9 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>at</b> (const <a clas
 <tr class="memitem:a62cf96f170af697ec266efe1d051a7d6"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a62cf96f170af697ec266efe1d051a7d6">substr</a> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;start, const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;end) const</td></tr>
 <tr class="memdesc:a62cf96f170af697ec266efe1d051a7d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a substring from the source code.  <a href="classtanlang_1_1Reader.html#a62cf96f170af697ec266efe1d051a7d6">More...</a><br /></td></tr>
 <tr class="separator:a62cf96f170af697ec266efe1d051a7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23362307d066ed5ef7bf78d43574d5eb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Reader.html#a23362307d066ed5ef7bf78d43574d5eb">is_cursor_valid</a> (const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;c) const</td></tr>
+<tr class="memdesc:a23362307d066ed5ef7bf78d43574d5eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if a cursor is in bound.  <a href="classtanlang_1_1Reader.html#a23362307d066ed5ef7bf78d43574d5eb">More...</a><br /></td></tr>
+<tr class="separator:a23362307d066ed5ef7bf78d43574d5eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a486dfbf5ef0c62bb56df472a8ec60b77"><td class="memItemLeft" align="right" valign="top"><a id="a486dfbf5ef0c62bb56df472a8ec60b77"></a>
 <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a>&#160;</td><td class="memItemRight" valign="bottom"><b>begin</b> () const</td></tr>
 <tr class="separator:a486dfbf5ef0c62bb56df472a8ec60b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,7 +120,7 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () co
 
 <p><a class="el" href="classtanlang_1_1Return.html">Return</a> a copy of code_ptr that points to the next character. </p>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00075">75</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00100">100</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
@@ -144,7 +148,29 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () co
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00115">115</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00138">138</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a23362307d066ed5ef7bf78d43574d5eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23362307d066ed5ef7bf78d43574d5eb">&#9670;&nbsp;</a></span>is_cursor_valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tanlang::Reader::is_cursor_valid </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtanlang_1_1Cursor.html">Cursor</a> &amp;&#160;</td>
+          <td class="paramname"><em>c</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if a cursor is in bound. </p>
+
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00055">55</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
@@ -201,7 +227,7 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () co
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00107">107</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00095">95</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
@@ -240,13 +266,13 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () co
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00048">48</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="reader_8cpp_source.html#l00068">68</a> of file <a class="el" href="reader_8cpp_source.html">reader.cpp</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/include/<a class="el" href="reader_8h_source.html">reader.h</a></li>
-<li>/mnt/d/repos/tan/src/lexer/<a class="el" href="reader_8cpp_source.html">reader.cpp</a></li>
+<li>/mnt/e/repos/tan/include/lexer/<a class="el" href="reader_8h_source.html">reader.h</a></li>
+<li>/mnt/e/repos/tan/src/lexer/<a class="el" href="reader_8cpp_source.html">reader.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

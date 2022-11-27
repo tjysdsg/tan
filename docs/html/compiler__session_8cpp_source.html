@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/compiler/compiler_session.cpp Source File</title>
+<title>tan: /mnt/e/repos/tan/src/compiler/compiler_session.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,7 +40,6 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -52,146 +52,22 @@
 <div class="title">compiler_session.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;src/scope.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_base.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/compiler/function_table.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;compiler.h&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">using namespace </span>tanlang;</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;CompilerSession::CompilerSession(<span class="keyword">const</span> str &amp;module_name, TargetMachine *tm)</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    : _filename(module_name), _target_machine(tm) {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  _context = <span class="keyword">new</span> LLVMContext();</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  _builder = <span class="keyword">new</span> IRBuilder&lt;&gt;(*_context);</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  _module = <span class="keyword">new</span> Module(module_name, *_context);</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  init_llvm(); <span class="comment">// FIXME: call this during codegen instead of now</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">  /// add the current debug info version into the module</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span>  _module-&gt;addModuleFlag(Module::Warning, <span class="stringliteral">&quot;Dwarf Version&quot;</span>, llvm::dwarf::DWARF_VERSION);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  _module-&gt;addModuleFlag(Module::Warning, <span class="stringliteral">&quot;Debug Info Version&quot;</span>, llvm::DEBUG_METADATA_VERSION);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  /// debug related</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span>  _di_builder = <span class="keyword">new</span> DIBuilder(*_module);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  _di_file = _di_builder-&gt;createFile(module_name, <span class="stringliteral">&quot;.&quot;</span>);</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  _di_cu = _di_builder-&gt;createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, <span class="stringliteral">&quot;tan compiler&quot;</span>, <span class="keyword">false</span>, <span class="stringliteral">&quot;&quot;</span>, 0);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  _di_scope = {_di_file};</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;}</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;CompilerSession::~CompilerSession() {</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keyword">delete</span> <a class="code" href="classtanlang_1_1CompilerSession.html#ab0caff1f3770dde3dd687e233d7fc646">_di_builder</a>;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keyword">delete</span> _module;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keyword">delete</span> _builder;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keyword">delete</span> _context;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;}</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a> *CompilerSession::get_source_manager()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _sm; }</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="keywordtype">void</span> CompilerSession::set_source_manager(<a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a> *sm) { _sm = sm; }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;LLVMContext *CompilerSession::get_context() { <span class="keywordflow">return</span> _context; }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;Module *CompilerSession::get_module() { <span class="keywordflow">return</span> _module; }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">void</span> CompilerSession::init_llvm() {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  _module-&gt;setDataLayout(_target_machine-&gt;createDataLayout());</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  _module-&gt;setTargetTriple(_target_machine-&gt;getTargetTriple().str());</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">auto</span> opt_level = (llvm::CodeGenOpt::Level) <a class="code" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">Compiler::compile_config</a>.opt_level;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  _target_machine-&gt;setOptLevel(opt_level);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordtype">bool</span> debug = opt_level == llvm::CodeGenOpt::Level::None;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">  /// pass manager builder</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span>  <span class="keyword">auto</span> *pm_builder = <span class="keyword">new</span> PassManagerBuilder();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  pm_builder-&gt;OptLevel = opt_level;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  pm_builder-&gt;SizeLevel = 0; <span class="comment">// TODO: optimize for size?</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  pm_builder-&gt;DisableTailCalls = debug;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  pm_builder-&gt;DisableUnrollLoops = debug;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  pm_builder-&gt;SLPVectorize = !debug;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  pm_builder-&gt;LoopVectorize = !debug;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  pm_builder-&gt;RerollLoops = !debug;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  pm_builder-&gt;NewGVN = !debug;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  pm_builder-&gt;DisableGVNLoadPRE = !debug;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  pm_builder-&gt;MergeFunctions = !debug;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  pm_builder-&gt;VerifyInput = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  pm_builder-&gt;VerifyOutput = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  pm_builder-&gt;PrepareForLTO = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  pm_builder-&gt;PrepareForThinLTO = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  pm_builder-&gt;PerformThinLTO = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  llvm::TargetLibraryInfoImpl tlii(Triple(_module-&gt;getTargetTriple()));</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  pm_builder-&gt;LibraryInfo = &amp;tlii;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="keywordflow">if</span> (debug) { pm_builder-&gt;Inliner = llvm::createAlwaysInlinerLegacyPass(<span class="keyword">false</span>); }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// function pass</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment"></span>  _fpm = std::make_unique&lt;FunctionPassManager&gt;(_module);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keyword">auto</span> *tliwp = <span class="keyword">new</span> llvm::TargetLibraryInfoWrapperPass(tlii);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  _fpm-&gt;add(tliwp);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  _fpm-&gt;add(createTargetTransformInfoWrapperPass(_target_machine-&gt;getTargetIRAnalysis()));</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  _fpm-&gt;add(llvm::createVerifierPass());</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  pm_builder-&gt;populateFunctionPassManager(*_fpm.get());</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  _fpm-&gt;doInitialization();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// module pass</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment"></span>  _mpm = std::make_unique&lt;PassManager&gt;();</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  _mpm-&gt;add(createTargetTransformInfoWrapperPass(_target_machine-&gt;getTargetIRAnalysis()));</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  pm_builder-&gt;populateModulePassManager(*_mpm.get());</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keywordtype">void</span> CompilerSession::emit_object(<span class="keyword">const</span> str &amp;filename) {</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <a class="code" href="classtanlang_1_1CompilerSession.html#ab0caff1f3770dde3dd687e233d7fc646">_di_builder</a>-&gt;finalize(); <span class="comment">/// important: do this before any pass</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span><span class="comment"></span> </div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">  /// run function pass on all functions in the current module</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment"></span>  <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;f: *_module) {</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordflow">if</span> (f.getName() == <span class="stringliteral">&quot;main&quot;</span>) { <span class="comment">/// special case for main function</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span>      <span class="comment">// mark as used, prevent LLVM from deleting it</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      llvm::appendToUsed(*_module, {(GlobalValue *) &amp;f});</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    }</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    _fpm-&gt;run(f);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  }</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  _fpm-&gt;doFinalization();</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// generate object files</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span>  std::error_code ec;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keywordflow">if</span> (ec) { report_error(<span class="stringliteral">&quot;Could not open file: &quot;</span> + ec.message()); }</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keyword">auto</span> file_type = llvm::CGFT_ObjectFile;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordflow">if</span> (_target_machine-&gt;addPassesToEmitFile(*_mpm.get(), dest, <span class="keyword">nullptr</span>, file_type)) {</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    report_error(<span class="stringliteral">&quot;Target machine can&#39;t emit a file of this type&quot;</span>);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  }</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  _mpm-&gt;run(*_module);</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  dest.flush();</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;DIScope *CompilerSession::get_current_di_scope()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keywordflow">return</span> _di_scope.back();</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;}</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="keywordtype">void</span> CompilerSession::push_di_scope(DIScope *scope) {</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  _di_scope.push_back(scope);</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="keywordtype">void</span> CompilerSession::pop_di_scope() {</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  _di_scope.pop_back();</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="keywordtype">void</span> CompilerSession::set_current_debug_location(<span class="keywordtype">size_t</span> l, <span class="keywordtype">size_t</span> c) {</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  _builder-&gt;SetCurrentDebugLocation(DebugLoc::get((<span class="keywordtype">unsigned</span>) (l + 1),</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;      (<span class="keywordtype">unsigned</span>) (c + 1),</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;      this-&gt;get_current_di_scope()));</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keywordtype">unsigned</span> CompilerSession::get_ptr_size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _target_machine-&gt;getPointerSizeInBits(0); }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;DIFile *CompilerSession::get_di_file()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _di_file; }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;DICompileUnit *CompilerSession::get_di_cu()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _di_cu; }</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160; </div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="keyword">const</span> str &amp;CompilerSession::get_filename()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _filename; }</div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;compiler/compiler_session.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;ast/ast_base.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;compiler/compiler.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">using namespace </span><a class="code" href="namespacetanlang.html">tanlang</a>;</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;CompilerSession::CompilerSession(<span class="keyword">const</span> str &amp;module_name) : _filename(module_name) {}</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a> *CompilerSession::get_source_manager()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _sm; }</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keywordtype">void</span> CompilerSession::set_source_manager(<a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a> *sm) { _sm = sm; }</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">const</span> str &amp;CompilerSession::get_filename()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _filename; }</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1CompilerSession_html_ab0caff1f3770dde3dd687e233d7fc646"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html#ab0caff1f3770dde3dd687e233d7fc646">tanlang::CompilerSession::_di_builder</a></div><div class="ttdeci">DIBuilder * _di_builder</div><div class="ttdoc">IR builder.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00044">compiler_session.h:44</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a1d85bccc1b3610c67e75990e73dac4f0"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">tanlang::Compiler::compile_config</a></div><div class="ttdeci">static TanCompilation compile_config</div><div class="ttdoc">Current compile configuration.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00035">compiler.h:35</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1SourceManager_html"><div class="ttname"><a href="classtanlang_1_1SourceManager.html">tanlang::SourceManager</a></div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00027">source_manager.h:27</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

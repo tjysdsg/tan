@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Compiler.html">Compiler</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1Compiler.html">Compiler</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -69,10 +70,10 @@ Collaboration diagram for tanlang::Compiler:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtanlang_1_1Compiler__coll__graph.png" border="0" usemap="#tanlang_1_1Compiler_coll__map" alt="Collaboration graph"/></div>
 <map name="tanlang_1_1Compiler_coll__map" id="tanlang_1_1Compiler_coll__map">
-<area shape="rect" title="Abstraction of a compiler." alt="" coords="5,275,144,301"/>
-<area shape="rect" href="structTanCompilation.html" title="Compilation configuration." alt="" coords="13,185,136,212"/>
-<area shape="rect" title="STL class." alt="" coords="31,96,118,123"/>
-<area shape="rect" title="STL class." alt="" coords="5,5,144,47"/>
+<area shape="rect" title="Abstraction of a compiler." alt="" coords="26,275,165,301"/>
+<area shape="rect" href="structtanlang_1_1TanCompilation.html" title="Compilation configuration." alt="" coords="5,185,185,212"/>
+<area shape="rect" title="STL class." alt="" coords="52,96,139,123"/>
+<area shape="rect" title="STL class." alt="" coords="26,5,165,47"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -84,7 +85,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac1d17f747a23dab0400fa8a692dc553c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">parse</a> ()</td></tr>
 <tr class="memdesc:ac1d17f747a23dab0400fa8a692dc553c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse the corresponding source file, and build AST.  <a href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">More...</a><br /></td></tr>
 <tr class="separator:ac1d17f747a23dab0400fa8a692dc553c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab862c86e7077f06a08b2b52a4f526756"><td class="memItemLeft" align="right" valign="top">Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">codegen</a> ()</td></tr>
+<tr class="memitem:ab862c86e7077f06a08b2b52a4f526756"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">codegen</a> ()</td></tr>
 <tr class="memdesc:ab862c86e7077f06a08b2b52a4f526756"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate LLVM IR code.  <a href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">More...</a><br /></td></tr>
 <tr class="separator:ab862c86e7077f06a08b2b52a4f526756"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b1492e7009960c17baecb9e84de5f51"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">emit_object</a> (const str &amp;filename)</td></tr>
@@ -102,7 +103,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aaf46e625bf4c4af102c376def95e66fb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">ParseFile</a> (const str &amp;filename)</td></tr>
 <tr class="memdesc:aaf46e625bf4c4af102c376def95e66fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse a single file to AST.  <a href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">More...</a><br /></td></tr>
 <tr class="separator:aaf46e625bf4c4af102c376def95e66fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d082149456346747f651680dab15ec3"><td class="memItemLeft" align="right" valign="top">static TargetMachine *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">GetDefaultTargetMachine</a> ()</td></tr>
+<tr class="memitem:a9d082149456346747f651680dab15ec3"><td class="memItemLeft" align="right" valign="top">static llvm::TargetMachine *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">GetDefaultTargetMachine</a> ()</td></tr>
 <tr class="memdesc:a9d082149456346747f651680dab15ec3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get information about the current machine.  <a href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">More...</a><br /></td></tr>
 <tr class="separator:a9d082149456346747f651680dab15ec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd1dda91d530e739d99e041c63895b12"><td class="memItemLeft" align="right" valign="top">static vector&lt; str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">resolve_import</a> (const str &amp;callee_path, const str &amp;import_name)</td></tr>
@@ -114,14 +115,14 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a4d8cca606eefa4ccda126c76231a730a"><td class="memItemLeft" align="right" valign="top">static vector&lt; str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">import_dirs</a> {}</td></tr>
 <tr class="memdesc:a4d8cca606eefa4ccda126c76231a730a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classtanlang_1_1Import.html">Import</a> search directories.  <a href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">More...</a><br /></td></tr>
 <tr class="separator:a4d8cca606eefa4ccda126c76231a730a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d85bccc1b3610c67e75990e73dac4f0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structTanCompilation.html">TanCompilation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">compile_config</a> {}</td></tr>
+<tr class="memitem:a1d85bccc1b3610c67e75990e73dac4f0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structtanlang_1_1TanCompilation.html">TanCompilation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">compile_config</a> {}</td></tr>
 <tr class="memdesc:a1d85bccc1b3610c67e75990e73dac4f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current compile configuration.  <a href="classtanlang_1_1Compiler.html#a1d85bccc1b3610c67e75990e73dac4f0">More...</a><br /></td></tr>
 <tr class="separator:a1d85bccc1b3610c67e75990e73dac4f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstraction of a compiler. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00014">14</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00021">21</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a1371c5b3164c96706c0f4663ee984ebc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1371c5b3164c96706c0f4663ee984ebc">&#9670;&nbsp;</a></span>Compiler()</h2>
@@ -149,7 +150,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>create_ty a <a class="el" href="classtanlang_1_1Compiler.html" title="Abstraction of a compiler.">Compiler</a> instance with its relevant source file name/path </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00020">20</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00024">24</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -171,7 +172,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Generate LLVM IR code. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00045">45</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00053">53</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -192,7 +193,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Pretty-print AST. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00062">62</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00066">66</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -213,7 +214,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Print LLVM IR code. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00056">56</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00061">61</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -236,7 +237,7 @@ Static Public Attributes</h2></td></tr>
 <p>Emit object files. </p>
 <p>A file called "&lt;filename&gt;.o" will be created in the current working directory </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00043">43</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00051">51</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -265,7 +266,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Get information about the current machine. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00090">90</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00094">94</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -286,7 +287,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Parse the corresponding source file, and build AST. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00067">67</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00071">71</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -316,7 +317,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Parse a single file to AST. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00084">84</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00088">88</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -363,7 +364,7 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00095">95</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8cpp_source.html#l00099">99</a> of file <a class="el" href="compiler_8cpp_source.html">compiler.cpp</a>.</p>
 
 </div>
 </div>
@@ -378,7 +379,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structTanCompilation.html">TanCompilation</a> tanlang::Compiler::compile_config {}</td>
+          <td class="memname"><a class="el" href="structtanlang_1_1TanCompilation.html">TanCompilation</a> tanlang::Compiler::compile_config {}</td>
         </tr>
       </table>
   </td>
@@ -390,7 +391,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Current compile configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00035">35</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00042">42</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
 
 </div>
 </div>
@@ -415,15 +416,15 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p><a class="el" href="classtanlang_1_1Import.html">Import</a> search directories. </p>
-<p>This is set by <a class="el" href="libtanc_8h.html#ad61a1c199afa330cb842a3f71ed1698b" title="Compile multiple source files.">compile_files()</a> in <a class="el" href="libtanc_8h.html" title="Defines tools for compiling tan source files.">libtanc.h</a> </p>
+<p>This is set by <a class="el" href="namespacetanlang.html#a9a58e5863783e9b12ec3bbed9cbacc62" title="Compile multiple source files.">compile_files()</a> in libtanc.h </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00030">30</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="compiler_8h_source.html#l00037">37</a> of file <a class="el" href="compiler_8h_source.html">compiler.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/include/<a class="el" href="compiler_8h_source.html">compiler.h</a></li>
-<li>/mnt/d/repos/tan/src/compiler/<a class="el" href="compiler_8cpp_source.html">compiler.cpp</a></li>
+<li>/mnt/e/repos/tan/include/compiler/<a class="el" href="compiler_8h_source.html">compiler.h</a></li>
+<li>/mnt/e/repos/tan/src/compiler/<a class="el" href="compiler_8cpp_source.html">compiler.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

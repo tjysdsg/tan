@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -63,24 +64,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a867a96b650bb7ce0c5dd7e781d7334a1"><td class="memItemLeft" align="right" valign="top"><a id="a867a96b650bb7ce0c5dd7e781d7334a1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SourceManager</b> (str filename, vector&lt; <a class="el" href="classtanlang_1_1Token.html">Token</a> * &gt; tokens)</td></tr>
 <tr class="separator:a867a96b650bb7ce0c5dd7e781d7334a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a377f49706b306ef8021d4a85badb0b3f"><td class="memItemLeft" align="right" valign="top"><a id="a377f49706b306ef8021d4a85badb0b3f"></a>
-<a class="el" href="classtanlang_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_token</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) const</td></tr>
-<tr class="separator:a377f49706b306ef8021d4a85badb0b3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16714ae87c6aa122a4ad7e24af230c97"><td class="memItemLeft" align="right" valign="top"><a id="a16714ae87c6aa122a4ad7e24af230c97"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_line</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) const</td></tr>
-<tr class="separator:a16714ae87c6aa122a4ad7e24af230c97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c3e52113644ccb21baaa6d2b4887e10"><td class="memItemLeft" align="right" valign="top"><a id="a3c3e52113644ccb21baaa6d2b4887e10"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_col</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) const</td></tr>
-<tr class="separator:a3c3e52113644ccb21baaa6d2b4887e10"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2380bebe373801c7f0211711c0deecfc"><td class="memItemLeft" align="right" valign="top"><a id="a2380bebe373801c7f0211711c0deecfc"></a>
-str&#160;</td><td class="memItemRight" valign="bottom"><b>get_token_str</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) const</td></tr>
-<tr class="separator:a2380bebe373801c7f0211711c0deecfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab54651c1081b58d8e291987bc4919cb"><td class="memItemLeft" align="right" valign="top"><a id="aab54651c1081b58d8e291987bc4919cb"></a>
+<a class="el" href="classtanlang_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_token</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) const</td></tr>
+<tr class="separator:aab54651c1081b58d8e291987bc4919cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea90cb6ddc4bc9b86f18f20cd8744601"><td class="memItemLeft" align="right" valign="top"><a id="aea90cb6ddc4bc9b86f18f20cd8744601"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_line</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) const</td></tr>
+<tr class="separator:aea90cb6ddc4bc9b86f18f20cd8744601"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a986c180db087cc0705883ff9cb171c32"><td class="memItemLeft" align="right" valign="top"><a id="a986c180db087cc0705883ff9cb171c32"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_col</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) const</td></tr>
+<tr class="separator:a986c180db087cc0705883ff9cb171c32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e038785372bdcf6c18c0e711534d0cb"><td class="memItemLeft" align="right" valign="top"><a id="a9e038785372bdcf6c18c0e711534d0cb"></a>
+str&#160;</td><td class="memItemRight" valign="bottom"><b>get_token_str</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) const</td></tr>
+<tr class="separator:a9e038785372bdcf6c18c0e711534d0cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5502caf5bc57ddd47504af4f68779617"><td class="memItemLeft" align="right" valign="top"><a id="a5502caf5bc57ddd47504af4f68779617"></a>
 <a class="el" href="classtanlang_1_1Token.html">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_last_token</b> () const</td></tr>
 <tr class="separator:a5502caf5bc57ddd47504af4f68779617"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7591fb411bffb4c11a87847e024235e4"><td class="memItemLeft" align="right" valign="top"><a id="a7591fb411bffb4c11a87847e024235e4"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_eof</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) const</td></tr>
-<tr class="separator:a7591fb411bffb4c11a87847e024235e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a054d129c8115aef41e1646fe136a7e32"><td class="memItemLeft" align="right" valign="top"><a id="a054d129c8115aef41e1646fe136a7e32"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_eof</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) const</td></tr>
+<tr class="separator:a054d129c8115aef41e1646fe136a7e32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7aad7e84d4ac4425cd239990ad610da9"><td class="memItemLeft" align="right" valign="top"><a id="a7aad7e84d4ac4425cd239990ad610da9"></a>
 str&#160;</td><td class="memItemRight" valign="bottom"><b>get_source_code</b> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p) const</td></tr>
 <tr class="separator:a7aad7e84d4ac4425cd239990ad610da9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -89,8 +90,8 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_source_code</b> (<
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="source__manager_8h_source.html#l00027">27</a> of file <a class="el" href="source__manager_8h_source.html">source_manager.h</a>.</p>
 </div><hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="source__manager_8h_source.html">source_manager.h</a></li>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="source__manager_8cpp_source.html">source_manager.cpp</a></li>
+<li>/mnt/e/repos/tan/include/ast/<a class="el" href="source__manager_8h_source.html">source_manager.h</a></li>
+<li>/mnt/e/repos/tan/src/ast/<a class="el" href="source__manager_8cpp_source.html">source_manager.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

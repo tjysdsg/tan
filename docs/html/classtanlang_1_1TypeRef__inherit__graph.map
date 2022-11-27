@@ -1,0 +1,4 @@
+<map id="tanlang::TypeRef" name="tanlang::TypeRef">
+<area shape="rect" id="node1" title="Placeholder during parsing." alt="" coords="5,80,136,107"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Type.html" title="Type is immutable once created, and it&#39;s made sure that each type has only one instance." alt="" coords="16,5,125,32"/>
+</map>

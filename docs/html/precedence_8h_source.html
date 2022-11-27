@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/ast/precedence.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/ast/precedence.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_203e5988f1ed315d29383d699972de6f.html">ast</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_7347dc76a0e005a8017061b66f2d1b7a.html">ast</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -55,29 +55,34 @@
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef __TAN_SRC_AST_PRECEDENCE_H__</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_AST_PRECEDENCE_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">enum</span> PrecedenceLevel {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;  PREC_LOWEST = 0,        <span class="comment">//</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;  PREC_LITERAL = 10,      <span class="comment">// &quot;string&quot; 1.0 2</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  PREC_ASSIGN = 90,       <span class="comment">// = *= /= %= += -= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  PREC_LOGICAL_OR = 110,  <span class="comment">// ||</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  PREC_LOGICAL_AND = 120, <span class="comment">// &amp;&amp;</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  PREC_COMPARISON = 130,  <span class="comment">// &lt; &lt;= &gt; &gt;= == != === !== ~=</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  PREC_RANGE = 135,       <span class="comment">// ..&lt; ...</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  PREC_TERM = 140,        <span class="comment">// + - | ^</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  PREC_FACTOR = 150,      <span class="comment">// * / % &amp;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  PREC_CAST = 155,        <span class="comment">// as</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  PREC_SHIFT = 160,       <span class="comment">// &lt;&lt; &gt;&gt;</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  PREC_UNARY = 170,       <span class="comment">// + - ! ~</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  PREC_CALL = 200,        <span class="comment">// . ( [</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  PREC_HIGHEST = 500,</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;};</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;}</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_AST_PRECEDENCE_H__</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment"> * \brief Operator precedence as enums. The higher the value, the higher the precedence</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment"> */</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="namespacetanlang.html#ad35ea2ac073262bb27e1bf0c4e6693b3">    9</a></span>&#160;<span class="keyword">enum</span> <a class="code" href="namespacetanlang.html#ad35ea2ac073262bb27e1bf0c4e6693b3">PrecedenceLevel</a> {</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;  PREC_LOWEST = 0,        <span class="comment">//</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;  PREC_LITERAL = 10,      <span class="comment">// &quot;string&quot; 1.0 2</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  PREC_ASSIGN = 90,       <span class="comment">// = *= /= %= += -= &lt;&lt;= &gt;&gt;= &amp;= ^= |=</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  PREC_LOGICAL_OR = 110,  <span class="comment">// ||</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  PREC_LOGICAL_AND = 120, <span class="comment">// &amp;&amp;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  PREC_COMPARISON = 130,  <span class="comment">// &lt; &lt;= &gt; &gt;= == != === !== ~=</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  PREC_RANGE = 135,       <span class="comment">// ..&lt; ...</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  PREC_TERM = 140,        <span class="comment">// + - | ^</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  PREC_FACTOR = 150,      <span class="comment">// * / % &amp;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  PREC_CAST = 155,        <span class="comment">// as</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  PREC_SHIFT = 160,       <span class="comment">// &lt;&lt; &gt;&gt;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  PREC_UNARY = 170,       <span class="comment">// + - ! ~</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  PREC_CALL = 200,        <span class="comment">// . ( [</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  PREC_HIGHEST = 500,</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;};</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_AST_PRECEDENCE_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad35ea2ac073262bb27e1bf0c4e6693b3"><div class="ttname"><a href="namespacetanlang.html#ad35ea2ac073262bb27e1bf0c4e6693b3">tanlang::PrecedenceLevel</a></div><div class="ttdeci">PrecedenceLevel</div><div class="ttdoc">Operator precedence as enums. The higher the value, the higher the precedence.</div><div class="ttdef"><b>Definition:</b> <a href="precedence_8h_source.html#l00009">precedence.h:9</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

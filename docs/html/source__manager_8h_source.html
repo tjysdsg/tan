@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/ast/source_manager.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/ast/source_manager.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_203e5988f1ed315d29383d699972de6f.html">ast</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_7347dc76a0e005a8017061b66f2d1b7a.html">ast</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -56,23 +56,23 @@
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_AST_SOURCE_MANAGER_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">/**</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment"> * \brief The index of the token in SourceManager</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment"> */</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classtanlang_1_1SourceIndex.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>(<span class="keyword">const</span> <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> &amp;) = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> &amp;) = <span class="keywordflow">default</span>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>(<span class="keywordtype">size_t</span> index) { _index = index; }</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  <span class="keyword">static</span> <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> CreateInvalidIndex() { <span class="keywordflow">return</span> <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>(<span class="keyword">static_cast&lt;</span><span class="keywordtype">size_t</span><span class="keyword">&gt;</span>(-1)); }</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keywordtype">size_t</span> get_index()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _index; }</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordtype">void</span> offset_by(int64_t offset) { _index += offset; }</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">class </span>ASTBase;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"> * \brief Stores the location information of a token in SourceManager</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment"> */</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="classtanlang_1_1SrcLoc.html">   12</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(<span class="keyword">const</span> <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;) = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;operator=(<span class="keyword">const</span> <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;) = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(<span class="keywordtype">size_t</span> index) { _index = index; }</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keywordtype">void</span> offset_by(int64_t offset) { _index = (size_t)((int64_t)_index + offset); }</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">private</span>:</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordtype">size_t</span> _index = 0;</div>
@@ -82,12 +82,12 @@
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>() = <span class="keyword">delete</span>;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>(str filename, vector&lt;Token *&gt; tokens);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a> *get_token(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keywordtype">size_t</span> get_line(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keywordtype">size_t</span> get_col(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  str get_token_str(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a> *get_token(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  uint32_t get_line(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  uint32_t get_col(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  str get_token_str(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a> *get_last_token() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">bool</span> is_eof(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">bool</span> is_eof(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  str get_source_code(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">private</span>:</div>
@@ -95,14 +95,15 @@
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  vector&lt;Token *&gt; _tokens;</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;}</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_AST_SOURCE_MANAGER_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00044">token.h:44</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1SourceIndex_html"><div class="ttname"><a href="classtanlang_1_1SourceIndex.html">tanlang::SourceIndex</a></div><div class="ttdoc">The index of the token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00010">source_manager.h:10</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00032">token.h:32</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1SourceManager_html"><div class="ttname"><a href="classtanlang_1_1SourceManager.html">tanlang::SourceManager</a></div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00027">source_manager.h:27</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00016">ast_base.h:16</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00012">ast_base.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SrcLoc_html"><div class="ttname"><a href="classtanlang_1_1SrcLoc.html">tanlang::SrcLoc</a></div><div class="ttdoc">Stores the location information of a token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00012">source_manager.h:12</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

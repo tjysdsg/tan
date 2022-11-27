@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="structtanlang_1_1Scope.html">Scope</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="structtanlang_1_1Scope.html">Scope</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -57,18 +58,51 @@
 <div class="title">tanlang::Scope Struct Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Collaboration diagram for tanlang::Scope:</div>
+<div class="dyncontent">
+<div class="center"><img src="structtanlang_1_1Scope__coll__graph.png" border="0" usemap="#tanlang_1_1Scope_coll__map" alt="Collaboration graph"/></div>
+<map name="tanlang_1_1Scope_coll__map" id="tanlang_1_1Scope_coll__map">
+<area shape="rect" title=" " alt="" coords="39,412,157,439"/>
+<area shape="rect" href="classtanlang_1_1Loop.html" title=" " alt="" coords="43,323,153,349"/>
+<area shape="rect" href="classtanlang_1_1Stmt.html" title=" " alt="" coords="43,247,153,273"/>
+<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,171,166,197"/>
+<area shape="rect" href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,95,191,121"/>
+<area shape="rect" href="classtanlang_1_1SrcLoc.html" title="Stores the location information of a token in SourceManager." alt="" coords="37,5,159,32"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a5b37ea96ddd9258191284df9397749f0"><td class="memItemLeft" align="right" valign="top"><a id="a5b37ea96ddd9258191284df9397749f0"></a>
-umap&lt; str, <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_named</b> {}</td></tr>
-<tr class="separator:a5b37ea96ddd9258191284df9397749f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcca4956aff6cff681b6fb6c2beefdd6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Loop.html">Loop</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtanlang_1_1Scope.html#adcca4956aff6cff681b6fb6c2beefdd6">_current_loop</a> = nullptr</td></tr>
+<tr class="separator:adcca4956aff6cff681b6fb6c2beefdd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad87acba8d8f26946feae82dc212bf36f"><td class="memItemLeft" align="right" valign="top"><a id="ad87acba8d8f26946feae82dc212bf36f"></a>
+umap&lt; str, <a class="el" href="classtanlang_1_1Decl.html">Decl</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>_declared</b> {}</td></tr>
+<tr class="separator:ad87acba8d8f26946feae82dc212bf36f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="scope_8h_source.html#l00008">8</a> of file <a class="el" href="scope_8h_source.html">scope.h</a>.</p>
-</div><hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/mnt/d/repos/tan/src/<a class="el" href="scope_8h_source.html">scope.h</a></li>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="adcca4956aff6cff681b6fb6c2beefdd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcca4956aff6cff681b6fb6c2beefdd6">&#9670;&nbsp;</a></span>_current_loop</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1Loop.html">Loop</a>* tanlang::Scope::_current_loop = nullptr</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The control flow in current scope, used by break and continue </p>
+
+<p class="definition">Definition at line <a class="el" href="scope_8h_source.html#l00012">12</a> of file <a class="el" href="scope_8h_source.html">scope.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li>/mnt/e/repos/tan/include/analysis/<a class="el" href="scope_8h_source.html">scope.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

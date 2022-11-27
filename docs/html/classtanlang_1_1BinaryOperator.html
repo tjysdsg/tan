@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,14 +47,13 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
@@ -67,13 +67,12 @@ Inheritance diagram for tanlang::BinaryOperator:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtanlang_1_1BinaryOperator__inherit__graph.png" border="0" usemap="#tanlang_1_1BinaryOperator_inherit__map" alt="Inheritance graph"/></div>
 <map name="tanlang_1_1BinaryOperator_inherit__map" id="tanlang_1_1BinaryOperator_inherit__map">
-<area shape="rect" title=" " alt="" coords="107,229,286,256"/>
-<area shape="rect" href="classtanlang_1_1MemberAccess.html" title=" " alt="" coords="107,304,286,331"/>
-<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="143,155,251,181"/>
-<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="42,80,178,107"/>
+<area shape="rect" title=" " alt="" coords="83,229,262,256"/>
+<area shape="rect" href="classtanlang_1_1MemberAccess.html" title=" " alt="" coords="83,304,262,331"/>
+<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="119,155,227,181"/>
+<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,80,166,107"/>
 <area shape="rect" href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,5,191,32"/>
-<area shape="rect" href="classtanlang_1_1Typed.html" title=" " alt="" coords="226,80,343,107"/>
-<area shape="rect" href="classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,5,381,32"/>
+<area shape="rect" href="classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,80,307,107"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -81,13 +80,12 @@ Collaboration diagram for tanlang::BinaryOperator:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtanlang_1_1BinaryOperator__coll__graph.png" border="0" usemap="#tanlang_1_1BinaryOperator_coll__map" alt="Collaboration graph"/></div>
 <map name="tanlang_1_1BinaryOperator_coll__map" id="tanlang_1_1BinaryOperator_coll__map">
-<area shape="rect" title=" " alt="" coords="102,351,281,377"/>
-<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="137,247,245,273"/>
-<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="49,171,185,197"/>
+<area shape="rect" title=" " alt="" coords="121,351,299,377"/>
+<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="156,247,264,273"/>
+<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,171,166,197"/>
 <area shape="rect" href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,95,191,121"/>
-<area shape="rect" href="classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="19,5,177,32"/>
-<area shape="rect" href="classtanlang_1_1Typed.html" title=" " alt="" coords="233,171,350,197"/>
-<area shape="rect" href="classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,95,381,121"/>
+<area shape="rect" href="classtanlang_1_1SrcLoc.html" title="Stores the location information of a token in SourceManager." alt="" coords="37,5,159,32"/>
+<area shape="rect" href="classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,171,307,197"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -106,14 +104,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_rhs</b> (<a class
 <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_rhs</b> () const</td></tr>
 <tr class="separator:a22d0c228568953f487e0572bb9d8d1c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3397e1bac95a08c0b71ddbbe39c5123b"><td class="memItemLeft" align="right" valign="top"><a id="a3397e1bac95a08c0b71ddbbe39c5123b"></a>
-BinaryOpKind&#160;</td><td class="memItemRight" valign="bottom"><b>get_op</b> () const</td></tr>
+<a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_op</b> () const</td></tr>
 <tr class="separator:a3397e1bac95a08c0b71ddbbe39c5123b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3173a3fd6793b46ea39611788c7e1d85"><td class="memItemLeft" align="right" valign="top"><a id="a3173a3fd6793b46ea39611788c7e1d85"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>get_dominant_idx</b> () const</td></tr>
-<tr class="separator:a3173a3fd6793b46ea39611788c7e1d85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12c7e1f469a0ca433e29779ec6fad850"><td class="memItemLeft" align="right" valign="top"><a id="a12c7e1f469a0ca433e29779ec6fad850"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_dominant_idx</b> (size_t idx)</td></tr>
-<tr class="separator:a12c7e1f469a0ca433e29779ec6fad850"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6020cf914667767a92e2f27aa6a9994b"><td class="memItemLeft" align="right" valign="top">vector&lt; <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1BinaryOperator.html#a6020cf914667767a92e2f27aa6a9994b">get_children</a> () const override</td></tr>
 <tr class="memdesc:a6020cf914667767a92e2f27aa6a9994b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a ordered list of child nodes.  <a href="classtanlang_1_1BinaryOperator.html#a6020cf914667767a92e2f27aa6a9994b">More...</a><br /></td></tr>
 <tr class="separator:a6020cf914667767a92e2f27aa6a9994b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,19 +113,22 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_dominant_idx</b> 
 <tr class="memitem:aea3669527b7952280561f337433bceb8 inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="aea3669527b7952280561f337433bceb8"></a>
 virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_comptime_known</b> ()</td></tr>
 <tr class="separator:aea3669527b7952280561f337433bceb8 inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95f5646050b10305507864182ea34e24 inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="a95f5646050b10305507864182ea34e24"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_lvalue</b> ()</td></tr>
+<tr class="separator:a95f5646050b10305507864182ea34e24 inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0089f7a54b6f8653671abfa74b6ea02 inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="ac0089f7a54b6f8653671abfa74b6ea02"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>set_lvalue</b> (bool is_lvalue)</td></tr>
+<tr class="separator:ac0089f7a54b6f8653671abfa74b6ea02 inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:a8ce96530062e864f588111848cd4793d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a8ce96530062e864f588111848cd4793d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ASTBase</b> (ASTNodeType node_type, <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, int bp)</td></tr>
-<tr class="separator:a8ce96530062e864f588111848cd4793d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa30f0086bde5abf0c1ab3886ae99e630 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="aa30f0086bde5abf0c1ab3886ae99e630"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ASTBase</b> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, int bp)</td></tr>
+<tr class="separator:aa30f0086bde5abf0c1ab3886ae99e630 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4930aaa6604ad9eebbc6a479118b308e inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a4930aaa6604ad9eebbc6a479118b308e"></a>
-ASTNodeType&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_type</b> () const</td></tr>
+<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>get_node_type</b> () const</td></tr>
 <tr class="separator:a4930aaa6604ad9eebbc6a479118b308e inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac47cf78eaccbf82371d490c8ce7987d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="aac47cf78eaccbf82371d490c8ce7987d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_node_type</b> (ASTNodeType node_type)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_node_type</b> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type)</td></tr>
 <tr class="separator:aac47cf78eaccbf82371d490c8ce7987d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5cf9fe5bddc607f7aa08380a51ea5b9 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="ab5cf9fe5bddc607f7aa08380a51ea5b9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_bp</b> (int bp)</td></tr>
-<tr class="separator:ab5cf9fe5bddc607f7aa08380a51ea5b9 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ae28fbb62185d87852f5fa447aa8055 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a3ae28fbb62185d87852f5fa447aa8055"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>get_bp</b> () const</td></tr>
 <tr class="separator:a3ae28fbb62185d87852f5fa447aa8055 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -141,63 +136,53 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>get_bp</b> () const</t
 <tr class="memdesc:a9e04d4b8ded519990d5a8fd0a3d469ce inherit pub_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pretty-print AST tree.  <a href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">More...</a><br /></td></tr>
 <tr class="separator:a9e04d4b8ded519990d5a8fd0a3d469ce inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1SourceTraceable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1SourceTraceable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1SourceTraceable.html">tanlang::SourceTraceable</a></td></tr>
-<tr class="memitem:a6b6cc647eae2fc36c7562a1caa2e861d inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="a6b6cc647eae2fc36c7562a1caa2e861d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SourceTraceable</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> source_loc)</td></tr>
-<tr class="separator:a6b6cc647eae2fc36c7562a1caa2e861d inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e7c6785c58a2a451d8bd70268ff5902 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="a6e7c6785c58a2a451d8bd70268ff5902"></a>
-const <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_loc</b> () const</td></tr>
-<tr class="separator:a6e7c6785c58a2a451d8bd70268ff5902 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1ef73a8f96f2fab99afbac6f553c0c9 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="aa1ef73a8f96f2fab99afbac6f553c0c9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_loc</b> (<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc)</td></tr>
-<tr class="separator:aa1ef73a8f96f2fab99afbac6f553c0c9 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0aef6caa41ad3e56d33508a8f67c5f4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="ab0aef6caa41ad3e56d33508a8f67c5f4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SourceTraceable</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> source_loc)</td></tr>
+<tr class="separator:ab0aef6caa41ad3e56d33508a8f67c5f4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a741a3a24d33deca4d9b5489410f9d8b4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="a741a3a24d33deca4d9b5489410f9d8b4"></a>
+const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>loc</b> () const</td></tr>
+<tr class="separator:a741a3a24d33deca4d9b5489410f9d8b4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba7d947529c04a598f2ea83b251cf19a inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="aba7d947529c04a598f2ea83b251cf19a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_loc</b> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)</td></tr>
+<tr class="separator:aba7d947529c04a598f2ea83b251cf19a inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1Typed"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1Typed')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1Typed.html">tanlang::Typed</a></td></tr>
-<tr class="memitem:a087b14be5e450e8ef145e9e54870daa2 inherit pub_methods_classtanlang_1_1Typed"><td class="memItemLeft" align="right" valign="top"><a id="a087b14be5e450e8ef145e9e54870daa2"></a>
-virtual <a class="el" href="classtanlang_1_1ASTType.html">ASTType</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_type</b> () const</td></tr>
-<tr class="separator:a087b14be5e450e8ef145e9e54870daa2 inherit pub_methods_classtanlang_1_1Typed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad70833e5699dae16e68b91d2a77637bd inherit pub_methods_classtanlang_1_1Typed"><td class="memItemLeft" align="right" valign="top"><a id="ad70833e5699dae16e68b91d2a77637bd"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (<a class="el" href="classtanlang_1_1ASTType.html">ASTType</a> *type)</td></tr>
-<tr class="separator:ad70833e5699dae16e68b91d2a77637bd inherit pub_methods_classtanlang_1_1Typed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c21023a01b66354aa723df2546fe965 inherit pub_methods_classtanlang_1_1Typed"><td class="memItemLeft" align="right" valign="top"><a id="a6c21023a01b66354aa723df2546fe965"></a>
+virtual <a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_type</b> () const</td></tr>
+<tr class="separator:a6c21023a01b66354aa723df2546fe965 inherit pub_methods_classtanlang_1_1Typed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a566e95f8981df415e6febead5ba3dde3 inherit pub_methods_classtanlang_1_1Typed"><td class="memItemLeft" align="right" valign="top"><a id="a566e95f8981df415e6febead5ba3dde3"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *type)</td></tr>
+<tr class="separator:a566e95f8981df415e6febead5ba3dde3 inherit pub_methods_classtanlang_1_1Typed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a5169c0358f48b7c05dd385c4a2ad9723"><td class="memItemLeft" align="right" valign="top"><a id="a5169c0358f48b7c05dd385c4a2ad9723"></a>
-static <a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (BinaryOpKind op, <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc)</td></tr>
-<tr class="separator:a5169c0358f48b7c05dd385c4a2ad9723"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc86997bb4f1896a3b9939bfb11da27f"><td class="memItemLeft" align="right" valign="top"><a id="adc86997bb4f1896a3b9939bfb11da27f"></a>
-static <a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (BinaryOpKind op, <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *lhs, <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *rhs)</td></tr>
-<tr class="separator:adc86997bb4f1896a3b9939bfb11da27f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ae2cace687e9c5452e72c3a8b3f4c3ed9"><td class="memItemLeft" align="right" valign="top"><a id="ae2cace687e9c5452e72c3a8b3f4c3ed9"></a>
-size_t&#160;</td><td class="memItemRight" valign="bottom"><b>_dominant_idx</b> = 0</td></tr>
-<tr class="separator:ae2cace687e9c5452e72c3a8b3f4c3ed9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:a0c08d560e4e46c59c87bfe231b977132 inherit pub_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a0c08d560e4e46c59c87bfe231b977132"></a>
-llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>_llvm_value</b> = nullptr</td></tr>
-<tr class="separator:a0c08d560e4e46c59c87bfe231b977132 inherit pub_attribs_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49d8aab14ab8c8edfa44735a64af567e"><td class="memItemLeft" align="right" valign="top"><a id="a49d8aab14ab8c8edfa44735a64af567e"></a>
+static <a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (<a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a> op, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)</td></tr>
+<tr class="separator:a49d8aab14ab8c8edfa44735a64af567e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62d8e93df047838d1aafa56d62924629"><td class="memItemLeft" align="right" valign="top"><a id="a62d8e93df047838d1aafa56d62924629"></a>
+static <a class="el" href="classtanlang_1_1BinaryOperator.html">BinaryOperator</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Create</b> (<a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a> op, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *lhs, <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *rhs)</td></tr>
+<tr class="separator:a62d8e93df047838d1aafa56d62924629"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:adb935cd9641e9adef2e8f3e2c66eeaf1"><td class="memItemLeft" align="right" valign="top">static umap&lt; BinaryOpKind, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1BinaryOperator.html#adb935cd9641e9adef2e8f3e2c66eeaf1">BOPPrecedence</a></td></tr>
+<tr class="memitem:adb935cd9641e9adef2e8f3e2c66eeaf1"><td class="memItemLeft" align="right" valign="top">static umap&lt; <a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a>, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1BinaryOperator.html#adb935cd9641e9adef2e8f3e2c66eeaf1">BOPPrecedence</a></td></tr>
 <tr class="memdesc:adb935cd9641e9adef2e8f3e2c66eeaf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">binary operator precedence  <a href="classtanlang_1_1BinaryOperator.html#adb935cd9641e9adef2e8f3e2c66eeaf1">More...</a><br /></td></tr>
 <tr class="separator:adb935cd9641e9adef2e8f3e2c66eeaf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_attribs_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; ASTNodeType, str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4d72ca1ef30a7f571a975ba0446f4634">ASTTypeNames</a></td></tr>
+<tr class="memitem:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; <a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>, str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4d72ca1ef30a7f571a975ba0446f4634">ASTTypeNames</a></td></tr>
 <tr class="memdesc:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">string representation of ASTNodeType  <a href="classtanlang_1_1ASTBase.html#a4d72ca1ef30a7f571a975ba0446f4634">More...</a><br /></td></tr>
 <tr class="separator:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; ASTNodeType, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ac168fc18b692ecc531c55ef54a8b163e">OpPrecedence</a></td></tr>
+<tr class="memitem:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; <a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ac168fc18b692ecc531c55ef54a8b163e">OpPrecedence</a></td></tr>
 <tr class="memdesc:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator precedence of tokens  <a href="classtanlang_1_1ASTBase.html#ac168fc18b692ecc531c55ef54a8b163e">More...</a><br /></td></tr>
 <tr class="separator:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:afec4510a6f953d83320d674066aee5c8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1BinaryOperator.html#afec4510a6f953d83320d674066aee5c8">BinaryOperator</a> (BinaryOpKind op, <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc)</td></tr>
-<tr class="separator:afec4510a6f953d83320d674066aee5c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cb632de7ef044974dd7b62693be213d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1BinaryOperator.html#a6cb632de7ef044974dd7b62693be213d">BinaryOperator</a> (<a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a> op, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)</td></tr>
+<tr class="separator:a6cb632de7ef044974dd7b62693be213d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1Expr"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1Expr')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1Expr.html">tanlang::Expr</a></td></tr>
-<tr class="memitem:a2206eb8e96c008b5b5aa1dbdd3be2f1f inherit pro_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="a2206eb8e96c008b5b5aa1dbdd3be2f1f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Expr</b> (ASTNodeType type, <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, int bp)</td></tr>
-<tr class="separator:a2206eb8e96c008b5b5aa1dbdd3be2f1f inherit pro_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a04d44b2229c71a8f471b1e1415c23f inherit pro_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="a5a04d44b2229c71a8f471b1e1415c23f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expr</b> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> type, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, int bp)</td></tr>
+<tr class="separator:a5a04d44b2229c71a8f471b1e1415c23f inherit pro_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
 <tr class="memitem:a60318276359d10692796b1aec4ad590f inherit pro_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a60318276359d10692796b1aec4ad590f"></a>
 virtual str&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> (bool print_prefix=true) const</td></tr>
@@ -209,7 +194,7 @@ virtual str&#160;</td><td class="memItemRight" valign="bottom"><b>to_string</b> 
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:a9438e270d0561f84fa4bde0e3c78f979"><td class="memItemLeft" align="right" valign="top"><a id="a9438e270d0561f84fa4bde0e3c78f979"></a>
-BinaryOpKind&#160;</td><td class="memItemRight" valign="bottom"><b>_op</b></td></tr>
+<a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_op</b></td></tr>
 <tr class="separator:a9438e270d0561f84fa4bde0e3c78f979"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a981d345ee94e3b7eb9ccf97b3af76e8e"><td class="memItemLeft" align="right" valign="top"><a id="a981d345ee94e3b7eb9ccf97b3af76e8e"></a>
 <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_lhs</b> = nullptr</td></tr>
@@ -217,17 +202,21 @@ BinaryOpKind&#160;</td><td class="memItemRight" valign="bottom"><b>_op</b></td><
 <tr class="memitem:a7280d7f84a53d5ee127da440208d3e5c"><td class="memItemLeft" align="right" valign="top"><a id="a7280d7f84a53d5ee127da440208d3e5c"></a>
 <a class="el" href="classtanlang_1_1Expr.html">Expr</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_rhs</b> = nullptr</td></tr>
 <tr class="separator:a7280d7f84a53d5ee127da440208d3e5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classtanlang_1_1Expr"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classtanlang_1_1Expr')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classtanlang_1_1Expr.html">tanlang::Expr</a></td></tr>
+<tr class="memitem:a3eb17f9cd69ce1a1df3d2fec0a035608 inherit pro_attribs_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top"><a id="a3eb17f9cd69ce1a1df3d2fec0a035608"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_is_lvalue</b> = false</td></tr>
+<tr class="separator:a3eb17f9cd69ce1a1df3d2fec0a035608 inherit pro_attribs_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classtanlang_1_1SourceTraceable"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classtanlang_1_1SourceTraceable')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classtanlang_1_1SourceTraceable.html">tanlang::SourceTraceable</a></td></tr>
-<tr class="memitem:a897ef1dc07cce9c20e6bbc32e86d3f9e inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="a897ef1dc07cce9c20e6bbc32e86d3f9e"></a>
-<a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_loc</b> = <a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>(0)</td></tr>
-<tr class="separator:a897ef1dc07cce9c20e6bbc32e86d3f9e inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa980261c3e3be417b087510ec9250d57 inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a id="aa980261c3e3be417b087510ec9250d57"></a>
+<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_loc</b> = <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(0)</td></tr>
+<tr class="separator:aa980261c3e3be417b087510ec9250d57 inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="expr_8h_source.html#l00182">182</a> of file <a class="el" href="expr_8h_source.html">expr.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="expr_8h_source.html#l00210">210</a> of file <a class="el" href="expr_8h_source.html">expr.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="afec4510a6f953d83320d674066aee5c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afec4510a6f953d83320d674066aee5c8">&#9670;&nbsp;</a></span>BinaryOperator()</h2>
+<a id="a6cb632de7ef044974dd7b62693be213d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cb632de7ef044974dd7b62693be213d">&#9670;&nbsp;</a></span>BinaryOperator()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -238,13 +227,13 @@ BinaryOpKind&#160;</td><td class="memItemRight" valign="bottom"><b>_op</b></td><
         <tr>
           <td class="memname">BinaryOperator::BinaryOperator </td>
           <td>(</td>
-          <td class="paramtype">BinaryOpKind&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a>&#160;</td>
           <td class="paramname"><em>op</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceIndex.html">SourceIndex</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td>
           <td class="paramname"><em>loc</em>&#160;</td>
         </tr>
         <tr>
@@ -262,7 +251,7 @@ BinaryOpKind&#160;</td><td class="memItemRight" valign="bottom"><b>_op</b></td><
 <h1><a class="anchor" id="Binary"></a>
 operators</h1>
 
-<p class="definition">Definition at line <a class="el" href="expr_8cpp_source.html#l00128">128</a> of file <a class="el" href="expr_8cpp_source.html">expr.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="expr_8cpp_source.html#l00149">149</a> of file <a class="el" href="expr_8cpp_source.html">expr.cpp</a>.</p>
 
 </div>
 </div>
@@ -292,9 +281,9 @@ operators</h1>
 
 <p>Get a ordered list of child nodes. </p>
 
-<p>Reimplemented from <a class="el" href="classtanlang_1_1ASTBase.html#ae1f79565123171b172631af9d0d57340">tanlang::ASTBase</a>.</p>
+<p>Reimplemented from <a class="el" href="classtanlang_1_1Expr.html#afd26c8a413f86b31904ab0d210b1fd8c">tanlang::Expr</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="expr_8cpp_source.html#l00160">160</a> of file <a class="el" href="expr_8cpp_source.html">expr.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="expr_8cpp_source.html#l00191">191</a> of file <a class="el" href="expr_8cpp_source.html">expr.cpp</a>.</p>
 
 </div>
 </div>
@@ -309,7 +298,7 @@ operators</h1>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">umap&lt; BinaryOpKind, int &gt; BinaryOperator::BOPPrecedence</td>
+          <td class="memname">umap&lt; <a class="el" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661d">BinaryOpKind</a>, int &gt; BinaryOperator::BOPPrecedence</td>
         </tr>
       </table>
   </td>
@@ -318,26 +307,53 @@ operators</h1>
   </tr>
 </table>
 </div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    {{BinaryOpKind::SUM, PREC_TERM}, {BinaryOpKind::SUBTRACT, PREC_TERM}, {BinaryOpKind::BOR, PREC_TERM},</div>
-<div class="line">        {BinaryOpKind::XOR, PREC_TERM}, {BinaryOpKind::MULTIPLY, PREC_FACTOR}, {BinaryOpKind::DIVIDE, PREC_FACTOR},</div>
-<div class="line">        {BinaryOpKind::MOD, PREC_FACTOR}, {BinaryOpKind::BAND, PREC_FACTOR}, {BinaryOpKind::GT, PREC_COMPARISON},</div>
-<div class="line">        {BinaryOpKind::GE, PREC_COMPARISON}, {BinaryOpKind::NE, PREC_COMPARISON}, {BinaryOpKind::LT, PREC_COMPARISON},</div>
-<div class="line">        {BinaryOpKind::LE, PREC_COMPARISON}, {BinaryOpKind::EQ, PREC_COMPARISON},</div>
-<div class="line">        {BinaryOpKind::LAND, PREC_LOGICAL_AND}, {BinaryOpKind::LOR, PREC_LOGICAL_OR},</div>
-<div class="line">        {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST}}</div>
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    {BinaryOpKind::SUM,           PREC_TERM       },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da23ebcc4776b613af25dfbe7c8ce4813e">BinaryOpKind::SUBTRACT</a>,      PREC_TERM       },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da0adf6aac232504c55ea4202e09498bfd">BinaryOpKind::BOR</a>,           PREC_TERM       },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da97675eb3f268048604dc5155511a2a4d">BinaryOpKind::XOR</a>,           PREC_TERM       },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da080aaf8d817ada96fca7096b7b55bd30">BinaryOpKind::MULTIPLY</a>,      PREC_FACTOR     },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da210c66d794cec40488f3f8f634d6c33b">BinaryOpKind::DIVIDE</a>,        PREC_FACTOR     },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dac5a28f4b35a2884fa3277150ac5d0967">BinaryOpKind::MOD</a>,           PREC_FACTOR     },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661daa8a5bbeedca093b94b7f0d3f185b98f7">BinaryOpKind::BAND</a>,          PREC_FACTOR     },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dacd6a9bd2a175104eed40f0d33a8b4020">BinaryOpKind::GT</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661daf803729628adf4199f224c2a225038e9">BinaryOpKind::GE</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dadc33066c3993e0d50896e533fd692ce0">BinaryOpKind::NE</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dac562607189d77eb9dfb707464c1e7b0b">BinaryOpKind::LT</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dacfe6055d2e0503be378bb63449ec7ba6">BinaryOpKind::LE</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da2dcbad7477fd40561e8b8198f173bd47">BinaryOpKind::EQ</a>,            PREC_COMPARISON },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da479a809c0b6eaaefd3b1df16f976df06">BinaryOpKind::LAND</a>,          PREC_LOGICAL_AND},</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dad3335c358811cfc353257e21b1d38229">BinaryOpKind::LOR</a>,           PREC_LOGICAL_OR },</div>
+<div class="line">    {<a class="code" href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dafb92cb1aea4049537cc4a5575fa84585">BinaryOpKind::MEMBER_ACCESS</a>, PREC_HIGHEST    }</div>
+<div class="line">}</div>
 </div><!-- fragment -->
 <p>binary operator precedence </p>
 
-<p class="definition">Definition at line <a class="el" href="expr_8h_source.html#l00191">191</a> of file <a class="el" href="expr_8h_source.html">expr.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="expr_8h_source.html#l00219">219</a> of file <a class="el" href="expr_8h_source.html">expr.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="expr_8h_source.html">expr.h</a></li>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="expr_8cpp_source.html">expr.cpp</a></li>
+<li>/mnt/e/repos/tan/include/ast/<a class="el" href="expr_8h_source.html">expr.h</a></li>
+<li>/mnt/e/repos/tan/src/ast/<a class="el" href="expr_8cpp_source.html">expr.cpp</a></li>
 </ul>
 </div><!-- contents -->
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dacd6a9bd2a175104eed40f0d33a8b4020"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dacd6a9bd2a175104eed40f0d33a8b4020">tanlang::BinaryOpKind::GT</a></div><div class="ttdeci">@ GT</div><div class="ttdoc">logical or</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dadc33066c3993e0d50896e533fd692ce0"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dadc33066c3993e0d50896e533fd692ce0">tanlang::BinaryOpKind::NE</a></div><div class="ttdeci">@ NE</div><div class="ttdoc">==</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da23ebcc4776b613af25dfbe7c8ce4813e"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da23ebcc4776b613af25dfbe7c8ce4813e">tanlang::BinaryOpKind::SUBTRACT</a></div><div class="ttdeci">@ SUBTRACT</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dac562607189d77eb9dfb707464c1e7b0b"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dac562607189d77eb9dfb707464c1e7b0b">tanlang::BinaryOpKind::LT</a></div><div class="ttdeci">@ LT</div><div class="ttdoc">&gt;=</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da479a809c0b6eaaefd3b1df16f976df06"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da479a809c0b6eaaefd3b1df16f976df06">tanlang::BinaryOpKind::LAND</a></div><div class="ttdeci">@ LAND</div><div class="ttdoc">binary and</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dac5a28f4b35a2884fa3277150ac5d0967"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dac5a28f4b35a2884fa3277150ac5d0967">tanlang::BinaryOpKind::MOD</a></div><div class="ttdeci">@ MOD</div><div class="ttdoc">/</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da0adf6aac232504c55ea4202e09498bfd"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da0adf6aac232504c55ea4202e09498bfd">tanlang::BinaryOpKind::BOR</a></div><div class="ttdeci">@ BOR</div><div class="ttdoc">logical and</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da97675eb3f268048604dc5155511a2a4d"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da97675eb3f268048604dc5155511a2a4d">tanlang::BinaryOpKind::XOR</a></div><div class="ttdeci">@ XOR</div><div class="ttdoc">!=</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da210c66d794cec40488f3f8f634d6c33b"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da210c66d794cec40488f3f8f634d6c33b">tanlang::BinaryOpKind::DIVIDE</a></div><div class="ttdeci">@ DIVIDE</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661daa8a5bbeedca093b94b7f0d3f185b98f7"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661daa8a5bbeedca093b94b7f0d3f185b98f7">tanlang::BinaryOpKind::BAND</a></div><div class="ttdeci">@ BAND</div><div class="ttdoc">%</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dad3335c358811cfc353257e21b1d38229"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dad3335c358811cfc353257e21b1d38229">tanlang::BinaryOpKind::LOR</a></div><div class="ttdeci">@ LOR</div><div class="ttdoc">binary or</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da2dcbad7477fd40561e8b8198f173bd47"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da2dcbad7477fd40561e8b8198f173bd47">tanlang::BinaryOpKind::EQ</a></div><div class="ttdeci">@ EQ</div><div class="ttdoc">&lt;=</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661daf803729628adf4199f224c2a225038e9"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661daf803729628adf4199f224c2a225038e9">tanlang::BinaryOpKind::GE</a></div><div class="ttdeci">@ GE</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661da080aaf8d817ada96fca7096b7b55bd30"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661da080aaf8d817ada96fca7096b7b55bd30">tanlang::BinaryOpKind::MULTIPLY</a></div><div class="ttdeci">@ MULTIPLY</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dacfe6055d2e0503be378bb63449ec7ba6"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dacfe6055d2e0503be378bb63449ec7ba6">tanlang::BinaryOpKind::LE</a></div><div class="ttdeci">@ LE</div><div class="ttdoc">&lt;</div></div>
+<div class="ttc" id="anamespacetanlang_html_ad1075f17960c126e8a958e0278a3661dafb92cb1aea4049537cc4a5575fa84585"><div class="ttname"><a href="namespacetanlang.html#ad1075f17960c126e8a958e0278a3661dafb92cb1aea4049537cc4a5575fa84585">tanlang::BinaryOpKind::MEMBER_ACCESS</a></div><div class="ttdeci">@ MEMBER_ACCESS</div><div class="ttdoc">^</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

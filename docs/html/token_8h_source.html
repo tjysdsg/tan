@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/include/token.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/lexer/token.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_87cbfd3f4c551a5eb2f57f27eda1e021.html">lexer</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -57,75 +57,73 @@
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;array&gt;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">enum class</span> TokenType {</div>
+<div class="line"><a name="l00008"></a><span class="lineno"><a class="line" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">    8</a></span>&#160;<span class="keyword">enum class</span> <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> {</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;  END = -1,    <span class="comment">/// EOF</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"></span>  COMMENTS,    <span class="comment">///</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a4500610015dd2557ac417aabbfc51fb6">COMMENTS</a>,    <span class="comment">///</span></div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment"></span>  KEYWORD,     <span class="comment">///</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"></span>  INT,         <span class="comment">///</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment"></span>  FLOAT,       <span class="comment">///</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment"></span>  ID,          <span class="comment">/// identifier</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment"></span>  CHAR,        <span class="comment">/// character</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment"></span>  STRING,      <span class="comment">/// string literal</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"></span>  PUNCTUATION, <span class="comment">/// , ; . ( ) { } etc.</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span>  RELOP,       <span class="comment">/// relational operator</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment"></span>  UOP,         <span class="comment">/// unary operator</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span>  BOP,         <span class="comment">/// binary operator</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232ab718adec73e04ce3ec720dd11a06a308">ID</a>,          <span class="comment">/// identifier</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a027acd3aa6b1dd7f26119d3cf0f9a063">CHAR</a>,        <span class="comment">/// character</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a63b588d5559f64f89a416e656880b949">STRING</a>,      <span class="comment">/// string literal</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a960f97209f43a4a31e959e7fb9ec573e">PUNCTUATION</a>, <span class="comment">/// , ; . ( ) { } etc.</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a81c05a453fd7470fa53856bc5d0f8414">RELOP</a>,       <span class="comment">/// relational operator</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9ad122e9e56f199b85f6de8161f77050c7">UOP</a>,         <span class="comment">/// unary operator</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9ad7514d8d81a6537e5b51c73ca40ec984">BOP</a>,         <span class="comment">/// binary operator</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"></span>};</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">extern</span> umap&lt;TokenType, str&gt; token_type_names;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;str&gt; KEYWORDS;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;str&gt; TYPE_NAMES;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;char&gt; PUNCTUATIONS;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">extern</span> umap&lt;TokenType, str&gt; <a class="code" href="namespacetanlang.html#a4309d73b0a5587067ce7643cbd827b4f">token_type_names</a>;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;str&gt; <a class="code" href="namespacetanlang.html#aaf0719dc5f2d4af234868cd538185793">KEYWORDS</a>;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;char&gt; PUNCTUATIONS;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;str&gt; TERMINAL_TOKENS;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">// any symbol in OP can both be an operator itself or the start of an operator</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;char&gt; OP;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;char&gt; <a class="code" href="namespacetanlang.html#acd7ebd404b6d79dd4ed7495813ffc0c1">OP</a>;</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">extern</span> <span class="keyword">const</span> vector&lt;str&gt; OP_ALL;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">extern</span> umap&lt;str, TokenType&gt; OPERATION_VALUE_TYPE_MAP;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classtanlang_1_1SourceLoc.html">   32</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1SourceLoc.html">SourceLoc</a> {</div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classtanlang_1_1Token.html">   32</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Token.html">Token</a> {</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <a class="code" href="classtanlang_1_1SourceLoc.html">SourceLoc</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <a class="code" href="classtanlang_1_1SourceLoc.html">SourceLoc</a>(<span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col) : _line(line), _col(col) {}</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">size_t</span> get_line()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _line; }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">size_t</span> get_col()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _col; }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">size_t</span> _line = 0;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">size_t</span> _col = 0;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;};</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classtanlang_1_1Token.html">   44</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Token.html">Token</a> {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a>() = <span class="keyword">delete</span>;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  ~<a class="code" href="classtanlang_1_1Token.html">Token</a>();</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a>(TokenType tokenType, <span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col, str value, str source_line);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  [[nodiscard]] str to_string() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  TokenType get_type() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">void</span> set_type(TokenType type);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keyword">const</span> str &amp;get_value() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <a class="code" href="classtanlang_1_1SourceLoc.html">SourceLoc</a> *get_loc() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keyword">const</span> str &amp;get_source_line() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keywordtype">bool</span> is_unsigned() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keywordtype">void</span> set_is_unsigned(<span class="keywordtype">bool</span> is_unsigned);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordtype">size_t</span> get_line() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">size_t</span> get_col() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  TokenType _type = TokenType::END;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  str _value;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <a class="code" href="classtanlang_1_1SourceLoc.html">SourceLoc</a> *_loc = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  str _source_line;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">bool</span> _is_unsigned = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;};</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/*TAN_LEXDEF_H*/</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  ~<a class="code" href="classtanlang_1_1Token.html">Token</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <a class="code" href="classtanlang_1_1Token.html">Token</a>(<a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> tokenType, uint32_t line, uint32_t col, str value, str source_line);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> get_type() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">void</span> set_type(<a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> type);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keyword">const</span> str &amp;get_value() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  str get_source_line() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">bool</span> is_unsigned() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">void</span> set_is_unsigned(<span class="keywordtype">bool</span> is_unsigned);</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  uint32_t get_line() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  uint32_t get_col() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <a class="code" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> _type = TokenType::END;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  str _value{};</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  uint32_t _line = 0;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  uint32_t _col = 0;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  str _source_line{};</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordtype">bool</span> _is_unsigned = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;};</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/*TAN_LEXDEF_H*/</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00044">token.h:44</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1SourceLoc_html"><div class="ttname"><a href="classtanlang_1_1SourceLoc.html">tanlang::SourceLoc</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00032">token.h:32</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9a027acd3aa6b1dd7f26119d3cf0f9a063"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a027acd3aa6b1dd7f26119d3cf0f9a063">tanlang::TokenType::CHAR</a></div><div class="ttdeci">@ CHAR</div><div class="ttdoc">identifier</div></div>
+<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00032">token.h:32</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9a63b588d5559f64f89a416e656880b949"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a63b588d5559f64f89a416e656880b949">tanlang::TokenType::STRING</a></div><div class="ttdeci">@ STRING</div><div class="ttdoc">character</div></div>
+<div class="ttc" id="anamespacetanlang_html_aaf0719dc5f2d4af234868cd538185793"><div class="ttname"><a href="namespacetanlang.html#aaf0719dc5f2d4af234868cd538185793">tanlang::KEYWORDS</a></div><div class="ttdeci">const vector&lt; str &gt; KEYWORDS</div><div class="ttdoc">keywords/reserved words</div><div class="ttdef"><b>Definition:</b> <a href="token_8cpp_source.html#l00021">token.cpp:21</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad5ec8893294ac5f55afa3edb445c5232ab718adec73e04ce3ec720dd11a06a308"><div class="ttname"><a href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232ab718adec73e04ce3ec720dd11a06a308">tanlang::ASTNodeType::ID</a></div><div class="ttdeci">@ ID</div><div class="ttdoc">as</div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9a960f97209f43a4a31e959e7fb9ec573e"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a960f97209f43a4a31e959e7fb9ec573e">tanlang::TokenType::PUNCTUATION</a></div><div class="ttdeci">@ PUNCTUATION</div><div class="ttdoc">string literal</div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9ad7514d8d81a6537e5b51c73ca40ec984"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9ad7514d8d81a6537e5b51c73ca40ec984">tanlang::TokenType::BOP</a></div><div class="ttdeci">@ BOP</div><div class="ttdoc">unary operator</div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">tanlang::TokenType</a></div><div class="ttdeci">TokenType</div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00008">token.h:8</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_acd7ebd404b6d79dd4ed7495813ffc0c1"><div class="ttname"><a href="namespacetanlang.html#acd7ebd404b6d79dd4ed7495813ffc0c1">tanlang::OP</a></div><div class="ttdeci">const vector&lt; char &gt; OP</div><div class="ttdoc">any symbol in OP can both be an operator itself or the first character of an operator</div><div class="ttdef"><b>Definition:</b> <a href="token_8cpp_source.html#l00031">token.cpp:31</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9a81c05a453fd7470fa53856bc5d0f8414"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a81c05a453fd7470fa53856bc5d0f8414">tanlang::TokenType::RELOP</a></div><div class="ttdeci">@ RELOP</div><div class="ttdoc">, ; . ( ) { } etc.</div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9a4500610015dd2557ac417aabbfc51fb6"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9a4500610015dd2557ac417aabbfc51fb6">tanlang::TokenType::COMMENTS</a></div><div class="ttdeci">@ COMMENTS</div><div class="ttdoc">EOF.</div></div>
+<div class="ttc" id="anamespacetanlang_html_a4309d73b0a5587067ce7643cbd827b4f"><div class="ttname"><a href="namespacetanlang.html#a4309d73b0a5587067ce7643cbd827b4f">tanlang::token_type_names</a></div><div class="ttdeci">umap&lt; TokenType, str &gt; token_type_names</div><div class="ttdoc">map TokenType to string</div><div class="ttdef"><b>Definition:</b> <a href="token_8cpp_source.html#l00006">token.cpp:6</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ab1915b7257030ed75158b8bef8d715f9ad122e9e56f199b85f6de8161f77050c7"><div class="ttname"><a href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9ad122e9e56f199b85f6de8161f77050c7">tanlang::TokenType::UOP</a></div><div class="ttdeci">@ UOP</div><div class="ttdoc">relational operator</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

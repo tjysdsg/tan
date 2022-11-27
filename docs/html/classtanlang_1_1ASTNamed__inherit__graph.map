@@ -1,5 +1,5 @@
 <map id="tanlang::ASTNamed" name="tanlang::ASTNamed">
-<area shape="rect" id="node1" title=" " alt="" coords="5,208,156,235"/>
+<area shape="rect" id="node1" title="All named AST nodes should inherit this class." alt="" coords="5,208,156,235"/>
 <area shape="rect" id="node2" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="229,107,337,133"/>
 <area shape="rect" id="node8" href="$classtanlang_1_1FunctionCall.html" title=" " alt="" coords="204,157,363,184"/>
 <area shape="rect" id="node9" href="$classtanlang_1_1Identifier.html" title=" " alt="" coords="215,208,352,235"/>

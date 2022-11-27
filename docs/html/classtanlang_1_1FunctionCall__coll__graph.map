@@ -1,12 +1,11 @@
 <map id="tanlang::FunctionCall" name="tanlang::FunctionCall">
 <area shape="rect" id="node1" title=" " alt="" coords="99,488,257,515"/>
 <area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="221,247,329,273"/>
-<area shape="rect" id="node10" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="124,323,232,349"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="118,171,254,197"/>
-<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="63,95,248,121"/>
-<area shape="rect" id="node5" href="$classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="76,5,235,32"/>
-<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="290,171,407,197"/>
-<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="272,95,439,121"/>
-<area shape="rect" id="node8" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="5,247,156,273"/>
-<area shape="rect" id="node9" href="$classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="97,399,259,425"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="124,323,232,349"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="103,171,239,197"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="79,95,264,121"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SrcLoc.html" title="Stores the location information of a token in SourceManager." alt="" coords="111,5,232,32"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="263,171,381,197"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="5,247,156,273"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="97,399,259,425"/>
 </map>

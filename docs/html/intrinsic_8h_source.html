@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/ast/intrinsic.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/ast/intrinsic.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_203e5988f1ed315d29383d699972de6f.html">ast</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_7347dc76a0e005a8017061b66f2d1b7a.html">ast</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -54,90 +54,121 @@
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef __TAN_INCLUDE_INTRINSIC_H__</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_INCLUDE_INTRINSIC_H__</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/expr.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_named.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;src/ast/fwd.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;expr.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;ast_named.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;fwd.h&quot;</span></div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;memory&gt;</span></div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span>llvm {</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">class </span>Value;</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">class </span>Function;</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;}</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;} <span class="comment">// namespace llvm</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">enum class</span> IntrinsicType {</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  INVALID = 0, ABORT, <span class="comment">/// abort</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"></span>  ASM, <span class="comment">/// inline assembly</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span>  SWAP, <span class="comment">/// swap, atomic for primitive types</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment"></span>  MEMSET, <span class="comment">/// memset</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span>  MEMCPY, <span class="comment">/// memcpy</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"></span>  RANGE, <span class="comment">/// range of integers</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span>  COMP_PRINT, <span class="comment">/// compile-time print</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment"></span>  FILENAME, <span class="comment">/// name of a source file</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment"></span>  LINENO, <span class="comment">/// line number of certain code</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span>  DEFINE, <span class="comment">/// macro definition</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span>  LIKELY, <span class="comment">/// likely</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span>  UNLIKELY, <span class="comment">/// unlikely</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment"></span>  NOOP, <span class="comment">/// no-op</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment"></span>  EXPECT, <span class="comment">/// expect a value to be true, used in tests</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="comment">// type support</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  SIZE_OF, <span class="comment">/// size of a type, in bytes</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment"></span>  OFFSET_OF, <span class="comment">/// offset of a member variable inside a struct, in bytes</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span>  ALIGN_OF, <span class="comment">/// alignment size of a pointer, array or struct, in bytes</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment"></span>  ISA, <span class="comment">/// test if a type is equivalent to another one</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="comment">// numeric support</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  MIN_OF, <span class="comment">/// minimum value of an integer type</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span>  MAX_OF, <span class="comment">/// maximum value of an integer type</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span>  IS_UNSIGNED, <span class="comment">/// test if a type is unsigned</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="comment">// others</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  GET_DECL, STACK_TRACE,</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;};</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">class </span>CompilerSession;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">   17</a></span>&#160;<span class="keyword">enum class</span> <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  INVALID = 0,</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  ABORT,      <span class="comment">/// abort</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed">ASM</a>,        <span class="comment">/// inline assembly</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8">SWAP</a>,       <span class="comment">/// swap, atomic for primitive types</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921">MEMSET</a>,     <span class="comment">/// memset</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4">MEMCPY</a>,     <span class="comment">/// memcpy</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2">RANGE</a>,      <span class="comment">/// range of integers</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70">COMP_PRINT</a>, <span class="comment">/// compile-time print</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497">FILENAME</a>,   <span class="comment">/// name of a source file</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805">LINENO</a>,     <span class="comment">/// line number of certain code</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53">DEFINE</a>,     <span class="comment">/// macro definition</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e">LIKELY</a>,     <span class="comment">/// likely</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00">UNLIKELY</a>,   <span class="comment">/// unlikely</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e">NOOP</a>,       <span class="comment">/// no-op</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6">EXPECT</a>,     <span class="comment">/// expect a value to be true, used in tests</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="comment">// type support</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090">SIZE_OF</a>,   <span class="comment">/// size of a type, in bytes</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99">OFFSET_OF</a>, <span class="comment">/// offset of a member variable inside a struct, in bytes</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5">ALIGN_OF</a>,  <span class="comment">/// alignment size of a pointer, array or struct, in bytes</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047">ISA</a>,       <span class="comment">/// test if a type is equivalent to another one</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="comment">// numeric support</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32">MIN_OF</a>,      <span class="comment">/// minimum value of an integer type</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3">MAX_OF</a>,      <span class="comment">/// maximum value of an integer type</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00">IS_UNSIGNED</a>, <span class="comment">/// test if a type is unsigned</span></div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">/**</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment"> * has type</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"> * has value</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"> * rvalue</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"> */</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classtanlang_1_1Intrinsic.html">   51</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> : <span class="keyword">public</span> <a class="code" href="classtanlang_1_1Expr.html">Expr</a>, <span class="keyword">public</span> <a class="code" href="classtanlang_1_1ASTNamed.html">ASTNamed</a> {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a>(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keyword">static</span> <a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> *Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> llvm::Function *abort_function = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keyword">static</span> umap&lt;str, IntrinsicType&gt; intrinsics;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> InitCodegen(<a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> InitAnalysis(<a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  IntrinsicType get_intrinsic_type() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordtype">void</span> set_intrinsic_type(IntrinsicType intrinsic_type);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *get_sub() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keywordtype">void</span> set_sub(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *sub);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">get_children</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  IntrinsicType _intrinsic_type = IntrinsicType::INVALID;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_sub = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;};</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="comment">// test related</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162">TEST_COMP_ERROR</a>, <span class="comment">/// A block of code that are expected to cause a compile error</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="comment">// others</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7">GET_DECL</a>,    <span class="comment">/// get source code of the declaration</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span>  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">STACK_TRACE</a>, <span class="comment">/// print stack trace</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span>};</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">/**</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment"> * has type</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment"> * has value</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"> * rvalue</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"> */</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="classtanlang_1_1Intrinsic.html">   59</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> : <span class="keyword">public</span> <a class="code" href="classtanlang_1_1Expr.html">Expr</a>, <span class="keyword">public</span> <a class="code" href="classtanlang_1_1ASTNamed.html">ASTNamed</a> {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a>(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keyword">static</span> <a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> *Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> llvm::Function *abort_function = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keyword">static</span> umap&lt;str, IntrinsicType&gt; intrinsics;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> InitAnalysis(<a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> get_intrinsic_type() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keywordtype">void</span> set_intrinsic_type(<a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> intrinsic_type);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *get_sub() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keywordtype">void</span> set_sub(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *sub);</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">get_children</a>() <span class="keyword">const override</span>;</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_INCLUDE_INTRINSIC_H__ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <a class="code" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> _intrinsic_type = IntrinsicType::INVALID;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_sub = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;};</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* __TAN_INCLUDE_INTRINSIC_H__ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdoc">Wraps all LLVM classes used for code generation.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00013">compiler_session.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Intrinsic_html"><div class="ttname"><a href="classtanlang_1_1Intrinsic.html">tanlang::Intrinsic</a></div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8h_source.html#l00051">intrinsic.h:51</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1SourceIndex_html"><div class="ttname"><a href="classtanlang_1_1SourceIndex.html">tanlang::SourceIndex</a></div><div class="ttdoc">The index of the token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00010">source_manager.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTNamed_html"><div class="ttname"><a href="classtanlang_1_1ASTNamed.html">tanlang::ASTNamed</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__named_8h_source.html#l00006">ast_named.h:6</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Intrinsic_html_a91f4c7397dcdf71028294fb80e0a40bd"><div class="ttname"><a href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">tanlang::Intrinsic::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8cpp_source.html#l00048">intrinsic.cpp:48</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00007">ast_context.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00016">ast_base.h:16</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Expr_html"><div class="ttname"><a href="classtanlang_1_1Expr.html">tanlang::Expr</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00013">expr.h:13</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00">tanlang::IntrinsicType::UNLIKELY</a></div><div class="ttdeci">@ UNLIKELY</div><div class="ttdoc">likely</div></div>
+<div class="ttc" id="aclasstanlang_1_1Intrinsic_html"><div class="ttname"><a href="classtanlang_1_1Intrinsic.html">tanlang::Intrinsic</a></div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8h_source.html#l00059">intrinsic.h:59</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090">tanlang::IntrinsicType::SIZE_OF</a></div><div class="ttdeci">@ SIZE_OF</div><div class="ttdoc">expect a value to be true, used in tests</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497">tanlang::IntrinsicType::FILENAME</a></div><div class="ttdeci">@ FILENAME</div><div class="ttdoc">compile-time print</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8">tanlang::IntrinsicType::SWAP</a></div><div class="ttdeci">@ SWAP</div><div class="ttdoc">inline assembly</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32">tanlang::IntrinsicType::MIN_OF</a></div><div class="ttdeci">@ MIN_OF</div><div class="ttdoc">test if a type is equivalent to another one</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921">tanlang::IntrinsicType::MEMSET</a></div><div class="ttdeci">@ MEMSET</div><div class="ttdoc">swap, atomic for primitive types</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162">tanlang::IntrinsicType::TEST_COMP_ERROR</a></div><div class="ttdeci">@ TEST_COMP_ERROR</div><div class="ttdoc">test if a type is unsigned</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7">tanlang::IntrinsicType::GET_DECL</a></div><div class="ttdeci">@ GET_DECL</div><div class="ttdoc">A block of code that are expected to cause a compile error.</div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTNamed_html"><div class="ttname"><a href="classtanlang_1_1ASTNamed.html">tanlang::ASTNamed</a></div><div class="ttdoc">All named AST nodes should inherit this class.</div><div class="ttdef"><b>Definition:</b> <a href="ast__named_8h_source.html#l00010">ast_named.h:10</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e">tanlang::IntrinsicType::NOOP</a></div><div class="ttdeci">@ NOOP</div><div class="ttdoc">unlikely</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53">tanlang::IntrinsicType::DEFINE</a></div><div class="ttdeci">@ DEFINE</div><div class="ttdoc">line number of certain code</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3">tanlang::IntrinsicType::MAX_OF</a></div><div class="ttdeci">@ MAX_OF</div><div class="ttdoc">minimum value of an integer type</div></div>
+<div class="ttc" id="aclasstanlang_1_1Intrinsic_html_a91f4c7397dcdf71028294fb80e0a40bd"><div class="ttname"><a href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">tanlang::Intrinsic::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8cpp_source.html#l00056">intrinsic.cpp:56</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2">tanlang::IntrinsicType::RANGE</a></div><div class="ttdeci">@ RANGE</div><div class="ttdoc">memcpy</div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00008">ast_context.h:8</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed">tanlang::IntrinsicType::ASM</a></div><div class="ttdeci">@ ASM</div><div class="ttdoc">abort</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4">tanlang::IntrinsicType::MEMCPY</a></div><div class="ttdeci">@ MEMCPY</div><div class="ttdoc">memset</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e">tanlang::IntrinsicType::LIKELY</a></div><div class="ttdeci">@ LIKELY</div><div class="ttdoc">macro definition</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00">tanlang::IntrinsicType::IS_UNSIGNED</a></div><div class="ttdeci">@ IS_UNSIGNED</div><div class="ttdoc">maximum value of an integer type</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047">tanlang::IntrinsicType::ISA</a></div><div class="ttdeci">@ ISA</div><div class="ttdoc">alignment size of a pointer, array or struct, in bytes</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70">tanlang::IntrinsicType::COMP_PRINT</a></div><div class="ttdeci">@ COMP_PRINT</div><div class="ttdoc">range of integers</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99">tanlang::IntrinsicType::OFFSET_OF</a></div><div class="ttdeci">@ OFFSET_OF</div><div class="ttdoc">size of a type, in bytes</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8f"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">tanlang::IntrinsicType</a></div><div class="ttdeci">IntrinsicType</div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8h_source.html#l00017">intrinsic.h:17</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">tanlang::IntrinsicType::STACK_TRACE</a></div><div class="ttdeci">@ STACK_TRACE</div><div class="ttdoc">get source code of the declaration</div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00012">ast_base.h:12</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6">tanlang::IntrinsicType::EXPECT</a></div><div class="ttdeci">@ EXPECT</div><div class="ttdoc">no-op</div></div>
+<div class="ttc" id="aclasstanlang_1_1Expr_html"><div class="ttname"><a href="classtanlang_1_1Expr.html">tanlang::Expr</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00012">expr.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SrcLoc_html"><div class="ttname"><a href="classtanlang_1_1SrcLoc.html">tanlang::SrcLoc</a></div><div class="ttdoc">Stores the location information of a token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00012">source_manager.h:12</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805">tanlang::IntrinsicType::LINENO</a></div><div class="ttdeci">@ LINENO</div><div class="ttdoc">name of a source file</div></div>
+<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5">tanlang::IntrinsicType::ALIGN_OF</a></div><div class="ttdeci">@ ALIGN_OF</div><div class="ttdoc">offset of a member variable inside a struct, in bytes</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

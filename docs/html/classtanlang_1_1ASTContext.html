@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTContext.html">ASTContext</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTContext.html">ASTContext</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -102,12 +103,12 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_source_location_st
 <tr class="memitem:ae0602cb17eaa3300d6b3b5c429e47bc8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtanlang_1_1Scope.html">Scope</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#ae0602cb17eaa3300d6b3b5c429e47bc8">pop_scope</a> ()</td></tr>
 <tr class="memdesc:ae0602cb17eaa3300d6b3b5c429e47bc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pop the current scope.  <a href="classtanlang_1_1ASTContext.html#ae0602cb17eaa3300d6b3b5c429e47bc8">More...</a><br /></td></tr>
 <tr class="separator:ae0602cb17eaa3300d6b3b5c429e47bc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4038dce304f7cf48dc48fb188122380d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#a4038dce304f7cf48dc48fb188122380d">add</a> (const str &amp;name, <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *value)</td></tr>
-<tr class="memdesc:a4038dce304f7cf48dc48fb188122380d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a named ASTNode so that others can loop it up using CompilerSession::get TODO: <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> -&gt; <a class="el" href="classtanlang_1_1Decl.html">Decl</a>.  <a href="classtanlang_1_1ASTContext.html#a4038dce304f7cf48dc48fb188122380d">More...</a><br /></td></tr>
-<tr class="separator:a4038dce304f7cf48dc48fb188122380d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a346bd5c87a1d9cef99953871182ba93e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#a346bd5c87a1d9cef99953871182ba93e">get</a> (const str &amp;name)</td></tr>
-<tr class="memdesc:a346bd5c87a1d9cef99953871182ba93e"><td class="mdescLeft">&#160;</td><td class="mdescRight">look up the variable table in the current and parent scopes  <a href="classtanlang_1_1ASTContext.html#a346bd5c87a1d9cef99953871182ba93e">More...</a><br /></td></tr>
-<tr class="separator:a346bd5c87a1d9cef99953871182ba93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf6784feacd5e66cb585fbffe78cbb43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#adf6784feacd5e66cb585fbffe78cbb43">add_decl</a> (const str &amp;name, <a class="el" href="classtanlang_1_1Decl.html">Decl</a> *value)</td></tr>
+<tr class="memdesc:adf6784feacd5e66cb585fbffe78cbb43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a declaration in the current scope.  <a href="classtanlang_1_1ASTContext.html#adf6784feacd5e66cb585fbffe78cbb43">More...</a><br /></td></tr>
+<tr class="separator:adf6784feacd5e66cb585fbffe78cbb43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22c617a577a89c360ce4c46812e8579c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Decl.html">Decl</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#a22c617a577a89c360ce4c46812e8579c">get_decl</a> (const str &amp;name)</td></tr>
+<tr class="memdesc:a22c617a577a89c360ce4c46812e8579c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Look up a declaration the current and parent scopes.  <a href="classtanlang_1_1ASTContext.html#a22c617a577a89c360ce4c46812e8579c">More...</a><br /></td></tr>
+<tr class="separator:a22c617a577a89c360ce4c46812e8579c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f0d3b4a314c0e74b199fbe11cecbf12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#a9f0d3b4a314c0e74b199fbe11cecbf12">add_type_decl</a> (const str &amp;name, <a class="el" href="classtanlang_1_1Decl.html">Decl</a> *decl)</td></tr>
 <tr class="memdesc:a9f0d3b4a314c0e74b199fbe11cecbf12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register a type declaration.  <a href="classtanlang_1_1ASTContext.html#a9f0d3b4a314c0e74b199fbe11cecbf12">More...</a><br /></td></tr>
 <tr class="separator:a9f0d3b4a314c0e74b199fbe11cecbf12"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,15 +121,15 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>get_source_location_st
 <tr class="memitem:a93b224401663132a6e2494925a81d9d2"><td class="memItemLeft" align="right" valign="top"><a id="a93b224401663132a6e2494925a81d9d2"></a>
 vector&lt; <a class="el" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>get_functions</b> (const str &amp;name)</td></tr>
 <tr class="separator:a93b224401663132a6e2494925a81d9d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adac055661c8064d3f2e63a2e4cb10656"><td class="memItemLeft" align="right" valign="top"><a id="adac055661c8064d3f2e63a2e4cb10656"></a>
-<a class="el" href="classtanlang_1_1Loop.html">Loop</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_current_loop</b> () const</td></tr>
-<tr class="separator:adac055661c8064d3f2e63a2e4cb10656"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e5f681924b9a6b153da3b82c621e824"><td class="memItemLeft" align="right" valign="top"><a id="a4e5f681924b9a6b153da3b82c621e824"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_current_loop</b> (<a class="el" href="classtanlang_1_1Loop.html">Loop</a> *loop)</td></tr>
-<tr class="separator:a4e5f681924b9a6b153da3b82c621e824"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7e980c70f5dc0f9c13e31be72de0310c"><td class="memItemLeft" align="right" valign="top"><a id="a7e980c70f5dc0f9c13e31be72de0310c"></a>
 const str &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () const</td></tr>
 <tr class="separator:a7e980c70f5dc0f9c13e31be72de0310c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adac055661c8064d3f2e63a2e4cb10656"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Loop.html">Loop</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#adac055661c8064d3f2e63a2e4cb10656">get_current_loop</a> () const</td></tr>
+<tr class="memdesc:adac055661c8064d3f2e63a2e4cb10656"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the loop in the outer-est scope.  <a href="classtanlang_1_1ASTContext.html#adac055661c8064d3f2e63a2e4cb10656">More...</a><br /></td></tr>
+<tr class="separator:adac055661c8064d3f2e63a2e4cb10656"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e5f681924b9a6b153da3b82c621e824"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTContext.html#a4e5f681924b9a6b153da3b82c621e824">set_current_loop</a> (<a class="el" href="classtanlang_1_1Loop.html">Loop</a> *loop)</td></tr>
+<tr class="memdesc:a4e5f681924b9a6b153da3b82c621e824"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the loop in current scope.  <a href="classtanlang_1_1ASTContext.html#a4e5f681924b9a6b153da3b82c621e824">More...</a><br /></td></tr>
+<tr class="separator:a4e5f681924b9a6b153da3b82c621e824"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -147,16 +148,16 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="ast__context_8h_source.html#l00007">7</a> of file <a class="el" href="ast__context_8h_source.html">ast_context.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8h_source.html#l00008">8</a> of file <a class="el" href="ast__context_8h_source.html">ast_context.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a4038dce304f7cf48dc48fb188122380d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4038dce304f7cf48dc48fb188122380d">&#9670;&nbsp;</a></span>add()</h2>
+<a id="adf6784feacd5e66cb585fbffe78cbb43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf6784feacd5e66cb585fbffe78cbb43">&#9670;&nbsp;</a></span>add_decl()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void ASTContext::add </td>
+          <td class="memname">void ASTContext::add_decl </td>
           <td>(</td>
           <td class="paramtype">const str &amp;&#160;</td>
           <td class="paramname"><em>name</em>, </td>
@@ -164,7 +165,7 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Decl.html">Decl</a> *&#160;</td>
           <td class="paramname"><em>value</em>&#160;</td>
         </tr>
         <tr>
@@ -175,9 +176,9 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
       </table>
 </div><div class="memdoc">
 
-<p>Add a named ASTNode so that others can loop it up using CompilerSession::get TODO: <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> -&gt; <a class="el" href="classtanlang_1_1Decl.html">Decl</a>. </p>
+<p>Register a declaration in the current scope. </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00059">59</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00062">62</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
@@ -198,9 +199,9 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 </div><div class="memdoc">
 
 <p>Add a function AST to the current file's function table. </p>
-<p>This will not add anything to the public function table, to do that, call CompilerSession::AddPublicFunction </p>
+<p>This will not add_decl anything to the public function table, to do that, call CompilerSession::AddPublicFunction </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00090">90</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00093">93</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
@@ -233,30 +234,29 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 <p>Register a type declaration. </p>
 <dl class="section note"><dt>Note</dt><dd>Registers only the original type declaration or a forward declaration, use CompilerSession::add_type_accessor() to register a type accessor </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00088">88</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00091">91</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a346bd5c87a1d9cef99953871182ba93e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a346bd5c87a1d9cef99953871182ba93e">&#9670;&nbsp;</a></span>get()</h2>
+<a id="adac055661c8064d3f2e63a2e4cb10656"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adac055661c8064d3f2e63a2e4cb10656">&#9670;&nbsp;</a></span>get_current_loop()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * ASTContext::get </td>
+          <td class="memname"><a class="el" href="classtanlang_1_1Loop.html">Loop</a> * ASTContext::get_current_loop </td>
           <td>(</td>
-          <td class="paramtype">const str &amp;&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
-          <td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>look up the variable table in the current and parent scopes </p>
-<p>This function starts by searching the current scope. <a class="el" href="classtanlang_1_1If.html" title="Represent if-[else] or if-elif-[else] statements.">If</a> the target is not found in current scope, search the parent scope, repeat the process until found. <a class="el" href="classtanlang_1_1Return.html">Return</a> nullptr if not found in all visible scopes. </p>
+<p>Find the loop in the outer-est scope. </p>
+<dl class="section return"><dt>Returns</dt><dd>nullptr if not found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00061">61</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00104">104</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
@@ -279,6 +279,29 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structtanlang_1_1Scope.html">Scope</a> </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00042">42</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a22c617a577a89c360ce4c46812e8579c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22c617a577a89c360ce4c46812e8579c">&#9670;&nbsp;</a></span>get_decl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1Decl.html">Decl</a> * ASTContext::get_decl </td>
+          <td>(</td>
+          <td class="paramtype">const str &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Look up a declaration the current and parent scopes. </p>
+<p>This function starts by searching the current scope. <a class="el" href="classtanlang_1_1If.html" title="Represent if-[else] or if-elif-[else] statements.">If</a> the target is not found in current scope, search the parent scope, repeat the process until found. <a class="el" href="classtanlang_1_1Return.html">Return</a> nullptr if not found in all visible scopes. </p>
+
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00064">64</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
@@ -307,7 +330,7 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Returns only the original type declaration or a forward declaration, use CompilerSession::get_type_accessor() to get a type accessor </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00079">79</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00082">82</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
 
 </div>
 </div>
@@ -378,9 +401,31 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 
 </div>
 </div>
+<a id="a4e5f681924b9a6b153da3b82c621e824"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e5f681924b9a6b153da3b82c621e824">&#9670;&nbsp;</a></span>set_current_loop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ASTContext::set_current_loop </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Loop.html">Loop</a> *&#160;</td>
+          <td class="paramname"><em>loop</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set the loop in current scope. </p>
+
+<p class="definition">Definition at line <a class="el" href="ast__context_8cpp_source.html#l00118">118</a> of file <a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="ast__context_8h_source.html">ast_context.h</a></li>
-<li>/mnt/d/repos/tan/src/ast/<a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a></li>
+<li>/mnt/e/repos/tan/include/ast/<a class="el" href="ast__context_8h_source.html">ast_context.h</a></li>
+<li>/mnt/e/repos/tan/src/ast/<a class="el" href="ast__context_8cpp_source.html">ast_context.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

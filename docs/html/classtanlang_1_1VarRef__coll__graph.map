@@ -1,10 +1,9 @@
 <map id="tanlang::VarRef" name="tanlang::VarRef">
-<area shape="rect" id="node1" title=" " alt="" coords="257,323,379,349"/>
-<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="149,247,257,273"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="61,171,197,197"/>
+<area shape="rect" id="node1" title=" " alt="" coords="226,323,349,349"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="119,247,227,273"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,171,166,197"/>
 <area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,95,191,121"/>
-<area shape="rect" id="node5" href="$classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="19,5,177,32"/>
-<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="227,171,345,197"/>
-<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,95,381,121"/>
-<area shape="rect" id="node8" href="$classtanlang_1_1ASTNamed.html" title=" " alt="" coords="281,247,432,273"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SrcLoc.html" title="Stores the location information of a token in SourceManager." alt="" coords="37,5,159,32"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,171,307,197"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="251,247,401,273"/>
 </map>

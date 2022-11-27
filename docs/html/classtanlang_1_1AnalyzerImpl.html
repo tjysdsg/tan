@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,15 +47,16 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1AnalyzerImpl.html">AnalyzerImpl</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1AnalyzerImpl.html">AnalyzerImpl</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classtanlang_1_1AnalyzerImpl-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">tanlang::AnalyzerImpl Class Reference</div>  </div>
+<div class="title">tanlang::AnalyzerImpl Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
@@ -66,12 +68,111 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a30326fa7e2c5e0fb18be83a1c13473a6"><td class="memItemLeft" align="right" valign="top"><a id="a30326fa7e2c5e0fb18be83a1c13473a6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>analyze</b> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p)</td></tr>
 <tr class="separator:a30326fa7e2c5e0fb18be83a1c13473a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:afd935b2573165110114e799787103e6e"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1AnalyzerImpl.html#afd935b2573165110114e799787103e6e">CanImplicitlyConvert</a> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *from, <a class="el" href="classtanlang_1_1Type.html">Type</a> *to)</td></tr>
+<tr class="memdesc:afd935b2573165110114e799787103e6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether it's legal to implicitly convert from type <code>from</code> to type <code>to</code> See TYPE_CASTING.md for specifications.  <a href="classtanlang_1_1AnalyzerImpl.html#afd935b2573165110114e799787103e6e">More...</a><br /></td></tr>
+<tr class="separator:afd935b2573165110114e799787103e6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9af21ecf7603923c64a051966ca662e9"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1AnalyzerImpl.html#a9af21ecf7603923c64a051966ca662e9">ImplicitTypePromote</a> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *t1, <a class="el" href="classtanlang_1_1Type.html">Type</a> *t2)</td></tr>
+<tr class="memdesc:a9af21ecf7603923c64a051966ca662e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find out which one of the two input types of a binary operation should operands promote to. See TYPE_CASTING.md for specifications.  <a href="classtanlang_1_1AnalyzerImpl.html#a9af21ecf7603923c64a051966ca662e9">More...</a><br /></td></tr>
+<tr class="separator:a9af21ecf7603923c64a051966ca662e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="analyzer_8cpp_source.html#l00020">20</a> of file <a class="el" href="analyzer_8cpp_source.html">analyzer.cpp</a>.</p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
-<li>/mnt/d/repos/tan/src/analysis/<a class="el" href="analyzer_8cpp_source.html">analyzer.cpp</a></li>
+<p class="definition">Definition at line <a class="el" href="analyzer_8cpp_source.html#l00019">19</a> of file <a class="el" href="analyzer_8cpp_source.html">analyzer.cpp</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="afd935b2573165110114e799787103e6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd935b2573165110114e799787103e6e">&#9670;&nbsp;</a></span>CanImplicitlyConvert()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool AnalyzerImpl::CanImplicitlyConvert </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td>
+          <td class="paramname"><em>from</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td>
+          <td class="paramname"><em>to</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Check whether it's legal to implicitly convert from type <code>from</code> to type <code>to</code> See TYPE_CASTING.md for specifications. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">from</td><td>Source type. </td></tr>
+    <tr><td class="paramname">to</td><td>Destination type. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="implicit__cast_8hpp_source.html#l00001">1</a> of file <a class="el" href="implicit__cast_8hpp_source.html">implicit_cast.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a9af21ecf7603923c64a051966ca662e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9af21ecf7603923c64a051966ca662e9">&#9670;&nbsp;</a></span>ImplicitTypePromote()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1Type.html">Type</a> * AnalyzerImpl::ImplicitTypePromote </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td>
+          <td class="paramname"><em>t1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td>
+          <td class="paramname"><em>t2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Find out which one of the two input types of a binary operation should operands promote to. See TYPE_CASTING.md for specifications. </p>
+<dl class="section return"><dt>Returns</dt><dd>Guaranteed to be one of <code>t1</code> and <code>t2</code>, or nullptr if cannot find a legal promotion. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="implicit__cast_8hpp_source.html#l00044">44</a> of file <a class="el" href="implicit__cast_8hpp_source.html">implicit_cast.hpp</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>/mnt/e/repos/tan/src/analysis/<a class="el" href="analyzer_8cpp_source.html">analyzer.cpp</a></li>
+<li>/mnt/e/repos/tan/src/analysis/<a class="el" href="implicit__cast_8hpp_source.html">implicit_cast.hpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

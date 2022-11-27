@@ -1,11 +1,10 @@
 <map id="tanlang::BinaryOrUnary" name="tanlang::BinaryOrUnary">
-<area shape="rect" id="node1" title=" " alt="" coords="72,440,247,467"/>
-<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="149,247,257,273"/>
-<area shape="rect" id="node8" href="$classtanlang_1_1BinaryOperator.html" title=" " alt="" coords="70,351,249,377"/>
-<area shape="rect" id="node9" href="$classtanlang_1_1UnaryOperator.html" title=" " alt="" coords="273,351,448,377"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="61,171,197,197"/>
+<area shape="rect" id="node1" title=" " alt="" coords="41,440,216,467"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="119,247,227,273"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1BinaryOperator.html" title=" " alt="" coords="39,351,218,377"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1UnaryOperator.html" title=" " alt="" coords="243,351,417,377"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,171,166,197"/>
 <area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,95,191,121"/>
-<area shape="rect" id="node5" href="$classtanlang_1_1SourceIndex.html" title="The index of the token in SourceManager." alt="" coords="19,5,177,32"/>
-<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title=" " alt="" coords="233,171,350,197"/>
-<area shape="rect" id="node7" href="$classtanlang_1_1TypeAccessor.html" title=" " alt="" coords="215,95,381,121"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SrcLoc.html" title="Stores the location information of a token in SourceManager." alt="" coords="37,5,159,32"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,171,307,197"/>
 </map>

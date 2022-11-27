@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -59,8 +60,15 @@
 <table class="directory">
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>codegen</b>(ASTBase *p) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>CodeGenerator</b>()=delete (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>CodeGenerator</b>(CompilerSession *cs, ASTContext *ctx) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"><span class="mlabel">explicit</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>~CodeGenerator</b>() (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>CodeGenerator</b>(CompilerSession *cs, llvm::TargetMachine *target_machine) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"><span class="mlabel">explicit</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html#a84ae06d2b7ab0a47a424a9d40bcf08e2">convert_llvm_type_to</a>(Expr *expr, Type *dest)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>create_function_debug_info_type</b>(llvm::Metadata *ret, vector&lt; llvm::Metadata * &gt; args) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>dump_ir</b>() const (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>emit_to_file</b>(const str &amp;filename) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html#af90851d1b1857eb3584498f1543c30ef">load_if_is_lvalue</a>(Expr *expr)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>to_llvm_metadata</b>(Type *p) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>to_llvm_type</b>(Type *p) (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~CodeGenerator</b>() (defined in <a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></td><td class="entry"></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

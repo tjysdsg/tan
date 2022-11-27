@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTContext.html">ASTContext</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTContext.html">ASTContext</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -58,16 +59,16 @@
 <p>This is the complete list of members for <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>, including all inherited members.</p>
 <table class="directory">
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>_filename</b> (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a4038dce304f7cf48dc48fb188122380d">add</a>(const str &amp;name, ASTBase *value)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#adf6784feacd5e66cb585fbffe78cbb43">add_decl</a>(const str &amp;name, Decl *value)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#ae3dd7ae23607ed95933080bd6bfc5843">add_function</a>(FunctionDecl *func)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a9f0d3b4a314c0e74b199fbe11cecbf12">add_type_decl</a>(const str &amp;name, Decl *decl)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>AddPublicFunction</b>(const str &amp;filename, FunctionDecl *func) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>ASTContext</b>(const ASTContext &amp;)=delete (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>ASTContext</b>()=delete (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>ASTContext</b>(str filename) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a346bd5c87a1d9cef99953871182ba93e">get</a>(const str &amp;name)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>get_current_loop</b>() const (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a5ba26c2fb455c781df517be5faebc9fe">get_current_scope</a>()</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>ASTContext</b>(str filename) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"><span class="mlabel">explicit</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#adac055661c8064d3f2e63a2e4cb10656">get_current_loop</a>() const</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a5ba26c2fb455c781df517be5faebc9fe">get_current_scope</a>()</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a22c617a577a89c360ce4c46812e8579c">get_decl</a>(const str &amp;name)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>get_filename</b>() const (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>get_functions</b>(const str &amp;name) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>get_source_location_str</b>(SourceTraceable *p) const (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
@@ -78,7 +79,7 @@
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#ae0602cb17eaa3300d6b3b5c429e47bc8">pop_scope</a>()</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a80e53e11df56876d514e753c97d02160">push_scope</a>()</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a9f9ff0ba838451fffb5802fbbce06a72">push_scope</a>(Scope *scope)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>set_current_loop</b>(Loop *loop) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html#a4e5f681924b9a6b153da3b82c621e824">set_current_loop</a>(Loop *loop)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>set_source_manager</b>(SourceManager *sm) (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0"><td class="entry"><b>~ASTContext</b>() (defined in <a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></td><td class="entry"></td></tr>
 </table></div><!-- contents -->

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/analysis/analyzer.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/analysis/analyzer.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_2eec376824a17f48dc36b4bd0c810e01.html">analysis</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_73d4a28092349dbf779c4e991d882038.html">analysis</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -55,15 +55,15 @@
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_ANALYSIS_ANALYZER_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/ast/fwd.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;ast/fwd.h&quot;</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160; </div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">class </span>AnalyzerImpl;</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classtanlang_1_1Analyzer.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a> {</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a>(<a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx);</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a>(<a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx);</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  ~<a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a>();</div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <span class="keywordtype">void</span> analyze(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p);</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
@@ -71,14 +71,15 @@
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <a class="code" href="classtanlang_1_1AnalyzerImpl.html">AnalyzerImpl</a> *_analyzer_impl = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;};</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;}</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;} <span class="comment">// namespace tanlang</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_ANALYSIS_ANALYZER_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1AnalyzerImpl_html"><div class="ttname"><a href="classtanlang_1_1AnalyzerImpl.html">tanlang::AnalyzerImpl</a></div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00020">analyzer.cpp:20</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1AnalyzerImpl_html"><div class="ttname"><a href="classtanlang_1_1AnalyzerImpl.html">tanlang::AnalyzerImpl</a></div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00019">analyzer.cpp:19</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1Analyzer_html"><div class="ttname"><a href="classtanlang_1_1Analyzer.html">tanlang::Analyzer</a></div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8h_source.html#l00010">analyzer.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00007">ast_context.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00016">ast_base.h:16</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00008">ast_context.h:8</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00012">ast_base.h:12</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1CompilerSession.html">CompilerSession</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1CompilerSession.html">CompilerSession</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -68,12 +69,10 @@ Collaboration diagram for tanlang::CompilerSession:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtanlang_1_1CompilerSession__coll__graph.png" border="0" usemap="#tanlang_1_1CompilerSession_coll__map" alt="Collaboration graph"/></div>
 <map name="tanlang_1_1CompilerSession_coll__map" id="tanlang_1_1CompilerSession_coll__map">
-<area shape="rect" title="Wraps all LLVM classes used for code generation." alt="" coords="112,185,300,212"/>
-<area shape="rect" title=" " alt="" coords="5,96,87,123"/>
-<area shape="rect" title=" " alt="" coords="111,96,194,123"/>
-<area shape="rect" title="STL class." alt="" coords="219,96,305,123"/>
-<area shape="rect" title="STL class." alt="" coords="193,5,331,47"/>
-<area shape="rect" href="classtanlang_1_1SourceManager.html" title=" " alt="" coords="329,96,509,123"/>
+<area shape="rect" title="Wraps all LLVM classes used for code generation." alt="" coords="87,185,275,212"/>
+<area shape="rect" title="STL class." alt="" coords="31,96,118,123"/>
+<area shape="rect" title="STL class." alt="" coords="5,5,144,47"/>
+<area shape="rect" href="classtanlang_1_1SourceManager.html" title=" " alt="" coords="142,96,322,123"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -85,45 +84,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7455e4b9a2ab91b0752aa005336bc9e6"><td class="memItemLeft" align="right" valign="top"><a id="a7455e4b9a2ab91b0752aa005336bc9e6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CompilerSession</b> (const <a class="el" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> &amp;)=delete</td></tr>
 <tr class="separator:a7455e4b9a2ab91b0752aa005336bc9e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae39729a59941f29384236b2d5110ef51"><td class="memItemLeft" align="right" valign="top"><a id="ae39729a59941f29384236b2d5110ef51"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CompilerSession</b> (const str &amp;module_name, TargetMachine *target_machine)</td></tr>
-<tr class="separator:ae39729a59941f29384236b2d5110ef51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65dd55e5a4a3af87e2d6a73b388a99fe"><td class="memItemLeft" align="right" valign="top"><a id="a65dd55e5a4a3af87e2d6a73b388a99fe"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CompilerSession</b> (const str &amp;module_name)</td></tr>
+<tr class="separator:a65dd55e5a4a3af87e2d6a73b388a99fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74e5de6d25b4e1c922e319076c09cd5c"><td class="memItemLeft" align="right" valign="top"><a id="a74e5de6d25b4e1c922e319076c09cd5c"></a>
 <a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>get_source_manager</b> () const</td></tr>
 <tr class="separator:a74e5de6d25b4e1c922e319076c09cd5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acba1ca84d6bc36cf2ca6e21d4bc990c8"><td class="memItemLeft" align="right" valign="top"><a id="acba1ca84d6bc36cf2ca6e21d4bc990c8"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_source_manager</b> (<a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a> *sm)</td></tr>
 <tr class="separator:acba1ca84d6bc36cf2ca6e21d4bc990c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d63d52aa3400e518540ccae5d11468c"><td class="memItemLeft" align="right" valign="top"><a id="a1d63d52aa3400e518540ccae5d11468c"></a>
-DIScope *&#160;</td><td class="memItemRight" valign="bottom"><b>get_current_di_scope</b> () const</td></tr>
-<tr class="separator:a1d63d52aa3400e518540ccae5d11468c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75229fc64e84b17e182e5b58ff5bf9e2"><td class="memItemLeft" align="right" valign="top"><a id="a75229fc64e84b17e182e5b58ff5bf9e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push_di_scope</b> (DIScope *scope)</td></tr>
-<tr class="separator:a75229fc64e84b17e182e5b58ff5bf9e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a205a54a16ff126e519bb5d88964b4e43"><td class="memItemLeft" align="right" valign="top"><a id="a205a54a16ff126e519bb5d88964b4e43"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pop_di_scope</b> ()</td></tr>
-<tr class="separator:a205a54a16ff126e519bb5d88964b4e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5655754f12f1dbfcca8e6fdb39f2422"><td class="memItemLeft" align="right" valign="top"><a id="ad5655754f12f1dbfcca8e6fdb39f2422"></a>
-LLVMContext *&#160;</td><td class="memItemRight" valign="bottom"><b>get_context</b> ()</td></tr>
-<tr class="separator:ad5655754f12f1dbfcca8e6fdb39f2422"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb581196178395a5967283f5154ec24f"><td class="memItemLeft" align="right" valign="top"><a id="adb581196178395a5967283f5154ec24f"></a>
-Module *&#160;</td><td class="memItemRight" valign="bottom"><b>get_module</b> ()</td></tr>
-<tr class="separator:adb581196178395a5967283f5154ec24f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0195777ab3a2515459ae71958afe3eda"><td class="memItemLeft" align="right" valign="top"><a id="a0195777ab3a2515459ae71958afe3eda"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>emit_object</b> (const str &amp;filename)</td></tr>
-<tr class="separator:a0195777ab3a2515459ae71958afe3eda"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68627a9a36ee4d50f0962c07245531bd"><td class="memItemLeft" align="right" valign="top"><a id="a68627a9a36ee4d50f0962c07245531bd"></a>
-unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>get_ptr_size</b> () const</td></tr>
-<tr class="separator:a68627a9a36ee4d50f0962c07245531bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9a49b08027cf67080cce77dc7e882a9"><td class="memItemLeft" align="right" valign="top"><a id="aa9a49b08027cf67080cce77dc7e882a9"></a>
-DIFile *&#160;</td><td class="memItemRight" valign="bottom"><b>get_di_file</b> () const</td></tr>
-<tr class="separator:aa9a49b08027cf67080cce77dc7e882a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad369acc26864e613c66562a9a5b62fff"><td class="memItemLeft" align="right" valign="top"><a id="ad369acc26864e613c66562a9a5b62fff"></a>
-DICompileUnit *&#160;</td><td class="memItemRight" valign="bottom"><b>get_di_cu</b> () const</td></tr>
-<tr class="separator:ad369acc26864e613c66562a9a5b62fff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd039d71a5dc6091723719b029dc68d8"><td class="memItemLeft" align="right" valign="top"><a id="afd039d71a5dc6091723719b029dc68d8"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_current_debug_location</b> (size_t l, size_t c)</td></tr>
-<tr class="separator:afd039d71a5dc6091723719b029dc68d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca11793840b0e6c8e0f594ba25aa18a0"><td class="memItemLeft" align="right" valign="top"><a id="aca11793840b0e6c8e0f594ba25aa18a0"></a>
 const str &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>get_filename</b> () const</td></tr>
 <tr class="separator:aca11793840b0e6c8e0f594ba25aa18a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -136,39 +105,14 @@ str&#160;</td><td class="memItemRight" valign="bottom"><b>_filename</b> = &quot;
 <tr class="memitem:a48138fa38ef4582d53e0ba2708c29398"><td class="memItemLeft" align="right" valign="top"><a id="a48138fa38ef4582d53e0ba2708c29398"></a>
 <a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>_sm</b> = nullptr</td></tr>
 <tr class="separator:a48138fa38ef4582d53e0ba2708c29398"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab84902f17f990a6c866ab3c5f4afc551"><td class="memItemLeft" align="right" valign="top"><a id="ab84902f17f990a6c866ab3c5f4afc551"></a>
-IRBuilder *&#160;</td><td class="memItemRight" valign="bottom"><b>_builder</b> = nullptr</td></tr>
-<tr class="separator:ab84902f17f990a6c866ab3c5f4afc551"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0caff1f3770dde3dd687e233d7fc646"><td class="memItemLeft" align="right" valign="top">DIBuilder *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompilerSession.html#ab0caff1f3770dde3dd687e233d7fc646">_di_builder</a> = nullptr</td></tr>
-<tr class="memdesc:ab0caff1f3770dde3dd687e233d7fc646"><td class="mdescLeft">&#160;</td><td class="mdescRight">IR builder.  <a href="classtanlang_1_1CompilerSession.html#ab0caff1f3770dde3dd687e233d7fc646">More...</a><br /></td></tr>
-<tr class="separator:ab0caff1f3770dde3dd687e233d7fc646"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wraps all LLVM classes used for code generation. </p>
 
-<p class="definition">Definition at line <a class="el" href="compiler__session_8h_source.html#l00013">13</a> of file <a class="el" href="compiler__session_8h_source.html">compiler_session.h</a>.</p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="ab0caff1f3770dde3dd687e233d7fc646"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0caff1f3770dde3dd687e233d7fc646">&#9670;&nbsp;</a></span>_di_builder</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">DIBuilder* tanlang::CompilerSession::_di_builder = nullptr</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>IR builder. </p>
-
-<p class="definition">Definition at line <a class="el" href="compiler__session_8h_source.html#l00044">44</a> of file <a class="el" href="compiler__session_8h_source.html">compiler_session.h</a>.</p>
-
-</div>
-</div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/include/<a class="el" href="compiler__session_8h_source.html">compiler_session.h</a></li>
-<li>/mnt/d/repos/tan/src/compiler/<a class="el" href="compiler__session_8cpp_source.html">compiler_session.cpp</a></li>
+<p class="definition">Definition at line <a class="el" href="compiler__session_8h_source.html#l00012">12</a> of file <a class="el" href="compiler__session_8h_source.html">compiler_session.h</a>.</p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
+<li>/mnt/e/repos/tan/include/compiler/<a class="el" href="compiler__session_8h_source.html">compiler_session.h</a></li>
+<li>/mnt/e/repos/tan/src/compiler/<a class="el" href="compiler__session_8cpp_source.html">compiler_session.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

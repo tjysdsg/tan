@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/codegen/code_generator.h Source File</title>
+<title>tan: /mnt/e/repos/tan/include/codegen/code_generator.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,12 +40,11 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_7cf1b5e32c0ccac638cac1ebc38d93b6.html">codegen</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_94a31b536183ae07caec48c0d7011dc6.html">codegen</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -55,35 +55,126 @@
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef __TAN_SRC_CODEGEN_CODE_GENERATOR_H__</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">namespace </span>llvm {</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">class </span>Value;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;}</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;ast/fwd.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;llvm_api/llvm_include.h&quot;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetanlang.html">tanlang</a> {</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">namespace </span>tanlang {</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">class </span>CodeGeneratorImpl;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classtanlang_1_1CodeGenerator.html">   13</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a> {</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">class </span>CompilerSession;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">class </span>ASTBase;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
+<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="classtanlang_1_1CodeGenerator.html">   12</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;  <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>() = <span class="keyword">delete</span>;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>(<a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs, llvm::TargetMachine *target_machine);</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  ~<a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>();</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>(<a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs, <a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a>* ctx);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  llvm::Value *codegen(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <a class="code" href="classtanlang_1_1CodeGeneratorImpl.html">CodeGeneratorImpl</a> *_impl = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;};</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;}</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_CODEGEN_CODE_GENERATOR_H__</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keywordtype">void</span> emit_to_file(<span class="keyword">const</span> str &amp;filename);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <span class="keywordtype">void</span> dump_ir() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  llvm::Value *codegen(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p);</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">   * \brief Convert a value to from orig type to dest type.</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">   * \details Returns nullptr if failed to convert.</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">   * \param dest Destination type.</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">   * \param expr Original expression.</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">   * \return Converted value if convertible, otherwise `nullptr`. Note that the returned value is always rvalue. To</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">   * get an lvalue, create a temporary variable and store the value to it.</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">   */</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  llvm::Value *<a class="code" href="classtanlang_1_1CodeGenerator.html#a84ae06d2b7ab0a47a424a9d40bcf08e2">convert_llvm_type_to</a>(<a class="code" href="classtanlang_1_1Expr.html">Expr</a> *expr, <a class="code" href="classtanlang_1_1Type.html">Type</a> *dest);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">  /// Create a load instruction if the type is lvalue. Otherwise return the original value.</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment"></span>  llvm::Value *<a class="code" href="classtanlang_1_1CodeGenerator.html#af90851d1b1857eb3584498f1543c30ef">load_if_is_lvalue</a>(<a class="code" href="classtanlang_1_1Expr.html">Expr</a> *expr);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  llvm::Type *to_llvm_type(<a class="code" href="classtanlang_1_1Type.html">Type</a> *p);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  llvm::Metadata *to_llvm_metadata(<a class="code" href="classtanlang_1_1Type.html">Type</a> *p);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector&lt;llvm::Metadata *&gt; args);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *_cs = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a> *_sm = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  /// avoid creating duplicated llvm::Type and llvm::Metadata</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span>  umap&lt;Type *, llvm::Type *&gt; _llvm_type_cache{};</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  umap&lt;Type *, llvm::Metadata *&gt; _llvm_metadata_cache{};</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  umap&lt;ASTBase *, llvm::Value *&gt; _llvm_value_cache{};</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /// LLVM things</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span>  llvm::IRBuilder&lt;&gt; *_builder = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  llvm::DIBuilder *_di_builder = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  llvm::LLVMContext *_context = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  llvm::Module *_module = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  vector&lt;llvm::DIScope *&gt; _di_scope{};</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  llvm::TargetMachine *_target_machine = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  llvm::DICompileUnit *_di_cu = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  llvm::DIFile *_di_file = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  [[noreturn]] <span class="keywordtype">void</span> error(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p, <span class="keyword">const</span> str &amp;message);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  llvm::DIScope *get_current_di_scope() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keywordtype">void</span> push_di_scope(llvm::DIScope *scope);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordtype">void</span> pop_di_scope();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keywordtype">void</span> set_current_debug_location(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  llvm::DebugLoc debug_loc_of_node(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p, llvm::MDNode *scope = <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  /**</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">   * \brief create_ty an `alloca` instruction in the beginning of a block.</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">   * \param block BasicBlock to insert to.</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">   * \param type Intended type to store.</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">   * \param name Name of the `alloca` instruction.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">   * \param size size of the array if greater than 1</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">   */</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, <span class="keywordtype">size_t</span> size = 1, <span class="keyword">const</span> str &amp;name = <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  llvm::Value *codegen_func_call(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  llvm::Value *codegen_func_prototype(<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *p, <span class="keywordtype">bool</span> <span class="keyword">import</span> = <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  llvm::Value *codegen_func_decl(<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *p);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  llvm::Value *codegen_bnot(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  llvm::Value *codegen_lnot(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  llvm::Value *codegen_return(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  llvm::Value *codegen_var_arg_decl(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  llvm::Value *codegen_address_of(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  llvm::Value *codegen_parenthesis(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  llvm::Value *codegen_import(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  llvm::Value *codegen_intrinsic(<a class="code" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> *p);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  llvm::Value *codegen_constructor(<a class="code" href="classtanlang_1_1Constructor.html">Constructor</a> *p);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  llvm::Value *codegen_type_instantiation(<a class="code" href="classtanlang_1_1Type.html">Type</a> *p);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  llvm::Value *codegen_literals(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  llvm::Value *codegen_stmt(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  llvm::Value *codegen_uop(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  llvm::Value *codegen_bop(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  llvm::Value *codegen_assignment(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  llvm::Value *codegen_arithmetic(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  llvm::Value *codegen_comparison(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  llvm::Value *codegen_relop(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  llvm::Value *codegen_cast(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  llvm::Value *codegen_var_ref(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  llvm::Value *codegen_identifier(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  llvm::Value *codegen_binary_or_unary(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  llvm::Value *codegen_break_continue(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  llvm::Value *codegen_loop(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  llvm::Value *codegen_if(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *_p);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  llvm::Value *codegen_member_access(<a class="code" href="classtanlang_1_1MemberAccess.html">MemberAccess</a> *p);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  llvm::Value *codegen_ptr_deref(<a class="code" href="classtanlang_1_1UnaryOperator.html">UnaryOperator</a> *p);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;};</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor">#endif //__TAN_SRC_CODEGEN_CODE_GENERATOR_H__</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdoc">Wraps all LLVM classes used for code generation.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00013">compiler_session.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00007">ast_context.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00016">ast_base.h:16</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1CodeGeneratorImpl_html"><div class="ttname"><a href="classtanlang_1_1CodeGeneratorImpl.html">tanlang::CodeGeneratorImpl</a></div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8cpp_source.html#l00019">code_generator.cpp:19</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8h_source.html#l00013">code_generator.h:13</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdoc">Wraps all LLVM classes used for code generation.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00012">compiler_session.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Constructor_html"><div class="ttname"><a href="classtanlang_1_1Constructor.html">tanlang::Constructor</a></div><div class="ttdef"><b>Definition:</b> <a href="constructor_8h_source.html#l00019">constructor.h:19</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Intrinsic_html"><div class="ttname"><a href="classtanlang_1_1Intrinsic.html">tanlang::Intrinsic</a></div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8h_source.html#l00059">intrinsic.h:59</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1MemberAccess_html"><div class="ttname"><a href="classtanlang_1_1MemberAccess.html">tanlang::MemberAccess</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00234">expr.h:234</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SourceManager_html"><div class="ttname"><a href="classtanlang_1_1SourceManager.html">tanlang::SourceManager</a></div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00027">source_manager.h:27</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html_af90851d1b1857eb3584498f1543c30ef"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html#af90851d1b1857eb3584498f1543c30ef">tanlang::CodeGenerator::load_if_is_lvalue</a></div><div class="ttdeci">llvm::Value * load_if_is_lvalue(Expr *expr)</div><div class="ttdoc">Create a load instruction if the type is lvalue. Otherwise return the original value.</div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8cpp_source.html#l00287">code_generator.cpp:287</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00012">ast_base.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html">tanlang::FunctionDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00041">decl.h:41</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1UnaryOperator_html"><div class="ttname"><a href="classtanlang_1_1UnaryOperator.html">tanlang::UnaryOperator</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00265">expr.h:265</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8h_source.html#l00012">code_generator.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Expr_html"><div class="ttname"><a href="classtanlang_1_1Expr.html">tanlang::Expr</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00012">expr.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Type_html"><div class="ttname"><a href="classtanlang_1_1Type.html">tanlang::Type</a></div><div class="ttdoc">Type is immutable once created, and it's made sure that each type has only one instance.</div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00019">type.h:19</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html_a84ae06d2b7ab0a47a424a9d40bcf08e2"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html#a84ae06d2b7ab0a47a424a9d40bcf08e2">tanlang::CodeGenerator::convert_llvm_type_to</a></div><div class="ttdeci">llvm::Value * convert_llvm_type_to(Expr *expr, Type *dest)</div><div class="ttdoc">Convert a value to from orig type to dest type.</div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8cpp_source.html#l00218">code_generator.cpp:218</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -46,7 +47,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a></li>  </ul>
+<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -60,19 +61,103 @@
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aeabfcbfe6ddc5ab4dc1e21067b917220"><td class="memItemLeft" align="right" valign="top"><a id="aeabfcbfe6ddc5ab4dc1e21067b917220"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CodeGenerator</b> (<a class="el" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs, <a class="el" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx)</td></tr>
-<tr class="separator:aeabfcbfe6ddc5ab4dc1e21067b917220"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af823a87a3bd4761dbb1fbdc41062f374"><td class="memItemLeft" align="right" valign="top"><a id="af823a87a3bd4761dbb1fbdc41062f374"></a>
+<tr class="memitem:a274951e7b348c5d2a2f4fab4a98c5a6d"><td class="memItemLeft" align="right" valign="top"><a id="a274951e7b348c5d2a2f4fab4a98c5a6d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CodeGenerator</b> (<a class="el" href="classtanlang_1_1CompilerSession.html">CompilerSession</a> *cs, llvm::TargetMachine *target_machine)</td></tr>
+<tr class="separator:a274951e7b348c5d2a2f4fab4a98c5a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a413b6fbdae038bf49abd8ae94ef37f4a"><td class="memItemLeft" align="right" valign="top"><a id="a413b6fbdae038bf49abd8ae94ef37f4a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>emit_to_file</b> (const str &amp;filename)</td></tr>
+<tr class="separator:a413b6fbdae038bf49abd8ae94ef37f4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a386f54b26fe1ebe03ee9023f2d6cab60"><td class="memItemLeft" align="right" valign="top"><a id="a386f54b26fe1ebe03ee9023f2d6cab60"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dump_ir</b> () const</td></tr>
+<tr class="separator:a386f54b26fe1ebe03ee9023f2d6cab60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a818677428076a987416a0ad4969c4112"><td class="memItemLeft" align="right" valign="top"><a id="a818677428076a987416a0ad4969c4112"></a>
 llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><b>codegen</b> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p)</td></tr>
-<tr class="separator:af823a87a3bd4761dbb1fbdc41062f374"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a818677428076a987416a0ad4969c4112"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84ae06d2b7ab0a47a424a9d40bcf08e2"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CodeGenerator.html#a84ae06d2b7ab0a47a424a9d40bcf08e2">convert_llvm_type_to</a> (<a class="el" href="classtanlang_1_1Expr.html">Expr</a> *expr, <a class="el" href="classtanlang_1_1Type.html">Type</a> *dest)</td></tr>
+<tr class="memdesc:a84ae06d2b7ab0a47a424a9d40bcf08e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert a value to from orig type to dest type.  <a href="classtanlang_1_1CodeGenerator.html#a84ae06d2b7ab0a47a424a9d40bcf08e2">More...</a><br /></td></tr>
+<tr class="separator:a84ae06d2b7ab0a47a424a9d40bcf08e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af90851d1b1857eb3584498f1543c30ef"><td class="memItemLeft" align="right" valign="top">llvm::Value *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CodeGenerator.html#af90851d1b1857eb3584498f1543c30ef">load_if_is_lvalue</a> (<a class="el" href="classtanlang_1_1Expr.html">Expr</a> *expr)</td></tr>
+<tr class="memdesc:af90851d1b1857eb3584498f1543c30ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a load instruction if the type is lvalue. Otherwise return the original value.  <a href="classtanlang_1_1CodeGenerator.html#af90851d1b1857eb3584498f1543c30ef">More...</a><br /></td></tr>
+<tr class="separator:af90851d1b1857eb3584498f1543c30ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab503b0e20e7ededb9c6a2f4475bc4027"><td class="memItemLeft" align="right" valign="top"><a id="ab503b0e20e7ededb9c6a2f4475bc4027"></a>
+llvm::Type *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_type</b> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *p)</td></tr>
+<tr class="separator:ab503b0e20e7ededb9c6a2f4475bc4027"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d0525636bc38f579125bfed8562b65c"><td class="memItemLeft" align="right" valign="top"><a id="a2d0525636bc38f579125bfed8562b65c"></a>
+llvm::Metadata *&#160;</td><td class="memItemRight" valign="bottom"><b>to_llvm_metadata</b> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *p)</td></tr>
+<tr class="separator:a2d0525636bc38f579125bfed8562b65c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41a481251490adaf47f7e870a993b557"><td class="memItemLeft" align="right" valign="top"><a id="a41a481251490adaf47f7e870a993b557"></a>
+llvm::DISubroutineType *&#160;</td><td class="memItemRight" valign="bottom"><b>create_function_debug_info_type</b> (llvm::Metadata *ret, vector&lt; llvm::Metadata * &gt; args)</td></tr>
+<tr class="separator:a41a481251490adaf47f7e870a993b557"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="code__generator_8h_source.html#l00013">13</a> of file <a class="el" href="code__generator_8h_source.html">code_generator.h</a>.</p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
-<li>/mnt/d/repos/tan/src/codegen/<a class="el" href="code__generator_8h_source.html">code_generator.h</a></li>
-<li>/mnt/d/repos/tan/src/codegen/<a class="el" href="code__generator_8cpp_source.html">code_generator.cpp</a></li>
+<p class="definition">Definition at line <a class="el" href="code__generator_8h_source.html#l00012">12</a> of file <a class="el" href="code__generator_8h_source.html">code_generator.h</a>.</p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a84ae06d2b7ab0a47a424a9d40bcf08e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84ae06d2b7ab0a47a424a9d40bcf08e2">&#9670;&nbsp;</a></span>convert_llvm_type_to()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Value * tanlang::CodeGenerator::convert_llvm_type_to </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Expr.html">Expr</a> *&#160;</td>
+          <td class="paramname"><em>expr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td>
+          <td class="paramname"><em>dest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Convert a value to from orig type to dest type. </p>
+<p>Returns nullptr if failed to convert. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dest</td><td>Destination type. </td></tr>
+    <tr><td class="paramname">expr</td><td>Original expression. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Converted value if convertible, otherwise <code>nullptr</code>. Note that the returned value is always rvalue. To get an lvalue, create a temporary variable and store the value to it. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="code__generator_8cpp_source.html#l00218">218</a> of file <a class="el" href="code__generator_8cpp_source.html">code_generator.cpp</a>.</p>
+
+</div>
+</div>
+<a id="af90851d1b1857eb3584498f1543c30ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af90851d1b1857eb3584498f1543c30ef">&#9670;&nbsp;</a></span>load_if_is_lvalue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">llvm::Value * tanlang::CodeGenerator::load_if_is_lvalue </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Expr.html">Expr</a> *&#160;</td>
+          <td class="paramname"><em>expr</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a load instruction if the type is lvalue. Otherwise return the original value. </p>
+
+<p class="definition">Definition at line <a class="el" href="code__generator_8cpp_source.html#l00287">287</a> of file <a class="el" href="code__generator_8cpp_source.html">code_generator.cpp</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>/mnt/e/repos/tan/include/codegen/<a class="el" href="code__generator_8h_source.html">code_generator.h</a></li>
+<li>/mnt/e/repos/tan/src/codegen/<a class="el" href="code__generator_8cpp_source.html">code_generator.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

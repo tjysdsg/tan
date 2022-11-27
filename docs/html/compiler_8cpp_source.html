@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/compiler/compiler.cpp Source File</title>
+<title>tan: /mnt/e/repos/tan/src/compiler/compiler.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,7 +40,6 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -52,136 +52,146 @@
 <div class="title">compiler.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;compiler.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;lexer.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;token.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;src/analysis/analyzer.h&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;src/codegen/code_generator.h&quot;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &quot;src/ast/intrinsic.h&quot;</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_context.h&quot;</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;reader.h&quot;</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;parser.h&quot;</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">using namespace </span>tanlang;</div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;compiler/compiler.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;lexer/lexer.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;lexer/token.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;compiler/compiler_session.h&quot;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;analysis/analyzer.h&quot;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;codegen/code_generator.h&quot;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &quot;ast/intrinsic.h&quot;</span></div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &quot;ast/ast_context.h&quot;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &quot;lexer/reader.h&quot;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="preprocessor">#include &quot;parser/parser.h&quot;</span></div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;llvm_api/llvm_include.h&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;Compiler::~Compiler() {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  Compiler::sessions.erase(_filename);</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;  <span class="keyword">delete</span> _cs;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  <span class="keyword">delete</span> _ctx;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;}</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a1371c5b3164c96706c0f4663ee984ebc">   20</a></span>&#160;Compiler::Compiler(<span class="keyword">const</span> str &amp;filename) : _filename(filename) {<span class="comment"></span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  /// target machine and data layout</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span>  llvm::InitializeAllTargetInfos();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  llvm::InitializeAllTargets();</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  llvm::InitializeAllTargetMCs();</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  llvm::InitializeAllAsmParsers();</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  llvm::InitializeAllAsmPrinters();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keyword">auto</span> target_triple = llvm::sys::getDefaultTargetTriple();</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  str error;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keyword">auto</span> target = llvm::TargetRegistry::lookupTarget(target_triple, error);</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keywordflow">if</span> (!target) { report_error(error); }</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keywordflow">if</span> (!Compiler::target_machine) {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keyword">auto</span> CPU = <span class="stringliteral">&quot;generic&quot;</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">auto</span> features = <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    llvm::TargetOptions opt;<span class="comment"></span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">    /// relocation model</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment"></span>    <span class="keyword">auto</span> RM = llvm::Reloc::Model::PIC_;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    Compiler::target_machine = target-&gt;createTargetMachine(target_triple, CPU, features, opt, RM);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  }</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  _ctx = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a>(filename);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  _cs = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a>(filename, Compiler::target_machine);</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;}</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">   43</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">Compiler::emit_object</a>(<span class="keyword">const</span> str &amp;filename) { _cs-&gt;emit_object(filename); }</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">   45</a></span>&#160;Value *<a class="code" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">Compiler::codegen</a>() {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  TAN_ASSERT(_ast);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  TAN_ASSERT(_ctx);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  TAN_ASSERT(_cs);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  TAN_ASSERT(_cs-&gt;get_module());</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  Intrinsic::InitCodegen(_cs);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a> cg(_cs, _ctx);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">auto</span> *ret = cg.codegen(_ast);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
-<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">   56</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">Compiler::dump_ir</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  TAN_ASSERT(_cs);</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  TAN_ASSERT(_cs-&gt;get_module());</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  _cs-&gt;get_module()-&gt;print(llvm::outs(), <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;}</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">   62</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">Compiler::dump_ast</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  TAN_ASSERT(_ast);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  _ast-&gt;<a class="code" href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">printTree</a>();</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;}</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">   67</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">Compiler::parse</a>() {</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a> reader;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  reader.open(_filename);</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">using namespace </span><a class="code" href="namespacetanlang.html">tanlang</a>;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keyword">namespace </span>fs = std::filesystem;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;Compiler::~Compiler() {</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  Compiler::sessions.erase(_filename);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;  <span class="keyword">delete</span> _ast;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keyword">delete</span> _cs;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  <span class="keyword">delete</span> _ctx;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;}</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a1371c5b3164c96706c0f4663ee984ebc">   24</a></span>&#160;Compiler::Compiler(<span class="keyword">const</span> str &amp;filename) : _filename(filename) {<span class="comment"></span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">  /// target machine and data layout</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment"></span>  llvm::InitializeAllTargetInfos();</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  llvm::InitializeAllTargets();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  llvm::InitializeAllTargetMCs();</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  llvm::InitializeAllAsmParsers();</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  llvm::InitializeAllAsmPrinters();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  <span class="keyword">auto</span> target_triple = llvm::sys::getDefaultTargetTriple();</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  str error;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">auto</span> target = llvm::TargetRegistry::lookupTarget(target_triple, error);</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <span class="keywordflow">if</span> (!target) {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <a class="code" href="classtanlang_1_1Error.html">Error</a> err(error);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    err.raise();</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  }</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordflow">if</span> (!Compiler::target_machine) {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">auto</span> CPU = <span class="stringliteral">&quot;generic&quot;</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keyword">auto</span> features = <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    llvm::TargetOptions opt;<span class="comment"></span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">    /// relocation model</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span>    <span class="keyword">auto</span> RM = llvm::Reloc::Model::PIC_;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    Compiler::target_machine = target-&gt;createTargetMachine(target_triple, CPU, features, opt, RM);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  _ctx = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a>(filename);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  _cs = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1CompilerSession.html">CompilerSession</a>(filename);</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;}</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">   51</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">Compiler::emit_object</a>(<span class="keyword">const</span> str &amp;filename) { _cg-&gt;emit_to_file(filename); }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">   53</a></span>&#160;Value *<a class="code" href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">Compiler::codegen</a>() {</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  TAN_ASSERT(_ast);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  TAN_ASSERT(!_cg);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  _cg = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1CodeGenerator.html">CodeGenerator</a>(_cs, target_machine);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">auto</span> *ret = _cg-&gt;codegen(_ast);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160; </div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">   61</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">Compiler::dump_ir</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  TAN_ASSERT(_cg);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  _cg-&gt;dump_ir();</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;}</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160; </div>
+<div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">   66</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">Compiler::dump_ast</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  TAN_ASSERT(_ast);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  _ast-&gt;<a class="code" href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">printTree</a>();</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="keyword">auto</span> tokens = tokenize(&amp;reader);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keyword">auto</span> *sm = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>(_filename, tokens);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  _ctx-&gt;set_source_manager(sm);</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  _cs-&gt;set_source_manager(sm);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="keyword">auto</span> *parser = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1Parser.html">Parser</a>(_ctx);</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  _ast = parser-&gt;parse();</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  Intrinsic::InitAnalysis(_ctx);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a> analyzer(_ctx);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  analyzer.analyze(_ast);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
-<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">   84</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">Compiler::ParseFile</a>(<span class="keyword">const</span> str &amp;filename) {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keyword">auto</span> compiler = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>(filename);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  compiler-&gt;parse();</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  Compiler::sub_compilers.push_back(compiler);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;}</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">   90</a></span>&#160;TargetMachine *<a class="code" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">Compiler::GetDefaultTargetMachine</a>() {</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  TAN_ASSERT(Compiler::target_machine);</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="keywordflow">return</span> Compiler::target_machine;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">   95</a></span>&#160;vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">Compiler::resolve_import</a>(<span class="keyword">const</span> str &amp;callee_path, <span class="keyword">const</span> str &amp;import_name) {</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  vector&lt;str&gt; ret{};</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keyword">auto</span> import_path = fs::path(import_name);<span class="comment"></span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// search relative to callee&#39;s path</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment"></span>  {</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keyword">auto</span> p = fs::path(callee_path).parent_path() / import_path;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    p = p.lexically_normal();</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">if</span> (fs::exists(p)) { ret.push_back(p.string()); }</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  }<span class="comment"></span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// search relative to directories in Compiler::import_dirs</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment"></span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel : <a class="code" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">Compiler::import_dirs</a>) {</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keyword">auto</span> p = fs::path(rel) / import_path;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    p = p.lexically_normal();</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordflow">if</span> (fs::exists(p)) { ret.push_back(p.string()); }</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  }</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;}</div>
+<div class="line"><a name="l00071"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">   71</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">Compiler::parse</a>() {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <a class="code" href="classtanlang_1_1Reader.html">Reader</a> reader;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  reader.open(_filename);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160; </div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keyword">auto</span> tokens = tokenize(&amp;reader);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="keyword">auto</span> *sm = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1SourceManager.html">SourceManager</a>(_filename, tokens);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  _ctx-&gt;set_source_manager(sm);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  _cs-&gt;set_source_manager(sm);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keyword">auto</span> *parser = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1Parser.html">Parser</a>(_ctx);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  _ast = parser-&gt;parse();</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  Intrinsic::InitAnalysis(_ctx);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <a class="code" href="classtanlang_1_1Analyzer.html">Analyzer</a> analyzer(_ctx);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  analyzer.analyze(_ast);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
+<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">   88</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">Compiler::ParseFile</a>(<span class="keyword">const</span> str &amp;filename) {</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="keyword">auto</span> compiler = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1Compiler.html">Compiler</a>(filename);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  compiler-&gt;parse();</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  Compiler::sub_compilers.push_back(compiler);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
+<div class="line"><a name="l00094"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">   94</a></span>&#160;TargetMachine *<a class="code" href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">Compiler::GetDefaultTargetMachine</a>() {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  TAN_ASSERT(Compiler::target_machine);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keywordflow">return</span> Compiler::target_machine;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;}</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
+<div class="line"><a name="l00099"></a><span class="lineno"><a class="line" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">   99</a></span>&#160;vector&lt;str&gt; <a class="code" href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">Compiler::resolve_import</a>(<span class="keyword">const</span> str &amp;callee_path, <span class="keyword">const</span> str &amp;import_name) {</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  vector&lt;str&gt; ret{};</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keyword">auto</span> import_path = fs::path(import_name);<span class="comment"></span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// search relative to callee&#39;s path</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span>  {</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keyword">auto</span> p = fs::path(callee_path).parent_path() / import_path;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    p = p.lexically_normal();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">if</span> (fs::exists(p)) {</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;      ret.push_back(p.string());</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    }</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  }<span class="comment"></span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// search relative to directories in Compiler::import_dirs</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment"></span>  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel : <a class="code" href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">Compiler::import_dirs</a>) {</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="keyword">auto</span> p = fs::path(rel) / import_path;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    p = p.lexically_normal();</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordflow">if</span> (fs::exists(p)) {</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      ret.push_back(p.string());</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    }</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  }</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasstanlang_1_1Reader_html"><div class="ttname"><a href="classtanlang_1_1Reader.html">tanlang::Reader</a></div><div class="ttdef"><b>Definition:</b> <a href="reader_8h_source.html#l00010">reader.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html_a9e04d4b8ded519990d5a8fd0a3d469ce"><div class="ttname"><a href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">tanlang::ASTBase::printTree</a></div><div class="ttdeci">void printTree() const</div><div class="ttdoc">Pretty-print AST tree.</div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8cpp_source.html#l00020">ast_base.cpp:20</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab862c86e7077f06a08b2b52a4f526756"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">tanlang::Compiler::codegen</a></div><div class="ttdeci">Value * codegen()</div><div class="ttdoc">Generate LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00045">compiler.cpp:45</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdoc">Wraps all LLVM classes used for code generation.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00013">compiler_session.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a9d082149456346747f651680dab15ec3"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">tanlang::Compiler::GetDefaultTargetMachine</a></div><div class="ttdeci">static TargetMachine * GetDefaultTargetMachine()</div><div class="ttdoc">Get information about the current machine.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00090">compiler.cpp:90</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a4d8cca606eefa4ccda126c76231a730a"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">tanlang::Compiler::import_dirs</a></div><div class="ttdeci">static vector&lt; str &gt; import_dirs</div><div class="ttdoc">Import search directories.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00030">compiler.h:30</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_a8b1492e7009960c17baecb9e84de5f51"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">tanlang::Compiler::emit_object</a></div><div class="ttdeci">void emit_object(const str &amp;filename)</div><div class="ttdoc">Emit object files.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00043">compiler.cpp:43</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Parser_html"><div class="ttname"><a href="classtanlang_1_1Parser.html">tanlang::Parser</a></div><div class="ttdoc">Parser.</div><div class="ttdef"><b>Definition:</b> <a href="parser_8h_source.html#l00017">parser.h:17</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_aee2e3668284ce4f0498af7dfa356b7d1"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">tanlang::Compiler::dump_ast</a></div><div class="ttdeci">void dump_ast() const</div><div class="ttdoc">Pretty-print AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00062">compiler.cpp:62</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html_a9e04d4b8ded519990d5a8fd0a3d469ce"><div class="ttname"><a href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">tanlang::ASTBase::printTree</a></div><div class="ttdeci">void printTree() const</div><div class="ttdoc">Pretty-print AST tree.</div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8cpp_source.html#l00015">ast_base.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab862c86e7077f06a08b2b52a4f526756"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab862c86e7077f06a08b2b52a4f526756">tanlang::Compiler::codegen</a></div><div class="ttdeci">llvm::Value * codegen()</div><div class="ttdoc">Generate LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00053">compiler.cpp:53</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CompilerSession_html"><div class="ttname"><a href="classtanlang_1_1CompilerSession.html">tanlang::CompilerSession</a></div><div class="ttdoc">Wraps all LLVM classes used for code generation.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__session_8h_source.html#l00012">compiler_session.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a9d082149456346747f651680dab15ec3"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a9d082149456346747f651680dab15ec3">tanlang::Compiler::GetDefaultTargetMachine</a></div><div class="ttdeci">static llvm::TargetMachine * GetDefaultTargetMachine()</div><div class="ttdoc">Get information about the current machine.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00094">compiler.cpp:94</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a4d8cca606eefa4ccda126c76231a730a"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a4d8cca606eefa4ccda126c76231a730a">tanlang::Compiler::import_dirs</a></div><div class="ttdeci">static vector&lt; str &gt; import_dirs</div><div class="ttdoc">Import search directories.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00037">compiler.h:37</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_a8b1492e7009960c17baecb9e84de5f51"><div class="ttname"><a href="classtanlang_1_1Compiler.html#a8b1492e7009960c17baecb9e84de5f51">tanlang::Compiler::emit_object</a></div><div class="ttdeci">void emit_object(const str &amp;filename)</div><div class="ttdoc">Emit object files.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00051">compiler.cpp:51</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Parser_html"><div class="ttname"><a href="classtanlang_1_1Parser.html">tanlang::Parser</a></div><div class="ttdoc">Top Down Operator Precedence Parsing.</div><div class="ttdef"><b>Definition:</b> <a href="parser_8h_source.html#l00016">parser.h:16</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_aee2e3668284ce4f0498af7dfa356b7d1"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aee2e3668284ce4f0498af7dfa356b7d1">tanlang::Compiler::dump_ast</a></div><div class="ttdeci">void dump_ast() const</div><div class="ttdoc">Pretty-print AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00066">compiler.cpp:66</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1SourceManager_html"><div class="ttname"><a href="classtanlang_1_1SourceManager.html">tanlang::SourceManager</a></div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00027">source_manager.h:27</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1Analyzer_html"><div class="ttname"><a href="classtanlang_1_1Analyzer.html">tanlang::Analyzer</a></div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8h_source.html#l00010">analyzer.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00007">ast_context.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab972430029c084dc2bc334ef3c453a3e"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">tanlang::Compiler::dump_ir</a></div><div class="ttdeci">void dump_ir() const</div><div class="ttdoc">Print LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00056">compiler.cpp:56</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_aaf46e625bf4c4af102c376def95e66fb"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">tanlang::Compiler::ParseFile</a></div><div class="ttdeci">static void ParseFile(const str &amp;filename)</div><div class="ttdoc">Parse a single file to AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00084">compiler.cpp:84</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_acd1dda91d530e739d99e041c63895b12"><div class="ttname"><a href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">tanlang::Compiler::resolve_import</a></div><div class="ttdeci">static vector&lt; str &gt; resolve_import(const str &amp;callee_path, const str &amp;import_name)</div><div class="ttdoc">Get a list of possible files that corresponds to an import.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00095">compiler.cpp:95</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html_ac1d17f747a23dab0400fa8a692dc553c"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">tanlang::Compiler::parse</a></div><div class="ttdeci">void parse()</div><div class="ttdoc">Parse the corresponding source file, and build AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00067">compiler.cpp:67</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8h_source.html#l00013">code_generator.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Compiler_html"><div class="ttname"><a href="classtanlang_1_1Compiler.html">tanlang::Compiler</a></div><div class="ttdoc">Abstraction of a compiler.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00014">compiler.h:14</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00008">ast_context.h:8</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ab972430029c084dc2bc334ef3c453a3e"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ab972430029c084dc2bc334ef3c453a3e">tanlang::Compiler::dump_ir</a></div><div class="ttdeci">void dump_ir() const</div><div class="ttdoc">Print LLVM IR code.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00061">compiler.cpp:61</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_aaf46e625bf4c4af102c376def95e66fb"><div class="ttname"><a href="classtanlang_1_1Compiler.html#aaf46e625bf4c4af102c376def95e66fb">tanlang::Compiler::ParseFile</a></div><div class="ttdeci">static void ParseFile(const str &amp;filename)</div><div class="ttdoc">Parse a single file to AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00088">compiler.cpp:88</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_acd1dda91d530e739d99e041c63895b12"><div class="ttname"><a href="classtanlang_1_1Compiler.html#acd1dda91d530e739d99e041c63895b12">tanlang::Compiler::resolve_import</a></div><div class="ttdeci">static vector&lt; str &gt; resolve_import(const str &amp;callee_path, const str &amp;import_name)</div><div class="ttdoc">Get a list of possible files that corresponds to an import.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00099">compiler.cpp:99</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html_ac1d17f747a23dab0400fa8a692dc553c"><div class="ttname"><a href="classtanlang_1_1Compiler.html#ac1d17f747a23dab0400fa8a692dc553c">tanlang::Compiler::parse</a></div><div class="ttdeci">void parse()</div><div class="ttdoc">Parse the corresponding source file, and build AST.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8cpp_source.html#l00071">compiler.cpp:71</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1CodeGenerator_html"><div class="ttname"><a href="classtanlang_1_1CodeGenerator.html">tanlang::CodeGenerator</a></div><div class="ttdef"><b>Definition:</b> <a href="code__generator_8h_source.html#l00012">code_generator.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Compiler_html"><div class="ttname"><a href="classtanlang_1_1Compiler.html">tanlang::Compiler</a></div><div class="ttdoc">Abstraction of a compiler.</div><div class="ttdef"><b>Definition:</b> <a href="compiler_8h_source.html#l00021">compiler.h:21</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Error_html"><div class="ttname"><a href="classtanlang_1_1Error.html">tanlang::Error</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00036">error.h:36</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

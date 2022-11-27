@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/cli/cli_main.cpp Source File</title>
+<title>tan: /mnt/e/repos/tan/src/cli/cli_main.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,7 +40,6 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -52,171 +52,173 @@
 <div class="title">cli_main.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;cli.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="libtanc_8h.html">libtanc.h</a>&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;base.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;src/backtrace/tan_backtrace.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;src/llvm_include.h&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &quot;clang-frontend.h&quot;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;algorithm&gt;</span></div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">namespace </span>cmd = llvm::cl;</div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;cli/cli.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;tan/tan.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;llvm_api.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;filesystem&gt;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">namespace </span>cmd = llvm::cl;</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span>fs = std::filesystem;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">using namespace </span><a class="code" href="namespacetanlang.html">tanlang</a>;</div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment">/// \see https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"></span><span class="keyword">static</span> constexpr std::array cxx_ext</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    {<span class="stringliteral">&quot;cpp&quot;</span>, <span class="stringliteral">&quot;CPP&quot;</span>, <span class="stringliteral">&quot;cxx&quot;</span>, <span class="stringliteral">&quot;c&quot;</span>, <span class="stringliteral">&quot;cc&quot;</span>, <span class="stringliteral">&quot;C&quot;</span>, <span class="stringliteral">&quot;c++&quot;</span>, <span class="stringliteral">&quot;cp&quot;</span>, <span class="stringliteral">&quot;i&quot;</span>, <span class="stringliteral">&quot;ii&quot;</span>, <span class="stringliteral">&quot;h&quot;</span>, <span class="stringliteral">&quot;hh&quot;</span>, <span class="stringliteral">&quot;H&quot;</span>, <span class="stringliteral">&quot;hp&quot;</span>, <span class="stringliteral">&quot;hxx&quot;</span>, <span class="stringliteral">&quot;hpp&quot;</span>, <span class="stringliteral">&quot;HPP&quot;</span>, <span class="stringliteral">&quot;h++&quot;</span>,</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <span class="stringliteral">&quot;tcc&quot;</span>};</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keywordtype">int</span> cli_main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;  init_back_trace(argv[0]); <span class="comment">// TODO: wrap this</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">  /// option parser</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment"></span>  cmd::OptionCategory cl_category(<span class="stringliteral">&quot;tanc&quot;</span>);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  cmd::opt&lt;str&gt; opt_output_file</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;      (<span class="stringliteral">&quot;o&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Output filename&quot;</span>), cmd::value_desc(<span class="stringliteral">&quot;output&quot;</span>), cmd::init(<span class="stringliteral">&quot;a.out&quot;</span>), cmd::cat(cl_category));</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  cmd::list&lt;str&gt; opt_link_libraries</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;      (<span class="stringliteral">&quot;l&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Libraries to link against&quot;</span>), cmd::value_desc(<span class="stringliteral">&quot;libraries&quot;</span>), cmd::Prefix, cmd::cat(cl_category));</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  cmd::list&lt;str&gt; opt_library_path(<span class="stringliteral">&quot;L&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Library search path&quot;</span>), cmd::Prefix, cmd::cat(cl_category));</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  cmd::list&lt;str&gt; opt_source_files(cmd::Positional,</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;      cmd::Required,</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      cmd::desc(<span class="stringliteral">&quot;Files to compile&quot;</span>),</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      cmd::value_desc(<span class="stringliteral">&quot;&lt;source files&gt;&quot;</span>),</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      cmd::OneOrMore,</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      cmd::cat(cl_category));</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  cmd::list&lt;str&gt; opt_import_dirs(<span class="stringliteral">&quot;I&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Import search directories&quot;</span>), cmd::Prefix, cmd::cat(cl_category));</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  cmd::opt&lt;bool&gt; opt_print_ir_code(<span class="stringliteral">&quot;print-ir&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Print LLVM IR code&quot;</span>), cmd::cat(cl_category));</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  cmd::opt&lt;bool&gt; opt_print_ast(<span class="stringliteral">&quot;print-ast&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Print abstract syntax tree&quot;</span>), cmd::cat(cl_category));</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  cmd::opt&lt;TanCompileType&gt; opt_output_type(cmd::desc(<span class="stringliteral">&quot;Output type&quot;</span>),</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      cmd::values(clEnumValN(<a class="code" href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6a38b2b10b37d82eb193c76eab1e5377f0">DLIB</a>, <span class="stringliteral">&quot;shared&quot;</span>, <span class="stringliteral">&quot;Shared library&quot;</span>),</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;          clEnumValN(<a class="code" href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6abe31cc6bedddaf93d161db6523a0ecae">SLIB</a>, <span class="stringliteral">&quot;static&quot;</span>, <span class="stringliteral">&quot;Static library&quot;</span>),</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;          clEnumValN(<a class="code" href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6ae013a655c0baaa5318a2d9a1db97cc09">EXE</a>, <span class="stringliteral">&quot;exe&quot;</span>, <span class="stringliteral">&quot;Executable&quot;</span>),</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;          clEnumValN(OBJ, <span class="stringliteral">&quot;obj&quot;</span>, <span class="stringliteral">&quot;Object file&quot;</span>)),</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      cmd::init(<a class="code" href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6ae013a655c0baaa5318a2d9a1db97cc09">EXE</a>),</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      cmd::cat(cl_category));</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  cmd::opt&lt;TanOptLevel&gt; opt_optimization_level(cmd::desc(<span class="stringliteral">&quot;Optimization level&quot;</span>),</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      cmd::values(clEnumValN(O0, <span class="stringliteral">&quot;g&quot;</span>, <span class="stringliteral">&quot;None&quot;</span>),</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          clEnumVal(O0, <span class="stringliteral">&quot;None&quot;</span>),</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;          clEnumVal(<a class="code" href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aa8a1f138a1fd98eb10ef4fd6a68881cd7">O1</a>, <span class="stringliteral">&quot;Less&quot;</span>),</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;          clEnumVal(<a class="code" href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aab6979f4597e3a5529778b427f7ea7e47">O2</a>, <span class="stringliteral">&quot;Default&quot;</span>),</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;          clEnumVal(<a class="code" href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aabcb4c2fb9abbc2fa093f9a27d49a2607">O3</a>, <span class="stringliteral">&quot;Aggressive&quot;</span>)),</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      cmd::init(O0),</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      cmd::cat(cl_category));<span class="comment"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">  /// Remove options created by LLVM/Clang</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// We don&#39;t want tons of flags not created by this file appearing in the output of `tanc --help`</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span>  cmd::HideUnrelatedOptions(cl_category);</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  cmd::ParseCommandLineOptions(argc, argv, <span class="stringliteral">&quot;tanc: compiler for TAN programming language\n\n&quot;</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                                           <span class="stringliteral">&quot;tan, a fucking amazing programming language\n&quot;</span>);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// tan source files</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span>  vector&lt;str&gt; source_files;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  source_files.reserve(opt_source_files.size());</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="comment">/*</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">   * split by space</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">   * sometimes llvm::cl doesn&#39;t seem to split a string by space, causing opt_source_files containing an element</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">   * that should have been two elements</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">   */</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s : opt_source_files) {</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keyword">auto</span> f = std::find(s.begin(), s.end(), <span class="charliteral">&#39; &#39;</span>);</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    <span class="keywordflow">if</span> (f != s.end()) {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      source_files.emplace_back(s.begin(), f);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      source_files.emplace_back(f + 1, s.end());</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      source_files.push_back(s);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    }</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  vector&lt;str&gt; tan_files;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  tan_files.reserve(source_files.size());<span class="comment"></span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// cxx</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment"></span>  vector&lt;str&gt; cxx_files;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  cxx_files.reserve(source_files.size());</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; source_files.size(); ++i) {</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordtype">bool</span> is_cxx = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    std::for_each(cxx_ext.begin(), cxx_ext.end(), [&amp;is_cxx, &amp;source_files, i](<span class="keyword">const</span> str &amp;s) {</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      auto n = s.length();</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      if (n &lt;= source_files[i].length()) {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        is_cxx |= std::equal(source_files[i].rbegin(), source_files[i].rbegin() + (long) n, s.rbegin(), s.rend());</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      }</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    });</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">if</span> (is_cxx) { cxx_files.push_back(source_files[i]); } <span class="comment">/// cxx files</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span>    <span class="keywordflow">else</span> { tan_files.push_back(source_files[i]); } <span class="comment">/// tan files</span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span>  }</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">  /// lib dirs</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span>  vector&lt;str&gt; lib_dirs;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  lib_dirs.reserve(opt_library_path.size());</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  std::for_each(opt_library_path.begin(), opt_library_path.end(), [&amp;lib_dirs](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) {</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    lib_dirs.push_back(s);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  });</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// files to link to</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment"></span>  vector&lt;str&gt; link_files;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  link_files.reserve(opt_link_libraries.size());</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  std::for_each(opt_link_libraries.begin(),</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;      opt_link_libraries.end(),</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;      [&amp;link_files](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) { link_files.push_back(s); });</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  /// import search dirs</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment"></span>  vector&lt;str&gt; import_dirs;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  import_dirs.reserve(opt_import_dirs.size());</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  std::for_each(opt_import_dirs.begin(),</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;      opt_import_dirs.end(),</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      [&amp;import_dirs](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) { import_dirs.push_back(s); });</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">  /// build config</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment"></span>  <a class="code" href="structTanCompilation.html">TanCompilation</a> config;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  config.type = <a class="code" href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6ae013a655c0baaa5318a2d9a1db97cc09">EXE</a>;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  config.<a class="code" href="structTanCompilation.html#ab635263a4decee5a802511ee4883bdf4">out_file</a> = opt_output_file;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  config.<a class="code" href="structTanCompilation.html#aff0683c5c734a967af143701143aaa33">verbose</a> = 0;</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  config.<a class="code" href="structTanCompilation.html#ac45fc1077a116959950d210b414c2c8e">lib_dirs</a> = lib_dirs;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  config.<a class="code" href="structTanCompilation.html#a8c7171027ea5355b91716abe146f7ae1">link_files</a> = link_files;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  config.<a class="code" href="structTanCompilation.html#ade8d854f253ce0cf86235cb740d536b8">import_dirs</a> = import_dirs;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment">  /// output type</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment"></span>  config.type = opt_output_type.getValue();<span class="comment"></span></div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">  /// opt level</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment"></span>  config.<a class="code" href="structTanCompilation.html#a8414caa30557bff67035719f1835d277">opt_level</a> = opt_optimization_level.getValue();</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">  /// verbosity</span></div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (opt_print_ast) { config.<a class="code" href="structTanCompilation.html#aff0683c5c734a967af143701143aaa33">verbose</a> = 2; }</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="keywordflow">else</span> <span class="keywordflow">if</span> (opt_print_ir_code) { config.<a class="code" href="structTanCompilation.html#aff0683c5c734a967af143701143aaa33">verbose</a> = 1; }</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">  /// compile cxx files first</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (!cxx_files.empty()) {</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Compiling &quot;</span> &lt;&lt; cxx_files.size() &lt;&lt; <span class="stringliteral">&quot; CXX file(s): &quot;</span>;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    std::for_each(cxx_files.begin(), cxx_files.end(), [=](<span class="keyword">auto</span> f) { std::cout &lt;&lt; f &lt;&lt; <span class="stringliteral">&quot; &quot;</span>; });</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keyword">auto</span> err_code = clang_compile(cxx_files, &amp;config);</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="keywordflow">if</span> (err_code) { <span class="keywordflow">return</span> err_code; }<span class="comment"></span></div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="comment">    /// add cxx object files</span></div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="comment"></span>    <span class="keywordtype">size_t</span> n = cxx_files.size();</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    vector&lt;str&gt; obj_files{};</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    obj_files.reserve(n);</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;      <span class="keyword">auto</span> p = fs::path(str(cxx_files[i])).replace_extension(<span class="stringliteral">&quot;.o&quot;</span>).filename();</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;      obj_files.push_back(p.string());</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    }</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    tan_files.insert(tan_files.end(), obj_files.begin(), obj_files.end());</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  }</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordflow">return</span> !<a class="code" href="libtanc_8h.html#ad61a1c199afa330cb842a3f71ed1698b">compile_files</a>(tan_files, &amp;config);</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;}</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"></span><span class="keyword">static</span> constexpr std::array cxx_ext{<span class="stringliteral">&quot;cpp&quot;</span>, <span class="stringliteral">&quot;CPP&quot;</span>, <span class="stringliteral">&quot;cxx&quot;</span>, <span class="stringliteral">&quot;c&quot;</span>,  <span class="stringliteral">&quot;cc&quot;</span>,  <span class="stringliteral">&quot;C&quot;</span>,   <span class="stringliteral">&quot;c++&quot;</span>, <span class="stringliteral">&quot;cp&quot;</span>,  <span class="stringliteral">&quot;i&quot;</span>,  <span class="stringliteral">&quot;ii&quot;</span>,</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;                                    <span class="stringliteral">&quot;h&quot;</span>,   <span class="stringliteral">&quot;hh&quot;</span>,  <span class="stringliteral">&quot;H&quot;</span>,   <span class="stringliteral">&quot;hp&quot;</span>, <span class="stringliteral">&quot;hxx&quot;</span>, <span class="stringliteral">&quot;hpp&quot;</span>, <span class="stringliteral">&quot;HPP&quot;</span>, <span class="stringliteral">&quot;h++&quot;</span>, <span class="stringliteral">&quot;tcc&quot;</span>};</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="keywordtype">int</span> cli_main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) {<span class="comment"></span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">  /// option parser</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment"></span>  cmd::OptionCategory cl_category(<span class="stringliteral">&quot;tanc&quot;</span>);</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  cmd::opt&lt;str&gt; opt_output_file(<span class="stringliteral">&quot;o&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Output filename&quot;</span>), cmd::value_desc(<span class="stringliteral">&quot;output&quot;</span>), cmd::init(<span class="stringliteral">&quot;a.out&quot;</span>),</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;                                cmd::cat(cl_category));</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  cmd::list&lt;str&gt; opt_link_libraries(<span class="stringliteral">&quot;l&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Libraries to link against&quot;</span>), cmd::value_desc(<span class="stringliteral">&quot;libraries&quot;</span>),</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                                    cmd::Prefix, cmd::cat(cl_category));</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  cmd::list&lt;str&gt; opt_library_path(<span class="stringliteral">&quot;L&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Library search path&quot;</span>), cmd::Prefix, cmd::cat(cl_category));</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  cmd::list&lt;str&gt; opt_source_files(cmd::Positional, cmd::Required, cmd::desc(<span class="stringliteral">&quot;Files to compile&quot;</span>),</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;                                  cmd::value_desc(<span class="stringliteral">&quot;&lt;source files&gt;&quot;</span>), cmd::OneOrMore, cmd::cat(cl_category));</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  cmd::list&lt;str&gt; opt_import_dirs(<span class="stringliteral">&quot;I&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Import search directories&quot;</span>), cmd::Prefix, cmd::cat(cl_category));</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  cmd::opt&lt;bool&gt; opt_print_ir_code(<span class="stringliteral">&quot;print-ir&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Print LLVM IR code&quot;</span>), cmd::cat(cl_category));</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  cmd::opt&lt;bool&gt; opt_print_ast(<span class="stringliteral">&quot;print-ast&quot;</span>, cmd::desc(<span class="stringliteral">&quot;Print abstract syntax tree&quot;</span>), cmd::cat(cl_category));</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  cmd::opt&lt;TanCompileType&gt; opt_output_type(</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      cmd::desc(<span class="stringliteral">&quot;Output type&quot;</span>),</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      cmd::values(clEnumValN(<a class="code" href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27ad75453e2eeda1063ddc6fa0a106bfe34">DLIB</a>, <span class="stringliteral">&quot;shared&quot;</span>, <span class="stringliteral">&quot;Shared library&quot;</span>), clEnumValN(<a class="code" href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27af6578e1575a317355e89842aa18eea48">SLIB</a>, <span class="stringliteral">&quot;static&quot;</span>, <span class="stringliteral">&quot;Static library&quot;</span>),</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                  clEnumValN(<a class="code" href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27a02e4d584309aa6616257efdd8af92092">EXE</a>, <span class="stringliteral">&quot;exe&quot;</span>, <span class="stringliteral">&quot;Executable&quot;</span>), clEnumValN(OBJ, <span class="stringliteral">&quot;obj&quot;</span>, <span class="stringliteral">&quot;Object file&quot;</span>)),</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      cmd::init(<a class="code" href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27a02e4d584309aa6616257efdd8af92092">EXE</a>), cmd::cat(cl_category));</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  cmd::opt&lt;TanOptLevel&gt; opt_optimization_level(cmd::desc(<span class="stringliteral">&quot;Optimization level&quot;</span>),</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;                                               cmd::values(clEnumValN(O0, <span class="stringliteral">&quot;g&quot;</span>, <span class="stringliteral">&quot;None&quot;</span>), clEnumVal(O0, <span class="stringliteral">&quot;None&quot;</span>),</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                                                           clEnumVal(<a class="code" href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a2457a334ae43627bcd250f43d2862a55">O1</a>, <span class="stringliteral">&quot;Less&quot;</span>), clEnumVal(<a class="code" href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a3ae9d961e7d197499f618263fcfacac0">O2</a>, <span class="stringliteral">&quot;Default&quot;</span>),</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;                                                           clEnumVal(<a class="code" href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a2ca5b995c9b7834b458104f27a22f88c">O3</a>, <span class="stringliteral">&quot;Aggressive&quot;</span>)),</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                                               cmd::init(O0), cmd::cat(cl_category));<span class="comment"></span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">  /// Remove options created by LLVM/Clang</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  /// We don&#39;t want tons of flags not created by this file appearing in the output of `tanc --help`</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span>  cmd::HideUnrelatedOptions(cl_category);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  cmd::ParseCommandLineOptions(argc, argv,</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;                               <span class="stringliteral">&quot;tanc: compiler for TAN programming language\n\n&quot;</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;                               <span class="stringliteral">&quot;tan, a fucking amazing programming language\n&quot;</span>);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">  /// init</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (!<a class="code" href="namespacetanlang.html#a0570fdd24d776786a6d79a0dffdd1740">init_compiler</a>(argc, argv)) {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    std::cerr &lt;&lt; <span class="stringliteral">&quot;Unable to init tanc compiler\n&quot;</span>;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    abort();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  }</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// tan source files</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span>  vector&lt;str&gt; source_files;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  source_files.reserve(opt_source_files.size());</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">/*</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">   * split by space</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">   * sometimes llvm::cl doesn&#39;t seem to split a string by space, causing opt_source_files containing an element</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">   * that should have been two elements</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">   */</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s : opt_source_files) {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keyword">auto</span> f = std::find(s.begin(), s.end(), <span class="charliteral">&#39; &#39;</span>);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordflow">if</span> (f != s.end()) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;      source_files.emplace_back(s.begin(), f);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;      source_files.emplace_back(f + 1, s.end());</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      source_files.push_back(s);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  }</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  vector&lt;str&gt; tan_files;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  tan_files.reserve(source_files.size());<span class="comment"></span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// cxx</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment"></span>  vector&lt;str&gt; cxx_files;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  cxx_files.reserve(source_files.size());</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; source_files.size(); ++i) {</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="keywordtype">bool</span> is_cxx = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    std::for_each(cxx_ext.begin(), cxx_ext.end(), [&amp;is_cxx, &amp;source_files, i](<span class="keyword">const</span> str &amp;s) {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      auto n = s.length();</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      if (n &lt;= source_files[i].length()) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        is_cxx |= std::equal(source_files[i].rbegin(), source_files[i].rbegin() + (long)n, s.rbegin(), s.rend());</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      }</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    });</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">if</span> (is_cxx) {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      cxx_files.push_back(source_files[i]);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    } <span class="comment">/// cxx files</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment"></span>    <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      tan_files.push_back(source_files[i]);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    } <span class="comment">/// tan files</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span>  }</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// lib dirs</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment"></span>  vector&lt;str&gt; lib_dirs;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  lib_dirs.reserve(opt_library_path.size());</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  std::for_each(opt_library_path.begin(), opt_library_path.end(),</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                [&amp;lib_dirs](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) { lib_dirs.push_back(s); });</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">  /// files to link to</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment"></span>  vector&lt;str&gt; link_files;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  link_files.reserve(opt_link_libraries.size());</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  std::for_each(opt_link_libraries.begin(), opt_link_libraries.end(),</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                [&amp;link_files](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) { link_files.push_back(s); });</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// import search dirs</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span>  vector&lt;str&gt; import_dirs;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  import_dirs.reserve(opt_import_dirs.size());</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  std::for_each(opt_import_dirs.begin(), opt_import_dirs.end(),</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                [&amp;import_dirs](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;s) { import_dirs.push_back(s); });</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">  /// build config</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment"></span>  <a class="code" href="structtanlang_1_1TanCompilation.html">TanCompilation</a> config;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  config.type = <a class="code" href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27a02e4d584309aa6616257efdd8af92092">EXE</a>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  config.<a class="code" href="structtanlang_1_1TanCompilation.html#a95e5eaa3d406d375adf16d90ad99b39b">out_file</a> = opt_output_file;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  config.<a class="code" href="structtanlang_1_1TanCompilation.html#a2822ee4b10b9a4dd6f081c88db705fe1">verbose</a> = 0;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  config.<a class="code" href="structtanlang_1_1TanCompilation.html#ac83f099e8b617eaf5ff08ce37f2206b9">lib_dirs</a> = lib_dirs;</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  config.<a class="code" href="structtanlang_1_1TanCompilation.html#a9feb9c454f9f1d798cf240025391c5d6">link_files</a> = link_files;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  config.<a class="code" href="structtanlang_1_1TanCompilation.html#a259b6035092321df676ca370e91963b8">import_dirs</a> = import_dirs;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">  /// output type</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment"></span>  config.type = opt_output_type.getValue();<span class="comment"></span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment">  /// opt level</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment"></span>  config.<a class="code" href="structtanlang_1_1TanCompilation.html#abca98b2614fa63664caafbf8187efd22">opt_level</a> = opt_optimization_level.getValue();</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">  /// verbosity</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (opt_print_ast) {</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    config.<a class="code" href="structtanlang_1_1TanCompilation.html#a2822ee4b10b9a4dd6f081c88db705fe1">verbose</a> = 2;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (opt_print_ir_code) {</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    config.<a class="code" href="structtanlang_1_1TanCompilation.html#a2822ee4b10b9a4dd6f081c88db705fe1">verbose</a> = 1;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  }</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment">  /// compile cxx files first</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (!cxx_files.empty()) {</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Compiling &quot;</span> &lt;&lt; cxx_files.size() &lt;&lt; <span class="stringliteral">&quot; CXX file(s): &quot;</span>;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    std::for_each(cxx_files.begin(), cxx_files.end(), [=](<span class="keyword">auto</span> f) { std::cout &lt;&lt; f &lt;&lt; <span class="stringliteral">&quot; &quot;</span>; });</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keyword">auto</span> err_code = clang_compile(cxx_files, &amp;config);</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;    <span class="keywordflow">if</span> (err_code) {</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;      <span class="keywordflow">return</span> err_code;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    }<span class="comment"></span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="comment">    /// add cxx object files</span></div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="comment"></span>    <span class="keywordtype">size_t</span> n = cxx_files.size();</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    vector&lt;str&gt; obj_files{};</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    obj_files.reserve(n);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) {</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;      <span class="keyword">auto</span> p = fs::path(str(cxx_files[i])).replace_extension(<span class="stringliteral">&quot;.o&quot;</span>).filename();</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;      obj_files.push_back(p.string());</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    }</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    tan_files.insert(tan_files.end(), obj_files.begin(), obj_files.end());</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  }</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160; </div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordflow">return</span> !<a class="code" href="namespacetanlang.html#a9a58e5863783e9b12ec3bbed9cbacc62">compile_files</a>(tan_files, &amp;config);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="alibtanc_8h_html_aca1b2bb1ed961ec6c767a5b2366569a6abe31cc6bedddaf93d161db6523a0ecae"><div class="ttname"><a href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6abe31cc6bedddaf93d161db6523a0ecae">SLIB</a></div><div class="ttdeci">@ SLIB</div><div class="ttdoc">Executable.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00027">libtanc.h:27</a></div></div>
-<div class="ttc" id="alibtanc_8h_html"><div class="ttname"><a href="libtanc_8h.html">libtanc.h</a></div><div class="ttdoc">Defines tools for compiling tan source files.</div></div>
-<div class="ttc" id="alibtanc_8h_html_ad61a1c199afa330cb842a3f71ed1698b"><div class="ttname"><a href="libtanc_8h.html#ad61a1c199afa330cb842a3f71ed1698b">compile_files</a></div><div class="ttdeci">bool compile_files(vector&lt; str &gt; input_paths, TanCompilation *config)</div><div class="ttdoc">Compile multiple source files.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8cpp_source.html#l00088">libtanc.cpp:88</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_a8c7171027ea5355b91716abe146f7ae1"><div class="ttname"><a href="structTanCompilation.html#a8c7171027ea5355b91716abe146f7ae1">TanCompilation::link_files</a></div><div class="ttdeci">vector&lt; str &gt; link_files</div><div class="ttdoc">Output filename, invalid if TanCompilation::type is set to OBJ.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00051">libtanc.h:51</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_aff0683c5c734a967af143701143aaa33"><div class="ttname"><a href="structTanCompilation.html#aff0683c5c734a967af143701143aaa33">TanCompilation::verbose</a></div><div class="ttdeci">unsigned verbose</div><div class="ttdoc">Optimization level,.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00049">libtanc.h:49</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_ade8d854f253ce0cf86235cb740d536b8"><div class="ttname"><a href="structTanCompilation.html#ade8d854f253ce0cf86235cb740d536b8">TanCompilation::import_dirs</a></div><div class="ttdeci">vector&lt; str &gt; import_dirs</div><div class="ttdoc">Library search paths.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00053">libtanc.h:53</a></div></div>
-<div class="ttc" id="astructTanCompilation_html"><div class="ttname"><a href="structTanCompilation.html">TanCompilation</a></div><div class="ttdoc">Compilation configuration.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00046">libtanc.h:46</a></div></div>
-<div class="ttc" id="alibtanc_8h_html_a21a845b9f0be14508d2c442b784bf98aabcb4c2fb9abbc2fa093f9a27d49a2607"><div class="ttname"><a href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aabcb4c2fb9abbc2fa093f9a27d49a2607">O3</a></div><div class="ttdeci">@ O3</div><div class="ttdoc">Default.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00039">libtanc.h:39</a></div></div>
-<div class="ttc" id="alibtanc_8h_html_aca1b2bb1ed961ec6c767a5b2366569a6a38b2b10b37d82eb193c76eab1e5377f0"><div class="ttname"><a href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6a38b2b10b37d82eb193c76eab1e5377f0">DLIB</a></div><div class="ttdeci">@ DLIB</div><div class="ttdoc">Static library.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00028">libtanc.h:28</a></div></div>
-<div class="ttc" id="alibtanc_8h_html_a21a845b9f0be14508d2c442b784bf98aab6979f4597e3a5529778b427f7ea7e47"><div class="ttname"><a href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aab6979f4597e3a5529778b427f7ea7e47">O2</a></div><div class="ttdeci">@ O2</div><div class="ttdoc">Less.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00038">libtanc.h:38</a></div></div>
-<div class="ttc" id="alibtanc_8h_html_a21a845b9f0be14508d2c442b784bf98aa8a1f138a1fd98eb10ef4fd6a68881cd7"><div class="ttname"><a href="libtanc_8h.html#a21a845b9f0be14508d2c442b784bf98aa8a1f138a1fd98eb10ef4fd6a68881cd7">O1</a></div><div class="ttdeci">@ O1</div><div class="ttdoc">Debug.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00037">libtanc.h:37</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_a8414caa30557bff67035719f1835d277"><div class="ttname"><a href="structTanCompilation.html#a8414caa30557bff67035719f1835d277">TanCompilation::opt_level</a></div><div class="ttdeci">TanOptLevel opt_level</div><div class="ttdoc">Type of compilation,.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00048">libtanc.h:48</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_ab635263a4decee5a802511ee4883bdf4"><div class="ttname"><a href="structTanCompilation.html#ab635263a4decee5a802511ee4883bdf4">TanCompilation::out_file</a></div><div class="ttdeci">str out_file</div><div class="ttdoc">Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00050">libtanc.h:50</a></div></div>
-<div class="ttc" id="alibtanc_8h_html_aca1b2bb1ed961ec6c767a5b2366569a6ae013a655c0baaa5318a2d9a1db97cc09"><div class="ttname"><a href="libtanc_8h.html#aca1b2bb1ed961ec6c767a5b2366569a6ae013a655c0baaa5318a2d9a1db97cc09">EXE</a></div><div class="ttdeci">@ EXE</div><div class="ttdoc">Object file, use as default.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00026">libtanc.h:26</a></div></div>
-<div class="ttc" id="astructTanCompilation_html_ac45fc1077a116959950d210b414c2c8e"><div class="ttname"><a href="structTanCompilation.html#ac45fc1077a116959950d210b414c2c8e">TanCompilation::lib_dirs</a></div><div class="ttdeci">vector&lt; str &gt; lib_dirs</div><div class="ttdoc">Files to link against.</div><div class="ttdef"><b>Definition:</b> <a href="libtanc_8h_source.html#l00052">libtanc.h:52</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html">tanlang::TanCompilation</a></div><div class="ttdoc">Compilation configuration.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00043">tan.h:43</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad701fb07d607706fbbcc4c880c180779a2ca5b995c9b7834b458104f27a22f88c"><div class="ttname"><a href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a2ca5b995c9b7834b458104f27a22f88c">tanlang::O3</a></div><div class="ttdeci">@ O3</div><div class="ttdoc">Default.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00036">tan.h:36</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a0570fdd24d776786a6d79a0dffdd1740"><div class="ttname"><a href="namespacetanlang.html#a0570fdd24d776786a6d79a0dffdd1740">tanlang::init_compiler</a></div><div class="ttdeci">bool init_compiler(int argc, char **argv)</div><div class="ttdoc">Initialize compiler.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8cpp_source.html#l00162">tan.cpp:162</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_a2822ee4b10b9a4dd6f081c88db705fe1"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#a2822ee4b10b9a4dd6f081c88db705fe1">tanlang::TanCompilation::verbose</a></div><div class="ttdeci">unsigned verbose</div><div class="ttdoc">Optimization level,.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00046">tan.h:46</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_abca98b2614fa63664caafbf8187efd22"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#abca98b2614fa63664caafbf8187efd22">tanlang::TanCompilation::opt_level</a></div><div class="ttdeci">TanOptLevel opt_level</div><div class="ttdoc">Type of compilation,.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00045">tan.h:45</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_a95e5eaa3d406d375adf16d90ad99b39b"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#a95e5eaa3d406d375adf16d90ad99b39b">tanlang::TanCompilation::out_file</a></div><div class="ttdeci">str out_file</div><div class="ttdoc">Verbose level, 0 non-verbose, 1 print LLVM IR, 2, print LLVM IR and abstract syntax tree.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00047">tan.h:47</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_a9feb9c454f9f1d798cf240025391c5d6"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#a9feb9c454f9f1d798cf240025391c5d6">tanlang::TanCompilation::link_files</a></div><div class="ttdeci">vector&lt; str &gt; link_files</div><div class="ttdoc">Output filename, invalid if TanCompilation::type is set to OBJ.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00048">tan.h:48</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a2f3dc7968b535c8bc014788b38bdea27a02e4d584309aa6616257efdd8af92092"><div class="ttname"><a href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27a02e4d584309aa6616257efdd8af92092">tanlang::EXE</a></div><div class="ttdeci">@ EXE</div><div class="ttdoc">Object file, use as default.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00022">tan.h:22</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad701fb07d607706fbbcc4c880c180779a3ae9d961e7d197499f618263fcfacac0"><div class="ttname"><a href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a3ae9d961e7d197499f618263fcfacac0">tanlang::O2</a></div><div class="ttdeci">@ O2</div><div class="ttdoc">Less.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00035">tan.h:35</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a2f3dc7968b535c8bc014788b38bdea27af6578e1575a317355e89842aa18eea48"><div class="ttname"><a href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27af6578e1575a317355e89842aa18eea48">tanlang::SLIB</a></div><div class="ttdeci">@ SLIB</div><div class="ttdoc">Executable.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00023">tan.h:23</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_ac83f099e8b617eaf5ff08ce37f2206b9"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#ac83f099e8b617eaf5ff08ce37f2206b9">tanlang::TanCompilation::lib_dirs</a></div><div class="ttdeci">vector&lt; str &gt; lib_dirs</div><div class="ttdoc">Files to link against.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00049">tan.h:49</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a9a58e5863783e9b12ec3bbed9cbacc62"><div class="ttname"><a href="namespacetanlang.html#a9a58e5863783e9b12ec3bbed9cbacc62">tanlang::compile_files</a></div><div class="ttdeci">bool compile_files(vector&lt; str &gt; input_paths, TanCompilation *config)</div><div class="ttdoc">Compile multiple source files.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8cpp_source.html#l00091">tan.cpp:91</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_a2f3dc7968b535c8bc014788b38bdea27ad75453e2eeda1063ddc6fa0a106bfe34"><div class="ttname"><a href="namespacetanlang.html#a2f3dc7968b535c8bc014788b38bdea27ad75453e2eeda1063ddc6fa0a106bfe34">tanlang::DLIB</a></div><div class="ttdeci">@ DLIB</div><div class="ttdoc">Static library.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00024">tan.h:24</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad701fb07d607706fbbcc4c880c180779a2457a334ae43627bcd250f43d2862a55"><div class="ttname"><a href="namespacetanlang.html#ad701fb07d607706fbbcc4c880c180779a2457a334ae43627bcd250f43d2862a55">tanlang::O1</a></div><div class="ttdeci">@ O1</div><div class="ttdoc">Debug.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00034">tan.h:34</a></div></div>
+<div class="ttc" id="astructtanlang_1_1TanCompilation_html_a259b6035092321df676ca370e91963b8"><div class="ttname"><a href="structtanlang_1_1TanCompilation.html#a259b6035092321df676ca370e91963b8">tanlang::TanCompilation::import_dirs</a></div><div class="ttdeci">vector&lt; str &gt; import_dirs</div><div class="ttdoc">Library search paths.</div><div class="ttdef"><b>Definition:</b> <a href="tan_8h_source.html#l00050">tan.h:50</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

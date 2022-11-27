@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.17"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: /mnt/d/repos/tan/src/ast/decl.cpp Source File</title>
+<title>tan: /mnt/e/repos/tan/src/ast/decl.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -32,6 +32,7 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
+      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
     </ul>
@@ -39,7 +40,6 @@
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
-      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <div id="nav-path" class="navpath">
@@ -52,26 +52,26 @@
 <div class="title">decl.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;src/ast/decl.h&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_context.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;src/ast/ast_type.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &quot;compiler_session.h&quot;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &quot;src/analysis/type_system.h&quot;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">using namespace </span>tanlang;</div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;ast/decl.h&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;ast/ast_context.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;ast/type.h&quot;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">using namespace </span><a class="code" href="namespacetanlang.html">tanlang</a>;</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="comment">/// \section Decl</span></div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">/// \section Decl</span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classtanlang_1_1Decl.html#a031467ea7eeb9e0244705437a760be60">   11</a></span>&#160;<a class="code" href="classtanlang_1_1Decl.html#a031467ea7eeb9e0244705437a760be60">Decl::Decl</a>(ASTNodeType type, <a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, <span class="keywordtype">int</span> bp) : <a class="code" href="classtanlang_1_1Expr.html">Expr</a>(type, loc, bp) {}</div>
+<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="classtanlang_1_1Decl.html#a234f375ba81e5e2ab30a80700cbff2d9">    9</a></span>&#160;<a class="code" href="classtanlang_1_1Decl.html#a234f375ba81e5e2ab30a80700cbff2d9">Decl::Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> type, <a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, <span class="keywordtype">int</span> bp) : <a class="code" href="classtanlang_1_1Expr.html">Expr</a>(type, loc, bp) {}</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classtanlang_1_1Decl.html#a4e55a9997f65ffb9628b0c1d71f8402d">   11</a></span>&#160;vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1Decl.html#a4e55a9997f65ffb9628b0c1d71f8402d">Decl::get_children</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> {}; }</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">/// \section ArgDecl</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classtanlang_1_1ArgDecl.html#ab7668af92ceb4e15f4d2477b69b08160">   15</a></span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html#ab7668af92ceb4e15f4d2477b69b08160">ArgDecl::ArgDecl</a>(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(ASTNodeType::ARG_DECL, loc, 0) {}</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classtanlang_1_1ArgDecl.html#a449fbd58d028e6333bf653b3b97feab7">   15</a></span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html#a449fbd58d028e6333bf653b3b97feab7">ArgDecl::ArgDecl</a>(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::ARG_DECL, loc, 0) {}</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *ArgDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ArgDecl.html#ab7668af92ceb4e15f4d2477b69b08160">ArgDecl</a>(loc); }</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *ArgDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ArgDecl.html#a449fbd58d028e6333bf653b3b97feab7">ArgDecl</a>(loc); }</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *ArgDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, <span class="keyword">const</span> str &amp;name, <a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *ty) {</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ArgDecl.html#ab7668af92ceb4e15f4d2477b69b08160">ArgDecl</a>(loc);</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *ArgDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, <span class="keyword">const</span> str &amp;name, <a class="code" href="classtanlang_1_1Type.html">Type</a> *ty) {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1ArgDecl.html#a449fbd58d028e6333bf653b3b97feab7">ArgDecl</a>(loc);</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;  ret-&gt;set_name(name);</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;  ret-&gt;set_type(ty);</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordflow">return</span> ret;</div>
@@ -79,12 +79,12 @@
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">/// \section VarDecl</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="classtanlang_1_1VarDecl.html#af645b452db82fec18b86af7111f10ad9">   28</a></span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html#af645b452db82fec18b86af7111f10ad9">VarDecl::VarDecl</a>(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(ASTNodeType::VAR_DECL, loc, 0) {}</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="classtanlang_1_1VarDecl.html#a22de3ebb2eb2e09a2779e675c6c35f00">   28</a></span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html#a22de3ebb2eb2e09a2779e675c6c35f00">VarDecl::VarDecl</a>(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::VAR_DECL, loc, 0) {}</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html">VarDecl</a> *VarDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1VarDecl.html#af645b452db82fec18b86af7111f10ad9">VarDecl</a>(loc); }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html">VarDecl</a> *VarDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1VarDecl.html#a22de3ebb2eb2e09a2779e675c6c35f00">VarDecl</a>(loc); }</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160; </div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html">VarDecl</a> *VarDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc, <span class="keyword">const</span> str &amp;name, <a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *ty) {</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1VarDecl.html#af645b452db82fec18b86af7111f10ad9">VarDecl</a>(loc);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<a class="code" href="classtanlang_1_1VarDecl.html">VarDecl</a> *VarDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, <span class="keyword">const</span> str &amp;name, <a class="code" href="classtanlang_1_1Type.html">Type</a> *ty) {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1VarDecl.html#a22de3ebb2eb2e09a2779e675c6c35f00">VarDecl</a>(loc);</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  ret-&gt;set_name(name);</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  ret-&gt;set_type(ty);</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordflow">return</span> ret;</div>
@@ -92,187 +92,142 @@
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment"></span> </div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">/// \section FunctionDecl</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionDecl.html#a2be759919d89e6f730568a0bb8cbc1af">   41</a></span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html#a2be759919d89e6f730568a0bb8cbc1af">FunctionDecl::FunctionDecl</a>(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(ASTNodeType::FUNC_DECL, loc, 0) {}</div>
+<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionDecl.html#aa002c7eb7c05856c0334d4bb805595ec">   41</a></span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html#aa002c7eb7c05856c0334d4bb805595ec">FunctionDecl::FunctionDecl</a>(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::FUNC_DECL, loc, 0) {}</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">// TODO: move this to analysis</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *FunctionDecl::GetCallee(<a class="code" href="classtanlang_1_1ASTContext.html">ASTContext</a> *ctx, <span class="keyword">const</span> str &amp;name, <span class="keyword">const</span> vector&lt;Expr *&gt; &amp;args) {</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *ret = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">auto</span> func_candidates = ctx-&gt;get_functions(name);<span class="comment"></span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /// always prefer the function with lowest cost if multiple candidates are callable</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">  /// one implicit cast -&gt; +1 cost</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// however, if two (or more) functions have the same score, an error is raise (ambiguous call)</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span>  <span class="keyword">auto</span> cost = (size_t) -1;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;f : func_candidates) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">size_t</span> n = f-&gt;get_n_args();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">if</span> (n != args.size()) { <span class="keywordflow">continue</span>; }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span> good = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">size_t</span> c = 0;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; n; ++i) { <span class="comment">/// check every argument (return type not checked)</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span>      <span class="keyword">auto</span> actual_arg = args[i];<span class="comment"></span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">      /// allow implicit cast from actual_arg to arg, but not in reverse</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span>      <span class="keyword">auto</span> t1 = f-&gt;get_arg_type(i);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      <span class="keyword">auto</span> t2 = actual_arg-&gt;get_type();</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      <span class="keywordflow">if</span> (*t1 != *t2) {</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        <span class="keywordflow">if</span> (0 != <a class="code" href="classtanlang_1_1TypeSystem.html#a099f192fe3124b0e97234877a97fa78c">TypeSystem::CanImplicitCast</a>(ctx, t1, t2)) {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;          good = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        }</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        ++c;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      }</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordflow">if</span> (good) {</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      <span class="keywordflow">if</span> (c &lt; cost) {</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        ret = f;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        cost = c;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (c == cost) {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;Ambiguous function call: &quot;</span> + name);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        <span class="comment">// FIXME: report_error(ctx, p, &quot;Ambiguous function call: &quot; + name);</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      }</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  }</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="keywordflow">if</span> (!ret) {</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">&quot;Unknown function call: &quot;</span> + name);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="comment">// FIXME: report_error(ctx, p, &quot;Unknown function call: &quot; + name);</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  }</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *FunctionDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1FunctionDecl.html#aa002c7eb7c05856c0334d4bb805595ec">FunctionDecl</a>(loc); }</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *FunctionDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, <span class="keyword">const</span> str &amp;name, <a class="code" href="classtanlang_1_1Type.html">Type</a> *ret_type, vector&lt;Type *&gt; arg_types,</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                                   <span class="keywordtype">bool</span> is_external, <span class="keywordtype">bool</span> is_public, <a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *body) {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1FunctionDecl.html#aa002c7eb7c05856c0334d4bb805595ec">FunctionDecl</a>(loc);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// name and return type</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span>  ret-&gt;set_name(name);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  ret-&gt;_ret_type = ret_type;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">  /// args</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"></span>  ret-&gt;_arg_types.reserve(arg_types.size());</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordflow">if</span> (!arg_types.empty()) {</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    ret-&gt;_arg_types.insert(ret-&gt;_arg_types.end(), arg_types.begin(), arg_types.end());</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">  /// body</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (!body) {</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    ret-&gt;set_body(body);</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  }</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  /// flags</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment"></span>  ret-&gt;_is_external = is_external;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  ret-&gt;_is_public = is_public;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;}</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<a class="code" href="classtanlang_1_1Type.html">Type</a> *FunctionDecl::get_ret_ty()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _ret_type; }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;str FunctionDecl::get_arg_name(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_names[i]; }</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<a class="code" href="classtanlang_1_1Type.html">Type</a> *FunctionDecl::get_arg_type(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_types[i]; }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="keywordtype">size_t</span> FunctionDecl::get_n_args()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_names.size(); }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_body(<a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *body) { _body = body; }</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160; </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_ret_type(<a class="code" href="classtanlang_1_1Type.html">Type</a> *type) { _ret_type = type; }</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_names(<span class="keyword">const</span> vector&lt;str&gt; &amp;names) { _arg_names = names; }</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_types(<span class="keyword">const</span> vector&lt;Type *&gt; &amp;types) { _arg_types = types; }</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *FunctionDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1FunctionDecl.html#a2be759919d89e6f730568a0bb8cbc1af">FunctionDecl</a>(loc); }</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="keywordtype">bool</span> FunctionDecl::is_public()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_public; }</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160; </div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<a class="code" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *FunctionDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc,</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">const</span> str &amp;name,</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *ret_type,</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    vector&lt;ASTType *&gt; arg_types,</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">bool</span> is_external,</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">bool</span> is_public,</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *body) {</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="keyword">auto</span> ret = <span class="keyword">new</span> <a class="code" href="classtanlang_1_1FunctionDecl.html#a2be759919d89e6f730568a0bb8cbc1af">FunctionDecl</a>(loc);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">  /// name and return type</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment"></span>  ret-&gt;set_name(name);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  ret-&gt;_ret_type = ret_type;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  /// args</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment"></span>  ret-&gt;_arg_types.reserve(arg_types.size());</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keywordflow">if</span> (!arg_types.empty()) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    ret-&gt;_arg_types.insert(ret-&gt;_arg_types.end(), arg_types.begin(), arg_types.end());</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  }</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="keywordtype">bool</span> FunctionDecl::is_external()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_external; }</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *FunctionDecl::get_body()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _body; }</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_external(<span class="keywordtype">bool</span> is_external) { _is_external = is_external; }</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_public(<span class="keywordtype">bool</span> is_public) { _is_public = is_public; }</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="keyword">const</span> vector&lt;ArgDecl *&gt; &amp;FunctionDecl::get_arg_decls()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_decls; }</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_decls(<span class="keyword">const</span> vector&lt;ArgDecl *&gt; &amp;arg_decls) { _arg_decls = arg_decls; }</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">  100</a></span>&#160;vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">FunctionDecl::get_children</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  vector&lt;ASTBase *&gt; ret = {};</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  std::for_each(_arg_decls.begin(), _arg_decls.end(), [&amp;](<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *e) { ret.push_back(e); });</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  ret.push_back((<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *)_body);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">  /// body</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span>  <span class="keywordflow">if</span> (!body) { ret-&gt;set_body(body); }</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// flags</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment"></span>  ret-&gt;_is_external = is_external;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  ret-&gt;_is_public = is_public;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;}</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *FunctionDecl::get_ret_ty()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _ret_type; }</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160; </div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;str FunctionDecl::get_arg_name(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_names[i]; }</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160; </div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *FunctionDecl::get_arg_type(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_types[i]; }</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="keywordtype">size_t</span> FunctionDecl::get_n_args()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_names.size(); }</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_body(<a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *body) { _body = body; }</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">/// \section StructDecl</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span> </div>
+<div class="line"><a name="l00109"></a><span class="lineno"><a class="line" href="classtanlang_1_1StructDecl.html#aac8c6afbf4576682a87b5f717537a37b">  109</a></span>&#160;<a class="code" href="classtanlang_1_1StructDecl.html#aac8c6afbf4576682a87b5f717537a37b">StructDecl::StructDecl</a>(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::STRUCT_DECL, loc, 0) {}</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160; </div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<a class="code" href="classtanlang_1_1StructDecl.html">StructDecl</a> *StructDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1StructDecl.html#aac8c6afbf4576682a87b5f717537a37b">StructDecl</a>(loc); }</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="keywordtype">void</span> StructDecl::set_is_forward_decl(<span class="keywordtype">bool</span> is_forward_decl) { _is_forward_decl = is_forward_decl; }</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="keywordtype">bool</span> StructDecl::is_forward_decl()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_forward_decl; }</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;StructDecl::get_member_decls()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _member_decls; }</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160; </div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="keywordtype">void</span> StructDecl::set_member_decls(<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;member_decls) { _member_decls = member_decls; }</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160; </div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<a class="code" href="classtanlang_1_1Type.html">Type</a> *StructDecl::get_struct_member_ty(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  TAN_ASSERT(i &lt; _member_decls.size());</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="keywordflow">return</span> _member_decls[i]-&gt;get_type();</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;}</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160; </div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_ret_type(<a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *type) { _ret_type = type; }</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_names(<span class="keyword">const</span> vector&lt;str&gt; &amp;names) { _arg_names = names; }</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_types(<span class="keyword">const</span> vector&lt;ASTType *&gt; &amp;types) { _arg_types = types; }</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="keywordtype">bool</span> FunctionDecl::is_public()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_public; }</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="keywordtype">size_t</span> StructDecl::get_struct_member_index(<span class="keyword">const</span> str &amp;name)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="keyword">auto</span> search = _member_indices.find(name);</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="keywordflow">if</span> (search == _member_indices.end()) {</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">size_t</span>)(-1);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordflow">return</span> search-&gt;second;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;}</div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160; </div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="keywordtype">bool</span> FunctionDecl::is_external()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_external; }</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="keywordtype">void</span> StructDecl::set_member_index(<span class="keyword">const</span> str &amp;name, <span class="keywordtype">size_t</span> idx) { _member_indices[name] = idx; }</div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160; </div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<a class="code" href="classtanlang_1_1Stmt.html">Stmt</a> *FunctionDecl::get_body()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _body; }</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160; </div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_external(<span class="keywordtype">bool</span> is_external) { _is_external = is_external; }</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160; </div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_public(<span class="keywordtype">bool</span> is_public) { _is_public = is_public; }</div>
+<div class="line"><a name="l00136"></a><span class="lineno"><a class="line" href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">  136</a></span>&#160;vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">StructDecl::get_children</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  vector&lt;ASTBase *&gt; ret = {};</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  std::for_each(_member_decls.begin(), _member_decls.end(), [&amp;](<a class="code" href="classtanlang_1_1Expr.html">Expr</a> *e) { ret.push_back(e); });</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;}</div>
 <div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160; </div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="keyword">const</span> vector&lt;ArgDecl *&gt; &amp;FunctionDecl::get_arg_decls()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _arg_decls; }</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;EnumDecl::EnumDecl(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(<a class="code" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::ENUM_DECL, loc, 0) {}</div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160; </div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="keywordtype">void</span> FunctionDecl::set_arg_decls(<span class="keyword">const</span> vector&lt;ArgDecl *&gt; &amp;arg_decls) { _arg_decls = arg_decls; }</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<a class="code" href="classtanlang_1_1EnumDecl.html">EnumDecl</a> *EnumDecl::Create(<a class="code" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1EnumDecl.html">EnumDecl</a>(loc); }</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
-<div class="line"><a name="l00146"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">  146</a></span>&#160;vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">FunctionDecl::get_children</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  vector&lt;ASTBase *&gt; ret = {(<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *) _ret_type};</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  std::for_each(_arg_decls.begin(), _arg_decls.end(), [&amp;](<a class="code" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *e) { ret.push_back(e); });</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  ret.push_back((<a class="code" href="classtanlang_1_1ASTBase.html">ASTBase</a> *) _body);</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;}</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="comment">/// \section StructDecl</span></div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="comment"></span> </div>
-<div class="line"><a name="l00155"></a><span class="lineno"><a class="line" href="classtanlang_1_1StructDecl.html#a4bcce78d2c2ac4adaa2a79497ed050e3">  155</a></span>&#160;<a class="code" href="classtanlang_1_1StructDecl.html#a4bcce78d2c2ac4adaa2a79497ed050e3">StructDecl::StructDecl</a>(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(ASTNodeType::STRUCT_DECL, loc, 0) {}</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160; </div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;<a class="code" href="classtanlang_1_1StructDecl.html">StructDecl</a> *StructDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1StructDecl.html#a4bcce78d2c2ac4adaa2a79497ed050e3">StructDecl</a>(loc); }</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160; </div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;<span class="keywordtype">void</span> StructDecl::set_is_forward_decl(<span class="keywordtype">bool</span> is_forward_decl) { _is_forward_decl = is_forward_decl; }</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160; </div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="keywordtype">bool</span> StructDecl::is_forward_decl()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _is_forward_decl; }</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160; </div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;StructDecl::get_member_decls()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _member_decls; }</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keywordtype">void</span> StructDecl::set_member_decls(<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;member_decls) { _member_decls = member_decls; }</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160; </div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<a class="code" href="classtanlang_1_1ASTType.html">ASTType</a> *StructDecl::get_struct_member_ty(<span class="keywordtype">size_t</span> i)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  TAN_ASSERT(i &lt; _member_decls.size());</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="keywordflow">return</span> _member_decls[i]-&gt;get_type();</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;}</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="keywordtype">size_t</span> StructDecl::get_struct_member_index(<span class="keyword">const</span> str &amp;name)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  <span class="keyword">auto</span> search = _member_indices.find(name);</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  <span class="keywordflow">if</span> (search == _member_indices.end()) {</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    <span class="keywordflow">return</span> (<span class="keywordtype">size_t</span>) (-1);</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  }</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordflow">return</span> search-&gt;second;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;}</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160; </div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="keywordtype">void</span> StructDecl::set_member_index(<span class="keyword">const</span> str &amp;name, <span class="keywordtype">size_t</span> idx) { _member_indices[name] = idx; }</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
-<div class="line"><a name="l00182"></a><span class="lineno"><a class="line" href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">  182</a></span>&#160;vector&lt;ASTBase *&gt; <a class="code" href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">StructDecl::get_children</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  vector&lt;ASTBase *&gt; ret = {};</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  std::for_each(_member_decls.begin(), _member_decls.end(), [&amp;](<a class="code" href="classtanlang_1_1Expr.html">Expr</a> *e) { ret.push_back(e); });</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;}</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;EnumDecl::EnumDecl(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) : <a class="code" href="classtanlang_1_1Decl.html">Decl</a>(ASTNodeType::ENUM_DECL, loc, 0) {}</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160; </div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<a class="code" href="classtanlang_1_1EnumDecl.html">EnumDecl</a> *EnumDecl::Create(<a class="code" href="classtanlang_1_1SourceIndex.html">SourceIndex</a> loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code" href="classtanlang_1_1EnumDecl.html">EnumDecl</a>(loc); }</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160; </div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="keywordtype">void</span> EnumDecl::set_elements(<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;elements) { _elements = elements; }</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160; </div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;vector&lt;Expr *&gt; &amp;EnumDecl::get_elements() { <span class="keywordflow">return</span> _elements; }</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;int64_t EnumDecl::get_value(<span class="keyword">const</span> str &amp;name)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _element_values.at(name); }</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160; </div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="keywordtype">void</span> EnumDecl::set_value(<span class="keyword">const</span> str &amp;name, int64_t value) { _element_values[name] = value; }</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160; </div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="keywordtype">bool</span> EnumDecl::contain_element(<span class="keyword">const</span> str &amp;name) { <span class="keywordflow">return</span> _element_values.end() != _element_values.find(name); }</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="keywordtype">void</span> EnumDecl::set_elements(<span class="keyword">const</span> vector&lt;Expr *&gt; &amp;elements) { _elements = elements; }</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;vector&lt;Expr *&gt; &amp;EnumDecl::get_elements() { <span class="keywordflow">return</span> _elements; }</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160; </div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;int64_t EnumDecl::get_value(<span class="keyword">const</span> str &amp;name)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _element_values.at(name); }</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="keywordtype">void</span> EnumDecl::set_value(<span class="keyword">const</span> str &amp;name, int64_t value) { _element_values[name] = value; }</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160; </div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="keywordtype">bool</span> EnumDecl::contain_element(<span class="keyword">const</span> str &amp;name) { <span class="keywordflow">return</span> _element_values.end() != _element_values.find(name); }</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasstanlang_1_1Stmt_html"><div class="ttname"><a href="classtanlang_1_1Stmt.html">tanlang::Stmt</a></div><div class="ttdef"><b>Definition:</b> <a href="stmt_8h_source.html#l00013">stmt.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1VarDecl_html_af645b452db82fec18b86af7111f10ad9"><div class="ttname"><a href="classtanlang_1_1VarDecl.html#af645b452db82fec18b86af7111f10ad9">tanlang::VarDecl::VarDecl</a></div><div class="ttdeci">VarDecl(SourceIndex loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00028">decl.cpp:28</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html_a2be759919d89e6f730568a0bb8cbc1af"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html#a2be759919d89e6f730568a0bb8cbc1af">tanlang::FunctionDecl::FunctionDecl</a></div><div class="ttdeci">FunctionDecl(SourceIndex loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00041">decl.cpp:41</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1VarDecl_html"><div class="ttname"><a href="classtanlang_1_1VarDecl.html">tanlang::VarDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00016">decl.h:16</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1VarDecl_html"><div class="ttname"><a href="classtanlang_1_1VarDecl.html">tanlang::VarDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00022">decl.h:22</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1StructDecl_html_aac8c6afbf4576682a87b5f717537a37b"><div class="ttname"><a href="classtanlang_1_1StructDecl.html#aac8c6afbf4576682a87b5f717537a37b">tanlang::StructDecl::StructDecl</a></div><div class="ttdeci">StructDecl(SrcLoc loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00109">decl.cpp:109</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1StructDecl_html"><div class="ttname"><a href="classtanlang_1_1StructDecl.html">tanlang::StructDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00084">decl.h:84</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1TypeSystem_html_a099f192fe3124b0e97234877a97fa78c"><div class="ttname"><a href="classtanlang_1_1TypeSystem.html#a099f192fe3124b0e97234877a97fa78c">tanlang::TypeSystem::CanImplicitCast</a></div><div class="ttdeci">static int CanImplicitCast(ASTContext *ctx, ASTType *t1, ASTType *t2)</div><div class="ttdoc">Find out which type should a value be implicitly cast to.</div><div class="ttdef"><b>Definition:</b> <a href="type__system_8cpp_source.html#l00082">type_system.cpp:82</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1SourceIndex_html"><div class="ttname"><a href="classtanlang_1_1SourceIndex.html">tanlang::SourceIndex</a></div><div class="ttdoc">The index of the token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00010">source_manager.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTType_html"><div class="ttname"><a href="classtanlang_1_1ASTType.html">tanlang::ASTType</a></div><div class="ttdoc">Type of an ASTNode.</div><div class="ttdef"><b>Definition:</b> <a href="ast__type_8h_source.html#l00027">ast_type.h:27</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Decl_html"><div class="ttname"><a href="classtanlang_1_1Decl.html">tanlang::Decl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00011">decl.h:11</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Decl_html_a4e55a9997f65ffb9628b0c1d71f8402d"><div class="ttname"><a href="classtanlang_1_1Decl.html#a4e55a9997f65ffb9628b0c1d71f8402d">tanlang::Decl::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00011">decl.cpp:11</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1VarDecl_html_a22de3ebb2eb2e09a2779e675c6c35f00"><div class="ttname"><a href="classtanlang_1_1VarDecl.html#a22de3ebb2eb2e09a2779e675c6c35f00">tanlang::VarDecl::VarDecl</a></div><div class="ttdeci">VarDecl(SrcLoc loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00028">decl.cpp:28</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Decl_html"><div class="ttname"><a href="classtanlang_1_1Decl.html">tanlang::Decl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00012">decl.h:12</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1EnumDecl_html"><div class="ttname"><a href="classtanlang_1_1EnumDecl.html">tanlang::EnumDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00106">decl.h:106</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ArgDecl_html_ab7668af92ceb4e15f4d2477b69b08160"><div class="ttname"><a href="classtanlang_1_1ArgDecl.html#ab7668af92ceb4e15f4d2477b69b08160">tanlang::ArgDecl::ArgDecl</a></div><div class="ttdeci">ArgDecl(SourceIndex loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00015">decl.cpp:15</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1StructDecl_html_a4bcce78d2c2ac4adaa2a79497ed050e3"><div class="ttname"><a href="classtanlang_1_1StructDecl.html#a4bcce78d2c2ac4adaa2a79497ed050e3">tanlang::StructDecl::StructDecl</a></div><div class="ttdeci">StructDecl(SourceIndex loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00155">decl.cpp:155</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTContext_html"><div class="ttname"><a href="classtanlang_1_1ASTContext.html">tanlang::ASTContext</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__context_8h_source.html#l00007">ast_context.h:7</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Decl_html_a031467ea7eeb9e0244705437a760be60"><div class="ttname"><a href="classtanlang_1_1Decl.html#a031467ea7eeb9e0244705437a760be60">tanlang::Decl::Decl</a></div><div class="ttdeci">Decl(ASTNodeType type, SourceIndex loc, int bp)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00011">decl.cpp:11</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html_a2cd6a4527bf4f87f451a131f41a49fbb"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">tanlang::FunctionDecl::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00146">decl.cpp:146</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00016">ast_base.h:16</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html">tanlang::FunctionDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00035">decl.h:35</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1ArgDecl_html"><div class="ttname"><a href="classtanlang_1_1ArgDecl.html">tanlang::ArgDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00025">decl.h:25</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Expr_html"><div class="ttname"><a href="classtanlang_1_1Expr.html">tanlang::Expr</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00013">expr.h:13</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1StructDecl_html_a79a869c2df5e1d5aabf3e78c9bd1b4a1"><div class="ttname"><a href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">tanlang::StructDecl::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00182">decl.cpp:182</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html_aa002c7eb7c05856c0334d4bb805595ec"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html#aa002c7eb7c05856c0334d4bb805595ec">tanlang::FunctionDecl::FunctionDecl</a></div><div class="ttdeci">FunctionDecl(SrcLoc loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00041">decl.cpp:41</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="analyzer_8cpp_source.html#l00015">analyzer.cpp:15</a></div></div>
+<div class="ttc" id="anamespacetanlang_html_ad5ec8893294ac5f55afa3edb445c5232"><div class="ttname"><a href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">tanlang::ASTNodeType</a></div><div class="ttdeci">ASTNodeType</div><div class="ttdef"><b>Definition:</b> <a href="ast__node__type_8h_source.html#l00006">ast_node_type.h:6</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html_a2cd6a4527bf4f87f451a131f41a49fbb"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">tanlang::FunctionDecl::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00100">decl.cpp:100</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ASTBase_html"><div class="ttname"><a href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></div><div class="ttdef"><b>Definition:</b> <a href="ast__base_8h_source.html#l00012">ast_base.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionDecl_html"><div class="ttname"><a href="classtanlang_1_1FunctionDecl.html">tanlang::FunctionDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00041">decl.h:41</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Decl_html_a234f375ba81e5e2ab30a80700cbff2d9"><div class="ttname"><a href="classtanlang_1_1Decl.html#a234f375ba81e5e2ab30a80700cbff2d9">tanlang::Decl::Decl</a></div><div class="ttdeci">Decl(ASTNodeType type, SrcLoc loc, int bp)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00009">decl.cpp:9</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ArgDecl_html_a449fbd58d028e6333bf653b3b97feab7"><div class="ttname"><a href="classtanlang_1_1ArgDecl.html#a449fbd58d028e6333bf653b3b97feab7">tanlang::ArgDecl::ArgDecl</a></div><div class="ttdeci">ArgDecl(SrcLoc loc)</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00015">decl.cpp:15</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1ArgDecl_html"><div class="ttname"><a href="classtanlang_1_1ArgDecl.html">tanlang::ArgDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00031">decl.h:31</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Expr_html"><div class="ttname"><a href="classtanlang_1_1Expr.html">tanlang::Expr</a></div><div class="ttdef"><b>Definition:</b> <a href="expr_8h_source.html#l00012">expr.h:12</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Type_html"><div class="ttname"><a href="classtanlang_1_1Type.html">tanlang::Type</a></div><div class="ttdoc">Type is immutable once created, and it's made sure that each type has only one instance.</div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00019">type.h:19</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1StructDecl_html_a79a869c2df5e1d5aabf3e78c9bd1b4a1"><div class="ttname"><a href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">tanlang::StructDecl::get_children</a></div><div class="ttdeci">vector&lt; ASTBase * &gt; get_children() const override</div><div class="ttdoc">Get a ordered list of child nodes.</div><div class="ttdef"><b>Definition:</b> <a href="decl_8cpp_source.html#l00136">decl.cpp:136</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SrcLoc_html"><div class="ttname"><a href="classtanlang_1_1SrcLoc.html">tanlang::SrcLoc</a></div><div class="ttdoc">Stores the location information of a token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00012">source_manager.h:12</a></div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
