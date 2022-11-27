@@ -484,10 +484,10 @@ private:
         break;
       }
 
-      auto node = peek();
-      if (!std::find(TypeSystem::LiteralTypes.begin(), TypeSystem::LiteralTypes.end(), node->get_node_type())) {
-        // TODO: support array of constexpr
-        error(p->loc(), "Expected a literal");
+      auto *node = peek();
+      auto *expr = expect_expression(node);
+      if (!expr->is_comptime_known()) {
+        error(p->loc(), "Expected a compile-time known value");
       }
 
       parse_node(node);

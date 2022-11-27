@@ -18,9 +18,6 @@ class CompilerSession;
 
 class TypeSystem {
 public:
-  static constexpr std::array LiteralTypes = {ASTNodeType::INTEGER_LITERAL, ASTNodeType::FLOAT_LITERAL,
-                                              ASTNodeType::STRING_LITERAL, ASTNodeType::ARRAY_LITERAL};
-
   /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.

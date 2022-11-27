@@ -47,7 +47,7 @@ private:
   void printTree(const str &prefix, bool last_child) const;
 
 private:
-  ASTNodeType _node_type ;
+  ASTNodeType _node_type;
   int _bp = 0; /// binding power
 };
 
