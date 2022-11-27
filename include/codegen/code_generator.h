@@ -8,12 +8,11 @@ namespace tanlang {
 
 class CompilerSession;
 class ASTBase;
-class ASTContext;
 
 class CodeGenerator {
 public:
   CodeGenerator() = delete;
-  explicit CodeGenerator(CompilerSession *cs, ASTContext *ctx, llvm::TargetMachine *target_machine);
+  explicit CodeGenerator(CompilerSession *cs, llvm::TargetMachine *target_machine);
   ~CodeGenerator();
   void emit_to_file(const str &filename);
   void dump_ir() const;
@@ -38,7 +37,6 @@ public:
 
 private:
   CompilerSession *_cs = nullptr;
-  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
   /// avoid creating duplicated llvm::Type and llvm::Metadata
@@ -63,6 +61,15 @@ private:
   void pop_di_scope();
   void set_current_debug_location(ASTBase *p);
   llvm::DebugLoc debug_loc_of_node(ASTBase *p, llvm::MDNode *scope = nullptr);
+
+  /**
+   * \brief create_ty an `alloca` instruction in the beginning of a block.
+   * \param block BasicBlock to insert to.
+   * \param type Intended type to store.
+   * \param name Name of the `alloca` instruction.
+   * \param size size of the array if greater than 1
+   */
+  AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size = 1, const str &name = "");
 
   llvm::Value *codegen_func_call(ASTBase *_p);
   llvm::Value *codegen_func_prototype(FunctionDecl *p, bool import = false);

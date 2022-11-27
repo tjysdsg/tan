@@ -13,14 +13,7 @@
 
 namespace tanlang {
 
-/**
- * \brief create_ty an `alloca` instruction in the beginning of a block.
- * \param block BasicBlock to insert to.
- * \param type Intended type to store.
- * \param name Name of the `alloca` instruction.
- * \param size size of the array if greater than 1
- */
-static AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size = 1, const str &name = "") {
+AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
   block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
   if (size <= 1) {
@@ -30,8 +23,8 @@ static AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size
   }
 }
 
-CodeGenerator::CodeGenerator(CompilerSession *cs, ASTContext *ctx, TargetMachine *target_machine)
-    : _cs(cs), _ctx(ctx), _sm(cs->get_source_manager()), _target_machine(target_machine) {
+CodeGenerator::CodeGenerator(CompilerSession *cs, TargetMachine *target_machine)
+    : _cs(cs), _sm(cs->get_source_manager()), _target_machine(target_machine) {
   _context = new LLVMContext();
   _builder = new IRBuilder<>(*_context);
   _module = new Module(cs->get_filename(), *_context);
@@ -210,7 +203,12 @@ Value *CodeGenerator::codegen(ASTBase *p) {
   case ASTNodeType::BOP_OR_UOP:
     ret = codegen_binary_or_unary(p);
     break;
+  case ASTNodeType::STRUCT_DECL:
+    /// don't do anything
+    break;
   default:
+    error(p, fmt::format("[DEV] Codegen for {} is not implemented", ASTBase::ASTTypeNames[p->get_node_type()]));
+    TAN_ASSERT(false);
     break;
   }
 
@@ -1335,11 +1333,10 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
     ret = codegen(rhs);
     break;
   case MemberAccess::MemberAccessEnumValue: {
-    str enum_name = ast_cast<Identifier>(lhs)->get_name();
-    auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
-    str element_name = ast_cast<Identifier>(rhs)->get_name();
-    int64_t val = enum_decl->get_value(element_name);
-
+    // str enum_name = ast_cast<Identifier>(lhs)->get_name();
+    // auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
+    // str element_name = ast_cast<Identifier>(rhs)->get_name();
+    // int64_t val = enum_decl->get_value(element_name);
     // TODO IMPORTANT: ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
     break;
   }

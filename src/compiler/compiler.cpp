@@ -53,7 +53,7 @@ void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
 Value *Compiler::codegen() {
   TAN_ASSERT(_ast);
   TAN_ASSERT(!_cg);
-  _cg = new CodeGenerator(_cs, _ctx, target_machine);
+  _cg = new CodeGenerator(_cs, target_machine);
   auto *ret = _cg->codegen(_ast);
   return ret;
 }
