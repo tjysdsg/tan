@@ -47,10 +47,11 @@ fn test_implicit_cast() : void {
 
     // rule #5
     signed = -5;
+    unsigned = 5;
     f = signed;
-    d = signed;
+    d = unsigned;
     assert(f == -5.0);
-    assert(d == -5.0);
+    assert(d == 5.0);
     @test_comp_error(float_to_int) {
         signed = f;
     }
@@ -101,6 +102,17 @@ pub fn main() : int {
     assert(a7 as f32 == 100.0);
     a7 = a5 as f64;
     assert(a7 == 100 as f64);
+    var c: char = a7 as char;
+    assert(c == 100);
+
+    // truncate
+    c = -1 as char;
+    assert(c as u32 == 255u);
+
+    // signed ext
+    var i: i32 = -100;
+    var big: i64 = i;
+    assert(big == -100);
 
     // float and signed/unsigned int
     var fp: float = -1.0 as f32;
@@ -112,6 +124,14 @@ pub fn main() : int {
     var array1: i32[3] = [0, 1, 2];
     var parray1: i32* = &array1[0];
     assert(*parray1 == array1[0]);
+
+    // string to pointer
+    var s = "abc";
+    var sp = s as char*;
+    assert(sp[0] == 'a');
+    assert(sp[1] == 'b');
+    assert(sp[2] == 'c');
+    assert(sp[3] == 0 as char);
 
     test_implicit_cast();
     print("SUCCESS\n");

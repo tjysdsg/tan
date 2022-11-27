@@ -235,10 +235,11 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
   if (is_pointer1 && is_pointer2) {
     /// cast between pointer types (including pointers to pointers)
     return _builder->CreateBitCast(loaded, to_llvm_type(dest));
-  } else if ((orig->is_enum() && dest->is_int()) || (dest->is_enum() && orig->is_int())) {
-    return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
   } else if ((orig->is_int() || orig->is_char()) && (dest->is_char() || dest->is_int())) { /// between int
-    return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
+    if (dest->is_unsigned())
+      return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
+    else
+      return _builder->CreateSExtOrTrunc(loaded, to_llvm_type(dest));
   } else if (orig->is_int() && dest->is_float()) { /// int to float/double
     if (orig->is_unsigned()) {
       return _builder->CreateUIToFP(loaded, to_llvm_type(dest));
@@ -246,7 +247,7 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
       return _builder->CreateSIToFP(loaded, to_llvm_type(dest));
     }
   } else if (orig->is_float() && dest->is_int()) { /// float/double to int
-    if (orig->is_unsigned()) {
+    if (dest->is_unsigned()) {
       return _builder->CreateFPToUI(loaded, to_llvm_type(dest));
     } else {
       return _builder->CreateFPToSI(loaded, to_llvm_type(dest));
@@ -269,9 +270,8 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
       loaded = _builder->CreatePtrToInt(loaded, _builder->getIntNTy((unsigned)s1));
       return _builder->CreateICmpNE(loaded, ConstantInt::get(_builder->getIntNTy((unsigned)s1), 0, false));
     } else if (orig->is_int()) { /// int to bool
-      auto *t = (PrimitiveType *)orig;
       return _builder->CreateICmpNE(loaded,
-                                    ConstantInt::get(_builder->getIntNTy((unsigned)t->get_size_bits()), 0, false));
+                                    ConstantInt::get(_builder->getIntNTy((unsigned)orig->get_size_bits()), 0, false));
     }
   } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
     return loaded;
@@ -306,7 +306,7 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   llvm::Type *ret = nullptr;
 
   if (p->is_primitive()) { /// primitive types
-    int size_bits = ((PrimitiveType *)p)->get_size_bits();
+    int size_bits = p->get_size_bits();
     if (p->is_int()) {
       ret = _builder->getIntNTy((unsigned)size_bits);
     } else if (p->is_char()) {
@@ -362,10 +362,9 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
   DIType *ret = nullptr;
   if (p->is_primitive()) { /// primitive types
     unsigned dwarf_encoding = 0;
-    auto *pp = (PrimitiveType *)p;
-    int size_bits = pp->get_size_bits();
-    if (pp->is_int()) {
-      if (pp->is_unsigned()) {
+    int size_bits = p->get_size_bits();
+    if (p->is_int()) {
+      if (p->is_unsigned()) {
         if (size_bits == 8) {
           dwarf_encoding = llvm::dwarf::DW_ATE_unsigned_char;
         } else {
@@ -736,7 +735,7 @@ Value *CodeGenerator::codegen_type_instantiation(Type *p) {
 
   Value *ret = nullptr;
   if (p->is_primitive()) { /// primitive types
-    int size_bits = ((PrimitiveType *)p)->get_size_bits();
+    int size_bits = p->get_size_bits();
 
     if (p->is_int()) {
       ret = codegen_constructor(
@@ -783,7 +782,7 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
   Value *ret = nullptr;
   Type *ptype = p->get_type();
   if (ptype->is_primitive()) { /// primitive types
-    int size_bits = ((PrimitiveType *)ptype)->get_size_bits();
+    int size_bits = ptype->get_size_bits();
 
     if (ptype->is_char()) { // NOTE: must be before is_int() check because char is technically an integer
       ret = ConstantInt::get(type, ast_cast<CharLiteral>(p)->get_value());
