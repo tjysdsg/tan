@@ -34,6 +34,8 @@ public:
       return it->second;
     }
 
+    set_current_debug_location(p);
+
     Value *ret = nullptr;
     switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM:
@@ -191,7 +193,6 @@ private:
 
   Value *codegen_func_decl(FunctionDecl *p) {
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto ret_ty = p->get_ret_ty();
     Metadata *ret_meta = TypeSystem::ToLLVMMeta(_cs, ret_ty);
@@ -275,7 +276,6 @@ private:
     auto p = ast_cast<UnaryOperator>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto *rhs = codegen(p->get_rhs());
     if (!rhs) {
@@ -291,7 +291,6 @@ private:
     auto p = ast_cast<UnaryOperator>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto *rhs = codegen(p->get_rhs());
 
@@ -317,7 +316,6 @@ private:
     auto p = ast_cast<Return>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto rhs = p->get_rhs();
     if (rhs) { /// return with value
@@ -336,7 +334,6 @@ private:
     auto p = ast_cast<Decl>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
     auto *ret = create_block_alloca(builder->GetInsertBlock(), type, 1, p->get_name());
@@ -366,7 +363,6 @@ private:
 
   Value *codegen_address_of(ASTBase *_p) {
     auto p = ast_cast<UnaryOperator>(_p);
-    set_current_debug_location(p);
 
     if (!p->get_rhs()->is_lvalue()) {
       error(p, "Cannot get address of rvalue");
@@ -377,14 +373,12 @@ private:
 
   Value *codegen_parenthesis(ASTBase *_p) {
     auto p = ast_cast<Parenthesis>(_p);
-    set_current_debug_location(p);
     return codegen(p->get_sub());
   }
 
   Value *codegen_import(ASTBase *_p) {
     auto p = ast_cast<Import>(_p);
 
-    set_current_debug_location(p);
     for (FunctionDecl *f : p->get_imported_funcs()) {
       /// do nothing for already defined intrinsics
       auto *func = _cs->get_module()->getFunction(f->get_name());
@@ -398,8 +392,6 @@ private:
   }
 
   Value *codegen_intrinsic(Intrinsic *p) {
-    set_current_debug_location(p);
-
     Value *ret = nullptr;
     switch (p->get_intrinsic_type()) {
     /// trivial codegen
@@ -489,7 +481,6 @@ private:
   Value *codegen_literals(ASTBase *_p) {
     auto p = ast_cast<Literal>(_p);
 
-    set_current_debug_location(p);
     auto *builder = _cs->_builder;
 
     llvm::Type *type = TypeSystem::ToLLVMType(_cs, p->get_type());
@@ -558,7 +549,6 @@ private:
     Value *ret = nullptr;
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto rhs = p->get_rhs();
     switch (p->get_op()) {
@@ -638,7 +628,6 @@ private:
     auto p = ast_cast<Assignment>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     /// codegen the lhs and rhs
     auto *lhs = ast_cast<Expr>(p->get_lhs());
@@ -662,7 +651,6 @@ private:
     auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     /// binary operator
     auto *lhs = p->get_lhs();
@@ -739,7 +727,6 @@ private:
     auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto lhs = p->get_lhs();
     auto rhs = p->get_rhs();
@@ -825,7 +812,6 @@ private:
     auto p = ast_cast<BinaryOperator>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto lhs = p->get_lhs();
     auto rhs = p->get_rhs();
@@ -865,7 +851,6 @@ private:
     auto p = ast_cast<Cast>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto lhs = p->get_lhs();
     auto *dest_type = TypeSystem::ToLLVMType(_cs, p->get_type());
@@ -888,13 +873,11 @@ private:
 
   Value *codegen_var_ref(ASTBase *_p) {
     auto p = ast_cast<VarRef>(_p);
-    set_current_debug_location(p);
     return codegen(p->get_referred());
   }
 
   Value *codegen_identifier(ASTBase *_p) {
     auto p = ast_cast<Identifier>(_p);
-    set_current_debug_location(p);
 
     switch (p->get_id_type()) {
     case IdentifierType::ID_VAR_DECL:
@@ -908,7 +891,6 @@ private:
 
   Value *codegen_binary_or_unary(ASTBase *_p) {
     auto p = ast_cast<BinaryOrUnary>(_p);
-    set_current_debug_location(p);
     return codegen(p->get_expr_ptr());
   }
 
@@ -937,7 +919,6 @@ private:
     auto p = ast_cast<Loop>(_p);
     auto *builder = _cs->_builder;
 
-    set_current_debug_location(p);
     if (p->_loop_type == ASTLoopType::WHILE) {
       /*
        * Results should like this:
@@ -997,7 +978,6 @@ private:
     auto p = ast_cast<If>(_p);
 
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     Function *func = builder->GetInsertBlock()->getParent();
     BasicBlock *merge_bb = BasicBlock::Create(*_cs->get_context(), "endif");
@@ -1049,7 +1029,6 @@ private:
 
   Value *codegen_member_access(MemberAccess *p) {
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto lhs = p->get_lhs();
     auto rhs = p->get_rhs();
@@ -1097,7 +1076,6 @@ private:
 
   Value *codegen_ptr_deref(UnaryOperator *p) {
     auto *builder = _cs->_builder;
-    set_current_debug_location(p);
 
     auto *rhs = p->get_rhs();
     Value *val = codegen(rhs);
