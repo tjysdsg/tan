@@ -71,7 +71,6 @@ void CodeGenerator::emit_to_file(const str &filename) {
   auto *pm_builder = new PassManagerBuilder();
   pm_builder->OptLevel = opt_level;
   pm_builder->SizeLevel = 0; // TODO: optimize for size?
-  pm_builder->DisableTailCalls = debug;
   pm_builder->DisableUnrollLoops = debug;
   pm_builder->SLPVectorize = !debug;
   pm_builder->LoopVectorize = !debug;
@@ -81,9 +80,6 @@ void CodeGenerator::emit_to_file(const str &filename) {
   pm_builder->MergeFunctions = !debug;
   pm_builder->VerifyInput = true;
   pm_builder->VerifyOutput = true;
-  pm_builder->PrepareForLTO = false;
-  pm_builder->PrepareForThinLTO = false;
-  pm_builder->PerformThinLTO = false;
   auto *tlii = new llvm::TargetLibraryInfoImpl(Triple(_module->getTargetTriple()));
   pm_builder->LibraryInfo = tlii;
   pm_builder->Inliner = llvm::createFunctionInliningPass();
@@ -289,7 +285,7 @@ llvm::Value *CodeGenerator::load_if_is_lvalue(Expr *expr) {
   TAN_ASSERT(val);
 
   if (expr->is_lvalue()) {
-    return _builder->CreateLoad(val);
+    return _builder->CreateLoad(expr->get_type(), val, "lvalue_load");
   }
   return val;
 }
@@ -445,7 +441,7 @@ void CodeGenerator::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); 
 void CodeGenerator::pop_di_scope() { _di_scope.pop_back(); }
 
 DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
-  return DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
+  return DILocation::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
 }
 
 Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
