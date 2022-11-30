@@ -285,7 +285,7 @@ llvm::Value *CodeGenerator::load_if_is_lvalue(Expr *expr) {
   TAN_ASSERT(val);
 
   if (expr->is_lvalue()) {
-    return _builder->CreateLoad(expr->get_type(), val, "lvalue_load");
+    return _builder->CreateLoad(to_llvm_type(expr->get_type()), val, "lvalue_load");
   }
   return val;
 }
@@ -441,7 +441,7 @@ void CodeGenerator::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); 
 void CodeGenerator::pop_di_scope() { _di_scope.pop_back(); }
 
 DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
-  return DILocation::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
+  return DILocation::get(*_context, _sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
 }
 
 Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
@@ -571,7 +571,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
   unsigned line = _sm->get_line(p->loc()) + 1;
   unsigned col = _sm->get_col(p->loc()) + 1;
-  _builder->SetCurrentDebugLocation(DebugLoc::get(line, col, this->get_current_di_scope()));
+  _builder->SetCurrentDebugLocation(DILocation::get(*_context, line, col, this->get_current_di_scope()));
 }
 
 Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
@@ -582,7 +582,7 @@ Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
     error(p, "Invalid operand");
   }
   if (p->get_rhs()->is_lvalue()) {
-    rhs = _builder->CreateLoad(rhs);
+    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
   }
   return _builder->CreateNot(rhs);
 }
@@ -597,7 +597,7 @@ Value *CodeGenerator::codegen_lnot(ASTBase *_p) {
   }
 
   if (p->get_rhs()->is_lvalue()) {
-    rhs = _builder->CreateLoad(rhs);
+    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
   }
   /// get value size in bits
   auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
@@ -617,7 +617,7 @@ Value *CodeGenerator::codegen_return(ASTBase *_p) {
   if (rhs) { /// return with value
     Value *result = codegen(rhs);
     if (rhs->is_lvalue()) {
-      result = _builder->CreateLoad(result, "ret");
+      result = _builder->CreateLoad(to_llvm_type(rhs->get_type()), result);
     }
     _builder->CreateRet(result);
   } else { /// return void
@@ -647,9 +647,10 @@ Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
     auto *arg_meta = to_llvm_metadata(p->get_type());
     auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
                                                    (DIType *)arg_meta);
-    _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(),
-                               llvm::DebugLoc::get(_sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
-                               _builder->GetInsertBlock());
+    _di_builder->insertDeclare(
+        ret, di_arg, _di_builder->createExpression(),
+        DILocation::get(*_context, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
+        _builder->GetInsertBlock());
   }
   return ret;
 }
@@ -859,7 +860,7 @@ Value *CodeGenerator::codegen_uop(ASTBase *_p) {
   case UnaryOpKind::MINUS: {
     auto *r = codegen(rhs);
     if (rhs->is_lvalue()) {
-      r = _builder->CreateLoad(r);
+      r = _builder->CreateLoad(to_llvm_type(rhs->get_type()), r);
     }
     if (r->getType()->isFloatingPointTy()) {
       ret = _builder->CreateFNeg(r);
@@ -1307,11 +1308,11 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   switch (p->_access_type) {
   case MemberAccess::MemberAccessBracket: {
     if (lhs->is_lvalue()) {
-      from = _builder->CreateLoad(from);
+      from = _builder->CreateLoad(to_llvm_type(lhs->get_type()), from);
     }
     auto *rhs_val = codegen(rhs);
     if (rhs->is_lvalue()) {
-      rhs_val = _builder->CreateLoad(rhs_val);
+      rhs_val = _builder->CreateLoad(to_llvm_type(rhs->get_type()), rhs_val);
     }
     ret = _builder->CreateGEP(from, rhs_val, "bracket_access");
     break;
@@ -1319,7 +1320,7 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   case MemberAccess::MemberAccessMemberVariable: {
     if (lhs->is_lvalue() && lhs->get_type()->is_pointer() && ((PointerType *)lhs->get_type())->get_pointee()) {
       /// auto dereference pointers
-      from = _builder->CreateLoad(from);
+      from = _builder->CreateLoad(to_llvm_type(lhs->get_type()), from);
     }
     ret = _builder->CreateStructGEP(from, (unsigned)p->_access_idx, "member_variable");
     break;
@@ -1349,7 +1350,7 @@ Value *CodeGenerator::codegen_ptr_deref(UnaryOperator *p) {
 
   /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
   if (rhs->is_lvalue()) {
-    val = _builder->CreateLoad(val, "ptr_deref");
+    val = _builder->CreateLoad(to_llvm_type(rhs->get_type()), val, "ptr_deref");
   }
   return val;
 }
