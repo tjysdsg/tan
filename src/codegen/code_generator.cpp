@@ -338,6 +338,14 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   } else if (p->is_pointer()) { /// pointer
     auto *e_type = to_llvm_type(((PointerType *)p)->get_pointee());
     ret = e_type->getPointerTo();
+  } else if (p->is_function()) {
+    auto *func_type = (tanlang::FunctionType *)p;
+    vector<llvm::Type *> arg_types{};
+    for (auto *t : func_type->get_arg_types()) {
+      arg_types.push_back(to_llvm_type(t));
+    }
+    auto *ret_type = to_llvm_type(func_type->get_return_type());
+    ret = llvm::FunctionType::get(ret_type, arg_types, false);
   } else {
     TAN_ASSERT(false);
   }
@@ -445,9 +453,10 @@ DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
 }
 
 Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
-  auto p = ast_cast<FunctionCall>(_p);
+  auto *p = ast_cast<FunctionCall>(_p);
 
   FunctionDecl *callee = p->_callee;
+  auto *callee_type = (tanlang::FunctionType *)callee->get_type();
   size_t n = callee->get_n_args();
 
   /// args
@@ -460,25 +469,15 @@ Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
     }
 
     /// implicit cast
-    auto expected_ty = callee->get_arg_type(i);
+    auto expected_ty = callee_type->get_arg_types()[i];
     a = convert_llvm_type_to(actual_arg, expected_ty);
     arg_vals.push_back(a);
   }
-  return _builder->CreateCall(_llvm_value_cache[callee], arg_vals);
+  return _builder->CreateCall((llvm::FunctionType *)to_llvm_type(callee->get_type()), _llvm_value_cache[callee],
+                              arg_vals);
 }
 
 Value *CodeGenerator::codegen_func_prototype(FunctionDecl *p, bool import) {
-  /// set function arg types
-  vector<llvm::Type *> arg_types{};
-  for (size_t i = 0; i < p->get_n_args(); ++i) {
-    arg_types.push_back(to_llvm_type(p->get_arg_type(i)));
-  }
-
-  /// return type
-  llvm::Type *ret_type = to_llvm_type(p->get_ret_ty());
-
-  /// create function prototype
-  llvm::FunctionType *FT = llvm::FunctionType::get(ret_type, arg_types, false);
   auto linkage = Function::InternalLinkage;
   if (p->is_external()) {
     linkage = Function::ExternalWeakLinkage;
@@ -490,13 +489,15 @@ Value *CodeGenerator::codegen_func_prototype(FunctionDecl *p, bool import) {
       linkage = Function::ExternalLinkage;
     }
   }
-  Function *func = Function::Create(FT, linkage, p->get_name(), _module);
+  Function *func = Function::Create((llvm::FunctionType *)to_llvm_type(p->get_type()), linkage, p->get_name(), _module);
   func->setCallingConv(llvm::CallingConv::C);
   return func;
 }
 
 Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
-  auto ret_ty = p->get_ret_ty();
+  auto *func_type = (tanlang::FunctionType *)p->get_type();
+
+  auto ret_ty = func_type->get_return_type();
   Metadata *ret_meta = to_llvm_metadata(ret_ty);
 
   /// get function name
@@ -513,7 +514,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
   /// set function arg types
   vector<Metadata *> arg_metas;
   for (size_t i = 0; i < p->get_n_args(); ++i) {
-    auto ty = p->get_arg_type(i);
+    auto ty = func_type->get_arg_types()[i];
     arg_metas.push_back(to_llvm_metadata(ty));
   }
 
@@ -540,7 +541,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
       _builder->CreateStore(&a, arg_val);
 
       /// create a debug descriptor for the arguments
-      auto *arg_meta = to_llvm_metadata(p->get_arg_type(i));
+      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i]);
       llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
           subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
       _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
@@ -815,7 +816,7 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
     for (size_t i = 0; i < n; ++i) {
       auto *idx = _builder->getInt32((unsigned)i);
       auto *e_val = codegen(elements[i]);
-      auto *e_ptr = _builder->CreateGEP(ret, idx);
+      auto *e_ptr = _builder->CreateGEP(e_type, ret, idx);
       _builder->CreateStore(e_val, e_ptr);
     }
   } else if (ptype->is_pointer()) { /// the pointer literal is nullptr
@@ -1303,39 +1304,44 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
 
-  auto *from = codegen(lhs);
+  auto *lhs_val = codegen(lhs);
+
   Value *ret = nullptr;
   switch (p->_access_type) {
   case MemberAccess::MemberAccessBracket: {
-    if (lhs->is_lvalue()) {
-      from = _builder->CreateLoad(to_llvm_type(lhs->get_type()), from);
-    }
-    auto *rhs_val = codegen(rhs);
-    if (rhs->is_lvalue()) {
-      rhs_val = _builder->CreateLoad(to_llvm_type(rhs->get_type()), rhs_val);
-    }
-    ret = _builder->CreateGEP(from, rhs_val, "bracket_access");
+    lhs_val = load_if_is_lvalue(lhs);
+
+    /// currently only support array bracket access
+    auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
+    codegen(rhs);
+    auto *rhs_val = load_if_is_lvalue(rhs);
+
+    ret = _builder->CreateGEP(to_llvm_type(lhs_type->get_element_type()), lhs_val, rhs_val, "bracket_access");
     break;
   }
   case MemberAccess::MemberAccessMemberVariable: {
-    if (lhs->is_lvalue() && lhs->get_type()->is_pointer() && ((PointerType *)lhs->get_type())->get_pointee()) {
-      /// auto dereference pointers
-      from = _builder->CreateLoad(to_llvm_type(lhs->get_type()), from);
+    StructType *st = nullptr;
+    if (lhs->get_type()->is_pointer()) { /// auto dereference pointers
+      lhs_val = load_if_is_lvalue(lhs);
+      st = (StructType *)((PointerType *)lhs->get_type())->get_pointee();
+    } else {
+      st = (StructType *)lhs->get_type();
     }
-    ret = _builder->CreateStructGEP(from, (unsigned)p->_access_idx, "member_variable");
+    TAN_ASSERT(st->is_struct());
+    TAN_ASSERT(lhs_val->getType()->isPointerTy());
+
+    lhs_val->getType()->print(llvm::outs());
+    unsigned idx = (unsigned)p->_access_idx;
+    ret = _builder->CreateStructGEP(to_llvm_type(st), lhs_val, idx, "member_variable");
     break;
   }
   case MemberAccess::MemberAccessMemberFunction:
+    // TODO: codegen for member function call
     ret = codegen(rhs);
     break;
-  case MemberAccess::MemberAccessEnumValue: {
-    // str enum_name = ast_cast<Identifier>(lhs)->get_name();
-    // auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
-    // str element_name = ast_cast<Identifier>(rhs)->get_name();
-    // int64_t val = enum_decl->get_value(element_name);
-    // TODO IMPORTANT: ret = CodegenIntegerLiteral(_cs, (uint64_t) val, enum_decl->get_type()->get_size_bits());
+  case MemberAccess::MemberAccessEnumValue:
+    // TODO: codegen for enum member access
     break;
-  }
   default:
     TAN_ASSERT(false);
   }

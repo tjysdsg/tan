@@ -603,15 +603,15 @@ private:
     _curr.offset_by(1);
 
     p->set_arg_names(arg_names);
-    p->set_arg_types(arg_types);
     p->set_arg_decls(arg_decls);
 
     peek(TokenType::PUNCTUATION, ":");
     _curr.offset_by(1);
 
-    /// function return type
+    /// function type
     auto *ret_type = peek_type();
-    p->set_ret_type(parse_ty(ret_type));
+    auto *func_type = Type::GetFunctionType(parse_ty(ret_type), arg_types);
+    p->set_type(func_type);
 
     /// body
     if (!is_external) {

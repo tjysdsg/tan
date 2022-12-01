@@ -3,7 +3,6 @@
 #include "ast/decl.h"
 #include "ast/type.h"
 #include "ast/ast_context.h"
-#include "llvm_api/llvm_include.h"
 
 namespace tanlang {
 
@@ -37,8 +36,8 @@ static void init_noop(CompilerSession *cs);
 
 void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
-  ctx->add_function(
-      FunctionDecl::Create(SrcLoc(0), "compprint", Type::GetVoidType(), {Type::GetStringType()}, true, false));
+  ctx->add_function(FunctionDecl::Create(
+      SrcLoc(0), "compprint", Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
 }
 
 Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }

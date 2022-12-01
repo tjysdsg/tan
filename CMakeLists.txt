@@ -13,7 +13,7 @@ set(CMAKE_PROJECT_TAN_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CMAKE_PROJECT_TAN_MAX_N_FUNCTION_CALLS 256)
 
 project(tan LANGUAGES CXX C VERSION ${TAN_VERSION})
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # ==================== OPTIONS ====================
@@ -44,7 +44,7 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # use lld to link libraries
-add_link_options("-fuse-ld=lld")
+# add_link_options("-fuse-ld=lld")
 
 # ================================ thirdparty dependencies ========================== #
 # others in dep/

@@ -90,14 +90,21 @@ ArrayType *Type::GetArrayType(Type *element_type, int size) {
   }
 }
 
+// TODO IMPORTANT: cache function types
+FunctionType *Type::GetFunctionType(Type *ret_type, const vector<Type *> &arg_types) {
+  return new FunctionType(ret_type, arg_types);
+}
+
 StructType *Type::GetStructType(const str &name, const vector<Type *> &member_types) {
-  auto it = STRUCT_TYPE_CACHE.find(name);
-  if (it != STRUCT_TYPE_CACHE.end()) {
-    it->second->_member_types = member_types; /// update forward declaration
-    return it->second;
+  auto it = NAMED_TYPE_CACHE.find(name);
+  if (it != NAMED_TYPE_CACHE.end()) {
+    auto *t = (StructType *)it->second;
+    TAN_ASSERT(t->is_struct());
+    t->_member_types = member_types; /// update forward declaration
+    return t;
   } else {
     auto *ret = new StructType(name, member_types);
-    STRUCT_TYPE_CACHE[name] = ret;
+    NAMED_TYPE_CACHE[name] = ret;
     return ret;
   }
 }
@@ -113,6 +120,8 @@ bool Type::is_array() { return false; }
 bool Type::is_string() { return false; }
 
 bool Type::is_struct() { return false; }
+
+bool Type::is_function() { return false; }
 
 bool Type::is_ref() { return false; }
 
@@ -170,3 +179,16 @@ StructType::StructType(const str &name, const vector<Type *> &member_types) {
 }
 
 TypeRef::TypeRef(const str &name) { _type_name = name; }
+
+FunctionType::FunctionType(Type *ret_type, const vector<Type *> &arg_types) {
+  _ret_type = ret_type;
+  _arg_types = arg_types;
+}
+
+Type *FunctionType::get_return_type() const { return _ret_type; }
+
+vector<Type *> FunctionType::get_arg_types() const { return _arg_types; }
+
+void FunctionType::set_arg_types(const vector<Type *> &arg_types) { _arg_types = arg_types; }
+
+void FunctionType::set_return_type(Type *t) { _ret_type = t; }
