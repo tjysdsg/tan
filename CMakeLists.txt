@@ -44,7 +44,7 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # use lld to link libraries
-# add_link_options("-fuse-ld=lld")
+add_link_options("-fuse-ld=lld")
 
 # ================================ thirdparty dependencies ========================== #
 # others in dep/
