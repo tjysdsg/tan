@@ -1311,12 +1311,22 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   case MemberAccess::MemberAccessBracket: {
     lhs_val = load_if_is_lvalue(lhs);
 
-    /// currently only support array bracket access
-    auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
     codegen(rhs);
     auto *rhs_val = load_if_is_lvalue(rhs);
 
-    ret = _builder->CreateGEP(to_llvm_type(lhs_type->get_element_type()), lhs_val, rhs_val, "bracket_access");
+    llvm::Type *element_type = nullptr;
+    if (lhs->get_type()->is_array()) { /// array
+      auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
+      element_type = to_llvm_type(lhs_type->get_element_type());
+    } else if (lhs->get_type()->is_string()) { /// string
+      element_type = llvm::Type::getInt8Ty(*_context);
+    } else if (lhs->get_type()->is_pointer()) { /// pointer
+      auto *lhs_type = (tanlang::PointerType *)lhs->get_type();
+      element_type = to_llvm_type(lhs_type->get_pointee());
+    } else {
+      TAN_ASSERT(false);
+    }
+    ret = _builder->CreateGEP(element_type, lhs_val, rhs_val, "bracket_access");
     break;
   }
   case MemberAccess::MemberAccessMemberVariable: {
