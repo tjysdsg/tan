@@ -74,22 +74,10 @@ static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str 
   // If the clang binary happens to be named cl.exe for compatibility reasons,
   // use clang-cl.exe as the prefix to avoid confusion between clang and MSVC.
   StringRef ExeBasename(llvm::sys::path::stem(Path));
-  if (ExeBasename.equals_lower("cl")) {
+  if (ExeBasename.equals_insensitive("cl")) {
     ExeBasename = "clang-cl";
   }
   DiagClient->setPrefix(std::string(ExeBasename));
-}
-
-// this lets us create the DiagnosticsEngine with a properly-filled-out DiagnosticOptions instance
-static DiagnosticOptions *CreateAndPopulateDiagOpts(ArrayRef<const char *> argv) {
-  auto *DiagOpts = new DiagnosticOptions;
-  unsigned MissingArgIndex, MissingArgCount;
-  InputArgList Args = getDriverOptTable().ParseArgs(argv.slice(1), MissingArgIndex, MissingArgCount);
-  // We ignore MissingArgCount and the return value of ParseDiagnosticArgs.
-  // Any errors that would be diagnosed here will also be diagnosed later,
-  // when the DiagnosticsEngine actually exists.
-  (void)ParseDiagnosticArgs(*DiagOpts, Args);
-  return DiagOpts;
 }
 
 int main0(int argc_, const char **argv_) {

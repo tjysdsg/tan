@@ -37,7 +37,7 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/TargetRegistry.h>
+#include <llvm/MC/TargetRegistry.h>
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/MC/MCTargetOptions.h>
@@ -85,7 +85,6 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/Signals.h>
-#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/TimeProfiler.h>
 #include <llvm/Support/Timer.h>
@@ -129,7 +128,6 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/SourceMgr.h>
-#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/Timer.h>
 #include <llvm/Support/raw_ostream.h>
@@ -235,6 +233,7 @@ using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
 
 using llvm::DebugLoc;
+using llvm::DILocation;
 using llvm::DIBuilder;
 using llvm::DICompileUnit;
 using llvm::DIFile;

@@ -12,6 +12,7 @@ class ArrayType;
 class TypeRef;
 class StructType;
 class StructDecl;
+class FunctionType;
 
 /**
  * \brief Type is immutable once created, and it's made sure that each type has only one instance
@@ -29,6 +30,7 @@ public:
   [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
 
   // TODO: CompilerSession specific?
+  [[nodiscard]] static FunctionType *GetFunctionType(Type *ret_type, const vector<Type *> &arg_types);
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
@@ -43,6 +45,7 @@ public:
   virtual bool is_array();
   virtual bool is_string();
   virtual bool is_struct();
+  virtual bool is_function();
   virtual bool is_ref();
   virtual bool is_float();
   virtual bool is_int();
@@ -68,7 +71,7 @@ protected:
   static StringType *STRING_TYPE;
   static inline umap<Type *, PointerType *> POINTER_TYPE_CACHE{};                  // pointee type -> pointer type
   static inline umap<pair<Type *, int>, ArrayType *, PairHash> ARRAY_TYPE_CACHE{}; // (element type, size) -> array type
-  static inline umap<str, StructType *> STRUCT_TYPE_CACHE{};                       // struct_name -> pointer type
+  static inline umap<str, Type *> NAMED_TYPE_CACHE{};                              // name -> type
 };
 
 class PrimitiveType : public Type {
@@ -212,6 +215,24 @@ protected:
 
 private:
   vector<Type *> _member_types{};
+};
+
+class FunctionType : public Type {
+public:
+  bool is_function() override { return true; }
+  Type *get_return_type() const;
+  void set_return_type(Type *t);
+  vector<Type *> get_arg_types() const;
+  void set_arg_types(const vector<Type *> &arg_types);
+
+  friend class Type;
+
+protected:
+  FunctionType(Type *ret_type, const vector<Type *> &arg_types);
+
+private:
+  Type *_ret_type = nullptr;
+  vector<Type *> _arg_types{};
 };
 
 /**

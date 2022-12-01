@@ -37,27 +37,22 @@ public:
   static ArgDecl *Create(SrcLoc loc, const str &name, Type *ty);
 };
 
-// TODO: function type itself
+class FunctionType;
 class FunctionDecl : public Decl {
 protected:
   explicit FunctionDecl(SrcLoc loc);
 
 public:
   static FunctionDecl *Create(SrcLoc loc);
-  static FunctionDecl *Create(SrcLoc loc, const str &name, Type *ret_type, vector<Type *> arg_types, bool is_external,
-                              bool is_public, Stmt *body = nullptr);
-
-  [[nodiscard]] Type *get_ret_ty() const;
-  void set_ret_type(Type *type);
+  static FunctionDecl *Create(SrcLoc loc, const str &name, FunctionType *func_type, bool is_external, bool is_public,
+                              Stmt *body = nullptr);
 
   void set_body(Stmt *body);
   [[nodiscard]] Stmt *get_body() const;
 
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] str get_arg_name(size_t i) const;
-  [[nodiscard]] Type *get_arg_type(size_t i) const;
   void set_arg_names(const vector<str> &names);
-  void set_arg_types(const vector<Type *> &types);
   [[nodiscard]] const vector<ArgDecl *> &get_arg_decls() const;
   void set_arg_decls(const vector<ArgDecl *> &arg_decls);
 
@@ -72,10 +67,7 @@ private:
   bool _is_external = false;
   bool _is_public = false;
 
-  Type *_ret_type = nullptr;
-
   vector<str> _arg_names{};
-  vector<Type *> _arg_types{};
   vector<ArgDecl *> _arg_decls{};
 
   Stmt *_body = nullptr;

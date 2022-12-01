@@ -1,7 +1,7 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # ===== llvm =====
-find_package(LLVM 10 REQUIRED PATHS ${LLVM_ROOT_DIR})
+find_package(LLVM 15 REQUIRED PATHS ${LLVM_ROOT_DIR})
 set(_LLVM_LIBS
         LLVM
         LLVMXRay
@@ -147,6 +147,7 @@ set(_LLVM_LIBS
         LLVMDemangle
         )
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM library directory: ${LLVM_LIBRARY_DIR}")
 
 macro(FIND_AND_ADD_LLVM_LIB libname libdir)
     find_library(LLVM_${libname}_LIB NAMES ${libname}

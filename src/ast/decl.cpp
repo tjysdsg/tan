@@ -42,46 +42,26 @@ FunctionDecl::FunctionDecl(SrcLoc loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
 FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
 
-FunctionDecl *FunctionDecl::Create(SrcLoc loc, const str &name, Type *ret_type, vector<Type *> arg_types,
-                                   bool is_external, bool is_public, Stmt *body) {
+FunctionDecl *FunctionDecl::Create(SrcLoc loc, const str &name, FunctionType *func_type, bool is_external,
+                                   bool is_public, Stmt *body) {
   auto ret = new FunctionDecl(loc);
-
-  /// name and return type
   ret->set_name(name);
-  ret->_ret_type = ret_type;
-
-  /// args
-  ret->_arg_types.reserve(arg_types.size());
-  if (!arg_types.empty()) {
-    ret->_arg_types.insert(ret->_arg_types.end(), arg_types.begin(), arg_types.end());
-  }
-
-  /// body
   if (!body) {
     ret->set_body(body);
   }
-
-  /// flags
+  ret->set_type(func_type);
   ret->_is_external = is_external;
   ret->_is_public = is_public;
   return ret;
 }
 
-Type *FunctionDecl::get_ret_ty() const { return _ret_type; }
-
 str FunctionDecl::get_arg_name(size_t i) const { return _arg_names[i]; }
-
-Type *FunctionDecl::get_arg_type(size_t i) const { return _arg_types[i]; }
 
 size_t FunctionDecl::get_n_args() const { return _arg_names.size(); }
 
 void FunctionDecl::set_body(Stmt *body) { _body = body; }
 
-void FunctionDecl::set_ret_type(Type *type) { _ret_type = type; }
-
 void FunctionDecl::set_arg_names(const vector<str> &names) { _arg_names = names; }
-
-void FunctionDecl::set_arg_types(const vector<Type *> &types) { _arg_types = types; }
 
 bool FunctionDecl::is_public() const { return _is_public; }
 
@@ -97,12 +77,7 @@ const vector<ArgDecl *> &FunctionDecl::get_arg_decls() const { return _arg_decls
 
 void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decls = arg_decls; }
 
-vector<ASTBase *> FunctionDecl::get_children() const {
-  vector<ASTBase *> ret = {};
-  std::for_each(_arg_decls.begin(), _arg_decls.end(), [&](ArgDecl *e) { ret.push_back(e); });
-  ret.push_back((ASTBase *)_body);
-  return ret;
-}
+vector<ASTBase *> FunctionDecl::get_children() const { return {(ASTBase *)_body}; }
 
 /// \section StructDecl
 

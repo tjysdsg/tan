@@ -156,13 +156,15 @@ private:
         continue;
       }
 
+      auto *func_type = (FunctionType *)f->get_type();
+
       /// check if argument types match (return type not checked)
       /// allow implicit cast from actual arguments to expected arguments
       bool good = true;
       int cost = 0; /// number of implicit type conversion of arguments needed
       for (size_t i = 0; i < n; ++i) {
         auto *actual_type = args[i]->get_type();
-        auto *expected_type = f->get_arg_type(i);
+        auto *expected_type = func_type->get_arg_types()[i];
 
         if (actual_type != expected_type) {
           ++cost;
@@ -476,7 +478,8 @@ private:
 
     FunctionDecl *callee = search_function_callee(p);
     p->_callee = callee;
-    p->set_type(callee->get_ret_ty());
+    auto *func_type = (FunctionType *)callee->get_type();
+    p->set_type(func_type->get_return_type());
   }
 
   void analyze_func_decl(ASTBase *_p) {
@@ -489,8 +492,9 @@ private:
     /// ...and to the internal function table
     _ctx->add_function(p);
 
-    /// analyze return type
-    p->set_ret_type(analyze_ty(p->get_ret_ty(), p->loc()));
+    /// update return type
+    auto *func_type = (FunctionType *)p->get_type();
+    func_type->set_return_type(analyze_ty(func_type->get_return_type(), p->loc()));
 
     _ctx->push_scope(); /// new scope
 
@@ -502,15 +506,12 @@ private:
       analyze(arg_decls[i]); /// args will be added to the scope here
       arg_types[i] = arg_decls[i]->get_type();
     }
-    p->set_arg_types(std::move(arg_types)); // update the types
+    func_type->set_arg_types(std::move(arg_types)); /// update arg types
 
     /// function body
     if (!p->is_external()) {
       analyze(p->get_body());
     }
-
-    // TODO IMPORTANT: function type
-    p->set_type(p->get_ret_ty());
 
     _ctx->pop_scope(); /// pop scope
   }
