@@ -24,16 +24,16 @@ RUN apt-get -y install cmake
 # LLVM
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
-RUN ./llvm.sh 10
+RUN ./llvm.sh 15
 
-RUN apt-get -y install libllvm-10-ocaml-dev libllvm10 llvm-10 llvm-10-dev llvm-10-doc llvm-10-examples llvm-10-runtime
-RUN apt-get -y install clang-10 clang-tools-10 clang-10-doc libclang-common-10-dev libclang-10-dev libclang1-10 clang-format-10 clangd-10
-RUN apt-get -y install libfuzzer-10-dev
-RUN apt-get -y install lldb-10
-RUN apt-get -y install lld-10 lld
-RUN apt-get -y install libc++-10-dev libc++abi-10-dev
-RUN apt-get -y install libomp-10-dev
-RUN apt-get -y install libunwind8 libunwind-dev
+RUN apt-get -y install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-15-doc llvm-15-examples llvm-15-runtime
+RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15
+RUN apt-get -y install libfuzzer-15-dev
+RUN apt-get -y install lldb-15
+RUN apt-get -y install lld-15 lld
+RUN apt-get -y install libc++-15-dev libc++abi-15-dev
+RUN apt-get -y install libomp-15-dev
+RUN apt-get -y install libunwind-15 libunwind-15-dev
 
 # Python for cpp-coveralls
 RUN apt-get -y install python3 python3-pip
