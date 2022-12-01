@@ -159,6 +159,6 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   }
 }
 
-bool init_compiler(int argc, char **argv) { return init_back_trace(argv[0]); }
+bool init_compiler(int, char **argv) { return init_back_trace(argv[0]); }
 
 } // namespace tanlang

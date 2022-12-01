@@ -71,8 +71,8 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
   /// if the end cursor is out of boundary, make it point to EOF
   Cursor end(_end);
   if (end.l >= _lines.size() || end.c > _lines[end.l].size()) {
-    end.l = _lines.size() - 1;
-    end.c = _lines.back().size();
+    end.l = (uint32_t)_lines.size() - 1;
+    end.c = (uint32_t)_lines.back().size();
   }
   auto s_row = start.l;
   auto e_row = end.l;
@@ -93,7 +93,7 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
 }
 
 str Reader::substr(const Cursor &start) const {
-  Cursor end(start.l, get_line(start.l).size(), this);
+  Cursor end(start.l, (uint32_t)get_line(start.l).size(), this);
   return substr(start, end);
 }
 
@@ -119,7 +119,7 @@ Cursor Reader::end() const {
   if (_lines.empty()) {
     return Cursor(0, 1, this);
   }
-  return Cursor(_lines.size() - 1, _lines.back().length(), this);
+  return Cursor((uint32_t)_lines.size() - 1, (uint32_t)_lines.back().length(), this);
 }
 
 char Reader::at(const Cursor &ptr) const {

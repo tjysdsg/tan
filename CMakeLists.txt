@@ -17,7 +17,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # ==================== OPTIONS ====================
-option(ENABLE_PRECOMPILED_HEADERS "Enable precompiled headers to speed up build" ON)
 option(ENABLE_COVERAGE "Enable coverage" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)

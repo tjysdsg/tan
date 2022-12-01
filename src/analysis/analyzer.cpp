@@ -913,7 +913,7 @@ private:
     p->set_parent_loop(loop);
   }
 
-  void analyze_enum_decl(ASTBase *_p) {
+  void analyze_enum_decl(ASTBase *) {
     /* TODO IMPORTANT: FIX THIS
     auto *p = ast_must_cast<EnumDecl>(_p);
 

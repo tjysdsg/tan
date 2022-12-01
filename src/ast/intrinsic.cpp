@@ -32,8 +32,6 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
     {"stack_trace",     IntrinsicType::STACK_TRACE    }
 };
 
-static void init_noop(CompilerSession *cs);
-
 void Intrinsic::InitAnalysis(ASTContext *ctx) {
   /// @compprint
   ctx->add_function(FunctionDecl::Create(
