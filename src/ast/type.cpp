@@ -176,6 +176,20 @@ StructType::StructType(const str &name, const vector<Type *> &member_types) {
   _member_types = member_types;
 }
 
+int StructType::get_align_bits() {
+  int ret = 0;
+  for (auto *t : _member_types) {
+    ret = std::max(t->get_align_bits(), ret);
+  }
+  TAN_ASSERT(ret);
+  return ret;
+}
+
+int StructType::get_size_bits() {
+  // TODO: calculate struct size in bits
+  return 8;
+}
+
 TypeRef::TypeRef(const str &name) { _type_name = name; }
 
 FunctionType::FunctionType(Type *ret_type, const vector<Type *> &arg_types) {

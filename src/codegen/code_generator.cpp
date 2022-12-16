@@ -45,7 +45,6 @@ CodeGenerator::CodeGenerator(CompilerSession *cs, TargetMachine *target_machine)
 
   /// Init noop intrinsic
   /// fn llvm.donothing() : void;
-  /// TODO: generate only if used
   Function *func = _module->getFunction("llvm.donothing");
   if (!func) {
     llvm::Type *ret_type = _builder->getVoidTy();
@@ -398,8 +397,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
     }
     ret = _di_builder->createStructType(get_current_di_scope(), p->get_typename(), _di_file,
                                         0, // TODO IMPORTANT: (unsigned) cs->get_source_manager()->get_line(p->loc()),
-                                        0, // TODO IMPORTANT: p->get_size_bits(),
-                                        0, // TODO IMPORTANT: p->get_align_bits(),
+                                        (uint32_t)p->get_size_bits(), (uint32_t)p->get_align_bits(),
                                         DINode::DIFlags::FlagZero, nullptr, _di_builder->getOrCreateArray(elements), 0,
                                         nullptr, p->get_typename());
   } else if (p->is_array()) { /// array as pointer

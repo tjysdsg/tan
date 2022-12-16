@@ -206,6 +206,8 @@ class StructType : public Type {
 public:
   bool is_struct() override { return true; }
   vector<Type *> get_member_types() const { return _member_types; };
+  int get_align_bits() override;
+  int get_size_bits() override;
 
   friend class Type;
 

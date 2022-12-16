@@ -1,5 +1,4 @@
 #include "ast/intrinsic.h"
-#include "compiler/compiler_session.h" // TODO IMPORTANT: remove this dependency
 #include "ast/decl.h"
 #include "ast/type.h"
 #include "ast/ast_context.h"
