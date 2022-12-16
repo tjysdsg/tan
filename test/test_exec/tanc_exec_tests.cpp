@@ -9,6 +9,9 @@
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
 #endif
+#ifndef TANC_PATH
+#error "Define TANC_PATH before compiling this"
+#endif
 #ifndef TAN_TEST_SOURCE_DIR
 #error "Define TAN_TEST_SOURCE_DIR before compiling this"
 #endif
@@ -19,7 +22,7 @@ class TanCExecTests : public MyFixture {
 public:
   TanCExecTests(const str &filename) : _filename(filename) {}
   void TestBody() override {
-    vector<const char *> cmd{__STR__(TAN_PROJECT_SOURCE_DIR) "/bin/tanc",
+    vector<const char *> cmd{__STR__(TANC_PATH),
                              "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
                              "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
                              "-lruntime",

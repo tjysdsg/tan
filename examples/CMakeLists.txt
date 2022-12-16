@@ -8,7 +8,7 @@ foreach (example_dir ${EXAMPLES})
         string(REPLACE ";" " " tan_srcs_str "${tan_srcs} ${c_srcs}")
         add_custom_target(example_${example_name} ALL DEPENDS tanc runtime
                 SOURCES ${tan_srcs}
-                COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc -I${CMAKE_CURRENT_LIST_DIR}
+                COMMAND $<TARGET_FILE:tanc> -I${CMAKE_CURRENT_LIST_DIR}
                 -L${PROJECT_SOURCE_DIR}/runtime -lruntime ${tan_srcs_str}
                 WORKING_DIRECTORY ${example_dir}
                 )

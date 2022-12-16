@@ -6,6 +6,9 @@
 #include "base.h"
 #include <gtest/gtest.h>
 
+#ifndef TANC_PATH
+#error "Define TANC_PATH before compiling this"
+#endif
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
 #endif
@@ -21,7 +24,7 @@ public:
 
   void TestBody() override {
     // compile the executable that uses the library and run it
-    vector<const char *> cmd = {__STR__(TAN_PROJECT_SOURCE_DIR) "/bin/tanc",
+    vector<const char *> cmd = {__STR__(TANC_PATH),
                                 "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
                                 "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
                                 "-lruntime",

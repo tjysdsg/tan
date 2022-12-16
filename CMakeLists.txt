@@ -24,9 +24,6 @@ option(LLVM_ROOT_DIR "Custom LLVM location" "")
 option(CLANG_ROOT_DIR "Custom CLANG location" "")
 
 # ==================== GENERAL CONFIGS ====================
-set(LIB_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/lib CACHE STRING "Library output directory")
-set(EXE_OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin CACHE STRING "Executable output directory")
-
 # default build debug
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, using Debug as default")
@@ -92,9 +89,6 @@ macro(set_target_common_compile_options target_name)
     else ()
         target_compile_options(${target_name} PRIVATE -O3)
     endif ()
-    set_target_properties(${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
-    set_target_properties(${target_name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIB_OUTPUT_DIR})
-    set_target_properties(${target_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXE_OUTPUT_DIR})
 endmacro()
 
 # Library and CLI targets

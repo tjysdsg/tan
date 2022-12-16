@@ -26,6 +26,7 @@ add_executable(tanc_exec_tests tanc_exec_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli
 set_target_common_compile_options(tanc_exec_tests)
 target_link_libraries(tanc_exec_tests Tan gtest)
 target_compile_definitions(tanc_exec_tests PRIVATE
+        -DTANC_PATH=$<TARGET_FILE:tanc>
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
         )
@@ -35,7 +36,7 @@ add_dependencies(tanc_exec_tests runtime)
 add_custom_target(run_tanc_exec_tests ALL DEPENDS tanc_exec_tests)
 foreach (tt ${TAN_EXEC_TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
-            COMMAND ${PROJECT_SOURCE_DIR}/bin/tanc_exec_tests ${tt}
+            COMMAND $<TARGET_FILE:tanc_exec_tests> ${tt}
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 endforeach ()
