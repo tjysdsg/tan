@@ -11,7 +11,6 @@ class Value;
 
 namespace tanlang {
 
-class CompilerSession;
 class CodeGenerator;
 
 /**
@@ -51,11 +50,6 @@ public:
   static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
 private:
-  /**
-   * \brief CompilerSession object of each source file
-   * */
-  static inline umap<str, CompilerSession *> sessions{};
-
   /**
    * \brief Compiler instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
@@ -98,7 +92,6 @@ public:
   void dump_ast() const;
 
 private:
-  CompilerSession *_cs = nullptr;
   ASTContext *_ctx = nullptr;
   ASTBase *_ast = nullptr;
   str _filename = "";

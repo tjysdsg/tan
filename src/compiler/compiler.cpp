@@ -1,7 +1,6 @@
 #include "compiler/compiler.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
-#include "compiler/compiler_session.h"
 #include "analysis/analyzer.h"
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
@@ -15,9 +14,7 @@ using namespace tanlang;
 namespace fs = std::filesystem;
 
 Compiler::~Compiler() {
-  Compiler::sessions.erase(_filename);
   delete _ast;
-  delete _cs;
   delete _ctx;
 }
 
@@ -45,7 +42,6 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   }
 
   _ctx = new ASTContext(filename);
-  _cs = new CompilerSession(filename);
 }
 
 void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
@@ -53,7 +49,7 @@ void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
 Value *Compiler::codegen() {
   TAN_ASSERT(_ast);
   TAN_ASSERT(!_cg);
-  _cg = new CodeGenerator(_cs, target_machine);
+  _cg = new CodeGenerator(_ctx, target_machine);
   auto *ret = _cg->codegen(_ast);
   return ret;
 }
@@ -75,7 +71,6 @@ void Compiler::parse() {
   auto tokens = tokenize(&reader);
   auto *sm = new SourceManager(_filename, tokens);
   _ctx->set_source_manager(sm);
-  _cs->set_source_manager(sm);
 
   auto *parser = new Parser(_ctx);
   _ast = parser->parse();

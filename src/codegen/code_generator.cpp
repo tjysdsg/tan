@@ -7,7 +7,6 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
-#include "compiler/compiler_session.h"
 #include "compiler/compiler.h"
 #include "llvm_api/llvm_include.h"
 
@@ -23,11 +22,11 @@ AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *ty
   }
 }
 
-CodeGenerator::CodeGenerator(CompilerSession *cs, TargetMachine *target_machine)
-    : _cs(cs), _sm(cs->get_source_manager()), _target_machine(target_machine) {
-  _context = new LLVMContext();
-  _builder = new IRBuilder<>(*_context);
-  _module = new Module(cs->get_filename(), *_context);
+CodeGenerator::CodeGenerator(ASTContext *ctx, TargetMachine *target_machine)
+    : _ctx(ctx), _sm(ctx->get_source_manager()), _target_machine(target_machine) {
+  _llvm_ctx = new LLVMContext();
+  _builder = new IRBuilder<>(*_llvm_ctx);
+  _module = new Module(ctx->get_filename(), *_llvm_ctx);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
   auto opt_level = (llvm::CodeGenOpt::Level)Compiler::compile_config.opt_level;
@@ -39,7 +38,7 @@ CodeGenerator::CodeGenerator(CompilerSession *cs, TargetMachine *target_machine)
 
   /// debug related
   _di_builder = new DIBuilder(*_module);
-  _di_file = _di_builder->createFile(cs->get_filename(), ".");
+  _di_file = _di_builder->createFile(ctx->get_filename(), ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
 
@@ -57,7 +56,7 @@ CodeGenerator::~CodeGenerator() {
   delete _di_builder;
   delete _module;
   delete _builder;
-  delete _context;
+  delete _llvm_ctx;
 }
 
 void CodeGenerator::emit_to_file(const str &filename) {
@@ -429,7 +428,7 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
 }
 
 void CodeGenerator::error(ASTBase *p, const str &message) {
-  Error err(_cs->_filename, _sm->get_token(p->loc()), message);
+  Error err(_ctx->get_filename(), _sm->get_token(p->loc()), message);
   err.raise();
 }
 
@@ -438,7 +437,7 @@ void CodeGenerator::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); 
 void CodeGenerator::pop_di_scope() { _di_scope.pop_back(); }
 
 DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
-  return DILocation::get(*_context, _sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
+  return DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
 }
 
 Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
@@ -510,7 +509,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
   /// function implementation
   if (!p->is_external()) {
     /// create a new basic block to start insertion into
-    BasicBlock *main_block = BasicBlock::Create(*_context, "func_entry", F);
+    BasicBlock *main_block = BasicBlock::Create(*_llvm_ctx, "func_entry", F);
     _builder->SetInsertPoint(main_block);
 
     /// debug information
@@ -561,7 +560,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
   unsigned line = _sm->get_line(p->loc()) + 1;
   unsigned col = _sm->get_col(p->loc()) + 1;
-  _builder->SetCurrentDebugLocation(DILocation::get(*_context, line, col, this->get_current_di_scope()));
+  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
 }
 
 Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
@@ -639,7 +638,7 @@ Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
                                                    (DIType *)arg_meta);
     _di_builder->insertDeclare(
         ret, di_arg, _di_builder->createExpression(),
-        DILocation::get(*_context, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
+        DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
         _builder->GetInsertBlock());
   }
   return ret;
@@ -1195,9 +1194,9 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
 
     /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
     /// use these two (get_loop_start() and get_loop_end())
-    p->_loop_start = BasicBlock::Create(*_context, "loop", func);
-    BasicBlock *loop_body = BasicBlock::Create(*_context, "loop_body", func);
-    p->_loop_end = BasicBlock::Create(*_context, "after_loop", func);
+    p->_loop_start = BasicBlock::Create(*_llvm_ctx, "loop", func);
+    BasicBlock *loop_body = BasicBlock::Create(*_llvm_ctx, "loop_body", func);
+    p->_loop_end = BasicBlock::Create(*_llvm_ctx, "after_loop", func);
 
     /// start loop
     // create a br instruction if there is no terminator instruction at the end of this block
@@ -1236,15 +1235,15 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
   auto p = ast_cast<If>(_p);
 
   Function *func = _builder->GetInsertBlock()->getParent();
-  BasicBlock *merge_bb = BasicBlock::Create(*_context, "endif");
+  BasicBlock *merge_bb = BasicBlock::Create(*_llvm_ctx, "endif");
   size_t n = p->get_num_branches();
 
   /// create basic blocks
   vector<BasicBlock *> cond_blocks(n);
   vector<BasicBlock *> then_blocks(n);
   for (size_t i = 0; i < n; ++i) {
-    cond_blocks[i] = BasicBlock::Create(*_context, "cond", func);
-    then_blocks[i] = BasicBlock::Create(*_context, "branch", func);
+    cond_blocks[i] = BasicBlock::Create(*_llvm_ctx, "cond", func);
+    then_blocks[i] = BasicBlock::Create(*_llvm_ctx, "branch", func);
   }
 
   /// codegen branches
@@ -1302,7 +1301,7 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
       auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
       element_type = to_llvm_type(lhs_type->get_element_type());
     } else if (lhs->get_type()->is_string()) { /// string
-      element_type = llvm::Type::getInt8Ty(*_context);
+      element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
     } else if (lhs->get_type()->is_pointer()) { /// pointer
       auto *lhs_type = (tanlang::PointerType *)lhs->get_type();
       element_type = to_llvm_type(lhs_type->get_pointee());

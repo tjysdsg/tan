@@ -6,13 +6,12 @@
 
 namespace tanlang {
 
-class CompilerSession;
 class ASTBase;
 
 class CodeGenerator {
 public:
   CodeGenerator() = delete;
-  explicit CodeGenerator(CompilerSession *cs, llvm::TargetMachine *target_machine);
+  explicit CodeGenerator(ASTContext *ctx, llvm::TargetMachine *target_machine);
   ~CodeGenerator();
   void emit_to_file(const str &filename);
   void dump_ir() const;
@@ -36,7 +35,7 @@ public:
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
-  CompilerSession *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
   /// avoid creating duplicated llvm::Type and llvm::Metadata
@@ -47,7 +46,7 @@ private:
   /// LLVM things
   llvm::IRBuilder<> *_builder = nullptr;
   llvm::DIBuilder *_di_builder = nullptr;
-  llvm::LLVMContext *_context = nullptr;
+  llvm::LLVMContext *_llvm_ctx = nullptr;
   llvm::Module *_module = nullptr;
   vector<llvm::DIScope *> _di_scope{};
   llvm::TargetMachine *_target_machine = nullptr;
