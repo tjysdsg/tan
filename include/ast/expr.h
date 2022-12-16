@@ -246,7 +246,6 @@ public:
     MemberAccessBracket,
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
-    MemberAccessEnumValue,
   } _access_type = MemberAccessInvalid;
   size_t _access_idx = (size_t)-1; /// struct member variable index
 };

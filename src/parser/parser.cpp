@@ -51,8 +51,6 @@ private:
     str tok = token->get_value();
     if (tok == "var")
       ret = VarDecl::Create(_curr);
-    else if (tok == "enum")
-      ret = EnumDecl::Create(_curr);
     else if (tok == "fn" || tok == "pub" || tok == "extern")
       ret = FunctionDecl::Create(_curr);
     else if (tok == "import")
@@ -867,7 +865,7 @@ private:
         ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {
         ret = Type::GetStringType();
-      } else if (token->get_type() == TokenType::ID) { /// struct/enum/typedefs etc.
+      } else if (token->get_type() == TokenType::ID) { /// struct/typedefs etc.
         /// type referred will be resolved in analysis phase
       } else {
         break;
@@ -921,46 +919,6 @@ private:
     p->set_type(parse_ty(ty));
   }
 
-  void parse_enum_decl(ASTBase *_p) {
-    auto *p = ast_cast<EnumDecl>(_p);
-
-    /// skip enum
-    _curr.offset_by(1);
-
-    /// enum class name
-    auto _id = peek();
-    if (_id->get_node_type() != ASTNodeType::ID) {
-      error(_curr, "Expect an identifier");
-    }
-    parse_node(_id);
-    auto id = ast_cast<Identifier>(_id);
-    p->set_name(id->get_name());
-
-    /// body
-    if (at(_curr)->get_value() == "{") {
-      auto _comp_stmt = next_expression(PREC_LOWEST);
-      if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
-        error(_curr, "struct definition requires a valid body");
-      }
-      auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
-
-      /// copy member declarations
-      auto children = comp_stmt->get_children();
-      vector<Expr *> elements{};
-      elements.reserve(children.size());
-      for (const auto &c : children) {
-        if (!(c->get_node_type() == ASTNodeType::ASSIGN || c->get_node_type() == ASTNodeType::ID)) {
-          error(c->loc(), "Invalid enum elements");
-        }
-        elements.push_back(ast_cast<Expr>(c));
-      }
-      p->set_elements(elements);
-    } else {
-      // TODO: extract logic of forward declaration
-      TAN_ASSERT(false);
-    }
-  }
-
 private:
   str _filename;
   ASTContext *_cs = nullptr;
@@ -993,7 +951,6 @@ const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE =
     {ASTNodeType::VAR_DECL,        &ParserImpl::parse_var_decl     },
     {ASTNodeType::ARG_DECL,        &ParserImpl::parse_arg_decl     },
     {ASTNodeType::FUNC_DECL,       &ParserImpl::parse_func_decl    },
-    {ASTNodeType::ENUM_DECL,       &ParserImpl::parse_enum_decl    },
     {ASTNodeType::BREAK,           &ParserImpl::parse_generic_token},
     {ASTNodeType::CONTINUE,        &ParserImpl::parse_generic_token},
     {ASTNodeType::ID,              &ParserImpl::parse_generic_token},

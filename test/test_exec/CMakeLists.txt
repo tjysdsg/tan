@@ -9,7 +9,6 @@ set(TAN_EXEC_TEST_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/array.tan
         ${CMAKE_CURRENT_LIST_DIR}/assertion.tan
         ${CMAKE_CURRENT_LIST_DIR}/boolean.tan
-        ${CMAKE_CURRENT_LIST_DIR}/enum.tan
         ${CMAKE_CURRENT_LIST_DIR}/function.tan
         ${CMAKE_CURRENT_LIST_DIR}/if_else.tan
         ${CMAKE_CURRENT_LIST_DIR}/intrinsics.tan

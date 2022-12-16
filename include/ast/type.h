@@ -54,7 +54,6 @@ public:
   virtual bool is_bool();
   virtual bool is_void();
   virtual bool is_char();
-  virtual bool is_enum();
 
   virtual int get_align_bits();
   virtual int get_size_bits();

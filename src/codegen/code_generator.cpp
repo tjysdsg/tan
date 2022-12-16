@@ -220,10 +220,6 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
   bool is_pointer1 = orig->is_pointer();
   bool is_pointer2 = dest->is_pointer();
 
-  /**
-   * NOTE: check enum before checking int
-   * */
-
   /// early return if types are the same
   if (orig == dest) {
     return loaded;
@@ -322,9 +318,6 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
     }
   } else if (p->is_string()) { /// str as char*
     ret = _builder->getInt8PtrTy();
-  } else if (p->is_enum()) { /// enums
-    // TODO IMPORTANT: ret = TypeSystem::to_llvm_type(cs, p->get_sub_types()[0]);
-    TAN_ASSERT(false);
   } else if (p->is_struct()) { /// struct
     auto member_types = ((StructType *)p)->get_member_types();
     vector<llvm::Type *> elements(member_types.size(), nullptr);
@@ -397,8 +390,6 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
     ret = _di_builder->createPointerType(e_di_type, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
-  } else if (p->is_enum()) { /// enums
-    // TODO IMPORTANT
   } else if (p->is_struct()) { /// struct
     auto member_types = ((StructType *)p)->get_member_types();
     vector<Metadata *> elements(member_types.size(), nullptr);
@@ -749,9 +740,6 @@ Value *CodeGenerator::codegen_type_instantiation(Type *p) {
     }
   } else if (p->is_string()) { /// str as char*
     ret = codegen_constructor(BasicConstructor::CreateStringConstructor(SrcLoc(0), ""));
-  } else if (p->is_enum()) { /// enums
-    // TODO IMPORTANT
-    TAN_ASSERT(false);
   } else if (p->is_struct()) { /// struct
     // TODO: use codegen_constructor()
     auto member_types = ((StructType *)p)->get_member_types();
@@ -797,9 +785,6 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
     }
   } else if (ptype->is_string()) { /// str as char*
     ret = _builder->CreateGlobalStringPtr(ast_cast<StringLiteral>(p)->get_value());
-  } else if (ptype->is_enum()) { /// enums
-    // TODO IMPORTANT
-    TAN_ASSERT(false);
   } else if (ptype->is_struct()) { /// struct
     // TODO: Implement struct literal
     TAN_ASSERT(false);
@@ -1348,9 +1333,6 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   case MemberAccess::MemberAccessMemberFunction:
     // TODO: codegen for member function call
     ret = codegen(rhs);
-    break;
-  case MemberAccess::MemberAccessEnumValue:
-    // TODO: codegen for enum member access
     break;
   default:
     TAN_ASSERT(false);

@@ -139,8 +139,6 @@ bool Type::is_void() { return false; }
 
 bool Type::is_char() { return false; }
 
-bool Type::is_enum() { return false; }
-
 int Type::get_align_bits() {
   TAN_ASSERT(false);
   return 0;

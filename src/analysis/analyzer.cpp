@@ -60,7 +60,6 @@ public:
     case ASTNodeType::INTRINSIC:
     case ASTNodeType::PARENTHESIS:
     case ASTNodeType::FUNC_CALL:
-    case ASTNodeType::ENUM_DECL:
     case ASTNodeType::FUNC_DECL:
     case ASTNodeType::ARG_DECL:
     case ASTNodeType::VAR_DECL:
@@ -767,23 +766,6 @@ private:
   }
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
-  void analyze_enum_member_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
-    p->set_type(lhs->get_type());
-
-    str enum_name = ast_cast<Identifier>(lhs)->get_name();
-    auto *enum_decl = ast_cast<EnumDecl>(_ctx->get_type_decl(enum_name));
-
-    /// enum element
-    if (rhs->get_node_type() != ASTNodeType::ID) {
-      error(rhs, "Unknown enum element");
-    }
-    str name = ast_cast<Identifier>(rhs)->get_name();
-    if (!enum_decl->contain_element(name)) {
-      error(rhs, "Unknown enum element");
-    }
-  }
-
-  /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze(rhs);
 
@@ -818,14 +800,9 @@ private:
       analyze_member_func_call(p, lhs, func_call);
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze_bracket_access(p, lhs, rhs);
-    } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable or enum
-      if (lhs->get_type()->is_enum()) {
-        p->_access_type = MemberAccess::MemberAccessEnumValue;
-        analyze_enum_member_access(p, lhs, rhs);
-      } else { /// member variable
+    } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable
         p->_access_type = MemberAccess::MemberAccessMemberVariable;
         analyze_member_access_member_variable(p, lhs, rhs);
-      }
     } else {
       error(p, "Invalid right-hand operand");
     }
@@ -913,44 +890,6 @@ private:
     p->set_parent_loop(loop);
   }
 
-  void analyze_enum_decl(ASTBase *) {
-    /* TODO IMPORTANT: FIX THIS
-    auto *p = ast_must_cast<EnumDecl>(_p);
-
-    /// add_decl the enum type to context
-    auto *ty = Type::GetEnumType(_ctx, p->loc(), p->get_name());
-    TypeSystem::SetDefaultConstructor(_ctx, ty);
-    p->set_type(ty);
-    _ctx->add_type_decl(p->get_name(), p);
-
-    /// get element names and types
-    int64_t val = 0;
-    size_t i = 0;
-    for (const auto &e: p->get_elements()) {
-      if (e->get_node_type() == ASTNodeType::ID) {
-        p->set_value(ast_must_cast<Identifier>(e)->get_name(), val);
-      } else if (e->get_node_type() == ASTNodeType::ASSIGN) {
-        auto *assignment = ast_cast<Assignment>(e);
-        auto *_lhs = assignment->get_lhs();
-        auto *_rhs = assignment->get_rhs();
-
-        auto *lhs = ast_cast<ASTNamed>(_lhs);
-        if (!lhs) { error(_lhs, "Expect a name"); }
-
-        if (_rhs->get_node_type() != ASTNodeType::INTEGER_LITERAL) { error(_rhs, "Expect an integer literal"); }
-        auto *rhs = ast_cast<IntegerLiteral>(_rhs);
-        TAN_ASSERT(rhs);
-
-        val = (int64_t) rhs->get_value();
-        p->set_value(lhs->get_name(), val);
-      }
-      ++val;
-      ++i;
-    }
-    */
-    TAN_ASSERT(false);
-  }
-
 private:
   static inline umap<ASTNodeType, analyze_func_t> EXPRESSION_ANALYZER_TABLE{
       {ASTNodeType::ASSIGN,          &AnalyzerImpl::analyze_assignment     },
@@ -968,7 +907,6 @@ private:
       {ASTNodeType::INTRINSIC,       &AnalyzerImpl::analyze_intrinsic      },
       {ASTNodeType::PARENTHESIS,     &AnalyzerImpl::analyze_parenthesis    },
       {ASTNodeType::FUNC_CALL,       &AnalyzerImpl::analyze_func_call      },
-      {ASTNodeType::ENUM_DECL,       &AnalyzerImpl::analyze_enum_decl      },
       {ASTNodeType::FUNC_DECL,       &AnalyzerImpl::analyze_func_decl      },
       {ASTNodeType::ARG_DECL,        &AnalyzerImpl::analyze_arg_decl       },
       {ASTNodeType::VAR_DECL,        &AnalyzerImpl::analyze_var_decl       },
