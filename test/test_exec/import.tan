@@ -1,0 +1,12 @@
+import "struct.tan";
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+pub fn main(argc: int, argv: u8**) : i32 {
+    var f: Fuck;
+    f.val = 100;
+    assert(f.val == 100);
+
+    print("SUCCESS\n");
+    return 0;
+}

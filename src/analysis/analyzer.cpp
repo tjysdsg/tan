@@ -765,8 +765,6 @@ private:
 
   /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
-    analyze(rhs);
-
     str m_name = ast_cast<Identifier>(rhs)->get_name();
     Type *struct_ty = nullptr;
     /// auto dereference pointers
@@ -817,7 +815,7 @@ private:
     vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
-      analyze(m);
+      analyze(m); // TODO IMPORTANT: don't save analyzed decl to ASTContext
 
       if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
         /// fill members
