@@ -225,11 +225,16 @@ private:
         err.raise();
       }
       ret = decl->get_type();
+      if (!ret) {
+        Error err(_ctx->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+        err.raise();
+      }
     } else if (p->is_pointer()) {
       /// "flatten" pointer that points to a TypeRef
       ret = Type::GetPointerType(analyze_ty(((PointerType *)p)->get_pointee(), loc));
     }
 
+    TAN_ASSERT(ret);
     return ret;
   }
 

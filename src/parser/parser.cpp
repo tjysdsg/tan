@@ -842,7 +842,6 @@ private:
           error(p->loc(), "Cannot redeclare type as a struct");
       }
     } else {
-      // TODO IMPORTANT: no need to support forward decl
       p->set_is_forward_decl(true);
     }
 
