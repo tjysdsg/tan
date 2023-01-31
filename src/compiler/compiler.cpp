@@ -4,7 +4,7 @@
 #include "analysis/analyzer.h"
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
-#include "ast/ast_context.h"
+#include "compiler/ast_context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
@@ -14,8 +14,10 @@ using namespace tanlang;
 namespace fs = std::filesystem;
 
 Compiler::~Compiler() {
-  delete _ast;
-  delete _ctx;
+  if (_ast)
+    delete _ast;
+  if (_ctx)
+    delete _ctx;
 }
 
 Compiler::Compiler(const str &filename) : _filename(filename) {
@@ -40,8 +42,6 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
     auto RM = llvm::Reloc::Model::PIC_;
     Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
-
-  _ctx = new ASTContext(filename);
 }
 
 void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
@@ -70,20 +70,18 @@ void Compiler::parse() {
 
   auto tokens = tokenize(&reader);
   auto *sm = new SourceManager(_filename, tokens);
-  _ctx->set_source_manager(sm);
+  _ctx = new ASTContext(sm);
 
   auto *parser = new Parser(_ctx);
   _ast = parser->parse();
 
-  Intrinsic::InitAnalysis(_ctx);
+  // TODO: add to package level instead of local
+  auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
+  for (auto *f : intrinsic_funcs) {
+    _ctx->add_function_decl(f);
+  }
   Analyzer analyzer(_ctx);
   analyzer.analyze(_ast);
-}
-
-void Compiler::ParseFile(const str &filename) {
-  auto compiler = new Compiler(filename);
-  compiler->parse();
-  Compiler::sub_compilers.push_back(compiler);
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {

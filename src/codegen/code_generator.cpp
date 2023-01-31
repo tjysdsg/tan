@@ -1,7 +1,7 @@
 #include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
-#include "ast/ast_context.h"
+#include "compiler/ast_context.h"
 #include "ast/constructor.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"

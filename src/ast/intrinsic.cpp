@@ -1,7 +1,6 @@
 #include "ast/intrinsic.h"
 #include "ast/decl.h"
 #include "ast/type.h"
-#include "ast/ast_context.h"
 
 namespace tanlang {
 
@@ -31,10 +30,14 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
     {"stack_trace",     IntrinsicType::STACK_TRACE    }
 };
 
-void Intrinsic::InitAnalysis(ASTContext *ctx) {
-  /// @compprint
-  ctx->add_function(FunctionDecl::Create(
-      SrcLoc(0), "compprint", Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
+vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
+  vector<FunctionDecl *> ret{};
+
+  /// compprint
+  ret.push_back(FunctionDecl::Create(SrcLoc(0), "compprint",
+                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
+
+  return ret;
 }
 
 Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }

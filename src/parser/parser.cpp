@@ -2,7 +2,7 @@
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"
-#include "ast/ast_context.h"
+#include "compiler/ast_context.h"
 #include "ast/type.h"
 #include "ast/intrinsic.h"
 #include "lexer/token.h"
@@ -24,7 +24,7 @@ using led_parsing_func_t = void (ParserImpl::*)(ASTBase *, ASTBase *);
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  explicit ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _cs(ctx) {}
+  explicit ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _ctx(ctx) {}
 
   ASTBase *parse() {
     _root = Program::Create(SrcLoc(0));
@@ -72,6 +72,8 @@ private:
       ret = BoolLiteral::Create(_curr, true);
     else if (tok == "false")
       ret = BoolLiteral::Create(_curr, false);
+    else if (tok == "package")
+      ret = PackageStmt::Create(_curr);
 
     TAN_ASSERT(ret);
     return ret;
@@ -619,6 +621,12 @@ private:
 
     p->set_public(is_public);
     p->set_external(is_external);
+
+    /// add_scoped_decl to local and/or public function table
+    if (p->is_public() || p->is_external()) {
+      _ctx->add_function_decl(p, true);
+    }
+    _ctx->add_function_decl(p);
   }
 
   void parse_func_call(ASTBase *_p) {
@@ -702,6 +710,21 @@ private:
     parse_node(rhs);
     str filename = ast_cast<StringLiteral>(rhs)->get_value();
     p->set_filename(filename);
+  }
+
+  void parse_package_stmt(ASTBase *_p) {
+    auto *p = ast_cast<PackageStmt>(_p);
+    _curr.offset_by(1);
+
+    auto rhs = peek();
+    if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
+      error(_curr, "Invalid package statement");
+    }
+    parse_node(rhs);
+    str name = ast_cast<StringLiteral>(rhs)->get_value();
+
+    p->set_name(name);
+    // TODO: _ctx->set_package_name(name);
   }
 
   void parse_member_access(Expr *left, MemberAccess *p) {
@@ -808,9 +831,23 @@ private:
         member_decls.push_back(ast_cast<Expr>(c));
       }
       p->set_member_decls(member_decls);
+
+      /// check if struct name is in conflicts of variable/function names
+      /// overwrite forward declaration
+      str struct_name = p->get_name();
+      auto *prev_decl = _ctx->get_type_decl(struct_name);
+      if (prev_decl) {
+        if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
+              ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
+          error(p->loc(), "Cannot redeclare type as a struct");
+      }
     } else {
+      // TODO IMPORTANT: no need to support forward decl
       p->set_is_forward_decl(true);
     }
+
+    // TODO IMPORTANT: distinguish publicly and privately defined struct types
+    _ctx->add_type_decl(p->get_name(), p, true);
   }
 
   ArrayType *parse_ty_array(Type *p) {
@@ -920,7 +957,7 @@ private:
 
 private:
   str _filename;
-  ASTContext *_cs = nullptr;
+  ASTContext *_ctx = nullptr;
   ASTBase *_root = nullptr;
 
 private:
@@ -957,7 +994,8 @@ const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE =
     {ASTNodeType::FLOAT_LITERAL,   &ParserImpl::parse_generic_token},
     {ASTNodeType::CHAR_LITERAL,    &ParserImpl::parse_generic_token},
     {ASTNodeType::STRING_LITERAL,  &ParserImpl::parse_generic_token},
-    {ASTNodeType::BOOL_LITERAL,    &ParserImpl::parse_generic_token}
+    {ASTNodeType::BOOL_LITERAL,    &ParserImpl::parse_generic_token},
+    {ASTNodeType::PACKAGE,         &ParserImpl::parse_package_stmt },
 };
 } // namespace tanlang
 

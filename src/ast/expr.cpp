@@ -1,5 +1,5 @@
 #include "ast/expr.h"
-#include "ast/ast_context.h"
+#include "compiler/ast_context.h"
 #include "ast/type.h"
 #include "ast/decl.h"
 #include <utility>

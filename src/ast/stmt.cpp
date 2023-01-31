@@ -155,3 +155,11 @@ vector<ASTBase *> If::get_children() const {
   std::for_each(_branches.begin(), _branches.end(), [&](Stmt *e) { ret.push_back((ASTBase *)e); });
   return ret;
 }
+
+PackageStmt::PackageStmt(SrcLoc loc) : Stmt(ASTNodeType::PACKAGE, loc) {}
+
+PackageStmt *PackageStmt::Create(SrcLoc loc) { return new PackageStmt(loc); }
+
+str PackageStmt::get_name() const { return _name; }
+
+void PackageStmt::set_name(const str &name) { _name = name; }

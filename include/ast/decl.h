@@ -73,7 +73,12 @@ private:
   Stmt *_body = nullptr;
 };
 
-class StructDecl : public Decl {
+class TypeDecl : public Decl {
+public:
+  TypeDecl(ASTNodeType node_type, SrcLoc loc);
+};
+
+class StructDecl : public TypeDecl {
 protected:
   explicit StructDecl(SrcLoc loc);
 

@@ -1,6 +1,5 @@
-// TODO: relative import
-import "test/test_lib/lib1.tan"
-import "test/test_lib/lib2.tan"
+import "lib1.tan"
+import "lib2.tan"
 import "runtime/print.tan"
 import "runtime/stdlib.tan"
 

@@ -33,3 +33,5 @@ str SourceManager::get_source_code(ASTBase *p) const {
   // TODO: return the string that also covers the child nodes, instead of only p's own token str
   return get_token_str(p->loc());
 }
+
+str SourceManager::get_filename() const { return _filename; }

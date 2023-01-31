@@ -6,9 +6,9 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "analysis/scope.h"
-#include "ast/ast_context.h"
-#include "compiler/compiler.h" // TODO IMPORTANT: remove this dependency
+#include "compiler/ast_context.h"
 #include "lexer/token.h"
+#include "compiler/compiler.h"
 #include <iostream>
 #include <csetjmp>
 
@@ -92,7 +92,7 @@ private:
 
 private:
   [[noreturn]] void error(ASTBase *p, const str &message) {
-    Error err(_ctx->_filename, _sm->get_token(p->loc()), message);
+    Error err(_ctx->get_filename(), _sm->get_token(p->loc()), message);
     err.raise();
   }
 
@@ -221,7 +221,7 @@ private:
     if (p->is_ref()) {
       auto *decl = _ctx->get_type_decl(p->get_typename());
       if (!decl) {
-        Error err(_ctx->_filename, _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+        Error err(_ctx->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
         err.raise();
       }
       ret = decl->get_type();
@@ -235,7 +235,7 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_cast<Identifier>(_p);
-    auto *referred = _ctx->get_decl(p->get_name());
+    auto *referred = _ctx->get_scoped_decl(p->get_name());
     if (referred) { /// refers to a variable
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
       p->set_type(analyze_ty(referred->get_type(), p->loc()));
@@ -278,13 +278,13 @@ private:
       p->set_type(analyze_ty(ty, p->loc()));
     }
 
-    _ctx->add_decl(p->get_name(), p);
+    _ctx->add_scoped_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_cast<ArgDecl>(_p);
     p->set_type(analyze_ty(p->get_type(), p->loc()));
-    _ctx->add_decl(p->get_name(), p);
+    _ctx->add_scoped_decl(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
@@ -484,13 +484,6 @@ private:
   void analyze_func_decl(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
-    /// add_decl to external function table
-    if (p->is_public() || p->is_external()) {
-      ASTContext::AddPublicFunction(_ctx->_filename, p);
-    }
-    /// ...and to the internal function table
-    _ctx->add_function(p);
-
     /// update return type
     auto *func_type = (FunctionType *)p->get_type();
     func_type->set_return_type(analyze_ty(func_type->get_return_type(), p->loc()));
@@ -519,22 +512,27 @@ private:
     auto p = ast_cast<Import>(_p);
 
     str file = p->get_filename();
-    auto imported = Compiler::resolve_import(_ctx->_filename, file);
+    auto imported = Compiler::resolve_import(_ctx->get_filename(), file);
     if (imported.empty()) {
       error(p, "Cannot import: " + file);
     }
 
-    /// it might be already parsed
-    vector<FunctionDecl *> imported_functions = ASTContext::GetPublicFunctions(imported[0]);
-    if (imported_functions.empty()) {
-      Compiler::ParseFile(imported[0]);
-      imported_functions = ASTContext::GetPublicFunctions(imported[0]);
+    str imported_file = imported[0];
+    Compiler *com = new Compiler(imported_file);
+    com->parse(); // only need to parse the file now
+    ASTContext *imported_ctx = ASTContext::get_ctx_of_file(imported_file);
+
+    // import functions
+    vector<FunctionDecl *> funcs = imported_ctx->get_public_functions();
+    p->set_imported_funcs(funcs);
+    for (FunctionDecl *f : funcs) {
+      _ctx->add_function_decl(f);
     }
 
-    /// import functions
-    p->set_imported_funcs(imported_functions);
-    for (FunctionDecl *f : imported_functions) {
-      _ctx->add_function(f);
+    // import type declarations
+    vector<TypeDecl *> type_decls = imported_ctx->get_public_type_decls();
+    for (TypeDecl *t : type_decls) {
+      _ctx->add_type_decl(t->get_name(), t, false);
     }
   }
 
@@ -625,7 +623,7 @@ private:
       break;
     }
     case IntrinsicType::FILENAME: {
-      auto sub = StringLiteral::Create(p->loc(), _ctx->_filename);
+      auto sub = StringLiteral::Create(p->loc(), _ctx->get_filename());
       auto type = Type::GetStringType();
       sub->set_type(type);
       p->set_type(type);
@@ -801,8 +799,8 @@ private:
     } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
       analyze_bracket_access(p, lhs, rhs);
     } else if (rhs->get_node_type() == ASTNodeType::ID) { /// member variable
-        p->_access_type = MemberAccess::MemberAccessMemberVariable;
-        analyze_member_access_member_variable(p, lhs, rhs);
+      p->_access_type = MemberAccess::MemberAccessMemberVariable;
+      analyze_member_access_member_variable(p, lhs, rhs);
     } else {
       error(p, "Invalid right-hand operand");
     }
@@ -811,16 +809,7 @@ private:
   void analyze_struct_decl(ASTBase *_p) {
     auto p = ast_cast<StructDecl>(_p);
 
-    /// check if struct name is in conflicts of variable/function names
-    /// or if there's a forward declaration
     str struct_name = p->get_name();
-    auto *prev_decl = _ctx->get_type_decl(struct_name);
-    if (prev_decl) {
-      if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
-            ast_cast<StructDecl>(prev_decl)->is_forward_decl())) { /// conflict
-        error(p, "Cannot redeclare type as a struct");
-      }
-    }
 
     /// resolve member names and types
     auto member_decls = p->get_member_decls(); // size is 0 if no struct body
@@ -865,10 +854,10 @@ private:
       }
     }
 
-    /// register type to context
     auto *ty = Type::GetStructType(struct_name, child_types);
-    _ctx->add_type_decl(struct_name, p);
     p->set_type(ty);
+    // TODO IMPORTANT: distinguish publicly and privately defined struct types
+    _ctx->add_type_decl(struct_name, p, true); // overwrite the value set during parsing
   }
 
   void analyze_loop(ASTBase *_p) {

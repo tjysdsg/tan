@@ -62,7 +62,7 @@ public:
   static Intrinsic *Create(SrcLoc loc);
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
-  static void InitAnalysis(ASTContext *ctx);
+  static vector<FunctionDecl *> GetIntrinsicFunctionDeclarations();
 
 public:
   IntrinsicType get_intrinsic_type() const;

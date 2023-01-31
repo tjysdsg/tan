@@ -35,6 +35,7 @@ public:
   Token *get_last_token() const;
   bool is_eof(SrcLoc loc) const;
   str get_source_code(ASTBase *p) const;
+  str get_filename() const;
 
 private:
   str _filename;

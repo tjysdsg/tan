@@ -4,7 +4,7 @@
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "ast/source_manager.h"
-#include "ast/ast_context.h"
+#include "include/compiler/ast_context.h"
 #include "compiler/compiler.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"

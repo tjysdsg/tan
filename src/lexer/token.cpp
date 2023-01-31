@@ -18,8 +18,10 @@ umap<TokenType, str> token_type_names{
 };
 
 /// keywords/reserved words
-const vector<str> KEYWORDS{"for",   "while",  "if",   "else",   "fn",  "var",    "continue", "break", "let",  "struct",
-                           "union", "switch", "case", "return", "pub", "extern", "import",   "as",    "true", "false"};
+const vector<str> KEYWORDS{
+    "for",    "while", "if",     "else", "fn",     "var",    "continue", "break", "let",   "struct",  "union",
+    "switch", "case",  "return", "pub",  "extern", "import", "as",       "true",  "false", "package",
+};
 
 const vector<char> PUNCTUATIONS{'~', '!',  '#', '%', '^', '&',  '*', '(', ')', '-', '=', '+', '[', ']', '{',
                                 '}', '\\', '|', ';', ':', '\'', '"', ',', '.', '<', '>', '/', '?', '@'};

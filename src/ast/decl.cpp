@@ -1,16 +1,12 @@
 #include "ast/decl.h"
-#include "ast/ast_context.h"
+#include "compiler/ast_context.h"
 #include "ast/type.h"
 
 using namespace tanlang;
 
-/// \section Decl
-
 Decl::Decl(ASTNodeType type, SrcLoc loc, int bp) : Expr(type, loc, bp) {}
 
 vector<ASTBase *> Decl::get_children() const { return {}; }
-
-/// \section ArgDecl
 
 ArgDecl::ArgDecl(SrcLoc loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
 
@@ -23,8 +19,6 @@ ArgDecl *ArgDecl::Create(SrcLoc loc, const str &name, Type *ty) {
   return ret;
 }
 
-/// \section VarDecl
-
 VarDecl::VarDecl(SrcLoc loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
 
 VarDecl *VarDecl::Create(SrcLoc loc) { return new VarDecl(loc); }
@@ -35,8 +29,6 @@ VarDecl *VarDecl::Create(SrcLoc loc, const str &name, Type *ty) {
   ret->set_type(ty);
   return ret;
 }
-
-/// \section FunctionDecl
 
 FunctionDecl::FunctionDecl(SrcLoc loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
 
@@ -79,9 +71,9 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 
 vector<ASTBase *> FunctionDecl::get_children() const { return {(ASTBase *)_body}; }
 
-/// \section StructDecl
+TypeDecl::TypeDecl(ASTNodeType node_type, SrcLoc loc) : Decl(node_type, loc, 0) {}
 
-StructDecl::StructDecl(SrcLoc loc) : Decl(ASTNodeType::STRUCT_DECL, loc, 0) {}
+StructDecl::StructDecl(SrcLoc loc) : TypeDecl(ASTNodeType::STRUCT_DECL, loc) {}
 
 StructDecl *StructDecl::Create(SrcLoc loc) { return new StructDecl(loc); }
 

@@ -171,6 +171,21 @@ private:
   bool _last_branch_else = false;
 };
 
+class PackageStmt : public Stmt {
+protected:
+  explicit PackageStmt(SrcLoc loc);
+
+public:
+  static PackageStmt *Create(SrcLoc loc);
+
+public:
+  str get_name() const;
+  void set_name(const str &name);
+
+private:
+  str _name = "";
+};
+
 } // namespace tanlang
 
 #endif //__TAN_SRC_AST_STMT_H__
