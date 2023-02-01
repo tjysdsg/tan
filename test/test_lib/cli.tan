@@ -4,7 +4,7 @@ import "runtime/print.tan"
 import "runtime/stdlib.tan"
 
 pub fn main() : int {
-    // TODO
-    var a = lib_func1(3) + lib_func2(3);
+    var a = lib_func1(3) + lib_func2(3); // 9 + 6
+    // TODO: assert(a == 15);
     return 0;
 }
