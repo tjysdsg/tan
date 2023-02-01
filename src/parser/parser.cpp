@@ -36,9 +36,9 @@ private:
   SourceManager *_sm = nullptr;
   SrcLoc _curr = SrcLoc(0);
 
-  ASTBase *peek(TokenType type, const str &value) {
+  ASTBase *peek(const str &value) {
     Token *token = at(_curr);
-    if (token->get_type() != type || token->get_value() != value) {
+    if (token->get_value() != value) {
       Error err(_filename, token, fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()));
       err.raise();
     }
@@ -417,12 +417,12 @@ private:
     _curr.offset_by(1); /// skip "if"
 
     /// predicate
-    auto _pred = peek(TokenType::PUNCTUATION, "(");
+    auto _pred = peek("(");
     parse_node(_pred);
     Expr *pred = expect_expression(_pred);
 
     /// then clause
-    auto _then = peek(TokenType::PUNCTUATION, "{");
+    auto _then = peek("{");
     parse_node(_then);
     Stmt *then_clause = expect_stmt(_then);
 
@@ -444,11 +444,11 @@ private:
     switch (p->_loop_type) {
     case ASTLoopType::WHILE: {
       /// predicate
-      peek(TokenType::PUNCTUATION, "(");
+      peek("(");
       auto _pred = next_expression(PREC_LOWEST);
       Expr *pred = expect_expression(_pred);
       p->set_predicate(pred);
-      peek(TokenType::PUNCTUATION, "{");
+      peek("{");
 
       /// loop body
       auto _body = next_expression(PREC_LOWEST);
@@ -575,7 +575,7 @@ private:
     parse_node(id);
     p->set_name(id->get_name());
 
-    peek(TokenType::PUNCTUATION, "(");
+    peek("(");
     _curr.offset_by(1);
 
     /// arguments
@@ -598,13 +598,13 @@ private:
         }
       }
     }
-    peek(TokenType::PUNCTUATION, ")");
+    peek(")");
     _curr.offset_by(1);
 
     p->set_arg_names(arg_names);
     p->set_arg_decls(arg_decls);
 
-    peek(TokenType::PUNCTUATION, ":");
+    peek(":");
     _curr.offset_by(1);
 
     /// function type
@@ -614,7 +614,7 @@ private:
 
     /// body
     if (!is_external) {
-      auto body = peek(TokenType::PUNCTUATION, "{");
+      auto body = peek("{");
       parse_node(body);
       p->set_body(expect_stmt(body));
     }
@@ -652,7 +652,7 @@ private:
       }
     }
 
-    peek(TokenType::PUNCTUATION, ")");
+    peek(")");
     _curr.offset_by(1);
   }
 
@@ -674,7 +674,7 @@ private:
     // TODO: the underlying expression of this intrinsic should be Test
     // TODO: expect parsing OR analysis error
 
-    auto *body = peek(TokenType::PUNCTUATION, "{");
+    auto *body = peek("{");
     parse_node(body);
     p->set_sub(body);
     p->set_name("test_comp_error");
@@ -870,7 +870,7 @@ private:
       ret = Type::GetArrayType(p, (int)array_size);
 
       /// skip "]"
-      peek(TokenType::PUNCTUATION, "]");
+      peek("]");
       _curr.offset_by(1);
 
       /// if followed by a "[", this is a multi-dimension array
