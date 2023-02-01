@@ -345,14 +345,9 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   return ret;
 }
 
-llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
+llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
   TAN_ASSERT(p);
   TAN_ASSERT(!p->is_ref());
-
-  auto it = _llvm_metadata_cache.find(p);
-  if (it != _llvm_metadata_cache.end()) {
-    return it->second;
-  }
 
   DIType *ret = nullptr;
   if (p->is_primitive()) { /// primitive types
@@ -392,20 +387,19 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
     auto member_types = ((StructType *)p)->get_member_types();
     vector<Metadata *> elements(member_types.size(), nullptr);
     for (size_t i = 1; i < member_types.size(); ++i) {
-      elements[i] = to_llvm_metadata(member_types[i]);
+      elements[i] = to_llvm_metadata(member_types[i], loc);
     }
-    ret = _di_builder->createStructType(get_current_di_scope(), p->get_typename(), _di_file,
-                                        0, // TODO IMPORTANT: (unsigned) cs->get_source_manager()->get_line(p->loc()),
-                                        (uint32_t)p->get_size_bits(), (uint32_t)p->get_align_bits(),
-                                        DINode::DIFlags::FlagZero, nullptr, _di_builder->getOrCreateArray(elements), 0,
-                                        nullptr, p->get_typename());
+    ret = _di_builder->createStructType(
+        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_ctx->get_source_manager()->get_line(loc),
+        (uint32_t)p->get_size_bits(), (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
+        _di_builder->getOrCreateArray(elements), 0, nullptr, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
-    auto *sub = to_llvm_metadata(((ArrayType *)p)->get_element_type());
+    auto *sub = to_llvm_metadata(((ArrayType *)p)->get_element_type(), loc);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
   } else if (p->is_pointer()) { /// pointer
-    auto *sub = to_llvm_metadata(((PointerType *)p)->get_pointee());
+    auto *sub = to_llvm_metadata(((PointerType *)p)->get_pointee(), loc);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
@@ -413,7 +407,6 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p) {
     TAN_ASSERT(false);
   }
 
-  _llvm_metadata_cache[p] = ret;
   return ret;
 }
 
@@ -486,7 +479,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
   auto *func_type = (tanlang::FunctionType *)p->get_type();
 
   auto ret_ty = func_type->get_return_type();
-  Metadata *ret_meta = to_llvm_metadata(ret_ty);
+  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->loc());
 
   /// get function name
   str func_name = p->get_name();
@@ -503,7 +496,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
   vector<Metadata *> arg_metas;
   for (size_t i = 0; i < p->get_n_args(); ++i) {
     auto ty = func_type->get_arg_types()[i];
-    arg_metas.push_back(to_llvm_metadata(ty));
+    arg_metas.push_back(to_llvm_metadata(ty, p->loc()));
   }
 
   /// function implementation
@@ -529,7 +522,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
       _builder->CreateStore(&a, arg_val);
 
       /// create a debug descriptor for the arguments
-      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i]);
+      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->loc());
       llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
           subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
       _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
@@ -633,7 +626,7 @@ Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
   /// debug info
   {
     auto *curr_di_scope = get_current_di_scope();
-    auto *arg_meta = to_llvm_metadata(p->get_type());
+    auto *arg_meta = to_llvm_metadata(p->get_type(), p->loc());
     auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
                                                    (DIType *)arg_meta);
     _di_builder->insertDeclare(

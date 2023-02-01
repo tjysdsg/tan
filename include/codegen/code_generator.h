@@ -31,16 +31,14 @@ public:
   llvm::Value *load_if_is_lvalue(Expr *expr);
 
   llvm::Type *to_llvm_type(Type *p);
-  llvm::Metadata *to_llvm_metadata(Type *p);
+  llvm::Metadata *to_llvm_metadata(Type *p, SrcLoc loc);
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
   ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
-  /// avoid creating duplicated llvm::Type and llvm::Metadata
   umap<Type *, llvm::Type *> _llvm_type_cache{};
-  umap<Type *, llvm::Metadata *> _llvm_metadata_cache{};
   umap<ASTBase *, llvm::Value *> _llvm_value_cache{};
 
   /// LLVM things

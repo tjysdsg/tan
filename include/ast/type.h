@@ -29,7 +29,6 @@ public:
   [[nodiscard]] static PointerType *GetPointerType(Type *pointee);
   [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
 
-  // TODO: CompilerSession specific?
   [[nodiscard]] static FunctionType *GetFunctionType(Type *ret_type, const vector<Type *> &arg_types);
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
