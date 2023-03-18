@@ -1,11 +1,12 @@
 #ifndef TAN_SRC_AST_AST_ARG_DECL_H
 #define TAN_SRC_AST_AST_ARG_DECL_H
 #include "base.h"
-#include "ast_base.h"
-#include "ast_named.h"
-#include "typed.h"
-#include "expr.h"
 #include "fwd.h"
+#include "ast/ast_base.h"
+#include "ast/ast_named.h"
+#include "ast/typed.h"
+#include "ast/expr.h"
+#include "ast/scoped.h"
 
 namespace tanlang {
 
@@ -38,7 +39,7 @@ public:
 };
 
 class FunctionType;
-class FunctionDecl : public Decl {
+class FunctionDecl : public Decl, public Scoped {
 protected:
   explicit FunctionDecl(SrcLoc loc);
 
@@ -78,7 +79,7 @@ public:
   TypeDecl(ASTNodeType node_type, SrcLoc loc);
 };
 
-class StructDecl : public TypeDecl {
+class StructDecl : public TypeDecl, public Scoped {
 protected:
   explicit StructDecl(SrcLoc loc);
 

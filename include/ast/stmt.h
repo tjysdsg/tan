@@ -3,6 +3,7 @@
 #include "base.h"
 #include "ast_base.h"
 #include "fwd.h"
+#include "ast/scoped.h"
 
 namespace llvm {
 class BasicBlock;
@@ -18,7 +19,7 @@ protected:
   Stmt(ASTNodeType type, SrcLoc loc);
 };
 
-class CompoundStmt : public Stmt {
+class CompoundStmt : public Stmt, public Scoped {
 protected:
   explicit CompoundStmt(SrcLoc loc);
 
@@ -112,7 +113,7 @@ public:
 
 enum ASTLoopType { FOR, WHILE };
 
-class Loop final : public Stmt {
+class Loop final : public Stmt, public Scoped {
 protected:
   explicit Loop(SrcLoc loc);
 
@@ -139,7 +140,7 @@ private:
 /**
  * \brief Represent if-[else] or if-elif-[else] statements
  */
-class If : public Stmt {
+class If : public Stmt, public Scoped {
 protected:
   explicit If(SrcLoc loc);
 
@@ -154,11 +155,11 @@ public:
    * \note Return value can be a nullptr if the branch is an "else"
    */
   [[nodiscard]] Expr *get_predicate(size_t i) const;
+
   void set_predicate(size_t i, Expr *expr);
 
   [[nodiscard]] Stmt *get_branch(size_t i) const;
   [[nodiscard]] size_t get_num_branches() const;
-  [[nodiscard]] bool is_last_branch_else() const;
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
@@ -166,9 +167,6 @@ private:
   /// \note The last element can be a nullptr if the last branch is an "else"
   vector<Expr *> _predicates{};
   vector<Stmt *> _branches{};
-
-  /// \brief When true, the last branch is an "else"
-  bool _last_branch_else = false;
 };
 
 class PackageStmt : public Stmt {

@@ -1,5 +1,4 @@
 #include "ast/decl.h"
-#include "compiler/ast_context.h"
 #include "ast/type.h"
 
 using namespace tanlang;
