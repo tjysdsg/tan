@@ -6,6 +6,7 @@ namespace tanlang {
 
 void FunctionTable::set(FunctionDecl *func) {
   auto name = func->get_name();
+  TAN_ASSERT(!name.empty());
   _table[name].push_back(func);
 }
 

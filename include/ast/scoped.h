@@ -11,36 +11,14 @@ namespace tanlang {
  */
 class Scoped {
 public:
-  Context *add_ctx(str name) {
-    auto *ret = new Context((ASTBase *)this);
-    _scopes[name] = ret;
-    return ret;
-  }
-
-  Context *ctx(str name) const {
-    auto q = _scopes.find(name);
-    if (q != _scopes.end()) {
-      return q->second;
-    }
-    return nullptr;
-  }
-
-  Context *add_ctx() {
-    auto *ret = new Context((ASTBase *)this);
-    _scopes["default"] = ret;
-    return ret;
-  }
-
-  Context *ctx() const {
-    auto q = _scopes.find("default");
-    if (q != _scopes.end()) {
-      return q->second;
-    }
-    return nullptr;
+  Context *ctx() {
+    if (!_ctx)
+      _ctx = new Context((ASTBase *)this); // context <-> AST node mapping
+    return _ctx;
   }
 
 private:
-  umap<str, Context *> _scopes;
+  Context *_ctx = nullptr;
 };
 
 } // namespace tanlang

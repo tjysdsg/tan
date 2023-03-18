@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <stack>
 #include <string>
 #include <memory>
 #include <functional>
@@ -16,6 +17,7 @@ template <typename Key, typename Value, typename Hash = std::hash<Key>> // suppo
 using umap = std::unordered_map<Key, Value, Hash>;
 
 using std::pair;
+using std::stack;
 
 struct PairHash {
   template <class T1, class T2> std::size_t operator()(const pair<T1, T2> &p) const {

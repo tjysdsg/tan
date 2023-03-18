@@ -15,6 +15,7 @@ public:
   bool is_lvalue() override { return true; }
   void set_lvalue(bool) override { TAN_ASSERT(false); }
   [[nodiscard]] vector<ASTBase *> get_children() const override;
+  virtual bool is_type_decl() const { return false; }
 
 protected:
   Decl(ASTNodeType type, SrcLoc loc, int bp);
@@ -77,6 +78,7 @@ private:
 class TypeDecl : public Decl {
 public:
   TypeDecl(ASTNodeType node_type, SrcLoc loc);
+  bool is_type_decl() const override { return true; }
 };
 
 class StructDecl : public TypeDecl, public Scoped {

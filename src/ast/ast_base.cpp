@@ -66,7 +66,7 @@ umap<ASTNodeType, str> ASTBase::ASTTypeNames = {
     MAKE_ASTTYPE_NAME_PAIR(ARG_DECL),
     MAKE_ASTTYPE_NAME_PAIR(VAR_DECL),
     MAKE_ASTTYPE_NAME_PAIR(STRUCT_DECL),
-    MAKE_ASTTYPE_NAME_PAIR(STATEMENT),
+    MAKE_ASTTYPE_NAME_PAIR(COMPOUND_STATEMENT),
     MAKE_ASTTYPE_NAME_PAIR(BOP),
     MAKE_ASTTYPE_NAME_PAIR(UOP),
     MAKE_ASTTYPE_NAME_PAIR(BOP_OR_UOP),
@@ -95,12 +95,12 @@ umap<ASTNodeType, str> ASTBase::ASTTypeNames = {
 #undef MAKE_ASTTYPE_NAME_PAIR
 
 umap<ASTNodeType, int> ASTBase::OpPrecedence = {
-    {ASTNodeType::PROGRAM,        PREC_LOWEST },
-    {ASTNodeType::STATEMENT,      PREC_LOWEST },
-    {ASTNodeType::PARENTHESIS,    PREC_CALL   },
-    {ASTNodeType::RET,            PREC_LOWEST },
-    {ASTNodeType::IF,             PREC_LOWEST },
-    {ASTNodeType::STRING_LITERAL, PREC_LITERAL},
-    {ASTNodeType::CAST,           PREC_CAST   },
-    {ASTNodeType::ASSIGN,         PREC_ASSIGN }
+    {ASTNodeType::PROGRAM,            PREC_LOWEST },
+    {ASTNodeType::COMPOUND_STATEMENT, PREC_LOWEST },
+    {ASTNodeType::PARENTHESIS,        PREC_CALL   },
+    {ASTNodeType::RET,                PREC_LOWEST },
+    {ASTNodeType::IF,                 PREC_LOWEST },
+    {ASTNodeType::STRING_LITERAL,     PREC_LITERAL},
+    {ASTNodeType::CAST,               PREC_CAST   },
+    {ASTNodeType::ASSIGN,             PREC_ASSIGN }
 };

@@ -24,7 +24,7 @@ protected:
   explicit CompoundStmt(SrcLoc loc);
 
 public:
-  static CompoundStmt *Create(SrcLoc loc, bool new_scope = false);
+  static CompoundStmt *Create(SrcLoc loc);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -33,13 +33,9 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   vector<ASTBase *> &get_children();
   template <typename T = ASTBase> T *get_child_at(size_t idx) const;
-  [[nodiscard]] bool is_new_scope() const;
 
 protected:
   vector<ASTBase *> _children{};
-
-private:
-  bool _new_scope = false;
 };
 
 class Program : public CompoundStmt {

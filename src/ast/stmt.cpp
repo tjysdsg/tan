@@ -10,13 +10,9 @@ vector<ASTBase *> Stmt::get_children() const { return {}; }
 
 /// \section Compound statement
 
-CompoundStmt *CompoundStmt::Create(SrcLoc loc, bool new_scope) {
-  auto *ret = new CompoundStmt(loc);
-  ret->_new_scope = new_scope;
-  return ret;
-}
+CompoundStmt *CompoundStmt::Create(SrcLoc loc) { return new CompoundStmt(loc); }
 
-CompoundStmt::CompoundStmt(SrcLoc loc) : Stmt(ASTNodeType::STATEMENT, loc) {}
+CompoundStmt::CompoundStmt(SrcLoc loc) : Stmt(ASTNodeType::COMPOUND_STATEMENT, loc) {}
 
 void CompoundStmt::set_child_at(size_t idx, ASTBase *node) {
   TAN_ASSERT(_children.size() > idx);
@@ -43,8 +39,6 @@ template <> ASTBase *CompoundStmt::get_child_at<ASTBase>(size_t idx) const {
 }
 
 vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
-
-bool CompoundStmt::is_new_scope() const { return _new_scope; }
 
 /// \section Program
 

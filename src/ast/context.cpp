@@ -5,7 +5,7 @@ using namespace tanlang;
 
 Context::Context(ASTBase *owner) : _owner(owner) {}
 
-TypeDecl *Context::get_type_decl(const str &name) {
+Decl *Context::get_decl(const str &name) {
   TAN_ASSERT(name != "");
   auto q = _type_decls.find(name);
   if (q != _type_decls.end()) {
@@ -14,15 +14,15 @@ TypeDecl *Context::get_type_decl(const str &name) {
   return nullptr;
 }
 
-void Context::add_type_decl(const str &name, TypeDecl *decl) {
+void Context::set_decl(const str &name, Decl *decl) {
   TAN_ASSERT(!name.empty());
   _type_decls[name] = decl;
 }
 
 void Context::add_function_decl(FunctionDecl *func) { _function_table.set(func); }
 
-vector<TypeDecl *> Context::get_type_decls() {
-  vector<TypeDecl *> ret(_type_decls.size(), nullptr);
+vector<Decl *> Context::get_decls() {
+  vector<Decl *> ret(_type_decls.size(), nullptr);
   size_t i = 0;
   for (const auto &p : _type_decls)
     ret[i++] = p.second;
@@ -30,3 +30,7 @@ vector<TypeDecl *> Context::get_type_decls() {
 }
 
 vector<FunctionDecl *> Context::get_functions(const str &name) { return _function_table.get(name); }
+
+ASTBase *Context::owner() const { return _owner; }
+
+vector<FunctionDecl *> Context::get_functions() { return _function_table.get_all(); }

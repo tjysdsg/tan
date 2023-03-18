@@ -4,7 +4,6 @@
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "ast/source_manager.h"
-#include "include/compiler/ast_context.h"
 #include "compiler/compiler.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
@@ -22,9 +21,7 @@ ASTBase *parse_string(str code) {
   auto result = tokenize(&reader);
   auto tokens = tokenize(&reader);
 
-  ASTContext *ctx = new ASTContext("test module");
-  ctx->set_source_manager(new SourceManager("test module", tokens));
-  auto *parser = new Parser(ctx);
+  auto *parser = new Parser(new SourceManager("test module", tokens));
   return parser->parse();
 }
 

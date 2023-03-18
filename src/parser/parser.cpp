@@ -2,7 +2,6 @@
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"
-#include "compiler/ast_context.h"
 #include "ast/type.h"
 #include "ast/intrinsic.h"
 #include "lexer/token.h"
@@ -21,14 +20,29 @@ namespace tanlang {
 using nud_parsing_func_t = void (ParserImpl::*)(ASTBase *);
 using led_parsing_func_t = void (ParserImpl::*)(ASTBase *, ASTBase *);
 
+class ScopeGuard {
+public:
+  ScopeGuard() = delete;
+
+  ScopeGuard(Scoped *&variable, Scoped *scoped_val) : _variable(variable), _original(variable) {
+    _variable = scoped_val;
+  }
+
+  ~ScopeGuard() { _variable = _original; }
+
+private:
+  Scoped *&_variable;
+  Scoped *_original;
+};
+
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  explicit ParserImpl(ASTContext *ctx) : _sm(ctx->get_source_manager()), _filename(ctx->get_filename()), _ctx(ctx) {}
+  explicit ParserImpl(SourceManager *sm) : _sm(sm), _filename(sm->get_filename()) {}
 
-  ASTBase *parse() {
+  Program *parse() {
     _root = Program::Create(SrcLoc(0));
-    parse_node(_root);
+    parse_program(_root);
     return _root;
   }
 
@@ -176,7 +190,7 @@ private:
       /// BOP or UOP? ambiguous
       node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
-      node = CompoundStmt::Create(_curr, true);
+      node = CompoundStmt::Create(_curr);
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       TAN_ASSERT(token->get_value().length());
       switch (token->get_value()[0]) {
@@ -243,6 +257,22 @@ private:
     return left;
   }
 
+  void parse_program(Program *p) {
+    ScopeGuard scope_guard(_curr_scope, p);
+
+    while (!eof(_curr)) {
+      ASTBase *node = next_expression(PREC_LOWEST);
+      if (!node)
+        error(_curr, "Unexpected terminal token");
+
+      p->append_child(node);
+      if (!check_terminal_token(at(_curr))) {
+        error(_curr, "Expect a terminal token");
+      }
+      _curr.offset_by(1);
+    }
+  }
+
   /// Parse NUD
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
@@ -270,7 +300,6 @@ private:
       }
       pp->set_uop(actual);
 
-      // update binding power, as the value was originally set to the binding power of BOP version of this op
       parse_node(pp->get_expr_ptr());
       return;
     }
@@ -356,15 +385,6 @@ private:
     return ret;
   }
 
-  Decl *expect_decl(ASTBase *p) {
-    TAN_ASSERT(p);
-    Decl *ret = nullptr;
-    if (!(ret = ast_cast<Decl>(p))) {
-      error(p->loc(), "Expect a declaration");
-    }
-    return ret;
-  }
-
   void parse_assignment(ASTBase *left, ASTBase *_p) {
     auto p = ast_cast<Assignment>(_p);
 
@@ -399,6 +419,10 @@ private:
 
     /// if then
     parse_if_then_branch(p);
+    _curr.offset_by(1); // skip "}"
+    if (at(_curr)->get_value() != "else") {
+      _curr.offset_by(-1); // backtrack
+    }
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
@@ -418,11 +442,14 @@ private:
 
     /// predicate
     auto _pred = peek("(");
-    parse_node(_pred);
-    Expr *pred = expect_expression(_pred);
+    if (_pred->get_node_type() != ASTNodeType::PARENTHESIS) {
+      error(_pred->loc(), "Expect a parenthesis expression");
+    }
+    parse_parenthesis(_pred);
+    Expr *pred = ast_cast<Expr>(_pred);
 
     /// then clause
-    auto _then = peek("{");
+    auto *_then = peek("{");
     parse_node(_then);
     Stmt *then_clause = expect_stmt(_then);
 
@@ -549,7 +576,6 @@ private:
 
     bool is_public = false;
     bool is_external = false;
-
     str token_str = at(_curr)->get_value();
     if (token_str == "fn") { /// "fn"
       _curr.offset_by(1);
@@ -562,6 +588,8 @@ private:
     } else {
       TAN_ASSERT(false);
     }
+    p->set_public(is_public);
+    p->set_external(is_external);
 
     /// function name
     // Don't use peek since it look ahead and returns ASTNodeType::FUNCTION when it finds "(",
@@ -578,55 +606,57 @@ private:
     peek("(");
     _curr.offset_by(1);
 
-    /// arguments
-    vector<str> arg_names{};
-    vector<Type *> arg_types{};
-    vector<ArgDecl *> arg_decls{};
-    if (at(_curr)->get_value() != ")") {
-      while (!eof(_curr)) {
-        auto arg = ArgDecl::Create(_curr);
-        parse_node(arg);
+    // Register in the parent context
+    if (is_public) {
+      p->ctx()->add_function_decl(p);
+    } else {
+      p->ctx()->add_function_decl(p);
+    }
 
-        arg_names.push_back(arg->get_name());
-        arg_types.push_back(arg->get_type());
-        arg_decls.push_back(arg);
+    { // declarations of func arguments and variables in the body are within the local scope
+      ScopeGuard scope_guard(_curr_scope, p);
 
-        if (at(_curr)->get_value() == ",") {
-          _curr.offset_by(1);
-        } else {
-          break;
+      /// arguments
+      vector<str> arg_names{};
+      vector<Type *> arg_types{};
+      vector<ArgDecl *> arg_decls{};
+      if (at(_curr)->get_value() != ")") {
+        while (!eof(_curr)) {
+          auto arg = ArgDecl::Create(_curr);
+          parse_node(arg);
+
+          arg_names.push_back(arg->get_name());
+          arg_types.push_back(arg->get_type());
+          arg_decls.push_back(arg);
+
+          if (at(_curr)->get_value() == ",") {
+            _curr.offset_by(1);
+          } else {
+            break;
+          }
         }
       }
+      peek(")");
+      _curr.offset_by(1);
+
+      p->set_arg_names(arg_names);
+      p->set_arg_decls(arg_decls);
+
+      peek(":");
+      _curr.offset_by(1);
+
+      /// function type
+      auto *ret_type = peek_type();
+      auto *func_type = Type::GetFunctionType(parse_ty(ret_type), arg_types);
+      p->set_type(func_type);
+
+      /// body
+      if (!is_external) {
+        auto body = peek("{");
+        parse_node(body);
+        p->set_body(expect_stmt(body));
+      }
     }
-    peek(")");
-    _curr.offset_by(1);
-
-    p->set_arg_names(arg_names);
-    p->set_arg_decls(arg_decls);
-
-    peek(":");
-    _curr.offset_by(1);
-
-    /// function type
-    auto *ret_type = peek_type();
-    auto *func_type = Type::GetFunctionType(parse_ty(ret_type), arg_types);
-    p->set_type(func_type);
-
-    /// body
-    if (!is_external) {
-      auto body = peek("{");
-      parse_node(body);
-      p->set_body(expect_stmt(body));
-    }
-
-    p->set_public(is_public);
-    p->set_external(is_external);
-
-    /// add_scoped_decl to local and/or public function table
-    if (p->is_public() || p->is_external()) {
-      _ctx->add_function_decl(p, true);
-    }
-    _ctx->add_function_decl(p);
   }
 
   void parse_func_call(ASTBase *_p) {
@@ -748,38 +778,25 @@ private:
     }
   }
 
-  void parse_program(ASTBase *_p) {
-    auto *p = ast_cast<Program>(_p);
-    while (!eof(_curr)) {
-      auto stmt = CompoundStmt::Create(_curr);
-      parse_node(stmt);
-      p->append_child(stmt);
-    }
-  }
-
-  void parse_stmt(ASTBase *_p) {
+  void parse_compound_stmt(ASTBase *_p) {
     auto p = ast_cast<CompoundStmt>(_p);
-    if (at(_curr)->get_value() == "{") { /// compound statement
-      _curr.offset_by(1);                /// skip "{"
-      while (!eof(_curr)) {
-        auto node = peek();
-        while (node) { /// stops at a terminal token
-          p->append_child(next_expression(PREC_LOWEST));
-          node = peek();
-        }
-        if (at(_curr)->get_value() == "}") {
-          _curr.offset_by(1); /// skip "}"
-          break;
-        }
-        _curr.offset_by(1);
+    ScopeGuard scope_guard(_curr_scope, p);
+
+    _curr.offset_by(1); /// skip "{"
+
+    ASTBase *node = nullptr;
+    while ((node = next_expression(PREC_LOWEST)) != nullptr) {
+      p->append_child(node);
+
+      str s = at(_curr)->get_value();
+      if (!check_terminal_token(at(_curr))) {
+        error(_curr, "Expect a terminal token");
       }
-    } else { /// single statement
-      auto node = peek();
-      while (node) { /// stops at a terminal token
-        p->append_child(next_expression(PREC_LOWEST));
-        node = peek();
-      }
-      _curr.offset_by(1); /// skip ';'
+      _curr.offset_by(1);
+    }
+
+    if (at(_curr)->get_value() != "}") {
+      error(_curr, "Expect a closing '}'");
     }
   }
 
@@ -811,8 +828,10 @@ private:
 
     /// struct body
     if (at(_curr)->get_value() == "{") {
+      ScopeGuard scope_guard(_curr_scope, p);
+
       auto _comp_stmt = next_expression(PREC_LOWEST);
-      if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::STATEMENT) {
+      if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
         error(_curr, "struct definition requires a valid body");
       }
       auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
@@ -831,22 +850,12 @@ private:
         member_decls.push_back(ast_cast<Expr>(c));
       }
       p->set_member_decls(member_decls);
-
-      /// check if struct name is in conflicts of variable/function names
-      /// overwrite forward declaration
-      str struct_name = p->get_name();
-      auto *prev_decl = _ctx->get_type_decl(struct_name);
-      if (prev_decl) {
-        if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
-              ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
-          error(p->loc(), "Cannot redeclare type as a struct");
-      }
     } else {
       p->set_is_forward_decl(true);
     }
 
     // TODO IMPORTANT: distinguish publicly and privately defined struct types
-    _ctx->add_type_decl(p->get_name(), p, true);
+    _curr_scope->ctx()->set_decl(p->get_name(), p);
   }
 
   ArrayType *parse_ty_array(Type *p) {
@@ -956,45 +965,44 @@ private:
 
 private:
   str _filename;
-  ASTContext *_ctx = nullptr;
-  ASTBase *_root = nullptr;
+  Program *_root = nullptr;
+  Scoped *_curr_scope = nullptr;
 
 private:
   const static umap<ASTNodeType, nud_parsing_func_t> NUD_PARSING_FUNC_TABLE;
   const static umap<ASTNodeType, led_parsing_func_t> LED_PARSING_FUNC_TABLE;
 };
 
-Parser::Parser(ASTContext *ctx) { _impl = new ParserImpl(ctx); }
+Parser::Parser(SourceManager *sm) { _impl = new ParserImpl(sm); }
 
-ASTBase *Parser::parse() { return _impl->parse(); }
+Program *Parser::parse() { return _impl->parse(); }
 
 Parser::~Parser() { delete _impl; }
 
 const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE = {
-    {ASTNodeType::PROGRAM,         &ParserImpl::parse_program      },
-    {ASTNodeType::STATEMENT,       &ParserImpl::parse_stmt         },
-    {ASTNodeType::PARENTHESIS,     &ParserImpl::parse_parenthesis  },
-    {ASTNodeType::IMPORT,          &ParserImpl::parse_import       },
-    {ASTNodeType::INTRINSIC,       &ParserImpl::parse_intrinsic    },
-    {ASTNodeType::IF,              &ParserImpl::parse_if           },
-    {ASTNodeType::LOOP,            &ParserImpl::parse_loop         },
-    {ASTNodeType::UOP,             &ParserImpl::parse_uop          },
-    {ASTNodeType::RET,             &ParserImpl::parse_return       },
-    {ASTNodeType::FUNC_CALL,       &ParserImpl::parse_func_call    },
-    {ASTNodeType::ARRAY_LITERAL,   &ParserImpl::parse_array_literal},
-    {ASTNodeType::STRUCT_DECL,     &ParserImpl::parse_struct_decl  },
-    {ASTNodeType::VAR_DECL,        &ParserImpl::parse_var_decl     },
-    {ASTNodeType::ARG_DECL,        &ParserImpl::parse_arg_decl     },
-    {ASTNodeType::FUNC_DECL,       &ParserImpl::parse_func_decl    },
-    {ASTNodeType::BREAK,           &ParserImpl::parse_generic_token},
-    {ASTNodeType::CONTINUE,        &ParserImpl::parse_generic_token},
-    {ASTNodeType::ID,              &ParserImpl::parse_generic_token},
-    {ASTNodeType::INTEGER_LITERAL, &ParserImpl::parse_generic_token},
-    {ASTNodeType::FLOAT_LITERAL,   &ParserImpl::parse_generic_token},
-    {ASTNodeType::CHAR_LITERAL,    &ParserImpl::parse_generic_token},
-    {ASTNodeType::STRING_LITERAL,  &ParserImpl::parse_generic_token},
-    {ASTNodeType::BOOL_LITERAL,    &ParserImpl::parse_generic_token},
-    {ASTNodeType::PACKAGE,         &ParserImpl::parse_package_stmt },
+    {ASTNodeType::COMPOUND_STATEMENT, &ParserImpl::parse_compound_stmt},
+    {ASTNodeType::PARENTHESIS,        &ParserImpl::parse_parenthesis  },
+    {ASTNodeType::IMPORT,             &ParserImpl::parse_import       },
+    {ASTNodeType::INTRINSIC,          &ParserImpl::parse_intrinsic    },
+    {ASTNodeType::IF,                 &ParserImpl::parse_if           },
+    {ASTNodeType::LOOP,               &ParserImpl::parse_loop         },
+    {ASTNodeType::UOP,                &ParserImpl::parse_uop          },
+    {ASTNodeType::RET,                &ParserImpl::parse_return       },
+    {ASTNodeType::FUNC_CALL,          &ParserImpl::parse_func_call    },
+    {ASTNodeType::ARRAY_LITERAL,      &ParserImpl::parse_array_literal},
+    {ASTNodeType::STRUCT_DECL,        &ParserImpl::parse_struct_decl  },
+    {ASTNodeType::VAR_DECL,           &ParserImpl::parse_var_decl     },
+    {ASTNodeType::ARG_DECL,           &ParserImpl::parse_arg_decl     },
+    {ASTNodeType::FUNC_DECL,          &ParserImpl::parse_func_decl    },
+    {ASTNodeType::BREAK,              &ParserImpl::parse_generic_token},
+    {ASTNodeType::CONTINUE,           &ParserImpl::parse_generic_token},
+    {ASTNodeType::ID,                 &ParserImpl::parse_generic_token},
+    {ASTNodeType::INTEGER_LITERAL,    &ParserImpl::parse_generic_token},
+    {ASTNodeType::FLOAT_LITERAL,      &ParserImpl::parse_generic_token},
+    {ASTNodeType::CHAR_LITERAL,       &ParserImpl::parse_generic_token},
+    {ASTNodeType::STRING_LITERAL,     &ParserImpl::parse_generic_token},
+    {ASTNodeType::BOOL_LITERAL,       &ParserImpl::parse_generic_token},
+    {ASTNodeType::PACKAGE,            &ParserImpl::parse_package_stmt },
 };
 } // namespace tanlang
 

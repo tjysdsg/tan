@@ -2,7 +2,6 @@
 #define TAN_INCLUDE_COMPILER_H_
 #include "base.h"
 #include "tan/tan.h"
-#include "ast/fwd.h"
 
 namespace llvm {
 class TargetMachine;
@@ -12,6 +11,8 @@ class Value;
 namespace tanlang {
 
 class CodeGenerator;
+class Program;
+class SourceManager;
 
 /**
  * \class Compiler
@@ -19,11 +20,6 @@ class CodeGenerator;
  * */
 class Compiler {
 public:
-  /**
-   * \brief Parse a single file to AST
-   * */
-  static void ParseFile(const str &filename);
-
   /**
    * \brief Get information about the current machine
    * */
@@ -90,10 +86,12 @@ public:
    * */
   void dump_ast() const;
 
+  Program *get_root_ast() const;
+
 private:
-  ASTContext *_ctx = nullptr;
-  ASTBase *_ast = nullptr;
-  str _filename = "";
+  Program *_ast = nullptr;
+  str _filename;
+  SourceManager *_sm = nullptr;
   CodeGenerator *_cg = nullptr;
 };
 

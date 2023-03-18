@@ -29,9 +29,13 @@ Token *SourceManager::get_last_token() const { return _tokens.back(); }
 
 bool SourceManager::is_eof(SrcLoc loc) const { return loc._index >= _tokens.size(); }
 
-str SourceManager::get_source_code(ASTBase *p) const {
+str SourceManager::get_source_code(SrcLoc loc) const {
   // TODO: return the string that also covers the child nodes, instead of only p's own token str
-  return get_token_str(p->loc());
+  return get_token_str(loc);
 }
 
 str SourceManager::get_filename() const { return _filename; }
+
+str SourceManager::get_src_location_str(SrcLoc loc) const {
+  return get_filename() + ":" + std::to_string(get_line(loc));
+}

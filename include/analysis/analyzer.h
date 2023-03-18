@@ -9,7 +9,8 @@ class AnalyzerImpl;
 
 class Analyzer {
 public:
-  explicit Analyzer(ASTContext *ctx);
+  Analyzer() = delete;
+  explicit Analyzer(SourceManager *sm);
   ~Analyzer();
   void analyze(ASTBase *p);
 
