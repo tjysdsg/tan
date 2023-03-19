@@ -156,13 +156,7 @@ private:
     const vector<Expr *> &args = p->_args;
 
     /// gather all candidates from this and parent scopes
-    vector<FunctionDecl *> func_candidates{};
-    TAN_ASSERT(_scopes.size() - 1 >= 0);
-    for (int i = _scopes.size() - 1; i >= 0; --i) {
-      Context *c = _scopes[i]->ctx();
-      auto tmp = c->get_functions(name);
-      func_candidates.insert(func_candidates.begin(), tmp.begin(), tmp.end());
-    }
+    vector<FunctionDecl *> func_candidates = _scopes.front()->ctx()->get_functions(name);
 
     /// find a valid function overload to call
     FunctionDecl *ret = nullptr;
@@ -536,7 +530,7 @@ private:
   void analyze_func_decl(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
-    top_ctx()->add_function_decl(p);
+    _scopes.front()->ctx()->add_function_decl(p);
 
     push_scope(p);
 

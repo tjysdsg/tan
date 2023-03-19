@@ -1,4 +1,5 @@
 #include "ast/type.h"
+#include <bit>
 
 using namespace tanlang;
 
@@ -162,8 +163,11 @@ PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
 
 // TODO: find out the pointer size from llvm::TargetMachine
 int PointerType::get_align_bits() { return 64; }
-
 int PointerType::get_size_bits() { return 64; }
+int ArrayType::get_align_bits() { return 64; }
+int ArrayType::get_size_bits() { return 64; }
+int StringType::get_align_bits() { return 64; }
+int StringType::get_size_bits() { return 64; }
 
 ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
