@@ -10,7 +10,7 @@ enum class ASTNodeType {
   ARG_DECL,
   VAR_DECL,
   STRUCT_DECL,
-  STATEMENT,   /// statement or compound statements
+  COMPOUND_STATEMENT,   /// compound statements
   BOP,         /// binary operators, see BinaryOpKind
   UOP,         /// unary operators, see UnaryOpKind
   BOP_OR_UOP,  /// a special type, denoting a node that we cannot determine whether it's a BOP or an UOP

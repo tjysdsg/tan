@@ -180,6 +180,8 @@ public:
   Type *get_element_type() { return _element_type; }
   int get_size() { return _size; }
   bool is_array() override { return true; }
+  int get_align_bits() override;
+  int get_size_bits() override;
 
   friend class Type;
 
@@ -194,6 +196,8 @@ private:
 class StringType : public Type {
 public:
   bool is_string() override { return true; }
+  int get_align_bits() override;
+  int get_size_bits() override;
 
   friend class Type;
 

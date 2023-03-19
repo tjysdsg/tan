@@ -11,7 +11,7 @@ class ASTBase;
 class CodeGenerator {
 public:
   CodeGenerator() = delete;
-  explicit CodeGenerator(ASTContext *ctx, llvm::TargetMachine *target_machine);
+  CodeGenerator(SourceManager *sm, llvm::TargetMachine *target_machine);
   ~CodeGenerator();
   void emit_to_file(const str &filename);
   void dump_ir() const;
@@ -35,7 +35,6 @@ public:
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
-  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
 
   umap<Type *, llvm::Type *> _llvm_type_cache{};

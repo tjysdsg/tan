@@ -4,8 +4,6 @@
 
 namespace tanlang {
 
-class ASTBase;
-
 /**
  * \brief Stores the location information of a token in SourceManager
  */
@@ -34,8 +32,9 @@ public:
   str get_token_str(SrcLoc loc) const;
   Token *get_last_token() const;
   bool is_eof(SrcLoc loc) const;
-  str get_source_code(ASTBase *p) const;
+  str get_source_code(SrcLoc loc) const;
   str get_filename() const;
+  str get_src_location_str(SrcLoc loc) const;
 
 private:
   str _filename;

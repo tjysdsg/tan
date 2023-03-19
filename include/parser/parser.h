@@ -9,16 +9,18 @@ namespace tanlang {
 
 class ParserImpl;
 class Token;
+class Program;
 
 /**
  * \brief Top Down Operator Precedence Parsing
+ * \details A parser is bound to a specific tan source file. It does not care about any imported source files.
  */
 class Parser final {
 public:
   Parser() = delete;
-  explicit Parser(ASTContext *ctx);
+  explicit Parser(SourceManager *ctx);
   ~Parser();
-  ASTBase *parse();
+  Program *parse();
 
 private:
   ParserImpl *_impl;

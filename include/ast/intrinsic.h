@@ -64,6 +64,8 @@ public:
   static umap<str, IntrinsicType> intrinsics;
   static vector<FunctionDecl *> GetIntrinsicFunctionDeclarations();
 
+  static inline const str STACK_TRACE_FUNCTION_REAL_NAME = "__tan_runtime_stack_trace";
+
 public:
   IntrinsicType get_intrinsic_type() const;
   void set_intrinsic_type(IntrinsicType intrinsic_type);

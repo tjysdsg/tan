@@ -5,8 +5,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
-#include "analysis/scope.h"
-#include "compiler/ast_context.h"
+#include "ast/context.h"
 #include "lexer/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
@@ -18,15 +17,15 @@ using analyze_func_t = void (AnalyzerImpl::*)(ASTBase *);
 
 class AnalyzerImpl final {
 public:
-  explicit AnalyzerImpl(ASTContext *cs) : _ctx(cs), _sm(cs->get_source_manager()) {}
+  explicit AnalyzerImpl(SourceManager *sm) : _sm(sm) {}
 
   void analyze(ASTBase *p) {
     TAN_ASSERT(p);
 
     switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM:
-    case ASTNodeType::STATEMENT:
-      analyze_stmt(p);
+    case ASTNodeType::COMPOUND_STATEMENT:
+      analyze_compound_stmt(p);
       break;
     case ASTNodeType::RET:
       analyze_ret(p);
@@ -87,12 +86,22 @@ public:
   static Type *ImplicitTypePromote(Type *t1, Type *t2);
 
 private:
-  ASTContext *_ctx = nullptr;
   SourceManager *_sm = nullptr;
+  vector<ASTBase *> _scopes{};
+
+  void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
+  void pop_scope() {
+    TAN_ASSERT(!_scopes.empty());
+    _scopes.pop_back();
+  }
+  Context *top_ctx() {
+    TAN_ASSERT(!_scopes.empty());
+    return _scopes.back()->ctx();
+  }
 
 private:
   [[noreturn]] void error(ASTBase *p, const str &message) {
-    Error err(_ctx->get_filename(), _sm->get_token(p->loc()), message);
+    Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
     err.raise();
   }
 
@@ -146,9 +155,11 @@ private:
     const str &name = p->get_name();
     const vector<Expr *> &args = p->_args;
 
-    FunctionDecl *ret = nullptr;
-    auto func_candidates = _ctx->get_functions(name);
+    /// gather all candidates from this and parent scopes
+    vector<FunctionDecl *> func_candidates = _scopes.front()->ctx()->get_functions(name);
+
     /// find a valid function overload to call
+    FunctionDecl *ret = nullptr;
     for (const auto &f : func_candidates) {
       size_t n = f->get_n_args();
       if (n != args.size()) {
@@ -192,11 +203,37 @@ private:
     }
 
     if (!ret) {
-      Error err(_ctx->get_filename(), _ctx->get_source_manager()->get_token(p->loc()),
-                "Unknown function call: " + name);
+      Error err(_sm->get_filename(), _sm->get_token(p->loc()), "Unknown function call: " + name);
       err.raise();
     }
     return ret;
+  }
+
+  Decl *search_decl_in_scopes(const str &name) {
+    int n = (int)_scopes.size();
+    TAN_ASSERT(n);
+    Decl *ret = nullptr;
+    for (int i = n - 1; i >= 0; --i) {
+      Context *c = _scopes[(size_t)i]->ctx();
+      ret = c->get_decl(name);
+      if (ret)
+        return ret;
+    }
+
+    return ret;
+  }
+
+  Loop *search_loop_in_parent_scopes() {
+    int n = (int)_scopes.size();
+    TAN_ASSERT(n);
+    for (int i = n - 1; i >= 0; --i) {
+      auto *node = _scopes[(size_t)i];
+      if (node->get_node_type() == ASTNodeType::LOOP) {
+        return ast_cast<Loop>(node);
+      }
+    }
+
+    return nullptr;
   }
 
   void analyze_expr(Expr *p) {
@@ -219,14 +256,20 @@ private:
     Type *ret = p;
     /// Resolve type references
     if (p->is_ref()) {
-      auto *decl = _ctx->get_type_decl(p->get_typename());
-      if (!decl) {
-        Error err(_ctx->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+      auto *decl = search_decl_in_scopes(p->get_typename());
+      if (!decl || !decl->is_type_decl()) {
+        Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
         err.raise();
       }
       ret = decl->get_type();
+
+      if (!ret) { // FIXME [HACK]: analyze the type if not done already
+        analyze(decl);
+        ret = decl->get_type();
+      }
+
       if (!ret) {
-        Error err(_ctx->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+        Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
         err.raise();
       }
     } else if (p->is_pointer()) {
@@ -240,14 +283,16 @@ private:
 
   void analyze_id(ASTBase *_p) {
     auto p = ast_cast<Identifier>(_p);
-    auto *referred = _ctx->get_scoped_decl(p->get_name());
-    if (referred) { /// refers to a variable
-      p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-      p->set_type(analyze_ty(referred->get_type(), p->loc()));
-    } else if (_ctx->get_type_decl(p->get_name())) { /// or type ref
-      auto *ty = analyze_ty(_ctx->get_type_decl(p->get_name())->get_type(), p->loc());
-      p->set_type_ref(ty);
-      p->set_type(ty);
+    auto *referred = search_decl_in_scopes(p->get_name());
+    if (referred) {
+      if (!referred->is_type_decl()) { /// refers to a variable
+        p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
+        p->set_type(analyze_ty(referred->get_type(), p->loc()));
+      } else { /// or type ref
+        auto *ty = analyze_ty(referred->get_type(), p->loc());
+        p->set_type_ref(ty);
+        p->set_type(ty);
+      }
     } else {
       error(p, "Unknown identifier");
     }
@@ -259,6 +304,7 @@ private:
     p->set_type(p->get_sub()->get_type());
   }
 
+  // TODO: decouple if branch and else clause because they each have a different context/scope
   void analyze_if(ASTBase *_p) {
     auto p = ast_cast<If>(_p);
 
@@ -283,13 +329,13 @@ private:
       p->set_type(analyze_ty(ty, p->loc()));
     }
 
-    _ctx->add_scoped_decl(p->get_name(), p);
+    top_ctx()->set_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_cast<ArgDecl>(_p);
     p->set_type(analyze_ty(p->get_type(), p->loc()));
-    _ctx->add_scoped_decl(p->get_name(), p);
+    top_ctx()->set_decl(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
@@ -301,20 +347,15 @@ private:
     }
   }
 
-  void analyze_stmt(ASTBase *_p) {
+  void analyze_compound_stmt(ASTBase *_p) {
     auto p = ast_cast<CompoundStmt>(_p);
-
-    if (p->is_new_scope()) {
-      _ctx->push_scope();
-    }
+    push_scope(p);
 
     for (const auto &c : p->get_children()) {
       analyze(c);
     }
 
-    if (p->is_new_scope()) {
-      _ctx->pop_scope();
-    }
+    pop_scope();
   }
 
   void analyze_bop_or_uop(ASTBase *_p) {
@@ -489,11 +530,13 @@ private:
   void analyze_func_decl(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
+    _scopes.front()->ctx()->add_function_decl(p);
+
+    push_scope(p);
+
     /// update return type
     auto *func_type = (FunctionType *)p->get_type();
     func_type->set_return_type(analyze_ty(func_type->get_return_type(), p->loc()));
-
-    _ctx->push_scope(); /// new scope
 
     /// analyze args
     size_t n = p->get_n_args();
@@ -503,41 +546,48 @@ private:
       analyze(arg_decls[i]); /// args will be added to the scope here
       arg_types[i] = arg_decls[i]->get_type();
     }
-    func_type->set_arg_types(std::move(arg_types)); /// update arg types
+    func_type->set_arg_types(arg_types); /// update arg types
 
     /// function body
     if (!p->is_external()) {
       analyze(p->get_body());
     }
 
-    _ctx->pop_scope(); /// pop scope
+    pop_scope();
   }
 
   void analyze_import(ASTBase *_p) {
     auto p = ast_cast<Import>(_p);
 
     str file = p->get_filename();
-    auto imported = Compiler::resolve_import(_ctx->get_filename(), file);
+    auto imported = Compiler::resolve_import(_sm->get_filename(), file);
     if (imported.empty()) {
       error(p, "Cannot import: " + file);
     }
 
-    str imported_file = imported[0];
-    Compiler *com = new Compiler(imported_file);
-    com->parse(); // only need to parse the file now
-    ASTContext *imported_ctx = ASTContext::get_ctx_of_file(imported_file);
+    auto *compiler = new Compiler(imported[0]);
+    compiler->parse(); // only need to parse the file now
+    Context *imported_ctx = compiler->get_root_ast()->ctx();
 
     // import functions
-    vector<FunctionDecl *> funcs = imported_ctx->get_public_functions();
-    p->set_imported_funcs(funcs);
-    for (FunctionDecl *f : funcs) {
-      _ctx->add_function_decl(f);
+    vector<FunctionDecl *> funcs = imported_ctx->get_functions();
+    vector<FunctionDecl *> pub_funcs{};
+    for (auto *f : funcs) {
+      if (f->is_public() || f->is_external()) {
+        pub_funcs.push_back(f);
+        top_ctx()->add_function_decl(f);
+      }
     }
+    p->set_imported_funcs(pub_funcs);
 
     // import type declarations
-    vector<TypeDecl *> type_decls = imported_ctx->get_public_type_decls();
-    for (TypeDecl *t : type_decls) {
-      _ctx->add_type_decl(t->get_name(), t, false);
+    // TODO: distinguish local and global type decls
+    vector<Decl *> decls = imported_ctx->get_decls();
+    vector<TypeDecl *> type_decls{};
+    for (auto *t : decls) {
+      if (t->is_type_decl()) {
+        top_ctx()->set_decl(t->get_name(), t);
+      }
     }
   }
 
@@ -545,7 +595,7 @@ private:
     auto *void_type = Type::GetVoidType();
     switch (p->get_intrinsic_type()) {
     case IntrinsicType::STACK_TRACE: {
-      func_call->set_name("__tan_runtime_stack_trace");
+      func_call->set_name(Intrinsic::STACK_TRACE_FUNCTION_REAL_NAME);
       analyze(func_call);
       p->set_type(void_type);
       break;
@@ -560,7 +610,7 @@ private:
         error(func_call, "Expect the number of args to be 1");
       }
       auto *target = func_call->get_arg(0);
-      auto *source_str = Literal::CreateStringLiteral(p->loc(), _ctx->get_source_manager()->get_source_code(target));
+      auto *source_str = Literal::CreateStringLiteral(p->loc(), _sm->get_source_code(target->loc()));
 
       // FEATURE: Return AST?
       p->set_sub(source_str);
@@ -577,7 +627,7 @@ private:
       }
 
       str msg = ast_cast<StringLiteral>(args[0])->get_value();
-      std::cout << fmt::format("Message ({}): {}\n", _ctx->get_source_location_str(p), msg);
+      std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->loc()), msg);
       break;
     }
     default:
@@ -628,7 +678,7 @@ private:
       break;
     }
     case IntrinsicType::FILENAME: {
-      auto sub = StringLiteral::Create(p->loc(), _ctx->get_filename());
+      auto sub = StringLiteral::Create(p->loc(), _sm->get_filename());
       auto type = Type::GetStringType();
       sub->set_type(type);
       p->set_type(type);
@@ -674,7 +724,7 @@ private:
     auto p = ast_cast<IntegerLiteral>(_p);
 
     Type *ty;
-    if (_ctx->get_source_manager()->get_token(p->loc())->is_unsigned()) {
+    if (_sm->get_token(p->loc())->is_unsigned()) {
       ty = Type::GetIntegerType(32, true);
     } else {
       ty = Type::GetIntegerType(32, false);
@@ -784,7 +834,7 @@ private:
       error(lhs, "Expect a struct type");
     }
 
-    auto *struct_decl = ast_cast<StructDecl>(_ctx->get_type_decl(struct_ty->get_typename()));
+    auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
     auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
     p->set_type(analyze_ty(ty, p->loc()));
@@ -814,13 +864,28 @@ private:
 
     str struct_name = p->get_name();
 
+    /// check if struct name is in conflicts of variable/function names
+    if (!p->is_forward_decl()) {
+      auto *root_ctx = _scopes.front()->ctx();
+      auto *prev_decl = root_ctx->get_decl(struct_name);
+      if (prev_decl && prev_decl != p) {
+        if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
+              ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
+          error(p, "Cannot redeclare type as a struct");
+      }
+      // overwrite the value set during parsing (e.g. forward decl)
+      root_ctx->set_decl(struct_name, p);
+    }
+
+    push_scope(p);
+
     /// resolve member names and types
     auto member_decls = p->get_member_decls(); // size is 0 if no struct body
     size_t n = member_decls.size();
     vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
-      analyze(m); // TODO IMPORTANT: don't save analyzed decl to ASTContext
+      analyze(m); // TODO IMPORTANT: don't save analyzed decl to Context
 
       if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
         /// fill members
@@ -844,7 +909,7 @@ private:
         if (!init_val->is_comptime_known()) {
           error(p, "Initial value of a member variable must be compile-time known");
         }
-        // TODO IMPORTANT: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
+        // TODO: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
         //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_cast<CompTimeExpr>(init_val)));
       } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
         auto f = ast_cast<FunctionDecl>(m);
@@ -859,27 +924,27 @@ private:
 
     auto *ty = Type::GetStructType(struct_name, child_types);
     p->set_type(ty);
-    // TODO IMPORTANT: distinguish publicly and privately defined struct types
-    _ctx->add_type_decl(struct_name, p, true); // overwrite the value set during parsing
+    pop_scope();
   }
 
   void analyze_loop(ASTBase *_p) {
     auto *p = ast_cast<Loop>(_p);
-    analyze(p->get_predicate());
+    push_scope(p);
 
-    _ctx->push_scope();
-    _ctx->set_current_loop(p);
+    analyze(p->get_predicate());
     analyze(p->get_body());
-    _ctx->pop_scope(); /// current loop (p) is discarded after popping
+
+    pop_scope();
   }
 
   void analyze_break_or_continue(ASTBase *_p) {
     auto *p = ast_cast<BreakContinue>(_p);
-    Loop *loop = _ctx->get_current_loop();
+
+    Loop *loop = search_loop_in_parent_scopes();
     if (!loop) {
       error(p, "Break or continue must be inside a loop");
     }
-    p->set_parent_loop(loop);
+    p->set_parent_loop(ast_cast<Loop>(loop));
   }
 
 private:
@@ -906,9 +971,9 @@ private:
   };
 };
 
-void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
+void Analyzer::analyze(Program *p) { _analyzer_impl->analyze(p); }
 
-Analyzer::Analyzer(ASTContext *cs) { _analyzer_impl = new AnalyzerImpl(cs); }
+Analyzer::Analyzer(SourceManager *sm) { _analyzer_impl = new AnalyzerImpl(sm); }
 
 Analyzer::~Analyzer() { delete _analyzer_impl; }
 

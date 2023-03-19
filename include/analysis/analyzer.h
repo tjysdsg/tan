@@ -1,17 +1,19 @@
 #ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__
 #define __TAN_SRC_ANALYSIS_ANALYZER_H__
 #include "base.h"
-#include "ast/fwd.h"
 
 namespace tanlang {
 
 class AnalyzerImpl;
+class Program;
+class SourceManager;
 
 class Analyzer {
 public:
-  explicit Analyzer(ASTContext *ctx);
+  Analyzer() = delete;
+  explicit Analyzer(SourceManager *sm);
   ~Analyzer();
-  void analyze(ASTBase *p);
+  void analyze(Program *p);
 
 private:
   AnalyzerImpl *_analyzer_impl = nullptr;

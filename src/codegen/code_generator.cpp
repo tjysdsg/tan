@@ -1,7 +1,6 @@
 #include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
-#include "compiler/ast_context.h"
 #include "ast/constructor.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -22,23 +21,23 @@ AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *ty
   }
 }
 
-CodeGenerator::CodeGenerator(ASTContext *ctx, TargetMachine *target_machine)
-    : _ctx(ctx), _sm(ctx->get_source_manager()), _target_machine(target_machine) {
+CodeGenerator::CodeGenerator(SourceManager *sm, TargetMachine *target_machine)
+    : _sm(sm), _target_machine(target_machine) {
   _llvm_ctx = new LLVMContext();
   _builder = new IRBuilder<>(*_llvm_ctx);
-  _module = new Module(ctx->get_filename(), *_llvm_ctx);
+  _module = new Module(_sm->get_filename(), *_llvm_ctx);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
   auto opt_level = (llvm::CodeGenOpt::Level)Compiler::compile_config.opt_level;
   _target_machine->setOptLevel(opt_level);
 
-  /// add the current debug info version into the module
+  /// add_ctx the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);
   _module->addModuleFlag(Module::Warning, "Debug Info Version", llvm::DEBUG_METADATA_VERSION);
 
   /// debug related
   _di_builder = new DIBuilder(*_module);
-  _di_file = _di_builder->createFile(ctx->get_filename(), ".");
+  _di_file = _di_builder->createFile(_sm->get_filename(), ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
 
@@ -132,7 +131,7 @@ Value *CodeGenerator::codegen(ASTBase *p) {
   Value *ret = nullptr;
   switch (p->get_node_type()) {
   case ASTNodeType::PROGRAM:
-  case ASTNodeType::STATEMENT:
+  case ASTNodeType::COMPOUND_STATEMENT:
     ret = codegen_stmt(p);
     break;
   case ASTNodeType::ASSIGN:
@@ -389,10 +388,10 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
     for (size_t i = 1; i < member_types.size(); ++i) {
       elements[i] = to_llvm_metadata(member_types[i], loc);
     }
-    ret = _di_builder->createStructType(
-        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_ctx->get_source_manager()->get_line(loc),
-        (uint32_t)p->get_size_bits(), (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
-        _di_builder->getOrCreateArray(elements), 0, nullptr, p->get_typename());
+    ret = _di_builder->createStructType(get_current_di_scope(), p->get_typename(), _di_file,
+                                        (unsigned)_sm->get_line(loc), (uint32_t)p->get_size_bits(),
+                                        (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
+                                        _di_builder->getOrCreateArray(elements), 0, nullptr, p->get_typename());
   } else if (p->is_array()) { /// array as pointer
     auto *sub = to_llvm_metadata(((ArrayType *)p)->get_element_type(), loc);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
@@ -421,7 +420,7 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
 }
 
 void CodeGenerator::error(ASTBase *p, const str &message) {
-  Error err(_ctx->get_filename(), _sm->get_token(p->loc()), message);
+  Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
   err.raise();
 }
 
@@ -514,7 +513,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
     F->setSubprogram(subprogram);
     push_di_scope(subprogram);
 
-    /// add all function arguments to scope
+    /// add_ctx all function arguments to scope
     size_t i = 0;
     for (auto &a : F->args()) {
       auto arg_name = p->get_arg_name(i);
@@ -1250,8 +1249,8 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
       TAN_ASSERT(i == n - 1); /// only the last branch can be an else
       _builder->CreateBr(then_blocks[i]);
     } else {
-      Value *cond_v = codegen(cond);
-      cond_v = load_if_is_lvalue(cond);
+      codegen(cond);
+      Value *cond_v = load_if_is_lvalue(cond);
       if (i < n - 1) {
         _builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
       } else {

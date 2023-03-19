@@ -23,7 +23,7 @@ protected:
   explicit CompoundStmt(SrcLoc loc);
 
 public:
-  static CompoundStmt *Create(SrcLoc loc, bool new_scope = false);
+  static CompoundStmt *Create(SrcLoc loc);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -32,13 +32,9 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   vector<ASTBase *> &get_children();
   template <typename T = ASTBase> T *get_child_at(size_t idx) const;
-  [[nodiscard]] bool is_new_scope() const;
 
 protected:
   vector<ASTBase *> _children{};
-
-private:
-  bool _new_scope = false;
 };
 
 class Program : public CompoundStmt {
@@ -154,11 +150,11 @@ public:
    * \note Return value can be a nullptr if the branch is an "else"
    */
   [[nodiscard]] Expr *get_predicate(size_t i) const;
+
   void set_predicate(size_t i, Expr *expr);
 
   [[nodiscard]] Stmt *get_branch(size_t i) const;
   [[nodiscard]] size_t get_num_branches() const;
-  [[nodiscard]] bool is_last_branch_else() const;
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
@@ -166,9 +162,6 @@ private:
   /// \note The last element can be a nullptr if the last branch is an "else"
   vector<Expr *> _predicates{};
   vector<Stmt *> _branches{};
-
-  /// \brief When true, the last branch is an "else"
-  bool _last_branch_else = false;
 };
 
 class PackageStmt : public Stmt {
