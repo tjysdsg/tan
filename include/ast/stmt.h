@@ -3,7 +3,6 @@
 #include "base.h"
 #include "ast_base.h"
 #include "fwd.h"
-#include "ast/scoped.h"
 
 namespace llvm {
 class BasicBlock;
@@ -19,7 +18,7 @@ protected:
   Stmt(ASTNodeType type, SrcLoc loc);
 };
 
-class CompoundStmt : public Stmt, public Scoped {
+class CompoundStmt : public Stmt {
 protected:
   explicit CompoundStmt(SrcLoc loc);
 
@@ -109,7 +108,7 @@ public:
 
 enum ASTLoopType { FOR, WHILE };
 
-class Loop final : public Stmt, public Scoped {
+class Loop final : public Stmt {
 protected:
   explicit Loop(SrcLoc loc);
 
@@ -136,7 +135,7 @@ private:
 /**
  * \brief Represent if-[else] or if-elif-[else] statements
  */
-class If : public Stmt, public Scoped {
+class If : public Stmt {
 protected:
   explicit If(SrcLoc loc);
 

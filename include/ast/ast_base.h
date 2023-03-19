@@ -4,10 +4,11 @@
 #include "source_traceable.h"
 #include "precedence.h"
 #include "ast_node_type.h"
-#include "fwd.h"
 #include <typeinfo>
 
 namespace tanlang {
+
+class Context;
 
 class ASTBase : public SourceTraceable {
 public:
@@ -26,6 +27,7 @@ public:
   [[nodiscard]] ASTNodeType get_node_type() const;
   void set_node_type(ASTNodeType node_type);
   [[nodiscard]] int get_bp() const;
+  [[nodiscard]] Context *ctx();
 
   /**
    * \brief Get a ordered list of child nodes
@@ -49,6 +51,7 @@ private:
 private:
   ASTNodeType _node_type;
   int _bp = 0; /// binding power
+  Context *_ctx = nullptr;
 };
 
 /**

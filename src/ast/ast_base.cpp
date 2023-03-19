@@ -1,5 +1,6 @@
 #include "ast/ast_node_type.h"
 #include "ast/ast_base.h"
+#include "ast/context.h"
 #include <iostream>
 
 using namespace tanlang;
@@ -11,6 +12,12 @@ ASTNodeType ASTBase::get_node_type() const { return _node_type; }
 void ASTBase::set_node_type(ASTNodeType node_type) { _node_type = node_type; }
 
 int ASTBase::get_bp() const { return _bp; }
+
+Context *ASTBase::ctx() {
+  if (!_ctx)
+    _ctx = new Context((ASTBase *)this); // context <-> AST node mapping
+  return _ctx;
+}
 
 void ASTBase::printTree() const {
   using std::cout;

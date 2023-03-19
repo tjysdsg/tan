@@ -6,7 +6,6 @@
 #include "ast/ast_named.h"
 #include "ast/typed.h"
 #include "ast/expr.h"
-#include "ast/scoped.h"
 
 namespace tanlang {
 
@@ -40,7 +39,7 @@ public:
 };
 
 class FunctionType;
-class FunctionDecl : public Decl, public Scoped {
+class FunctionDecl : public Decl {
 protected:
   explicit FunctionDecl(SrcLoc loc);
 
@@ -81,7 +80,7 @@ public:
   bool is_type_decl() const override { return true; }
 };
 
-class StructDecl : public TypeDecl, public Scoped {
+class StructDecl : public TypeDecl {
 protected:
   explicit StructDecl(SrcLoc loc);
 

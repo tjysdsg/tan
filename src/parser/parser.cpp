@@ -3,6 +3,7 @@
 #include "ast/expr.h"
 #include "ast/decl.h"
 #include "ast/type.h"
+#include "ast/context.h"
 #include "ast/intrinsic.h"
 #include "lexer/token.h"
 #include <iostream>
@@ -24,15 +25,15 @@ class ScopeGuard {
 public:
   ScopeGuard() = delete;
 
-  ScopeGuard(Scoped *&variable, Scoped *scoped_val) : _variable(variable), _original(variable) {
+  ScopeGuard(ASTBase *&variable, ASTBase *scoped_val) : _variable(variable), _original(variable) {
     _variable = scoped_val;
   }
 
   ~ScopeGuard() { _variable = _original; }
 
 private:
-  Scoped *&_variable;
-  Scoped *_original;
+  ASTBase *&_variable;
+  ASTBase *_original;
 };
 
 class ParserImpl final {
@@ -970,7 +971,7 @@ private:
 private:
   str _filename;
   Program *_root = nullptr;
-  Scoped *_curr_scope = nullptr;
+  ASTBase *_curr_scope = nullptr;
 
 private:
   const static umap<ASTNodeType, nud_parsing_func_t> NUD_PARSING_FUNC_TABLE;

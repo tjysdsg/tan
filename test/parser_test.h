@@ -34,7 +34,7 @@ TEST(parser, function_decl) {
   EXPECT_EQ(ASTNodeType::PROGRAM, node->get_node_type());
   auto program = ast_cast<Program>(node);
   EXPECT_EQ(1, program->get_children_size());
-  auto statement = ast_cast<CompoundStmt>(program->get_child_at(0));
+  auto statement = program->get_child_at<CompoundStmt>(0);
   EXPECT_EQ(1, statement->get_children_size());
   EXPECT_EQ(ASTNodeType::FUNC_DECL, statement->get_child_at(0)->get_node_type());
 }

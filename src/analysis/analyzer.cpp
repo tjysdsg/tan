@@ -87,9 +87,9 @@ public:
 
 private:
   SourceManager *_sm = nullptr;
-  vector<Scoped *> _scopes{};
+  vector<ASTBase *> _scopes{};
 
-  void push_scope(Scoped *scope) { _scopes.push_back(scope); }
+  void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
   void pop_scope() {
     TAN_ASSERT(!_scopes.empty());
     _scopes.pop_back();
@@ -216,17 +216,30 @@ private:
   }
 
   Decl *search_decl_in_scopes(const str &name) {
-    int n = _scopes.size();
+    int n = (int)_scopes.size();
     TAN_ASSERT(n);
     Decl *ret = nullptr;
     for (int i = n - 1; i >= 0; --i) {
-      Context *c = _scopes[i]->ctx();
+      Context *c = _scopes[(size_t)i]->ctx();
       ret = c->get_decl(name);
       if (ret)
         return ret;
     }
 
     return ret;
+  }
+
+  Loop *search_loop_in_parent_scopes() {
+    int n = (int)_scopes.size();
+    TAN_ASSERT(n);
+    for (int i = n - 1; i >= 0; --i) {
+      auto *node = _scopes[(size_t)i];
+      if (node->get_node_type() == ASTNodeType::LOOP) {
+        return ast_cast<Loop>(node);
+      }
+    }
+
+    return nullptr;
   }
 
   void analyze_expr(Expr *p) {
@@ -922,11 +935,12 @@ private:
 
   void analyze_break_or_continue(ASTBase *_p) {
     auto *p = ast_cast<BreakContinue>(_p);
-    auto *loop = ast_cast<Loop>(top_ctx()->owner());
+
+    Loop *loop = search_loop_in_parent_scopes();
     if (!loop) {
       error(p, "Break or continue must be inside a loop");
     }
-    p->set_parent_loop(loop);
+    p->set_parent_loop(ast_cast<Loop>(loop));
   }
 
 private:

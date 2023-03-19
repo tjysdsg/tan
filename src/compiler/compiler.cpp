@@ -5,6 +5,7 @@
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
