@@ -1249,6 +1249,7 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
       TAN_ASSERT(i == n - 1); /// only the last branch can be an else
       _builder->CreateBr(then_blocks[i]);
     } else {
+      codegen(cond);
       Value *cond_v = load_if_is_lvalue(cond);
       if (i < n - 1) {
         _builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
