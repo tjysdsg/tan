@@ -30,7 +30,7 @@ RUN apt-get -y install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-1
 RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15
 RUN apt-get -y install libfuzzer-15-dev
 RUN apt-get -y install lldb-15
-RUN apt-get -y install lld-15 lld
+RUN apt-get -y install lld-15 lld liblld-15-dev
 RUN apt-get -y install libc++-15-dev libc++abi-15-dev
 RUN apt-get -y install libomp-15-dev
 RUN apt-get -y install libunwind-15 libunwind-15-dev
