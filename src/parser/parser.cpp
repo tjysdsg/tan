@@ -420,21 +420,25 @@ private:
     /// if then
     parse_if_then_branch(p);
     _curr.offset_by(1); // skip "}"
-    if (at(_curr)->get_value() != "else") {
-      _curr.offset_by(-1); // backtrack
-    }
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
       _curr.offset_by(1);                   /// skip "else"
       if (at(_curr)->get_value() == "if") { /// elif
         parse_if_then_branch(p);
-      } else { /// else
+      } else if (at(_curr)->get_value() == "{") { /// else
         auto else_clause = peek();
         parse_node(else_clause);
         p->add_else_branch(expect_stmt(else_clause));
+      } else {
+        error(_curr, "Unexpected token");
       }
+
+      _curr.offset_by(1);
     }
+
+    _curr.offset_by(-1); /// return back to "}"
+    TAN_ASSERT(at(_curr)->get_value() == "}");
   }
 
   void parse_if_then_branch(If *p) {
