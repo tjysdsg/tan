@@ -268,6 +268,12 @@ private:
         err.raise();
       }
       ret = decl->get_type();
+
+      if (!ret) { // FIXME [HACK]: analyze the type if not done already
+        analyze(decl);
+        ret = decl->get_type();
+      }
+
       if (!ret) {
         Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
         err.raise();
@@ -863,14 +869,19 @@ private:
     auto p = ast_cast<StructDecl>(_p);
 
     str struct_name = p->get_name();
+
     /// check if struct name is in conflicts of variable/function names
-    auto *prev_decl = search_decl_in_scopes(struct_name);
-    if (prev_decl) {
-      if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
-            ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
-        error(p, "Cannot redeclare type as a struct");
+    if (!p->is_forward_decl()) {
+      auto *root_ctx = _scopes.front()->ctx();
+      auto *prev_decl = root_ctx->get_decl(struct_name);
+      if (prev_decl && prev_decl != p) {
+        if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
+              ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
+          error(p, "Cannot redeclare type as a struct");
+      }
+      // overwrite the value set during parsing (e.g. forward decl)
+      root_ctx->set_decl(struct_name, p);
     }
-    top_ctx()->set_decl(struct_name, p); // overwrite the value set during parsing (e.g. forward decl)
 
     push_scope(p);
 
@@ -915,12 +926,11 @@ private:
       } else {
         error(p, "Invalid struct member");
       }
-
-      pop_scope();
     }
 
     auto *ty = Type::GetStructType(struct_name, child_types);
     p->set_type(ty);
+    pop_scope();
   }
 
   void analyze_loop(ASTBase *_p) {
@@ -967,7 +977,7 @@ private:
   };
 };
 
-void Analyzer::analyze(ASTBase *p) { _analyzer_impl->analyze(p); }
+void Analyzer::analyze(Program *p) { _analyzer_impl->analyze(p); }
 
 Analyzer::Analyzer(SourceManager *sm) { _analyzer_impl = new AnalyzerImpl(sm); }
 

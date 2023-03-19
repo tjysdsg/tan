@@ -855,12 +855,18 @@ private:
         member_decls.push_back(ast_cast<Expr>(c));
       }
       p->set_member_decls(member_decls);
+
+      /// check if redefining the struct
+      auto *prev_decl = _root->ctx()->get_decl(id->get_name());
+      if (prev_decl && !ast_cast<StructDecl>(prev_decl)->is_forward_decl()) {
+        error(p->loc(), "Cannot redefine a struct");
+      }
     } else {
       p->set_is_forward_decl(true);
     }
 
     // TODO IMPORTANT: distinguish publicly and privately defined struct types
-    _curr_scope->ctx()->set_decl(p->get_name(), p);
+    _root->ctx()->set_decl(p->get_name(), p);
   }
 
   ArrayType *parse_ty_array(Type *p) {
