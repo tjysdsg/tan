@@ -155,9 +155,17 @@ private:
     const str &name = p->get_name();
     const vector<Expr *> &args = p->_args;
 
-    FunctionDecl *ret = nullptr;
-    auto func_candidates = top_ctx()->get_functions(name);
+    /// gather all candidates from this and parent scopes
+    vector<FunctionDecl *> func_candidates{};
+    TAN_ASSERT(_scopes.size() - 1 >= 0);
+    for (int i = _scopes.size() - 1; i >= 0; --i) {
+      Context *c = _scopes[i]->ctx();
+      auto tmp = c->get_functions(name);
+      func_candidates.insert(func_candidates.begin(), tmp.begin(), tmp.end());
+    }
+
     /// find a valid function overload to call
+    FunctionDecl *ret = nullptr;
     for (const auto &f : func_candidates) {
       size_t n = f->get_n_args();
       if (n != args.size()) {
@@ -508,6 +516,9 @@ private:
 
   void analyze_func_decl(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
+
+    top_ctx()->add_function_decl(p);
+
     push_scope(p);
 
     /// update return type
@@ -549,7 +560,7 @@ private:
     vector<FunctionDecl *> funcs = imported_ctx->get_functions();
     vector<FunctionDecl *> pub_funcs{};
     for (auto *f : funcs) {
-      if (f->is_public()) {
+      if (f->is_public() || f->is_external()) {
         pub_funcs.push_back(f);
         top_ctx()->add_function_decl(f);
       }
@@ -571,7 +582,7 @@ private:
     auto *void_type = Type::GetVoidType();
     switch (p->get_intrinsic_type()) {
     case IntrinsicType::STACK_TRACE: {
-      func_call->set_name("__tan_runtime_stack_trace");
+      func_call->set_name(Intrinsic::STACK_TRACE_FUNCTION_REAL_NAME);
       analyze(func_call);
       p->set_type(void_type);
       break;
