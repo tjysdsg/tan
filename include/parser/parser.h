@@ -1,7 +1,7 @@
 #ifndef TAN_PARSER_H
 #define TAN_PARSER_H
 #include "base.h"
-#include "ast/fwd.h"
+#include "parser/parsed_module.h"
 #include <memory>
 #include <stack>
 
@@ -10,6 +10,7 @@ namespace tanlang {
 class ParserImpl;
 class Token;
 class Program;
+class SourceManager;
 
 /**
  * \brief Top Down Operator Precedence Parsing
@@ -20,7 +21,7 @@ public:
   Parser() = delete;
   explicit Parser(SourceManager *ctx);
   ~Parser();
-  Program *parse();
+  ParsedModule parse();
 
 private:
   ParserImpl *_impl;

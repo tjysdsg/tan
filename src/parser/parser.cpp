@@ -39,12 +39,12 @@ private:
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  explicit ParserImpl(SourceManager *sm) : _sm(sm), _filename(sm->get_filename()) {}
+  explicit ParserImpl(SourceManager *sm) : _sm(sm), _filename(sm->get_filename()) { _package_name = _filename; }
 
-  Program *parse() {
+  ParsedModule parse() {
     _root = Program::Create(SrcLoc(0));
     parse_program(_root);
-    return _root;
+    return ParsedModule(_root, _sm, _filename, _package_name);
   }
 
 private:
@@ -752,14 +752,14 @@ private:
     _curr.offset_by(1);
 
     auto rhs = peek();
-    if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
+    if (rhs->get_node_type() != ASTNodeType::ID) {
       error(_curr, "Invalid package statement");
     }
-    parse_node(rhs);
-    str name = ast_cast<StringLiteral>(rhs)->get_value();
 
+    parse_node(rhs);
+    str name = ast_cast<Identifier>(rhs)->get_name();
     p->set_name(name);
-    // TODO: _ctx->set_package_name(name);
+    _package_name = name;
   }
 
   void parse_member_access(Expr *left, MemberAccess *p) {
@@ -976,6 +976,10 @@ private:
 
 private:
   str _filename;
+
+  /// package name defaults to the filename, unless an package statement is parsed
+  str _package_name;
+
   Program *_root = nullptr;
   ASTBase *_curr_scope = nullptr;
 
@@ -986,7 +990,7 @@ private:
 
 Parser::Parser(SourceManager *sm) { _impl = new ParserImpl(sm); }
 
-Program *Parser::parse() { return _impl->parse(); }
+ParsedModule Parser::parse() { return _impl->parse(); }
 
 Parser::~Parser() { delete _impl; }
 

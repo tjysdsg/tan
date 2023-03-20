@@ -118,35 +118,25 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   Compiler::import_dirs.reserve(n_import);
   Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
 
-  /// Compiler instances
-  vector<Compiler *> compilers{};
-  compilers.reserve(n_files);
-
-  /// parse all files before generating IR code
+  Compiler compiler;
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY
-    auto compiler = new Compiler(files[i]);
-    compilers.push_back(compiler);
-    compiler->parse();
+    compiler.parse(files[i]);
     if (print_ast) {
-      compiler->dump_ast();
+      compiler.dump_ast();
     }
     END_TRY
   }
-  /// _codegen
-  for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY
-    compilers[i]->codegen();
-    if (print_ir_code) {
-      compilers[i]->dump_ir();
-    }
-    /// prepare filename for linking
-    files[i] += ".o";
-    files[i] = fs::path(files[i]).filename().string();
-    std::cout << "Compiling TAN file: " << files[i] << "\n";
-    compilers[i]->emit_object(files[i]);
-    END_TRY
+
+  compiler.merge_parsed_modules_by_package();
+  compiler.analyze();
+  compiler.codegen();
+  if (print_ir_code) {
+    compiler.dump_ir();
   }
+
+  // TODO: print output object files and the corresponding package name
+  compiler.emit_objects();
 
   /// link
   files.insert(files.begin(), obj_files.begin(), obj_files.end());

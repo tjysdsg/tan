@@ -2,6 +2,7 @@
 #define TAN_INCLUDE_COMPILER_H_
 #include "base.h"
 #include "tan/tan.h"
+#include "parser/parsed_module.h"
 
 namespace llvm {
 class TargetMachine;
@@ -13,11 +14,12 @@ namespace tanlang {
 class CodeGenerator;
 class Program;
 class SourceManager;
+class Package;
 
 /**
- * \class Compiler
- * \brief Abstraction of a compiler
- * */
+ * \brief Compiler is responsible for parsing, type checking, and generating machine code of the input files.
+ *        It parse all files independently, group them into packages, and generating one object file for each package.
+ */
 class Compiler {
 public:
   /**
@@ -53,17 +55,22 @@ private:
   static inline llvm::TargetMachine *target_machine = nullptr;
 
 public:
-  Compiler() = delete;
-  /**
-   * \brief create_ty a Compiler instance with its relevant source file name/path
-   * */
-  explicit Compiler(const str &filename);
-  ~Compiler();
+  Compiler();
 
   /**
-   * \brief Parse the corresponding source file, and build AST
+   * \brief Parse a source file and build AST
    * */
-  void parse();
+  void parse(const str &filename);
+
+  /**
+   * \brief Merge parsed modules of the same package
+   */
+  void merge_parsed_modules_by_package();
+
+  /**
+   * Semantic analysis, include package dependency analysis, name resolution, and type checking.
+   */
+  void analyze();
 
   /**
    * \brief Generate LLVM IR code
@@ -72,9 +79,8 @@ public:
 
   /**
    * \brief Emit object files
-   * \details A file called "<filename>.o" will be created in the current working directory
    * */
-  void emit_object(const str &filename);
+  void emit_objects();
 
   /**
    * \brief Print LLVM IR code
@@ -83,15 +89,12 @@ public:
 
   /**
    * \brief Pretty-print AST
-   * */
+   */
   void dump_ast() const;
 
-  Program *get_root_ast() const;
-
 private:
-  Program *_ast = nullptr;
-  str _filename;
-  SourceManager *_sm = nullptr;
+  umap<str, vector<ParsedModule>> _parsed_modules{};
+  umap<str, Package *> _packages{};
   CodeGenerator *_cg = nullptr;
 };
 

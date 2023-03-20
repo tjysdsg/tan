@@ -1,4 +1,4 @@
-bool AnalyzerImpl::CanImplicitlyConvert(Type *from, Type *to) {
+bool TypeCheckerImpl::CanImplicitlyConvert(Type *from, Type *to) {
   TAN_ASSERT(from && to);
 
   if (from == to) {
@@ -41,7 +41,7 @@ bool AnalyzerImpl::CanImplicitlyConvert(Type *from, Type *to) {
   }
 }
 
-Type *AnalyzerImpl::ImplicitTypePromote(Type *t1, Type *t2) {
+Type *TypeCheckerImpl::ImplicitTypePromote(Type *t1, Type *t2) {
   TAN_ASSERT(t1 && t2);
 
   if (t1 == t2) {

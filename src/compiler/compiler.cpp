@@ -1,25 +1,20 @@
 #include "compiler/compiler.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
-#include "analysis/analyzer.h"
+#include "analysis/type_checker.h"
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/package.h"
 #include "ast/context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
-#include "llvm_api/llvm_include.h"
 #include <filesystem>
 
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-Compiler::~Compiler() {
-  if (_ast)
-    delete _ast;
-}
-
-Compiler::Compiler(const str &filename) : _filename(filename) {
+Compiler::Compiler() {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -43,13 +38,13 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   }
 }
 
-void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
+void Compiler::emit_objects() { _cg->emit_to_file(filename); }
 
 Value *Compiler::codegen() {
-  TAN_ASSERT(_ast);
+  TAN_ASSERT(_parsed_module._program);
   TAN_ASSERT(!_cg);
   _cg = new CodeGenerator(_sm, target_machine);
-  auto *ret = _cg->codegen(_ast);
+  auto *ret = _cg->codegen(_parsed_module._program);
   return ret;
 }
 
@@ -59,27 +54,47 @@ void Compiler::dump_ir() const {
 }
 
 void Compiler::dump_ast() const {
-  TAN_ASSERT(_ast);
-  _ast->printTree();
+  for (const auto &ps : _parsed_modules) {
+    for (const auto &p : ps.second) {
+      p._program->printTree();
+    }
+  }
 }
 
-void Compiler::parse() {
+void Compiler::parse(const str &filename) {
   Reader reader;
-  reader.open(_filename);
+  reader.open(filename);
 
   auto tokens = tokenize(&reader);
-  _sm = new SourceManager(_filename, tokens);
+  auto *sm = new SourceManager(filename, std::move(tokens));
 
-  auto *parser = new Parser(_sm);
-  _ast = parser->parse();
+  auto *parser = new Parser(sm);
+  ParsedModule p = parser->parse();
+  _parsed_modules[p._package_name].push_back(p);
+}
 
-  // TODO: register intrinsic functions on the package level
-  auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
-  for (auto *f : intrinsic_funcs) {
-    _ast->ctx()->add_function_decl(f);
+void Compiler::merge_parsed_modules_by_package() {
+  for (const auto &p : _parsed_modules) {
+    vector<Program *> sources(p.second.size());
+    for (int i = 0; i < p.second.size(); ++i) {
+      sources[i] = p.second[i]._program;
+    }
+    _packages[p.first] = Package::Create(p.first, sources);
   }
-  Analyzer analyzer(_sm);
-  analyzer.analyze(_ast);
+}
+
+void Compiler::analyze() {
+  TypeChecker type_checker;
+  umap<ASTBase *, SourceManager *> source_managers{};
+
+  // Register package-level declarations (struct, function, intrinsics, ...)
+  // from all source files and imported packages in a symbol table.
+
+  // Type check these declarations as much as possible.
+  // Meanwhile, build a dependency graph of type references, and sort topologically.
+
+  // Type check package-level declarations again using the sorted dependency graph and the symbol table,
+  // skip what we already checked. Make sure everything is resolved this time.
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
@@ -108,5 +123,3 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
   }
   return ret;
 }
-
-Program *Compiler::get_root_ast() const { return _ast; }
