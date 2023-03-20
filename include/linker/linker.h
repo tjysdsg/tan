@@ -4,11 +4,9 @@
 
 namespace tanlang {
 
-class Linker final {
+class Linker {
 public:
-  Linker();
-  ~Linker() = default;
-  void add_files(vector<str> filenames);
+  void add_files(const vector<str> &filenames);
   void add_flag(const str &flag);
   void add_flags(vector<str> flags);
   bool link();
@@ -16,7 +14,6 @@ public:
 private:
   vector<str> _input_files{};
   vector<str> _flags{};
-  str _exe = "";
   // TODO: platform, architecture, etc.
 };
 

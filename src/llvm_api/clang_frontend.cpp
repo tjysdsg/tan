@@ -16,7 +16,7 @@ using namespace clang;
 using namespace clang::driver;
 using namespace llvm::opt;
 
-str GetExecutablePath(str name) {
+str GetExecutablePath(const str& name) {
   auto clang_or_err = llvm::sys::findProgramByName(name, {}); // find executable in PATH
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
@@ -80,7 +80,15 @@ static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str 
   DiagClient->setPrefix(std::string(ExeBasename));
 }
 
-int main0(int argc_, const char **argv_) {
+/**
+ * \brief Call clang with commandline args
+ * \details Requires the system to have `clang` in $PATH.
+ *          This function doesn't directly invoke clang,
+ *          but it uses the binary path to find paths to standard headers and libraries.
+ *          (Try replacing $(which clang) with a blank text file and see if the compiler works :D)
+ *  Copied from https://github.com/llvm/llvm-project/blob/main/clang/tools/driver/driver.cpp
+ */
+int clang_main(int argc_, const char **argv_) {
   noteBottomOfStack();
   llvm::InitLLVM X(argc_, argv_);
   SmallVector<const char *, 256> argv(argv_, argv_ + argc_);
@@ -154,14 +162,9 @@ int main0(int argc_, const char **argv_) {
     Res = 1;
 #endif
 
+  llvm::cl::ResetCommandLineParser();
   /// if we have multiple failing commands, we return the result of the first failing command
   return Res;
-}
-
-int clang_main(int argc, const char **argv) {
-  auto ret = main0(argc, argv);
-  llvm::cl::ResetCommandLineParser();
-  return ret;
 }
 
 using tanlang::TanCompilation;
@@ -180,16 +183,5 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
   args.push_back(opt_level.c_str());
   args.push_back("-c");
 
-  llvm::IntrusiveRefCntPtr<clang::DiagnosticIDs> diag_id(new clang::DiagnosticIDs());
-  auto diag_options = new clang::DiagnosticOptions();
-  clang::DiagnosticsEngine diag_engine(diag_id, diag_options,
-                                       new clang::TextDiagnosticPrinter(llvm::errs(), diag_options));
-  clang::driver::Driver driver(GetExecutablePath("clang"), llvm::sys::getDefaultTargetTriple(), diag_engine);
-
-  auto *compilation = driver.BuildCompilation(args);
-  SmallVector<pair<int, const Command *>, 0> failing_commands;
-  if (compilation) {
-    return driver.ExecuteCompilation(*compilation, failing_commands);
-  }
-  return 1;
+  return clang_main((int)args.size(), args.data());
 }

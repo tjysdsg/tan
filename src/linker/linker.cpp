@@ -1,34 +1,32 @@
 #include "linker/linker.h"
 #include <string>
 #include "llvm_api.h"
-#include <iostream>
 
 namespace tanlang {
 
-Linker::Linker() : _exe("clang") {}
-
-void Linker::add_files(vector<str> filenames) {
+void Linker::add_files(const vector<str> &filenames) {
   _input_files.insert(_input_files.end(), filenames.begin(), filenames.end());
 }
 
 bool Linker::link() {
-  vector<str> args{};
-  args.push_back(_exe);
+  // TODO: allow changing these default options
+  vector<const char *> args{};
+  args.push_back("clang");
   args.push_back("-stdlib=libc++"); /// link to libc++ by default
-  args.insert(args.end(), _input_files.begin(), _input_files.end());
-  args.insert(args.end(), _flags.begin(), _flags.end());
-  args.push_back("-lm"); /// link to libm by default
+  printf("clang -stdlib=libc++ ");
 
-  vector<const char *> cargs{};
-  for (const auto &a : args) {
-    if (a.length() == 0) {
-      continue;
-    }
-    cargs.push_back(a.c_str());
-    std::cout << a << " ";
+  for (const str &e : _input_files) {
+    args.push_back(e.c_str());
+    printf("%s ", e.c_str());
   }
-  std::cout << '\n';
-  return !clang_main(static_cast<int>(cargs.size()), cargs.data());
+  for (const str &e : _flags) {
+    args.push_back(e.c_str());
+    printf("%s ", e.c_str());
+  }
+  args.push_back("-lm"); /// link to libm by default
+  printf("-lm\n");
+
+  return !clang_main((int)args.size(), args.data());
 }
 
 void Linker::add_flag(const str &flag) { _flags.push_back(flag); }

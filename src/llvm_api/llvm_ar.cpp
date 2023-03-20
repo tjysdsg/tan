@@ -221,7 +221,7 @@ static void performWriteOperation(object::Archive *OldArchive, std::unique_ptr<M
   failIfError(std::move(E), ArchiveName);
 }
 
-extern int llvm_ar_create_static_lib(const str &archive_name, const vector<str> &objects) {
+extern void llvm_ar_create_static_lib(const str &archive_name, const vector<str> &objects) {
   ArchiveName = archive_name;
   Members = objects;
   llvm::InitializeAllTargetInfos();
@@ -238,9 +238,8 @@ extern int llvm_ar_create_static_lib(const str &archive_name, const vector<str> 
     object::Archive Archive(Buf.get()->getMemBufferRef(), Err);
     failIfError(std::move(Err), "unable to load '" + archive_name + "'");
     performWriteOperation(&Archive, std::move(Buf.get()));
-    return 0;
+    return;
   }
   assert(EC == errc::no_such_file_or_directory);
   performWriteOperation(nullptr, nullptr);
-  return 0;
 }

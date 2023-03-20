@@ -195,6 +195,7 @@
 #include <llvm/ToolDrivers/llvm-dlltool/DlltoolDriver.h>
 #include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
 #include <clang/CodeGen/CodeGenAction.h>
+#include <lld/Common/Driver.h>
 
 #ifdef _WIN32
 #include <llvm/Support/Windows/WindowsSupport.h>

@@ -59,7 +59,9 @@ static bool _link(vector<str> input_paths, TanCompilation *config) {
       }
       input_paths.push_back(path);
     }
-    return !llvm_ar_create_static_lib(config->out_file, input_paths);
+    // TODO: recover if failed?
+    llvm_ar_create_static_lib(config->out_file, input_paths);
+    return true;
   }
   /// shared, obj, exe
   using tanlang::Linker;

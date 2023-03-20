@@ -22,6 +22,7 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 option(LLVM_ROOT_DIR "Custom LLVM location" "")
 option(CLANG_ROOT_DIR "Custom CLANG location" "")
+option(LLD_ROOT_DIR "Custom LLD location" "")
 
 # ==================== GENERAL CONFIGS ====================
 # default build debug

@@ -173,6 +173,12 @@ set(_CLANG_LIBRARIES
         clangCodeGen
         clangDriver
         clangTooling
+        clangToolingASTDiff
+        clangToolingCore
+        clangToolingInclusions
+        clangToolingRefactoring
+        clangToolingSyntax
+        clangExtractAPI
         clangFrontend
         clangFrontendTool
         clangSerialization
@@ -198,12 +204,31 @@ set(_CLANG_LIBRARIES
         clangRewrite
         clangCrossTU
         clangIndex
+        clangSupport
         # Polly
         # PollyISL
         # PollyPPCG
         )
 foreach (LIB ${_CLANG_LIBRARIES})
     FIND_AND_ADD_LLVM_LIB(${LIB} ${CLANG_LIBRARY_DIR})
+endforeach ()
+
+# ===== lld =====
+# FIXME: find_package(LLD REQUIRED PATHS ${LLD_ROOT_DIR})
+set(LLD_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS})
+set(LLD_LIBRARY_DIR ${LLVM_LIBRARY_DIR})
+set(_LLD_LIBS
+        lldCOFF
+        lldCommon
+        lldELF
+        lldMachO
+        lldMinGW
+        lldWasm
+        )
+message(STATUS "LLD headers location: ${LLD_INCLUDE_DIRS}")
+message(STATUS "LLD library directory: ${LLD_LIBRARY_DIR}")
+foreach (LIB ${_LLD_LIBS})
+    FIND_AND_ADD_LLVM_LIB(${LIB} ${LLD_LIBRARY_DIR})
 endforeach ()
 
 # ================== other deps ==================
