@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
 
 pub fn main(argc: int, argv: char**) : int {
     assert(!0.0);

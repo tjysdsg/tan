@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
 
 // overloading
 fn work(a: float, b: float): float {

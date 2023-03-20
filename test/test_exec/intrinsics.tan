@@ -1,6 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
-import "runtime/stdlib.tan";
+import std;
 
 pub fn main(argc: int, argv: char**) : int {
     @compprint("main function starts");

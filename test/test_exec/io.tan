@@ -1,4 +1,4 @@
-import "runtime/print.tan";
+import std;
 
 pub fn main(argc: int, argv: char**) : int {
     print("Shit\n");

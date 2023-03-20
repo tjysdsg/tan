@@ -1,6 +1,5 @@
-import "struct.tan";
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
+import struct; // struct.tan
 
 pub fn main(argc: int, argv: u8**) : i32 {
     var f: Fuck;

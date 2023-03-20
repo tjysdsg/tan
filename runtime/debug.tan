@@ -1,4 +1,4 @@
-import "stdlib.tan";
+package std;
 
 pub fn assert(b: bool) : void {
     if(!b) {

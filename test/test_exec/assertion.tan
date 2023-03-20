@@ -1,4 +1,4 @@
-import "runtime/debug.tan";
+import std;
 
 pub fn main(argc: int, argv: char**) : int {
     assert(1);

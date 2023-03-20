@@ -1,5 +1,5 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
+
 
 @test_comp_error(i32_to_i8) {
     var a: i8 = 32;

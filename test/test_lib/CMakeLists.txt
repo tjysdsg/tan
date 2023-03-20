@@ -1,11 +1,9 @@
-# Resulting in a "test_compile_lib" executable that:
-# 1. compiles lib1.tan and lib2.tan into test.lib
-
-# and a "test_use_lib" that
-# 1. compiles cli.tan and link it to test.lib, then generate a.out
-# 2. runs a.out
-
-# and a "run_tanc_lib_tests" custom target that runs this test on build
+# Resulting in
+# 1. a "test_compile_lib" executable that compiles lib1.tan and lib2.tan into test.lib
+# 2. a "test_use_lib" executable that
+#      1. compiles cli.tan and link it to test.lib, then generate a.out
+#      2. runs a.out
+# 3. "run_tanc_lib_tests" custom target that runs the above two steps during build
 
 add_executable(test_compile_lib test_compile_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 set_target_common_compile_options(test_compile_lib)

@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
 
 @test_comp_error(continue_outside_loop) {
     continue;

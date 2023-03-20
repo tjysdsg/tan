@@ -1,6 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
-import "runtime/math.tan";
+import std;
 
 fn close(a: float, b: float) : bool {
     return fabs(a - b) < 0.000001;

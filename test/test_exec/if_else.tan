@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
 
 fn sign(a: int) : int {
     var ret: int = 0;

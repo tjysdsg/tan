@@ -1,5 +1,5 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import std;
+
 
 struct Fuck;
 struct Useless;
@@ -15,6 +15,7 @@ struct Useless {
 struct Fuck {
     // var val: i32 = 2;
     var val: i32;
+    // TODO: var f: Fuck*;
 }
 
 fn set_fuck(self: Fuck*, val: i32) : void {
