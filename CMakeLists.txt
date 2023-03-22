@@ -41,7 +41,9 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # use lld to link libraries
-add_link_options("-fuse-ld=lld")
+if (NOT MSVC)
+    add_link_options("-fuse-ld=lld")
+endif ()
 
 # ================================ thirdparty dependencies ========================== #
 # others in dep/

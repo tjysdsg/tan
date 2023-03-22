@@ -1,5 +1,6 @@
 #include "ast/decl.h"
 #include "ast/type.h"
+#include <algorithm>
 
 using namespace tanlang;
 

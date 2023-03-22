@@ -1,4 +1,5 @@
 #include "ast/stmt.h"
+#include <algorithm>
 
 using namespace tanlang;
 

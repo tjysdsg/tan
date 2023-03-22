@@ -16,7 +16,7 @@ struct StackFrame {
   std::string file;
 };
 
-void init_back_trace(const char *) {}
+bool init_back_trace(const char *) { return true; }
 
 inline std::vector<StackFrame> stack_trace() {
   using std::cerr;
