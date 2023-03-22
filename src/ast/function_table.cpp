@@ -27,4 +27,13 @@ vector<FunctionDecl *> FunctionTable::get_all() const {
   return ret;
 }
 
+bool FunctionTable::merge(const FunctionTable &other) {
+  // TODO: raise error if function names and types are the same
+  for (auto [name, decls] : other._table) {
+    auto &t = _table[name];
+    t.insert(t.end(), decls.begin(), decls.end());
+  }
+  return true;
+}
+
 } // namespace tanlang

@@ -654,14 +654,15 @@ Value *CodeGenerator::codegen_parenthesis(ASTBase *_p) {
 Value *CodeGenerator::codegen_import(ASTBase *_p) {
   auto p = ast_cast<Import>(_p);
 
-  for (FunctionDecl *f : p->get_imported_funcs()) {
-    /// do nothing for already defined intrinsics
-    auto *func = _module->getFunction(f->get_name());
-    if (func) {
-      _llvm_value_cache[f] = func;
-    }
-    _llvm_value_cache[f] = codegen_func_prototype(f);
-  }
+  // FIXME:
+  //  for (FunctionDecl *f : p->get_imported_funcs()) {
+  //    /// do nothing for already defined intrinsics
+  //    auto *func = _module->getFunction(f->get_name());
+  //    if (func) {
+  //      _llvm_value_cache[f] = func;
+  //    }
+  //    _llvm_value_cache[f] = codegen_func_prototype(f);
+  //  }
 
   return nullptr;
 }
@@ -1132,9 +1133,9 @@ Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
   auto p = ast_cast<Identifier>(_p);
 
   switch (p->get_id_type()) {
-  case IdentifierType::ID_VAR_DECL:
+  case IdentifierType::ID_VAR_REF:
     return codegen(p->get_var_ref());
-  case IdentifierType::ID_TYPE_DECL:
+  case IdentifierType::ID_TYPE_REF:
   default:
     TAN_ASSERT(false);
     break;

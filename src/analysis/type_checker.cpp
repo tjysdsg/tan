@@ -1,4 +1,5 @@
 #include "analysis/type_checker.h"
+#include "analysis/dependency_graph.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
 #include "ast/expr.h"
@@ -18,13 +19,65 @@ class TypeCheckerImpl final {
 public:
   TypeCheckerImpl() = default;
 
-  void type_check(Package *p, bool strict) {
+  // TODO: pass in package -> source manager mapping, and use corresponding sm in error()
+  void type_check(Package *p, bool strict, const umap<str, Context *> &external_package_ctx) {
     _strict = strict;
+    _external_package_ctx = external_package_ctx;
+    _unresolved_symbols.clear();
     for (auto *src : p->get_sources()) {
       type_check_ast(src);
     }
   }
 
+  DependencyGraph get_unresolved_symbol_dependency() const { return _unresolved_symbols; }
+
+public:
+  /**
+   * \brief Check whether it's legal to implicitly convert from type `from` to type `to`
+   *        See TYPE_CASTING.md for specifications.
+   * \param from Source type.
+   * \param to Destination type.
+   */
+  static bool CanImplicitlyConvert(Type *from, Type *to);
+
+  /**
+   * \brief Find out which one of the two input types of a binary operation should operands promote to.
+   *        See TYPE_CASTING.md for specifications.
+   * \return Guaranteed to be one of `t1` and `t2`, or nullptr if cannot find a legal promotion.
+   */
+  static Type *ImplicitTypePromote(Type *t1, Type *t2);
+
+private:
+  SourceManager *_sm = nullptr;
+  vector<ASTBase *> _scopes{};
+
+  /**
+   * Any unresolved types will cause a fatal error if strict is true. They are skipped if strict is false.
+   * Set strict to false if it's certain that some types cannot be resolved at this stage.
+   */
+  bool _strict = true;
+
+  /**
+   * \brief Map external packages' names to their symbol tables. Used for import statements.
+   */
+  umap<str, Context *> _external_package_ctx{};
+
+  /**
+   * \brief Store unresolved symbols during non-strict parsing
+   */
+  DependencyGraph _unresolved_symbols{};
+
+  void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
+  void pop_scope() {
+    TAN_ASSERT(!_scopes.empty());
+    _scopes.pop_back();
+  }
+  Context *top_ctx() {
+    TAN_ASSERT(!_scopes.empty());
+    return _scopes.back()->ctx();
+  }
+
+private:
   void type_check_ast(ASTBase *p) {
     TAN_ASSERT(p);
 
@@ -32,6 +85,8 @@ public:
     case ASTNodeType::PROGRAM:
     case ASTNodeType::COMPOUND_STATEMENT:
       type_check_compound_stmt(p);
+      break;
+    case ASTNodeType::PACKAGE:
       break;
     case ASTNodeType::RET:
       type_check_ret(p);
@@ -76,43 +131,6 @@ public:
     }
   }
 
-public:
-  /**
-   * \brief Check whether it's legal to implicitly convert from type `from` to type `to`
-   *        See TYPE_CASTING.md for specifications.
-   * \param from Source type.
-   * \param to Destination type.
-   */
-  static bool CanImplicitlyConvert(Type *from, Type *to);
-
-  /**
-   * \brief Find out which one of the two input types of a binary operation should operands promote to.
-   *        See TYPE_CASTING.md for specifications.
-   * \return Guaranteed to be one of `t1` and `t2`, or nullptr if cannot find a legal promotion.
-   */
-  static Type *ImplicitTypePromote(Type *t1, Type *t2);
-
-private:
-  SourceManager *_sm = nullptr;
-  vector<ASTBase *> _scopes{};
-
-  /**
-   * Any unresolved types will cause a fatal error if strict is true. They are skipped if strict is false.
-   * Set strict to false if it's certain that some types cannot be resolved at this stage.
-   */
-  bool _strict = true;
-
-  void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
-  void pop_scope() {
-    TAN_ASSERT(!_scopes.empty());
-    _scopes.pop_back();
-  }
-  Context *top_ctx() {
-    TAN_ASSERT(!_scopes.empty());
-    return _scopes.back()->ctx();
-  }
-
-private:
   [[noreturn]] void error(ASTBase *p, const str &message) {
     Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
     err.raise();
@@ -249,48 +267,67 @@ private:
     return nullptr;
   }
 
-  void type_check_expr(Expr *p) {
-    (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p);
+  void type_check_expr(Expr *p) { (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p); }
 
-    /// assign p's type directly to the canonical type, skip TypeRef etc.
-    ///  exceptions:
-    ///     - VAR_DECL: type may be inferred in assignment expression
-    ///     - INTRINSIC: could be statement
-    if (p->get_node_type() == ASTNodeType::VAR_DECL || p->get_node_type() == ASTNodeType::INTRINSIC) {
-      return;
-    }
-    if (!p->get_type()) {
-      error(p, "[DEV] Expression must have a type after analysis");
-    }
-    p->set_type(p->get_type());
-  }
-
-  Type *resolve_type_ref(Type *p, SrcLoc loc) {
+  /**
+   * \brief Resolve type reference.
+   *        In non-strict mode, this adds a dependency from \p node to the referred declaration D
+   *        if D doesn't have a resolved type yet.
+   *        In strict mode, an error is raised.
+   * \return The referred type if successfully resolved. Return \p p as is if failed.
+   */
+  Type *resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
+    TAN_ASSERT(p->is_ref());
     Type *ret = p;
-    /// Resolve type references
-    if (p->is_ref()) {
-      auto *decl = search_decl_in_scopes(p->get_typename());
-      if (decl && decl->is_type_decl()) {
-        ret = decl->get_type(); // ret could be null here if decl is not type checked
-      } else {
-        ret = nullptr;
-        if (_strict) {
-          Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
-          err.raise();
-        }
-      }
-    } else if (p->is_pointer()) {
-      /// "flatten" pointer that points to a TypeRef
-      ret = Type::GetPointerType(resolve_type_ref(((PointerType *)p)->get_pointee(), loc));
-    }
 
-    if (!ret && _strict) {
-      Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
+    const str &referred_name = p->get_typename();
+    auto *decl = search_decl_in_scopes(referred_name);
+    if (decl && decl->is_type_decl()) {
+      if (!decl->get_type()) {
+        if (_strict) {
+          Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
+          err.raise();
+        } else {
+          _unresolved_symbols.add_dependency(decl, node);
+        }
+      } else {
+        ret = decl->get_type();
+      }
+    } else { // no matter we're in strict mode or not,
+             // the typename should've been registered after parsing and importing.
+      Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
       err.raise();
     }
 
-    // TODO: save dependencies of unresolved types so in later stage we can re-check them
-    // FIXME: caller of this function used to assumes the result is non-null
+    return ret;
+  }
+
+  /**
+   * \brief Resolve a type. If \p is a type reference, we find out the type associated with the typename.
+   * \note Returned pointer can be different from \p p.
+   */
+  Type *resolve_type(Type *p, SrcLoc loc, ASTBase *node) {
+    TAN_ASSERT(p);
+    TAN_ASSERT(node);
+
+    Type *ret = p;
+    if (p->is_ref()) {
+      ret = resolve_type_ref(p, loc, node);
+    } else if (p->is_pointer()) {
+      auto *pointee = ((PointerType *)p)->get_pointee();
+
+      TAN_ASSERT(pointee);
+      if (pointee->is_ref()) {
+        pointee = resolve_type_ref(pointee, loc, node);
+        if (!pointee->is_resolved()) {
+          // TODO: ret = Type::GetPointerType(new IncompletePointerType());
+        } else {
+          ret = Type::GetPointerType(pointee);
+        }
+      }
+    }
+
+    TAN_ASSERT(ret);
     return ret;
   }
 
@@ -298,13 +335,12 @@ private:
     auto p = ast_cast<Identifier>(_p);
     auto *referred = search_decl_in_scopes(p->get_name());
     if (referred) {
-      if (!referred->is_type_decl()) { /// refers to a variable
-        p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-        p->set_type(resolve_type_ref(referred->get_type(), p->loc()));
-      } else { /// or type ref
-        auto *ty = resolve_type_ref(referred->get_type(), p->loc());
+      if (referred->is_type_decl()) { /// refers to a type
+        auto *ty = resolve_type_ref(referred->get_type(), p->loc(), p);
         p->set_type_ref(ty);
-        p->set_type(ty);
+      } else { /// refers to a variable
+        p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
+        p->set_type(resolve_type(referred->get_type(), p->loc(), p));
       }
     } else {
       error(p, "Unknown identifier");
@@ -336,18 +372,17 @@ private:
   void type_check_var_decl(ASTBase *_p) {
     auto p = ast_cast<VarDecl>(_p);
 
-    /// type_check_ast type if specified
+    // NOTE: type_check_assignment must've set the type by now
+
     Type *ty = p->get_type();
-    if (ty) {
-      p->set_type(resolve_type_ref(ty, p->loc()));
-    }
+    p->set_type(resolve_type(ty, p->loc(), p));
 
     top_ctx()->set_decl(p->get_name(), p);
   }
 
   void type_check_arg_decl(ASTBase *_p) {
     auto p = ast_cast<ArgDecl>(_p);
-    p->set_type(resolve_type_ref(p->get_type(), p->loc()));
+    p->set_type(resolve_type(p->get_type(), p->loc(), p));
     top_ctx()->set_decl(p->get_name(), p);
   }
 
@@ -381,8 +416,23 @@ private:
     Expr *lhs = p->get_lhs();
     Expr *rhs = p->get_rhs();
 
-    /// NOTE: do not type_check_ast lhs and rhs just yet, because type_check_assignment
-    /// and type_check_member_access have their own ways of analyzing
+    if (p->get_op() == BinaryOpKind::MEMBER_ACCESS) {
+      type_check_member_access(ast_cast<MemberAccess>(p));
+      return;
+    }
+
+    type_check_ast(lhs);
+    type_check_ast(rhs);
+    if (!lhs->get_type()->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(lhs, p);
+      return;
+    }
+    if (!rhs->get_type()->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(rhs, p);
+      return;
+    }
 
     switch (p->get_op()) {
     case BinaryOpKind::SUM:
@@ -392,17 +442,12 @@ private:
     case BinaryOpKind::BAND:
     case BinaryOpKind::BOR:
     case BinaryOpKind::MOD: {
-      type_check_ast(lhs);
-      type_check_ast(rhs);
       p->set_type(auto_promote_bop_operand_types(p));
       break;
     }
     case BinaryOpKind::LAND:
     case BinaryOpKind::LOR:
     case BinaryOpKind::XOR: {
-      type_check_ast(lhs);
-      type_check_ast(rhs);
-
       // check if both operators are bool
       auto *bool_type = PrimitiveType::GetBoolType();
       p->set_lhs(create_implicit_conversion(lhs, bool_type));
@@ -415,15 +460,9 @@ private:
     case BinaryOpKind::LT:
     case BinaryOpKind::LE:
     case BinaryOpKind::EQ:
-    case BinaryOpKind::NE: {
-      type_check_ast(lhs);
-      type_check_ast(rhs);
+    case BinaryOpKind::NE:
       auto_promote_bop_operand_types(p);
       p->set_type(PrimitiveType::GetBoolType());
-      break;
-    }
-    case BinaryOpKind::MEMBER_ACCESS:
-      type_check_member_access(ast_cast<MemberAccess>(p));
       break;
     default:
       TAN_ASSERT(false);
@@ -434,6 +473,11 @@ private:
     auto *p = ast_cast<UnaryOperator>(_p);
     auto *rhs = p->get_rhs();
     type_check_ast(rhs);
+    if (!rhs->get_type()->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(rhs, p);
+      return;
+    }
 
     auto *rhs_type = rhs->get_type();
     switch (p->get_op()) {
@@ -475,7 +519,7 @@ private:
     auto *p = ast_cast<Cast>(_p);
     Expr *lhs = p->get_lhs();
     type_check_ast(lhs);
-    p->set_type(resolve_type_ref(p->get_type(), p->loc()));
+    p->set_type(resolve_type(p->get_type(), p->loc(), p));
   }
 
   void type_check_assignment(ASTBase *_p) {
@@ -483,61 +527,72 @@ private:
 
     Expr *rhs = p->get_rhs();
     type_check_ast(rhs);
+    if (!rhs->get_type()->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(rhs, p);
+      return;
+    }
 
     auto *lhs = p->get_lhs();
     Type *lhs_type = nullptr;
-    switch (lhs->get_node_type()) {
-    case ASTNodeType::ID:
-      type_check_ast(lhs);
-      lhs_type = ast_cast<Identifier>(lhs)->get_type();
-      break;
-    case ASTNodeType::VAR_DECL:
-    case ASTNodeType::ARG_DECL:
-    case ASTNodeType::BOP_OR_UOP:
-    case ASTNodeType::UOP:
-    case ASTNodeType::BOP:
-      type_check_ast(lhs);
-      lhs_type = ast_cast<Expr>(lhs)->get_type();
-      break;
-    default:
-      error(lhs, "Invalid left-hand operand");
-    }
-
-    /// if the type of lhs is not set, we deduce it
-    /// NOTE: we only allow type deduction for variable declarations
-    if (!lhs_type) {
+    if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
+      /// special case for variable declaration because we allow type inference
       lhs_type = rhs->get_type();
+      ast_cast<VarDecl>(lhs)->set_type(lhs_type);
+      type_check_ast(lhs);
+    } else {
+      type_check_ast(lhs);
 
-      /// set type of lhs
       switch (lhs->get_node_type()) {
-      case ASTNodeType::VAR_DECL:
-        ast_cast<Decl>(lhs)->set_type(lhs_type);
+      case ASTNodeType::ID: {
+        auto *id = ast_cast<Identifier>(lhs);
+        if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
+          error(lhs, "Can only assign value to a variable");
+        }
+        lhs_type = id->get_type();
+        break;
+      }
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::BOP_OR_UOP:
+      case ASTNodeType::UOP:
+      case ASTNodeType::BOP:
+        lhs_type = ast_cast<Expr>(lhs)->get_type();
         break;
       default:
-        TAN_ASSERT(false);
+        error(lhs, "Invalid left-hand operand");
       }
-      /// type_check_ast again just to make sure
-      type_check_ast(lhs);
+    }
+    p->set_type(lhs_type);
+    if (!lhs_type->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(lhs, p);
     }
 
     rhs = create_implicit_conversion(rhs, lhs_type);
     p->set_rhs(rhs);
-
     p->set_lvalue(true);
-    p->set_type(lhs_type);
   }
 
   void type_check_func_call(ASTBase *_p) {
     auto p = ast_cast<FunctionCall>(_p);
 
+    bool resolved = true;
     for (const auto &a : p->_args) {
       type_check_ast(a);
+
+      if (!a->get_type()->is_resolved()) {
+        TAN_ASSERT(!_strict);
+        _unresolved_symbols.add_dependency(a, p);
+        resolved = false;
+      }
     }
 
-    FunctionDecl *callee = search_function_callee(p);
-    p->_callee = callee;
-    auto *func_type = (FunctionType *)callee->get_type();
-    p->set_type(func_type->get_return_type());
+    if (resolved) {
+      FunctionDecl *callee = search_function_callee(p);
+      p->_callee = callee;
+      auto *func_type = (FunctionType *)callee->get_type();
+      p->set_type(func_type->get_return_type());
+    }
   }
 
   void type_check_func_decl(ASTBase *_p) {
@@ -547,9 +602,16 @@ private:
 
     push_scope(p);
 
+    bool resolved = true;
+
     /// update return type
     auto *func_type = (FunctionType *)p->get_type();
-    func_type->set_return_type(resolve_type_ref(func_type->get_return_type(), p->loc()));
+    auto *ret_type = resolve_type(func_type->get_return_type(), p->loc(), p);
+    if (!ret_type->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      resolved = false;
+    }
+    func_type->set_return_type(ret_type);
 
     /// type_check_ast args
     size_t n = p->get_n_args();
@@ -558,11 +620,17 @@ private:
     for (size_t i = 0; i < n; ++i) {
       type_check_ast(arg_decls[i]); /// args will be added to the scope here
       arg_types[i] = arg_decls[i]->get_type();
+
+      if (!arg_types[i]->is_resolved()) {
+        TAN_ASSERT(!_strict);
+        _unresolved_symbols.add_dependency(arg_decls[i], p);
+        resolved = false;
+      }
     }
     func_type->set_arg_types(arg_types); /// update arg types
 
     /// function body
-    if (!p->is_external()) {
+    if (resolved && !p->is_external()) {
       type_check_ast(p->get_body());
     }
 
@@ -572,36 +640,22 @@ private:
   void type_check_import(ASTBase *_p) {
     auto p = ast_cast<Import>(_p);
 
-    str file = p->get_filename();
+    str file = p->package_name();
     auto imported = Compiler::resolve_import(_sm->get_filename(), file);
     if (imported.empty()) {
       error(p, "Cannot import: " + file);
     }
 
-    auto *compiler = new Compiler(imported[0]);
-    compiler->parse(); // only need to parse the file now
-    Context *imported_ctx = compiler->get_root_ast()->ctx();
-
-    // import functions
-    vector<FunctionDecl *> funcs = imported_ctx->get_functions();
-    vector<FunctionDecl *> pub_funcs{};
-    for (auto *f : funcs) {
-      if (f->is_public() || f->is_external()) {
-        pub_funcs.push_back(f);
-        top_ctx()->add_function_decl(f);
+    const auto &q = _external_package_ctx.find(file);
+    if (q == _external_package_ctx.end()) {
+      if (_strict) {
+        error(p, fmt::format("Unknown package {}", file));
+      } else {
+        return;
       }
     }
-    p->set_imported_funcs(pub_funcs);
 
-    // import type declarations
-    // TODO: distinguish local and global type decls
-    vector<Decl *> decls = imported_ctx->get_decls();
-    vector<TypeDecl *> type_decls{};
-    for (auto *t : decls) {
-      if (t->is_type_decl()) {
-        top_ctx()->set_decl(t->get_name(), t);
-      }
-    }
+    top_ctx()->merge(*q->second);
   }
 
   void type_check_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
@@ -774,13 +828,13 @@ private:
     p->set_type(Type::GetArrayType(element_type, (int)elements.size()));
   }
 
-  /// ASSUMES lhs has been already type_checkd, while rhs has not
+  // ASSUMES lhs has a resolved type
   void type_check_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
     if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
       error(p, "Invalid member function call");
     }
 
-    /// get address of the struct instance
+    // insert the address of the struct instance as the first parameter
     if (lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
       Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
       type_check_ast(tmp);
@@ -789,14 +843,23 @@ private:
       rhs->_args.insert(rhs->_args.begin(), lhs);
     }
 
-    /// postpone analysis of FUNC_CALL until now
     type_check_ast(rhs);
-    p->set_type(rhs->get_type());
+    auto *rhs_type = rhs->get_type();
+    if (!rhs_type->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(rhs, p);
+    }
+    p->set_type(rhs_type);
   }
 
-  /// ASSUMES lhs has been already type_checkd, while rhs has not
+  // ASSUMES lhs has a resolved type
   void type_check_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     type_check_ast(rhs);
+    if (!rhs->get_type()->is_resolved()) {
+      TAN_ASSERT(!_strict);
+      _unresolved_symbols.add_dependency(rhs, p);
+      return;
+    }
 
     if (!lhs->is_lvalue()) {
       error(p, "Expect lhs to be an lvalue");
@@ -831,7 +894,7 @@ private:
     p->set_type(sub_type);
   }
 
-  /// ASSUMES lhs has been already type_checkd, while rhs has not
+  // ASSUMES lhs has a resolved type
   void type_check_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     str m_name = ast_cast<Identifier>(rhs)->get_name();
     Type *struct_ty = nullptr;
@@ -842,22 +905,28 @@ private:
       struct_ty = lhs->get_type();
     }
 
-    struct_ty = resolve_type_ref(struct_ty, lhs->loc());
+    struct_ty = resolve_type(struct_ty, lhs->loc(), p);
     if (!struct_ty->is_struct()) {
       error(lhs, "Expect a struct type");
     }
 
     auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
-    auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
-    p->set_type(resolve_type_ref(ty, p->loc()));
+    auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
+    ty = resolve_type(ty, p->loc(), p);
+    p->set_type(ty);
   }
 
   void type_check_member_access(MemberAccess *p) {
     Expr *lhs = p->get_lhs();
     type_check_ast(lhs);
-    Expr *rhs = p->get_rhs();
+    if (!lhs->get_type()->is_resolved()) {
+      TAN_ASSERT(_strict);
+      _unresolved_symbols.add_dependency(lhs, p);
+      return;
+    }
 
+    Expr *rhs = p->get_rhs();
     if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
       p->_access_type = MemberAccess::MemberAccessMemberFunction;
       auto func_call = ast_cast<FunctionCall>(rhs);
@@ -874,7 +943,6 @@ private:
 
   void type_check_struct_decl(ASTBase *_p) {
     auto p = ast_cast<StructDecl>(_p);
-
     str struct_name = p->get_name();
 
     /// check if struct name is in conflicts of variable/function names
@@ -898,7 +966,12 @@ private:
     vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
-      type_check_ast(m); // TODO IMPORTANT: don't save type_checkd decl to Context
+      type_check_ast(m); // TODO IMPORTANT: don't save member variable declarations to Context
+
+      if (!m->get_type()->is_resolved()) {
+        TAN_ASSERT(!_strict);
+        _unresolved_symbols.add_dependency(m, p);
+      }
 
       if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
         /// fill members
@@ -984,7 +1057,13 @@ private:
   };
 };
 
-void TypeChecker::type_check(Package *p, bool strict) { ((TypeCheckerImpl *)_impl)->type_check(p, strict); }
+void TypeChecker::type_check(Package *p, bool strict, const umap<str, Context *> &external_package_ctx) {
+  ((TypeCheckerImpl *)_impl)->type_check(p, strict, external_package_ctx);
+}
+
+DependencyGraph TypeChecker::get_unresolved_symbol_dependency() const {
+  return ((TypeCheckerImpl *)_impl)->get_unresolved_symbol_dependency();
+}
 
 TypeChecker::TypeChecker() { _impl = new TypeCheckerImpl(); }
 

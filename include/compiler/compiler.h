@@ -15,6 +15,7 @@ class CodeGenerator;
 class Program;
 class SourceManager;
 class Package;
+class Context;
 
 /**
  * \brief Compiler is responsible for parsing, type checking, and generating machine code of the input files.
@@ -63,11 +64,6 @@ public:
   void parse(const str &filename);
 
   /**
-   * \brief Merge parsed modules of the same package
-   */
-  void merge_parsed_modules_by_package();
-
-  /**
    * Semantic analysis, include package dependency analysis, name resolution, and type checking.
    */
   void analyze();
@@ -95,7 +91,13 @@ public:
 private:
   umap<str, vector<ParsedModule>> _parsed_modules{};
   umap<str, Package *> _packages{};
+  umap<str, Context *> _package_ctx{};
   CodeGenerator *_cg = nullptr;
+
+  /**
+   * \brief Merge parsed modules of the same package
+   */
+  void merge_parsed_modules_by_package();
 };
 
 } // namespace tanlang

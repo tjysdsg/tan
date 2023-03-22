@@ -28,6 +28,7 @@ public:
   void set_node_type(ASTNodeType node_type);
   [[nodiscard]] int get_bp() const;
   [[nodiscard]] Context *ctx();
+  void set_ctx(Context *ctx);
 
   /**
    * \brief Get a ordered list of child nodes

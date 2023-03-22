@@ -46,8 +46,18 @@ public:
 
   ASTBase *owner() const;
 
+  /**
+   * \brief Merge this context with another. Fail on name conflicts.
+   * \return True if success
+   */
+  bool merge(const Context &other);
+
 private:
-  umap<str, Decl *> _type_decls{};
+  /**
+   * \brief Variable and type declarations
+   */
+  umap<str, Decl *> _decls{};
+
   FunctionTable _function_table{};
   ASTBase *_owner = nullptr;
 };

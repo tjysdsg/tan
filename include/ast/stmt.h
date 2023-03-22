@@ -68,14 +68,11 @@ protected:
 public:
   static Import *Create(SrcLoc loc);
 
-  void set_filename(const str &s);
-  [[nodiscard]] const str &get_filename() const;
-  [[nodiscard]] const vector<FunctionDecl *> &get_imported_funcs() const;
-  void set_imported_funcs(const vector<FunctionDecl *> &imported_funcs);
+  void set_package_name(const str &s);
+  [[nodiscard]] const str &package_name() const;
 
 private:
-  str _filename;
-  vector<FunctionDecl *> _imported_funcs{};
+  str _package_name;
 };
 
 class BreakContinue : public Stmt {

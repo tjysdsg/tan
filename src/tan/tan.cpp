@@ -128,7 +128,6 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
     END_TRY
   }
 
-  compiler.merge_parsed_modules_by_package();
   compiler.analyze();
   compiler.codegen();
   if (print_ir_code) {

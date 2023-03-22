@@ -65,13 +65,9 @@ Import *Import::Create(SrcLoc loc) { return new Import(loc); }
 
 Import::Import(SrcLoc loc) : Stmt(ASTNodeType::IMPORT, loc) {}
 
-void Import::set_filename(const str &s) { _filename = s; }
+void Import::set_package_name(const str &s) { _package_name = s; }
 
-const str &Import::get_filename() const { return _filename; }
-
-const vector<FunctionDecl *> &Import::get_imported_funcs() const { return _imported_funcs; }
-
-void Import::set_imported_funcs(const vector<FunctionDecl *> &imported_funcs) { _imported_funcs = imported_funcs; }
+const str &Import::package_name() const { return _package_name; }
 
 /// \section Break or continue statement
 

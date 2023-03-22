@@ -19,6 +19,8 @@ Context *ASTBase::ctx() {
   return _ctx;
 }
 
+void ASTBase::set_ctx(Context *ctx) { _ctx = ctx; }
+
 void ASTBase::printTree() const {
   using std::cout;
   cout << this->to_string(true) << "\n";

@@ -12,6 +12,7 @@ public:
   void set(FunctionDecl *func);
   vector<FunctionDecl *> get(const str &name);
   [[nodiscard]] vector<FunctionDecl *> get_all() const;
+  bool merge(const FunctionTable &other);
 
 private:
   umap<str, vector<FunctionDecl *>> _table{};

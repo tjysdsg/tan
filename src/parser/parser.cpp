@@ -94,6 +94,7 @@ private:
     return ret;
   }
 
+  // TODO: optimize peek_type() -> parse_ty() combo
   Type *peek_type() {
     return Type::GetTypeRef(at(_curr)->get_value()); // placeholder type
   }
@@ -743,8 +744,7 @@ private:
       error(_curr, "Invalid import statement");
     }
     parse_node(rhs);
-    str filename = ast_cast<StringLiteral>(rhs)->get_value();
-    p->set_filename(filename);
+    p->set_package_name(ast_cast<StringLiteral>(rhs)->get_value());
   }
 
   void parse_package_stmt(ASTBase *_p) {

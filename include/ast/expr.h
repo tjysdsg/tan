@@ -150,7 +150,7 @@ public:
   static VarRef *Create(SrcLoc loc, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
-  Type *get_type() const override;
+  [[nodiscard]] Type *get_type() const override;
   void set_type(Type *) override;
 
 private:
@@ -159,8 +159,8 @@ private:
 
 enum class IdentifierType {
   INVALID,
-  ID_VAR_DECL,
-  ID_TYPE_DECL,
+  ID_VAR_REF,
+  ID_TYPE_REF,
 };
 
 class Identifier : public Expr, public ASTNamed {
@@ -174,16 +174,12 @@ public:
   void set_var_ref(VarRef *var_ref);
   void set_type_ref(Type *type_ref);
   [[nodiscard]] VarRef *get_var_ref() const;
-  [[nodiscard]] Type *get_type_ref() const;
   bool is_lvalue() override;
   void set_lvalue(bool is_lvalue) override;
 
 private:
   IdentifierType _id_type = IdentifierType::INVALID;
-  union {
-    VarRef *_var_ref = nullptr;
-    Type *_type_ref;
-  };
+  VarRef *_var_ref = nullptr;
 };
 
 /// make sure to sync this with BinaryOperator::BOPPrecedence

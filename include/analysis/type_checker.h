@@ -5,12 +5,15 @@
 namespace tanlang {
 
 class Package;
+class Context;
+class DependencyGraph;
 
 class TypeChecker {
 public:
   TypeChecker();
   ~TypeChecker();
-  void type_check(Package *p, bool strict);
+  void type_check(Package *p, bool strict, const umap<str, Context *> &external_package_ctx);
+  DependencyGraph get_unresolved_symbol_dependency() const;
 
 private:
   void *_impl = nullptr;
