@@ -39,6 +39,16 @@ static bool ParsingMRIScript;
   exit(1);
 }
 
+static void failIfError(std::error_code EC, Twine Context = "") {
+  if (!EC)
+    return;
+
+  std::string ContextStr = Context.str();
+  if (ContextStr.empty())
+    fail(EC.message());
+  fail(Context + ": " + EC.message());
+}
+
 static void failIfError(Error E, Twine Context = "") {
   if (!E) {
     return;
@@ -70,16 +80,14 @@ static std::vector<str> Members;
 inline std::string normalizePath(StringRef Path) { return std::string(sys::path::filename(Path)); }
 
 static bool comparePaths(StringRef Path1, StringRef Path2) {
-/**
- * when on Windows this function calls CompareStringOrdinal
- * as Windows file paths are case-insensitive.
- * CompareStringOrdinal compares two Unicode strings for
- * binary equivalence and allows for case insensitivity.
- */
+// When on Windows this function calls CompareStringOrdinal
+// as Windows file paths are case-insensitive.
+// CompareStringOrdinal compares two Unicode strings for
+// binary equivalence and allows for case insensitivity.
 #ifdef _WIN32
   SmallVector<wchar_t, 128> WPath1, WPath2;
-  failIfError(sys::path::widenPath(normalizePath(Path1), WPath1));
-  failIfError(sys::path::widenPath(normalizePath(Path2), WPath2));
+  failIfError(sys::windows::UTF8ToUTF16(normalizePath(Path1), WPath1));
+  failIfError(sys::windows::UTF8ToUTF16(normalizePath(Path2), WPath2));
 
   return CompareStringOrdinal(WPath1.data(), WPath1.size(), WPath2.data(), WPath2.size(), true) == CSTR_EQUAL;
 #else

@@ -2,6 +2,7 @@
 #include "ast/type.h"
 #include "ast/decl.h"
 #include <utility>
+#include <algorithm>
 
 using namespace tanlang;
 

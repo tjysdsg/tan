@@ -14,10 +14,10 @@
 #endif
 #ifdef _MSC_VER
 
-/// fix bunch of errors caused by macros defined in windows.h
 #pragma warning(disable : 4596)
 #include <windows.h>
 #include <DbgHelp.h>
+/// fix bunch of errors caused by macros defined in windows.h
 #undef min
 #undef max
 #undef OPTIONAL
