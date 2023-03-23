@@ -236,21 +236,7 @@ private:
     return nullptr;
   }
 
-  void analyze_expr(Expr *p) {
-    (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p);
-
-    /// assign p's type directly to the canonical type, skip TypeRef etc.
-    ///  exceptions:
-    ///     - VAR_DECL: type may be inferred in assignment expression
-    ///     - INTRINSIC: could be statement
-    if (p->get_node_type() == ASTNodeType::VAR_DECL || p->get_node_type() == ASTNodeType::INTRINSIC) {
-      return;
-    }
-    if (!p->get_type()) {
-      error(p, "[DEV] Expression must have a type after analysis");
-    }
-    p->set_type(p->get_type());
-  }
+  void analyze_expr(Expr *p) { (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p); }
 
   Type *analyze_ty(Type *p, SrcLoc loc) {
     Type *ret = p;
