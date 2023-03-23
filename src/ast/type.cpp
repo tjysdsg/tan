@@ -112,6 +112,8 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
+IncompleteType *Type::GetIncompleteType() { return new IncompleteType(); }
+
 bool Type::is_primitive() { return false; }
 
 bool Type::is_pointer() { return false; }

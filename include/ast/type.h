@@ -13,6 +13,7 @@ class TypeRef;
 class StructType;
 class StructDecl;
 class FunctionType;
+class IncompleteType;
 
 /**
  * \brief Type is immutable once created, and it's made sure that each type has only one instance
@@ -32,6 +33,7 @@ public:
   [[nodiscard]] static FunctionType *GetFunctionType(Type *ret_type, const vector<Type *> &arg_types);
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
+  [[nodiscard]] static IncompleteType *GetIncompleteType();
 
   static inline vector<str> ALL_TYPE_NAMES{"bool", "int", "float", "f32", "str", "char", "f64", "i8",
                                            "u8",   "i16", "u16",   "i32", "u32", "i64",  "u64", "void"};
@@ -262,6 +264,16 @@ public:
 
 protected:
   TypeRef(const str &name);
+};
+
+class IncompleteType : public Type {
+public:
+  friend class Type;
+
+protected:
+  IncompleteType() = default;
+
+  bool is_resolved() const override { return false; }
 };
 
 } // namespace tanlang

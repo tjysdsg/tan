@@ -743,11 +743,11 @@ private:
 
     _curr.offset_by(1); /// skip "import"
     auto rhs = peek();
-    if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
+    if (rhs->get_node_type() != ASTNodeType::ID) {
       error(_curr, "Invalid import statement");
     }
     parse_node(rhs);
-    p->set_package_name(ast_cast<StringLiteral>(rhs)->get_value());
+    p->set_package_name(ast_cast<Identifier>(rhs)->get_name());
   }
 
   void parse_package_stmt(ASTBase *_p) {

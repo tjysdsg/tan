@@ -237,7 +237,7 @@ private:
       }
     }
 
-    if (!ret) {
+    if (!ret && _strict) {
       Error err(_sm->get_filename(), _sm->get_token(p->loc()), "Unknown function call: " + name);
       err.raise();
     }
@@ -593,6 +593,11 @@ private:
 
     if (resolved) {
       FunctionDecl *callee = search_function_callee(p);
+      if (!callee) {
+        TAN_ASSERT(!_strict);
+        p->set_type(Type::GetIncompleteType());
+        return;
+      }
       p->_callee = callee;
       auto *func_type = (FunctionType *)callee->get_type();
       p->set_type(func_type->get_return_type());
