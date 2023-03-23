@@ -40,22 +40,23 @@ Compiler::Compiler() {
 }
 
 void Compiler::emit_objects() {
-  // FIXME: _cg->emit_to_file(filename);
+  for (auto [package_name, package] : _packages) {
+    _cgs[package_name]->emit_to_file(package_name + ".o");
+  }
 }
 
-Value *Compiler::codegen() {
-  // FIXME:
-  //  TAN_ASSERT(_parsed_module._program);
-  //  TAN_ASSERT(!_cg);
-  //  _cg = new CodeGenerator(_sm, target_machine);
-  //  auto *ret = _cg->codegen(_parsed_module._program);
-  //  return ret;
-  return nullptr;
+void Compiler::codegen() {
+  for (auto [package_name, package] : _packages) {
+    auto *cg = new CodeGenerator(package_name, target_machine);
+    _cgs[package_name] = cg;
+    cg->codegen(package);
+  }
 }
 
-void Compiler::dump_ir() const {
-  TAN_ASSERT(_cg);
-  _cg->dump_ir();
+void Compiler::dump_ir() {
+  for (auto [package_name, package] : _packages) {
+    _cgs[package_name]->dump_ir();
+  }
 }
 
 void Compiler::dump_ast() const {

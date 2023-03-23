@@ -1,6 +1,7 @@
 #include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
+#include "ast/package.h"
 #include "ast/constructor.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -21,11 +22,10 @@ AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *ty
   }
 }
 
-CodeGenerator::CodeGenerator(SourceManager *sm, TargetMachine *target_machine)
-    : _sm(sm), _target_machine(target_machine) {
+CodeGenerator::CodeGenerator(str module_name, TargetMachine *target_machine) : _target_machine(target_machine) {
   _llvm_ctx = new LLVMContext();
   _builder = new IRBuilder<>(*_llvm_ctx);
-  _module = new Module(_sm->get_filename(), *_llvm_ctx);
+  _module = new Module(module_name, *_llvm_ctx);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
   auto opt_level = (llvm::CodeGenOpt::Level)Compiler::compile_config.opt_level;
@@ -37,7 +37,7 @@ CodeGenerator::CodeGenerator(SourceManager *sm, TargetMachine *target_machine)
 
   /// debug related
   _di_builder = new DIBuilder(*_module);
-  _di_file = _di_builder->createFile(_sm->get_filename(), ".");
+  _di_file = _di_builder->createFile(module_name, ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
 
@@ -120,7 +120,17 @@ void CodeGenerator::emit_to_file(const str &filename) {
 
 void CodeGenerator::dump_ir() const { _module->print(llvm::outs(), nullptr); }
 
-Value *CodeGenerator::codegen(ASTBase *p) {
+void CodeGenerator::codegen(Package *p) {
+  int i = 0;
+  const auto &sms = p->get_source_managers();
+  for (auto *ast : p->get_asts()) {
+    _sm = sms[i];
+    codegen_ast(ast);
+    ++i;
+  }
+}
+
+Value *CodeGenerator::codegen_ast(ASTBase *p) {
   auto it = _llvm_value_cache.find(p);
   if (it != _llvm_value_cache.end()) {
     return it->second;
@@ -197,6 +207,7 @@ Value *CodeGenerator::codegen(ASTBase *p) {
     ret = codegen_binary_or_unary(p);
     break;
   case ASTNodeType::STRUCT_DECL:
+  case ASTNodeType::PACKAGE:
     /// don't do anything
     break;
   default:
@@ -443,7 +454,7 @@ Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
   vector<Value *> arg_vals;
   for (size_t i = 0; i < n; ++i) {
     auto actual_arg = p->_args[i];
-    auto *a = codegen(actual_arg);
+    auto *a = codegen_ast(actual_arg);
     if (!a) {
       error(actual_arg, "Invalid function call argument");
     }
@@ -517,7 +528,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
     size_t i = 0;
     for (auto &a : F->args()) {
       auto arg_name = p->get_arg_name(i);
-      auto *arg_val = codegen(p->get_arg_decls()[i]);
+      auto *arg_val = codegen_ast(p->get_arg_decls()[i]);
       _builder->CreateStore(&a, arg_val);
 
       /// create a debug descriptor for the arguments
@@ -530,7 +541,7 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
     }
 
     /// generate function body
-    codegen(p->get_body());
+    codegen_ast(p->get_body());
 
     /// create a return instruction if there is none, the return value is the default value of the return type
     auto *trailing_block = _builder->GetInsertBlock();
@@ -558,7 +569,7 @@ void CodeGenerator::set_current_debug_location(ASTBase *p) {
 Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
   auto p = ast_cast<UnaryOperator>(_p);
 
-  auto *rhs = codegen(p->get_rhs());
+  auto *rhs = codegen_ast(p->get_rhs());
   if (!rhs) {
     error(p, "Invalid operand");
   }
@@ -571,7 +582,7 @@ Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
 Value *CodeGenerator::codegen_lnot(ASTBase *_p) {
   auto p = ast_cast<UnaryOperator>(_p);
 
-  auto *rhs = codegen(p->get_rhs());
+  auto *rhs = codegen_ast(p->get_rhs());
 
   if (!rhs) {
     error(p, "Invalid operand");
@@ -596,7 +607,7 @@ Value *CodeGenerator::codegen_return(ASTBase *_p) {
 
   auto rhs = p->get_rhs();
   if (rhs) { /// return with value
-    Value *result = codegen(rhs);
+    Value *result = codegen_ast(rhs);
     if (rhs->is_lvalue()) {
       result = _builder->CreateLoad(to_llvm_type(rhs->get_type()), result);
     }
@@ -643,12 +654,12 @@ Value *CodeGenerator::codegen_address_of(ASTBase *_p) {
     error(p, "Cannot get address of rvalue");
   }
 
-  return codegen(p->get_rhs());
+  return codegen_ast(p->get_rhs());
 }
 
 Value *CodeGenerator::codegen_parenthesis(ASTBase *_p) {
   auto p = ast_cast<Parenthesis>(_p);
-  return codegen(p->get_sub());
+  return codegen_ast(p->get_sub());
 }
 
 Value *CodeGenerator::codegen_import(ASTBase *_p) {
@@ -670,14 +681,14 @@ Value *CodeGenerator::codegen_import(ASTBase *_p) {
 Value *CodeGenerator::codegen_intrinsic(Intrinsic *p) {
   Value *ret = nullptr;
   switch (p->get_intrinsic_type()) {
-    /// trivial codegen
+    /// trivial codegen_ast
   case IntrinsicType::GET_DECL:
   case IntrinsicType::LINENO:
   case IntrinsicType::NOOP:
   case IntrinsicType::ABORT:
   case IntrinsicType::STACK_TRACE:
   case IntrinsicType::FILENAME: {
-    ret = codegen(p->get_sub());
+    ret = codegen_ast(p->get_sub());
     break;
   }
   default:
@@ -690,7 +701,7 @@ Value *CodeGenerator::codegen_constructor(Constructor *p) {
   Value *ret = nullptr;
   switch (p->get_type()) {
   case ConstructorType::BASIC:
-    ret = codegen(((BasicConstructor *)p)->get_value());
+    ret = codegen_ast(((BasicConstructor *)p)->get_value());
     break;
   case ConstructorType::STRUCT: {
     auto *ctr = (StructConstructor *)p;
@@ -785,12 +796,12 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
     auto elements = arr->get_elements();
     auto *e_type = to_llvm_type(((ArrayType *)ptype)->get_element_type());
 
-    /// codegen element values
+    /// codegen_ast element values
     size_t n = elements.size();
     ret = create_block_alloca(_builder->GetInsertBlock(), e_type, n, "const_array");
     for (size_t i = 0; i < n; ++i) {
       auto *idx = _builder->getInt32((unsigned)i);
-      auto *e_val = codegen(elements[i]);
+      auto *e_val = codegen_ast(elements[i]);
       auto *e_ptr = _builder->CreateGEP(e_type, ret, idx);
       _builder->CreateStore(e_val, e_ptr);
     }
@@ -807,7 +818,7 @@ Value *CodeGenerator::codegen_stmt(ASTBase *_p) {
   auto p = ast_cast<CompoundStmt>(_p);
 
   for (const auto &e : p->get_children()) {
-    codegen(e);
+    codegen_ast(e);
   }
   return nullptr;
 }
@@ -831,10 +842,10 @@ Value *CodeGenerator::codegen_uop(ASTBase *_p) {
     ret = codegen_ptr_deref(p);
     break;
   case UnaryOpKind::PLUS:
-    ret = codegen(rhs);
+    ret = codegen_ast(rhs);
     break;
   case UnaryOpKind::MINUS: {
-    auto *r = codegen(rhs);
+    auto *r = codegen_ast(rhs);
     if (rhs->is_lvalue()) {
       r = _builder->CreateLoad(to_llvm_type(rhs->get_type()), r);
     }
@@ -893,7 +904,7 @@ Value *CodeGenerator::codegen_bop(ASTBase *_p) {
 Value *CodeGenerator::codegen_assignment(ASTBase *_p) {
   auto p = ast_cast<Assignment>(_p);
 
-  /// codegen the lhs and rhs
+  /// codegen_ast the lhs and rhs
   auto *lhs = ast_cast<Expr>(p->get_lhs());
   auto *rhs = p->get_rhs();
 
@@ -902,9 +913,9 @@ Value *CodeGenerator::codegen_assignment(ASTBase *_p) {
     error(lhs, "Value can only be assigned to an lvalue");
   }
 
-  Value *from = codegen(rhs);
+  Value *from = codegen_ast(rhs);
   from = load_if_is_lvalue(rhs);
-  Value *to = codegen(lhs);
+  Value *to = codegen_ast(lhs);
   TAN_ASSERT(from && to);
 
   _builder->CreateStore(from, to);
@@ -917,8 +928,8 @@ Value *CodeGenerator::codegen_arithmetic(ASTBase *_p) {
   /// binary operator
   auto *lhs = p->get_lhs();
   auto *rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
+  Value *l = codegen_ast(lhs);
+  Value *r = codegen_ast(rhs);
   r = load_if_is_lvalue(rhs);
   l = load_if_is_lvalue(lhs);
 
@@ -990,8 +1001,8 @@ Value *CodeGenerator::codegen_comparison(ASTBase *_p) {
 
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
+  Value *l = codegen_ast(lhs);
+  Value *r = codegen_ast(rhs);
 
   bool is_signed = !lhs->get_type()->is_unsigned();
   r = load_if_is_lvalue(rhs);
@@ -1073,8 +1084,8 @@ Value *CodeGenerator::codegen_relop(ASTBase *_p) {
 
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
+  Value *l = codegen_ast(lhs);
+  Value *r = codegen_ast(rhs);
 
   r = load_if_is_lvalue(rhs);
   l = load_if_is_lvalue(lhs);
@@ -1110,7 +1121,7 @@ Value *CodeGenerator::codegen_cast(ASTBase *_p) {
   auto lhs = p->get_lhs();
   auto *dest_type = to_llvm_type(p->get_type());
 
-  Value *val = codegen(lhs);
+  Value *val = codegen_ast(lhs);
   TAN_ASSERT(val);
 
   Value *ret = nullptr;
@@ -1126,7 +1137,7 @@ Value *CodeGenerator::codegen_cast(ASTBase *_p) {
 
 Value *CodeGenerator::codegen_var_ref(ASTBase *_p) {
   auto p = ast_cast<VarRef>(_p);
-  return codegen(p->get_referred());
+  return codegen_ast(p->get_referred());
 }
 
 Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
@@ -1134,7 +1145,7 @@ Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
 
   switch (p->get_id_type()) {
   case IdentifierType::ID_VAR_REF:
-    return codegen(p->get_var_ref());
+    return codegen_ast(p->get_var_ref());
   case IdentifierType::ID_TYPE_REF:
   default:
     TAN_ASSERT(false);
@@ -1144,7 +1155,7 @@ Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
 
 Value *CodeGenerator::codegen_binary_or_unary(ASTBase *_p) {
   auto p = ast_cast<BinaryOrUnary>(_p);
-  return codegen(p->get_expr_ptr());
+  return codegen_ast(p->get_expr_ptr());
 }
 
 Value *CodeGenerator::codegen_break_continue(ASTBase *_p) {
@@ -1199,7 +1210,7 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
 
     /// condition
     _builder->SetInsertPoint(p->_loop_start);
-    auto *cond = codegen(p->get_predicate());
+    auto *cond = codegen_ast(p->get_predicate());
     if (!cond) {
       error(p, "Expected a condition expression");
     }
@@ -1207,7 +1218,7 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
 
     /// loop body
     _builder->SetInsertPoint(loop_body);
-    codegen(p->get_body());
+    codegen_ast(p->get_body());
 
     /// go back to the start of the loop
     // create a br instruction if there is no terminator instruction at the end of this block
@@ -1239,7 +1250,7 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
     then_blocks[i] = BasicBlock::Create(*_llvm_ctx, "branch", func);
   }
 
-  /// codegen branches
+  /// codegen_ast branches
   _builder->CreateBr(cond_blocks[0]);
   for (size_t i = 0; i < n; ++i) {
     /// condition
@@ -1250,7 +1261,7 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
       TAN_ASSERT(i == n - 1); /// only the last branch can be an else
       _builder->CreateBr(then_blocks[i]);
     } else {
-      codegen(cond);
+      codegen_ast(cond);
       Value *cond_v = load_if_is_lvalue(cond);
       if (i < n - 1) {
         _builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
@@ -1261,7 +1272,7 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
 
     /// then clause
     _builder->SetInsertPoint(then_blocks[i]);
-    codegen(p->get_branch(i));
+    codegen_ast(p->get_branch(i));
 
     /// go to merge block if there is no terminator instruction at the end of then
     if (!_builder->GetInsertBlock()->back().isTerminator()) {
@@ -1279,14 +1290,14 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
 
-  auto *lhs_val = codegen(lhs);
+  auto *lhs_val = codegen_ast(lhs);
 
   Value *ret = nullptr;
   switch (p->_access_type) {
   case MemberAccess::MemberAccessBracket: {
     lhs_val = load_if_is_lvalue(lhs);
 
-    codegen(rhs);
+    codegen_ast(rhs);
     auto *rhs_val = load_if_is_lvalue(rhs);
 
     llvm::Type *element_type = nullptr;
@@ -1322,7 +1333,7 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
   }
   case MemberAccess::MemberAccessMemberFunction:
     // TODO: codegen for member function call
-    ret = codegen(rhs);
+    ret = codegen_ast(rhs);
     break;
   default:
     TAN_ASSERT(false);
@@ -1333,7 +1344,7 @@ Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
 
 Value *CodeGenerator::codegen_ptr_deref(UnaryOperator *p) {
   auto *rhs = p->get_rhs();
-  Value *val = codegen(rhs);
+  Value *val = codegen_ast(rhs);
   TAN_ASSERT(val->getType()->isPointerTy());
 
   /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue

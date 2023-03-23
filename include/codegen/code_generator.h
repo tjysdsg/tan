@@ -1,21 +1,30 @@
 #ifndef __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #include "base.h"
-#include "ast/fwd.h"
 #include "llvm_api/llvm_include.h"
+#include "ast/source_manager.h"
 
 namespace tanlang {
 
 class ASTBase;
+class Package;
+class Expr;
+class Type;
+class FunctionDecl;
+class Intrinsic;
+class Constructor;
+class MemberAccess;
+class UnaryOperator;
 
 class CodeGenerator {
 public:
   CodeGenerator() = delete;
-  CodeGenerator(SourceManager *sm, llvm::TargetMachine *target_machine);
+  CodeGenerator(str module_name, llvm::TargetMachine *target_machine);
   ~CodeGenerator();
   void emit_to_file(const str &filename);
   void dump_ir() const;
-  llvm::Value *codegen(ASTBase *p);
+  void codegen(Package *p);
+  llvm::Value *codegen_ast(ASTBase *p);
 
   /**
    * \brief Convert a value to from orig type to dest type.

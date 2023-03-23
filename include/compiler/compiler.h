@@ -71,7 +71,7 @@ public:
   /**
    * \brief Generate LLVM IR code
    * */
-  llvm::Value *codegen();
+  void codegen();
 
   /**
    * \brief Emit object files
@@ -81,7 +81,7 @@ public:
   /**
    * \brief Print LLVM IR code
    * */
-  void dump_ir() const;
+  void dump_ir();
 
   /**
    * \brief Pretty-print AST
@@ -92,7 +92,7 @@ private:
   umap<str, vector<ParsedModule>> _parsed_modules{};
   umap<str, Package *> _packages{};
   umap<str, Context *> _package_ctx{};
-  CodeGenerator *_cg = nullptr;
+  umap<str, CodeGenerator *> _cgs{};
 
   /**
    * \brief Merge parsed modules of the same package
