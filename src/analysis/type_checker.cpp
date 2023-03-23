@@ -710,7 +710,7 @@ private:
   inline void find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
     auto q = Intrinsic::intrinsics.find(name);
     if (q == Intrinsic::intrinsics.end()) {
-      error(p, "Unknown intrinsic");
+      error(p, fmt::format("Unknown intrinsic {}", name));
     }
     p->set_intrinsic_type(q->second);
   }

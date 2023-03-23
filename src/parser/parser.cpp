@@ -663,6 +663,9 @@ private:
         p->set_body(expect_stmt(body));
       }
     }
+
+    // TODO: check for duplicated function declaration
+    _root->ctx()->add_function_decl(p);
   }
 
   void parse_func_call(ASTBase *_p) {
@@ -862,6 +865,7 @@ private:
         error(p->loc(), "Cannot redefine a struct");
       }
     } else {
+      // TODO IMPORTANT: remove forward decl
       p->set_is_forward_decl(true);
     }
 
