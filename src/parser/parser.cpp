@@ -7,6 +7,7 @@
 #include "ast/intrinsic.h"
 #include "lexer/token.h"
 #include <iostream>
+#include <filesystem>
 
 using namespace tanlang;
 using tanlang::TokenType; // distinguish from the one in winnt.h
@@ -761,6 +762,7 @@ private:
 
     parse_node(rhs);
     str name = ast_cast<Identifier>(rhs)->get_name();
+    name = std::filesystem::path(name).filename().string();
     p->set_name(name);
     _package_name = name;
   }
