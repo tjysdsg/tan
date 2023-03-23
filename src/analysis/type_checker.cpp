@@ -644,16 +644,11 @@ private:
   void type_check_import(ASTBase *_p) {
     auto p = ast_cast<Import>(_p);
 
-    str file = p->package_name();
-    auto imported = Compiler::resolve_import(_sm->get_filename(), file);
-    if (imported.empty()) {
-      error(p, "Cannot import: " + file);
-    }
-
-    const auto &q = _external_package_ctx.find(file);
+    str package_name = p->package_name();
+    const auto &q = _external_package_ctx.find(package_name);
     if (q == _external_package_ctx.end()) {
       if (_strict) {
-        error(p, fmt::format("Unknown package {}", file));
+        error(p, fmt::format("Unknown package {}", package_name));
       } else {
         return;
       }

@@ -13,6 +13,7 @@ class Type;
 class FunctionDecl;
 class Intrinsic;
 class Constructor;
+class Context;
 class MemberAccess;
 class UnaryOperator;
 
@@ -23,7 +24,7 @@ public:
   ~CodeGenerator();
   void emit_to_file(const str &filename);
   void dump_ir() const;
-  void codegen(Package *p);
+  void codegen(Package *p, const umap<str, Context *> &external_package_ctx);
   llvm::Value *codegen_ast(ASTBase *p);
 
   /**
@@ -45,6 +46,7 @@ public:
 
 private:
   SourceManager *_sm = nullptr;
+  umap<str, Context *> _external_package_ctx{};
 
   umap<Type *, llvm::Type *> _llvm_type_cache{};
   umap<ASTBase *, llvm::Value *> _llvm_value_cache{};

@@ -1,6 +1,7 @@
 #include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
+#include "ast/context.h"
 #include "ast/package.h"
 #include "ast/constructor.h"
 #include "ast/expr.h"
@@ -120,7 +121,9 @@ void CodeGenerator::emit_to_file(const str &filename) {
 
 void CodeGenerator::dump_ir() const { _module->print(llvm::outs(), nullptr); }
 
-void CodeGenerator::codegen(Package *p) {
+void CodeGenerator::codegen(Package *p, const umap<str, Context *> &external_package_ctx) {
+  _external_package_ctx = external_package_ctx;
+
   int i = 0;
   const auto &sms = p->get_source_managers();
   for (auto *ast : p->get_asts()) {
@@ -665,15 +668,21 @@ Value *CodeGenerator::codegen_parenthesis(ASTBase *_p) {
 Value *CodeGenerator::codegen_import(ASTBase *_p) {
   auto p = ast_cast<Import>(_p);
 
-  // FIXME:
-  //  for (FunctionDecl *f : p->get_imported_funcs()) {
-  //    /// do nothing for already defined intrinsics
-  //    auto *func = _module->getFunction(f->get_name());
-  //    if (func) {
-  //      _llvm_value_cache[f] = func;
-  //    }
-  //    _llvm_value_cache[f] = codegen_func_prototype(f);
-  //  }
+  str package_name = p->package_name();
+  const auto &q = _external_package_ctx.find(package_name);
+  if (q == _external_package_ctx.end()) {
+    error(p, fmt::format("Unknown package {}", package_name));
+  }
+  Context *ctx = q->second;
+
+  for (FunctionDecl *f : ctx->get_functions()) {
+    /// do nothing for already defined intrinsics
+    auto *func = _module->getFunction(f->get_name());
+    if (func) {
+      _llvm_value_cache[f] = func;
+    }
+    _llvm_value_cache[f] = codegen_func_prototype(f);
+  }
 
   return nullptr;
 }
