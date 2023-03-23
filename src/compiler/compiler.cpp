@@ -82,11 +82,13 @@ void Compiler::merge_parsed_modules_by_package() {
   TAN_ASSERT(!_parsed_modules.empty());
 
   for (const auto &p : _parsed_modules) {
-    vector<Program *> sources(p.second.size());
+    vector<Program *> asts(p.second.size());
+    vector<SourceManager *> sms(p.second.size());
     for (int i = 0; i < p.second.size(); ++i) {
-      sources[i] = p.second[i]._program;
+      asts[i] = p.second[i]._program;
+      sms[i] = p.second[i]._sm;
     }
-    _packages[p.first] = Package::Create(p.first, sources);
+    _packages[p.first] = Package::Create(p.first, asts, sms);
   }
 }
 
@@ -97,7 +99,7 @@ void Compiler::analyze() {
   // from all source files and imported packages in a symbol table.
   for (auto [package_name, package] : _packages) {
     Context *ctx = new Context(nullptr);
-    for (auto *m : package->get_sources()) {
+    for (auto *m : package->get_asts()) {
       if (!ctx->merge(*m->ctx())) {
         Error err(fmt::format("Name conflicts in {}", package_name));
         err.raise();
@@ -107,7 +109,7 @@ void Compiler::analyze() {
     _package_ctx[package_name] = ctx;
 
     // update top-level context of every source file
-    for (auto *m : package->get_sources()) {
+    for (auto *m : package->get_asts()) {
       m->set_ctx(ctx);
     }
   }

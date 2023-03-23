@@ -24,8 +24,12 @@ public:
     _strict = strict;
     _external_package_ctx = external_package_ctx;
     _unresolved_symbols.clear();
-    for (auto *src : p->get_sources()) {
-      type_check_ast(src);
+    int i = 0;
+    const auto &sms = p->get_source_managers();
+    for (auto *ast : p->get_asts()) {
+      _sm = sms[i];
+      type_check_ast(ast);
+      ++i;
     }
   }
 
