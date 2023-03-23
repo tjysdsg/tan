@@ -1132,9 +1132,9 @@ Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
   auto p = ast_cast<Identifier>(_p);
 
   switch (p->get_id_type()) {
-  case IdentifierType::ID_VAR_DECL:
+  case IdentifierType::ID_VAR_REF:
     return codegen(p->get_var_ref());
-  case IdentifierType::ID_TYPE_DECL:
+  case IdentifierType::ID_TYPE_REF:
   default:
     TAN_ASSERT(false);
     break;

@@ -133,6 +133,14 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
     }
     END_TRY
   }
+
+  /// Semantic analysis
+  for (size_t i = 0; i < n_files; ++i) {
+    BEGIN_TRY
+    compilers[i]->analyze();
+    END_TRY
+  }
+
   /// _codegen
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY

@@ -116,27 +116,23 @@ Identifier *Identifier::Create(SrcLoc loc, const str &name) {
 IdentifierType Identifier::get_id_type() const { return _id_type; }
 
 VarRef *Identifier::get_var_ref() const {
-  TAN_ASSERT(_id_type == IdentifierType::ID_VAR_DECL);
+  TAN_ASSERT(_id_type == IdentifierType::ID_VAR_REF);
   return _var_ref;
 }
 
-Type *Identifier::get_type_ref() const {
-  TAN_ASSERT(_id_type == IdentifierType::ID_TYPE_DECL);
-  return _type_ref;
-}
-
 void Identifier::set_var_ref(VarRef *var_ref) {
-  _id_type = IdentifierType::ID_VAR_DECL;
+  _id_type = IdentifierType::ID_VAR_REF;
   _var_ref = var_ref;
 }
 
 void Identifier::set_type_ref(Type *type_ref) {
-  _id_type = IdentifierType::ID_TYPE_DECL;
-  _type_ref = type_ref;
+  _id_type = IdentifierType::ID_TYPE_REF;
+  set_type(type_ref);
 }
 
 bool Identifier::is_lvalue() {
-  if (_id_type == IdentifierType::ID_VAR_DECL) {
+  TAN_ASSERT(_id_type != IdentifierType::INVALID);
+  if (_id_type == IdentifierType::ID_VAR_REF) {
     return true;
   }
   return false;

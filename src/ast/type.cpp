@@ -112,6 +112,8 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
+IncompleteType *Type::GetIncompleteType() { return new IncompleteType(); }
+
 bool Type::is_primitive() { return false; }
 
 bool Type::is_pointer() { return false; }
@@ -150,6 +152,19 @@ int Type::get_size_bits() {
   return 0;
 }
 
+vector<Type *> Type::children() const { TAN_ASSERT(false); }
+
+bool Type::is_resolved() const {
+  bool resolved = true;
+  auto children = this->children();
+  for (auto *c : children) {
+    if (!c->is_resolved()) {
+      resolved = false;
+    }
+  }
+  return resolved;
+}
+
 int PrimitiveType::get_size_bits() { return SIZE_BITS[_kind]; }
 
 int PrimitiveType::get_align_bits() {
@@ -160,6 +175,8 @@ int PrimitiveType::get_align_bits() {
 PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
   _type_name = pointee_type->get_typename() + "*";
 }
+
+vector<Type *> PointerType::children() const { return {_pointee_type}; }
 
 // TODO: find out the pointer size from llvm::TargetMachine
 int PointerType::get_align_bits() { return 64; }
@@ -172,6 +189,8 @@ int StringType::get_size_bits() { return 64; }
 ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
 }
+
+vector<Type *> ArrayType::children() const { return {_element_type}; }
 
 StringType::StringType() { _type_name = "str"; }
 
@@ -208,3 +227,9 @@ vector<Type *> FunctionType::get_arg_types() const { return _arg_types; }
 void FunctionType::set_arg_types(const vector<Type *> &arg_types) { _arg_types = arg_types; }
 
 void FunctionType::set_return_type(Type *t) { _ret_type = t; }
+
+vector<Type *> FunctionType::children() const {
+  vector<Type *> ret{_ret_type};
+  ret.insert(ret.begin(), _arg_types.begin(), _arg_types.end());
+  return ret;
+}

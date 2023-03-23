@@ -13,6 +13,7 @@ class TypeRef;
 class StructType;
 class StructDecl;
 class FunctionType;
+class IncompleteType;
 
 /**
  * \brief Type is immutable once created, and it's made sure that each type has only one instance
@@ -32,6 +33,7 @@ public:
   [[nodiscard]] static FunctionType *GetFunctionType(Type *ret_type, const vector<Type *> &arg_types);
   [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
+  [[nodiscard]] static IncompleteType *GetIncompleteType();
 
   static inline vector<str> ALL_TYPE_NAMES{"bool", "int", "float", "f32", "str", "char", "f64", "i8",
                                            "u8",   "i16", "u16",   "i32", "u32", "i64",  "u64", "void"};
@@ -56,6 +58,9 @@ public:
 
   virtual int get_align_bits();
   virtual int get_size_bits();
+
+  virtual vector<Type *> children() const;
+  virtual bool is_resolved() const;
 
   const str &get_typename() { return _type_name; }
 
@@ -146,6 +151,8 @@ public:
   bool is_bool() override { return _kind == BOOL; }
   bool is_void() override { return _kind == VOID; }
   bool is_char() override { return _kind == CHAR; }
+  vector<Type *> children() const override { return {}; }
+  bool is_resolved() const override { return true; }
 
   int get_align_bits() override;
   int get_size_bits() override;
@@ -165,6 +172,7 @@ public:
   Type *get_pointee() { return _pointee_type; }
   int get_align_bits() override;
   int get_size_bits() override;
+  vector<Type *> children() const override;
 
   friend class Type;
 
@@ -182,6 +190,7 @@ public:
   bool is_array() override { return true; }
   int get_align_bits() override;
   int get_size_bits() override;
+  vector<Type *> children() const override;
 
   friend class Type;
 
@@ -198,6 +207,8 @@ public:
   bool is_string() override { return true; }
   int get_align_bits() override;
   int get_size_bits() override;
+  vector<Type *> children() const override { return {}; }
+  bool is_resolved() const override { return true; }
 
   friend class Type;
 
@@ -211,6 +222,7 @@ public:
   vector<Type *> get_member_types() const { return _member_types; };
   int get_align_bits() override;
   int get_size_bits() override;
+  vector<Type *> children() const override { return _member_types; }
 
   friend class Type;
 
@@ -228,6 +240,7 @@ public:
   void set_return_type(Type *t);
   vector<Type *> get_arg_types() const;
   void set_arg_types(const vector<Type *> &arg_types);
+  vector<Type *> children() const override;
 
   friend class Type;
 
@@ -246,9 +259,21 @@ class TypeRef : public Type {
 public:
   friend class Type;
   bool is_ref() override { return true; }
+  vector<Type *> children() const override { return {}; }
+  bool is_resolved() const override { return false; }
 
 protected:
   TypeRef(const str &name);
+};
+
+class IncompleteType : public Type {
+public:
+  friend class Type;
+
+protected:
+  IncompleteType() = default;
+
+  bool is_resolved() const override { return false; }
 };
 
 } // namespace tanlang

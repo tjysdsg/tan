@@ -7,6 +7,7 @@ namespace tanlang {
 class AnalyzerImpl;
 class Program;
 class SourceManager;
+class ASTBase;
 
 class Analyzer {
 public:
@@ -14,6 +15,8 @@ public:
   explicit Analyzer(SourceManager *sm);
   ~Analyzer();
   void analyze(Program *p);
+  void analyze_top_level_declarations(Program *p);
+  vector<ASTBase *> sorted_unresolved_symbols() const;
 
 private:
   AnalyzerImpl *_analyzer_impl = nullptr;

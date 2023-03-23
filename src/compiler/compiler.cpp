@@ -5,6 +5,7 @@
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/decl.h"
 #include "ast/context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
@@ -67,17 +68,34 @@ void Compiler::parse() {
   Reader reader;
   reader.open(_filename);
 
+  // tokenization
   auto tokens = tokenize(&reader);
-  _sm = new SourceManager(_filename, tokens);
 
+  // syntactic parsing
+  _sm = new SourceManager(_filename, tokens);
   auto *parser = new Parser(_sm);
   _ast = parser->parse();
 
-  // TODO: register intrinsic functions on the package level
+  // register intrinsic functions
   auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
   for (auto *f : intrinsic_funcs) {
     _ast->ctx()->add_function_decl(f);
   }
+
+  // symbol dependency analysis
+  _analyzer = new Analyzer(_sm);
+  _analyzer->analyze_top_level_declarations(_ast);
+}
+
+void Compiler::analyze() {
+  // TODO: use sorted dependency graph for the second pass
+  vector<ASTBase *> sorted = _analyzer->sorted_unresolved_symbols();
+  std::cout << "Sorted unresolved symbol dependency:\n";
+  for (auto *d : sorted) {
+    str name = ast_cast<Decl>(d)->get_name();
+    std::cout << name << '\n';
+  }
+
   Analyzer analyzer(_sm);
   analyzer.analyze(_ast);
 }

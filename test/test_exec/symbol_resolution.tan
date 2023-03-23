@@ -27,6 +27,12 @@ struct Type {
     var size: i32;
 }
 
+fn mess_up_list(l: List*, m: Metadata) : void {
+    l.val.v = 0;
+    l.val.meta = meta;
+    l.next = &l;
+}
+
 pub fn main(argc: int, argv: u8**) : i32 {
     var n1: List;
     var n2: List;
@@ -52,6 +58,10 @@ pub fn main(argc: int, argv: u8**) : i32 {
     assert(n1.val.v == 1);
     assert(n1.next.val.v == 2);
     assert(n1.next.next.val.v == 1);
+
+    mess_up_list(&n1, meta);
+    assert(n1.val.v == 0);
+    assert(n1.next.val.v == 0);
 
     print("SUCCESS\n");
     return 0;

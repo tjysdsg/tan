@@ -8,6 +8,7 @@
 #include "ast/context.h"
 #include "lexer/token.h"
 #include "compiler/compiler.h"
+#include "analysis/dependency_graph.h"
 #include <iostream>
 #include <csetjmp>
 
@@ -19,7 +20,32 @@ class AnalyzerImpl final {
 public:
   explicit AnalyzerImpl(SourceManager *sm) : _sm(sm) {}
 
-  void analyze(ASTBase *p) {
+  vector<ASTBase *> sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
+
+  void analyze_top_level_declarations(Program *p) {
+    _strict = false;
+    push_scope(p);
+
+    for (const auto &c : p->get_children()) {
+      if (c->get_node_type() == ASTNodeType::IMPORT) {
+        analyze_import(c);
+      } else if (c->get_node_type() == ASTNodeType::STRUCT_DECL) {
+        analyze_struct_decl(c);
+      } else if (c->get_node_type() == ASTNodeType::FUNC_DECL) {
+        analyze_func_decl_prototype(c);
+      }
+    }
+
+    pop_scope();
+  }
+
+  void analyze(Program *p) {
+    _strict = true;
+    analyze_ast(p);
+  }
+
+private:
+  void analyze_ast(ASTBase *p) {
     TAN_ASSERT(p);
 
     switch (p->get_node_type()) {
@@ -85,9 +111,14 @@ public:
    */
   static Type *ImplicitTypePromote(Type *t1, Type *t2);
 
-private:
   SourceManager *_sm = nullptr;
+  bool _strict = false;
   vector<ASTBase *> _scopes{};
+
+  /**
+   * \brief Store unresolved symbols during non-strict parsing
+   */
+  DependencyGraph _unresolved_symbols{};
 
   void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
   void pop_scope() {
@@ -238,29 +269,60 @@ private:
 
   void analyze_expr(Expr *p) { (this->*EXPRESSION_ANALYZER_TABLE[p->get_node_type()])(p); }
 
-  Type *analyze_ty(Type *p, SrcLoc loc) {
+  /**
+   * \brief Resolve type reference.
+   *        In non-strict mode, this adds a dependency from \p node to the referred declaration D
+   *        if D doesn't have a resolved type yet.
+   *        In strict mode, an error is raised.
+   * \return The referred type if successfully resolved. Return \p p as is if failed.
+   */
+  Type *resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
+    TAN_ASSERT(p->is_ref());
     Type *ret = p;
-    /// Resolve type references
-    if (p->is_ref()) {
-      auto *decl = search_decl_in_scopes(p->get_typename());
-      if (!decl || !decl->is_type_decl()) {
-        Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
-        err.raise();
-      }
-      ret = decl->get_type();
 
-      if (!ret) { // FIXME [HACK]: analyze the type if not done already
-        analyze(decl);
+    const str &referred_name = p->get_typename();
+    auto *decl = search_decl_in_scopes(referred_name);
+    if (decl && decl->is_type_decl()) {
+      if (!decl->get_type() || !decl->get_type()->is_resolved()) {
+        if (_strict) {
+          Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
+          err.raise();
+        } else {
+          _unresolved_symbols.add_dependency(decl, node);
+        }
+      } else {
         ret = decl->get_type();
       }
+    } else { // no matter we're in strict mode or not,
+             // the typename should've been registered after parsing and importing.
+      Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
+      err.raise();
+    }
 
-      if (!ret) {
-        Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", p->get_typename()));
-        err.raise();
-      }
+    return ret;
+  }
+
+  /**
+   * \brief Resolve a type. If \p is a type reference, we find out the type associated with the typename.
+   * \note Returned pointer can be different from \p p.
+   */
+  Type *resolve_type(Type *p, SrcLoc loc, ASTBase *node) {
+    TAN_ASSERT(p);
+    TAN_ASSERT(node);
+
+    Type *ret = p;
+    if (p->is_ref()) {
+      ret = resolve_type_ref(p, loc, node);
     } else if (p->is_pointer()) {
-      /// "flatten" pointer that points to a TypeRef
-      ret = Type::GetPointerType(analyze_ty(((PointerType *)p)->get_pointee(), loc));
+      auto *pointee = ((PointerType *)p)->get_pointee();
+
+      TAN_ASSERT(pointee);
+      if (pointee->is_ref()) {
+        pointee = resolve_type_ref(pointee, loc, node);
+        if (pointee->is_resolved()) {
+          ret = Type::GetPointerType(pointee);
+        }
+      }
     }
 
     TAN_ASSERT(ret);
@@ -271,13 +333,12 @@ private:
     auto p = ast_cast<Identifier>(_p);
     auto *referred = search_decl_in_scopes(p->get_name());
     if (referred) {
-      if (!referred->is_type_decl()) { /// refers to a variable
-        p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-        p->set_type(analyze_ty(referred->get_type(), p->loc()));
-      } else { /// or type ref
-        auto *ty = analyze_ty(referred->get_type(), p->loc());
+      if (referred->is_type_decl()) { /// refers to a type
+        auto *ty = resolve_type_ref(referred->get_type(), p->loc(), p);
         p->set_type_ref(ty);
-        p->set_type(ty);
+      } else { /// refers to a variable
+        p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
+        p->set_type(resolve_type(referred->get_type(), p->loc(), p));
       }
     } else {
       error(p, "Unknown identifier");
@@ -286,7 +347,7 @@ private:
 
   void analyze_parenthesis(ASTBase *_p) {
     auto p = ast_cast<Parenthesis>(_p);
-    analyze(p->get_sub());
+    analyze_ast(p->get_sub());
     p->set_type(p->get_sub()->get_type());
   }
 
@@ -298,29 +359,28 @@ private:
     for (size_t i = 0; i < n; ++i) {
       auto *cond = p->get_predicate(i);
       if (cond) { /// can be nullptr, meaning an "else" branch
-        analyze(cond);
+        analyze_ast(cond);
         p->set_predicate(i, create_implicit_conversion(cond, Type::GetBoolType()));
       }
 
-      analyze(p->get_branch(i));
+      analyze_ast(p->get_branch(i));
     }
   }
 
   void analyze_var_decl(ASTBase *_p) {
     auto p = ast_cast<VarDecl>(_p);
 
-    /// analyze type if specified
+    // NOTE: analyze_assignment must've set the type by now
+
     Type *ty = p->get_type();
-    if (ty) {
-      p->set_type(analyze_ty(ty, p->loc()));
-    }
+    p->set_type(resolve_type(ty, p->loc(), p));
 
     top_ctx()->set_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_cast<ArgDecl>(_p);
-    p->set_type(analyze_ty(p->get_type(), p->loc()));
+    p->set_type(resolve_type(p->get_type(), p->loc(), p));
     top_ctx()->set_decl(p->get_name(), p);
   }
 
@@ -329,7 +389,7 @@ private:
     auto p = ast_cast<Return>(_p);
     auto *rhs = p->get_rhs();
     if (rhs) {
-      analyze(rhs);
+      analyze_ast(rhs);
     }
   }
 
@@ -338,7 +398,7 @@ private:
     push_scope(p);
 
     for (const auto &c : p->get_children()) {
-      analyze(c);
+      analyze_ast(c);
     }
 
     pop_scope();
@@ -346,7 +406,7 @@ private:
 
   void analyze_bop_or_uop(ASTBase *_p) {
     auto p = ast_cast<BinaryOrUnary>(_p);
-    analyze(p->get_expr_ptr());
+    analyze_ast(p->get_expr_ptr());
   }
 
   void analyze_bop(ASTBase *_p) {
@@ -354,8 +414,13 @@ private:
     Expr *lhs = p->get_lhs();
     Expr *rhs = p->get_rhs();
 
-    /// NOTE: do not analyze lhs and rhs just yet, because analyze_assignment
-    /// and analyze_member_access have their own ways of analyzing
+    if (p->get_op() == BinaryOpKind::MEMBER_ACCESS) {
+      analyze_member_access(ast_cast<MemberAccess>(p));
+      return;
+    }
+
+    analyze_ast(lhs);
+    analyze_ast(rhs);
 
     switch (p->get_op()) {
     case BinaryOpKind::SUM:
@@ -365,17 +430,12 @@ private:
     case BinaryOpKind::BAND:
     case BinaryOpKind::BOR:
     case BinaryOpKind::MOD: {
-      analyze(lhs);
-      analyze(rhs);
       p->set_type(auto_promote_bop_operand_types(p));
       break;
     }
     case BinaryOpKind::LAND:
     case BinaryOpKind::LOR:
     case BinaryOpKind::XOR: {
-      analyze(lhs);
-      analyze(rhs);
-
       // check if both operators are bool
       auto *bool_type = PrimitiveType::GetBoolType();
       p->set_lhs(create_implicit_conversion(lhs, bool_type));
@@ -388,15 +448,9 @@ private:
     case BinaryOpKind::LT:
     case BinaryOpKind::LE:
     case BinaryOpKind::EQ:
-    case BinaryOpKind::NE: {
-      analyze(lhs);
-      analyze(rhs);
+    case BinaryOpKind::NE:
       auto_promote_bop_operand_types(p);
       p->set_type(PrimitiveType::GetBoolType());
-      break;
-    }
-    case BinaryOpKind::MEMBER_ACCESS:
-      analyze_member_access(ast_cast<MemberAccess>(p));
       break;
     default:
       TAN_ASSERT(false);
@@ -406,7 +460,7 @@ private:
   void analyze_uop(ASTBase *_p) {
     auto *p = ast_cast<UnaryOperator>(_p);
     auto *rhs = p->get_rhs();
-    analyze(rhs);
+    analyze_ast(rhs);
 
     auto *rhs_type = rhs->get_type();
     switch (p->get_op()) {
@@ -447,64 +501,57 @@ private:
   void analyze_cast(ASTBase *_p) {
     auto *p = ast_cast<Cast>(_p);
     Expr *lhs = p->get_lhs();
-    analyze(lhs);
-    p->set_type(analyze_ty(p->get_type(), p->loc()));
+    analyze_ast(lhs);
+    p->set_type(resolve_type(p->get_type(), p->loc(), p));
   }
 
   void analyze_assignment(ASTBase *_p) {
     auto *p = ast_cast<Assignment>(_p);
 
     Expr *rhs = p->get_rhs();
-    analyze(rhs);
+    analyze_ast(rhs);
 
     auto *lhs = p->get_lhs();
     Type *lhs_type = nullptr;
-    switch (lhs->get_node_type()) {
-    case ASTNodeType::ID:
-      analyze(lhs);
-      lhs_type = ast_cast<Identifier>(lhs)->get_type();
-      break;
-    case ASTNodeType::VAR_DECL:
-    case ASTNodeType::ARG_DECL:
-    case ASTNodeType::BOP_OR_UOP:
-    case ASTNodeType::UOP:
-    case ASTNodeType::BOP:
-      analyze(lhs);
-      lhs_type = ast_cast<Expr>(lhs)->get_type();
-      break;
-    default:
-      error(lhs, "Invalid left-hand operand");
-    }
-
-    /// if the type of lhs is not set, we deduce it
-    /// NOTE: we only allow type deduction for variable declarations
-    if (!lhs_type) {
+    if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
+      /// special case for variable declaration because we allow type inference
       lhs_type = rhs->get_type();
+      ast_cast<VarDecl>(lhs)->set_type(lhs_type);
+      analyze_ast(lhs);
+    } else {
+      analyze_ast(lhs);
 
-      /// set type of lhs
       switch (lhs->get_node_type()) {
-      case ASTNodeType::VAR_DECL:
-        ast_cast<Decl>(lhs)->set_type(lhs_type);
+      case ASTNodeType::ID: {
+        auto *id = ast_cast<Identifier>(lhs);
+        if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
+          error(lhs, "Can only assign value to a variable");
+        }
+        lhs_type = id->get_type();
+        break;
+      }
+      case ASTNodeType::ARG_DECL:
+      case ASTNodeType::BOP_OR_UOP:
+      case ASTNodeType::UOP:
+      case ASTNodeType::BOP:
+        lhs_type = ast_cast<Expr>(lhs)->get_type();
         break;
       default:
-        TAN_ASSERT(false);
+        error(lhs, "Invalid left-hand operand");
       }
-      /// analyze again just to make sure
-      analyze(lhs);
     }
+    p->set_type(lhs_type);
 
     rhs = create_implicit_conversion(rhs, lhs_type);
     p->set_rhs(rhs);
-
     p->set_lvalue(true);
-    p->set_type(lhs_type);
   }
 
   void analyze_func_call(ASTBase *_p) {
     auto p = ast_cast<FunctionCall>(_p);
 
     for (const auto &a : p->_args) {
-      analyze(a);
+      analyze_ast(a);
     }
 
     FunctionDecl *callee = search_function_callee(p);
@@ -513,7 +560,12 @@ private:
     p->set_type(func_type->get_return_type());
   }
 
-  void analyze_func_decl(ASTBase *_p) {
+  void analyze_func_decl(ASTBase *p) {
+    analyze_func_decl_prototype(p);
+    analyze_func_body(p);
+  }
+
+  void analyze_func_decl_prototype(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
     _scopes.front()->ctx()->add_function_decl(p);
@@ -522,26 +574,44 @@ private:
 
     /// update return type
     auto *func_type = (FunctionType *)p->get_type();
-    func_type->set_return_type(analyze_ty(func_type->get_return_type(), p->loc()));
+    auto *ret_type = resolve_type(func_type->get_return_type(), p->loc(), p);
+    if (!ret_type->is_resolved()) {
+      TAN_ASSERT(!_strict);
+    }
+    func_type->set_return_type(ret_type);
 
-    /// analyze args
+    /// type_check_ast args
     size_t n = p->get_n_args();
     const auto &arg_decls = p->get_arg_decls();
     vector<Type *> arg_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
-      analyze(arg_decls[i]); /// args will be added to the scope here
+      analyze_ast(arg_decls[i]); /// args will be added to the scope here
       arg_types[i] = arg_decls[i]->get_type();
+
+      if (!arg_types[i]->is_resolved()) {
+        TAN_ASSERT(!_strict);
+        _unresolved_symbols.add_dependency(arg_decls[i], p);
+      }
     }
     func_type->set_arg_types(arg_types); /// update arg types
 
-    /// function body
+    pop_scope();
+  }
+
+  void analyze_func_body(ASTBase *_p) {
+    auto *p = ast_cast<FunctionDecl>(_p);
+
+    push_scope(p);
+
     if (!p->is_external()) {
-      analyze(p->get_body());
+      analyze_ast(p->get_body());
     }
 
     pop_scope();
   }
 
+  // TODO: analyze top-level declarations of the imported files because they might contains unresolved symbols
+  // TODO: check recursive import
   void analyze_import(ASTBase *_p) {
     auto p = ast_cast<Import>(_p);
 
@@ -582,13 +652,13 @@ private:
     switch (p->get_intrinsic_type()) {
     case IntrinsicType::STACK_TRACE: {
       func_call->set_name(Intrinsic::STACK_TRACE_FUNCTION_REAL_NAME);
-      analyze(func_call);
+      analyze_ast(func_call);
       p->set_type(void_type);
       break;
     }
     case IntrinsicType::ABORT:
     case IntrinsicType::NOOP:
-      analyze(func_call);
+      analyze_ast(func_call);
       p->set_type(void_type);
       break;
     case IntrinsicType::GET_DECL: {
@@ -625,7 +695,7 @@ private:
   inline void find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
     auto q = Intrinsic::intrinsics.find(name);
     if (q == Intrinsic::intrinsics.end()) {
-      error(p, "Unknown intrinsic");
+      error(p, fmt::format("Unknown intrinsic {}", name));
     }
     p->set_intrinsic_type(q->second);
   }
@@ -680,7 +750,7 @@ private:
       } else {
         auto error_catcher = ErrorCatcher((const ErrorCatcher::callback_t &)[&](str) { longjmp(buf, 1); });
         Error::CatchErrors(&error_catcher);
-        analyze(p->get_sub());
+        analyze_ast(p->get_sub());
       }
 
       Error::ResetErrorCatcher();
@@ -736,7 +806,7 @@ private:
     auto elements = p->get_elements();
     Type *element_type = nullptr;
     for (auto *e : elements) {
-      analyze(e);
+      analyze_ast(e);
       if (!element_type) {
         element_type = e->get_type();
       }
@@ -753,23 +823,22 @@ private:
       error(p, "Invalid member function call");
     }
 
-    /// get address of the struct instance
+    // insert the address of the struct instance as the first parameter
     if (lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
       Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
-      analyze(tmp);
+      analyze_ast(tmp);
       rhs->_args.insert(rhs->_args.begin(), tmp);
     } else {
       rhs->_args.insert(rhs->_args.begin(), lhs);
     }
 
-    /// postpone analysis of FUNC_CALL until now
-    analyze(rhs);
+    analyze_ast(rhs);
     p->set_type(rhs->get_type());
   }
 
-  /// ASSUMES lhs has been already analyzed, while rhs has not
+  // ASSUMES lhs has a resolved type
   void analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
-    analyze(rhs);
+    analyze_ast(rhs);
 
     if (!lhs->is_lvalue()) {
       error(p, "Expect lhs to be an lvalue");
@@ -804,7 +873,7 @@ private:
     p->set_type(sub_type);
   }
 
-  /// ASSUMES lhs has been already analyzed, while rhs has not
+  // ASSUMES lhs has a resolved type
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     str m_name = ast_cast<Identifier>(rhs)->get_name();
     Type *struct_ty = nullptr;
@@ -815,20 +884,21 @@ private:
       struct_ty = lhs->get_type();
     }
 
-    struct_ty = analyze_ty(struct_ty, lhs->loc());
+    struct_ty = resolve_type(struct_ty, lhs->loc(), p);
     if (!struct_ty->is_struct()) {
       error(lhs, "Expect a struct type");
     }
 
     auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
     p->_access_idx = struct_decl->get_struct_member_index(m_name);
-    auto ty = struct_decl->get_struct_member_ty(p->_access_idx);
-    p->set_type(analyze_ty(ty, p->loc()));
+    auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
+    p->set_type(resolve_type(ty, p->loc(), p));
   }
 
   void analyze_member_access(MemberAccess *p) {
     Expr *lhs = p->get_lhs();
-    analyze(lhs);
+    analyze_ast(lhs);
+
     Expr *rhs = p->get_rhs();
 
     if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
@@ -871,7 +941,22 @@ private:
     vector<Type *> child_types(n, nullptr);
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
-      analyze(m); // TODO IMPORTANT: don't save analyzed decl to Context
+      analyze_ast(m); // TODO IMPORTANT: don't save member variable declarations to Context
+
+      /*
+       * DO NOT add unresolved symbol dependency if m's type is a pointer to an unresolved type reference
+       * This allows us to define a struct that holds a pointer to itself, like LinkedList.
+       *
+       * This works because:
+       * 1. m is registered in the unresolved symbol dependency graph so it will be re-analyzed in
+       *    the final analysis stage.
+       * 2. Nothing actually directly relies on the type of m. For example, size in bits is always the size of a
+       *    pointer.
+       */
+      if (!m->get_type()->is_resolved() && !m->get_type()->is_pointer()) {
+        TAN_ASSERT(!_strict);
+        _unresolved_symbols.add_dependency(m, p);
+      }
 
       if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
         /// fill members
@@ -917,8 +1002,8 @@ private:
     auto *p = ast_cast<Loop>(_p);
     push_scope(p);
 
-    analyze(p->get_predicate());
-    analyze(p->get_body());
+    analyze_ast(p->get_predicate());
+    analyze_ast(p->get_body());
 
     pop_scope();
   }
@@ -962,6 +1047,10 @@ void Analyzer::analyze(Program *p) { _analyzer_impl->analyze(p); }
 Analyzer::Analyzer(SourceManager *sm) { _analyzer_impl = new AnalyzerImpl(sm); }
 
 Analyzer::~Analyzer() { delete _analyzer_impl; }
+
+void Analyzer::analyze_top_level_declarations(Program *p) { _analyzer_impl->analyze_top_level_declarations(p); }
+
+vector<ASTBase *> Analyzer::sorted_unresolved_symbols() const { return _analyzer_impl->sorted_unresolved_symbols(); }
 
 #include "implicit_cast.hpp"
 

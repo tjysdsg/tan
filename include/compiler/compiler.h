@@ -10,6 +10,7 @@ class Value;
 
 namespace tanlang {
 
+class Analyzer;
 class CodeGenerator;
 class Program;
 class SourceManager;
@@ -66,6 +67,11 @@ public:
   void parse();
 
   /**
+   * \brief Semantic Analysis
+   * */
+  void analyze();
+
+  /**
    * \brief Generate LLVM IR code
    * */
   llvm::Value *codegen();
@@ -93,6 +99,7 @@ private:
   str _filename;
   SourceManager *_sm = nullptr;
   CodeGenerator *_cg = nullptr;
+  Analyzer *_analyzer = nullptr;
 };
 
 } // namespace tanlang
