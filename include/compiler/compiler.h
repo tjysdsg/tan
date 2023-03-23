@@ -88,6 +88,8 @@ public:
    */
   void dump_ast() const;
 
+  vector<str> get_package_names() const;
+
 private:
   umap<str, vector<ParsedModule>> _parsed_modules{};
   umap<str, Package *> _packages{};

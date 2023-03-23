@@ -134,13 +134,15 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
     compiler.dump_ir();
   }
 
-  // TODO: print output object files and the corresponding package name
   compiler.emit_objects();
 
   /// link
-  files.insert(files.begin(), obj_files.begin(), obj_files.end());
+  vector<str> packages = compiler.get_package_names();
+  for (str p : packages) {
+    obj_files.push_back(p + ".o");
+  }
   if (config->type != OBJ) {
-    bool ret = _link(files, config);
+    bool ret = _link(obj_files, config);
     if (!ret) {
       std::cerr << "Error linking files\n";
     }

@@ -128,7 +128,14 @@ void CodeGenerator::codegen(Package *p, const umap<str, Context *> &external_pac
   const auto &sms = p->get_source_managers();
   for (auto *ast : p->get_asts()) {
     _sm = sms[i];
-    codegen_ast(ast);
+
+    // top-level function prototypes
+    vector<FunctionDecl *> funcs = ast->ctx()->get_functions();
+    for (auto *f : funcs) {
+      codegen_ast(f);
+    }
+
+    // codegen_ast(ast);
     ++i;
   }
 }
@@ -521,11 +528,11 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
     /// debug information
     DIScope *di_scope = get_current_di_scope();
     auto *di_func_t = create_function_debug_info_type(ret_meta, arg_metas);
-    DISubprogram *subprogram = _di_builder->createFunction(
-        di_scope, func_name, func_name, _di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
-        DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
-    F->setSubprogram(subprogram);
-    push_di_scope(subprogram);
+    // FIXME: DISubprogram *subprogram = _di_builder->createFunction(
+    //          di_scope, func_name, func_name, _di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
+    //          DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
+    //  F->setSubprogram(subprogram);
+    //  push_di_scope(subprogram);
 
     /// add_ctx all function arguments to scope
     size_t i = 0;
@@ -536,10 +543,10 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
 
       /// create a debug descriptor for the arguments
       auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->loc());
-      llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
-          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
-      _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
-                                 debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
+      // FIXME: llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
+      //     subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
+      //  _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
+      //                            debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
       ++i;
     }
 
@@ -564,9 +571,9 @@ Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
 }
 
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
-  unsigned line = _sm->get_line(p->loc()) + 1;
-  unsigned col = _sm->get_col(p->loc()) + 1;
-  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
+  // FIXME: unsigned line = _sm->get_line(p->loc()) + 1;
+  //  unsigned col = _sm->get_col(p->loc()) + 1;
+  //  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
 }
 
 Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
@@ -640,12 +647,12 @@ Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
   {
     auto *curr_di_scope = get_current_di_scope();
     auto *arg_meta = to_llvm_metadata(p->get_type(), p->loc());
-    auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
-                                                   (DIType *)arg_meta);
-    _di_builder->insertDeclare(
-        ret, di_arg, _di_builder->createExpression(),
-        DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
-        _builder->GetInsertBlock());
+    // FIXME: auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
+    //                                                 (DIType *)arg_meta);
+    //  _di_builder->insertDeclare(
+    //      ret, di_arg, _di_builder->createExpression(),
+    //      DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
+    //      _builder->GetInsertBlock());
   }
   return ret;
 }
@@ -676,12 +683,12 @@ Value *CodeGenerator::codegen_import(ASTBase *_p) {
   Context *ctx = q->second;
 
   for (FunctionDecl *f : ctx->get_functions()) {
-    /// do nothing for already defined intrinsics
     auto *func = _module->getFunction(f->get_name());
     if (func) {
       _llvm_value_cache[f] = func;
+    } else {
+      _llvm_value_cache[f] = codegen_func_prototype(f, true);
     }
-    _llvm_value_cache[f] = codegen_func_prototype(f);
   }
 
   return nullptr;

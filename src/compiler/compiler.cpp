@@ -49,7 +49,7 @@ void Compiler::codegen() {
   for (auto [package_name, package] : _packages) {
     auto *cg = new CodeGenerator(package_name, target_machine);
     _cgs[package_name] = cg;
-    cg->codegen(package);
+    cg->codegen(package, _package_ctx);
   }
 }
 
@@ -116,7 +116,7 @@ void Compiler::analyze() {
   }
 
   // Type check these declarations as much as possible.
-  // Meanwhile, build a dependency graph of unresolved type references, and sort topologically.
+  // TODO: Meanwhile, build a dependency graph of unresolved type references, and sort topologically.
   TypeChecker type_checker;
   for (auto [package_name, package] : _packages) {
     type_checker.type_check(package, false, _package_ctx);
@@ -152,6 +152,16 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
     if (fs::exists(p)) {
       ret.push_back(p.string());
     }
+  }
+  return ret;
+}
+
+vector<str> Compiler::get_package_names() const {
+  vector<str> ret(_packages.size());
+  size_t i = 0;
+  for (auto [name, _] : _packages) {
+    ret[i] = name;
+    ++i;
   }
   return ret;
 }
