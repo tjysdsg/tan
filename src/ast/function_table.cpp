@@ -11,11 +11,11 @@ void FunctionTable::set(FunctionDecl *func) {
 }
 
 vector<FunctionDecl *> FunctionTable::get(const str &name) {
-  vector<FunctionDecl *> ret{};
-  if (_table.find(name) != _table.end()) {
-    ret.insert(ret.end(), _table[name].begin(), _table[name].end());
+  auto it = _table.find(name);
+  if (it != _table.end()) {
+    return it->second;
   }
-  return ret;
+  return {};
 }
 
 vector<FunctionDecl *> FunctionTable::get_all() const {

@@ -576,11 +576,12 @@ private:
     p->set_type(func_type->get_return_type());
   }
 
-  // stage 1
   void analyze_func_decl_prototype(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
-    _scopes.front()->ctx()->add_function_decl(p);
+    if (!_strict) { // FIXME[HACK]: separate name lookup and type checking into different stages
+      _scopes.front()->ctx()->add_function_decl(p);
+    }
 
     push_scope(p);
 
@@ -610,8 +611,8 @@ private:
     pop_scope();
   }
 
-  // stage 2
   void analyze_func_decl(ASTBase *p) {
+    analyze_func_decl_prototype(p);
     analyze_func_body(p);
   }
 
