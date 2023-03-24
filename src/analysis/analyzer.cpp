@@ -72,9 +72,6 @@ private:
     case ASTNodeType::IF:
       analyze_if(p);
       break;
-    case ASTNodeType::IMPORT:
-      analyze_import(p);
-      break;
     case ASTNodeType::LOOP:
       analyze_loop(p);
       break;
@@ -103,6 +100,8 @@ private:
     case ASTNodeType::VAR_DECL:
     case ASTNodeType::STRUCT_DECL:
       analyze_expr(ast_cast<Expr>(p));
+      break;
+    case ASTNodeType::IMPORT:
       break;
     default:
       TAN_ASSERT(false);
@@ -138,9 +137,13 @@ private:
     TAN_ASSERT(!_scopes.empty());
     _scopes.pop_back();
   }
-  Context *top_ctx() {
+  Context *ctx() {
     TAN_ASSERT(!_scopes.empty());
     return _scopes.back()->ctx();
+  }
+  Context *top_ctx() {
+    TAN_ASSERT(!_scopes.empty());
+    return _scopes.front()->ctx();
   }
 
 private:
@@ -388,13 +391,13 @@ private:
     Type *ty = p->get_type();
     p->set_type(resolve_type(ty, p->loc(), p));
 
-    top_ctx()->set_decl(p->get_name(), p);
+    ctx()->set_decl(p->get_name(), p);
   }
 
   void analyze_arg_decl(ASTBase *_p) {
     auto p = ast_cast<ArgDecl>(_p);
     p->set_type(resolve_type(p->get_type(), p->loc(), p));
-    top_ctx()->set_decl(p->get_name(), p);
+    ctx()->set_decl(p->get_name(), p);
   }
 
   void analyze_ret(ASTBase *_p) {
@@ -573,11 +576,7 @@ private:
     p->set_type(func_type->get_return_type());
   }
 
-  void analyze_func_decl(ASTBase *p) {
-    analyze_func_decl_prototype(p);
-    analyze_func_body(p);
-  }
-
+  // stage 1
   void analyze_func_decl_prototype(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
@@ -611,6 +610,11 @@ private:
     pop_scope();
   }
 
+  // stage 2
+  void analyze_func_decl(ASTBase *p) {
+    analyze_func_body(p);
+  }
+
   void analyze_func_body(ASTBase *_p) {
     auto *p = ast_cast<FunctionDecl>(_p);
 
@@ -635,13 +639,15 @@ private:
     }
 
     auto *compiler = new Compiler(imported[0]);
-    compiler->parse(); // only need to parse the file now
+    compiler->parse();
+    compiler->analyze();
     Context *imported_ctx = compiler->get_root_ast()->ctx();
 
     // import functions
     vector<FunctionDecl *> funcs = imported_ctx->get_functions();
     vector<FunctionDecl *> pub_funcs{};
     for (auto *f : funcs) {
+      f->set_loc(p->loc()); // FIXME[HACK]: source location of imported function is not usable in current file
       if (f->is_public() || f->is_external()) {
         pub_funcs.push_back(f);
         top_ctx()->add_function_decl(f);

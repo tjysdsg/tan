@@ -100,7 +100,6 @@
 #include <clang/Frontend/Utils.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ADT/StringSwitch.h>
-#include <llvm/ADT/Triple.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/MC/MCAsmBackend.h>
 #include <llvm/MC/MCAsmInfo.h>

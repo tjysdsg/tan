@@ -220,11 +220,14 @@ bool StructType::is_resolved() const {
   for (auto *c : children) {
     if (!c) // not filled yet, ignore
       continue;
+
+    // skip pointer to itself
     if (c->is_pointer()) {
       Type *pointee = ((PointerType *)c)->get_pointee();
-      if (pointee->is_ref() && pointee->get_typename() == _type_name) {
+      if (pointee->is_ref() && pointee->get_typename() == _type_name)
         continue;
-      }
+      if (pointee == this)
+        continue;
     }
 
     if (!c->is_resolved()) {

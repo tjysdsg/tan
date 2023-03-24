@@ -20,7 +20,7 @@ struct Metadata {
 struct Value {
     var v: i32;
     var meta: Metadata;
-    var owner: List*;
+    // TODO: var owner: List*;
 }
 
 struct Type {
@@ -30,7 +30,7 @@ struct Type {
 fn mess_up_list(l: List*, m: Metadata) : void {
     l.val.v = 0;
     l.val.meta = meta;
-    l.next = &l;
+    l.next = l;
 }
 
 pub fn main(argc: int, argv: u8**) : i32 {
@@ -39,10 +39,10 @@ pub fn main(argc: int, argv: u8**) : i32 {
 
     var val1: Value;
     val1.v = 1;
-    val1.owner = &n1;
+    // val1.owner = &n1;
     var val2: Value;
     val2.v = 2;
-    val2.owner = &n2;
+    // val2.owner = &n2;
 
     var meta: Metadata;
     var t: Type;

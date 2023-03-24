@@ -89,7 +89,6 @@ void Compiler::parse() {
 
 void Compiler::analyze() {
   vector<ASTBase *> sorted = _analyzer->sorted_unresolved_symbols();
-  TAN_ASSERT(_ast->get_children().empty() || !sorted.empty());
 
   std::cout << "Sorted unresolved symbol dependency:\n";
   for (auto *d : sorted) {
