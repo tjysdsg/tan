@@ -14,7 +14,7 @@ public:
   Analyzer() = delete;
   explicit Analyzer(SourceManager *sm);
   ~Analyzer();
-  void analyze(Program *p);
+  void analyze(Program *p, const vector<ASTBase *> &sorted_top_level_decls);
   void analyze_top_level_declarations(Program *p);
   vector<ASTBase *> sorted_unresolved_symbols() const;
 

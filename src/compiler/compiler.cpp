@@ -88,8 +88,9 @@ void Compiler::parse() {
 }
 
 void Compiler::analyze() {
-  // TODO: use sorted dependency graph for the second pass
   vector<ASTBase *> sorted = _analyzer->sorted_unresolved_symbols();
+  TAN_ASSERT(_ast->get_children().empty() || !sorted.empty());
+
   std::cout << "Sorted unresolved symbol dependency:\n";
   for (auto *d : sorted) {
     str name = ast_cast<Decl>(d)->get_name();
@@ -97,7 +98,7 @@ void Compiler::analyze() {
   }
 
   Analyzer analyzer(_sm);
-  analyzer.analyze(_ast);
+  analyzer.analyze(_ast, sorted);
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {

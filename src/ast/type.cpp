@@ -213,6 +213,33 @@ int StructType::get_size_bits() {
   return 8;
 }
 
+/// \brief Special case when there is a pointer to itself
+bool StructType::is_resolved() const {
+  bool resolved = true;
+  auto children = this->children();
+  for (auto *c : children) {
+    if (!c) // not filled yet, ignore
+      continue;
+    if (c->is_pointer()) {
+      Type *pointee = ((PointerType *)c)->get_pointee();
+      if (pointee->is_ref() && pointee->get_typename() == _type_name) {
+        continue;
+      }
+    }
+
+    if (!c->is_resolved()) {
+      resolved = false;
+    }
+  }
+  return resolved;
+}
+
+void StructType::append_member_type(Type *t) { _member_types.push_back(t); }
+Type *&StructType::operator[](size_t index) { return _member_types[index]; }
+Type *StructType::operator[](size_t index) const { return _member_types[index]; }
+vector<Type *> StructType::children() const { return _member_types; }
+vector<Type *> StructType::get_member_types() const { return _member_types; }
+
 TypeRef::TypeRef(const str &name) { _type_name = name; }
 
 FunctionType::FunctionType(Type *ret_type, const vector<Type *> &arg_types) {

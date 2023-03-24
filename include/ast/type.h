@@ -219,10 +219,15 @@ protected:
 class StructType : public Type {
 public:
   bool is_struct() override { return true; }
-  vector<Type *> get_member_types() const { return _member_types; };
+  vector<Type *> get_member_types() const;
   int get_align_bits() override;
   int get_size_bits() override;
-  vector<Type *> children() const override { return _member_types; }
+  vector<Type *> children() const override;
+  bool is_resolved() const override;
+
+  void append_member_type(Type *t);
+  Type *&operator[](size_t index);
+  Type *operator[](size_t index) const;
 
   friend class Type;
 

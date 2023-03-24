@@ -11,6 +11,7 @@
 #include "analysis/dependency_graph.h"
 #include <iostream>
 #include <csetjmp>
+#include <set>
 
 namespace tanlang {
 
@@ -39,9 +40,21 @@ public:
     pop_scope();
   }
 
-  void analyze(Program *p) {
+  void analyze(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
     _strict = true;
-    analyze_ast(p);
+    push_scope(p);
+
+    for (auto *c : sorted_top_level_decls) {
+      analyze_ast(c);
+    }
+
+    std::set<ASTBase *> s(sorted_top_level_decls.begin(), sorted_top_level_decls.end());
+    for (auto *c : p->get_children()) {
+      if (!s.contains(c))
+        analyze_ast(c);
+    }
+
+    pop_scope();
   }
 
 private:
@@ -836,7 +849,7 @@ private:
     p->set_type(rhs->get_type());
   }
 
-  // ASSUMES lhs has a resolved type
+  /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     analyze_ast(rhs);
 
@@ -873,7 +886,7 @@ private:
     p->set_type(sub_type);
   }
 
-  // ASSUMES lhs has a resolved type
+  /// ASSUMES lhs has been already analyzed, while rhs has not
   void analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
     str m_name = ast_cast<Identifier>(rhs)->get_name();
     Type *struct_ty = nullptr;
@@ -936,9 +949,15 @@ private:
     push_scope(p);
 
     /// resolve member names and types
-    auto member_decls = p->get_member_decls(); // size is 0 if no struct body
+    auto member_decls = p->get_member_decls();
     size_t n = member_decls.size();
-    vector<Type *> child_types(n, nullptr);
+    // create the type first and modify the member types on the fly to support recursive type reference
+    TAN_ASSERT(!p->get_type() || p->get_type()->is_struct());
+    auto *ty = (StructType *)p->get_type();
+    if (!ty) {
+      ty = Type::GetStructType(struct_name, vector<Type *>(n, nullptr));
+      p->set_type(ty);
+    }
     for (size_t i = 0; i < n; ++i) {
       Expr *m = member_decls[i];
       analyze_ast(m); // TODO IMPORTANT: don't save member variable declarations to Context
@@ -962,7 +981,7 @@ private:
         /// fill members
         str name = ast_cast<VarDecl>(m)->get_name();
         p->set_member_index(name, i);
-        child_types[i] = m->get_type();
+        (*ty)[i] = m->get_type();
       } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
         auto bm = ast_cast<Assignment>(m);
         auto init_val = bm->get_rhs();
@@ -973,7 +992,7 @@ private:
         auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
         /// fill members
-        child_types[i] = decl->get_type();
+        (*ty)[i] = decl->get_type();
         p->set_member_index(decl->get_name(), i);
 
         /// initial values
@@ -986,15 +1005,13 @@ private:
         auto f = ast_cast<FunctionDecl>(m);
 
         /// fill members
-        child_types[i] = f->get_type();
+        (*ty)[i] = f->get_type();
         p->set_member_index(f->get_name(), i);
       } else {
         error(p, "Invalid struct member");
       }
     }
 
-    auto *ty = Type::GetStructType(struct_name, child_types);
-    p->set_type(ty);
     pop_scope();
   }
 
@@ -1042,7 +1059,9 @@ private:
   };
 };
 
-void Analyzer::analyze(Program *p) { _analyzer_impl->analyze(p); }
+void Analyzer::analyze(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
+  _analyzer_impl->analyze(p, sorted_top_level_decls);
+}
 
 Analyzer::Analyzer(SourceManager *sm) { _analyzer_impl = new AnalyzerImpl(sm); }
 
