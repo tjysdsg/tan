@@ -90,11 +90,11 @@ void Compiler::parse() {
 void Compiler::analyze() {
   vector<ASTBase *> sorted = _analyzer->sorted_unresolved_symbols();
 
-  std::cout << "Sorted unresolved symbol dependency:\n";
-  for (auto *d : sorted) {
-    str name = ast_cast<Decl>(d)->get_name();
-    std::cout << name << '\n';
-  }
+  // std::cout << "Sorted unresolved symbol dependency:\n";
+  // for (auto *d : sorted) {
+  //   str name = ast_cast<Decl>(d)->get_name();
+  //   std::cout << name << '\n';
+  // }
 
   Analyzer analyzer(_sm);
   analyzer.analyze(_ast, sorted);
