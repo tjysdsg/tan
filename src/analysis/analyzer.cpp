@@ -386,10 +386,11 @@ private:
   void analyze_var_decl(ASTBase *_p) {
     auto p = ast_cast<VarDecl>(_p);
 
-    // NOTE: analyze_assignment must've set the type by now
-
+    /// analyze type if specified
     Type *ty = p->get_type();
-    p->set_type(resolve_type(ty, p->loc(), p));
+    if (ty) {
+      p->set_type(resolve_type(ty, p->loc(), p));
+    }
 
     ctx()->set_decl(p->get_name(), p);
   }
@@ -531,9 +532,11 @@ private:
     Type *lhs_type = nullptr;
     if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
       /// special case for variable declaration because we allow type inference
-      lhs_type = rhs->get_type();
-      ast_cast<VarDecl>(lhs)->set_type(lhs_type);
       analyze_ast(lhs);
+      lhs_type = ast_cast<VarDecl>(lhs)->get_type();
+      if (!lhs_type) {
+        ast_cast<VarDecl>(lhs)->set_type(lhs_type = rhs->get_type());
+      }
     } else {
       analyze_ast(lhs);
 
