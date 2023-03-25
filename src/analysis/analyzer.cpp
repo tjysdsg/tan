@@ -51,21 +51,6 @@ void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decl
   pop_scope();
 }
 
-void Analyzer::pop_scope() {
-  TAN_ASSERT(!_scopes.empty());
-  _scopes.pop_back();
-}
-
-Context *Analyzer::ctx() {
-  TAN_ASSERT(!_scopes.empty());
-  return _scopes.back()->ctx();
-}
-
-Context *Analyzer::top_ctx() {
-  TAN_ASSERT(!_scopes.empty());
-  return _scopes.front()->ctx();
-}
-
 void Analyzer::error(ASTBase *p, const str &message) {
   Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
   err.raise();
@@ -76,7 +61,7 @@ FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
   const vector<Expr *> &args = p->_args;
 
   /// gather all candidates from this and parent scopes
-  vector<FunctionDecl *> func_candidates = _scopes.front()->ctx()->get_functions(name);
+  vector<FunctionDecl *> func_candidates = top_ctx()->get_functions(name);
 
   /// find a valid function overload to call
   FunctionDecl *ret = nullptr;
@@ -127,33 +112,6 @@ FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
     err.raise();
   }
   return ret;
-}
-
-Decl *Analyzer::search_decl_in_scopes(const str &name) {
-  int n = (int)_scopes.size();
-  TAN_ASSERT(n);
-  Decl *ret = nullptr;
-  for (int i = n - 1; i >= 0; --i) {
-    Context *c = _scopes[(size_t)i]->ctx();
-    ret = c->get_decl(name);
-    if (ret)
-      return ret;
-  }
-
-  return ret;
-}
-
-Loop *Analyzer::search_loop_in_parent_scopes() {
-  int n = (int)_scopes.size();
-  TAN_ASSERT(n);
-  for (int i = n - 1; i >= 0; --i) {
-    auto *node = _scopes[(size_t)i];
-    if (node->get_node_type() == ASTNodeType::LOOP) {
-      return ast_cast<Loop>(node);
-    }
-  }
-
-  return nullptr;
 }
 
 Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
@@ -248,7 +206,7 @@ void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
   auto *p = ast_cast<FunctionDecl>(_p);
 
   if (!_strict) { // FIXME[HACK]: separate name lookup and type checking into different stages
-    _scopes.front()->ctx()->add_function_decl(p);
+    top_ctx()->add_function_decl(p);
   }
 
   push_scope(p);
@@ -780,7 +738,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
 
   /// check if struct name is in conflicts of variable/function names
   if (!p->is_forward_decl()) {
-    auto *root_ctx = _scopes.front()->ctx();
+    auto *root_ctx = top_ctx();
     auto *prev_decl = root_ctx->get_decl(struct_name);
     if (prev_decl && prev_decl != p) {
       if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&

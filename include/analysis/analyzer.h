@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__
 #define __TAN_SRC_ANALYSIS_ANALYZER_H__
 #include "base.h"
-#include "common/compiler_action.h"
+#include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
 
 namespace tanlang {
@@ -13,7 +13,7 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class Analyzer : public CompilerAction<Analyzer> {
+class Analyzer : public AnalysisAction<Analyzer> {
 public:
   Analyzer() = delete;
   explicit Analyzer(SourceManager *sm) : _sm(sm) {}
@@ -31,7 +31,6 @@ public:
 private:
   SourceManager *_sm = nullptr;
   bool _strict = false;
-  vector<ASTBase *> _scopes{};
 
   /// \brief Store unresolved symbols during non-strict parsing
   DependencyGraph _unresolved_symbols{};
@@ -52,10 +51,6 @@ private:
    */
   static Type *ImplicitTypePromote(Type *t1, Type *t2);
 
-  void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
-  void pop_scope();
-  Context *ctx();
-  Context *top_ctx();
   [[noreturn]] void error(ASTBase *p, const str &message);
   Cast *create_implicit_conversion(Expr *from, Type *to);
 
@@ -68,10 +63,6 @@ private:
   Type *auto_promote_bop_operand_types(BinaryOperator *bop);
 
   FunctionDecl *search_function_callee(FunctionCall *p);
-
-  Decl *search_decl_in_scopes(const str &name);
-
-  Loop *search_loop_in_parent_scopes();
 
   /**
    * \brief Resolve type reference.
