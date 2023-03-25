@@ -417,19 +417,13 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, If) {
 }
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, VarDecl) {
-  /// stage2 type if specified
   Type *ty = p->get_type();
   if (ty) {
     p->set_type(resolve_type(ty, p->loc(), p));
   }
-
-  ctx()->set_decl(p->get_name(), p);
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, ArgDecl) {
-  p->set_type(resolve_type(p->get_type(), p->loc(), p));
-  ctx()->set_decl(p->get_name(), p);
-}
+DEFINE_AST_VISITOR_IMPL(Analyzer, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc(), p)); }
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, Return) {
   // TODO: check if return type is the same as the function return type
