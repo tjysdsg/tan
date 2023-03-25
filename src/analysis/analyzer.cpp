@@ -651,8 +651,6 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, FunctionDecl) {
   analyze_func_body(p);
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Import) {}
-
 DEFINE_AST_VISITOR_IMPL(Analyzer, Intrinsic) {
   auto c = p->get_sub();
 

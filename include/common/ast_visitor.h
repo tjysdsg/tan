@@ -35,8 +35,14 @@ class Loop;
 class BreakContinue;
 
 #ifndef DEFINE_AST_VISITOR_INTERFACE
-#define DEFINE_AST_VISITOR_INTERFACE(AST_NAME) \
-  void Visit##AST_NAME(AST_NAME *p) { ((Derived *)this)->Visit##AST_NAME##Impl(p); }
+#define DEFINE_AST_VISITOR_INTERFACE(AST_NAME)                                     \
+  /** The interface VisitXX calls this->VisitXXImpl() if defined by Derived */     \
+  void Visit##AST_NAME(AST_NAME *p) {                                              \
+    constexpr bool has_func = requires(Derived t) { t.Visit##AST_NAME##Impl(p); }; \
+    if constexpr (has_func) {                                                      \
+      ((Derived *)this)->Visit##AST_NAME##Impl(p);                                 \
+    }                                                                              \
+  }
 #endif
 
 #ifndef CALL_AST_VISITOR
