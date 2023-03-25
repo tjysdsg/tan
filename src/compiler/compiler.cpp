@@ -84,7 +84,7 @@ void Compiler::parse() {
 
   // symbol dependency analysis
   _analyzer = new Analyzer(_sm);
-  _analyzer->analyze_top_level_declarations(_ast);
+  _analyzer->stage1(_ast);
 }
 
 void Compiler::analyze() {
@@ -97,7 +97,7 @@ void Compiler::analyze() {
   // }
 
   Analyzer analyzer(_sm);
-  analyzer.analyze(_ast, sorted);
+  analyzer.stage2(_ast, sorted);
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
