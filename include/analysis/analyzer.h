@@ -18,22 +18,13 @@ public:
   Analyzer() = delete;
   explicit Analyzer(SourceManager *sm);
 
-  void run_impl(Program *p) {
-    // TODO: decouple stage 1 and stage 2
+  void run_impl(Program *p) { // TODO
   }
-
-  void stage1(Program *p);
 
   void stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls);
 
-  vector<ASTBase *> sorted_unresolved_symbols() const;
-
 private:
   SourceManager *_sm = nullptr;
-  bool _strict = false;
-
-  /// \brief Store unresolved symbols during non-strict parsing
-  DependencyGraph _unresolved_symbols{};
 
 private:
   /**
@@ -64,19 +55,16 @@ private:
   FunctionDecl *search_function_callee(FunctionCall *p);
 
   /**
-   * \brief Resolve type reference.
-   *        In non-strict mode, this adds a dependency from \p node to the referred declaration D
-   *        if D doesn't have a resolved type yet.
-   *        In strict mode, an error is raised.
-   * \return The referred type if successfully resolved. Return \p p as is if failed.
+   * \brief Resolve a type reference.
+   * \return Non-null
    */
-  Type *resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node);
+  Type *resolve_type_ref(Type *p, SrcLoc loc);
 
   /**
-   * \brief Resolve a type. If \p is a type reference, we find out the type associated with the typename.
-   * \note Returned pointer can be different from \p p.
+   * \brief Resolve a type.
+   * \return Non-null
    */
-  Type *resolve_type(Type *p, SrcLoc loc, ASTBase *node);
+  Type *resolve_type(Type *p, SrcLoc loc);
 
 public:
   DECLARE_AST_VISITOR_IMPL(Program);
@@ -108,8 +96,6 @@ public:
   DECLARE_AST_VISITOR_IMPL(BreakContinue);
 
 private:
-  void add_decls_from_import(ASTBase *_p);
-
   void analyze_func_decl_prototype(ASTBase *_p);
 
   void analyze_func_body(ASTBase *_p);

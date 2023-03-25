@@ -41,6 +41,8 @@ class BreakContinue;
     constexpr bool has_func = requires(Derived t) { t.Visit##AST_NAME##Impl(p); }; \
     if constexpr (has_func) {                                                      \
       ((Derived *)this)->Visit##AST_NAME##Impl(p);                                 \
+    } else {                                                                       \
+      ((Derived *)this)->default_visit(p);                                         \
     }                                                                              \
   }
 #endif
@@ -167,6 +169,9 @@ public:
       TAN_ASSERT(false);
     }
   }
+
+  ~ASTVisitor() = default;
+  virtual void default_visit(ASTBase *) {}
 };
 
 #undef DEFINE_AST_VISITOR_INTERFACE

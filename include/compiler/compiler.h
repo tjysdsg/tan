@@ -99,7 +99,6 @@ private:
   str _filename;
   SourceManager *_sm = nullptr;
   CodeGenerator *_cg = nullptr;
-  Analyzer *_analyzer = nullptr;
 };
 
 } // namespace tanlang

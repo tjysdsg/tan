@@ -60,7 +60,12 @@ public:
   virtual int get_size_bits();
 
   virtual vector<Type *> children() const;
-  virtual bool is_resolved() const;
+
+  /**
+   * \brief A composite type is canonical only if its subtype(s) are also canonical.
+   *        A non-composite type is canonical only if it's not a type reference.
+   */
+  virtual bool is_canonical() const;
 
   const str &get_typename() { return _type_name; }
 
@@ -152,7 +157,7 @@ public:
   bool is_void() override { return _kind == VOID; }
   bool is_char() override { return _kind == CHAR; }
   vector<Type *> children() const override { return {}; }
-  bool is_resolved() const override { return true; }
+  bool is_canonical() const override { return true; }
 
   int get_align_bits() override;
   int get_size_bits() override;
@@ -208,7 +213,7 @@ public:
   int get_align_bits() override;
   int get_size_bits() override;
   vector<Type *> children() const override { return {}; }
-  bool is_resolved() const override { return true; }
+  bool is_canonical() const override { return true; }
 
   friend class Type;
 
@@ -223,7 +228,7 @@ public:
   int get_align_bits() override;
   int get_size_bits() override;
   vector<Type *> children() const override;
-  bool is_resolved() const override;
+  bool is_canonical() const override;
 
   void append_member_type(Type *t);
   Type *&operator[](size_t index);
@@ -265,20 +270,10 @@ public:
   friend class Type;
   bool is_ref() override { return true; }
   vector<Type *> children() const override { return {}; }
-  bool is_resolved() const override { return false; }
+  bool is_canonical() const override { return false; }
 
 protected:
   TypeRef(const str &name);
-};
-
-class IncompleteType : public Type {
-public:
-  friend class Type;
-
-protected:
-  IncompleteType() = default;
-
-  bool is_resolved() const override { return false; }
 };
 
 } // namespace tanlang

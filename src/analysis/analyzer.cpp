@@ -17,27 +17,7 @@ namespace tanlang {
 
 Analyzer::Analyzer(SourceManager *sm) : AnalysisAction<Analyzer>(sm) { _sm = sm; }
 
-vector<ASTBase *> Analyzer::sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
-
-void Analyzer::stage1(Program *p) {
-  _strict = false;
-  push_scope(p);
-
-  for (const auto &c : p->get_children()) {
-    if (c->get_node_type() == ASTNodeType::IMPORT) {
-      add_decls_from_import(c);
-    } else if (c->get_node_type() == ASTNodeType::STRUCT_DECL) {
-      CALL_AST_VISITOR(StructDecl, c);
-    } else if (c->get_node_type() == ASTNodeType::FUNC_DECL) {
-      analyze_func_decl_prototype(c);
-    }
-  }
-
-  pop_scope();
-}
-
 void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
-  _strict = true;
   push_scope(p);
 
   for (auto *c : sorted_top_level_decls) {
@@ -86,46 +66,41 @@ FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
   return candidate;
 }
 
-Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
+Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc) {
   TAN_ASSERT(p->is_ref());
   Type *ret = p;
 
   const str &referred_name = p->get_typename();
   auto *decl = search_decl_in_scopes(referred_name);
   if (decl && decl->is_type_decl()) {
-    if (!decl->get_type() || !decl->get_type()->is_resolved()) {
-      if (_strict) {
-        Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
-        err.raise();
-      } else {
-        _unresolved_symbols.add_dependency(decl, node);
-      }
+    if (!decl->get_type() || !decl->get_type()->is_canonical()) {
+      Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Cannot resolve type {}", referred_name));
+      err.raise();
     } else {
       ret = decl->get_type();
     }
-  } else { // no matter we're in strict mode or not,
-    // the typename should've been registered after parsing and importing.
+  } else {
     Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
     err.raise();
   }
 
+  TAN_ASSERT(ret);
   return ret;
 }
 
-Type *Analyzer::resolve_type(Type *p, SrcLoc loc, ASTBase *node) {
+Type *Analyzer::resolve_type(Type *p, SrcLoc loc) {
   TAN_ASSERT(p);
-  TAN_ASSERT(node);
 
   Type *ret = p;
   if (p->is_ref()) {
-    ret = resolve_type_ref(p, loc, node);
+    ret = resolve_type_ref(p, loc);
   } else if (p->is_pointer()) {
     auto *pointee = ((PointerType *)p)->get_pointee();
 
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
-      pointee = resolve_type_ref(pointee, loc, node);
-      if (pointee->is_resolved()) {
+      pointee = resolve_type_ref(pointee, loc);
+      if (pointee->is_canonical()) {
         ret = Type::GetPointerType(pointee);
       }
     }
@@ -135,48 +110,6 @@ Type *Analyzer::resolve_type(Type *p, SrcLoc loc, ASTBase *node) {
   return ret;
 }
 
-// TODO: check recursive import
-void Analyzer::add_decls_from_import(ASTBase *_p) {
-  auto *p = ast_cast<Import>(_p);
-
-  str file = p->get_filename();
-  auto imported = Compiler::resolve_import(_sm->get_filename(), file);
-  if (imported.empty()) {
-    error(p, "Cannot import: " + file);
-  }
-
-  auto *compiler = new Compiler(imported[0]);
-  compiler->parse();
-  compiler->analyze();
-  Context *imported_ctx = compiler->get_root_ast()->ctx();
-
-  // import functions
-  vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
-  vector<FunctionDecl *> pub_funcs{};
-  for (auto *f : funcs) {
-    f->set_loc(p->loc()); // FIXME[HACK]: source location of imported function is not usable in current file
-    if (f->is_public() || f->is_external()) {
-      auto *existing = top_ctx()->get_func_decl(f->get_name());
-      if (!existing) {
-        // TODO: merge multiple declarations of the same symbol, fail if they don't match
-        pub_funcs.push_back(f);
-        top_ctx()->set_function_decl(f);
-      }
-    }
-  }
-  p->set_imported_funcs(pub_funcs);
-
-  // import type declarations
-  // TODO: distinguish local and global type decls
-  vector<Decl *> decls = imported_ctx->get_decls();
-  vector<TypeDecl *> type_decls{};
-  for (auto *t : decls) {
-    if (t->is_type_decl()) {
-      top_ctx()->set_decl(t->get_name(), t);
-    }
-  }
-}
-
 void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
   auto *p = ast_cast<FunctionDecl>(_p);
 
@@ -184,10 +117,7 @@ void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
 
   /// update return type
   auto *func_type = (FunctionType *)p->get_type();
-  auto *ret_type = resolve_type(func_type->get_return_type(), p->loc(), p);
-  if (!ret_type->is_resolved()) {
-    TAN_ASSERT(!_strict);
-  }
+  auto *ret_type = resolve_type(func_type->get_return_type(), p->loc());
   func_type->set_return_type(ret_type);
 
   /// type_check_ast args
@@ -197,11 +127,7 @@ void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
   for (size_t i = 0; i < n; ++i) {
     visit(arg_decls[i]); /// args will be added to the scope here
     arg_types[i] = arg_decls[i]->get_type();
-
-    if (!arg_types[i]->is_resolved()) {
-      TAN_ASSERT(!_strict);
-      _unresolved_symbols.add_dependency(arg_decls[i], p);
-    }
+    TAN_ASSERT(arg_types[i]->is_canonical());
   }
   func_type->set_arg_types(arg_types); /// update arg types
 
@@ -339,7 +265,7 @@ void Analyzer::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs,
     struct_ty = lhs->get_type();
   }
 
-  struct_ty = resolve_type(struct_ty, lhs->loc(), p);
+  struct_ty = resolve_type(struct_ty, lhs->loc());
   if (!struct_ty->is_struct()) {
     error(lhs, "Expect a struct type");
   }
@@ -347,7 +273,7 @@ void Analyzer::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs,
   auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
-  p->set_type(resolve_type(ty, p->loc(), p));
+  p->set_type(resolve_type(ty, p->loc()));
 }
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, Program) {
@@ -364,11 +290,11 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {
     if (referred->is_type_decl()) { /// refers to a type
-      auto *ty = resolve_type_ref(referred->get_type(), p->loc(), p);
+      auto *ty = resolve_type_ref(referred->get_type(), p->loc());
       p->set_type_ref(ty);
     } else { /// refers to a variable
       p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-      p->set_type(resolve_type(referred->get_type(), p->loc(), p));
+      p->set_type(resolve_type(referred->get_type(), p->loc()));
     }
   } else {
     error(p, "Unknown identifier");
@@ -397,11 +323,11 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, If) {
 DEFINE_AST_VISITOR_IMPL(Analyzer, VarDecl) {
   Type *ty = p->get_type();
   if (ty) {
-    p->set_type(resolve_type(ty, p->loc(), p));
+    p->set_type(resolve_type(ty, p->loc()));
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc(), p)); }
+DEFINE_AST_VISITOR_IMPL(Analyzer, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, Return) {
   // TODO: check if return type is the same as the function return type
@@ -513,7 +439,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, UnaryOperator) {
 DEFINE_AST_VISITOR_IMPL(Analyzer, Cast) {
   Expr *lhs = p->get_lhs();
   visit(lhs);
-  p->set_type(resolve_type(p->get_type(), p->loc(), p));
+  p->set_type(resolve_type(p->get_type(), p->loc()));
 }
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, Assignment) {
@@ -716,21 +642,6 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
   for (size_t i = 0; i < n; ++i) {
     Expr *m = member_decls[i];
     visit(m); // TODO IMPORTANT: don't save member variable declarations to Context
-
-    /*
-     * DO NOT add unresolved symbol dependency if m's type is a pointer to an unresolved type reference
-     * This allows us to define a struct that holds a pointer to itself, like LinkedList.
-     *
-     * This works because:
-     * 1. m is registered in the unresolved symbol dependency graph so it will be re-analyzed in
-     *    the final analysis stage.
-     * 2. Nothing actually directly relies on the type of m. For example, size in bits is always the size of a
-     *    pointer.
-     */
-    if (!m->get_type()->is_resolved() && !m->get_type()->is_pointer()) {
-      TAN_ASSERT(!_strict);
-      _unresolved_symbols.add_dependency(m, p);
-    }
 
     if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
       /// fill members

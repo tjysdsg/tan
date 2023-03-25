@@ -112,8 +112,6 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
-IncompleteType *Type::GetIncompleteType() { return new IncompleteType(); }
-
 bool Type::is_primitive() { return false; }
 
 bool Type::is_pointer() { return false; }
@@ -154,11 +152,11 @@ int Type::get_size_bits() {
 
 vector<Type *> Type::children() const { TAN_ASSERT(false); }
 
-bool Type::is_resolved() const {
+bool Type::is_canonical() const {
   bool resolved = true;
   auto children = this->children();
   for (auto *c : children) {
-    if (!c->is_resolved()) {
+    if (!c->is_canonical()) {
       resolved = false;
     }
   }
@@ -214,7 +212,7 @@ int StructType::get_size_bits() {
 }
 
 /// \brief Special case when there is a pointer to itself
-bool StructType::is_resolved() const {
+bool StructType::is_canonical() const {
   bool resolved = true;
   auto children = this->children();
   for (auto *c : children) {
@@ -230,7 +228,7 @@ bool StructType::is_resolved() const {
         continue;
     }
 
-    if (!c->is_resolved()) {
+    if (!c->is_canonical()) {
       resolved = false;
     }
   }

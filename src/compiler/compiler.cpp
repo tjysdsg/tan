@@ -3,6 +3,7 @@
 #include "lexer/token.h"
 #include "analysis/analyzer.h"
 #include "analysis/register_declarations.h"
+#include "analysis/type_precheck.h"
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
@@ -85,14 +86,12 @@ void Compiler::parse() {
 
   RegisterDeclarations rtld(_sm);
   rtld.run(_ast);
-
-  // symbol dependency analysis
-  _analyzer = new Analyzer(_sm);
-  _analyzer->stage1(_ast);
 }
 
 void Compiler::analyze() {
-  vector<ASTBase *> sorted = _analyzer->sorted_unresolved_symbols();
+  TypePrecheck tp(_sm);
+  tp.run(_ast);
+  vector<ASTBase *> sorted = tp.sorted_unresolved_symbols();
 
   // std::cout << "Sorted unresolved symbol dependency:\n";
   // for (auto *d : sorted) {
