@@ -15,6 +15,8 @@
 
 namespace tanlang {
 
+Analyzer::Analyzer(SourceManager *sm) : AnalysisAction<Analyzer>(sm) { _sm = sm; }
+
 vector<ASTBase *> Analyzer::sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
 
 void Analyzer::stage1(Program *p) {
@@ -49,11 +51,6 @@ void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decl
   }
 
   pop_scope();
-}
-
-void Analyzer::error(ASTBase *p, const str &message) {
-  Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
-  err.raise();
 }
 
 FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
@@ -204,10 +201,6 @@ void Analyzer::add_decls_from_import(ASTBase *_p) {
 
 void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
   auto *p = ast_cast<FunctionDecl>(_p);
-
-  if (!_strict) { // FIXME[HACK]: separate name lookup and type checking into different stages
-    top_ctx()->add_function_decl(p);
-  }
 
   push_scope(p);
 
@@ -735,19 +728,6 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, MemberAccess) {
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
   str struct_name = p->get_name();
-
-  /// check if struct name is in conflicts of variable/function names
-  if (!p->is_forward_decl()) {
-    auto *root_ctx = top_ctx();
-    auto *prev_decl = root_ctx->get_decl(struct_name);
-    if (prev_decl && prev_decl != p) {
-      if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
-            ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
-        error(p, "Cannot redeclare type as a struct");
-    }
-    // overwrite the value set during parsing (e.g. forward decl)
-    root_ctx->set_decl(struct_name, p);
-  }
 
   push_scope(p);
 

@@ -2,6 +2,7 @@
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "analysis/analyzer.h"
+#include "analysis/register_top_level_declarations.h"
 #include "codegen/code_generator.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
@@ -81,6 +82,9 @@ void Compiler::parse() {
   for (auto *f : intrinsic_funcs) {
     _ast->ctx()->add_function_decl(f);
   }
+
+  RegisterTopLevelDeclarations rtld(_sm);
+  rtld.run(_ast);
 
   // symbol dependency analysis
   _analyzer = new Analyzer(_sm);

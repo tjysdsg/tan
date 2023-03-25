@@ -7,7 +7,7 @@ namespace tanlang {
 
 template <typename Derived> class CompilerAction : public ASTVisitor<Derived> {
 public:
-  void run(Program *p) { ((Derived *)p)->run_impl(p); }
+  void run(Program *p) { ((Derived *)this)->run_impl(p); }
 };
 
 } // namespace tanlang

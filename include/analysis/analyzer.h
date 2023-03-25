@@ -16,7 +16,7 @@ class ASTBase;
 class Analyzer : public AnalysisAction<Analyzer> {
 public:
   Analyzer() = delete;
-  explicit Analyzer(SourceManager *sm) : _sm(sm) {}
+  explicit Analyzer(SourceManager *sm);
 
   void run_impl(Program *p) {
     // TODO: decouple stage 1 and stage 2
@@ -51,7 +51,6 @@ private:
    */
   static Type *ImplicitTypePromote(Type *t1, Type *t2);
 
-  [[noreturn]] void error(ASTBase *p, const str &message);
   Cast *create_implicit_conversion(Expr *from, Type *to);
 
   /**

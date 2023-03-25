@@ -8,7 +8,11 @@ namespace tanlang {
 class Decl;
 
 template <typename Derived> class AnalysisAction : public CompilerAction<Derived> {
+public:
+  [[nodiscard]] SourceManager *get_sm() const { return _sm; };
+
 protected:
+  [[noreturn]] void error(ASTBase *p, const str &message);
   void push_scope(ASTBase *scope);
   void pop_scope();
   Context *ctx();
@@ -17,7 +21,13 @@ protected:
   Loop *search_loop_in_parent_scopes();
 
 private:
+  friend Derived;
+  AnalysisAction() = delete;
+  explicit AnalysisAction(SourceManager *sm) : _sm(sm) {}
+
+private:
   vector<ASTBase *> _scopes{};
+  SourceManager *_sm = nullptr;
 };
 
 } // namespace tanlang

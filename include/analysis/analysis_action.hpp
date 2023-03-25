@@ -3,6 +3,11 @@
 
 namespace tanlang {
 
+template <typename Derived> void AnalysisAction<Derived>::error(ASTBase *p, const str &message) {
+  Error err(get_sm()->get_filename(), get_sm()->get_token(p->loc()), message);
+  err.raise();
+}
+
 template <typename Derived> void AnalysisAction<Derived>::push_scope(ASTBase *scope) { _scopes.push_back(scope); }
 
 template <typename Derived> void AnalysisAction<Derived>::pop_scope() {
