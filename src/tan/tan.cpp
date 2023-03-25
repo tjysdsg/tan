@@ -122,6 +122,8 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   vector<Compiler *> compilers{};
   compilers.reserve(n_files);
 
+  // TODO: build a list CompilerAction and run them sequentially
+
   /// parse all files before generating IR code
   for (size_t i = 0; i < n_files; ++i) {
     BEGIN_TRY

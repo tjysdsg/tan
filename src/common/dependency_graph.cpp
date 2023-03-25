@@ -1,4 +1,4 @@
-#include "analysis/dependency_graph.h"
+#include "common/dependency_graph.h"
 #include <queue>
 
 using namespace tanlang;

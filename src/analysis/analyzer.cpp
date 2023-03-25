@@ -1,6 +1,6 @@
 #include "analysis/analyzer.h"
 #include "ast/ast_base.h"
-#include "ast/ast_visitor.h"
+#include "common/ast_visitor.h"
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"

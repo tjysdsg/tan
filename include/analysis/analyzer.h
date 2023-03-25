@@ -1,8 +1,8 @@
 #ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__
 #define __TAN_SRC_ANALYSIS_ANALYZER_H__
 #include "base.h"
-#include "ast/ast_visitor.h"
-#include "analysis/dependency_graph.h"
+#include "common/compiler_action.h"
+#include "common/dependency_graph.h"
 
 namespace tanlang {
 
@@ -13,7 +13,7 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class Analyzer : public ASTVisitor<Analyzer> {
+class Analyzer : public CompilerAction<Analyzer> {
 public:
   Analyzer() = delete;
   explicit Analyzer(SourceManager *sm) : _sm(sm) {}

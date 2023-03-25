@@ -2,7 +2,7 @@
 #define __TAN_INCLUDE_AST_AST_VISITOR_H__
 
 #include "base.h"
-#include "ast_base.h"
+#include "ast/ast_base.h"
 
 namespace tanlang {
 
@@ -161,8 +161,6 @@ public:
       TAN_ASSERT(false);
     }
   }
-
-  void run(Program *p) { ((Derived *)p)->run_impl(p); }
 };
 
 #undef DEFINE_AST_VISITOR_INTERFACE
