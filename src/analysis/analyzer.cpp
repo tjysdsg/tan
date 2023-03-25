@@ -626,53 +626,31 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, MemberAccess) {
 
 DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
   str struct_name = p->get_name();
+  auto *ty = (StructType *)p->get_type();
+  TAN_ASSERT(ty && ty->is_struct());
+  auto members = p->get_member_decls();
 
   push_scope(p);
 
-  /// resolve member names and types
-  auto member_decls = p->get_member_decls();
-  size_t n = member_decls.size();
-  // create the type first and modify the member types on the fly to support recursive type reference
-  TAN_ASSERT(!p->get_type() || p->get_type()->is_struct());
-  auto *ty = (StructType *)p->get_type();
-  if (!ty) {
-    ty = Type::GetStructType(struct_name, vector<Type *>(n, nullptr));
-    p->set_type(ty);
-  }
+  size_t n = members.size();
   for (size_t i = 0; i < n; ++i) {
-    Expr *m = member_decls[i];
-    visit(m); // TODO IMPORTANT: don't save member variable declarations to Context
+    Expr *m = members[i];
 
-    if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
-      /// fill members
-      str name = ast_cast<VarDecl>(m)->get_name();
-      p->set_member_index(name, i);
-      (*ty)[i] = m->get_type();
-    } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
-      auto bm = ast_cast<Assignment>(m);
-      auto init_val = bm->get_rhs();
+    if (m->get_node_type() == ASTNodeType::VAR_DECL) { // member variable without initial value
+      (*ty)[i] = resolve_type((*ty)[i], m->loc());
+    } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
+      auto init_val = ast_cast<Assignment>(m)->get_rhs();
+      (*ty)[i] = resolve_type((*ty)[i], m->loc());
 
-      if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
-        error(bm, "Expect a member variable declaration");
-      }
-      auto decl = ast_cast<VarDecl>(bm->get_lhs());
-
-      /// fill members
-      (*ty)[i] = decl->get_type();
-      p->set_member_index(decl->get_name(), i);
-
-      /// initial values
       if (!init_val->is_comptime_known()) {
         error(p, "Initial value of a member variable must be compile-time known");
       }
-      // TODO: auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
+      // TODO: initial values
+      //   auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
       //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_cast<CompTimeExpr>(init_val)));
-    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
+    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { // TODO: member functions
       auto f = ast_cast<FunctionDecl>(m);
-
-      /// fill members
       (*ty)[i] = f->get_type();
-      p->set_member_index(f->get_name(), i);
     } else {
       error(p, "Invalid struct member");
     }
