@@ -135,7 +135,6 @@ Type *Analyzer::resolve_type(Type *p, SrcLoc loc, ASTBase *node) {
   return ret;
 }
 
-// TODO: analyze top-level declarations of the imported files because they might contains unresolved symbols
 // TODO: check recursive import
 void Analyzer::add_decls_from_import(ASTBase *_p) {
   auto *p = ast_cast<Import>(_p);
@@ -157,8 +156,12 @@ void Analyzer::add_decls_from_import(ASTBase *_p) {
   for (auto *f : funcs) {
     f->set_loc(p->loc()); // FIXME[HACK]: source location of imported function is not usable in current file
     if (f->is_public() || f->is_external()) {
-      pub_funcs.push_back(f);
-      top_ctx()->set_function_decl(f);
+      auto *existing = top_ctx()->get_func_decl(f->get_name());
+      if (!existing) {
+        // TODO: merge multiple declarations of the same symbol, fail if they don't match
+        pub_funcs.push_back(f);
+        top_ctx()->set_function_decl(f);
+      }
     }
   }
   p->set_imported_funcs(pub_funcs);
