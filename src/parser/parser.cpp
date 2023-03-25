@@ -613,9 +613,9 @@ private:
 
     // Register in the parent context
     if (is_public) {
-      p->ctx()->add_function_decl(p);
+      p->ctx()->set_function_decl(p);
     } else {
-      p->ctx()->add_function_decl(p);
+      p->ctx()->set_function_decl(p);
     }
 
     { // declarations of func arguments and variables in the body are within the local scope

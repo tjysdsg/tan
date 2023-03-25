@@ -73,7 +73,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Assignment) {
 }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, FunctionDecl) {
-  top_ctx()->add_function_decl(p);
+  top_ctx()->set_function_decl(p);
   push_scope(p);
 
   size_t n = p->get_n_args();

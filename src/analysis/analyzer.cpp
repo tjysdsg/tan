@@ -57,58 +57,33 @@ FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
   const str &name = p->get_name();
   const vector<Expr *> &args = p->_args;
 
-  /// gather all candidates from this and parent scopes
-  vector<FunctionDecl *> func_candidates = top_ctx()->get_functions(name);
+  FunctionDecl *candidate = top_ctx()->get_func_decl(name);
+  if (!candidate) {
+    error(p, fmt::format("Unknown function call: {}", name));
+  }
 
-  /// find a valid function overload to call
-  FunctionDecl *ret = nullptr;
-  for (const auto &f : func_candidates) {
-    size_t n = f->get_n_args();
-    if (n != args.size()) {
-      continue;
-    }
+  size_t n = candidate->get_n_args();
+  if (n != args.size()) {
+    error(p, fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
+  }
 
-    auto *func_type = (FunctionType *)f->get_type();
+  auto *func_type = (FunctionType *)candidate->get_type();
 
-    /// check if argument types match (return type not checked)
-    /// allow implicit cast from actual arguments to expected arguments
-    bool good = true;
-    int cost = 0; /// number of implicit type conversion of arguments needed
-    for (size_t i = 0; i < n; ++i) {
-      auto *actual_type = args[i]->get_type();
-      auto *expected_type = func_type->get_arg_types()[i];
+  // Check if argument types match (return type not checked)
+  // Allow implicit cast from actual arguments to expected arguments
+  for (size_t i = 0; i < n; ++i) {
+    auto *actual_type = args[i]->get_type();
+    auto *expected_type = func_type->get_arg_types()[i];
 
-      if (actual_type != expected_type) {
-        ++cost;
-
-        if (!CanImplicitlyConvert(actual_type, expected_type)) {
-          good = false;
-          break;
-        }
+    if (actual_type != expected_type) {
+      if (!CanImplicitlyConvert(actual_type, expected_type)) {
+        error(p, fmt::format("Cannot implicitly convert the type of argument {}: expect {} but found {}", i + 1,
+                             actual_type->get_typename(), expected_type->get_typename()));
       }
-    }
-
-    /// remember valid candidate(s) and check for ambiguity
-    if (good) {
-      /// if there is an exact match, use it
-      if (cost == 0) {
-        ret = f;
-        break;
-      }
-
-      if (ret) {
-        // TODO: print all valid candidates
-        error(p, "Ambiguous function call: " + name);
-      }
-      ret = f;
     }
   }
 
-  if (!ret) {
-    Error err(_sm->get_filename(), _sm->get_token(p->loc()), "Unknown function call: " + name);
-    err.raise();
-  }
-  return ret;
+  return candidate;
 }
 
 Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
@@ -177,13 +152,13 @@ void Analyzer::add_decls_from_import(ASTBase *_p) {
   Context *imported_ctx = compiler->get_root_ast()->ctx();
 
   // import functions
-  vector<FunctionDecl *> funcs = imported_ctx->get_functions();
+  vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
   vector<FunctionDecl *> pub_funcs{};
   for (auto *f : funcs) {
     f->set_loc(p->loc()); // FIXME[HACK]: source location of imported function is not usable in current file
     if (f->is_public() || f->is_external()) {
       pub_funcs.push_back(f);
-      top_ctx()->add_function_decl(f);
+      top_ctx()->set_function_decl(f);
     }
   }
   p->set_imported_funcs(pub_funcs);

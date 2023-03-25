@@ -80,7 +80,7 @@ void Compiler::parse() {
   // register intrinsic functions
   auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
   for (auto *f : intrinsic_funcs) {
-    _ast->ctx()->add_function_decl(f);
+    _ast->ctx()->set_function_decl(f);
   }
 
   RegisterDeclarations rtld(_sm);
