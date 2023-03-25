@@ -29,7 +29,7 @@ struct Type {
 
 fn mess_up_list(l: List*, m: Metadata) : void {
     l.val.v = 0;
-    l.val.meta = meta;
+    l.val.meta = m;
     l.next = l;
 }
 

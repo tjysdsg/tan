@@ -26,24 +26,25 @@ pub fn main(argc: int, argv: char**) : int {
     assert(wat == -600);
     assert(f == 1.0);
 
-    var a = var b = 1.0;
-    assert(a == 1.0);
-    assert(b == 1.0);
+    {
+        var a = var b = 1.0;
+        assert(a == 1.0);
+        assert(b == 1.0);
+    }
 
     var two = 2.0;
 
-    var c = a = b = two;
-    assert(a == 2.0);
-    assert(b == 2.0);
-    assert(c == 2.0);
+    var c = var a: float = b = two;
+    assert(a == 1.0);
+    assert(b != 2.0);
+    assert(b == true);
+    assert(c == 1.0);
 
     var d = two = (a + b) / 2.;
-    assert(a == 2.0);
-    assert(b == 2.0);
-    assert(c == 2.0);
-    assert(d == 2.0);
+    assert(two == 1.0);
+    assert(d == 1.0);
 
-    /// scope and shadowing tests
+    // scope and shadowing tests
     var var1 = 100;
     var var2 = 200;
     {
