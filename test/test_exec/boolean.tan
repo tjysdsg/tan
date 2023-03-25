@@ -6,7 +6,7 @@ pub fn main(argc: int, argv: char**) : int {
     assert(!1. == false);
     assert(!0. == true);
     assert(!5 == false);
-    assert(3 == true);
+    assert(3 != true);
     assert(1 < 2);
     assert(1.1 < 2.2);
     assert(1.0 + 2.0 > 2.8);
@@ -24,9 +24,15 @@ pub fn main(argc: int, argv: char**) : int {
     b = 21;
     assert(a <= b && a < b);
 
-    b = 1 + 1 == 2;
+    b = 1 + 1 == 2; // 1
+    assert(b as bool == true);
     assert(b == true);
     assert(b != false);
+
+    var f: f32 = 2.0;
+    assert(f as bool == true);
+    assert(f != true);
+    assert(f != false);
 
     print("SUCCESS\n");
     return 0;

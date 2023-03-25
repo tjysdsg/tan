@@ -26,12 +26,12 @@ bool Analyzer::CanImplicitlyConvert(Type *from, Type *to) {
   }
 
   // # rule 6
-  else if ((from->is_num() || from->is_pointer()) && to->is_bool()) {
+  else if (from->is_bool() && to->is_num()) {
     return true;
   }
 
   // # rule 7
-  else if (from->is_bool() && to->is_num()) {
+  else if ((from->is_num() || from->is_pointer()) && to->is_bool()) {
     return true;
   }
 
@@ -85,9 +85,9 @@ Type *Analyzer::ImplicitTypePromote(Type *t1, Type *t2) {
 
   // # rule 6
   else if (t1->is_bool() && (t2->is_num() || t2->is_pointer())) {
-    return t1;
-  } else if ((t1->is_num() || t1->is_pointer()) && t2->is_bool()) {
     return t2;
+  } else if ((t1->is_num() || t1->is_pointer()) && t2->is_bool()) {
+    return t1;
   }
 
   // TODO: rule #8 and #9

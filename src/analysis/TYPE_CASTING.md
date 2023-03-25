@@ -12,17 +12,17 @@ The specific behaviors of these casts is the same as explicit cast listed in the
 The table specifies all legal implicit type conversion in this language.
 `char` is considered as an unsigned int whose size is 1 byte.
 
-| index | From                                 | To                                               |
-|-------|--------------------------------------|--------------------------------------------------|
-| 1     | int                                  | int with the same signedness with a bigger size  |
-| 2     | unsigned int                         | signed int with a bigger size                    |
-| 3     | signed int                           | unsigned int that with a bigger size             |
-| 4     | float                                | float with a bigger size                         |
-| 5     | int                                  | float                                            |
-| 6     | int/float/pointer                    | bool (xx != 0, for float, NaN is false)          |
-| 7     | bool                                 | any type of int or float (true => 1, false => 0) |
-| 8     | pointer of a derived class           | pointer to the base class                        |
-| 9     | int/float that is compile-time known | int/float that can fit the value                 |
+| index | From                                 | To                                              |
+|-------|--------------------------------------|-------------------------------------------------|
+| 1     | int                                  | int with the same signedness with a bigger size |
+| 2     | unsigned int                         | signed int with a bigger size                   |
+| 3     | signed int                           | unsigned int that with a bigger size            |
+| 4     | float                                | float with a bigger size                        |
+| 5     | int                                  | float                                           |
+| 6     | bool                                 | any type of int or float                        |
+| 7     | int/float/pointer                    | bool                                            |
+| 8     | pointer of a derived class           | pointer to the base class                       |
+| 9     | int/float that is compile-time known | int/float that can fit the value                |
 
 In many binary operations where two operands have different types, one of the operands will have its type promoted
 according to these rules.
@@ -74,11 +74,9 @@ work(1.0, 2.0); // prints "float"
 // work(1.0, 2); // error!
 ```
 
-# Explicit Type Cast Rules
+# Behaviors of Type Casts
 
-## Cast between Numerical Types
-
-Unlike implicit csat, arbitrary cast between numerical types can be performed, and the behaviors are well-defined.
+## Primitive Types
 
 - Casting between two integers of the same size is a no-op
 - Casting from a larger integer to a smaller integer will truncate
@@ -86,23 +84,25 @@ Unlike implicit csat, arbitrary cast between numerical types can be performed, a
     - zero-extend if the source is unsigned
     - sign-extend if the source is signed
 - Casting from a float to an integer will round the float towards zero
-    - NaN will return 0
+    - `NaN` will return 0
     - Values larger than the maximum integer value will saturate to the maximum value of the integer type
     - Values smaller than the minimum integer value will saturate to the minimum value of the integer type
 - Casting from an integer to float will produce the closest possible float
     - if necessary, rounding is according to roundTiesToEven mode
     - on overflow, infinity (of the same sign as the input) is produced
-- Casting from an f32 to an f64 is perfect and lossless
-- Casting from an f64 to an f32 will produce the closest possible f32
+- Casting from an `f32` to an `f64` is perfect and lossless
+- Casting from an `f64` to an `f32` will produce the closest possible `f32`
     - if necessary, rounding is according to roundTiesToEven mode
     - on overflow, infinity (of the same sign as the input) is produced
-- false casts to 0, true casts to 1
-- char casts to the value of the code point, then uses a numeric cast if needed.
+- Casting from a numerical type `n` to `bool` is equivalent to `n != 0`
+    - for float, `NaN` is `false`
+- `false` casts to `0`, `true` casts to `1`
+- `char` casts to the value of the code point, then uses a numeric cast if needed.
 
-## Cast between Pointers
+## Pointers
 
 TODO
 
-## Cast between Arrays and Pointers
+## Arrays and Pointers
 
 TODO
