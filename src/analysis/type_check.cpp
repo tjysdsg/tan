@@ -1,4 +1,4 @@
-#include "analysis/analyzer.h"
+#include "analysis/type_check.h"
 #include "ast/ast_base.h"
 #include "common/ast_visitor.h"
 #include "ast/type.h"
@@ -15,9 +15,9 @@
 
 namespace tanlang {
 
-Analyzer::Analyzer(SourceManager *sm) : AnalysisAction<Analyzer, Program *, void>(sm) { _sm = sm; }
+TypeCheck::TypeCheck(SourceManager *sm) : AnalysisAction<TypeCheck, Program *, void>(sm) { _sm = sm; }
 
-void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
+void TypeCheck::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
   push_scope(p);
 
   for (auto *c : sorted_top_level_decls) {
@@ -33,7 +33,7 @@ void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decl
   pop_scope();
 }
 
-FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
+FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
   const str &name = p->get_name();
   const vector<Expr *> &args = p->_args;
 
@@ -66,7 +66,7 @@ FunctionDecl *Analyzer::search_function_callee(FunctionCall *p) {
   return candidate;
 }
 
-Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc) {
+Type *TypeCheck::resolve_type_ref(Type *p, SrcLoc loc) {
   TAN_ASSERT(p->is_ref());
   Type *ret = p;
 
@@ -83,7 +83,7 @@ Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc) {
   return ret;
 }
 
-Type *Analyzer::resolve_type(Type *p, SrcLoc loc) {
+Type *TypeCheck::resolve_type(Type *p, SrcLoc loc) {
   TAN_ASSERT(p);
 
   Type *ret = p;
@@ -105,7 +105,7 @@ Type *Analyzer::resolve_type(Type *p, SrcLoc loc) {
   return ret;
 }
 
-void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
+void TypeCheck::analyze_func_decl_prototype(ASTBase *_p) {
   auto *p = ast_cast<FunctionDecl>(_p);
 
   push_scope(p);
@@ -129,7 +129,7 @@ void Analyzer::analyze_func_decl_prototype(ASTBase *_p) {
   pop_scope();
 }
 
-void Analyzer::analyze_func_body(ASTBase *_p) {
+void TypeCheck::analyze_func_body(ASTBase *_p) {
   auto *p = ast_cast<FunctionDecl>(_p);
 
   push_scope(p);
@@ -141,7 +141,7 @@ void Analyzer::analyze_func_body(ASTBase *_p) {
   pop_scope();
 }
 
-void Analyzer::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
+void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
   auto *void_type = Type::GetVoidType();
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::STACK_TRACE: {
@@ -185,7 +185,7 @@ void Analyzer::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call
   }
 }
 
-void Analyzer::find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
+void TypeCheck::find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
   auto q = Intrinsic::intrinsics.find(name);
   if (q == Intrinsic::intrinsics.end()) {
     error(p, fmt::format("Unknown intrinsic {}", name));
@@ -194,7 +194,7 @@ void Analyzer::find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
 }
 
 // ASSUMES lhs has been already analyzed, while rhs has not
-void Analyzer::analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
+void TypeCheck::analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
   if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
     error(p, "Invalid member function call");
   }
@@ -213,7 +213,7 @@ void Analyzer::analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall
 }
 
 // ASSUMES lhs has been already analyzed, while rhs has not
-void Analyzer::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
+void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
   visit(rhs);
 
   if (!lhs->is_lvalue()) {
@@ -250,7 +250,7 @@ void Analyzer::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
 }
 
 // ASSUMES lhs has been already analyzed, while rhs has not
-void Analyzer::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
+void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
   str m_name = ast_cast<Identifier>(rhs)->get_name();
   Type *struct_ty = nullptr;
   /// auto dereference pointers
@@ -271,7 +271,7 @@ void Analyzer::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs,
   p->set_type(resolve_type(ty, p->loc()));
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Program) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Program) {
   push_scope(p);
 
   for (const auto &c : p->get_children()) {
@@ -281,7 +281,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Program) {
   pop_scope();
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Identifier) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {
     if (referred->is_type_decl()) { /// refers to a type
@@ -296,13 +296,13 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Identifier) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Parenthesis) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Parenthesis) {
   visit(p->get_sub());
   p->set_type(p->get_sub()->get_type());
 }
 
 // TODO: decouple if branch and else clause because they each have a different context/scope
-DEFINE_AST_VISITOR_IMPL(Analyzer, If) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, If) {
   size_t n = p->get_num_branches();
   for (size_t i = 0; i < n; ++i) {
     auto *cond = p->get_predicate(i);
@@ -315,16 +315,16 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, If) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, VarDecl) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, VarDecl) {
   Type *ty = p->get_type();
   if (ty) {
     p->set_type(resolve_type(ty, p->loc()));
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
+DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Return) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
   // TODO: check if return type is the same as the function return type
   auto *rhs = p->get_rhs();
   if (rhs) {
@@ -332,7 +332,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Return) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, CompoundStmt) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, CompoundStmt) {
   push_scope(p);
 
   for (const auto &c : p->get_children()) {
@@ -342,9 +342,9 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, CompoundStmt) {
   pop_scope();
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, BinaryOrUnary) { visit(p->get_expr_ptr()); }
+DEFINE_AST_VISITOR_IMPL(TypeCheck, BinaryOrUnary) { visit(p->get_expr_ptr()); }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, BinaryOperator) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, BinaryOperator) {
   Expr *lhs = p->get_lhs();
   Expr *rhs = p->get_rhs();
 
@@ -391,7 +391,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, BinaryOperator) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, UnaryOperator) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
   auto *rhs = p->get_rhs();
   visit(rhs);
 
@@ -431,13 +431,13 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, UnaryOperator) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Cast) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Cast) {
   Expr *lhs = p->get_lhs();
   visit(lhs);
   p->set_type(resolve_type(p->get_type(), p->loc()));
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Assignment) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
   Expr *rhs = p->get_rhs();
   visit(rhs);
 
@@ -479,7 +479,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Assignment) {
   p->set_lvalue(true);
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, FunctionCall) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionCall) {
   for (const auto &a : p->_args) {
     visit(a);
   }
@@ -490,12 +490,12 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, FunctionCall) {
   p->set_type(func_type->get_return_type());
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, FunctionDecl) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
   analyze_func_decl_prototype(p);
   analyze_func_body(p);
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Intrinsic) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   auto c = p->get_sub();
 
   /// name
@@ -558,17 +558,17 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Intrinsic) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, StringLiteral) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, StringLiteral) {
   p->set_value(_sm->get_token_str(p->loc()));
   p->set_type(Type::GetStringType());
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, CharLiteral) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) {
   p->set_type(Type::GetCharType());
   p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->loc())[0]));
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, IntegerLiteral) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, IntegerLiteral) {
   Type *ty;
   if (_sm->get_token(p->loc())->is_unsigned()) {
     ty = Type::GetIntegerType(32, true);
@@ -578,11 +578,11 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, IntegerLiteral) {
   p->set_type(ty);
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, BoolLiteral) { p->set_type(Type::GetBoolType()); }
+DEFINE_AST_VISITOR_IMPL(TypeCheck, BoolLiteral) { p->set_type(Type::GetBoolType()); }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, FloatLiteral) { p->set_type(Type::GetFloatType(32)); }
+DEFINE_AST_VISITOR_IMPL(TypeCheck, FloatLiteral) { p->set_type(Type::GetFloatType(32)); }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, ArrayLiteral) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, ArrayLiteral) {
   // TODO IMPORTANT: find the type that all elements can implicitly convert to
   //  for example: [1, 2.2, 3u] has element type float
   auto elements = p->get_elements();
@@ -599,7 +599,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, ArrayLiteral) {
   p->set_type(Type::GetArrayType(element_type, (int)elements.size()));
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, MemberAccess) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, MemberAccess) {
   Expr *lhs = p->get_lhs();
   visit(lhs);
 
@@ -619,7 +619,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, MemberAccess) {
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
   str struct_name = p->get_name();
   auto *ty = (StructType *)p->get_type();
   TAN_ASSERT(ty && ty->is_struct());
@@ -654,7 +654,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, StructDecl) {
   pop_scope();
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, Loop) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
   push_scope(p);
 
   visit(p->get_predicate());
@@ -663,7 +663,7 @@ DEFINE_AST_VISITOR_IMPL(Analyzer, Loop) {
   pop_scope();
 }
 
-DEFINE_AST_VISITOR_IMPL(Analyzer, BreakContinue) {
+DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
   Loop *loop = search_loop_in_parent_scopes();
   if (!loop) {
     error(p, "Break or continue must be inside a loop");

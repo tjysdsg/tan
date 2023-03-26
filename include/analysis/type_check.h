@@ -1,5 +1,5 @@
-#ifndef __TAN_SRC_ANALYSIS_ANALYZER_H__
-#define __TAN_SRC_ANALYSIS_ANALYZER_H__
+#ifndef __TAN_ANALYSIS_TYPE_CHECK_H__
+#define __TAN_ANALYSIS_TYPE_CHECK_H__
 #include "base.h"
 #include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
@@ -13,10 +13,10 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class Analyzer : public AnalysisAction<Analyzer, Program *, void> {
+class TypeCheck : public AnalysisAction<TypeCheck, Program *, void> {
 public:
-  Analyzer() = delete;
-  explicit Analyzer(SourceManager *sm);
+  TypeCheck() = delete;
+  explicit TypeCheck(SourceManager *sm);
 
   void run_impl(Program *) { // TODO
   }
@@ -114,4 +114,4 @@ private:
 
 } // namespace tanlang
 
-#endif //__TAN_SRC_ANALYSIS_ANALYZER_H__
+#endif // __TAN_ANALYSIS_TYPE_CHECK_H__

@@ -1,7 +1,7 @@
 #include "compiler/compiler.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
-#include "analysis/analyzer.h"
+#include "analysis/type_check.h"
 #include "analysis/register_declarations.h"
 #include "analysis/type_precheck.h"
 #include "codegen/code_generator.h"
@@ -99,7 +99,7 @@ void Compiler::analyze() {
   //   std::cout << name << '\n';
   // }
 
-  Analyzer analyzer(_sm);
+  TypeCheck analyzer(_sm);
   analyzer.stage2(_ast, sorted);
 }
 

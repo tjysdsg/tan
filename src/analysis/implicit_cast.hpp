@@ -1,4 +1,4 @@
-bool Analyzer::CanImplicitlyConvert(Type *from, Type *to) {
+bool TypeCheck::CanImplicitlyConvert(Type *from, Type *to) {
   TAN_ASSERT(from && to);
 
   if (from == to) {
@@ -41,7 +41,7 @@ bool Analyzer::CanImplicitlyConvert(Type *from, Type *to) {
   }
 }
 
-Type *Analyzer::ImplicitTypePromote(Type *t1, Type *t2) {
+Type *TypeCheck::ImplicitTypePromote(Type *t1, Type *t2) {
   TAN_ASSERT(t1 && t2);
 
   if (t1 == t2) {
@@ -96,7 +96,7 @@ Type *Analyzer::ImplicitTypePromote(Type *t1, Type *t2) {
   }
 }
 
-Cast *Analyzer::create_implicit_conversion(Expr *from, Type *to) {
+Cast *TypeCheck::create_implicit_conversion(Expr *from, Type *to) {
   if (!CanImplicitlyConvert(from->get_type(), to)) {
     error(from,
           fmt::format("Cannot implicitly convert type {} to {}", from->get_type()->get_typename(), to->get_typename()));
@@ -108,7 +108,7 @@ Cast *Analyzer::create_implicit_conversion(Expr *from, Type *to) {
   return cast;
 }
 
-Type *Analyzer::auto_promote_bop_operand_types(BinaryOperator *bop) {
+Type *TypeCheck::auto_promote_bop_operand_types(BinaryOperator *bop) {
   auto *lhs = bop->get_lhs();
   auto *rhs = bop->get_rhs();
   auto *lhs_type = lhs->get_type();

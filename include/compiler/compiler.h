@@ -10,15 +10,14 @@ class Value;
 
 namespace tanlang {
 
-class Analyzer;
 class CodeGenerator;
 class Program;
 class SourceManager;
 
 /**
- * \class Compiler
- * \brief Abstraction of a compiler
- * */
+ * \brief Parse, Analyze, and compile a list of tan source files. The compilation consists of multiple stages,
+ *        performed using the CompilerAction interface.
+ */
 class Compiler {
 public:
   /**
@@ -29,12 +28,12 @@ public:
   /**
    * \brief Import search directories
    * \details This is set by compile_files() in libtanc.h
-   * */
+   */
   static inline vector<str> import_dirs{};
 
   /**
    * \brief Current compile configuration
-   * */
+   */
   static inline TanCompilation compile_config{};
 
   /**
@@ -43,53 +42,51 @@ public:
    *    the call to resolve_import should be like `Compiler::resolve_import("./src.tan", "../parent.tan")`
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
-   * */
+   */
   static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
 private:
   /**
    * \brief Compiler instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
-   * */
+   */
   static inline llvm::TargetMachine *target_machine = nullptr;
 
 public:
   Compiler() = delete;
-  /**
-   * \brief create_ty a Compiler instance with its relevant source file name/path
-   * */
+
   explicit Compiler(const str &filename);
   ~Compiler();
 
   /**
    * \brief Parse the corresponding source file, and build AST
-   * */
+   */
   void parse();
 
   /**
-   * \brief Semantic Analysis
-   * */
+   * \brief Perform Semantic Analysis
+   */
   void analyze();
 
   /**
-   * \brief Generate LLVM IR code
-   * */
+   * \brief Generate LLVM IR
+   */
   llvm::Value *codegen();
 
   /**
-   * \brief Emit object files
-   * \details A file called "<filename>.o" will be created in the current working directory
-   * */
+   * \brief Compile to object files
+   * \details Resulting *.o files are stored in the current working directory
+   */
   void emit_object(const str &filename);
 
   /**
    * \brief Print LLVM IR code
-   * */
+   */
   void dump_ir() const;
 
   /**
    * \brief Pretty-print AST
-   * */
+   */
   void dump_ast() const;
 
   Program *get_root_ast() const;
