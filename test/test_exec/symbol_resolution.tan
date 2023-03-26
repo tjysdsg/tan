@@ -39,10 +39,10 @@ pub fn main(argc: int, argv: u8**) : i32 {
 
     var val1: Value;
     val1.v = 1;
-    // val1.owner = &n1;
+    val1.owner = &n1;
     var val2: Value;
     val2.v = 2;
-    // val2.owner = &n2;
+    val2.owner = &n2;
 
     var meta: Metadata;
     var t: Type;
@@ -58,6 +58,9 @@ pub fn main(argc: int, argv: u8**) : i32 {
     assert(n1.val.v == 1);
     assert(n1.next.val.v == 2);
     assert(n1.next.next.val.v == 1);
+
+    assert(n1.val.owner == &n1);
+    assert(n2.val.owner == &n2);
 
     mess_up_list(&n1, meta);
     assert(n1.val.v == 0);
