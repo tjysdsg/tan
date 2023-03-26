@@ -13,7 +13,7 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypePrecheck : public AnalysisAction<TypePrecheck> {
+class TypePrecheck : public AnalysisAction<TypePrecheck, Program *, void> {
 public:
   TypePrecheck() = delete;
   explicit TypePrecheck(SourceManager *sm);

@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-class RegisterDeclarations : public AnalysisAction<RegisterDeclarations> {
+class RegisterDeclarations : public AnalysisAction<RegisterDeclarations, Program *, void> {
 public:
   RegisterDeclarations() = delete;
   explicit RegisterDeclarations(SourceManager *sm);
@@ -39,7 +39,7 @@ public:
   // DECLARE_AST_VISITOR_IMPL(BreakContinue);
 
 private:
-  friend CompilerAction<RegisterDeclarations>;
+  friend CompilerAction<RegisterDeclarations, Program *, void>;
   void run_impl(Program *p);
 };
 

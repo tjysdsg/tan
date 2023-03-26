@@ -17,7 +17,7 @@ namespace tanlang {
 
 void TypePrecheck::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-TypePrecheck::TypePrecheck(SourceManager *sm) : AnalysisAction<TypePrecheck>(sm) { _sm = sm; }
+TypePrecheck::TypePrecheck(SourceManager *sm) : AnalysisAction<TypePrecheck, Program *, void>(sm) { _sm = sm; }
 
 vector<ASTBase *> TypePrecheck::sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
 

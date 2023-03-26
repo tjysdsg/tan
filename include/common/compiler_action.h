@@ -5,11 +5,19 @@
 
 namespace tanlang {
 
-template <typename Derived> class CompilerAction : public ASTVisitor<Derived> {
+template <typename C, typename Input, typename Output>
+concept HasImpl = requires(C c, Input input) {
+                    { c.run_impl(input) } -> std::same_as<Output>;
+                  };
+
+template <typename Derived, typename Input, typename Output> class CompilerAction : public ASTVisitor<Derived> {
 public:
-  void run(Program *p) { ((Derived *)this)->run_impl(p); }
+  Output run(Input input) {
+    static_assert(HasImpl<Derived, Input, Output>);
+    return ((Derived *)this)->run_impl(input);
+  }
 };
 
 } // namespace tanlang
 
-#endif //__TAN_INCLUDE_COMMON_COMPILER_ACTION_H__
+#endif // __TAN_COMMON_COMPILER_ACTION_H__

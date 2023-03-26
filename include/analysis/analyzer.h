@@ -13,12 +13,12 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class Analyzer : public AnalysisAction<Analyzer> {
+class Analyzer : public AnalysisAction<Analyzer, Program *, void> {
 public:
   Analyzer() = delete;
   explicit Analyzer(SourceManager *sm);
 
-  void run_impl(Program *p) { // TODO
+  void run_impl(Program *) { // TODO
   }
 
   void stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls);

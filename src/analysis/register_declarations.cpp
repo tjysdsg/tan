@@ -5,7 +5,8 @@
 
 namespace tanlang {
 
-RegisterDeclarations::RegisterDeclarations(SourceManager *sm) : AnalysisAction<RegisterDeclarations>(sm) {}
+RegisterDeclarations::RegisterDeclarations(SourceManager *sm)
+    : AnalysisAction<RegisterDeclarations, Program *, void>(sm) {}
 
 void RegisterDeclarations::run_impl(Program *p) { visit(p); }
 

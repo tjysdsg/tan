@@ -15,7 +15,7 @@
 
 namespace tanlang {
 
-Analyzer::Analyzer(SourceManager *sm) : AnalysisAction<Analyzer>(sm) { _sm = sm; }
+Analyzer::Analyzer(SourceManager *sm) : AnalysisAction<Analyzer, Program *, void>(sm) { _sm = sm; }
 
 void Analyzer::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
   push_scope(p);
