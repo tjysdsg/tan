@@ -28,7 +28,7 @@ private:
   SourceManager *_sm = nullptr;
 
   /// \brief Store unresolved symbols during non-strict parsing
-  DependencyGraph _unresolved_symbols{};
+  DependencyGraph<ASTBase *> _unresolved_symbols{};
 
 private:
   /**
