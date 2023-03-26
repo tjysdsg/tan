@@ -73,12 +73,7 @@ Type *Analyzer::resolve_type_ref(Type *p, SrcLoc loc) {
   const str &referred_name = p->get_typename();
   auto *decl = search_decl_in_scopes(referred_name);
   if (decl && decl->is_type_decl()) {
-    if (!decl->get_type() || !decl->get_type()->is_canonical()) {
-      Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Cannot resolve type {}", referred_name));
-      err.raise();
-    } else {
-      ret = decl->get_type();
-    }
+    ret = decl->get_type();
   } else {
     Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
     err.raise();

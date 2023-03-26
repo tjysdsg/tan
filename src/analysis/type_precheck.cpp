@@ -44,10 +44,10 @@ Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
   const str &referred_name = p->get_typename();
   auto *decl = search_decl_in_scopes(referred_name);
   if (decl && decl->is_type_decl()) {
-    if (!decl->get_type() || !decl->get_type()->is_canonical()) {
+    ret = decl->get_type();
+    TAN_ASSERT(ret);
+    if (!ret->is_canonical()) {
       _unresolved_symbols.add_dependency(decl, node);
-    } else {
-      ret = decl->get_type();
     }
   } else {
     Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
@@ -159,10 +159,6 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, FunctionDecl) {
   for (size_t i = 0; i < n; ++i) {
     visit(arg_decls[i]); /// args will be added to the scope here
     arg_types[i] = arg_decls[i]->get_type();
-
-    if (!arg_types[i]->is_canonical()) {
-      _unresolved_symbols.add_dependency(arg_decls[i], p);
-    }
   }
   func_type->set_arg_types(arg_types); /// update arg types
 
@@ -172,15 +168,10 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, FunctionDecl) {
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
   str struct_name = p->get_name();
 
-  // Create the type first and modify the member types on the fly to support recursive type reference
   auto members = p->get_member_decls();
   size_t n = members.size();
-  TAN_ASSERT(!p->get_type() || p->get_type()->is_struct());
   auto *ty = (StructType *)p->get_type();
-  if (!ty) {
-    ty = Type::GetStructType(struct_name, vector<Type *>(n, nullptr));
-    p->set_type(ty);
-  }
+  TAN_ASSERT(ty);
 
   push_scope(p);
 
@@ -205,7 +196,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
     if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
       str name = ast_cast<VarDecl>(m)->get_name();
       p->set_member_index(name, i);
-      (*ty)[i] = m->get_type();
+      ty->append_member_type(m->get_type());
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
       auto bm = ast_cast<Assignment>(m);
 
@@ -214,12 +205,12 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       }
       auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
-      (*ty)[i] = decl->get_type();
+      ty->append_member_type(decl->get_type());
       p->set_member_index(decl->get_name(), i);
     } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
       auto f = ast_cast<FunctionDecl>(m);
 
-      (*ty)[i] = f->get_type();
+      ty->append_member_type(f->get_type());
       p->set_member_index(f->get_name(), i);
     } else {
       error(p, "Invalid struct member");

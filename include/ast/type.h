@@ -38,36 +38,37 @@ public:
   static inline vector<str> ALL_TYPE_NAMES{"bool", "int", "float", "f32", "str", "char", "f64", "i8",
                                            "u8",   "i16", "u16",   "i32", "u32", "i64",  "u64", "void"};
 
+  /**
+   * \brief A composite type is canonical only if its subtype(s) are also canonical.
+   *        A non-composite type is canonical only if it's not a type reference.
+   * \details We write it as a static method to check for infinite recursion using iterative search.
+   */
+  static bool IsCanonical(const Type &type);
+
 public:
   virtual ~Type() = default;
 
-  virtual bool is_primitive();
-  virtual bool is_pointer();
-  virtual bool is_array();
-  virtual bool is_string();
-  virtual bool is_struct();
-  virtual bool is_function();
-  virtual bool is_ref();
-  virtual bool is_float();
-  virtual bool is_int();
-  virtual bool is_num();
-  virtual bool is_unsigned();
-  virtual bool is_bool();
-  virtual bool is_void();
-  virtual bool is_char();
+  [[nodiscard]] virtual bool is_primitive() const;
+  [[nodiscard]] virtual bool is_pointer() const;
+  [[nodiscard]] virtual bool is_array() const;
+  [[nodiscard]] virtual bool is_string() const;
+  [[nodiscard]] virtual bool is_struct() const;
+  [[nodiscard]] virtual bool is_function() const;
+  [[nodiscard]] virtual bool is_ref() const;
+  [[nodiscard]] virtual bool is_float() const;
+  [[nodiscard]] virtual bool is_int() const;
+  [[nodiscard]] virtual bool is_num() const;
+  [[nodiscard]] virtual bool is_unsigned() const;
+  [[nodiscard]] virtual bool is_bool() const;
+  [[nodiscard]] virtual bool is_void() const;
+  [[nodiscard]] virtual bool is_char() const;
 
   virtual int get_align_bits();
   virtual int get_size_bits();
 
-  virtual vector<Type *> children() const;
-
-  /**
-   * \brief A composite type is canonical only if its subtype(s) are also canonical.
-   *        A non-composite type is canonical only if it's not a type reference.
-   */
-  virtual bool is_canonical() const;
-
-  const str &get_typename() { return _type_name; }
+  [[nodiscard]] virtual vector<Type *> children() const;
+  [[nodiscard]] bool is_canonical() const;
+  [[nodiscard]] const str &get_typename() const { return _type_name; }
 
 protected:
   Type() = default;
@@ -148,16 +149,15 @@ public:
 public:
   [[nodiscard]] static PrimitiveType *Create(Kind kind);
 
-  bool is_primitive() override { return true; }
-  bool is_float() override { return _kind == F32 || _kind == F64; }
-  bool is_int() override { return _kind >= I8 && _kind <= U64; }
-  bool is_num() override { return _kind >= I8 && _kind <= F64; }
-  bool is_unsigned() override { return _kind >= CHAR && _kind <= U64; };
-  bool is_bool() override { return _kind == BOOL; }
-  bool is_void() override { return _kind == VOID; }
-  bool is_char() override { return _kind == CHAR; }
-  vector<Type *> children() const override { return {}; }
-  bool is_canonical() const override { return true; }
+  [[nodiscard]] bool is_primitive() const override { return true; }
+  [[nodiscard]] bool is_float() const override { return _kind == F32 || _kind == F64; }
+  [[nodiscard]] bool is_int() const override { return _kind >= I8 && _kind <= U64; }
+  [[nodiscard]] bool is_num() const override { return _kind >= I8 && _kind <= F64; }
+  [[nodiscard]] bool is_unsigned() const override { return _kind >= CHAR && _kind <= U64; };
+  [[nodiscard]] bool is_bool() const override { return _kind == BOOL; }
+  [[nodiscard]] bool is_void() const override { return _kind == VOID; }
+  [[nodiscard]] bool is_char() const override { return _kind == CHAR; }
+  [[nodiscard]] vector<Type *> children() const override { return {}; }
 
   int get_align_bits() override;
   int get_size_bits() override;
@@ -173,16 +173,16 @@ private:
 
 class PointerType : public Type {
 public:
-  bool is_pointer() override { return true; }
+  [[nodiscard]] bool is_pointer() const override { return true; }
   Type *get_pointee() { return _pointee_type; }
   int get_align_bits() override;
   int get_size_bits() override;
-  vector<Type *> children() const override;
+  [[nodiscard]] vector<Type *> children() const override;
 
   friend class Type;
 
 protected:
-  PointerType(Type *pointee_type);
+  explicit PointerType(Type *pointee_type);
 
 private:
   Type *_pointee_type = nullptr;
@@ -192,10 +192,10 @@ class ArrayType : public Type {
 public:
   Type *get_element_type() { return _element_type; }
   int get_size() { return _size; }
-  bool is_array() override { return true; }
+  [[nodiscard]] bool is_array() const override { return true; }
   int get_align_bits() override;
   int get_size_bits() override;
-  vector<Type *> children() const override;
+  [[nodiscard]] vector<Type *> children() const override;
 
   friend class Type;
 
@@ -209,11 +209,10 @@ private:
 
 class StringType : public Type {
 public:
-  bool is_string() override { return true; }
+  [[nodiscard]] bool is_string() const override { return true; }
   int get_align_bits() override;
   int get_size_bits() override;
-  vector<Type *> children() const override { return {}; }
-  bool is_canonical() const override { return true; }
+  [[nodiscard]] vector<Type *> children() const override { return {}; }
 
   friend class Type;
 
@@ -223,12 +222,11 @@ protected:
 
 class StructType : public Type {
 public:
-  bool is_struct() override { return true; }
-  vector<Type *> get_member_types() const;
+  [[nodiscard]] bool is_struct() const override { return true; }
+  [[nodiscard]] vector<Type *> get_member_types() const;
   int get_align_bits() override;
   int get_size_bits() override;
-  vector<Type *> children() const override;
-  bool is_canonical() const override;
+  [[nodiscard]] vector<Type *> children() const override;
 
   void append_member_type(Type *t);
   Type *&operator[](size_t index);
@@ -245,12 +243,12 @@ private:
 
 class FunctionType : public Type {
 public:
-  bool is_function() override { return true; }
-  Type *get_return_type() const;
+  [[nodiscard]] bool is_function() const override { return true; }
+  [[nodiscard]] Type *get_return_type() const;
   void set_return_type(Type *t);
-  vector<Type *> get_arg_types() const;
+  [[nodiscard]] vector<Type *> get_arg_types() const;
   void set_arg_types(const vector<Type *> &arg_types);
-  vector<Type *> children() const override;
+  [[nodiscard]] vector<Type *> children() const override;
 
   friend class Type;
 
@@ -268,12 +266,11 @@ private:
 class TypeRef : public Type {
 public:
   friend class Type;
-  bool is_ref() override { return true; }
-  vector<Type *> children() const override { return {}; }
-  bool is_canonical() const override { return false; }
+  [[nodiscard]] bool is_ref() const override { return true; }
+  [[nodiscard]] vector<Type *> children() const override { return {}; }
 
 protected:
-  TypeRef(const str &name);
+  explicit TypeRef(const str &name);
 };
 
 } // namespace tanlang

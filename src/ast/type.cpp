@@ -1,5 +1,6 @@
 #include "ast/type.h"
-#include <bit>
+#include <unordered_set>
+#include <queue>
 
 using namespace tanlang;
 
@@ -112,34 +113,6 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
-bool Type::is_primitive() { return false; }
-
-bool Type::is_pointer() { return false; }
-
-bool Type::is_array() { return false; }
-
-bool Type::is_string() { return false; }
-
-bool Type::is_struct() { return false; }
-
-bool Type::is_function() { return false; }
-
-bool Type::is_ref() { return false; }
-
-bool Type::is_float() { return false; }
-
-bool Type::is_int() { return false; }
-
-bool Type::is_num() { return false; }
-
-bool Type::is_unsigned() { return false; }
-
-bool Type::is_bool() { return false; }
-
-bool Type::is_void() { return false; }
-
-bool Type::is_char() { return false; }
-
 int Type::get_align_bits() {
   TAN_ASSERT(false);
   return 0;
@@ -150,17 +123,9 @@ int Type::get_size_bits() {
   return 0;
 }
 
-vector<Type *> Type::children() const { TAN_ASSERT(false); }
-
-bool Type::is_canonical() const {
-  bool resolved = true;
-  auto children = this->children();
-  for (auto *c : children) {
-    if (!c->is_canonical()) {
-      resolved = false;
-    }
-  }
-  return resolved;
+vector<Type *> Type::children() const {
+  TAN_ASSERT(false);
+  return {};
 }
 
 int PrimitiveType::get_size_bits() { return SIZE_BITS[_kind]; }
@@ -211,30 +176,6 @@ int StructType::get_size_bits() {
   return 8;
 }
 
-/// \brief Special case when there is a pointer to itself
-bool StructType::is_canonical() const {
-  bool resolved = true;
-  auto children = this->children();
-  for (auto *c : children) {
-    if (!c) // not filled yet, ignore
-      continue;
-
-    // skip pointer to itself
-    if (c->is_pointer()) {
-      Type *pointee = ((PointerType *)c)->get_pointee();
-      if (pointee->is_ref() && pointee->get_typename() == _type_name)
-        continue;
-      if (pointee == this)
-        continue;
-    }
-
-    if (!c->is_canonical()) {
-      resolved = false;
-    }
-  }
-  return resolved;
-}
-
 void StructType::append_member_type(Type *t) { _member_types.push_back(t); }
 Type *&StructType::operator[](size_t index) { return _member_types[index]; }
 Type *StructType::operator[](size_t index) const { return _member_types[index]; }
@@ -261,3 +202,57 @@ vector<Type *> FunctionType::children() const {
   ret.insert(ret.begin(), _arg_types.begin(), _arg_types.end());
   return ret;
 }
+
+bool Type::IsCanonical(const Type &type) {
+  std::queue<Type const *> q{};
+  std::unordered_set<Type const *> s{}; // avoid infinite recursion
+  q.push(&type);
+
+  while (!q.empty()) {
+    Type const *t = q.front();
+    s.insert(t);
+    q.pop();
+
+    if (t->is_ref()) {
+      return false;
+    } else if (t->is_array() || t->is_pointer() || t->is_function()) {
+      auto children = t->children();
+      for (auto *c : children) {
+        if (!s.contains(c))
+          q.push(c);
+      }
+    } else if (t->is_struct()) {
+      auto children = t->children();
+      for (auto *c : children) {
+        if (c->is_pointer()) { // skip checking when struct has a pointer to itself
+          Type *pointee = ((PointerType *)c)->get_pointee();
+          if (pointee->is_ref() && pointee->get_typename() == t->get_typename())
+            continue;
+          if (pointee == t)
+            continue;
+        }
+
+        if (!s.contains(c))
+          q.push(c);
+      }
+    }
+  }
+
+  return true;
+}
+
+bool Type::is_canonical() const { return Type::IsCanonical(*this); }
+bool Type::is_primitive() const { return false; }
+bool Type::is_pointer() const { return false; }
+bool Type::is_array() const { return false; }
+bool Type::is_string() const { return false; }
+bool Type::is_struct() const { return false; }
+bool Type::is_function() const { return false; }
+bool Type::is_ref() const { return false; }
+bool Type::is_float() const { return false; }
+bool Type::is_int() const { return false; }
+bool Type::is_num() const { return false; }
+bool Type::is_unsigned() const { return false; }
+bool Type::is_bool() const { return false; }
+bool Type::is_void() const { return false; }
+bool Type::is_char() const { return false; }

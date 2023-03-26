@@ -20,7 +20,7 @@ struct Metadata {
 struct Value {
     var v: i32;
     var meta: Metadata;
-    // TODO: var owner: List*;
+    var owner: List*;
 }
 
 struct Type {
