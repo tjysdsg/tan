@@ -5,6 +5,7 @@
 #include "analysis/register_declarations.h"
 #include "analysis/type_precheck.h"
 #include "codegen/code_generator.h"
+#include "common/compilation_unit.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "ast/decl.h"
@@ -17,12 +18,9 @@
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-Compiler::~Compiler() {
-  if (_ast)
-    delete _ast;
-}
+Compiler::~Compiler() {}
 
-Compiler::Compiler(const str &filename) : _filename(filename) {
+Compiler::Compiler(const vector<str> &files) : _files(files) {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -46,61 +44,70 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   }
 }
 
-void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
+void Compiler::emit_object(CompilationUnit *cu, const str &out_file) {
+  auto *cg = _cg[cu];
+  cg->emit_to_file(out_file);
+}
 
-Value *Compiler::codegen() {
-  TAN_ASSERT(_ast);
-  TAN_ASSERT(!_cg);
-  _cg = new CodeGenerator(_sm, target_machine);
-  auto *ret = _cg->codegen(_ast);
+Value *Compiler::codegen(CompilationUnit *cu, bool print_ir) {
+  TAN_ASSERT(_cg.find(cu) == _cg.end());
+  auto *cg = _cg[cu] = new CodeGenerator(cu->source_manager(), target_machine);
+  auto *ret = cg->codegen(cu->ast());
+
+  if (print_ir) {
+    cg->dump_ir();
+  }
+
   return ret;
 }
 
-void Compiler::dump_ir() const {
-  TAN_ASSERT(_cg);
-  _cg->dump_ir();
-}
-
 void Compiler::dump_ast() const {
-  TAN_ASSERT(_ast);
-  _ast->printTree();
+  // TODO: dump_ast()
 }
 
 void Compiler::parse() {
-  Reader reader;
-  reader.open(_filename);
+  for (const str &file : _files) {
+    Reader reader;
+    reader.open(file);
 
-  // tokenization
-  auto tokens = tokenize(&reader);
+    // tokenization
+    auto tokens = tokenize(&reader);
 
-  // syntactic parsing
-  _sm = new SourceManager(_filename, tokens);
-  auto *parser = new Parser(_sm);
-  _ast = parser->parse();
+    auto *sm = new SourceManager(file, tokens);
+    auto *parser = new Parser(sm);
+    auto *ast = parser->parse();
 
-  // register intrinsic functions
-  auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
-  for (auto *f : intrinsic_funcs) {
-    _ast->ctx()->set_function_decl(f);
+    // register top-level declarations
+    auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
+    for (auto *f : intrinsic_funcs) {
+      ast->ctx()->set_function_decl(f);
+    }
+
+    _cu.push_back(new CompilationUnit(ast, sm));
   }
-
-  RegisterDeclarations rtld(_sm);
-  rtld.run(_ast);
 }
 
 void Compiler::analyze() {
-  TypePrecheck tp(_sm);
-  tp.run(_ast);
-  vector<ASTBase *> sorted = tp.sorted_unresolved_symbols();
+  for (auto *cu : _cu) {
+    auto *sm = cu->source_manager();
+    auto *ast = cu->ast();
 
-  // std::cout << "Sorted unresolved symbol dependency:\n";
-  // for (auto *d : sorted) {
-  //   str name = ast_cast<Decl>(d)->get_name();
-  //   std::cout << name << '\n';
-  // }
+    RegisterDeclarations rtld(sm);
+    rtld.run(ast);
 
-  TypeCheck analyzer(_sm);
-  analyzer.stage2(_ast, sorted);
+    TypePrecheck tp(sm);
+    tp.run(ast);
+    vector<ASTBase *> sorted = tp.sorted_unresolved_symbols();
+
+    // std::cout << "Sorted unresolved symbol dependency:\n";
+    // for (auto *d : sorted) {
+    //   str name = ast_cast<Decl>(d)->get_name();
+    //   std::cout << name << '\n';
+    // }
+
+    TypeCheck analyzer(sm);
+    analyzer.stage2(ast, sorted);
+  }
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
@@ -130,4 +137,4 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
   return ret;
 }
 
-Program *Compiler::get_root_ast() const { return _ast; }
+const vector<CompilationUnit *> &Compiler::get_compilation_units() const { return _cu; }

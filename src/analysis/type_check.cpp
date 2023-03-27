@@ -15,7 +15,7 @@
 
 namespace tanlang {
 
-TypeCheck::TypeCheck(SourceManager *sm) : AnalysisAction<TypeCheck, Program *, void>(sm) { _sm = sm; }
+TypeCheck::TypeCheck(SourceManager *sm) : AnalysisActionType(sm) { _sm = sm; }
 
 void TypeCheck::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
   push_scope(p);

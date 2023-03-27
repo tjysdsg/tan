@@ -1,6 +1,7 @@
 #include "analysis/type_precheck.h"
 #include "ast/ast_base.h"
 #include "common/ast_visitor.h"
+#include "common/compilation_unit.h"
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -17,11 +18,13 @@ namespace tanlang {
 
 void TypePrecheck::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-TypePrecheck::TypePrecheck(SourceManager *sm) : AnalysisAction<TypePrecheck, Program *, void>(sm) { _sm = sm; }
+TypePrecheck::TypePrecheck(SourceManager *sm) : AnalysisActionType(sm) { _sm = sm; }
 
 vector<ASTBase *> TypePrecheck::sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
 
 void TypePrecheck::run_impl(Program *p) {
+  _unresolved_symbols.clear();
+
   push_scope(p);
 
   for (const auto &c : p->get_children()) {
@@ -88,10 +91,10 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
     error(p, "Cannot import: " + file);
   }
 
-  auto *compiler = new Compiler(imported[0]);
+  auto *compiler = new Compiler(imported);
   compiler->parse();
   compiler->analyze();
-  Context *imported_ctx = compiler->get_root_ast()->ctx();
+  Context *imported_ctx = compiler->get_compilation_units()[0]->ast()->ctx();
 
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();

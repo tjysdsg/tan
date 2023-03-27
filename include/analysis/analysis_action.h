@@ -10,6 +10,8 @@ namespace tanlang {
 template <typename Derived, typename Input, typename Output>
 class AnalysisAction : public CompilerAction<Derived, Input, Output> {
 public:
+  using AnalysisActionType = AnalysisAction<Derived, Input, Output>;
+
   AnalysisAction() = delete;
 
   [[nodiscard]] SourceManager *get_sm() const { return _sm; };

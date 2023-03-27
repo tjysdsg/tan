@@ -12,6 +12,8 @@ concept HasImpl = requires(C c, Input input) {
 
 template <typename Derived, typename Input, typename Output> class CompilerAction : public ASTVisitor<Derived> {
 public:
+  using CompilerActionType = CompilerAction<Derived, Input, Output>;
+
   Output run(Input input) {
     static_assert(HasImpl<Derived, Input, Output>);
     return ((Derived *)this)->run_impl(input);

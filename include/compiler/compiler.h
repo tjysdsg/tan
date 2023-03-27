@@ -13,6 +13,7 @@ namespace tanlang {
 class CodeGenerator;
 class Program;
 class SourceManager;
+class CompilationUnit;
 
 /**
  * \brief Parse, Analyze, and compile a list of tan source files. The compilation consists of multiple stages,
@@ -55,7 +56,7 @@ private:
 public:
   Compiler() = delete;
 
-  explicit Compiler(const str &filename);
+  explicit Compiler(const vector<str> &files);
   ~Compiler();
 
   /**
@@ -71,31 +72,25 @@ public:
   /**
    * \brief Generate LLVM IR
    */
-  llvm::Value *codegen();
+  llvm::Value *codegen(CompilationUnit *cu, bool print_ir);
 
   /**
    * \brief Compile to object files
    * \details Resulting *.o files are stored in the current working directory
    */
-  void emit_object(const str &filename);
-
-  /**
-   * \brief Print LLVM IR code
-   */
-  void dump_ir() const;
+  void emit_object(CompilationUnit *cu, const str &out_file);
 
   /**
    * \brief Pretty-print AST
    */
   void dump_ast() const;
 
-  Program *get_root_ast() const;
+  const vector<CompilationUnit *> &get_compilation_units() const;
 
 private:
-  Program *_ast = nullptr;
-  str _filename;
-  SourceManager *_sm = nullptr;
-  CodeGenerator *_cg = nullptr;
+  vector<str> _files{};
+  vector<CompilationUnit *> _cu{};
+  umap<CompilationUnit *, CodeGenerator *> _cg{};
 };
 
 } // namespace tanlang
