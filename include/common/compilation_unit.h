@@ -2,9 +2,11 @@
 #define __TAN_COMMON_COMPILATION_UNIT_H__
 
 #include "base.h"
+#include "common/dependency_graph.h"
 
 namespace tanlang {
 
+class ASTBase;
 class Program;
 class SourceManager;
 
@@ -16,6 +18,9 @@ public:
   str filename() const;
   SourceManager *source_manager() const;
   Program *ast() const;
+
+public:
+  DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 
 private:
   Program *_program = nullptr;

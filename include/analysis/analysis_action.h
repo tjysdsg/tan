@@ -2,21 +2,22 @@
 #define __TAN_ANALYSIS_ANALYSIS_ACTION_H__
 
 #include "common/compiler_action.h"
+#include "common/compilation_unit.h"
 #include "ast/decl.h"
 #include "ast/context.h"
 
 namespace tanlang {
 
-template <typename Derived, typename Input, typename Output>
-class AnalysisAction : public CompilerAction<Derived, Input, Output> {
+template <typename Derived, typename Output>
+class SingleUnitAnalysisAction : public CompilerAction<Derived, CompilationUnit *, Output> {
 public:
-  using AnalysisActionType = AnalysisAction<Derived, Input, Output>;
-
-  AnalysisAction() = delete;
+  using AnalysisActionType = SingleUnitAnalysisAction<Derived, Output>;
 
   [[nodiscard]] SourceManager *get_sm() const { return _sm; };
 
 protected:
+  void init(CompilationUnit *cu) override { _sm = cu->source_manager(); }
+
   [[noreturn]] void error(ASTBase *p, const str &message) {
     Error err(get_sm()->get_filename(), get_sm()->get_token(p->loc()), message);
     err.raise();
@@ -68,7 +69,7 @@ protected:
 
 private:
   friend Derived;
-  explicit AnalysisAction(SourceManager *sm) : _sm(sm) {}
+  SingleUnitAnalysisAction() = default;
 
 private:
   vector<ASTBase *> _scopes{};

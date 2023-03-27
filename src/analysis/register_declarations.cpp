@@ -5,10 +5,7 @@
 
 namespace tanlang {
 
-RegisterDeclarations::RegisterDeclarations(SourceManager *sm)
-    : AnalysisAction<RegisterDeclarations, Program *, void>(sm) {}
-
-void RegisterDeclarations::run_impl(Program *p) { visit(p); }
+void RegisterDeclarations::run_impl(CompilationUnit *cu) { visit(cu->ast()); }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
   push_scope(p);

@@ -15,10 +15,17 @@
 
 namespace tanlang {
 
-TypeCheck::TypeCheck(SourceManager *sm) : AnalysisActionType(sm) { _sm = sm; }
-
-void TypeCheck::stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls) {
+void TypeCheck::run_impl(CompilationUnit *cu) {
+  auto *p = cu->ast();
   push_scope(p);
+
+  auto sorted_top_level_decls = cu->top_level_symbol_dependency.topological_sort();
+
+  std::cout << "Sorted unresolved symbol dependency:\n";
+  for (auto *d : sorted_top_level_decls) {
+    str name = ast_cast<Decl>(d)->get_name();
+    std::cout << name << '\n';
+  }
 
   for (auto *c : sorted_top_level_decls) {
     visit(c);

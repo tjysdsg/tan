@@ -89,24 +89,14 @@ void Compiler::parse() {
 
 void Compiler::analyze() {
   for (auto *cu : _cu) {
-    auto *sm = cu->source_manager();
-    auto *ast = cu->ast();
+    RegisterDeclarations rtld;
+    rtld.run(cu);
 
-    RegisterDeclarations rtld(sm);
-    rtld.run(ast);
+    TypePrecheck tp;
+    tp.run(cu);
 
-    TypePrecheck tp(sm);
-    tp.run(ast);
-    vector<ASTBase *> sorted = tp.sorted_unresolved_symbols();
-
-    // std::cout << "Sorted unresolved symbol dependency:\n";
-    // for (auto *d : sorted) {
-    //   str name = ast_cast<Decl>(d)->get_name();
-    //   std::cout << name << '\n';
-    // }
-
-    TypeCheck analyzer(sm);
-    analyzer.stage2(ast, sorted);
+    TypeCheck analyzer;
+    analyzer.run(cu);
   }
 }
 

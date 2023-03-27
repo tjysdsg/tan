@@ -11,19 +11,16 @@
 #include "lexer/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
-#include <csetjmp>
 #include <set>
 
 namespace tanlang {
 
 void TypePrecheck::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-TypePrecheck::TypePrecheck(SourceManager *sm) : AnalysisActionType(sm) { _sm = sm; }
+void TypePrecheck::run_impl(CompilationUnit *cu) {
+  _cu = cu;
 
-vector<ASTBase *> TypePrecheck::sorted_unresolved_symbols() const { return _unresolved_symbols.topological_sort(); }
-
-void TypePrecheck::run_impl(Program *p) {
-  _unresolved_symbols.clear();
+  auto *p = cu->ast();
 
   push_scope(p);
 
@@ -50,7 +47,7 @@ Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
     ret = decl->get_type();
     TAN_ASSERT(ret);
     if (!ret->is_canonical()) {
-      _unresolved_symbols.add_dependency(decl, node);
+      _cu->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
     Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
@@ -193,7 +190,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
      *    pointer.
      */
     if (!m->get_type()->is_canonical() && !m->get_type()->is_pointer()) {
-      _unresolved_symbols.add_dependency(m, p);
+      _cu->top_level_symbol_dependency.add_dependency(m, p);
     }
 
     if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value

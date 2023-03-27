@@ -13,22 +13,11 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypePrecheck : public AnalysisAction<TypePrecheck, Program *, void> {
+class TypePrecheck : public SingleUnitAnalysisAction<TypePrecheck, void> {
 public:
-  TypePrecheck() = delete;
-  explicit TypePrecheck(SourceManager *sm);
-
-  void run_impl(Program *p);
-
-  vector<ASTBase *> sorted_unresolved_symbols() const;
+  void run_impl(CompilationUnit *cu);
 
   void default_visit(ASTBase *p) override;
-
-private:
-  SourceManager *_sm = nullptr;
-
-  /// \brief Store unresolved symbols during non-strict parsing
-  DependencyGraph<ASTBase *> _unresolved_symbols{};
 
 private:
   /**
@@ -74,6 +63,9 @@ public:
   DECLARE_AST_VISITOR_IMPL(StructDecl);
   // DECLARE_AST_VISITOR_IMPL(Loop);
   // DECLARE_AST_VISITOR_IMPL(BreakContinue);
+
+private:
+  CompilationUnit *_cu = nullptr;
 };
 
 } // namespace tanlang

@@ -13,18 +13,9 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypeCheck : public AnalysisAction<TypeCheck, Program *, void> {
+class TypeCheck : public SingleUnitAnalysisAction<TypeCheck, void> {
 public:
-  TypeCheck() = delete;
-  explicit TypeCheck(SourceManager *sm);
-
-  void run_impl(Program *) { // TODO
-  }
-
-  void stage2(Program *p, const vector<ASTBase *> &sorted_top_level_decls);
-
-private:
-  SourceManager *_sm = nullptr;
+  void run_impl(CompilationUnit *cu);
 
 private:
   /**

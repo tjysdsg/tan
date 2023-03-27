@@ -14,10 +14,17 @@ template <typename Derived, typename Input, typename Output> class CompilerActio
 public:
   using CompilerActionType = CompilerAction<Derived, Input, Output>;
 
+  virtual ~CompilerAction() = default;
+
   Output run(Input input) {
     static_assert(HasImpl<Derived, Input, Output>);
+
+    init(input);
     return ((Derived *)this)->run_impl(input);
   }
+
+protected:
+  virtual void init(Input) {}
 };
 
 } // namespace tanlang

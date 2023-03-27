@@ -5,12 +5,10 @@
 
 namespace tanlang {
 
-class RegisterDeclarations : public AnalysisAction<RegisterDeclarations, Program *, void> {
+class RegisterDeclarations : public SingleUnitAnalysisAction<RegisterDeclarations, void> {
 public:
-  RegisterDeclarations() = delete;
-  explicit RegisterDeclarations(SourceManager *sm);
+  void run_impl(CompilationUnit *cu);
 
-public:
   DECLARE_AST_VISITOR_IMPL(Program);
   // DECLARE_AST_VISITOR_IMPL(Identifier);
   DECLARE_AST_VISITOR_IMPL(Parenthesis);
@@ -37,10 +35,6 @@ public:
   DECLARE_AST_VISITOR_IMPL(StructDecl);
   DECLARE_AST_VISITOR_IMPL(Loop);
   // DECLARE_AST_VISITOR_IMPL(BreakContinue);
-
-private:
-  friend CompilerAction<RegisterDeclarations, Program *, void>;
-  void run_impl(Program *p);
 };
 
 } // namespace tanlang
