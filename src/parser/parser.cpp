@@ -706,9 +706,6 @@ private:
       error(_curr, "Expect a test name");
     }
 
-    // TODO: the underlying expression of this intrinsic should be Test
-    // TODO: expect parsing OR analysis error
-
     auto *body = peek("{");
     parse_node(body);
     p->set_sub(body);
@@ -832,37 +829,37 @@ private:
     p->set_name(id->get_name());
 
     /// struct body
-    if (at(_curr)->get_value() == "{") {
-      ScopeGuard scope_guard(_curr_scope, p);
+    if (at(_curr)->get_value() != "{") {
+      error(_curr, "Expect struct body");
+    }
 
-      auto _comp_stmt = next_expression(PREC_LOWEST);
-      if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
-        error(_curr, "struct definition requires a valid body");
-      }
-      auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
+    ScopeGuard scope_guard(_curr_scope, p);
 
-      /// copy member declarations
-      auto children = comp_stmt->get_children();
-      vector<Expr *> member_decls{};
-      for (const auto &c : children) {
-        if (!(                                                  //
-                c->get_node_type() == ASTNodeType::VAR_DECL     //
-                || c->get_node_type() == ASTNodeType::ASSIGN    //
-                || c->get_node_type() == ASTNodeType::FUNC_DECL //
-                )) {
-          error(c->loc(), "Invalid struct member");
-        }
-        member_decls.push_back(ast_cast<Expr>(c));
-      }
-      p->set_member_decls(member_decls);
+    auto _comp_stmt = next_expression(PREC_LOWEST);
+    if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
+      error(_curr, "struct definition requires a valid body");
+    }
+    auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
 
-      /// check if redefining the struct
-      auto *prev_decl = _root->ctx()->get_decl(id->get_name());
-      if (prev_decl && !ast_cast<StructDecl>(prev_decl)->is_forward_decl()) {
-        error(p->loc(), "Cannot redefine a struct");
+    /// copy member declarations
+    auto children = comp_stmt->get_children();
+    vector<Expr *> member_decls{};
+    for (const auto &c : children) {
+      if (!(                                                  //
+              c->get_node_type() == ASTNodeType::VAR_DECL     //
+              || c->get_node_type() == ASTNodeType::ASSIGN    //
+              || c->get_node_type() == ASTNodeType::FUNC_DECL //
+              )) {
+        error(c->loc(), "Invalid struct member");
       }
-    } else {
-      p->set_is_forward_decl(true);
+      member_decls.push_back(ast_cast<Expr>(c));
+    }
+    p->set_member_decls(member_decls);
+
+    /// check if redefining the struct
+    auto *prev_decl = _root->ctx()->get_decl(id->get_name());
+    if (prev_decl) {
+      error(p->loc(), "Cannot redefine a struct");
     }
 
     // TODO IMPORTANT: distinguish publicly and privately defined struct types

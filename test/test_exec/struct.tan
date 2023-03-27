@@ -1,9 +1,6 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
-struct Fuck;
-struct Useless;
-
 struct Useless {
     // var shit: i8 = 1 as i8;
     var shit: i8;

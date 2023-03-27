@@ -2,9 +2,10 @@ import "lib1.tan";
 import "lib2.tan";
 import "runtime/print.tan";
 import "runtime/stdlib.tan";
+import "runtime/debug.tan";
 
 pub fn main() : int {
     var a = lib_func1(3) + lib_func2(3); // 9 + 6
-    // TODO: assert(a == 15);
+    assert(a == 15);
     return 0;
 }

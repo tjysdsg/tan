@@ -91,18 +91,14 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, FunctionDecl) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
   // check if struct name is in conflicts of variable/function names
   str struct_name = p->get_name();
-  if (!p->is_forward_decl()) {
-    auto *root_ctx = top_ctx();
-    auto *prev_decl = root_ctx->get_decl(struct_name);
-    if (prev_decl && prev_decl != p) {
-      if (!(prev_decl->get_node_type() == ASTNodeType::STRUCT_DECL &&
-            ast_cast<StructDecl>(prev_decl)->is_forward_decl()))
-        error(p, "Cannot redeclare type as a struct");
-    }
-
-    // overwrite the value set during parsing (e.g. forward decl)
-    root_ctx->set_decl(struct_name, p);
+  auto *root_ctx = top_ctx();
+  auto *prev_decl = root_ctx->get_decl(struct_name);
+  if (prev_decl && prev_decl != p) {
+    error(p, "Cannot redeclare a struct");
   }
+
+  // overwrite the value set during parsing (e.g. forward decl)
+  root_ctx->set_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference
   p->set_type(Type::GetStructType(struct_name, vector<Type *>(p->get_children().size(), nullptr)));

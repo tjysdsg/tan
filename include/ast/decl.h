@@ -88,18 +88,14 @@ public:
   static StructDecl *Create(SrcLoc loc);
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
-  void set_is_forward_decl(bool is_forward_decl);
-  bool is_forward_decl() const; // TODO: remove forward decl
   Type *get_struct_member_ty(size_t i) const;
   size_t get_struct_member_index(const str &name) const;
   void set_member_index(const str &name, size_t idx);
-
   vector<ASTBase *> get_children() const override;
 
 private:
   vector<Expr *> _member_decls{};
   umap<str, size_t> _member_indices{};
-  bool _is_forward_decl = false;
 };
 
 } // namespace tanlang

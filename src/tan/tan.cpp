@@ -102,11 +102,8 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   Compiler::import_dirs.reserve(n_import);
   Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
 
-  // TODO: build a list CompilerAction and run them sequentially
-
-  Compiler compiler(files);
-
   // Parse
+  Compiler compiler(files);
   compiler.parse();
   if (print_ast) {
     compiler.dump_ast();
