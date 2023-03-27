@@ -11,20 +11,23 @@ import "runtime/debug.tan";
 struct List {
     var val: Value;
     var next: List*; // List is an incomplete type at this point
+    // var fucked: List; // TODO: add test to make sure this raises an error
 }
 
 struct Metadata {
     var type: Type;
+    // var fucked: List; // TODO: add test to make sure this raises an error
 }
 
 struct Value {
     var v: i32;
     var meta: Metadata;
-    var owner: List*;
+    var owner: List*; // List and Value have circular reference, one of them using a pointer
 }
 
 struct Type {
     var size: i32;
+    var circular_with_pointer: List*;
 }
 
 fn mess_up_list(l: List*, m: Metadata) : void {

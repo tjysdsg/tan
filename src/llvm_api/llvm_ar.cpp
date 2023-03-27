@@ -39,7 +39,8 @@ static bool ParsingMRIScript;
   exit(1);
 }
 
-static void failIfError(std::error_code EC, Twine Context = "") {
+// DON'T delete, used on Windows
+[[maybe_unused]] static void failIfError(std::error_code EC, Twine Context = "") {
   if (!EC)
     return;
 

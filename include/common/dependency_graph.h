@@ -46,7 +46,7 @@ public:
       if (f != _backward.end()) {
         depended = f->second;
       }
-      for (auto *d : depended) {
+      for (auto d : depended) {
         --num_depend[d];
         if (num_depend[d] == 0) {
           q.push(d);

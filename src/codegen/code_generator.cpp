@@ -391,7 +391,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
                                          p->get_typename());
   } else if (p->is_struct()) { /// struct
     auto member_types = ((StructType *)p)->get_member_types();
-    unsigned n = member_types.size();
+    unsigned n = (unsigned)member_types.size();
 
     // avoid infinite recursion by inserting a placeholder
     ret = _di_builder->createStructType(

@@ -1,6 +1,7 @@
 #include "ast/type.h"
 #include <unordered_set>
 #include <queue>
+#include <fmt/format.h>
 
 using namespace tanlang;
 
@@ -208,16 +209,22 @@ bool Type::IsCanonical(const Type &type) {
   std::unordered_set<Type const *> s{}; // avoid infinite recursion
   q.push(&type);
 
+  umap<Type *, bool> met_pointer{};
   while (!q.empty()) {
-    Type const *t = q.front();
+    auto *t = (Type *)q.front();
     s.insert(t);
     q.pop();
 
     if (!t || t->is_ref()) {
       return false;
     } else if (t->is_array() || t->is_pointer() || t->is_function()) {
+      if (t->is_pointer())
+        met_pointer[t] = true;
+
       auto children = t->children();
       for (auto *c : children) {
+        met_pointer[c] = met_pointer[t];
+
         if (!c) {
           return false;
         } else if (!s.contains(c))
@@ -226,18 +233,17 @@ bool Type::IsCanonical(const Type &type) {
     } else if (t->is_struct()) {
       auto children = t->children();
       for (auto *c : children) {
-        if (!c) {
+        if (!c)
           return false;
-        } else if (c->is_pointer()) { // skip checking when struct has a pointer to itself
-          Type *pointee = ((PointerType *)c)->get_pointee();
-          if (pointee->is_ref() && pointee->get_typename() == t->get_typename())
-            continue;
-          if (pointee == t)
-            continue;
-        }
 
-        if (!s.contains(c))
+        met_pointer[c] = met_pointer[t];
+
+        if (!s.contains(c)) {
           q.push(c);
+        } else if (c->is_struct() && !met_pointer[t]) {
+          Error err(fmt::format("Recursive type reference to {} without using a pointer", c->get_typename()));
+          err.raise();
+        }
       }
     }
   }
