@@ -27,7 +27,6 @@ jobs:
       - name: compile all and test all
         run: bash scripts/compile-and-test.sh
       - name: upload coverage results
-        shell: bash
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: wget https://codecov.io/bash -O codecov.sh; bash codecov.sh
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage/report.xml
