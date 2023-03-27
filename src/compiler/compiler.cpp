@@ -1,10 +1,14 @@
 #include "compiler/compiler.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
-#include "analysis/analyzer.h"
+#include "analysis/type_check.h"
+#include "analysis/register_declarations.h"
+#include "analysis/type_precheck.h"
 #include "codegen/code_generator.h"
+#include "common/compilation_unit.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/decl.h"
 #include "ast/context.h"
 #include "lexer/reader.h"
 #include "parser/parser.h"
@@ -14,12 +18,9 @@
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-Compiler::~Compiler() {
-  if (_ast)
-    delete _ast;
-}
+Compiler::~Compiler() {}
 
-Compiler::Compiler(const str &filename) : _filename(filename) {
+Compiler::Compiler(const vector<str> &files) : _files(files) {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -43,43 +44,60 @@ Compiler::Compiler(const str &filename) : _filename(filename) {
   }
 }
 
-void Compiler::emit_object(const str &filename) { _cg->emit_to_file(filename); }
+void Compiler::emit_object(CompilationUnit *cu, const str &out_file) {
+  auto *cg = _cg[cu];
+  cg->emit_to_file(out_file);
+}
 
-Value *Compiler::codegen() {
-  TAN_ASSERT(_ast);
-  TAN_ASSERT(!_cg);
-  _cg = new CodeGenerator(_sm, target_machine);
-  auto *ret = _cg->codegen(_ast);
+Value *Compiler::codegen(CompilationUnit *cu, bool print_ir) {
+  TAN_ASSERT(_cg.find(cu) == _cg.end());
+  auto *cg = _cg[cu] = new CodeGenerator(cu->source_manager(), target_machine);
+  auto *ret = cg->codegen(cu->ast());
+
+  if (print_ir) {
+    cg->dump_ir();
+  }
+
   return ret;
 }
 
-void Compiler::dump_ir() const {
-  TAN_ASSERT(_cg);
-  _cg->dump_ir();
-}
-
 void Compiler::dump_ast() const {
-  TAN_ASSERT(_ast);
-  _ast->printTree();
+  // TODO: dump_ast()
 }
 
 void Compiler::parse() {
-  Reader reader;
-  reader.open(_filename);
+  for (const str &file : _files) {
+    Reader reader;
+    reader.open(file);
 
-  auto tokens = tokenize(&reader);
-  _sm = new SourceManager(_filename, tokens);
+    // tokenization
+    auto tokens = tokenize(&reader);
 
-  auto *parser = new Parser(_sm);
-  _ast = parser->parse();
+    auto *sm = new SourceManager(file, tokens);
+    auto *parser = new Parser(sm);
+    auto *ast = parser->parse();
 
-  // TODO: register intrinsic functions on the package level
-  auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
-  for (auto *f : intrinsic_funcs) {
-    _ast->ctx()->add_function_decl(f);
+    // register top-level declarations
+    auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
+    for (auto *f : intrinsic_funcs) {
+      ast->ctx()->set_function_decl(f);
+    }
+
+    _cu.push_back(new CompilationUnit(ast, sm));
   }
-  Analyzer analyzer(_sm);
-  analyzer.analyze(_ast);
+}
+
+void Compiler::analyze() {
+  for (auto *cu : _cu) {
+    RegisterDeclarations rtld;
+    rtld.run(cu);
+
+    TypePrecheck tp;
+    tp.run(cu);
+
+    TypeCheck analyzer;
+    analyzer.run(cu);
+  }
 }
 
 TargetMachine *Compiler::GetDefaultTargetMachine() {
@@ -109,4 +127,4 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
   return ret;
 }
 
-Program *Compiler::get_root_ast() const { return _ast; }
+const vector<CompilationUnit *> &Compiler::get_compilation_units() const { return _cu; }

@@ -1,5 +1,7 @@
 #include "ast/type.h"
-#include <bit>
+#include <unordered_set>
+#include <queue>
+#include <fmt/format.h>
 
 using namespace tanlang;
 
@@ -112,34 +114,6 @@ StructType *Type::GetStructType(const str &name, const vector<Type *> &member_ty
 
 TypeRef *Type::GetTypeRef(const str &name) { return new TypeRef(name); }
 
-bool Type::is_primitive() { return false; }
-
-bool Type::is_pointer() { return false; }
-
-bool Type::is_array() { return false; }
-
-bool Type::is_string() { return false; }
-
-bool Type::is_struct() { return false; }
-
-bool Type::is_function() { return false; }
-
-bool Type::is_ref() { return false; }
-
-bool Type::is_float() { return false; }
-
-bool Type::is_int() { return false; }
-
-bool Type::is_num() { return false; }
-
-bool Type::is_unsigned() { return false; }
-
-bool Type::is_bool() { return false; }
-
-bool Type::is_void() { return false; }
-
-bool Type::is_char() { return false; }
-
 int Type::get_align_bits() {
   TAN_ASSERT(false);
   return 0;
@@ -148,6 +122,11 @@ int Type::get_align_bits() {
 int Type::get_size_bits() {
   TAN_ASSERT(false);
   return 0;
+}
+
+vector<Type *> Type::children() const {
+  TAN_ASSERT(false);
+  return {};
 }
 
 int PrimitiveType::get_size_bits() { return SIZE_BITS[_kind]; }
@@ -161,6 +140,8 @@ PointerType::PointerType(Type *pointee_type) : _pointee_type(pointee_type) {
   _type_name = pointee_type->get_typename() + "*";
 }
 
+vector<Type *> PointerType::children() const { return {_pointee_type}; }
+
 // TODO: find out the pointer size from llvm::TargetMachine
 int PointerType::get_align_bits() { return 64; }
 int PointerType::get_size_bits() { return 64; }
@@ -172,6 +153,8 @@ int StringType::get_size_bits() { return 64; }
 ArrayType::ArrayType(Type *element_type, int size) : _element_type(element_type), _size(size) {
   _type_name = element_type->get_typename() + "[" + std::to_string(size) + "]";
 }
+
+vector<Type *> ArrayType::children() const { return {_element_type}; }
 
 StringType::StringType() { _type_name = "str"; }
 
@@ -194,6 +177,12 @@ int StructType::get_size_bits() {
   return 8;
 }
 
+void StructType::append_member_type(Type *t) { _member_types.push_back(t); }
+Type *&StructType::operator[](size_t index) { return _member_types[index]; }
+Type *StructType::operator[](size_t index) const { return _member_types[index]; }
+vector<Type *> StructType::children() const { return _member_types; }
+vector<Type *> StructType::get_member_types() const { return _member_types; }
+
 TypeRef::TypeRef(const str &name) { _type_name = name; }
 
 FunctionType::FunctionType(Type *ret_type, const vector<Type *> &arg_types) {
@@ -208,3 +197,72 @@ vector<Type *> FunctionType::get_arg_types() const { return _arg_types; }
 void FunctionType::set_arg_types(const vector<Type *> &arg_types) { _arg_types = arg_types; }
 
 void FunctionType::set_return_type(Type *t) { _ret_type = t; }
+
+vector<Type *> FunctionType::children() const {
+  vector<Type *> ret{_ret_type};
+  ret.insert(ret.begin(), _arg_types.begin(), _arg_types.end());
+  return ret;
+}
+
+bool Type::IsCanonical(const Type &type) {
+  std::queue<Type const *> q{};
+  std::unordered_set<Type const *> s{}; // avoid infinite recursion
+  q.push(&type);
+
+  umap<Type *, bool> met_pointer{};
+  while (!q.empty()) {
+    auto *t = (Type *)q.front();
+    s.insert(t);
+    q.pop();
+
+    if (!t || t->is_ref()) {
+      return false;
+    } else if (t->is_array() || t->is_pointer() || t->is_function()) {
+      if (t->is_pointer())
+        met_pointer[t] = true;
+
+      auto children = t->children();
+      for (auto *c : children) {
+        met_pointer[c] = met_pointer[t];
+
+        if (!c) {
+          return false;
+        } else if (!s.contains(c))
+          q.push(c);
+      }
+    } else if (t->is_struct()) {
+      auto children = t->children();
+      for (auto *c : children) {
+        if (!c)
+          return false;
+
+        met_pointer[c] = met_pointer[t];
+
+        if (!s.contains(c)) {
+          q.push(c);
+        } else if (c->is_struct() && !met_pointer[t]) {
+          Error err(fmt::format("Recursive type reference to {} without using a pointer", c->get_typename()));
+          err.raise();
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+bool Type::is_canonical() const { return Type::IsCanonical(*this); }
+bool Type::is_primitive() const { return false; }
+bool Type::is_pointer() const { return false; }
+bool Type::is_array() const { return false; }
+bool Type::is_string() const { return false; }
+bool Type::is_struct() const { return false; }
+bool Type::is_function() const { return false; }
+bool Type::is_ref() const { return false; }
+bool Type::is_float() const { return false; }
+bool Type::is_int() const { return false; }
+bool Type::is_num() const { return false; }
+bool Type::is_unsigned() const { return false; }
+bool Type::is_bool() const { return false; }
+bool Type::is_void() const { return false; }
+bool Type::is_char() const { return false; }

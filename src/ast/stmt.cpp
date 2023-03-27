@@ -28,17 +28,6 @@ size_t CompoundStmt::get_children_size() const { return _children.size(); }
 
 vector<ASTBase *> &CompoundStmt::get_children() { return _children; }
 
-template <typename T> T *CompoundStmt::get_child_at(size_t idx) const {
-  static_assert(std::is_base_of_v<Stmt, T>, "Return type can only be a subclass of Stmt");
-  TAN_ASSERT(_children.size() > idx);
-  return ast_cast<T>(_children[idx]);
-}
-
-template <> ASTBase *CompoundStmt::get_child_at<ASTBase>(size_t idx) const {
-  TAN_ASSERT(_children.size() > idx);
-  return _children[idx];
-}
-
 vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
 
 /// \section Program

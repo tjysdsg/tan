@@ -21,6 +21,7 @@ set(TAN_EXEC_TEST_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/variables.tan
         ${CMAKE_CURRENT_LIST_DIR}/bits.tan
         ${CMAKE_CURRENT_LIST_DIR}/import.tan
+        ${CMAKE_CURRENT_LIST_DIR}/symbol_resolution.tan
         )
 add_executable(tanc_exec_tests tanc_exec_tests.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
 set_target_common_compile_options(tanc_exec_tests)

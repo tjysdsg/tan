@@ -1,27 +1,11 @@
 #include "tan/tan.h"
 #include "compiler/compiler.h"
+#include "common/compilation_unit.h"
 #include "lexer/lexer.h"
 #include "linker/linker.h"
 #include "llvm_api.h"
 #include "backtrace/tan_backtrace.h"
 #include <filesystem>
-
-#ifndef DEBUG
-#define BEGIN_TRY try {
-#else
-#define BEGIN_TRY
-#endif
-
-#ifndef DEBUG
-#define END_TRY                                                                        \
-  }                                                                                    \
-  catch (const std::exception &e) {                                                    \
-    std::cerr << "Error encountered in file " << files[i] << ": " << e.what() << '\n'; \
-    return false;                                                                      \
-  }
-#else
-#define END_TRY
-#endif
 
 namespace tanlang {
 
@@ -118,40 +102,34 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   Compiler::import_dirs.reserve(n_import);
   Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
 
-  /// Compiler instances
-  vector<Compiler *> compilers{};
-  compilers.reserve(n_files);
-
-  /// parse all files before generating IR code
-  for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY
-    auto compiler = new Compiler(files[i]);
-    compilers.push_back(compiler);
-    compiler->parse();
-    if (print_ast) {
-      compiler->dump_ast();
-    }
-    END_TRY
-  }
-  /// _codegen
-  for (size_t i = 0; i < n_files; ++i) {
-    BEGIN_TRY
-    compilers[i]->codegen();
-    if (print_ir_code) {
-      compilers[i]->dump_ir();
-    }
-    /// prepare filename for linking
-    files[i] += ".o";
-    files[i] = fs::path(files[i]).filename().string();
-    std::cout << "Compiling TAN file: " << files[i] << "\n";
-    compilers[i]->emit_object(files[i]);
-    END_TRY
+  // Parse
+  Compiler compiler(files);
+  compiler.parse();
+  if (print_ast) {
+    compiler.dump_ast();
   }
 
-  /// link
-  files.insert(files.begin(), obj_files.begin(), obj_files.end());
+  // Semantic analysis
+  compiler.analyze();
+
+  // Code generation
+  vector<str> out_files(n_files);
+  size_t i = 0;
+  for (auto *cu : compiler.get_compilation_units()) {
+    // prepare filename for linking
+    str ofile = out_files[i] = fs::path(cu->filename() + ".o").filename().string();
+    std::cout << fmt::format("Compiling TAN file: {}\n", ofile);
+
+    compiler.codegen(cu, print_ir_code);
+    compiler.emit_object(cu, ofile);
+
+    ++i;
+  }
+
+  // Link
+  out_files.insert(out_files.begin(), obj_files.begin(), obj_files.end());
   if (config->type != OBJ) {
-    bool ret = _link(files, config);
+    bool ret = _link(out_files, config);
     if (!ret) {
       std::cerr << "Error linking files\n";
     }

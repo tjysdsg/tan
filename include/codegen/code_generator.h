@@ -38,6 +38,7 @@ private:
   SourceManager *_sm = nullptr;
 
   umap<Type *, llvm::Type *> _llvm_type_cache{};
+  umap<Type *, llvm::Metadata *> _llvm_meta_cache{};
   umap<ASTBase *, llvm::Value *> _llvm_value_cache{};
 
   /// LLVM things

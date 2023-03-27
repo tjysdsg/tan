@@ -1,4 +1,4 @@
-bool AnalyzerImpl::CanImplicitlyConvert(Type *from, Type *to) {
+bool TypeCheck::CanImplicitlyConvert(Type *from, Type *to) {
   TAN_ASSERT(from && to);
 
   if (from == to) {
@@ -26,12 +26,12 @@ bool AnalyzerImpl::CanImplicitlyConvert(Type *from, Type *to) {
   }
 
   // # rule 6
-  else if ((from->is_num() || from->is_pointer()) && to->is_bool()) {
+  else if (from->is_bool() && to->is_num()) {
     return true;
   }
 
   // # rule 7
-  else if (from->is_bool() && to->is_num()) {
+  else if ((from->is_num() || from->is_pointer()) && to->is_bool()) {
     return true;
   }
 
@@ -41,7 +41,7 @@ bool AnalyzerImpl::CanImplicitlyConvert(Type *from, Type *to) {
   }
 }
 
-Type *AnalyzerImpl::ImplicitTypePromote(Type *t1, Type *t2) {
+Type *TypeCheck::ImplicitTypePromote(Type *t1, Type *t2) {
   TAN_ASSERT(t1 && t2);
 
   if (t1 == t2) {
@@ -85,13 +85,53 @@ Type *AnalyzerImpl::ImplicitTypePromote(Type *t1, Type *t2) {
 
   // # rule 6
   else if (t1->is_bool() && (t2->is_num() || t2->is_pointer())) {
-    return t1;
-  } else if ((t1->is_num() || t1->is_pointer()) && t2->is_bool()) {
     return t2;
+  } else if ((t1->is_num() || t1->is_pointer()) && t2->is_bool()) {
+    return t1;
   }
 
   // TODO: rule #8 and #9
   else {
     return nullptr;
   }
+}
+
+Cast *TypeCheck::create_implicit_conversion(Expr *from, Type *to) {
+  if (!CanImplicitlyConvert(from->get_type(), to)) {
+    error(from,
+          fmt::format("Cannot implicitly convert type {} to {}", from->get_type()->get_typename(), to->get_typename()));
+  }
+
+  auto *cast = Cast::Create(from->loc());
+  cast->set_lhs(from);
+  cast->set_type(to);
+  return cast;
+}
+
+Type *TypeCheck::auto_promote_bop_operand_types(BinaryOperator *bop) {
+  auto *lhs = bop->get_lhs();
+  auto *rhs = bop->get_rhs();
+  auto *lhs_type = lhs->get_type();
+  auto *rhs_type = rhs->get_type();
+
+  auto *promoted_type = ImplicitTypePromote(lhs_type, rhs_type);
+  if (!promoted_type) {
+    error(bop, fmt::format("Cannot find a valid type promotion between {} and {}", lhs_type->get_typename(),
+                           rhs_type->get_typename()));
+  }
+
+  TAN_ASSERT(promoted_type == lhs_type || promoted_type == rhs_type);
+  if (promoted_type != lhs_type) {
+    auto *cast = Cast::Create(bop->loc());
+    cast->set_lhs(lhs);
+    cast->set_type(promoted_type);
+    bop->set_lhs(cast);
+  } else {
+    auto *cast = Cast::Create(bop->loc());
+    cast->set_lhs(rhs);
+    cast->set_type(promoted_type);
+    bop->set_rhs(cast);
+  }
+
+  return promoted_type;
 }

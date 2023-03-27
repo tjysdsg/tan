@@ -23,9 +23,13 @@ macro(enable_tests)
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_lib)
 
     # tests target that runs all defined tests
-    add_custom_target(tests ALL DEPENDS lexer_tests run_tanc_exec_tests run_tanc_lib_tests)
+    add_custom_target(tests ALL DEPENDS lexer_tests parser_tests run_tanc_exec_tests run_tanc_lib_tests)
     add_custom_command(TARGET tests POST_BUILD
             COMMAND $<TARGET_FILE:lexer_tests>
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            )
+    add_custom_command(TARGET tests POST_BUILD
+            COMMAND $<TARGET_FILE:parser_tests>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 

@@ -316,12 +316,14 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   } else if (p->is_string()) { /// str as char*
     ret = _builder->getInt8PtrTy();
   } else if (p->is_struct()) { /// struct
-    auto member_types = ((StructType *)p)->get_member_types();
-    vector<llvm::Type *> elements(member_types.size(), nullptr);
-    for (size_t i = 0; i < member_types.size(); ++i) {
-      elements[i] = to_llvm_type(member_types[i]);
+    // avoid infinite recursion
+    _llvm_type_cache[p] = ret = llvm::StructType::create(*_llvm_ctx, p->get_typename());
+    auto types = ((StructType *)p)->get_member_types();
+    vector<llvm::Type *> elements(types.size(), nullptr);
+    for (size_t i = 0; i < types.size(); ++i) {
+      elements[i] = to_llvm_type(types[i]);
     }
-    ret = llvm::StructType::create(elements, p->get_typename());
+    ((llvm::StructType *)ret)->setBody(elements);
   } else if (p->is_array()) { /// array as pointer
     auto *e_type = to_llvm_type(((ArrayType *)p)->get_element_type());
     ret = e_type->getPointerTo();
@@ -347,6 +349,11 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
 llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
   TAN_ASSERT(p);
   TAN_ASSERT(!p->is_ref());
+
+  auto it = _llvm_meta_cache.find(p);
+  if (it != _llvm_meta_cache.end()) {
+    return it->second;
+  }
 
   DIType *ret = nullptr;
   if (p->is_primitive()) { /// primitive types
@@ -384,29 +391,37 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
                                          p->get_typename());
   } else if (p->is_struct()) { /// struct
     auto member_types = ((StructType *)p)->get_member_types();
+    unsigned n = (unsigned)member_types.size();
+
+    // avoid infinite recursion by inserting a placeholder
+    ret = _di_builder->createStructType(
+        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_sm->get_line(loc), (uint32_t)p->get_size_bits(),
+        (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
+        _di_builder->getOrCreateArray(vector<Metadata *>(n, nullptr)), 0, nullptr, p->get_typename());
+
     vector<Metadata *> elements(member_types.size(), nullptr);
-    for (size_t i = 1; i < member_types.size(); ++i) {
+    for (unsigned i = 0; i < n; ++i) {
       elements[i] = to_llvm_metadata(member_types[i], loc);
     }
-    ret = _di_builder->createStructType(get_current_di_scope(), p->get_typename(), _di_file,
-                                        (unsigned)_sm->get_line(loc), (uint32_t)p->get_size_bits(),
-                                        (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
-                                        _di_builder->getOrCreateArray(elements), 0, nullptr, p->get_typename());
+    // work around replaceElements()'s check
+    ret->replaceOperandWith(4, _di_builder->getOrCreateArray(elements).get());
   } else if (p->is_array()) { /// array as pointer
     auto *sub = to_llvm_metadata(((ArrayType *)p)->get_element_type(), loc);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
   } else if (p->is_pointer()) { /// pointer
+    // avoid infinite recursion by inserting a placeholder
+    _llvm_meta_cache[p] = ret = _di_builder->createPointerType(nullptr, _target_machine->getPointerSizeInBits(0),
+                                                               (unsigned)_target_machine->getPointerSizeInBits(0),
+                                                               llvm::None, p->get_typename());
     auto *sub = to_llvm_metadata(((PointerType *)p)->get_pointee(), loc);
-    ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
-                                         (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
-                                         p->get_typename());
+    ret->replaceOperandWith(3, sub);
   } else {
     TAN_ASSERT(false);
   }
 
-  return ret;
+  return _llvm_meta_cache[p] = ret;
 }
 
 llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Metadata *ret,
@@ -453,8 +468,10 @@ Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
     a = convert_llvm_type_to(actual_arg, expected_ty);
     arg_vals.push_back(a);
   }
-  return _builder->CreateCall((llvm::FunctionType *)to_llvm_type(callee->get_type()), _llvm_value_cache[callee],
-                              arg_vals);
+
+  auto *func_type = (llvm::FunctionType *)to_llvm_type(callee->get_type());
+  auto *F = codegen(callee);
+  return _builder->CreateCall(func_type, F, arg_vals);
 }
 
 Value *CodeGenerator::codegen_func_prototype(FunctionDecl *p, bool import) {
@@ -1132,9 +1149,9 @@ Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
   auto p = ast_cast<Identifier>(_p);
 
   switch (p->get_id_type()) {
-  case IdentifierType::ID_VAR_DECL:
+  case IdentifierType::ID_VAR_REF:
     return codegen(p->get_var_ref());
-  case IdentifierType::ID_TYPE_DECL:
+  case IdentifierType::ID_TYPE_REF:
   default:
     TAN_ASSERT(false);
     break;
@@ -1227,7 +1244,6 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
   auto p = ast_cast<If>(_p);
 
   Function *func = _builder->GetInsertBlock()->getParent();
-  BasicBlock *merge_bb = BasicBlock::Create(*_llvm_ctx, "endif");
   size_t n = p->get_num_branches();
 
   /// create basic blocks
@@ -1237,6 +1253,7 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
     cond_blocks[i] = BasicBlock::Create(*_llvm_ctx, "cond", func);
     then_blocks[i] = BasicBlock::Create(*_llvm_ctx, "branch", func);
   }
+  BasicBlock *merge_bb = BasicBlock::Create(*_llvm_ctx, "endif", func);
 
   /// codegen branches
   _builder->CreateBr(cond_blocks[0]);
@@ -1269,7 +1286,6 @@ Value *CodeGenerator::codegen_if(ASTBase *_p) {
   }
 
   /// emit merge block
-  func->getBasicBlockList().push_back(merge_bb);
   _builder->SetInsertPoint(merge_bb);
   return nullptr;
 }

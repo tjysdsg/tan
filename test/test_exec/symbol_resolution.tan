@@ -1,0 +1,74 @@
+import "runtime/print.tan";
+import "runtime/debug.tan";
+
+// After the first semantic analysis pass, only Type is a fully resolved.
+// List depends on Value, Value depends on Metadata, Metadata depends on Type.
+// We test if the compiler can find the correct order of symbol resolution in the second analysis pass,
+// that is, Metadata -> Value -> List.
+
+// Note that we don't need forward declarations
+
+struct List {
+    var val: Value;
+    var next: List*; // List is an incomplete type at this point
+    // var fucked: List; // TODO: add test to make sure this raises an error
+}
+
+struct Metadata {
+    var type: Type;
+    // var fucked: List; // TODO: add test to make sure this raises an error
+}
+
+struct Value {
+    var v: i32;
+    var meta: Metadata;
+    var owner: List*; // List and Value have circular reference, one of them using a pointer
+}
+
+struct Type {
+    var size: i32;
+    var circular_with_pointer: List*;
+}
+
+fn mess_up_list(l: List*, m: Metadata) : void {
+    l.val.v = 0;
+    l.val.meta = m;
+    l.next = l;
+}
+
+pub fn main(argc: int, argv: u8**) : i32 {
+    var n1: List;
+    var n2: List;
+
+    var val1: Value;
+    val1.v = 1;
+    val1.owner = &n1;
+    var val2: Value;
+    val2.v = 2;
+    val2.owner = &n2;
+
+    var meta: Metadata;
+    var t: Type;
+    t.size = 8;
+    meta.type = t;
+    val1.meta = val2.meta = meta;
+
+    n1.val = val1;
+    n2.val = val2;
+    n1.next = &n2;
+    n2.next = &n1;
+
+    assert(n1.val.v == 1);
+    assert(n1.next.val.v == 2);
+    assert(n1.next.next.val.v == 1);
+
+    assert(n1.val.owner == &n1);
+    assert(n2.val.owner == &n2);
+
+    mess_up_list(&n1, meta);
+    assert(n1.val.v == 0);
+    assert(n1.next.val.v == 0);
+
+    print("SUCCESS\n");
+    return 0;
+}
