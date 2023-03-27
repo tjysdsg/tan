@@ -213,18 +213,22 @@ bool Type::IsCanonical(const Type &type) {
     s.insert(t);
     q.pop();
 
-    if (t->is_ref()) {
+    if (!t || t->is_ref()) {
       return false;
     } else if (t->is_array() || t->is_pointer() || t->is_function()) {
       auto children = t->children();
       for (auto *c : children) {
-        if (!s.contains(c))
+        if (!c) {
+          return false;
+        } else if (!s.contains(c))
           q.push(c);
       }
     } else if (t->is_struct()) {
       auto children = t->children();
       for (auto *c : children) {
-        if (c->is_pointer()) { // skip checking when struct has a pointer to itself
+        if (!c) {
+          return false;
+        } else if (c->is_pointer()) { // skip checking when struct has a pointer to itself
           Type *pointee = ((PointerType *)c)->get_pointee();
           if (pointee->is_ref() && pointee->get_typename() == t->get_typename())
             continue;

@@ -196,7 +196,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
     if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
       str name = ast_cast<VarDecl>(m)->get_name();
       p->set_member_index(name, i);
-      ty->append_member_type(m->get_type());
+      (*ty)[i] = m->get_type();
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
       auto bm = ast_cast<Assignment>(m);
 
@@ -205,12 +205,12 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       }
       auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
-      ty->append_member_type(decl->get_type());
+      (*ty)[i] = decl->get_type();
       p->set_member_index(decl->get_name(), i);
     } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
       auto f = ast_cast<FunctionDecl>(m);
 
-      ty->append_member_type(f->get_type());
+      (*ty)[i] = f->get_type();
       p->set_member_index(f->get_name(), i);
     } else {
       error(p, "Invalid struct member");

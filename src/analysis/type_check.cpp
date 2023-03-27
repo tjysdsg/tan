@@ -21,11 +21,11 @@ void TypeCheck::run_impl(CompilationUnit *cu) {
 
   auto sorted_top_level_decls = cu->top_level_symbol_dependency.topological_sort();
 
-  std::cout << "Sorted unresolved symbol dependency:\n";
-  for (auto *d : sorted_top_level_decls) {
-    str name = ast_cast<Decl>(d)->get_name();
-    std::cout << name << '\n';
-  }
+  // std::cout << "Sorted unresolved symbol dependency:\n";
+  // for (auto *d : sorted_top_level_decls) {
+  //   str name = ast_cast<Decl>(d)->get_name();
+  //   std::cout << name << '\n';
+  // }
 
   for (auto *c : sorted_top_level_decls) {
     visit(c);
@@ -102,9 +102,7 @@ Type *TypeCheck::resolve_type(Type *p, SrcLoc loc) {
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
       pointee = resolve_type_ref(pointee, loc);
-      if (pointee->is_canonical()) {
-        ret = Type::GetPointerType(pointee);
-      }
+      ret = Type::GetPointerType(pointee);
     }
   }
 
