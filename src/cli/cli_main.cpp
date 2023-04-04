@@ -1,6 +1,7 @@
 #include "cli/cli.h"
 #include "tan/tan.h"
 #include "llvm_api.h"
+#include "llvm/Support/CommandLine.h"
 #include <iostream>
 #include <filesystem>
 
@@ -13,7 +14,9 @@ static constexpr std::array cxx_ext{"cpp", "CPP", "cxx", "c",  "cc",  "C",   "c+
                                     "h",   "hh",  "H",   "hp", "hxx", "hpp", "HPP", "h++", "tcc"};
 
 int cli_main(int argc, char **argv) {
-  /// option parser
+  llvm::cl::ResetCommandLineParser();
+
+  // cmd parser
   cmd::OptionCategory cl_category("tanc");
   cmd::opt<str> opt_output_file("o", cmd::desc("Output filename"), cmd::value_desc("output"), cmd::init("a.out"),
                                 cmd::cat(cl_category));

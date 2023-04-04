@@ -16,7 +16,7 @@ using namespace clang;
 using namespace clang::driver;
 using namespace llvm::opt;
 
-str GetExecutablePath(const str& name) {
+str GetExecutablePath(const str &name) {
   auto clang_or_err = llvm::sys::findProgramByName(name, {}); // find executable in PATH
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
@@ -89,8 +89,15 @@ static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str 
  *  Copied from https://github.com/llvm/llvm-project/blob/main/clang/tools/driver/driver.cpp
  */
 int clang_main(int argc_, const char **argv_) {
+  llvm::cl::ResetCommandLineParser();
+
   noteBottomOfStack();
-  llvm::InitLLVM X(argc_, argv_);
+
+  // FIXME[hack]: previously passed-in arguments will interfere with the cmd parser on Windows
+  int fake_argc = argc_;
+  const char **fake_argv = argv_;
+  llvm::InitLLVM X(fake_argc, fake_argv);
+
   SmallVector<const char *, 256> argv(argv_, argv_ + argc_);
   if (llvm::sys::Process::FixupStandardFileDescriptors()) {
     return 1;
@@ -162,7 +169,6 @@ int clang_main(int argc_, const char **argv_) {
     Res = 1;
 #endif
 
-  llvm::cl::ResetCommandLineParser();
   /// if we have multiple failing commands, we return the result of the first failing command
   return Res;
 }
