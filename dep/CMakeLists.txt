@@ -6,6 +6,7 @@ set(_LLVM_LIBS
         LLVM
         LLVMXRay
         LLVMWindowsManifest
+        LLVMWindowsDriver
         LLVMTextAPI
         LLVMSymbolize
         LLVMFrontendOpenMP
@@ -45,6 +46,7 @@ set(_LLVM_LIBS
         LLVMWebAssemblyDesc
         LLVMWebAssemblyAsmParser
         LLVMWebAssemblyInfo
+        LLVMWebAssemblyUtils
         LLVMSystemZDisassembler
         LLVMSystemZCodeGen
         LLVMSystemZAsmParser
@@ -145,6 +147,17 @@ set(_LLVM_LIBS
         LLVMAArch64Info
         LLVMSupport
         LLVMDemangle
+        LLVMVEAsmParser
+        LLVMVECodeGen
+        LLVMVectorize
+        LLVMVEDesc
+        LLVMVEDisassembler
+        LLVMVEInfo
+        LLVMAVRAsmParser
+        LLVMAVRCodeGen
+        LLVMAVRDesc
+        LLVMAVRDisassembler
+        LLVMAVRInfo
         )
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "LLVM library directory: ${LLVM_LIBRARY_DIR}")
@@ -255,6 +268,8 @@ if (UNIX)
 else ()
     set(LIBBACKTRACE_INCLUDE_DIR "")
 endif ()
+
+find_package(ZLIB REQUIRED)
 # ================================================
 
 set(DEP_INCLUDES
@@ -265,14 +280,14 @@ set(DEP_INCLUDES
         )
 message(STATUS "Include dirs of dependencies: ${DEP_INCLUDES}")
 
-set(DEP_LIBS ${LLVM_LIBS} fmt::fmt)
+set(DEP_LIBS ${LLVM_LIBS} fmt::fmt ${ZLIB_LIBRARIES})
 if (WIN32)
     set(DEP_LIBS ${DEP_LIBS}
             Version
             CACHE INTERNAL "Dependency libs")
 else ()
     set(DEP_LIBS ${DEP_LIBS}
-            z dl rt tinfo pthread m xml2
+            dl rt tinfo pthread m xml2
             CACHE INTERNAL "Dependency libs")
 endif ()
 
