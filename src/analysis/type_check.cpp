@@ -1,5 +1,6 @@
 #include "analysis/type_check.h"
 #include "ast/ast_base.h"
+#include "ast/ast_node_type.h"
 #include "common/ast_visitor.h"
 #include "ast/type.h"
 #include "ast/expr.h"
@@ -330,10 +331,20 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, VarDecl) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
-  // TODO: check if return type is the same as the function return type
+  FunctionDecl *func = search_func_decl_in_parent_scopes();
+  if (!func) {
+    error(p, "Return statement must be inside a function definition");
+  }
+
   auto *rhs = p->get_rhs();
+  Type *ret_type = Type::GetVoidType();
   if (rhs) {
     visit(rhs);
+    ret_type = rhs->get_type();
+  }
+  // check if return type is the same as the function return type
+  if (!CanImplicitlyConvert(ret_type, ((FunctionType *)func->get_type())->get_return_type())) {
+    error(p, "Returned type cannot be coerced to function return type");
   }
 }
 
@@ -636,7 +647,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
   for (size_t i = 0; i < n; ++i) {
     Expr *m = members[i];
 
-    if (m->get_node_type() == ASTNodeType::VAR_DECL) { // member variable without initial value
+    if (m->get_node_type() == ASTNodeType::VAR_DECL) {      // member variable without initial value
       (*ty)[i] = resolve_type((*ty)[i], m->loc());
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
       auto init_val = ast_cast<Assignment>(m)->get_rhs();

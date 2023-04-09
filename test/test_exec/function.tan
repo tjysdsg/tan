@@ -6,6 +6,9 @@ fn work1(a: float, b: float): float {
 }
 
 fn work2(a: int, b: int) : int {
+    @test_comp_error(invalid_return_type) {
+        return 0.0;
+    }
     return a * b / 2;
 }
 

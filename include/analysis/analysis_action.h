@@ -67,6 +67,19 @@ protected:
     return nullptr;
   }
 
+  FunctionDecl *search_func_decl_in_parent_scopes() {
+    int n = (int)_scopes.size();
+    TAN_ASSERT(n);
+    for (int i = n - 1; i >= 0; --i) {
+      auto *node = _scopes[(size_t)i];
+      if (node->get_node_type() == ASTNodeType::FUNC_DECL) {
+        return ast_cast<FunctionDecl>(node);
+      }
+    }
+
+    return nullptr;
+  }
+
 private:
   friend Derived;
   SingleUnitAnalysisAction() = default;
