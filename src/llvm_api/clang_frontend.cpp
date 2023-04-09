@@ -89,6 +89,11 @@ static void FixupDiagPrefixExeName(TextDiagnosticPrinter *DiagClient, const str 
  *  Copied from https://github.com/llvm/llvm-project/blob/main/clang/tools/driver/driver.cpp
  */
 int clang_main(int argc_, const char **argv_) {
+  for (int i = 0; i < argc_; ++i) {
+    printf("%s ", argv_[i]);
+  }
+  printf("\n");
+
   llvm::cl::ResetCommandLineParser();
 
   noteBottomOfStack();
