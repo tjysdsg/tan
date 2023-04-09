@@ -61,6 +61,10 @@ link_directories(${DEP_LIB_DIRS})
 configure_file(${PROJECT_SOURCE_DIR}/include/config.h.in ${PROJECT_SOURCE_DIR}/include/config.h)
 
 macro(set_target_common_compile_options target_name)
+    message(STATUS ${target_name})
+    get_property(prev_targets GLOBAL PROPERTY ALL_TAN_TARGETS)
+    set_property(GLOBAL PROPERTY ALL_TAN_TARGETS ${prev_targets} ${target_name})
+
     if (MSVC)
         target_compile_options(${target_name} PRIVATE /w)
     else ()
@@ -80,14 +84,13 @@ macro(set_target_common_compile_options target_name)
         # =========== COVERAGE =========== #
         if (${ENABLE_COVERAGE})
             message(STATUS "Enabling test coverage")
-            set(COVERAGE_CXX_FLAGS "")
             target_compile_options(${target_name}
-                    PRIVATE -g
-                    PRIVATE -O0
-                    PRIVATE -Wall
-                    PRIVATE -fprofile-arcs
-                    PRIVATE -ftest-coverage)
-            target_link_options(${target_name} PUBLIC -fprofile-arcs)
+                    PUBLIC -O0
+                    PUBLIC -fprofile-instr-generate
+                    PUBLIC -fcoverage-mapping)
+            target_link_options(${target_name}
+                    PUBLIC -fprofile-instr-generate
+                    PUBLIC -fcoverage-mapping)
         endif ()
     else ()
         target_compile_options(${target_name} PRIVATE -O3)
@@ -113,3 +116,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/docs)
 if (${BUILD_EXAMPLES})
     add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 endif ()
+
+
+get_property(all_targets GLOBAL PROPERTY ALL_TAN_TARGETS)
+message(STATUS "All targets: ${all_targets}")

@@ -37,7 +37,7 @@ add_dependencies(tanc_exec_tests runtime)
 add_custom_target(run_tanc_exec_tests ALL DEPENDS tanc_exec_tests)
 foreach (tt ${TAN_EXEC_TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
-            COMMAND $<TARGET_FILE:tanc_exec_tests> ${tt}
+            COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:tanc_exec_tests> ${tt}
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 endforeach ()

@@ -25,30 +25,30 @@ macro(enable_tests)
     # tests target that runs all defined tests
     add_custom_target(tests ALL DEPENDS lexer_tests parser_tests run_tanc_exec_tests run_tanc_lib_tests)
     add_custom_command(TARGET tests POST_BUILD
-            COMMAND $<TARGET_FILE:lexer_tests>
+            COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:lexer_tests>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
     add_custom_command(TARGET tests POST_BUILD
-            COMMAND $<TARGET_FILE:parser_tests>
+            COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:parser_tests>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 
     # generate coverage
     if (DEFINED ENABLE_COVERAGE)
         add_custom_target(coverage ALL
-                COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/coverage
                 DEPENDS tests
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+        # get_property(all_targets GLOBAL PROPERTY ALL_TAN_TARGETS)
+        set(all_targets tanc)
+        foreach (target ${all_targets})
+            set(LLVM_COV_ARGS ${LLVM_COV_ARGS} --object $<TARGET_FILE:${target}>)
+        endforeach ()
+
         add_custom_command(TARGET coverage POST_BUILD
-                COMMAND gcovr --xml
-                -r ${PROJECT_SOURCE_DIR}
-                --object-directory=${CMAKE_BINARY_DIR}
-                -o ${PROJECT_SOURCE_DIR}/coverage/report.xml
-                COMMAND gcovr --html --html-details
-                -r ${PROJECT_SOURCE_DIR}
-                --object-directory=${CMAKE_BINARY_DIR}
-                -o ${PROJECT_SOURCE_DIR}/coverage/report.html
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+                COMMAND llvm-profdata-15 merge -sparse *.profraw -o tan.profdata
+                COMMAND llvm-cov-15 export ${LLVM_COV_ARGS} --instr-profile=tan.profdata --format=lcov > coverage.txt
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                 )
     endif ()
 endmacro()

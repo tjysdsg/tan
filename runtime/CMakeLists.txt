@@ -14,7 +14,8 @@ add_custom_target(
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_LIST_DIR}/libruntime.${LIB_EXT}
         DEPENDS ${RUNTIME_SRCS} ${RUNTIME_CXX_SRCS} ${CMAKE_CURRENT_LIST_DIR}/stack_trace.h tanc
-        COMMAND $<TARGET_FILE:tanc> -shared -I${CMAKE_CURRENT_LIST_DIR} -L$<TARGET_FILE_DIR:TanBackTrace>
+        COMMAND LLVM_PROFILE_FILE=${PROJECT_SOURCE_DIR}/%p.profraw
+        $<TARGET_FILE:tanc> -shared -I${CMAKE_CURRENT_LIST_DIR} -L$<TARGET_FILE_DIR:TanBackTrace>
         -lTanBackTrace
         -o libruntime.${LIB_EXT}
         ${RUNTIME_SRCS} ${RUNTIME_CXX_SRCS}

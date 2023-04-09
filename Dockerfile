@@ -28,3 +28,4 @@ RUN ./llvm.sh 15
 RUN apt-get -y install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-15-doc llvm-15-examples llvm-15-runtime
 RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15 libclang-rt-15-dev
 RUN apt-get -y install libfuzzer-15-dev lldb-15 lld-15 lld liblld-15-dev libc++-15-dev libc++abi-15-dev libomp-15-dev libunwind-15 libunwind-15-dev
+RUN rm -f /usr/bin/clang /usr/bin/clang++; ln -s /usr/bin/clang-15 /usr/bin/clang; ln -s /usr/bin/clang++-15 /usr/bin/clang++

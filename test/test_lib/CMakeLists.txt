@@ -31,10 +31,10 @@ add_dependencies(test_use_lib runtime)
 # target that runs this test
 add_custom_target(run_tanc_lib_tests ALL DEPENDS test_compile_lib test_use_lib)
 add_custom_command(TARGET run_tanc_lib_tests POST_BUILD
-        COMMAND $<TARGET_FILE:test_compile_lib>
+        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_compile_lib>
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
 add_custom_command(TARGET run_tanc_lib_tests POST_BUILD
-        COMMAND $<TARGET_FILE:test_use_lib>
+        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_use_lib>
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
