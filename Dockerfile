@@ -9,8 +9,7 @@ RUN apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
 # common libraries and dependencies of llvm
-RUN apt-get install -y lsb-release build-essential wget gpg software-properties-common git zlib1g zlib1g-dev curl
-RUN apt-get install -y libtinfo5 libtinfo-dev libxml2 libxml2-dev zip unzip gcovr
+RUN apt-get install -y lsb-release build-essential wget gpg software-properties-common git zlib1g zlib1g-dev curl libtinfo5 libtinfo-dev libxml2 libxml2-dev zip unzip
 
 # install latest cmake from https://apt.kitware.com/
 RUN apt -y remove cmake
@@ -27,14 +26,5 @@ RUN chmod +x llvm.sh
 RUN ./llvm.sh 15
 
 RUN apt-get -y install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-15-doc llvm-15-examples llvm-15-runtime
-RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15
-RUN apt-get -y install libfuzzer-15-dev
-RUN apt-get -y install lldb-15
-RUN apt-get -y install lld-15 lld liblld-15-dev
-RUN apt-get -y install libc++-15-dev libc++abi-15-dev
-RUN apt-get -y install libomp-15-dev
-RUN apt-get -y install libunwind-15 libunwind-15-dev
-
-# Python for cpp-coveralls
-RUN apt-get -y install python3 python3-pip
-RUN pip3 install cpp-coveralls
+RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15 libclang-rt-15-dev
+RUN apt-get -y install libfuzzer-15-dev lldb-15 lld-15 lld liblld-15-dev libc++-15-dev libc++abi-15-dev libomp-15-dev libunwind-15 libunwind-15-dev
