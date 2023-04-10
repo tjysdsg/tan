@@ -6,17 +6,17 @@ The table specifies all legal implicit type conversion in this language.
 `char` is considered as an unsigned integer whose size is 1 byte.
 The specific behaviors of these casts are listed in the next section.
 
-| index | From                                 | To                                              |
-|-------|--------------------------------------|-------------------------------------------------|
-| 1     | int                                  | int with the same signedness with a bigger size |
-| 2     | unsigned int                         | signed int with a bigger size                   |
-| 3     | signed int                           | unsigned int that with a bigger size            |
-| 4     | float                                | float with a bigger size                        |
-| 5     | int                                  | float                                           |
-| 6     | bool                                 | any type of int or float                        |
-| 7     | int/float/pointer                    | bool                                            |
-| 8     | pointer of a derived class           | pointer to the base class                       |
-| 9     | int/float that is compile-time known | int/float that can fit the value                |
+| index | From                                 | To                                                       |
+|-------|--------------------------------------|----------------------------------------------------------|
+| 1     | int                                  | int with the same signedness with a bigger or equal size |
+| 2     | unsigned int                         | signed int with a bigger size                            |
+| 3     | signed int                           | unsigned int that with a bigger size                     |
+| 4     | float                                | float with a bigger size                                 |
+| 5     | int                                  | float                                                    |
+| 6     | bool                                 | any type of int or float                                 |
+| 7     | int/float/pointer                    | bool                                                     |
+| 8     | pointer of a derived class           | pointer to the base class                                |
+| 9     | int/float that is compile-time known | int/float that can fit the value                         |
 
 The most common use cases is that when operands of a binary operation have different types, one of them will have its
 type converted to the other's.

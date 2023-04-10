@@ -11,7 +11,7 @@ bool TypeCheck::CanImplicitlyConvert(Type *from, Type *to) {
     bool u1 = from->is_unsigned();
     bool u2 = to->is_unsigned();
 
-    if (u1 ^ u2) { // rule #1
+    if (u1 == u2) { // rule #1
       return s2 >= s1;
     } else {
       return s2 > s1; // rule #2 and #3
@@ -54,8 +54,8 @@ Type *TypeCheck::ImplicitTypePromote(Type *t1, Type *t2) {
     bool u1 = t1->is_unsigned();
     bool u2 = t2->is_unsigned();
 
-    if (u1 ^ u2) { // rule #1
-      return s1 > s2 ? t1 : t2;
+    if (u1 == u2) { // rule #1
+      return s1 >= s2 ? t1 : t2;
     } else {
       // let t1 be the unsigned, t2 be the signed
       if (!u1) {
