@@ -1,5 +1,6 @@
 #include "analysis/type_precheck.h"
 #include "ast/ast_base.h"
+#include "ast/ast_node_type.h"
 #include "common/ast_visitor.h"
 #include "common/compilation_unit.h"
 #include "ast/type.h"
@@ -34,6 +35,9 @@ void TypePrecheck::run_impl(CompilationUnit *cu) {
       break;
     case ASTNodeType::FUNC_DECL:
       CALL_AST_VISITOR(FunctionDecl, c);
+      break;
+    case ASTNodeType::INTRINSIC:
+      CALL_AST_VISITOR(Intrinsic, c);
       break;
     default:
       break;
@@ -138,6 +142,24 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
     }
   } else {
     error(p, "Unknown identifier");
+  }
+}
+
+DEFINE_AST_VISITOR_IMPL(TypePrecheck, Intrinsic) {
+  // check children if this is @test_comp_error
+  if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+
+    try {
+      auto *sub = p->get_sub();
+      if (sub) {
+        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
+        for (auto *c : sub->get_children())
+          visit(c);
+      }
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+    }
   }
 }
 

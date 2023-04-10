@@ -533,7 +533,12 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     bool error_caught = false;
 
     try {
-      visit(p->get_sub());
+      auto *sub = p->get_sub();
+      if (sub) {
+        visit(sub);
+      } else { // sub is nullptr if it's already checked
+        error_caught = true;
+      }
     } catch (const CompileError &e) {
       error_caught = true;
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());

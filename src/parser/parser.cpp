@@ -163,9 +163,9 @@ private:
       node = FloatLiteral::Create(_curr, std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
       node = StringLiteral::Create(_curr, token->get_value());
-    } else if (token->get_type() == TokenType::CHAR) { /// char literal
+    } else if (token->get_type() == TokenType::CHAR) {   /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
-    } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
+    } else if (check_typename_token(token)) {            /// should not encounter types if parsed properly
       TAN_ASSERT(false);
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
@@ -424,8 +424,8 @@ private:
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
-      _curr.offset_by(1);                   /// skip "else"
-      if (at(_curr)->get_value() == "if") { /// elif
+      _curr.offset_by(1);                         /// skip "else"
+      if (at(_curr)->get_value() == "if") {       /// elif
         parse_if_then_branch(p);
       } else if (at(_curr)->get_value() == "{") { /// else
         auto else_clause = peek();
@@ -539,7 +539,7 @@ private:
     auto *p = ast_cast<BinaryOperator>(_p);
     _curr.offset_by(1); /// skip the operator
 
-    p->set_lhs(lhs); /// lhs
+    p->set_lhs(lhs);    /// lhs
 
     /// rhs
     auto rhs = next_expression(p->get_bp());
@@ -582,7 +582,7 @@ private:
     bool is_public = false;
     bool is_external = false;
     str token_str = at(_curr)->get_value();
-    if (token_str == "fn") { /// "fn"
+    if (token_str == "fn") {         /// "fn"
       _curr.offset_by(1);
     } else if (token_str == "pub") { /// "pub fn"
       is_public = true;
@@ -706,11 +706,20 @@ private:
       error(_curr, "Expect a test name");
     }
 
-    auto *body = peek("{");
-    parse_node(body);
-    p->set_sub(body);
     p->set_name("test_comp_error");
     p->set_intrinsic_type(IntrinsicType::TEST_COMP_ERROR);
+
+    auto *body = peek("{");
+    try {
+      parse_node(body);
+      p->set_sub(body);
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+
+      while (at(_curr)->get_value() != "}")
+        _curr.offset_by(1);
+    }
   }
 
   void parse_intrinsic(ASTBase *_p) {
@@ -936,7 +945,7 @@ private:
       auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
       if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
         ret = PrimitiveType::Create(it->second);
-      } else if (token->get_value() == "*") { /// pointer
+      } else if (token->get_value() == "*") {            /// pointer
         TAN_ASSERT(ret);
         ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {
