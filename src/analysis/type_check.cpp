@@ -8,6 +8,7 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "ast/context.h"
+#include "fmt/core.h"
 #include "lexer/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
@@ -552,21 +553,17 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     break;
   }
   case IntrinsicType::TEST_COMP_ERROR: {
-    // FIXME: avoid setjmp and longjmp
-    bool error_catched = false;
-    std::jmp_buf buf;
-    if (setjmp(buf) > 0) {
-      error_catched = true;
-    } else {
-      auto error_catcher = ErrorCatcher((const ErrorCatcher::callback_t &)[&](str) { longjmp(buf, 1); });
-      Error::CatchErrors(&error_catcher);
+    bool error_caught = false;
+
+    try {
       visit(p->get_sub());
+    } catch (const CompileError &e) {
+      error_caught = true;
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
     }
 
-    Error::ResetErrorCatcher();
-    if (!error_catched) {
+    if (!error_caught)
       error(p, "Expect a compile error");
-    }
     break;
   }
   default:

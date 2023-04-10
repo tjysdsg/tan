@@ -1,9 +1,9 @@
 #ifndef __TAN_SRC_BASE_ERROR_H__
 #define __TAN_SRC_BASE_ERROR_H__
 #include "base/container.h"
+#include <stdexcept>
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
-[[noreturn]] void __tan_abort();
 
 namespace tanlang {
 
@@ -13,31 +13,15 @@ namespace tanlang {
 #define TAN_ASSERT(expr)
 #endif
 
-#ifdef DEBUG
-#define ABORT() __tan_abort()
-#else
-#define ABORT() exit(1)
-#endif
+class CompileError : public std::runtime_error {
+public:
+  explicit CompileError(const str &msg);
+  explicit CompileError(const char *msg);
+};
 
 class Token;
 
-class ErrorCatcher {
-public:
-  friend class Error;
-  using callback_t = std::function<void(str)>;
-
-public:
-  ErrorCatcher(callback_t handler);
-
-private:
-  callback_t _callback;
-};
-
 class Error {
-public:
-  static void CatchErrors(ErrorCatcher *handler_class);
-  static void ResetErrorCatcher();
-
 public:
   explicit Error(const str &error_message);
   Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message);
@@ -45,7 +29,6 @@ public:
   [[noreturn]] void raise() const;
 
 private:
-  static inline ErrorCatcher *__catcher = nullptr;
   str _msg;
 };
 

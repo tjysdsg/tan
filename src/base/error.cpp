@@ -1,24 +1,16 @@
 #include "base/error.h"
 #include "lexer/token.h"
 #include <fmt/core.h>
-#include <iostream>
-#include "backtrace/tan_backtrace.h"
-
-[[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {
-  std::cerr << "ASSERTION FAILED: " << expr << "\n";
-  std::cerr << "at: " << file << ":" << std::to_string(lineno) << "\n";
-  print_back_trace();
-  abort();
-}
-
-[[noreturn]] void __tan_abort() {
-  print_back_trace();
-  abort();
-}
 
 using namespace tanlang;
 
-ErrorCatcher::ErrorCatcher(ErrorCatcher::callback_t handler) : _callback(handler) {}
+[[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {
+  throw CompileError(fmt::format("ASSERTION FAILED: {}\nat {}:{}\n", expr, file, std::to_string(lineno)));
+}
+
+CompileError::CompileError(const str &msg) : std::runtime_error(msg) {}
+
+CompileError::CompileError(const char *msg) : std::runtime_error(msg) {}
 
 Error::Error(const str &error_message) { _msg = "[ERROR] " + error_message; }
 
@@ -33,28 +25,4 @@ Error::Error(const str &filename, Token *token, const str &error_message) {
                      token->get_source_line(), indent);
 }
 
-void Error::raise() const {
-  if (Error::__catcher) {
-    Error::__catcher->_callback(_msg);
-  }
-  std::cerr << _msg << '\n';
-  ABORT();
-}
-
-void Error::ResetErrorCatcher() { __catcher = nullptr; }
-
-void Error::CatchErrors(ErrorCatcher *catcher) {
-  if (!catcher) {
-    std::cerr << "Invalid error catcher\n";
-    print_back_trace();
-    exit(1);
-  }
-
-  if (__catcher) {
-    std::cerr << "Not allowed to have multiple error catchers\n";
-    print_back_trace();
-    exit(1);
-  }
-
-  __catcher = catcher;
-}
+void Error::raise() const { throw CompileError(_msg); }
