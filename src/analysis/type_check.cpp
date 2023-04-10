@@ -192,14 +192,6 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
   }
 }
 
-void TypeCheck::find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
-  auto q = Intrinsic::intrinsics.find(name);
-  if (q == Intrinsic::intrinsics.end()) {
-    error(p, fmt::format("Unknown intrinsic {}", name));
-  }
-  p->set_intrinsic_type(q->second);
-}
-
 // ASSUMES lhs has been already analyzed, while rhs has not
 void TypeCheck::analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
   if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
@@ -520,28 +512,6 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
-  auto c = p->get_sub();
-
-  /// name
-  str name;
-  switch (c->get_node_type()) {
-  case ASTNodeType::FUNC_CALL: {
-    auto *func_call = ast_cast<FunctionCall>(c);
-    name = func_call->get_name();
-    find_and_assign_intrinsic_type(p, name);
-    analyze_intrinsic_func_call(p, func_call);
-    return;
-  }
-  case ASTNodeType::ID:
-    name = ast_cast<Identifier>(c)->get_name();
-    break;
-  default:
-    name = p->get_name();
-    break;
-  }
-  TAN_ASSERT(!name.empty());
-  find_and_assign_intrinsic_type(p, name);
-
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {
     auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
@@ -573,8 +543,19 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
       error(p, "Expect a compile error");
     break;
   }
-  default:
+  case IntrinsicType::INVALID:
     TAN_ASSERT(false);
+    break;
+  default: {
+    auto *c = p->get_sub();
+    if (c->get_node_type() == ASTNodeType::FUNC_CALL) {
+      analyze_intrinsic_func_call(p, ast_cast<FunctionCall>(c));
+      return;
+    }
+
+    // TODO: implement type checking for other intrinsics
+    break;
+  }
   }
 }
 

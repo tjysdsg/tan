@@ -25,12 +25,18 @@ void TypePrecheck::run_impl(CompilationUnit *cu) {
   push_scope(p);
 
   for (const auto &c : p->get_children()) {
-    if (c->get_node_type() == ASTNodeType::IMPORT) {
+    switch (c->get_node_type()) {
+    case ASTNodeType::IMPORT:
       CALL_AST_VISITOR(Import, c);
-    } else if (c->get_node_type() == ASTNodeType::STRUCT_DECL) {
+      break;
+    case ASTNodeType::STRUCT_DECL:
       CALL_AST_VISITOR(StructDecl, c);
-    } else if (c->get_node_type() == ASTNodeType::FUNC_DECL) {
+      break;
+    case ASTNodeType::FUNC_DECL:
       CALL_AST_VISITOR(FunctionDecl, c);
+      break;
+    default:
+      break;
     }
   }
 

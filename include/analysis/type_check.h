@@ -93,9 +93,6 @@ private:
 
   void analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call);
 
-  /// search for the intrinsic type
-  void find_and_assign_intrinsic_type(Intrinsic *p, const str &name);
-
   void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs);
 
   void analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs);

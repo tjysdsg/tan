@@ -710,6 +710,7 @@ private:
     parse_node(body);
     p->set_sub(body);
     p->set_name("test_comp_error");
+    p->set_intrinsic_type(IntrinsicType::TEST_COMP_ERROR);
   }
 
   void parse_intrinsic(ASTBase *_p) {
@@ -724,11 +725,34 @@ private:
 
     auto e = peek();
     parse_node(e);
-    /// Only allow identifier or function call as valid intrinsic token
+    // Only allow identifier or function call as the valid intrinsic token
     if (e->get_node_type() != ASTNodeType::ID && e->get_node_type() != ASTNodeType::FUNC_CALL) {
       error(_curr, "Unexpected token");
     }
     p->set_sub(e);
+
+    // find out the name
+    str name;
+    switch (e->get_node_type()) {
+    case ASTNodeType::FUNC_CALL:
+      name = ast_cast<FunctionCall>(e)->get_name();
+      break;
+    case ASTNodeType::ID:
+      name = ast_cast<Identifier>(e)->get_name();
+      break;
+    default:
+      name = p->get_name();
+      break;
+    }
+    TAN_ASSERT(!name.empty());
+
+    // figure out which intrinsic
+    p->set_name(name);
+    auto q = Intrinsic::intrinsics.find(name);
+    if (q == Intrinsic::intrinsics.end()) {
+      error(_curr, fmt::format("Unknown intrinsic {}", name));
+    }
+    p->set_intrinsic_type(q->second);
   }
 
   void parse_import(ASTBase *_p) {
