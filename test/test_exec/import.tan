@@ -2,6 +2,10 @@ import "struct.tan";
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
+@test_comp_error(unknown_import) {
+    import "shit.tan";
+}
+
 pub fn main(argc: int, argv: u8**) : i32 {
     var f: Fuck;
     f.val = 100;
