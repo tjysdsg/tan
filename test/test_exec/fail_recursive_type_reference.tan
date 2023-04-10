@@ -1,0 +1,27 @@
+import "runtime/print.tan";
+
+struct List {
+    var val: Value;
+    var next: List*;
+}
+
+struct Metadata {
+    var type: Type;
+    var fucked: List; // <-----------
+}
+
+struct Value {
+    var v: i32;
+    var meta: Metadata;
+    var owner: List*;
+}
+
+struct Type {
+    var size: i32;
+    var circular_with_pointer: List*;
+}
+
+pub fn main(argc: int, argv: u8**) : i32 {
+    print("SUCCESS\n");
+    return 1;
+}

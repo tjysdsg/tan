@@ -5,6 +5,7 @@
 #include "cli/cli.h"
 #include "base.h"
 #include <gtest/gtest.h>
+#include <utility>
 
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
@@ -16,11 +17,15 @@
 #error "Define TAN_TEST_SOURCE_DIR before compiling this"
 #endif
 
-class MyFixture : public ::testing::Test {};
+class TanCExecTests : public ::testing::Test {
+private:
+  str _filename;
+  int _expected_compilation_return_value = 0;
 
-class TanCExecTests : public MyFixture {
 public:
-  TanCExecTests(const str &filename) : _filename(filename) {}
+  TanCExecTests(str filename, int expected_compilation_return_value)
+      : _filename(std::move(filename)), _expected_compilation_return_value(expected_compilation_return_value) {}
+
   void TestBody() override {
     vector<const char *> cmd{__STR__(TANC_PATH),
                              "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
@@ -33,24 +38,29 @@ public:
       std::cout << c << " ";
     }
     std::cout << '\n';
+
+    // compile
     int argc = static_cast<int>(cmd.size());
     auto *argv = (char **)cmd.data();
-    ASSERT_EQ(0, cli_main(argc, argv));
-    EXPECT_EQ(0, system("./a.out"));
-  }
+    ASSERT_EQ(_expected_compilation_return_value, cli_main(argc, argv));
 
-private:
-  str _filename;
+    // run if compilation succeeded
+    if (0 == _expected_compilation_return_value) {
+      EXPECT_EQ(0, system("./a.out"));
+    }
+  }
 };
 
-void register_tanc_test(const str &v) {
-  ::testing::RegisterTest("tanc_test_fixture", ("test_" + v).c_str(), nullptr, v.c_str(), __FILE__, __LINE__,
-                          [=]() -> MyFixture * { return new TanCExecTests(v); });
-}
-
+// usage: tanc_exec_tests.cpp xxx.tan <expected_compilation_return_value>
 int main(int argc, char **argv) {
-  assert(argc == 2);
   ::testing::InitGoogleTest(&argc, argv);
-  register_tanc_test(argv[1]);
+  assert(argc == 3);
+
+  str file(argv[1]);
+  int expected_compilation_return_value = std::stoi(argv[2]);
+
+  ::testing::RegisterTest("tanc_test_fixture", ("test_" + file).c_str(), nullptr, file.c_str(), __FILE__, __LINE__,
+                          [=]() { return new TanCExecTests(file, expected_compilation_return_value); });
+
   return RUN_ALL_TESTS();
 }

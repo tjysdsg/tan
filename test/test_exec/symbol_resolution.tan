@@ -11,12 +11,10 @@ import "runtime/debug.tan";
 struct List {
     var val: Value;
     var next: List*; // List is an incomplete type at this point
-    // var fucked: List; // TODO: add test to make sure this raises an error
 }
 
 struct Metadata {
     var type: Type;
-    // var fucked: List; // TODO: add test to make sure this raises an error
 }
 
 struct Value {
