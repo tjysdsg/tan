@@ -19,3 +19,4 @@ coverage/
 *.log
 *.lib
 *.so
+*.a
