@@ -22,6 +22,7 @@ add_custom_target(run_tanc_exec_tests ALL DEPENDS tanc_exec_tests)
 # add positive tests
 set(TEST_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/arithmetic.tan
+        ${CMAKE_CURRENT_LIST_DIR}/assignment.tan
         ${CMAKE_CURRENT_LIST_DIR}/array.tan
         ${CMAKE_CURRENT_LIST_DIR}/assertion.tan
         ${CMAKE_CURRENT_LIST_DIR}/boolean.tan
