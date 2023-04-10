@@ -19,12 +19,21 @@ pub fn main(argc: int, argv: char**) : int {
     assert(a & b);
     assert(a & b == 2);
 
+    // binary not
     a = ~0;
     assert(a);
     assert(a == -1);
+    assert(~0);
+    assert(~1 == -1 - 1);
+    assert(~1235 == -1235 - 1);
+    assert(~-2 == 1);
 
-    a = ~-2;
-    assert(a == 1);
+    // xor
+    assert(0 ^ 0 == 0);
+    assert(0 ^ 1 == 1);
+    assert(1 ^ 0 == 1);
+    assert(1 ^ 1 == 0);
+    assert(999 ^ 999 == 0);
 
     print("SUCCESS\n");
     return 0;
