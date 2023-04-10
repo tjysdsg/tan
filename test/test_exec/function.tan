@@ -26,6 +26,15 @@ pub fn main(argc: int, argv: char**) : int {
 
     assert(work1(1.0, 2.) == 2.0);
 
+    @test_comp_error(unknown_func_call) {
+        pretend_work(D, 1.0);
+    }
+
+    var D: f64 = 2.0;
+    @test_comp_error(invalid_arguments_to_func_call) {
+        work1(D, 1.0);
+    }
+
     print("SUCCESS\n");
     return 0;
 }
