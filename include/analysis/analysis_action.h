@@ -1,6 +1,7 @@
 #ifndef __TAN_ANALYSIS_ANALYSIS_ACTION_H__
 #define __TAN_ANALYSIS_ANALYSIS_ACTION_H__
 
+#include "ast/ast_node_type.h"
 #include "common/compiler_action.h"
 #include "common/compilation_unit.h"
 #include "ast/decl.h"
@@ -54,26 +55,13 @@ protected:
     return ret;
   }
 
-  Loop *search_loop_in_parent_scopes() {
+  template <typename T, ASTNodeType node_type> T *search_node_in_parent_scopes() {
     int n = (int)_scopes.size();
     TAN_ASSERT(n);
     for (int i = n - 1; i >= 0; --i) {
       auto *node = _scopes[(size_t)i];
-      if (node->get_node_type() == ASTNodeType::LOOP) {
-        return ast_cast<Loop>(node);
-      }
-    }
-
-    return nullptr;
-  }
-
-  FunctionDecl *search_func_decl_in_parent_scopes() {
-    int n = (int)_scopes.size();
-    TAN_ASSERT(n);
-    for (int i = n - 1; i >= 0; --i) {
-      auto *node = _scopes[(size_t)i];
-      if (node->get_node_type() == ASTNodeType::FUNC_DECL) {
-        return ast_cast<FunctionDecl>(node);
+      if (node->get_node_type() == node_type) {
+        return ast_cast<T>(node);
       }
     }
 

@@ -324,15 +324,19 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, If) {
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, VarDecl) {
   Type *ty = p->get_type();
-  if (ty) {
-    p->set_type(resolve_type(ty, p->loc()));
+
+  // assume the type is always non-null
+  // type_check_assignment is responsible for setting the deduced type if necessary
+  if (!ty) {
+    error(p, "Cannot deduce the type of variable declaration");
   }
+  p->set_type(resolve_type(ty, p->loc()));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
-  FunctionDecl *func = search_func_decl_in_parent_scopes();
+  FunctionDecl *func = search_node_in_parent_scopes<FunctionDecl, ASTNodeType::FUNC_DECL>();
   if (!func) {
     error(p, "Return statement must be inside a function definition");
   }
@@ -461,12 +465,15 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
   auto *lhs = p->get_lhs();
   Type *lhs_type = nullptr;
   if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
-    /// special case for variable declaration because we allow type inference
-    visit(lhs);
-    lhs_type = ast_cast<VarDecl>(lhs)->get_type();
-    if (!lhs_type) {
-      ast_cast<VarDecl>(lhs)->set_type(lhs_type = rhs->get_type());
+    auto *var_decl = ast_cast<VarDecl>(lhs);
+
+    // deduce type of variable declaration
+    if (!var_decl->get_type()) {
+      var_decl->set_type(rhs->get_type());
     }
+
+    visit(lhs);
+    lhs_type = var_decl->get_type();
   } else {
     visit(lhs);
 
@@ -677,7 +684,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
-  Loop *loop = search_loop_in_parent_scopes();
+  Loop *loop = search_node_in_parent_scopes<Loop, ASTNodeType::LOOP>();
   if (!loop) {
     error(p, "Break or continue must be inside a loop");
   }
