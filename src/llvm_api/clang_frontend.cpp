@@ -20,7 +20,7 @@ str GetExecutablePath(const str &name) {
   auto clang_or_err = llvm::sys::findProgramByName(name, {}); // find executable in PATH
   if (!clang_or_err) {
     std::cerr << "Cannot find clang executable: " << clang_or_err.getError() << "\n";
-    exit(0);
+    exit(1);
   }
   return clang_or_err.get();
 }
