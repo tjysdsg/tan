@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "ast/ast_node_type.h"
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"
@@ -750,7 +751,7 @@ private:
       name = ast_cast<Identifier>(e)->get_name();
       break;
     default:
-      name = p->get_name();
+      TAN_ASSERT(false);
       break;
     }
     TAN_ASSERT(!name.empty());
@@ -762,6 +763,26 @@ private:
       error(_curr, fmt::format("Unknown intrinsic {}", name));
     }
     p->set_intrinsic_type(q->second);
+
+    // check if the syntax is correct
+    switch (p->get_intrinsic_type()) {
+    case IntrinsicType::LINENO:
+    case IntrinsicType::FILENAME:
+      if (e->get_node_type() != ASTNodeType::ID)
+        error(_curr, "Invalid usage of intrinsic");
+      break;
+    case IntrinsicType::NOOP:
+    case IntrinsicType::STACK_TRACE:
+    case IntrinsicType::TEST_COMP_ERROR:
+      if (e->get_node_type() != ASTNodeType::FUNC_CALL)
+        error(_curr, "Invalid usage of intrinsic");
+      break;
+    case IntrinsicType::INVALID:
+      TAN_ASSERT(false);
+      break;
+    default:
+      break;
+    }
   }
 
   void parse_import(ASTBase *_p) {

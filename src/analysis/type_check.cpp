@@ -158,7 +158,6 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     break;
   }
   case IntrinsicType::ABORT:
-  case IntrinsicType::NOOP:
     visit(func_call);
     p->set_type(void_type);
     break;
@@ -548,6 +547,8 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
       error(p, "Expect a compile error");
     break;
   }
+  case IntrinsicType::NOOP:
+    break;
   case IntrinsicType::INVALID:
     TAN_ASSERT(false);
     break;

@@ -17,11 +17,28 @@ pub fn main(argc: int, argv: char**) : int {
     @stack_trace();
 
     @test_comp_error(invalid_intrinsic_func_call) {
-        @abort;
+        @stack_trace;
     }
     @test_comp_error(invalid_intrinsic_func_call) {
         @stack_trace(100);
     }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @get_decl();
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @compprint();
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @compprint(jdjd);
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @compprint(1);
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @compprint("hi", "hello");
+    }
+
+    @noop();
 
     print("SUCCESS\n");
     @compprint("main function ends");

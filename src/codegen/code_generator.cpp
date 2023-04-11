@@ -689,13 +689,13 @@ Value *CodeGenerator::codegen_intrinsic(Intrinsic *p) {
     /// trivial codegen
   case IntrinsicType::GET_DECL:
   case IntrinsicType::LINENO:
-  case IntrinsicType::NOOP:
   case IntrinsicType::ABORT:
   case IntrinsicType::STACK_TRACE:
   case IntrinsicType::FILENAME: {
     ret = codegen(p->get_sub());
     break;
   }
+  case IntrinsicType::NOOP:
   default:
     break;
   }
