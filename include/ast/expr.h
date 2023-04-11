@@ -243,7 +243,7 @@ public:
     MemberAccessMemberVariable,
     MemberAccessMemberFunction,
   } _access_type = MemberAccessInvalid;
-  size_t _access_idx = (size_t)-1; /// struct member variable index
+  int _access_idx = -1; /// struct member variable index
 };
 
 /// make sure to sync this with UnaryOperator::UOPPrecedence

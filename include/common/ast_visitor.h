@@ -8,6 +8,7 @@ namespace tanlang {
 
 class Program;
 class Identifier;
+class VarRef;
 class Parenthesis;
 class If;
 class VarDecl;
@@ -29,6 +30,7 @@ class BoolLiteral;
 class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;
+class NullPointerLiteral;
 class MemberAccess;
 class StructDecl;
 class Loop;
@@ -76,10 +78,12 @@ public:
   DEFINE_AST_VISITOR_INTERFACE(IntegerLiteral)
   DEFINE_AST_VISITOR_INTERFACE(FloatLiteral)
   DEFINE_AST_VISITOR_INTERFACE(StringLiteral)
+  DEFINE_AST_VISITOR_INTERFACE(NullPointerLiteral)
   DEFINE_AST_VISITOR_INTERFACE(MemberAccess)
   DEFINE_AST_VISITOR_INTERFACE(StructDecl)
   DEFINE_AST_VISITOR_INTERFACE(Loop)
   DEFINE_AST_VISITOR_INTERFACE(BreakContinue)
+  DEFINE_AST_VISITOR_INTERFACE(VarRef)
 
   void visit(ASTBase *p) {
     TAN_ASSERT(p);
@@ -144,6 +148,9 @@ public:
     case ASTNodeType::ARRAY_LITERAL:
       CALL_AST_VISITOR(ArrayLiteral, p);
       break;
+    case ASTNodeType::NULLPTR_LITERAL:
+      CALL_AST_VISITOR(NullPointerLiteral, p);
+      break;
     case ASTNodeType::INTRINSIC:
       CALL_AST_VISITOR(Intrinsic, p);
       break;
@@ -164,6 +171,9 @@ public:
       break;
     case ASTNodeType::STRUCT_DECL:
       CALL_AST_VISITOR(StructDecl, p);
+      break;
+    case ASTNodeType::VAR_REF:
+      CALL_AST_VISITOR(VarRef, p);
       break;
     default:
       TAN_ASSERT(false);

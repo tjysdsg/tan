@@ -3,20 +3,28 @@
 #include "base.h"
 #include "ast/fwd.h"
 #include "llvm_api/llvm_include.h"
+#include "common/compilation_unit.h"
+#include "common/compiler_action.h"
 
 namespace tanlang {
 
 class ASTBase;
 
-class CodeGenerator {
+class CodeGenerator final : public CompilerAction<CodeGenerator, CompilationUnit *, llvm::Value *> {
 public:
   CodeGenerator() = delete;
-  CodeGenerator(SourceManager *sm, llvm::TargetMachine *target_machine);
+  explicit CodeGenerator(TargetMachine *target_machine);
   ~CodeGenerator();
+
+  void init(CompilationUnit *cu) override;
+  llvm::Value *run_impl(CompilationUnit *cu);
+  llvm::Value *cached_visit(ASTBase *p);
+  void default_visit(ASTBase *) override;
+
   void emit_to_file(const str &filename);
   void dump_ir() const;
-  llvm::Value *codegen(ASTBase *p);
 
+private:
   /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
@@ -35,6 +43,7 @@ public:
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
+  CompilationUnit *_cu = nullptr;
   SourceManager *_sm = nullptr;
 
   umap<Type *, llvm::Type *> _llvm_type_cache{};
@@ -68,36 +77,51 @@ private:
    */
   AllocaInst *create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size = 1, const str &name = "");
 
-  llvm::Value *codegen_func_call(ASTBase *_p);
-  llvm::Value *codegen_func_prototype(FunctionDecl *p, bool import = false);
-  llvm::Value *codegen_func_decl(FunctionDecl *p);
-  llvm::Value *codegen_bnot(ASTBase *_p);
-  llvm::Value *codegen_lnot(ASTBase *_p);
-  llvm::Value *codegen_return(ASTBase *_p);
-  llvm::Value *codegen_var_arg_decl(ASTBase *_p);
-  llvm::Value *codegen_address_of(ASTBase *_p);
-  llvm::Value *codegen_parenthesis(ASTBase *_p);
-  llvm::Value *codegen_import(ASTBase *_p);
-  llvm::Value *codegen_intrinsic(Intrinsic *p);
-  llvm::Value *codegen_constructor(Constructor *p);
-  llvm::Value *codegen_type_instantiation(Type *p);
-  llvm::Value *codegen_literals(ASTBase *_p);
-  llvm::Value *codegen_stmt(ASTBase *_p);
-  llvm::Value *codegen_uop(ASTBase *_p);
-  llvm::Value *codegen_bop(ASTBase *_p);
-  llvm::Value *codegen_assignment(ASTBase *_p);
-  llvm::Value *codegen_arithmetic(ASTBase *_p);
-  llvm::Value *codegen_comparison(ASTBase *_p);
-  llvm::Value *codegen_relop(ASTBase *_p);
-  llvm::Value *codegen_cast(ASTBase *_p);
-  llvm::Value *codegen_var_ref(ASTBase *_p);
-  llvm::Value *codegen_identifier(ASTBase *_p);
-  llvm::Value *codegen_binary_or_unary(ASTBase *_p);
-  llvm::Value *codegen_break_continue(ASTBase *_p);
-  llvm::Value *codegen_loop(ASTBase *_p);
-  llvm::Value *codegen_if(ASTBase *_p);
-  llvm::Value *codegen_member_access(MemberAccess *p);
-  llvm::Value *codegen_ptr_deref(UnaryOperator *p);
+private:
+  Value *codegen_var_arg_decl(Decl *p);
+  Value *codegen_type_instantiation(Type *p);
+  Value *codegen_constructor(Constructor *p);
+  Value *codegen_literals(Literal *p);
+  Value *codegen_func_prototype(FunctionDecl *p, bool import_ = false);
+  Value *codegen_ptr_deref(UnaryOperator *p);
+  Value *codegen_relop(BinaryOperator *p);
+  Value *codegen_bnot(UnaryOperator *p);
+  Value *codegen_lnot(UnaryOperator *p);
+  Value *codegen_address_of(UnaryOperator *p);
+  Value *codegen_arithmetic(BinaryOperator *p);
+  Value *codegen_comparison(BinaryOperator *p);
+  Value *codegen_member_access(BinaryOperator *p);
+
+public:
+  DECLARE_AST_VISITOR_IMPL(Program);
+  DECLARE_AST_VISITOR_IMPL(Identifier);
+  DECLARE_AST_VISITOR_IMPL(Parenthesis);
+  DECLARE_AST_VISITOR_IMPL(If);
+  DECLARE_AST_VISITOR_IMPL(VarDecl);
+  DECLARE_AST_VISITOR_IMPL(ArgDecl);
+  DECLARE_AST_VISITOR_IMPL(Return);
+  DECLARE_AST_VISITOR_IMPL(CompoundStmt);
+  DECLARE_AST_VISITOR_IMPL(BinaryOrUnary);
+  DECLARE_AST_VISITOR_IMPL(BinaryOperator);
+  DECLARE_AST_VISITOR_IMPL(UnaryOperator);
+  DECLARE_AST_VISITOR_IMPL(Cast);
+  DECLARE_AST_VISITOR_IMPL(Assignment);
+  DECLARE_AST_VISITOR_IMPL(FunctionCall);
+  DECLARE_AST_VISITOR_IMPL(FunctionDecl);
+  DECLARE_AST_VISITOR_IMPL(Import);
+  DECLARE_AST_VISITOR_IMPL(Intrinsic);
+  DECLARE_AST_VISITOR_IMPL(ArrayLiteral);
+  DECLARE_AST_VISITOR_IMPL(CharLiteral);
+  DECLARE_AST_VISITOR_IMPL(BoolLiteral);
+  DECLARE_AST_VISITOR_IMPL(IntegerLiteral);
+  DECLARE_AST_VISITOR_IMPL(FloatLiteral);
+  DECLARE_AST_VISITOR_IMPL(StringLiteral);
+  DECLARE_AST_VISITOR_IMPL(NullPointerLiteral);
+  // DECLARE_AST_VISITOR_IMPL(MemberAccess);
+  DECLARE_AST_VISITOR_IMPL(StructDecl);
+  DECLARE_AST_VISITOR_IMPL(Loop);
+  DECLARE_AST_VISITOR_IMPL(BreakContinue);
+  DECLARE_AST_VISITOR_IMPL(VarRef);
 };
 
 } // namespace tanlang
