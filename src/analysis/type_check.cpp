@@ -423,8 +423,8 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
     break;
   case UnaryOpKind::PLUS:
   case UnaryOpKind::MINUS: /// unary plus/minus
-    if (!(rhs_type->is_int() || rhs_type->is_float())) {
-      error(rhs, "Expect an numerical type");
+    if (!rhs_type->is_num()) {
+      error(rhs, "Expect a numerical type");
     }
     p->set_type(rhs_type);
     break;
