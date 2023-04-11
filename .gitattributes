@@ -3,3 +3,4 @@ dep/gflags/ linguist-vendored
 dep/googletest/ linguist-vendored
 docs/html linguist-vendored
 
+*.tan linguist-language=tan
