@@ -60,8 +60,7 @@ Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
       _cu->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
-    Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
-    err.raise();
+    Error(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name)).raise();
   }
 
   return ret;
@@ -130,6 +129,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   }
 }
 
+/*
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {
@@ -144,6 +144,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
     error(p, "Unknown identifier");
   }
 }
+*/
 
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Intrinsic) {
   // check children if this is @test_comp_error

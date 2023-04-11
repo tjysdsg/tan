@@ -37,7 +37,7 @@ private:
 
 public:
   // DECLARE_AST_VISITOR_IMPL(Program);
-  DECLARE_AST_VISITOR_IMPL(Identifier);
+  // DECLARE_AST_VISITOR_IMPL(Identifier);
   // DECLARE_AST_VISITOR_IMPL(Parenthesis);
   // DECLARE_AST_VISITOR_IMPL(If);
   DECLARE_AST_VISITOR_IMPL(VarDecl);
