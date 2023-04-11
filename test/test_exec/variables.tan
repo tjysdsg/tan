@@ -60,6 +60,10 @@ pub fn main(argc: int, argv: char**) : int {
         var tmp;
     }
 
+    @test_comp_error(redeclare_variable) {
+        var var1: i32;
+    }
+
     print("SUCCESS\n");
     return 0;
 }

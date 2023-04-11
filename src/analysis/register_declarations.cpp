@@ -2,6 +2,7 @@
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "ast/type.h"
+#include <iostream>
 
 namespace tanlang {
 
@@ -60,7 +61,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, VarDecl) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, ArgDecl) {
   str name = p->get_name();
   if (ctx()->get_decl(name)) {
-    error(p, fmt::format("Cannot redeclare variable named {}", name));
+    error(p, fmt::format("Cannot redeclare argument named {}", name));
   }
   ctx()->set_decl(name, p);
 }
