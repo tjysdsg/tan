@@ -56,6 +56,12 @@ pub fn main(argc: int, argv: u8**) : i32 {
     @test_comp_error(dot_lhs_not_struct) {
         i.whatever;
     }
+    @test_comp_error(dot_invalid_rhs) {
+        s.ffff;
+    }
+    @test_comp_error(dot_invalid_rhs) {
+        s.1;
+    }
 
     print("SUCCESS\n");
     return 0;

@@ -56,8 +56,14 @@ pub fn main(argc: int, argv: char**) : int {
     assert(var1 == 100);
     assert(var2 == 200);
 
-    @test_comp_error(assignment_cannot_deduce_lhs_type) {
+    @test_comp_error(var_decl_cannot_deduce_lhs_type) {
         var tmp;
+    }
+    @test_comp_error(assignment_invalid_lhs) {
+        "haha" = 5;
+    }
+    @test_comp_error(assignment_invalid_lhs) {
+        i32 = 5;
     }
 
     @test_comp_error(redeclare_variable) {
