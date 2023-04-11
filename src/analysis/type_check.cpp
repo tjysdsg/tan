@@ -269,16 +269,6 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
   p->set_type(resolve_type(ty, p->loc()));
 }
 
-DEFINE_AST_VISITOR_IMPL(TypeCheck, Program) {
-  push_scope(p);
-
-  for (const auto &c : p->get_children()) {
-    visit(c);
-  }
-
-  pop_scope();
-}
-
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {

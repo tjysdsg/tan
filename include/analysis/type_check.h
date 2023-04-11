@@ -58,7 +58,7 @@ private:
   Type *resolve_type(Type *p, SrcLoc loc);
 
 public:
-  DECLARE_AST_VISITOR_IMPL(Program);
+  // DECLARE_AST_VISITOR_IMPL(Program);
   DECLARE_AST_VISITOR_IMPL(Identifier);
   DECLARE_AST_VISITOR_IMPL(Parenthesis);
   DECLARE_AST_VISITOR_IMPL(If);
