@@ -16,6 +16,10 @@ fn work2(a: int, b: int) : int {
     extern fn oops(a: int, a: float) : void;
 }
 
+@test_comp_error(invalid_return) {
+    return;
+}
+
 pub fn main(argc: int, argv: char**) : int {
     var a: int = 1;
     assert(a == 1);
