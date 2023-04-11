@@ -33,6 +33,9 @@ macro(enable_tests)
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 
+    # add extra dependencies between test run targets so that they are run sequentially
+    add_dependencies(run_tanc_lib_tests run_tanc_exec_tests)
+
     # generate coverage
     if (DEFINED ENABLE_COVERAGE)
         add_custom_target(coverage ALL
