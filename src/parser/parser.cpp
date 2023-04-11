@@ -888,15 +888,6 @@ private:
       member_decls.push_back(ast_cast<Expr>(c));
     }
     p->set_member_decls(member_decls);
-
-    /// check if redefining the struct
-    auto *prev_decl = _root->ctx()->get_decl(id->get_name());
-    if (prev_decl) {
-      error(p->loc(), "Cannot redefine a struct");
-    }
-
-    // TODO IMPORTANT: distinguish publicly and privately defined struct types
-    _root->ctx()->set_decl(p->get_name(), p);
   }
 
   ArrayType *parse_ty_array(Type *p) {

@@ -114,7 +114,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
     error(p, "Cannot redeclare a struct");
   }
 
-  // overwrite the value set during parsing (e.g. forward decl)
+  // TODO IMPORTANT: distinguish publicly and privately defined struct types
   root_ctx->set_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference
