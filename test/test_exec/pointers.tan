@@ -29,6 +29,10 @@ pub fn main() : int {
     var pf = p as float*;
     assert(*pf == -2.5);
 
+    @test_comp_error(deref_non_pointer_lhs) {
+        *n;
+    }
+
     print("SUCCESS\n");
     return 0;
 }

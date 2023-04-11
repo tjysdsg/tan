@@ -2,6 +2,7 @@
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "ast/type.h"
+#include <iostream>
 
 namespace tanlang {
 
@@ -17,7 +18,23 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
   pop_scope();
 }
 
-// DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Identifier)
+DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Intrinsic) {
+  // check children if this is @test_comp_error
+  if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+
+    try {
+      auto *sub = p->get_sub();
+      if (sub) {
+        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
+        for (auto *c : sub->get_children())
+          visit(c);
+      }
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+    }
+  }
+}
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Parenthesis) { visit(p->get_sub()); }
 
@@ -44,7 +61,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, VarDecl) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, ArgDecl) {
   str name = p->get_name();
   if (ctx()->get_decl(name)) {
-    error(p, fmt::format("Cannot redeclare variable named {}", name));
+    error(p, fmt::format("Cannot redeclare argument named {}", name));
   }
   ctx()->set_decl(name, p);
 }
@@ -97,7 +114,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
     error(p, "Cannot redeclare a struct");
   }
 
-  // overwrite the value set during parsing (e.g. forward decl)
+  // TODO IMPORTANT: distinguish publicly and privately defined struct types
   root_ctx->set_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference

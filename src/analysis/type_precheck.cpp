@@ -1,5 +1,6 @@
 #include "analysis/type_precheck.h"
 #include "ast/ast_base.h"
+#include "ast/ast_node_type.h"
 #include "common/ast_visitor.h"
 #include "common/compilation_unit.h"
 #include "ast/type.h"
@@ -25,12 +26,21 @@ void TypePrecheck::run_impl(CompilationUnit *cu) {
   push_scope(p);
 
   for (const auto &c : p->get_children()) {
-    if (c->get_node_type() == ASTNodeType::IMPORT) {
+    switch (c->get_node_type()) {
+    case ASTNodeType::IMPORT:
       CALL_AST_VISITOR(Import, c);
-    } else if (c->get_node_type() == ASTNodeType::STRUCT_DECL) {
+      break;
+    case ASTNodeType::STRUCT_DECL:
       CALL_AST_VISITOR(StructDecl, c);
-    } else if (c->get_node_type() == ASTNodeType::FUNC_DECL) {
+      break;
+    case ASTNodeType::FUNC_DECL:
       CALL_AST_VISITOR(FunctionDecl, c);
+      break;
+    case ASTNodeType::INTRINSIC:
+      CALL_AST_VISITOR(Intrinsic, c);
+      break;
+    default:
+      break;
     }
   }
 
@@ -50,8 +60,7 @@ Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
       _cu->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
-    Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
-    err.raise();
+    Error(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name)).raise();
   }
 
   return ret;
@@ -120,6 +129,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   }
 }
 
+/*
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {
@@ -132,6 +142,25 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
     }
   } else {
     error(p, "Unknown identifier");
+  }
+}
+*/
+
+DEFINE_AST_VISITOR_IMPL(TypePrecheck, Intrinsic) {
+  // check children if this is @test_comp_error
+  if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+
+    try {
+      auto *sub = p->get_sub();
+      if (sub) {
+        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
+        for (auto *c : sub->get_children())
+          visit(c);
+      }
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+    }
   }
 }
 

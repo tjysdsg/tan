@@ -12,6 +12,14 @@ fn work2(a: int, b: int) : int {
     return a * b / 2;
 }
 
+@test_comp_error(func_arg_redeclare) {
+    extern fn oops(a: int, a: float) : void;
+}
+
+@test_comp_error(invalid_return) {
+    return;
+}
+
 pub fn main(argc: int, argv: char**) : int {
     var a: int = 1;
     assert(a == 1);
@@ -25,6 +33,15 @@ pub fn main(argc: int, argv: char**) : int {
     assert(work1(a, 2.0) == 4.0);
 
     assert(work1(1.0, 2.) == 2.0);
+
+    @test_comp_error(unknown_func_call) {
+        pretend_work(D, 1.0);
+    }
+
+    var D: f64 = 2.0;
+    @test_comp_error(invalid_arguments_to_func_call) {
+        work1(D, 1.0);
+    }
 
     print("SUCCESS\n");
     return 0;

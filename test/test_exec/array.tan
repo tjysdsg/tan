@@ -20,6 +20,24 @@ pub fn main() : i32 {
     assert(e2 == 2);
     assert(nested[0][0] == 1);
     assert(nested[2][0] == 3);
+
+    @test_comp_error(index_rvalue) {
+        [1, 2, 3][0];
+    }
+
+    var i = 1;
+    @test_comp_error(index_rvalue) {
+        i[0];
+    }
+
+    @test_comp_error(index_is_not_int) {
+        flat["haha"];
+    }
+
+    @test_comp_error(out_of_bound) {
+        flat[4];
+    }
+
     print("SUCCESS\n");
     return 0;
 }

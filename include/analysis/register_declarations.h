@@ -24,7 +24,7 @@ public:
   DECLARE_AST_VISITOR_IMPL(Assignment);
   // DECLARE_AST_VISITOR_IMPL(FunctionCall);
   DECLARE_AST_VISITOR_IMPL(FunctionDecl);
-  // DECLARE_AST_VISITOR_IMPL(Intrinsic);
+  DECLARE_AST_VISITOR_IMPL(Intrinsic);
   // DECLARE_AST_VISITOR_IMPL(ArrayLiteral);
   // DECLARE_AST_VISITOR_IMPL(CharLiteral);
   // DECLARE_AST_VISITOR_IMPL(BoolLiteral);

@@ -1,10 +1,6 @@
 import "runtime/print.tan";
 import "runtime/debug.tan";
 
-@test_comp_error(continue_outside_loop) {
-    continue;
-}
-
 pub fn main() : int {
     var i: u32 = 0u;
     var gt_50: u32 = 0u;
@@ -50,12 +46,15 @@ pub fn main() : int {
             continue;
         }
         while (false) {
-            i = i + 1000;
+            i = i + 1000u;
         }
         continue;
     }
-    // continue; // this should cause a compile error
     assert(i == 50u);
+
+    @test_comp_error(continue_outside_loop) {
+        continue;
+    }
 
     print("SUCCESS\n");
     return 0;

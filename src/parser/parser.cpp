@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "ast/ast_node_type.h"
 #include "ast/stmt.h"
 #include "ast/expr.h"
 #include "ast/decl.h"
@@ -163,9 +164,9 @@ private:
       node = FloatLiteral::Create(_curr, std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
       node = StringLiteral::Create(_curr, token->get_value());
-    } else if (token->get_type() == TokenType::CHAR) { /// char literal
+    } else if (token->get_type() == TokenType::CHAR) {   /// char literal
       node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
-    } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
+    } else if (check_typename_token(token)) {            /// should not encounter types if parsed properly
       TAN_ASSERT(false);
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
@@ -424,8 +425,8 @@ private:
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
-      _curr.offset_by(1);                   /// skip "else"
-      if (at(_curr)->get_value() == "if") { /// elif
+      _curr.offset_by(1);                         /// skip "else"
+      if (at(_curr)->get_value() == "if") {       /// elif
         parse_if_then_branch(p);
       } else if (at(_curr)->get_value() == "{") { /// else
         auto else_clause = peek();
@@ -539,7 +540,7 @@ private:
     auto *p = ast_cast<BinaryOperator>(_p);
     _curr.offset_by(1); /// skip the operator
 
-    p->set_lhs(lhs); /// lhs
+    p->set_lhs(lhs);    /// lhs
 
     /// rhs
     auto rhs = next_expression(p->get_bp());
@@ -582,7 +583,7 @@ private:
     bool is_public = false;
     bool is_external = false;
     str token_str = at(_curr)->get_value();
-    if (token_str == "fn") { /// "fn"
+    if (token_str == "fn") {         /// "fn"
       _curr.offset_by(1);
     } else if (token_str == "pub") { /// "pub fn"
       is_public = true;
@@ -706,10 +707,20 @@ private:
       error(_curr, "Expect a test name");
     }
 
-    auto *body = peek("{");
-    parse_node(body);
-    p->set_sub(body);
     p->set_name("test_comp_error");
+    p->set_intrinsic_type(IntrinsicType::TEST_COMP_ERROR);
+
+    auto *body = peek("{");
+    try {
+      parse_node(body);
+      p->set_sub(body);
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+
+      while (at(_curr)->get_value() != "}")
+        _curr.offset_by(1);
+    }
   }
 
   void parse_intrinsic(ASTBase *_p) {
@@ -724,11 +735,54 @@ private:
 
     auto e = peek();
     parse_node(e);
-    /// Only allow identifier or function call as valid intrinsic token
+    // Only allow identifier or function call as the valid intrinsic token
     if (e->get_node_type() != ASTNodeType::ID && e->get_node_type() != ASTNodeType::FUNC_CALL) {
       error(_curr, "Unexpected token");
     }
     p->set_sub(e);
+
+    // find out the name
+    str name;
+    switch (e->get_node_type()) {
+    case ASTNodeType::FUNC_CALL:
+      name = ast_cast<FunctionCall>(e)->get_name();
+      break;
+    case ASTNodeType::ID:
+      name = ast_cast<Identifier>(e)->get_name();
+      break;
+    default:
+      TAN_ASSERT(false);
+      break;
+    }
+    TAN_ASSERT(!name.empty());
+
+    // figure out which intrinsic
+    p->set_name(name);
+    auto q = Intrinsic::intrinsics.find(name);
+    if (q == Intrinsic::intrinsics.end()) {
+      error(_curr, fmt::format("Unknown intrinsic {}", name));
+    }
+    p->set_intrinsic_type(q->second);
+
+    // check if the syntax is correct
+    switch (p->get_intrinsic_type()) {
+    case IntrinsicType::LINENO:
+    case IntrinsicType::FILENAME:
+      if (e->get_node_type() != ASTNodeType::ID)
+        error(_curr, "Invalid usage of intrinsic");
+      break;
+    case IntrinsicType::NOOP:
+    case IntrinsicType::STACK_TRACE:
+    case IntrinsicType::TEST_COMP_ERROR:
+      if (e->get_node_type() != ASTNodeType::FUNC_CALL)
+        error(_curr, "Invalid usage of intrinsic");
+      break;
+    case IntrinsicType::INVALID:
+      TAN_ASSERT(false);
+      break;
+    default:
+      break;
+    }
   }
 
   void parse_import(ASTBase *_p) {
@@ -855,15 +909,6 @@ private:
       member_decls.push_back(ast_cast<Expr>(c));
     }
     p->set_member_decls(member_decls);
-
-    /// check if redefining the struct
-    auto *prev_decl = _root->ctx()->get_decl(id->get_name());
-    if (prev_decl) {
-      error(p->loc(), "Cannot redefine a struct");
-    }
-
-    // TODO IMPORTANT: distinguish publicly and privately defined struct types
-    _root->ctx()->set_decl(p->get_name(), p);
   }
 
   ArrayType *parse_ty_array(Type *p) {
@@ -912,7 +957,7 @@ private:
       auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
       if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
         ret = PrimitiveType::Create(it->second);
-      } else if (token->get_value() == "*") { /// pointer
+      } else if (token->get_value() == "*") {            /// pointer
         TAN_ASSERT(ret);
         ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {

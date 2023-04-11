@@ -14,6 +14,11 @@ struct Fuck {
     var val: i32;
 }
 
+@test_comp_error(redeclare_struct) {
+    struct Fuck {
+    }
+}
+
 fn set_fuck(self: Fuck*, val: i32) : void {
     self.val = val;
 }
@@ -46,6 +51,17 @@ pub fn main(argc: int, argv: u8**) : i32 {
     assert(s.fuck.val == 20);
     s.pfuck.set_fuck(21);
     assert(s.pfuck.val == 21);
+
+    var i = 0;
+    @test_comp_error(dot_lhs_not_struct) {
+        i.whatever;
+    }
+    @test_comp_error(dot_invalid_rhs) {
+        s.ffff;
+    }
+    @test_comp_error(dot_invalid_rhs) {
+        s.1;
+    }
 
     print("SUCCESS\n");
     return 0;

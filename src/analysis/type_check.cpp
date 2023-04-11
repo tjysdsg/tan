@@ -158,7 +158,6 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     break;
   }
   case IntrinsicType::ABORT:
-  case IntrinsicType::NOOP:
     visit(func_call);
     p->set_type(void_type);
     break;
@@ -190,14 +189,6 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
   default:
     TAN_ASSERT(false);
   }
-}
-
-void TypeCheck::find_and_assign_intrinsic_type(Intrinsic *p, const str &name) {
-  auto q = Intrinsic::intrinsics.find(name);
-  if (q == Intrinsic::intrinsics.end()) {
-    error(p, fmt::format("Unknown intrinsic {}", name));
-  }
-  p->set_intrinsic_type(q->second);
 }
 
 // ASSUMES lhs has been already analyzed, while rhs has not
@@ -274,18 +265,11 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
 
   auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
+  if (p->_access_idx == (size_t)-1) {
+    error(p, fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
+  }
   auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
   p->set_type(resolve_type(ty, p->loc()));
-}
-
-DEFINE_AST_VISITOR_IMPL(TypeCheck, Program) {
-  push_scope(p);
-
-  for (const auto &c : p->get_children()) {
-    visit(c);
-  }
-
-  pop_scope();
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
@@ -324,15 +308,19 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, If) {
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, VarDecl) {
   Type *ty = p->get_type();
-  if (ty) {
-    p->set_type(resolve_type(ty, p->loc()));
+
+  // assume the type is always non-null
+  // type_check_assignment is responsible for setting the deduced type if necessary
+  if (!ty) {
+    error(p, "Cannot deduce the type of variable declaration");
   }
+  p->set_type(resolve_type(ty, p->loc()));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
-  FunctionDecl *func = search_func_decl_in_parent_scopes();
+  FunctionDecl *func = search_node_in_parent_scopes<FunctionDecl, ASTNodeType::FUNC_DECL>();
   if (!func) {
     error(p, "Return statement must be inside a function definition");
   }
@@ -438,8 +426,8 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
     break;
   case UnaryOpKind::PLUS:
   case UnaryOpKind::MINUS: /// unary plus/minus
-    if (!(rhs_type->is_int() || rhs_type->is_float())) {
-      error(rhs, "Expect an numerical type");
+    if (!rhs_type->is_num()) {
+      error(rhs, "Expect a numerical type");
     }
     p->set_type(rhs_type);
     break;
@@ -461,12 +449,15 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
   auto *lhs = p->get_lhs();
   Type *lhs_type = nullptr;
   if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
-    /// special case for variable declaration because we allow type inference
-    visit(lhs);
-    lhs_type = ast_cast<VarDecl>(lhs)->get_type();
-    if (!lhs_type) {
-      ast_cast<VarDecl>(lhs)->set_type(lhs_type = rhs->get_type());
+    auto *var_decl = ast_cast<VarDecl>(lhs);
+
+    // deduce type of variable declaration
+    if (!var_decl->get_type()) {
+      var_decl->set_type(rhs->get_type());
     }
+
+    visit(lhs);
+    lhs_type = var_decl->get_type();
   } else {
     visit(lhs);
 
@@ -513,28 +504,6 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
-  auto c = p->get_sub();
-
-  /// name
-  str name;
-  switch (c->get_node_type()) {
-  case ASTNodeType::FUNC_CALL: {
-    auto *func_call = ast_cast<FunctionCall>(c);
-    name = func_call->get_name();
-    find_and_assign_intrinsic_type(p, name);
-    analyze_intrinsic_func_call(p, func_call);
-    return;
-  }
-  case ASTNodeType::ID:
-    name = ast_cast<Identifier>(c)->get_name();
-    break;
-  default:
-    name = p->get_name();
-    break;
-  }
-  TAN_ASSERT(!name.empty());
-  find_and_assign_intrinsic_type(p, name);
-
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {
     auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
@@ -556,7 +525,12 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     bool error_caught = false;
 
     try {
-      visit(p->get_sub());
+      auto *sub = p->get_sub();
+      if (sub) {
+        visit(sub);
+      } else { // sub is nullptr if it's already checked
+        error_caught = true;
+      }
     } catch (const CompileError &e) {
       error_caught = true;
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
@@ -566,8 +540,21 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
       error(p, "Expect a compile error");
     break;
   }
-  default:
+  case IntrinsicType::NOOP:
+    break;
+  case IntrinsicType::INVALID:
     TAN_ASSERT(false);
+    break;
+  default: {
+    auto *c = p->get_sub();
+    if (c->get_node_type() == ASTNodeType::FUNC_CALL) {
+      analyze_intrinsic_func_call(p, ast_cast<FunctionCall>(c));
+      return;
+    }
+
+    // TODO: implement type checking for other intrinsics
+    break;
+  }
   }
 }
 
@@ -677,7 +664,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
-  Loop *loop = search_loop_in_parent_scopes();
+  Loop *loop = search_node_in_parent_scopes<Loop, ASTNodeType::LOOP>();
   if (!loop) {
     error(p, "Break or continue must be inside a loop");
   }

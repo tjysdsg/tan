@@ -58,7 +58,7 @@ private:
   Type *resolve_type(Type *p, SrcLoc loc);
 
 public:
-  DECLARE_AST_VISITOR_IMPL(Program);
+  // DECLARE_AST_VISITOR_IMPL(Program);
   DECLARE_AST_VISITOR_IMPL(Identifier);
   DECLARE_AST_VISITOR_IMPL(Parenthesis);
   DECLARE_AST_VISITOR_IMPL(If);
@@ -92,9 +92,6 @@ private:
   void analyze_func_body(ASTBase *_p);
 
   void analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call);
-
-  /// search for the intrinsic type
-  void find_and_assign_intrinsic_type(Intrinsic *p, const str &name);
 
   void analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs);
 
