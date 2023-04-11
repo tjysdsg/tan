@@ -52,6 +52,11 @@ pub fn main(argc: int, argv: u8**) : i32 {
     s.pfuck.set_fuck(21);
     assert(s.pfuck.val == 21);
 
+    var i = 0;
+    @test_comp_error(dot_lhs_not_struct) {
+        i.whatever;
+    }
+
     print("SUCCESS\n");
     return 0;
 }
