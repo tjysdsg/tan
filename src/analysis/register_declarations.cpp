@@ -17,7 +17,23 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
   pop_scope();
 }
 
-// DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Identifier)
+DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Intrinsic) {
+  // check children if this is @test_comp_error
+  if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+
+    try {
+      auto *sub = p->get_sub();
+      if (sub) {
+        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
+        for (auto *c : sub->get_children())
+          visit(c);
+      }
+    } catch (const CompileError &e) {
+      std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      p->set_sub(nullptr); // no need to check again in later stages
+    }
+  }
+}
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Parenthesis) { visit(p->get_sub()); }
 
