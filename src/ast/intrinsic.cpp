@@ -27,6 +27,7 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
     {"noop",                         IntrinsicType::NOOP           },
     {"get_decl",                     IntrinsicType::GET_DECL       },
     {"test_comp_error",              IntrinsicType::TEST_COMP_ERROR},
+    {"abort",                        IntrinsicType::ABORT          },
     {"stack_trace",                  IntrinsicType::STACK_TRACE    },
     {STACK_TRACE_FUNCTION_REAL_NAME, IntrinsicType::STACK_TRACE    }
 };
@@ -34,9 +35,13 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
 vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
   vector<FunctionDecl *> ret{};
 
+  // TODO: prevent user from directly calling abort(), must use @abort()
+
   /// compprint
   ret.push_back(FunctionDecl::Create(SrcLoc(0), "compprint",
                                      Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
+  /// abort
+  ret.push_back(FunctionDecl::Create(SrcLoc(0), "abort", Type::GetFunctionType(Type::GetVoidType(), {}), true, false));
 
   return ret;
 }

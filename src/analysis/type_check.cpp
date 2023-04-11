@@ -151,12 +151,9 @@ void TypeCheck::analyze_func_body(ASTBase *_p) {
 void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
   auto *void_type = Type::GetVoidType();
   switch (p->get_intrinsic_type()) {
-  case IntrinsicType::STACK_TRACE: {
+  case IntrinsicType::STACK_TRACE:
     func_call->set_name(Intrinsic::STACK_TRACE_FUNCTION_REAL_NAME);
-    visit(func_call);
-    p->set_type(void_type);
-    break;
-  }
+    [[fallthrough]];
   case IntrinsicType::ABORT:
     visit(func_call);
     p->set_type(void_type);
