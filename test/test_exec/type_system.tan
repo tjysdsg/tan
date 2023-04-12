@@ -89,6 +89,9 @@ fn test_implicit_cast() : void {
     d = 1.0;
     assert(d);
 
+    var c: char = 'a';
+    assert(c);
+
     var pi = &signed;
     var pf = &f;
     assert(pi);
