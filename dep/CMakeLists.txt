@@ -227,7 +227,7 @@ foreach (LIB ${_CLANG_LIBRARIES})
 endforeach ()
 
 # ===== lld =====
-# FIXME: find_package(LLD REQUIRED PATHS ${LLD_ROOT_DIR})
+# find_package(LLD REQUIRED PATHS ${LLD_ROOT_DIR}) somehow doesn't work on Ubuntu 20.04
 set(LLD_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS})
 set(LLD_LIBRARY_DIR ${LLVM_LIBRARY_DIR})
 set(_LLD_LIBS
