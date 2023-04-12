@@ -88,14 +88,14 @@ public:
   static StructDecl *Create(SrcLoc loc);
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
-  Type *get_struct_member_ty(size_t i) const;
-  size_t get_struct_member_index(const str &name) const;
-  void set_member_index(const str &name, size_t idx);
+  Type *get_struct_member_ty(int i) const;
+  int get_struct_member_index(const str &name) const;
+  void set_member_index(const str &name, int idx);
   vector<ASTBase *> get_children() const override;
 
 private:
   vector<Expr *> _member_decls{};
-  umap<str, size_t> _member_indices{};
+  umap<str, int> _member_indices{};
 };
 
 } // namespace tanlang

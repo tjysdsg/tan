@@ -51,8 +51,8 @@ void Compiler::emit_object(CompilationUnit *cu, const str &out_file) {
 
 Value *Compiler::codegen(CompilationUnit *cu, bool print_ir) {
   TAN_ASSERT(_cg.find(cu) == _cg.end());
-  auto *cg = _cg[cu] = new CodeGenerator(cu->source_manager(), target_machine);
-  auto *ret = cg->codegen(cu->ast());
+  auto *cg = _cg[cu] = new CodeGenerator(target_machine);
+  auto *ret = cg->run(cu);
 
   if (print_ir) {
     cg->dump_ir();

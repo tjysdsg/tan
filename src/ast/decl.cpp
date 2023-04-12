@@ -81,20 +81,23 @@ const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decl
 
 void StructDecl::set_member_decls(const vector<Expr *> &member_decls) { _member_decls = member_decls; }
 
-Type *StructDecl::get_struct_member_ty(size_t i) const {
-  TAN_ASSERT(i < _member_decls.size());
-  return _member_decls[i]->get_type();
+Type *StructDecl::get_struct_member_ty(int i) const {
+  TAN_ASSERT(i >= 0 && i < (int)_member_decls.size());
+  return _member_decls[(size_t)i]->get_type();
 }
 
-size_t StructDecl::get_struct_member_index(const str &name) const {
+int StructDecl::get_struct_member_index(const str &name) const {
   auto search = _member_indices.find(name);
   if (search == _member_indices.end()) {
-    return (size_t)(-1);
+    return -1;
   }
   return search->second;
 }
 
-void StructDecl::set_member_index(const str &name, size_t idx) { _member_indices[name] = idx; }
+void StructDecl::set_member_index(const str &name, int idx) {
+  TAN_ASSERT(idx >= 0 && idx < (int)_member_decls.size());
+  _member_indices[name] = idx;
+}
 
 vector<ASTBase *> StructDecl::get_children() const {
   vector<ASTBase *> ret = {};

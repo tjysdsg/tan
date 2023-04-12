@@ -262,7 +262,7 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
 
   auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
-  if (p->_access_idx == (size_t)-1) {
+  if (p->_access_idx == -1) {
     error(p, fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
   }
   auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);

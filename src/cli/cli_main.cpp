@@ -4,6 +4,7 @@
 #include "llvm/Support/CommandLine.h"
 #include <iostream>
 #include <filesystem>
+#include "config.h"
 
 namespace cmd = llvm::cl;
 namespace fs = std::filesystem;
@@ -41,9 +42,8 @@ int cli_main(int argc, char **argv) {
   /// Remove options created by LLVM/Clang
   /// We don't want tons of flags not created by this file appearing in the output of `tanc --help`
   cmd::HideUnrelatedOptions(cl_category);
-  cmd::ParseCommandLineOptions(argc, argv,
-                               "tanc: compiler for TAN programming language\n\n"
-                               "tan, a fucking amazing programming language\n");
+  cmd::ParseCommandLineOptions(
+      argc, argv, fmt::format("tanc version: {}.{}.{} \n", TAN_VERSION[0], TAN_VERSION[1], TAN_VERSION[2]));
 
   try {
     /// init

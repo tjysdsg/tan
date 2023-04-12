@@ -16,8 +16,8 @@ concept same_as = SameHelper<T, U> && SameHelper<U, T>;
 
 template <typename C, typename Input, typename Output>
 concept HasImpl = requires(C c, Input input) {
-                    { c.run_impl(input) } -> same_as<Output>;
-                  };
+  { c.run_impl(input) } -> same_as<Output>;
+};
 
 template <typename Derived, typename Input, typename Output> class CompilerAction : public ASTVisitor<Derived> {
 public:
@@ -33,7 +33,7 @@ public:
   }
 
 protected:
-  virtual void init(Input) {}
+  virtual void init(Input){};
 };
 
 } // namespace tanlang

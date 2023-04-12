@@ -29,7 +29,6 @@ class NullPointerLiteral;
 class CharLiteral;
 class FunctionDecl;
 class CompoundStmt;
-class FunctionTable;
 class Loop;
 class SourceTraceable;
 class ASTNamed;
@@ -38,6 +37,7 @@ class SrcLoc;
 class SourceManager;
 class Intrinsic;
 class If;
+class VarRef;
 class Constructor;
 class CompTimeExpr;
 

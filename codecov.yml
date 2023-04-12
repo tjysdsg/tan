@@ -1,7 +1,2 @@
-coverage:
-  status:
-    project: off
-    patch: off
-comment: false
 ignore:
   - "dep"

@@ -11,18 +11,9 @@
 
 namespace tanlang {
 
-AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
-  block = &block->getParent()->getEntryBlock();
-  IRBuilder<> tmp_builder(block, block->begin());
-  if (size <= 1) {
-    return tmp_builder.CreateAlloca(type, nullptr, name);
-  } else {
-    return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned)size), name);
-  }
-}
-
-CodeGenerator::CodeGenerator(SourceManager *sm, TargetMachine *target_machine)
-    : _sm(sm), _target_machine(target_machine) {
+void CodeGenerator::init(CompilationUnit *cu) {
+  _cu = cu;
+  _sm = cu->source_manager();
   _llvm_ctx = new LLVMContext();
   _builder = new IRBuilder<>(*_llvm_ctx);
   _module = new Module(_sm->get_filename(), *_llvm_ctx);
@@ -40,23 +31,36 @@ CodeGenerator::CodeGenerator(SourceManager *sm, TargetMachine *target_machine)
   _di_file = _di_builder->createFile(_sm->get_filename(), ".");
   _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
   _di_scope = {_di_file};
-
-  /// Init noop intrinsic
-  /// fn llvm.donothing() : void;
-  Function *func = _module->getFunction("llvm.donothing");
-  if (!func) {
-    llvm::Type *ret_type = _builder->getVoidTy();
-    auto *FT = llvm::FunctionType::get(ret_type, {}, false);
-    Function::Create(FT, Function::ExternalWeakLinkage, "llvm.donothing", _module);
-  }
 }
+
+CodeGenerator::CodeGenerator(TargetMachine *target_machine) : _target_machine(target_machine) {}
 
 CodeGenerator::~CodeGenerator() {
-  delete _di_builder;
-  delete _module;
-  delete _builder;
-  delete _llvm_ctx;
+  if (_di_builder)
+    delete _di_builder;
+  if (_module)
+    delete _module;
+  if (_builder)
+    delete _builder;
+  if (_llvm_ctx)
+    delete _llvm_ctx;
 }
+
+llvm::Value *CodeGenerator::run_impl(CompilationUnit *cu) { return cached_visit(cu->ast()); }
+
+llvm::Value *CodeGenerator::cached_visit(ASTBase *p) {
+  auto it = _llvm_value_cache.find(p);
+  if (it != _llvm_value_cache.end()) {
+    return it->second;
+  }
+  set_current_debug_location(p);
+
+  visit(p);
+
+  return _llvm_value_cache[p];
+}
+
+void CodeGenerator::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
 void CodeGenerator::emit_to_file(const str &filename) {
   _di_builder->finalize(); /// important: do this before any pass
@@ -120,92 +124,16 @@ void CodeGenerator::emit_to_file(const str &filename) {
 
 void CodeGenerator::dump_ir() const { _module->print(llvm::outs(), nullptr); }
 
-Value *CodeGenerator::codegen(ASTBase *p) {
-  auto it = _llvm_value_cache.find(p);
-  if (it != _llvm_value_cache.end()) {
-    return it->second;
+// ===================================================
+
+AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
+  block = &block->getParent()->getEntryBlock();
+  IRBuilder<> tmp_builder(block, block->begin());
+  if (size <= 1) {
+    return tmp_builder.CreateAlloca(type, nullptr, name);
+  } else {
+    return tmp_builder.CreateAlloca(type, tmp_builder.getInt32((unsigned)size), name);
   }
-
-  set_current_debug_location(p);
-
-  Value *ret = nullptr;
-  switch (p->get_node_type()) {
-  case ASTNodeType::PROGRAM:
-  case ASTNodeType::COMPOUND_STATEMENT:
-    ret = codegen_stmt(p);
-    break;
-  case ASTNodeType::ASSIGN:
-    ret = codegen_assignment(p);
-    break;
-  case ASTNodeType::CAST:
-    ret = codegen_cast(p);
-    break;
-  case ASTNodeType::BOP:
-    ret = codegen_bop(p);
-    break;
-  case ASTNodeType::UOP:
-    ret = codegen_uop(p);
-    break;
-  case ASTNodeType::RET:
-    ret = codegen_return(p);
-    break;
-  case ASTNodeType::IMPORT:
-    ret = codegen_import(p);
-    break;
-  case ASTNodeType::ARRAY_LITERAL:
-  case ASTNodeType::INTEGER_LITERAL:
-  case ASTNodeType::FLOAT_LITERAL:
-  case ASTNodeType::CHAR_LITERAL:
-  case ASTNodeType::BOOL_LITERAL:
-  case ASTNodeType::STRING_LITERAL:
-  case ASTNodeType::NULLPTR_LITERAL:
-    ret = codegen_literals(p);
-    break;
-  case ASTNodeType::INTRINSIC:
-    ret = codegen_intrinsic(ast_cast<Intrinsic>(p));
-    break;
-  case ASTNodeType::FUNC_DECL:
-    ret = codegen_func_decl(ast_cast<FunctionDecl>(p));
-    break;
-  case ASTNodeType::FUNC_CALL:
-    ret = codegen_func_call(p);
-    break;
-  case ASTNodeType::IF:
-    ret = codegen_if(p);
-    break;
-  case ASTNodeType::CONTINUE:
-  case ASTNodeType::BREAK:
-    ret = codegen_break_continue(p);
-    break;
-  case ASTNodeType::LOOP:
-    ret = codegen_loop(p);
-    break;
-  case ASTNodeType::VAR_DECL:
-  case ASTNodeType::ARG_DECL:
-    ret = codegen_var_arg_decl(p);
-    break;
-  case ASTNodeType::PARENTHESIS:
-    ret = codegen_parenthesis(p);
-    break;
-  case ASTNodeType::VAR_REF:
-    ret = codegen_var_ref(p);
-    break;
-  case ASTNodeType::ID:
-    ret = codegen_identifier(p);
-    break;
-  case ASTNodeType::BOP_OR_UOP:
-    ret = codegen_binary_or_unary(p);
-    break;
-  case ASTNodeType::STRUCT_DECL:
-    /// don't do anything
-    break;
-  default:
-    error(p, fmt::format("[DEV] Codegen for {} is not implemented", ASTBase::ASTTypeNames[p->get_node_type()]));
-    TAN_ASSERT(false);
-    break;
-  }
-
-  return _llvm_value_cache[p] = ret;
 }
 
 llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
@@ -243,9 +171,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_float() && dest->is_float()) { /// float <-> double
     return _builder->CreateFPCast(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_int()) { /// bool to int
+  } else if (orig->is_bool() && dest->is_int()) {    /// bool to int
     return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_float()) { /// bool to float
+  } else if (orig->is_bool() && dest->is_float()) {  /// bool to float
     return _builder->CreateUIToFP(loaded, to_llvm_type(dest));
   } else if (dest->is_bool()) {
     if (orig->is_float()) { /// float to bool
@@ -264,9 +192,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_pointer()) { /// array to pointer, don't need to do anything
+  } else if (orig->is_array() && dest->is_pointer()) {  /// array to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_string()) { /// array to string, don't need to do anything
+  } else if (orig->is_array() && dest->is_string()) {   /// array to string, don't need to do anything
     return loaded;
   }
 
@@ -434,6 +362,12 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
   return _di_builder->createSubroutineType(_di_builder->getOrCreateTypeArray(types));
 }
 
+void CodeGenerator::set_current_debug_location(ASTBase *p) {
+  unsigned line = _sm->get_line(p->loc()) + 1;
+  unsigned col = _sm->get_col(p->loc()) + 1;
+  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
+}
+
 void CodeGenerator::error(ASTBase *p, const str &message) {
   Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
   err.raise();
@@ -447,192 +381,15 @@ DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
   return DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
 }
 
-Value *CodeGenerator::codegen_func_call(ASTBase *_p) {
-  auto *p = ast_cast<FunctionCall>(_p);
+// ===================================================
 
-  FunctionDecl *callee = p->_callee;
-  auto *callee_type = (tanlang::FunctionType *)callee->get_type();
-  size_t n = callee->get_n_args();
-
-  /// args
-  vector<Value *> arg_vals;
-  for (size_t i = 0; i < n; ++i) {
-    auto actual_arg = p->_args[i];
-    auto *a = codegen(actual_arg);
-    if (!a) {
-      error(actual_arg, "Invalid function call argument");
-    }
-
-    /// implicit cast
-    auto expected_ty = callee_type->get_arg_types()[i];
-    a = convert_llvm_type_to(actual_arg, expected_ty);
-    arg_vals.push_back(a);
-  }
-
-  auto *func_type = (llvm::FunctionType *)to_llvm_type(callee->get_type());
-  auto *F = codegen(callee);
-  return _builder->CreateCall(func_type, F, arg_vals);
-}
-
-Value *CodeGenerator::codegen_func_prototype(FunctionDecl *p, bool import) {
-  auto linkage = Function::InternalLinkage;
-  if (p->is_external()) {
-    linkage = Function::ExternalWeakLinkage;
-  }
-  if (p->is_public()) {
-    if (import) {
-      linkage = Function::ExternalWeakLinkage;
-    } else {
-      linkage = Function::ExternalLinkage;
-    }
-  }
-  Function *func = Function::Create((llvm::FunctionType *)to_llvm_type(p->get_type()), linkage, p->get_name(), _module);
-  func->setCallingConv(llvm::CallingConv::C);
-  return func;
-}
-
-Value *CodeGenerator::codegen_func_decl(FunctionDecl *p) {
-  auto *func_type = (tanlang::FunctionType *)p->get_type();
-
-  auto ret_ty = func_type->get_return_type();
-  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->loc());
-
-  /// get function name
-  str func_name = p->get_name();
-  /// rename to "tan_main", as it will be called by the real main function in runtime/main.cpp
-  if (func_name == "main") {
-    p->set_name(func_name = "tan_main");
-    p->set_public(true);
-  }
-
-  /// generate prototype
-  auto *F = (Function *)codegen_func_prototype(p);
-
-  /// set function arg types
-  vector<Metadata *> arg_metas;
-  for (size_t i = 0; i < p->get_n_args(); ++i) {
-    auto ty = func_type->get_arg_types()[i];
-    arg_metas.push_back(to_llvm_metadata(ty, p->loc()));
-  }
-
-  /// function implementation
-  if (!p->is_external()) {
-    /// create a new basic block to start insertion into
-    BasicBlock *main_block = BasicBlock::Create(*_llvm_ctx, "func_entry", F);
-    _builder->SetInsertPoint(main_block);
-
-    /// debug information
-    DIScope *di_scope = get_current_di_scope();
-    auto *di_func_t = create_function_debug_info_type(ret_meta, arg_metas);
-    DISubprogram *subprogram = _di_builder->createFunction(
-        di_scope, func_name, func_name, _di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
-        DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
-    F->setSubprogram(subprogram);
-    push_di_scope(subprogram);
-
-    /// add_ctx all function arguments to scope
-    size_t i = 0;
-    for (auto &a : F->args()) {
-      auto arg_name = p->get_arg_name(i);
-      auto *arg_val = codegen(p->get_arg_decls()[i]);
-      _builder->CreateStore(&a, arg_val);
-
-      /// create a debug descriptor for the arguments
-      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->loc());
-      llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
-          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
-      _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
-                                 debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
-      ++i;
-    }
-
-    /// generate function body
-    codegen(p->get_body());
-
-    /// create a return instruction if there is none, the return value is the default value of the return type
-    auto *trailing_block = _builder->GetInsertBlock();
-    if (trailing_block->sizeWithoutDebug() == 0 || !trailing_block->back().isTerminator()) {
-      if (ret_ty->is_void()) {
-        _builder->CreateRetVoid();
-      } else {
-        auto *ret_val = codegen_type_instantiation(ret_ty);
-        TAN_ASSERT(ret_val);
-        _builder->CreateRet(ret_val);
-      }
-    }
-    pop_di_scope();
-  }
-
-  return F;
-}
-
-void CodeGenerator::set_current_debug_location(ASTBase *p) {
-  unsigned line = _sm->get_line(p->loc()) + 1;
-  unsigned col = _sm->get_col(p->loc()) + 1;
-  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
-}
-
-Value *CodeGenerator::codegen_bnot(ASTBase *_p) {
-  auto p = ast_cast<UnaryOperator>(_p);
-
-  auto *rhs = codegen(p->get_rhs());
-  if (!rhs) {
-    error(p, "Invalid operand");
-  }
-  if (p->get_rhs()->is_lvalue()) {
-    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
-  }
-  return _builder->CreateNot(rhs);
-}
-
-Value *CodeGenerator::codegen_lnot(ASTBase *_p) {
-  auto p = ast_cast<UnaryOperator>(_p);
-
-  auto *rhs = codegen(p->get_rhs());
-
-  if (!rhs) {
-    error(p, "Invalid operand");
-  }
-
-  if (p->get_rhs()->is_lvalue()) {
-    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
-  }
-  /// get value size in bits
-  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
-  if (rhs->getType()->isFloatingPointTy()) {
-    return _builder->CreateFCmpOEQ(rhs, ConstantFP::get(_builder->getFloatTy(), 0.0f));
-  } else if (rhs->getType()->isSingleValueType()) {
-    return _builder->CreateICmpEQ(rhs, ConstantInt::get(_builder->getIntNTy((unsigned)size_in_bits), 0, false));
-  }
-
-  error(p, "Invalid operand");
-}
-
-Value *CodeGenerator::codegen_return(ASTBase *_p) {
-  auto p = ast_cast<Return>(_p);
-
-  auto rhs = p->get_rhs();
-  if (rhs) { /// return with value
-    Value *result = codegen(rhs);
-    if (rhs->is_lvalue()) {
-      result = _builder->CreateLoad(to_llvm_type(rhs->get_type()), result);
-    }
-    _builder->CreateRet(result);
-  } else { /// return void
-    _builder->CreateRetVoid();
-  }
-  return nullptr;
-}
-
-Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
-  auto p = ast_cast<Decl>(_p);
-
+Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
   llvm::Type *type = to_llvm_type(p->get_type());
   auto *ret = create_block_alloca(_builder->GetInsertBlock(), type, 1, p->get_name());
 
   /// default value of only var declaration
   if (p->get_node_type() == ASTNodeType::VAR_DECL) {
-    auto *default_value = codegen_type_instantiation(p->get_type());
+    auto *default_value = codegen_type_default_value(p->get_type());
     if (!default_value) {
       error(p, "Fail to instantiate this type");
     }
@@ -645,86 +402,13 @@ Value *CodeGenerator::codegen_var_arg_decl(ASTBase *_p) {
     auto *arg_meta = to_llvm_metadata(p->get_type(), p->loc());
     auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
                                                    (DIType *)arg_meta);
-    _di_builder->insertDeclare(
-        ret, di_arg, _di_builder->createExpression(),
-        DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
-        _builder->GetInsertBlock());
+    _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
+                               _builder->GetInsertBlock());
   }
   return ret;
 }
 
-Value *CodeGenerator::codegen_address_of(ASTBase *_p) {
-  auto p = ast_cast<UnaryOperator>(_p);
-
-  if (!p->get_rhs()->is_lvalue()) {
-    error(p, "Cannot get address of rvalue");
-  }
-
-  return codegen(p->get_rhs());
-}
-
-Value *CodeGenerator::codegen_parenthesis(ASTBase *_p) {
-  auto p = ast_cast<Parenthesis>(_p);
-  return codegen(p->get_sub());
-}
-
-Value *CodeGenerator::codegen_import(ASTBase *_p) {
-  auto p = ast_cast<Import>(_p);
-
-  for (FunctionDecl *f : p->get_imported_funcs()) {
-    /// do nothing for already defined intrinsics
-    auto *func = _module->getFunction(f->get_name());
-    if (func) {
-      _llvm_value_cache[f] = func;
-    }
-    _llvm_value_cache[f] = codegen_func_prototype(f);
-  }
-
-  return nullptr;
-}
-
-Value *CodeGenerator::codegen_intrinsic(Intrinsic *p) {
-  Value *ret = nullptr;
-  switch (p->get_intrinsic_type()) {
-    /// trivial codegen
-  case IntrinsicType::GET_DECL:
-  case IntrinsicType::LINENO:
-  case IntrinsicType::ABORT:
-  case IntrinsicType::STACK_TRACE:
-  case IntrinsicType::FILENAME: {
-    ret = codegen(p->get_sub());
-    break;
-  }
-  case IntrinsicType::NOOP:
-  default:
-    break;
-  }
-  return ret;
-}
-
-Value *CodeGenerator::codegen_constructor(Constructor *p) {
-  Value *ret = nullptr;
-  switch (p->get_type()) {
-  case ConstructorType::BASIC:
-    ret = codegen(((BasicConstructor *)p)->get_value());
-    break;
-  case ConstructorType::STRUCT: {
-    auto *ctr = (StructConstructor *)p;
-    vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
-    vector<Constant *> values{};
-    values.reserve(sub_ctrs.size());
-    std::transform(sub_ctrs.begin(), sub_ctrs.end(), values.begin(),
-                   [&](Constructor *c) { return (Constant *)codegen_constructor(c); });
-    ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(ctr->get_struct_type()), values);
-    break;
-  }
-  default:
-    TAN_ASSERT(false);
-  }
-  return ret;
-}
-
-Value *CodeGenerator::codegen_type_instantiation(Type *p) {
+Value *CodeGenerator::codegen_type_default_value(Type *p) {
   // TODO: TAN_ASSERT(p->get_constructor());
   TAN_ASSERT(!p->is_ref());
 
@@ -751,7 +435,7 @@ Value *CodeGenerator::codegen_type_instantiation(Type *p) {
     auto member_types = ((StructType *)p)->get_member_types();
     vector<Constant *> values(member_types.size(), nullptr);
     for (size_t i = 0; i < member_types.size(); ++i) {
-      values[i] = (llvm::Constant *)codegen_type_instantiation(member_types[i]);
+      values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
     }
     ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(p), values);
   } else if (p->is_array()) { /// array as pointer
@@ -767,9 +451,29 @@ Value *CodeGenerator::codegen_type_instantiation(Type *p) {
   return ret;
 }
 
-Value *CodeGenerator::codegen_literals(ASTBase *_p) {
-  auto p = ast_cast<Literal>(_p);
+Value *CodeGenerator::codegen_constructor(Constructor *p) {
+  Value *ret = nullptr;
+  switch (p->get_type()) {
+  case ConstructorType::BASIC:
+    ret = cached_visit(((BasicConstructor *)p)->get_value());
+    break;
+  case ConstructorType::STRUCT: {
+    auto *ctr = (StructConstructor *)p;
+    vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
+    vector<Constant *> values{};
+    values.reserve(sub_ctrs.size());
+    std::transform(sub_ctrs.begin(), sub_ctrs.end(), values.begin(),
+                   [&](Constructor *c) { return (Constant *)codegen_constructor(c); });
+    ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(ctr->get_struct_type()), values);
+    break;
+  }
+  default:
+    TAN_ASSERT(false);
+  }
+  return ret;
+}
 
+Value *CodeGenerator::codegen_literals(Literal *p) {
   llvm::Type *type = to_llvm_type(p->get_type());
   Value *ret = nullptr;
   Type *ptype = p->get_type();
@@ -806,7 +510,7 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
     ret = create_block_alloca(_builder->GetInsertBlock(), e_type, n, "const_array");
     for (size_t i = 0; i < n; ++i) {
       auto *idx = _builder->getInt32((unsigned)i);
-      auto *e_val = codegen(elements[i]);
+      auto *e_val = cached_visit(elements[i]);
       auto *e_ptr = _builder->CreateGEP(e_type, ret, idx);
       _builder->CreateStore(e_val, e_ptr);
     }
@@ -819,122 +523,116 @@ Value *CodeGenerator::codegen_literals(ASTBase *_p) {
   return ret;
 }
 
-Value *CodeGenerator::codegen_stmt(ASTBase *_p) {
-  auto p = ast_cast<CompoundStmt>(_p);
-
-  for (const auto &e : p->get_children()) {
-    codegen(e);
+Value *CodeGenerator::codegen_func_prototype(FunctionDecl *p, bool import_) {
+  auto linkage = Function::InternalLinkage;
+  if (p->is_external()) {
+    linkage = Function::ExternalWeakLinkage;
   }
-  return nullptr;
-}
-
-Value *CodeGenerator::codegen_uop(ASTBase *_p) {
-  auto p = ast_cast<UnaryOperator>(_p);
-  Value *ret = nullptr;
-
-  auto rhs = p->get_rhs();
-  switch (p->get_op()) {
-  case UnaryOpKind::LNOT:
-    ret = codegen_lnot(p);
-    break;
-  case UnaryOpKind::BNOT:
-    ret = codegen_bnot(p);
-    break;
-  case UnaryOpKind::ADDRESS_OF:
-    ret = codegen_address_of(p);
-    break;
-  case UnaryOpKind::PTR_DEREF:
-    ret = codegen_ptr_deref(p);
-    break;
-  case UnaryOpKind::PLUS:
-    ret = codegen(rhs);
-    break;
-  case UnaryOpKind::MINUS: {
-    auto *r = codegen(rhs);
-    if (rhs->is_lvalue()) {
-      r = _builder->CreateLoad(to_llvm_type(rhs->get_type()), r);
-    }
-    if (r->getType()->isFloatingPointTy()) {
-      ret = _builder->CreateFNeg(r);
+  if (p->is_public()) {
+    if (import_) {
+      linkage = Function::ExternalWeakLinkage;
     } else {
-      ret = _builder->CreateNeg(r);
+      linkage = Function::ExternalLinkage;
     }
-    break;
   }
-  default:
-    TAN_ASSERT(false);
-    break;
-  }
-  return ret;
+  Function *func = Function::Create((llvm::FunctionType *)to_llvm_type(p->get_type()), linkage, p->get_name(), _module);
+  func->setCallingConv(llvm::CallingConv::C);
+  return func;
 }
 
-Value *CodeGenerator::codegen_bop(ASTBase *_p) {
-  auto p = ast_cast<BinaryOperator>(_p);
-  Value *ret = nullptr;
-
-  switch (p->get_op()) {
-  case BinaryOpKind::SUM:
-  case BinaryOpKind::SUBTRACT:
-  case BinaryOpKind::MULTIPLY:
-  case BinaryOpKind::DIVIDE:
-  case BinaryOpKind::MOD:
-    ret = codegen_arithmetic(p);
-    break;
-  case BinaryOpKind::BAND:
-  case BinaryOpKind::LAND:
-  case BinaryOpKind::BOR:
-  case BinaryOpKind::LOR:
-  case BinaryOpKind::XOR:
-    ret = codegen_relop(p);
-    break;
-  case BinaryOpKind::GT:
-  case BinaryOpKind::GE:
-  case BinaryOpKind::LT:
-  case BinaryOpKind::LE:
-  case BinaryOpKind::EQ:
-  case BinaryOpKind::NE:
-    ret = codegen_comparison(p);
-    break;
-  case BinaryOpKind::MEMBER_ACCESS:
-    ret = codegen_member_access(ast_cast<MemberAccess>(p));
-    break;
-  default:
-    TAN_ASSERT(false);
-    break;
-  }
-
-  return ret;
-}
-
-Value *CodeGenerator::codegen_assignment(ASTBase *_p) {
-  auto p = ast_cast<Assignment>(_p);
-
-  /// codegen the lhs and rhs
-  auto *lhs = ast_cast<Expr>(p->get_lhs());
+Value *CodeGenerator::codegen_ptr_deref(UnaryOperator *p) {
   auto *rhs = p->get_rhs();
+  Value *val = cached_visit(rhs);
+  TAN_ASSERT(val->getType()->isPointerTy());
 
-  // type of lhs is the same as type of the assignment
-  if (!lhs->is_lvalue()) {
-    error(lhs, "Value can only be assigned to an lvalue");
+  /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
+  if (rhs->is_lvalue()) {
+    val = _builder->CreateLoad(to_llvm_type(rhs->get_type()), val, "ptr_deref");
   }
-
-  Value *from = codegen(rhs);
-  from = load_if_is_lvalue(rhs);
-  Value *to = codegen(lhs);
-  TAN_ASSERT(from && to);
-
-  _builder->CreateStore(from, to);
-  return to;
+  return val;
 }
 
-Value *CodeGenerator::codegen_arithmetic(ASTBase *_p) {
-  auto p = ast_cast<BinaryOperator>(_p);
+Value *CodeGenerator::codegen_relop(BinaryOperator *p) {
+  auto lhs = p->get_lhs();
+  auto rhs = p->get_rhs();
+  Value *l = cached_visit(lhs);
+  Value *r = cached_visit(rhs);
 
+  r = load_if_is_lvalue(rhs);
+  l = load_if_is_lvalue(lhs);
+
+  Value *ret = nullptr;
+  switch (p->get_op()) {
+  case BinaryOpKind::BAND:
+    ret = _builder->CreateAnd(l, r, "binary_and");
+    break;
+  case BinaryOpKind::LAND:
+    ret = _builder->CreateAnd(l, r, "logical_and");
+    break;
+  case BinaryOpKind::BOR:
+    ret = _builder->CreateOr(l, r, "binary_or");
+    break;
+  case BinaryOpKind::LOR:
+    ret = _builder->CreateOr(l, r, "logical_or");
+    break;
+  case BinaryOpKind::XOR:
+    ret = _builder->CreateXor(l, r, "logical_or");
+    break;
+  default:
+    TAN_ASSERT(false);
+    break;
+  }
+
+  TAN_ASSERT(ret);
+  return ret;
+}
+
+Value *CodeGenerator::codegen_bnot(UnaryOperator *p) {
+  auto *rhs = cached_visit(p->get_rhs());
+  if (!rhs) {
+    error(p, "Invalid operand");
+  }
+  if (p->get_rhs()->is_lvalue()) {
+    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
+  }
+  return _builder->CreateNot(rhs);
+}
+
+Value *CodeGenerator::codegen_lnot(UnaryOperator *p) {
+  auto *rhs = cached_visit(p->get_rhs());
+
+  if (!rhs) {
+    error(p, "Invalid operand");
+  }
+
+  if (p->get_rhs()->is_lvalue()) {
+    rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
+  }
+  /// get value size in bits
+  auto size_in_bits = rhs->getType()->getPrimitiveSizeInBits();
+  if (rhs->getType()->isFloatingPointTy()) {
+    return _builder->CreateFCmpOEQ(rhs, ConstantFP::get(_builder->getFloatTy(), 0.0f));
+  } else if (rhs->getType()->isSingleValueType()) {
+    return _builder->CreateICmpEQ(rhs, ConstantInt::get(_builder->getIntNTy((unsigned)size_in_bits), 0, false));
+  }
+
+  error(p, "Invalid operand");
+}
+
+Value *CodeGenerator::codegen_address_of(UnaryOperator *p) {
+  if (!p->get_rhs()->is_lvalue()) {
+    error(p, "Cannot get address of rvalue");
+  }
+
+  return cached_visit(p->get_rhs());
+}
+
+Value *CodeGenerator::codegen_arithmetic(BinaryOperator *p) {
   /// binary operator
   auto *lhs = p->get_lhs();
   auto *rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
+  Value *l = cached_visit(lhs);
+  Value *r = cached_visit(rhs);
   r = load_if_is_lvalue(rhs);
   l = load_if_is_lvalue(lhs);
 
@@ -1001,13 +699,11 @@ Value *CodeGenerator::codegen_arithmetic(ASTBase *_p) {
   return ret;
 }
 
-Value *CodeGenerator::codegen_comparison(ASTBase *_p) {
-  auto p = ast_cast<BinaryOperator>(_p);
-
+Value *CodeGenerator::codegen_comparison(BinaryOperator *p) {
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
+  Value *l = cached_visit(lhs);
+  Value *r = cached_visit(rhs);
 
   bool is_signed = !lhs->get_type()->is_unsigned();
   r = load_if_is_lvalue(rhs);
@@ -1084,49 +780,242 @@ Value *CodeGenerator::codegen_comparison(ASTBase *_p) {
   return ret;
 }
 
-Value *CodeGenerator::codegen_relop(ASTBase *_p) {
-  auto p = ast_cast<BinaryOperator>(_p);
-
+Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
+  auto *p = ast_cast<MemberAccess>(_p);
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
-  Value *l = codegen(lhs);
-  Value *r = codegen(rhs);
 
-  r = load_if_is_lvalue(rhs);
-  l = load_if_is_lvalue(lhs);
+  auto *lhs_val = cached_visit(lhs);
 
   Value *ret = nullptr;
+  switch (p->_access_type) {
+  case MemberAccess::MemberAccessBracket: {
+    lhs_val = load_if_is_lvalue(lhs);
+
+    cached_visit(rhs);
+    auto *rhs_val = load_if_is_lvalue(rhs);
+
+    llvm::Type *element_type = nullptr;
+    if (lhs->get_type()->is_array()) { /// array
+      auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
+      element_type = to_llvm_type(lhs_type->get_element_type());
+    } else if (lhs->get_type()->is_string()) {  /// string
+      element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
+    } else if (lhs->get_type()->is_pointer()) { /// pointer
+      auto *lhs_type = (tanlang::PointerType *)lhs->get_type();
+      element_type = to_llvm_type(lhs_type->get_pointee());
+    } else {
+      TAN_ASSERT(false);
+    }
+    ret = _builder->CreateGEP(element_type, lhs_val, rhs_val, "bracket_access");
+    break;
+  }
+  case MemberAccess::MemberAccessMemberVariable: {
+    StructType *st = nullptr;
+    if (lhs->get_type()->is_pointer()) { /// auto dereference pointers
+      lhs_val = load_if_is_lvalue(lhs);
+      st = (StructType *)((PointerType *)lhs->get_type())->get_pointee();
+    } else {
+      st = (StructType *)lhs->get_type();
+    }
+    TAN_ASSERT(st->is_struct());
+    TAN_ASSERT(lhs_val->getType()->isPointerTy());
+
+    lhs_val->getType()->print(llvm::outs());
+    ret = _builder->CreateStructGEP(to_llvm_type(st), lhs_val, (unsigned)p->_access_idx, "member_variable");
+    break;
+  }
+  case MemberAccess::MemberAccessMemberFunction:
+    // TODO: codegen for member function call
+    ret = cached_visit(rhs);
+    break;
+  default:
+    TAN_ASSERT(false);
+  }
+
+  return ret;
+}
+
+// ===================================================
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Program) {
+  for (auto *c : p->get_children()) {
+    cached_visit(c);
+  }
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Identifier) {
+  switch (p->get_id_type()) {
+  case IdentifierType::ID_VAR_REF:
+    _llvm_value_cache[p] = cached_visit(p->get_var_ref());
+    break;
+  case IdentifierType::ID_TYPE_REF:
+  default:
+    TAN_ASSERT(false);
+    break;
+  }
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Parenthesis) { _llvm_value_cache[p] = cached_visit(p->get_sub()); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, If) {
+  Function *func = _builder->GetInsertBlock()->getParent();
+  size_t n = p->get_num_branches();
+
+  /// create basic blocks
+  vector<BasicBlock *> cond_blocks(n);
+  vector<BasicBlock *> then_blocks(n);
+  for (size_t i = 0; i < n; ++i) {
+    cond_blocks[i] = BasicBlock::Create(*_llvm_ctx, "cond", func);
+    then_blocks[i] = BasicBlock::Create(*_llvm_ctx, "branch", func);
+  }
+  BasicBlock *merge_bb = BasicBlock::Create(*_llvm_ctx, "endif", func);
+
+  /// codegen branches
+  _builder->CreateBr(cond_blocks[0]);
+  for (size_t i = 0; i < n; ++i) {
+    /// condition
+    _builder->SetInsertPoint(cond_blocks[i]);
+
+    Expr *cond = p->get_predicate(i);
+    if (!cond) {              /// else clause, immediately go to then block
+      TAN_ASSERT(i == n - 1); /// only the last branch can be an else
+      _builder->CreateBr(then_blocks[i]);
+    } else {
+      cached_visit(cond);
+      Value *cond_v = load_if_is_lvalue(cond);
+      if (i < n - 1) {
+        _builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
+      } else {
+        _builder->CreateCondBr(cond_v, then_blocks[i], merge_bb);
+      }
+    }
+
+    /// then clause
+    _builder->SetInsertPoint(then_blocks[i]);
+    cached_visit(p->get_branch(i));
+
+    /// go to merge block if there is no terminator instruction at the end of then
+    if (!_builder->GetInsertBlock()->back().isTerminator()) {
+      _builder->CreateBr(merge_bb);
+    }
+  }
+
+  /// emit merge block
+  _builder->SetInsertPoint(merge_bb);
+
+  _llvm_value_cache[p] = nullptr;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, VarDecl) { _llvm_value_cache[p] = codegen_var_arg_decl(p); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, ArgDecl) { _llvm_value_cache[p] = codegen_var_arg_decl(p); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Return) {
+  auto rhs = p->get_rhs();
+  if (rhs) { /// return with value
+    Value *result = cached_visit(rhs);
+    if (rhs->is_lvalue()) {
+      result = _builder->CreateLoad(to_llvm_type(rhs->get_type()), result);
+    }
+    _builder->CreateRet(result);
+  } else { /// return void
+    _builder->CreateRetVoid();
+  }
+  _llvm_value_cache[p] = nullptr;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, CompoundStmt) {
+  for (auto *c : p->get_children()) {
+    cached_visit(c);
+  }
+  _llvm_value_cache[p] = nullptr;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, BinaryOrUnary) { _llvm_value_cache[p] = cached_visit(p->get_expr_ptr()); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, BinaryOperator) {
+  Value *ret = nullptr;
+
   switch (p->get_op()) {
+  case BinaryOpKind::SUM:
+  case BinaryOpKind::SUBTRACT:
+  case BinaryOpKind::MULTIPLY:
+  case BinaryOpKind::DIVIDE:
+  case BinaryOpKind::MOD:
+    ret = codegen_arithmetic(p);
+    break;
   case BinaryOpKind::BAND:
-    ret = _builder->CreateAnd(l, r, "binary_and");
-    break;
   case BinaryOpKind::LAND:
-    ret = _builder->CreateAnd(l, r, "logical_and");
-    break;
   case BinaryOpKind::BOR:
-    ret = _builder->CreateOr(l, r, "binary_or");
-    break;
   case BinaryOpKind::LOR:
-    ret = _builder->CreateOr(l, r, "logical_or");
-    break;
   case BinaryOpKind::XOR:
-    ret = _builder->CreateXor(l, r, "logical_or");
+    ret = codegen_relop(p);
+    break;
+  case BinaryOpKind::GT:
+  case BinaryOpKind::GE:
+  case BinaryOpKind::LT:
+  case BinaryOpKind::LE:
+  case BinaryOpKind::EQ:
+  case BinaryOpKind::NE:
+    ret = codegen_comparison(p);
+    break;
+  case BinaryOpKind::MEMBER_ACCESS:
+    ret = codegen_member_access(p);
     break;
   default:
     TAN_ASSERT(false);
     break;
   }
 
-  TAN_ASSERT(ret);
-  return ret;
+  _llvm_value_cache[p] = ret;
 }
 
-Value *CodeGenerator::codegen_cast(ASTBase *_p) {
-  auto p = ast_cast<Cast>(_p);
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, UnaryOperator) {
+  Value *ret = nullptr;
+
+  auto rhs = p->get_rhs();
+  switch (p->get_op()) {
+  case UnaryOpKind::LNOT:
+    ret = codegen_lnot(p);
+    break;
+  case UnaryOpKind::BNOT:
+    ret = codegen_bnot(p);
+    break;
+  case UnaryOpKind::ADDRESS_OF:
+    ret = codegen_address_of(p);
+    break;
+  case UnaryOpKind::PTR_DEREF:
+    ret = codegen_ptr_deref(p);
+    break;
+  case UnaryOpKind::PLUS:
+    ret = cached_visit(rhs);
+    break;
+  case UnaryOpKind::MINUS: {
+    auto *r = cached_visit(rhs);
+    if (rhs->is_lvalue()) {
+      r = _builder->CreateLoad(to_llvm_type(rhs->get_type()), r);
+    }
+    if (r->getType()->isFloatingPointTy()) {
+      ret = _builder->CreateFNeg(r);
+    } else {
+      ret = _builder->CreateNeg(r);
+    }
+    break;
+  }
+  default:
+    TAN_ASSERT(false);
+    break;
+  }
+
+  _llvm_value_cache[p] = ret;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Cast) {
   auto lhs = p->get_lhs();
   auto *dest_type = to_llvm_type(p->get_type());
 
-  Value *val = codegen(lhs);
+  Value *val = cached_visit(lhs);
   TAN_ASSERT(val);
 
   Value *ret = nullptr;
@@ -1137,54 +1026,177 @@ Value *CodeGenerator::codegen_cast(ASTBase *_p) {
   } else {
     ret = val;
   }
-  return ret;
+
+  _llvm_value_cache[p] = ret;
 }
 
-Value *CodeGenerator::codegen_var_ref(ASTBase *_p) {
-  auto p = ast_cast<VarRef>(_p);
-  return codegen(p->get_referred());
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Assignment) {
+  /// codegen the lhs and rhs
+  auto *lhs = ast_cast<Expr>(p->get_lhs());
+  auto *rhs = p->get_rhs();
+
+  // type of lhs is the same as type of the assignment
+  if (!lhs->is_lvalue()) {
+    error(lhs, "Value can only be assigned to an lvalue");
+  }
+
+  Value *from = cached_visit(rhs);
+  from = load_if_is_lvalue(rhs);
+  Value *to = cached_visit(lhs);
+  TAN_ASSERT(from && to);
+
+  _builder->CreateStore(from, to);
+
+  _llvm_value_cache[p] = to;
 }
 
-Value *CodeGenerator::codegen_identifier(ASTBase *_p) {
-  auto p = ast_cast<Identifier>(_p);
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionCall) {
+  FunctionDecl *callee = p->_callee;
+  auto *callee_type = (tanlang::FunctionType *)callee->get_type();
+  size_t n = callee->get_n_args();
 
-  switch (p->get_id_type()) {
-  case IdentifierType::ID_VAR_REF:
-    return codegen(p->get_var_ref());
-  case IdentifierType::ID_TYPE_REF:
-  default:
-    TAN_ASSERT(false);
+  // args
+  vector<Value *> arg_vals;
+  for (size_t i = 0; i < n; ++i) {
+    auto actual_arg = p->_args[i];
+    auto *a = cached_visit(actual_arg);
+    if (!a) {
+      error(actual_arg, "Invalid function call argument");
+    }
+
+    // implicit cast
+    auto expected_ty = callee_type->get_arg_types()[i];
+    a = convert_llvm_type_to(actual_arg, expected_ty);
+    arg_vals.push_back(a);
+  }
+
+  auto *func_type = (llvm::FunctionType *)to_llvm_type(callee->get_type());
+  auto *F = cached_visit(callee);
+
+  _llvm_value_cache[p] = _builder->CreateCall(func_type, F, arg_vals);
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
+  auto *func_type = (tanlang::FunctionType *)p->get_type();
+
+  auto ret_ty = func_type->get_return_type();
+  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->loc());
+
+  /// get function name
+  str func_name = p->get_name();
+  /// rename to "tan_main", as it will be called by the real main function in runtime/main.cpp
+  if (func_name == "main") {
+    p->set_name(func_name = "tan_main");
+    p->set_public(true);
+  }
+
+  /// generate prototype
+  auto *F = (Function *)codegen_func_prototype(p);
+
+  /// set function arg types
+  vector<Metadata *> arg_metas;
+  for (size_t i = 0; i < p->get_n_args(); ++i) {
+    auto ty = func_type->get_arg_types()[i];
+    arg_metas.push_back(to_llvm_metadata(ty, p->loc()));
+  }
+
+  /// function implementation
+  if (!p->is_external()) {
+    /// create a new basic block to start insertion into
+    BasicBlock *main_block = BasicBlock::Create(*_llvm_ctx, "func_entry", F);
+    _builder->SetInsertPoint(main_block);
+
+    /// debug information
+    DIScope *di_scope = get_current_di_scope();
+    auto *di_func_t = create_function_debug_info_type(ret_meta, arg_metas);
+    DISubprogram *subprogram = _di_builder->createFunction(
+        di_scope, func_name, func_name, _di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
+        DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
+    F->setSubprogram(subprogram);
+    push_di_scope(subprogram);
+
+    /// add_ctx all function arguments to scope
+    size_t i = 0;
+    for (auto &a : F->args()) {
+      auto arg_name = p->get_arg_name(i);
+      auto *arg_val = cached_visit(p->get_arg_decls()[i]);
+      _builder->CreateStore(&a, arg_val);
+
+      /// create a debug descriptor for the arguments
+      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->loc());
+      llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
+          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
+      _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
+                                 debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
+      ++i;
+    }
+
+    /// generate function body
+    cached_visit(p->get_body());
+
+    /// create a return instruction if there is none, the return value is the default value of the return type
+    auto *trailing_block = _builder->GetInsertBlock();
+    if (trailing_block->sizeWithoutDebug() == 0 || !trailing_block->back().isTerminator()) {
+      if (ret_ty->is_void()) {
+        _builder->CreateRetVoid();
+      } else {
+        auto *ret_val = codegen_type_default_value(ret_ty);
+        TAN_ASSERT(ret_val);
+        _builder->CreateRet(ret_val);
+      }
+    }
+    pop_di_scope();
+  }
+
+  _llvm_value_cache[p] = F;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Import) {
+  for (FunctionDecl *f : p->get_imported_funcs()) {
+    /// do nothing for already defined intrinsics
+    auto *func = _module->getFunction(f->get_name());
+    if (func) {
+      _llvm_value_cache[f] = func;
+    }
+    _llvm_value_cache[f] = codegen_func_prototype(f);
+  }
+
+  _llvm_value_cache[p] = nullptr;
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Intrinsic) {
+  Value *ret = nullptr;
+  switch (p->get_intrinsic_type()) {
+    /// trivial codegen
+  case IntrinsicType::GET_DECL:
+  case IntrinsicType::LINENO:
+  case IntrinsicType::ABORT:
+  case IntrinsicType::STACK_TRACE:
+  case IntrinsicType::FILENAME: {
+    ret = cached_visit(p->get_sub());
     break;
   }
-}
-
-Value *CodeGenerator::codegen_binary_or_unary(ASTBase *_p) {
-  auto p = ast_cast<BinaryOrUnary>(_p);
-  return codegen(p->get_expr_ptr());
-}
-
-Value *CodeGenerator::codegen_break_continue(ASTBase *_p) {
-  auto *p = ast_cast<BreakContinue>(_p);
-  auto loop = p->get_parent_loop();
-  TAN_ASSERT(loop);
-
-  auto s = loop->_loop_start;
-  auto e = loop->_loop_end;
-  TAN_ASSERT(s);
-  TAN_ASSERT(e);
-
-  if (p->get_node_type() == ASTNodeType::BREAK) {
-    _builder->CreateBr(e);
-  } else if (p->get_node_type() == ASTNodeType::CONTINUE) {
-    _builder->CreateBr(s);
-  } else {
-    TAN_ASSERT(false);
+  case IntrinsicType::NOOP:
+  default:
+    break;
   }
-  return nullptr;
+
+  _llvm_value_cache[p] = ret;
 }
 
-Value *CodeGenerator::codegen_loop(ASTBase *_p) {
-  auto p = ast_cast<Loop>(_p);
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, ArrayLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, CharLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, BoolLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, IntegerLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, FloatLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, StringLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, NullPointerLiteral) { _llvm_value_cache[p] = codegen_literals(p); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, StructDecl) {
+  // don't do anything
+}
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Loop) {
   if (p->_loop_type == ASTLoopType::WHILE) {
     /*
      * Results should like this:
@@ -1215,7 +1227,7 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
 
     /// condition
     _builder->SetInsertPoint(p->_loop_start);
-    auto *cond = codegen(p->get_predicate());
+    auto *cond = cached_visit(p->get_predicate());
     if (!cond) {
       error(p, "Expected a condition expression");
     }
@@ -1223,7 +1235,7 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
 
     /// loop body
     _builder->SetInsertPoint(loop_body);
-    codegen(p->get_body());
+    cached_visit(p->get_body());
 
     /// go back to the start of the loop
     // create a br instruction if there is no terminator instruction at the end of this block
@@ -1237,125 +1249,29 @@ Value *CodeGenerator::codegen_loop(ASTBase *_p) {
     TAN_ASSERT(false);
   }
 
-  return nullptr;
+  _llvm_value_cache[p] = nullptr;
 }
 
-Value *CodeGenerator::codegen_if(ASTBase *_p) {
-  auto p = ast_cast<If>(_p);
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, BreakContinue) {
+  auto loop = p->get_parent_loop();
+  TAN_ASSERT(loop);
 
-  Function *func = _builder->GetInsertBlock()->getParent();
-  size_t n = p->get_num_branches();
+  auto s = loop->_loop_start;
+  auto e = loop->_loop_end;
+  TAN_ASSERT(s);
+  TAN_ASSERT(e);
 
-  /// create basic blocks
-  vector<BasicBlock *> cond_blocks(n);
-  vector<BasicBlock *> then_blocks(n);
-  for (size_t i = 0; i < n; ++i) {
-    cond_blocks[i] = BasicBlock::Create(*_llvm_ctx, "cond", func);
-    then_blocks[i] = BasicBlock::Create(*_llvm_ctx, "branch", func);
-  }
-  BasicBlock *merge_bb = BasicBlock::Create(*_llvm_ctx, "endif", func);
-
-  /// codegen branches
-  _builder->CreateBr(cond_blocks[0]);
-  for (size_t i = 0; i < n; ++i) {
-    /// condition
-    _builder->SetInsertPoint(cond_blocks[i]);
-
-    Expr *cond = p->get_predicate(i);
-    if (!cond) {              /// else clause, immediately go to then block
-      TAN_ASSERT(i == n - 1); /// only the last branch can be an else
-      _builder->CreateBr(then_blocks[i]);
-    } else {
-      codegen(cond);
-      Value *cond_v = load_if_is_lvalue(cond);
-      if (i < n - 1) {
-        _builder->CreateCondBr(cond_v, then_blocks[i], cond_blocks[i + 1]);
-      } else {
-        _builder->CreateCondBr(cond_v, then_blocks[i], merge_bb);
-      }
-    }
-
-    /// then clause
-    _builder->SetInsertPoint(then_blocks[i]);
-    codegen(p->get_branch(i));
-
-    /// go to merge block if there is no terminator instruction at the end of then
-    if (!_builder->GetInsertBlock()->back().isTerminator()) {
-      _builder->CreateBr(merge_bb);
-    }
-  }
-
-  /// emit merge block
-  _builder->SetInsertPoint(merge_bb);
-  return nullptr;
-}
-
-Value *CodeGenerator::codegen_member_access(MemberAccess *p) {
-  auto lhs = p->get_lhs();
-  auto rhs = p->get_rhs();
-
-  auto *lhs_val = codegen(lhs);
-
-  Value *ret = nullptr;
-  switch (p->_access_type) {
-  case MemberAccess::MemberAccessBracket: {
-    lhs_val = load_if_is_lvalue(lhs);
-
-    codegen(rhs);
-    auto *rhs_val = load_if_is_lvalue(rhs);
-
-    llvm::Type *element_type = nullptr;
-    if (lhs->get_type()->is_array()) { /// array
-      auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
-      element_type = to_llvm_type(lhs_type->get_element_type());
-    } else if (lhs->get_type()->is_string()) { /// string
-      element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
-    } else if (lhs->get_type()->is_pointer()) { /// pointer
-      auto *lhs_type = (tanlang::PointerType *)lhs->get_type();
-      element_type = to_llvm_type(lhs_type->get_pointee());
-    } else {
-      TAN_ASSERT(false);
-    }
-    ret = _builder->CreateGEP(element_type, lhs_val, rhs_val, "bracket_access");
-    break;
-  }
-  case MemberAccess::MemberAccessMemberVariable: {
-    StructType *st = nullptr;
-    if (lhs->get_type()->is_pointer()) { /// auto dereference pointers
-      lhs_val = load_if_is_lvalue(lhs);
-      st = (StructType *)((PointerType *)lhs->get_type())->get_pointee();
-    } else {
-      st = (StructType *)lhs->get_type();
-    }
-    TAN_ASSERT(st->is_struct());
-    TAN_ASSERT(lhs_val->getType()->isPointerTy());
-
-    lhs_val->getType()->print(llvm::outs());
-    unsigned idx = (unsigned)p->_access_idx;
-    ret = _builder->CreateStructGEP(to_llvm_type(st), lhs_val, idx, "member_variable");
-    break;
-  }
-  case MemberAccess::MemberAccessMemberFunction:
-    // TODO: codegen for member function call
-    ret = codegen(rhs);
-    break;
-  default:
+  if (p->get_node_type() == ASTNodeType::BREAK) {
+    _builder->CreateBr(e);
+  } else if (p->get_node_type() == ASTNodeType::CONTINUE) {
+    _builder->CreateBr(s);
+  } else {
     TAN_ASSERT(false);
   }
 
-  return ret;
+  _llvm_value_cache[p] = nullptr;
 }
 
-Value *CodeGenerator::codegen_ptr_deref(UnaryOperator *p) {
-  auto *rhs = p->get_rhs();
-  Value *val = codegen(rhs);
-  TAN_ASSERT(val->getType()->isPointerTy());
-
-  /// load only if the pointer itself is an lvalue, so that the value after deref is always an lvalue
-  if (rhs->is_lvalue()) {
-    val = _builder->CreateLoad(to_llvm_type(rhs->get_type()), val, "ptr_deref");
-  }
-  return val;
-}
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, VarRef) { _llvm_value_cache[p] = cached_visit(p->get_referred()); }
 
 } // namespace tanlang
