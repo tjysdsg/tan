@@ -124,6 +124,8 @@ void CodeGenerator::emit_to_file(const str &filename) {
 
 void CodeGenerator::dump_ir() const { _module->print(llvm::outs(), nullptr); }
 
+// ===================================================
+
 AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
   block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
@@ -387,7 +389,7 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
 
   /// default value of only var declaration
   if (p->get_node_type() == ASTNodeType::VAR_DECL) {
-    auto *default_value = codegen_type_instantiation(p->get_type());
+    auto *default_value = codegen_type_default_value(p->get_type());
     if (!default_value) {
       error(p, "Fail to instantiate this type");
     }
@@ -400,15 +402,13 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
     auto *arg_meta = to_llvm_metadata(p->get_type(), p->loc());
     auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
                                                    (DIType *)arg_meta);
-    _di_builder->insertDeclare(
-        ret, di_arg, _di_builder->createExpression(),
-        DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), curr_di_scope),
-        _builder->GetInsertBlock());
+    _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
+                               _builder->GetInsertBlock());
   }
   return ret;
 }
 
-Value *CodeGenerator::codegen_type_instantiation(Type *p) {
+Value *CodeGenerator::codegen_type_default_value(Type *p) {
   // TODO: TAN_ASSERT(p->get_constructor());
   TAN_ASSERT(!p->is_ref());
 
@@ -435,7 +435,7 @@ Value *CodeGenerator::codegen_type_instantiation(Type *p) {
     auto member_types = ((StructType *)p)->get_member_types();
     vector<Constant *> values(member_types.size(), nullptr);
     for (size_t i = 0; i < member_types.size(); ++i) {
-      values[i] = (llvm::Constant *)codegen_type_instantiation(member_types[i]);
+      values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
     }
     ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(p), values);
   } else if (p->is_array()) { /// array as pointer
@@ -1140,7 +1140,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
       if (ret_ty->is_void()) {
         _builder->CreateRetVoid();
       } else {
-        auto *ret_val = codegen_type_instantiation(ret_ty);
+        auto *ret_val = codegen_type_default_value(ret_ty);
         TAN_ASSERT(ret_val);
         _builder->CreateRet(ret_val);
       }
