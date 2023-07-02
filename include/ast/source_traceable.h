@@ -28,9 +28,11 @@ public:
   [[nodiscard]] uint32_t end() const;
   void set_start(uint32_t val);
   void set_end(uint32_t val);
+  SourceFile *src() const;
 
 private:
   TokenSpan _span;
+  SourceFile *_src;
 };
 
 } // namespace tanlang

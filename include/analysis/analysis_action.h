@@ -19,9 +19,8 @@ public:
 protected:
   void init(CompilationUnit *cu) override { _sm = cu->source_manager(); }
 
-  [[noreturn]] void error(ASTBase *p, const str &message) {
-    Error err(get_sm()->get_filename(), get_sm()->get_token(p->loc()), message);
-    err.raise();
+  [[noreturn]] void error(ErrorType type, ASTBase *p, const str &message) {
+    Error(type, get_sm()->get_token(p->start()), get_sm()->get_token(p->end()), message).raise();
   }
 
   void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
