@@ -4,7 +4,8 @@ import "runtime/stdlib.tan";
 
 
 pub fn main(argc: int, argv: char**) : int {
-    // TODO IMPORTANT: CreateGlobalStringPtr doesn't create a mutable string
+    // TODO: CreateGlobalStringPtr doesn't create a mutable string
+    //       need to allocate memory on stack/heap
     var s = "123456";
 
     var array: i8[3];

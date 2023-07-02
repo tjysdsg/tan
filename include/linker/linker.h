@@ -14,7 +14,6 @@ public:
 private:
   vector<str> _input_files{};
   vector<str> _flags{};
-  // TODO: platform, architecture, etc.
 };
 
 } // namespace tanlang

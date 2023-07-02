@@ -14,7 +14,6 @@ namespace tanlang {
 #define TAN_ASSERT(expr)
 #endif
 
-// TODO: start transitioning to categorized errors
 // REMEMBER to add to Error::ERROR_TYPE_ENUM_TO_STRING
 enum class ErrorType {
   GENERIC_ERROR,

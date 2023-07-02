@@ -98,7 +98,7 @@ int clang_main(int argc_, const char **argv_) {
 
   noteBottomOfStack();
 
-  // FIXME[hack]: previously passed-in arguments will interfere with the cmd parser on Windows
+  // FIXME: previously passed-in arguments will interfere with the cmd parser on Windows
   int fake_argc = argc_;
   const char **fake_argv = argv_;
   llvm::InitLLVM X(fake_argc, fake_argv);

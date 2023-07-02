@@ -106,7 +106,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
   vector<FunctionDecl *> pub_funcs{};
   for (auto *f : funcs) {
-    f->set_start(p->start()); // FIXME[HACK]: source location of imported function is not usable in current file
+    f->set_start(p->start());
     f->set_end(p->end());
 
     if (f->is_public() || f->is_external()) {

@@ -552,7 +552,6 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
       return;
     }
 
-    // TODO: implement type checking for other intrinsics
     break;
   }
   }

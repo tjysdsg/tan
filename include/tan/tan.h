@@ -47,7 +47,6 @@ struct TanCompilation {
   vector<str> link_files{}; /// Files to link against
   vector<str> lib_dirs{};   /// Library search paths
   vector<str> import_dirs{}; /// Search import paths
-  // TODO: output platform, architecture, ...
 };
 
 /**
