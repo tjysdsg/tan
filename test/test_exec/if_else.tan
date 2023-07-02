@@ -8,6 +8,7 @@ fn sign(a: int) : int {
     } else if (a < 0) {
         ret = -1;
     }
+
     return ret;
 }
 
@@ -19,6 +20,30 @@ fn else_if(c: i32) : i32 {
     } else {
         return 2;
     }
+}
+
+fn if_scope(c: i32) : i32 {
+    if (c == 0) {
+        var i: i32 = 0;
+    } else if (c == 1) {
+        var i1: i32 = 1;
+    } else {
+        var i2: i32 = 2;
+    }
+
+    @test_comp_error(if_scope) {
+        i = -1;
+    }
+
+    @test_comp_error(if_scope) {
+        i1 = -1;
+    }
+
+    @test_comp_error(if_scope) {
+        i2 = -1;
+    }
+
+    return 0;
 }
 
 pub fn main(argc: int, argv: char**) : int {

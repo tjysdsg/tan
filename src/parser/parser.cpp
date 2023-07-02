@@ -97,7 +97,13 @@ private:
   }
 
   Type *peek_type() {
-    return Type::GetTypeRef(at(_curr)->get_value()); // placeholder type
+    str s = at(_curr)->get_value();
+
+    if (!std::isalpha(s[0])) {
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid type name");
+    }
+
+    return Type::GetTypeRef(s); // placeholder type
   }
 
   ASTBase *peek() {

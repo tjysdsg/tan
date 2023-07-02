@@ -307,7 +307,6 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Parenthesis) {
   p->set_type(p->get_sub()->get_type());
 }
 
-// TODO: decouple if branch and else clause because they each have a different context/scope
 DEFINE_AST_VISITOR_IMPL(TypeCheck, If) {
   size_t n = p->get_num_branches();
   for (size_t i = 0; i < n; ++i) {
