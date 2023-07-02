@@ -653,6 +653,7 @@ private:
       if (at(_curr)->get_value() != ")") {
         while (!eof(_curr)) {
           auto arg = ArgDecl::Create(_sm->src());
+          arg->set_start(_curr);
           parse_node(arg);
 
           arg_names.push_back(arg->get_name());

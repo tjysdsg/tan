@@ -53,7 +53,7 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
 
   size_t n = candidate->get_n_args();
   if (n != args.size()) {
-    error(ErrorType::TYPE_ERROR, p,
+    error(ErrorType::SEMANTIC_ERROR, p,
           fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
   }
 
@@ -161,7 +161,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     break;
   case IntrinsicType::GET_DECL: {
     if (func_call->get_n_args() != 1) {
-      error(ErrorType::TYPE_ERROR, func_call, "Expect the number of args to be 1");
+      error(ErrorType::SEMANTIC_ERROR, func_call, "Expect the number of args to be 1");
     }
     auto *target = func_call->get_arg(0);
     auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(target->start()));
@@ -265,7 +265,7 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
   auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   if (p->_access_idx == -1) {
-    error(ErrorType::TYPE_ERROR, p,
+    error(ErrorType::UNKNOWN_SYMBOL, p,
           fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
   }
   auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
@@ -283,7 +283,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
       p->set_type(resolve_type(referred->get_type(), p));
     }
   } else {
-    error(ErrorType::TYPE_ERROR, p, "Unknown identifier");
+    error(ErrorType::UNKNOWN_SYMBOL, p, "Unknown identifier");
   }
 }
 
@@ -615,7 +615,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, MemberAccess) {
     p->_access_type = MemberAccess::MemberAccessMemberVariable;
     analyze_member_access_member_variable(p, lhs, rhs);
   } else {
-    error(ErrorType::TYPE_ERROR, p, "Invalid right-hand operand");
+    error(ErrorType::UNKNOWN_SYMBOL, p, "Invalid right-hand operand");
   }
 }
 
@@ -666,7 +666,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
   Loop *loop = search_node_in_parent_scopes<Loop, ASTNodeType::LOOP>();
   if (!loop) {
-    error(ErrorType::TYPE_ERROR, p, "Break or continue must be inside a loop");
+    error(ErrorType::SEMANTIC_ERROR, p, "Break or continue must be inside a loop");
   }
   p->set_parent_loop(ast_cast<Loop>(loop));
 }
