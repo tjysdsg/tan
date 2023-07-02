@@ -2,10 +2,9 @@
 #define TAN_PARSER_TEST_H
 
 #include "lexer/lexer.h"
-#include "lexer/token.h"
-#include "ast/source_manager.h"
-#include "compiler/compiler.h"
-#include "lexer/source_file.h"
+#include "source_file/token.h"
+#include "source_file/source_manager.h"
+#include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "ast/ast_base.h"
 #include "ast/ast_node_type.h"

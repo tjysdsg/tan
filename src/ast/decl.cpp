@@ -4,39 +4,39 @@
 
 using namespace tanlang;
 
-Decl::Decl(ASTNodeType type, SrcLoc loc, int bp) : Expr(type, loc, bp) {}
+Decl::Decl(ASTNodeType type, SourceFile *src, int bp) : Expr(type, src, bp) {}
 
 vector<ASTBase *> Decl::get_children() const { return {}; }
 
-ArgDecl::ArgDecl(SrcLoc loc) : Decl(ASTNodeType::ARG_DECL, loc, 0) {}
+ArgDecl::ArgDecl(SourceFile *src) : Decl(ASTNodeType::ARG_DECL, src, 0) {}
 
-ArgDecl *ArgDecl::Create(SrcLoc loc) { return new ArgDecl(loc); }
+ArgDecl *ArgDecl::Create(SourceFile *src) { return new ArgDecl(src); }
 
-ArgDecl *ArgDecl::Create(SrcLoc loc, const str &name, Type *ty) {
-  auto ret = new ArgDecl(loc);
+ArgDecl *ArgDecl::Create(SourceFile *src, const str &name, Type *ty) {
+  auto ret = new ArgDecl(src);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
 }
 
-VarDecl::VarDecl(SrcLoc loc) : Decl(ASTNodeType::VAR_DECL, loc, 0) {}
+VarDecl::VarDecl(SourceFile *src) : Decl(ASTNodeType::VAR_DECL, src, 0) {}
 
-VarDecl *VarDecl::Create(SrcLoc loc) { return new VarDecl(loc); }
+VarDecl *VarDecl::Create(SourceFile *src) { return new VarDecl(src); }
 
-VarDecl *VarDecl::Create(SrcLoc loc, const str &name, Type *ty) {
-  auto ret = new VarDecl(loc);
+VarDecl *VarDecl::Create(SourceFile *src, const str &name, Type *ty) {
+  auto ret = new VarDecl(src);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
 }
 
-FunctionDecl::FunctionDecl(SrcLoc loc) : Decl(ASTNodeType::FUNC_DECL, loc, 0) {}
+FunctionDecl::FunctionDecl(SourceFile *src) : Decl(ASTNodeType::FUNC_DECL, src, 0) {}
 
-FunctionDecl *FunctionDecl::Create(SrcLoc loc) { return new FunctionDecl(loc); }
+FunctionDecl *FunctionDecl::Create(SourceFile *src) { return new FunctionDecl(src); }
 
-FunctionDecl *FunctionDecl::Create(SrcLoc loc, const str &name, FunctionType *func_type, bool is_external,
+FunctionDecl *FunctionDecl::Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                                    bool is_public, Stmt *body) {
-  auto ret = new FunctionDecl(loc);
+  auto ret = new FunctionDecl(src);
   ret->set_name(name);
   if (!body) {
     ret->set_body(body);
@@ -71,11 +71,11 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 
 vector<ASTBase *> FunctionDecl::get_children() const { return {(ASTBase *)_body}; }
 
-TypeDecl::TypeDecl(ASTNodeType node_type, SrcLoc loc) : Decl(node_type, loc, 0) {}
+TypeDecl::TypeDecl(ASTNodeType node_type, SourceFile *src) : Decl(node_type, src, 0) {}
 
-StructDecl::StructDecl(SrcLoc loc) : TypeDecl(ASTNodeType::STRUCT_DECL, loc) {}
+StructDecl::StructDecl(SourceFile *src) : TypeDecl(ASTNodeType::STRUCT_DECL, src) {}
 
-StructDecl *StructDecl::Create(SrcLoc loc) { return new StructDecl(loc); }
+StructDecl *StructDecl::Create(SourceFile *src) { return new StructDecl(src); }
 
 const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decls; }
 

@@ -6,7 +6,7 @@
 #include "ast/type.h"
 #include "ast/context.h"
 #include "ast/intrinsic.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include <iostream>
 
 using namespace tanlang;
@@ -43,20 +43,21 @@ public:
   explicit ParserImpl(SourceManager *sm) : _sm(sm), _filename(sm->get_filename()) {}
 
   Program *parse() {
-    _root = Program::Create(SrcLoc(0));
+    _root = Program::Create(_sm->src());
     parse_program(_root);
     return _root;
   }
 
 private:
   SourceManager *_sm = nullptr;
-  SrcLoc _curr = SrcLoc(0);
+  uint32_t _curr = 0;
 
   ASTBase *peek(const str &value) {
     Token *token = at(_curr);
     if (token->get_value() != value) {
-      Error err(_filename, token, fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()));
-      err.raise();
+      Error(ErrorType::SYNTAX_ERROR, token, token,
+            fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()))
+          .raise();
     }
     return peek();
   }
@@ -65,31 +66,31 @@ private:
     ASTBase *ret = nullptr;
     str tok = token->get_value();
     if (tok == "var")
-      ret = VarDecl::Create(_curr);
+      ret = VarDecl::Create(_sm->src());
     else if (tok == "fn" || tok == "pub" || tok == "extern")
-      ret = FunctionDecl::Create(_curr);
+      ret = FunctionDecl::Create(_sm->src());
     else if (tok == "import")
-      ret = Import::Create(_curr);
+      ret = Import::Create(_sm->src());
     else if (tok == "if") /// else clause should be covered by If statement as well
-      ret = If::Create(_curr);
+      ret = If::Create(_sm->src());
     else if (tok == "return")
-      ret = Return::Create(_curr);
+      ret = Return::Create(_sm->src());
     else if (tok == "while" || tok == "for")
-      ret = Loop::Create(_curr);
+      ret = Loop::Create(_sm->src());
     else if (tok == "struct")
-      ret = StructDecl::Create(_curr);
+      ret = StructDecl::Create(_sm->src());
     else if (tok == "break")
-      ret = Break::Create(_curr);
+      ret = Break::Create(_sm->src());
     else if (tok == "continue")
-      ret = Continue::Create(_curr);
+      ret = Continue::Create(_sm->src());
     else if (tok == "as")
-      ret = Cast::Create(_curr);
+      ret = Cast::Create(_sm->src());
     else if (tok == "true")
-      ret = BoolLiteral::Create(_curr, true);
+      ret = BoolLiteral::Create(_sm->src(), true);
     else if (tok == "false")
-      ret = BoolLiteral::Create(_curr, false);
+      ret = BoolLiteral::Create(_sm->src(), false);
     else if (tok == "package")
-      ret = PackageStmt::Create(_curr);
+      ret = PackageStmt::Create(_sm->src());
 
     TAN_ASSERT(ret);
     return ret;
@@ -106,7 +107,7 @@ private:
     Token *token = at(_curr);
     /// skip comments
     while (token && token->get_type() == TokenType::COMMENTS) {
-      _curr.offset_by(1);
+      ++_curr;
       if (eof(_curr)) {
         return nullptr;
       }
@@ -117,23 +118,22 @@ private:
 
     ASTBase *node = nullptr;
     if (token->get_value() == "@") { /// intrinsics
-      node = Intrinsic::Create(_curr);
+      node = Intrinsic::Create(_sm->src());
     } else if (token->get_value() == "=" && token->get_type() == TokenType::BOP) {
-      node = Assignment::Create(_curr);
+      node = Assignment::Create(_sm->src());
     } else if (token->get_value() == "!") { /// logical not
-      node = UnaryOperator::Create(UnaryOpKind::LNOT, _curr);
+      node = UnaryOperator::Create(UnaryOpKind::LNOT, _sm->src());
     } else if (token->get_value() == "~") { /// binary not
-      node = UnaryOperator::Create(UnaryOpKind::BNOT, _curr);
+      node = UnaryOperator::Create(UnaryOpKind::BNOT, _sm->src());
     } else if (token->get_value() == "[") {
       auto prev = _curr;
-      prev.offset_by(-1);
-      Token *prev_token = at(prev);
+      Token *prev_token = at(--prev);
       if (prev_token->get_type() != TokenType::ID && prev_token->get_value() != "]" && prev_token->get_value() != ")") {
         /// array literal if there is no identifier, "]", or ")" before
-        node = ArrayLiteral::Create(_curr);
+        node = ArrayLiteral::Create(_sm->src());
       } else {
         /// otherwise bracket access
-        node = MemberAccess::Create(_curr);
+        node = MemberAccess::Create(_sm->src());
       }
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op;
@@ -155,72 +155,72 @@ private:
       else if (tok == "||")
         op = BinaryOpKind::LOR;
       else
-        error(_curr, fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
+        error(ErrorType::NOT_IMPLEMENTED, _curr, _curr,
+              fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
 
-      node = BinaryOperator::Create(op, _curr);
+      node = BinaryOperator::Create(op, _sm->src());
     } else if (token->get_type() == TokenType::INT) {
-      node = IntegerLiteral::Create(_curr, (uint64_t)std::stol(token->get_value()), token->is_unsigned());
+      node = IntegerLiteral::Create(_sm->src(), (uint64_t)std::stol(token->get_value()), token->is_unsigned());
     } else if (token->get_type() == TokenType::FLOAT) {
-      node = FloatLiteral::Create(_curr, std::stod(token->get_value()));
+      node = FloatLiteral::Create(_sm->src(), std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
-      node = StringLiteral::Create(_curr, token->get_value());
+      node = StringLiteral::Create(_sm->src(), token->get_value());
     } else if (token->get_type() == TokenType::CHAR) {   /// char literal
-      node = CharLiteral::Create(_curr, static_cast<uint8_t>(token->get_value()[0]));
+      node = CharLiteral::Create(_sm->src(), static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) {            /// should not encounter types if parsed properly
       TAN_ASSERT(false);
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
-      next.offset_by(1);
-      Token *next_token = at(next);
+      Token *next_token = at(++next);
       if (next_token->get_value() == "(") {
         /// identifier followed by a "(" is a function call
-        node = FunctionCall::Create(_curr);
+        node = FunctionCall::Create(_sm->src());
       } else {
         /// actually an identifier
-        node = Identifier::Create(_curr, token->get_value());
+        node = Identifier::Create(_sm->src(), token->get_value());
       }
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "(") {
-      node = Parenthesis::Create(_curr);
+      node = Parenthesis::Create(_sm->src());
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token);
       if (!node) {
-        error(_curr, "Keyword not implemented: " + token->get_value());
+        error(ErrorType::NOT_IMPLEMENTED, _curr, _curr, "Keyword not implemented: " + token->get_value());
       }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
-      node = MemberAccess::Create(_curr);
+      node = MemberAccess::Create(_sm->src());
     } else if (token->get_value() == "&") {
       /// BOP or UOP? ambiguous
-      node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
+      node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
-      node = CompoundStmt::Create(_curr);
+      node = CompoundStmt::Create(_sm->src());
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       TAN_ASSERT(token->get_value().length());
       switch (token->get_value()[0]) {
       case '/':
-        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _curr);
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _sm->src());
         break;
       case '%':
-        node = BinaryOperator::Create(BinaryOpKind::MOD, _curr);
+        node = BinaryOperator::Create(BinaryOpKind::MOD, _sm->src());
         break;
       case '|':
-        node = BinaryOperator::Create(BinaryOpKind::BOR, _curr);
+        node = BinaryOperator::Create(BinaryOpKind::BOR, _sm->src());
         break;
       case '^':
-        node = BinaryOperator::Create(BinaryOpKind::XOR, _curr);
+        node = BinaryOperator::Create(BinaryOpKind::XOR, _sm->src());
         break;
         /// Operators that are possibly BOP or UOP at this stage
         /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
       case '*':
         // MULTIPLY / PTR_DEREF
-        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
+        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
         break;
       case '+':
         // SUM / PLUS
-        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
       case '-':
         // SUBTRACT / MINUS
-        node = BinaryOrUnary::Create(_curr, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         TAN_ASSERT(false);
@@ -229,8 +229,11 @@ private:
     } else if (check_terminal_token(token)) { /// this MUST be the last thing to check
       return nullptr;
     } else {
-      error(_curr, "Unknown token " + token->get_value());
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unknown token " + token->get_value());
     }
+
+    node->set_start(_curr);
+    node->set_end(_curr);
     return node;
   }
 
@@ -265,13 +268,14 @@ private:
     while (!eof(_curr)) {
       ASTBase *node = next_expression(PREC_LOWEST);
       if (!node)
-        error(_curr, "Unexpected terminal token");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected terminal token");
 
       p->append_child(node);
       if (!check_terminal_token(at(_curr))) {
-        error(_curr, "Expect a terminal token");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a terminal token");
       }
-      _curr.offset_by(1);
+
+      ++_curr;
     }
   }
 
@@ -281,20 +285,20 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_cast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
-      str tok = _sm->get_token_str(p->loc());
+      str tok = _sm->get_token_str(p->start());
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, p->loc());
+        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, _sm->src());
         break;
       case '&':
-        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, p->loc());
+        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, _sm->src());
         break;
       case '+':
-        actual = UnaryOperator::Create(UnaryOpKind::PLUS, p->loc());
+        actual = UnaryOperator::Create(UnaryOpKind::PLUS, _sm->src());
         break;
       case '-':
-        actual = UnaryOperator::Create(UnaryOpKind::MINUS, p->loc());
+        actual = UnaryOperator::Create(UnaryOpKind::MINUS, _sm->src());
         break;
       default:
         TAN_ASSERT(false);
@@ -309,7 +313,8 @@ private:
     // look up parser func from the table
     auto it = NUD_PARSING_FUNC_TABLE.find(p->get_node_type());
     if (it == NUD_PARSING_FUNC_TABLE.end()) {
-      error(_curr, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+            fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
     nud_parsing_func_t func = it->second;
     (this->*func)(p);
@@ -321,20 +326,20 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = ast_cast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
-      str tok = _sm->get_token_str(p->loc());
+      str tok = _sm->get_token_str(p->start());
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, p->loc());
+        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, _sm->src());
         break;
       case '&':
-        actual = BinaryOperator::Create(BinaryOpKind::BAND, p->loc());
+        actual = BinaryOperator::Create(BinaryOpKind::BAND, _sm->src());
         break;
       case '+':
-        actual = BinaryOperator::Create(BinaryOpKind::SUM, p->loc());
+        actual = BinaryOperator::Create(BinaryOpKind::SUM, _sm->src());
         break;
       case '-':
-        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, p->loc());
+        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, _sm->src());
         break;
       default:
         TAN_ASSERT(false);
@@ -348,32 +353,35 @@ private:
     // look up parser func from the table
     auto it = LED_PARSING_FUNC_TABLE.find(p->get_node_type());
     if (it == LED_PARSING_FUNC_TABLE.end()) {
-      error(_curr, fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+            fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
     led_parsing_func_t func = it->second;
     (this->*func)(left, p);
   }
 
-  [[nodiscard]] Token *at(SrcLoc loc) const {
+  [[nodiscard]] Token *at(uint32_t loc) const {
     if (this->eof(loc)) {
-      Error err(_filename, _sm->get_last_token(), "Unexpected EOF");
-      err.raise();
+      Error(ErrorType::SYNTAX_ERROR, _sm->get_last_token(), _sm->get_last_token(), "Unexpected EOF").raise();
     }
     return _sm->get_token(loc);
   }
 
-  [[nodiscard]] bool eof(SrcLoc loc) const { return _sm->is_eof(loc); }
+  [[nodiscard]] bool eof(uint32_t loc) const { return _sm->is_eof(loc); }
 
-  [[noreturn]] void error(SrcLoc loc, const str &error_message) const {
-    Error err(_filename, at(loc), error_message);
-    err.raise();
+  [[noreturn]] void error(ErrorType type, ASTBase *node, const str &error_message) const {
+    Error(type, at(node->start()), at(node->end()), error_message).raise();
+  }
+
+  [[noreturn]] void error(ErrorType type, uint32_t start, uint32_t end, const str &error_message) const {
+    Error(type, at(start), at(end), error_message).raise();
   }
 
   Expr *expect_expression(ASTBase *p) {
     TAN_ASSERT(p);
     Expr *ret = nullptr;
     if (!(ret = ast_cast<Expr>(p))) {
-      error(p->loc(), "Expect an expression");
+      error(ErrorType::SYNTAX_ERROR, p, "Expect an expression");
     }
     return ret;
   }
@@ -382,7 +390,7 @@ private:
     TAN_ASSERT(p);
     Stmt *ret = nullptr;
     if (!(ret = ast_cast<Stmt>(p))) {
-      error(p->loc(), "Expect a statement");
+      error(ErrorType::SYNTAX_ERROR, p, "Expect a statement");
     }
     return ret;
   }
@@ -390,7 +398,7 @@ private:
   void parse_assignment(ASTBase *left, ASTBase *_p) {
     auto p = ast_cast<Assignment>(_p);
 
-    _curr.offset_by(1); /// skip =
+    ++_curr; // skip =
 
     /// lhs
     p->set_lhs(left);
@@ -398,13 +406,14 @@ private:
     /// rhs
     auto rhs = next_expression(PREC_LOWEST);
     p->set_rhs(expect_expression(rhs));
+    p->set_end(_curr - 1);
   }
 
   void parse_cast(ASTBase *left, ASTBase *_p) {
     auto lhs = ast_cast<Expr>(left);
     auto p = ast_cast<Cast>(_p);
 
-    _curr.offset_by(1); /// skip as
+    ++_curr; // skip as
 
     /// lhs
     p->set_lhs(lhs);
@@ -412,20 +421,24 @@ private:
     /// rhs
     auto *ty = peek_type();
     p->set_type(parse_ty(ty));
+
+    p->set_end(_curr - 1);
   }
 
-  void parse_generic_token(ASTBase *) { _curr.offset_by(1); }
+  void parse_generic_token(ASTBase *p) { p->set_end(_curr++); }
 
   void parse_if(ASTBase *_p) {
     auto p = ast_cast<If>(_p);
 
+    p->set_end(_curr); // the end of token of If AST ends here
+
     /// if then
     parse_if_then_branch(p);
-    _curr.offset_by(1); // skip "}"
+    ++_curr; // skip "}"
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
-      _curr.offset_by(1);                         /// skip "else"
+      ++_curr;                                    // skip "else"
       if (at(_curr)->get_value() == "if") {       /// elif
         parse_if_then_branch(p);
       } else if (at(_curr)->get_value() == "{") { /// else
@@ -433,23 +446,23 @@ private:
         parse_node(else_clause);
         p->add_else_branch(expect_stmt(else_clause));
       } else {
-        error(_curr, "Unexpected token");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected token");
       }
 
-      _curr.offset_by(1);
+      ++_curr;
     }
 
-    _curr.offset_by(-1); /// return back to "}"
+    --_curr; /// return back to "}"
     TAN_ASSERT(at(_curr)->get_value() == "}");
   }
 
   void parse_if_then_branch(If *p) {
-    _curr.offset_by(1); /// skip "if"
+    ++_curr; // skip "if"
 
     /// predicate
     auto _pred = peek("(");
     if (_pred->get_node_type() != ASTNodeType::PARENTHESIS) {
-      error(_pred->loc(), "Expect a parenthesis expression");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a parenthesis expression");
     }
     parse_parenthesis(_pred);
     Expr *pred = ast_cast<Expr>(_pred);
@@ -473,7 +486,10 @@ private:
     } else {
       TAN_ASSERT(false);
     }
-    _curr.offset_by(1); /// skip while/for
+
+    p->set_end(_curr);
+    ++_curr; // skip while/for
+
     switch (p->_loop_type) {
     case ASTLoopType::WHILE: {
       /// predicate
@@ -498,27 +514,27 @@ private:
   void parse_array_literal(ASTBase *_p) {
     auto *p = ast_cast<ArrayLiteral>(_p);
 
-    _curr.offset_by(1); /// skip '['
+    ++_curr; // skip '['
 
     if (at(_curr)->get_value() == "]") {
       // TODO: support empty array literal, but raise error if the type cannot be inferred
-      error(p->loc(), "Empty array literal");
+      error(ErrorType::SEMANTIC_ERROR, p->start(), _curr, "Empty array literal");
     }
 
     vector<Literal *> elements{};
-    while (!eof(p->loc())) {
+    while (!eof(_curr)) {
       if (at(_curr)->get_value() == ",") { /// skip ","
-        _curr.offset_by(1);
+        ++_curr;
         continue;
       } else if (at(_curr)->get_value() == "]") { /// skip "]"
-        _curr.offset_by(1);
+        ++_curr;
         break;
       }
 
       auto *node = peek();
       auto *expr = expect_expression(node);
       if (!expr->is_comptime_known()) {
-        error(p->loc(), "Expected a compile-time known value");
+        error(ErrorType::SEMANTIC_ERROR, _curr, _curr, "Expected a compile-time known value");
       }
 
       parse_node(node);
@@ -526,55 +542,61 @@ private:
     }
 
     p->set_elements(elements);
+    p->set_end(_curr - 1);
   }
 
   void parse_bop(ASTBase *_lhs, ASTBase *_p) {
     Expr *lhs = ast_cast<Expr>(_lhs);
 
-    Token *token = at(_p->loc());
+    Token *token = at(_p->start());
     if (token->get_value() == "." || token->get_value() == "[") { /// delegate to parse_member_access
       parse_member_access(lhs, ast_cast<MemberAccess>(_p));
       return;
     }
 
     auto *p = ast_cast<BinaryOperator>(_p);
-    _curr.offset_by(1); /// skip the operator
 
-    p->set_lhs(lhs);    /// lhs
+    ++_curr; // skip the operator
 
-    /// rhs
+    p->set_lhs(lhs);
+
     auto rhs = next_expression(p->get_bp());
     p->set_rhs(expect_expression(rhs));
+
+    p->set_end(_curr - 1);
   }
 
   void parse_uop(ASTBase *_p) {
     auto *p = ast_cast<UnaryOperator>(_p);
 
-    /// rhs
-    _curr.offset_by(1);
+    ++_curr;
     auto rhs = ast_cast<Expr>(next_expression(p->get_bp()));
     if (!rhs) {
-      error(p->loc(), "Invalid operand");
+      error(ErrorType::SEMANTIC_ERROR, rhs, "Invalid operand");
     }
     p->set_rhs(rhs);
+    p->set_end(_curr - 1);
   }
 
   void parse_parenthesis(ASTBase *_p) {
     auto *p = ast_cast<Parenthesis>(_p);
 
-    _curr.offset_by(1); /// skip "("
+    ++_curr; // skip "("
     while (true) {
       auto *t = at(_curr);
       if (t->get_type() == TokenType::PUNCTUATION && t->get_value() == ")") { /// end at )
-        _curr.offset_by(1);
+        ++_curr;
         break;
       }
 
-      /// NOTE: parenthesis without child expression inside are illegal (except function call)
+      // NOTE: parenthesis without child expression inside are illegal
+      // (except function call, which is parsed elsewhere)
       auto _sub = next_expression(PREC_LOWEST);
       Expr *sub = expect_expression(_sub);
       p->set_sub(sub);
     }
+
+    p->set_end(_curr - 1);
   }
 
   void parse_func_decl(ASTBase *_p) {
@@ -584,13 +606,13 @@ private:
     bool is_external = false;
     str token_str = at(_curr)->get_value();
     if (token_str == "fn") {         /// "fn"
-      _curr.offset_by(1);
+      ++_curr;
     } else if (token_str == "pub") { /// "pub fn"
       is_public = true;
-      _curr.offset_by(2);
+      _curr += 2;
     } else if (token_str == "extern") { /// "extern"
       is_external = true;
-      _curr.offset_by(2);
+      _curr += 2;
     } else {
       TAN_ASSERT(false);
     }
@@ -602,15 +624,17 @@ private:
     // but we only want the function name as an identifier
     // [X] auto id = peek();
     Token *id_token = at(_curr);
-    auto id = Identifier::Create(_curr, id_token->get_value());
+    auto id = Identifier::Create(_sm->src(), id_token->get_value());
+    id->set_start(_curr);
+    id->set_end(_curr);
     if (id->get_node_type() != ASTNodeType::ID) {
-      error(_curr, "Expect a function name");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a function name");
     }
     parse_node(id);
     p->set_name(id->get_name());
 
     peek("(");
-    _curr.offset_by(1);
+    ++_curr;
 
     // Register in the parent context
     if (is_public) {
@@ -628,7 +652,8 @@ private:
       vector<ArgDecl *> arg_decls{};
       if (at(_curr)->get_value() != ")") {
         while (!eof(_curr)) {
-          auto arg = ArgDecl::Create(_curr);
+          auto arg = ArgDecl::Create(_sm->src());
+          arg->set_start(_curr);
           parse_node(arg);
 
           arg_names.push_back(arg->get_name());
@@ -636,20 +661,22 @@ private:
           arg_decls.push_back(arg);
 
           if (at(_curr)->get_value() == ",") {
-            _curr.offset_by(1);
+            ++_curr;
           } else {
             break;
           }
         }
       }
+
       peek(")");
-      _curr.offset_by(1);
+      p->set_end(_curr);
+      ++_curr;
 
       p->set_arg_names(arg_names);
       p->set_arg_decls(arg_decls);
 
       peek(":");
-      _curr.offset_by(1);
+      ++_curr;
 
       /// function type
       auto *ret_type = peek_type();
@@ -668,43 +695,47 @@ private:
   void parse_func_call(ASTBase *_p) {
     auto *p = ast_cast<FunctionCall>(_p);
 
-    p->set_name(at(_curr)->get_value()); /// function name
-    _curr.offset_by(1);
+    p->set_name(at(_curr)->get_value()); // function name
+    ++_curr;
 
     // No need to check since '(' is what distinguish a function call from an identifier at the first place
     // auto *token = at(_curr); if (token->get_value() != "(") { error("Invalid function call"); }
-    _curr.offset_by(1); /// skip (
+    ++_curr; // skip (
 
-    /// args
+    // args
     while (!eof(_curr) && at(_curr)->get_value() != ")") {
       auto _arg = next_expression(PREC_LOWEST);
       Expr *arg = expect_expression(_arg);
       p->_args.push_back(arg);
 
       if (at(_curr)->get_value() == ",") { /// skip ,
-        _curr.offset_by(1);
+        ++_curr;
       } else {
         break;
       }
     }
 
     peek(")");
-    _curr.offset_by(1);
+    p->set_end(_curr);
+    ++_curr;
   }
 
   // assuming _curr is at the token after "@"
   void parse_test_comp_error_intrinsic(Intrinsic *p) {
-    _curr.offset_by(1); /// skip "test_comp_error"
+    ++_curr; // skip "test_comp_error"
 
     auto *e = peek();
     if (e->get_node_type() != ASTNodeType::PARENTHESIS) {
-      error(_curr, "Expect a parenthesis");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a parenthesis");
     }
-    parse_node(e);
 
+    parse_node(e);
     auto *test_name = ast_cast<Parenthesis>(e)->get_sub();
+
+    p->set_end(_curr - 1);
+
     if (test_name->get_node_type() != ASTNodeType::ID) {
-      error(_curr, "Expect a test name");
+      error(ErrorType::SEMANTIC_ERROR, test_name, "Expect a test name");
     }
 
     p->set_name("test_comp_error");
@@ -719,14 +750,14 @@ private:
       p->set_sub(nullptr); // no need to check again in later stages
 
       while (at(_curr)->get_value() != "}")
-        _curr.offset_by(1);
+        ++_curr;
     }
   }
 
   void parse_intrinsic(ASTBase *_p) {
     auto *p = ast_cast<Intrinsic>(_p);
 
-    _curr.offset_by(1); /// skip "@"
+    ++_curr; // skip "@"
 
     if (_sm->get_token_str(_curr) == "test_comp_error") {
       parse_test_comp_error_intrinsic(p);
@@ -737,7 +768,7 @@ private:
     parse_node(e);
     // Only allow identifier or function call as the valid intrinsic token
     if (e->get_node_type() != ASTNodeType::ID && e->get_node_type() != ASTNodeType::FUNC_CALL) {
-      error(_curr, "Unexpected token");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected token");
     }
     p->set_sub(e);
 
@@ -760,7 +791,7 @@ private:
     p->set_name(name);
     auto q = Intrinsic::intrinsics.find(name);
     if (q == Intrinsic::intrinsics.end()) {
-      error(_curr, fmt::format("Unknown intrinsic {}", name));
+      error(ErrorType::UNKNOWN_SYMBOL, _curr, _curr, fmt::format("Unknown intrinsic {}", name));
     }
     p->set_intrinsic_type(q->second);
 
@@ -769,13 +800,13 @@ private:
     case IntrinsicType::LINENO:
     case IntrinsicType::FILENAME:
       if (e->get_node_type() != ASTNodeType::ID)
-        error(_curr, "Invalid usage of intrinsic");
+        error(ErrorType::SEMANTIC_ERROR, _curr, _curr, "Invalid usage of intrinsic");
       break;
     case IntrinsicType::NOOP:
     case IntrinsicType::STACK_TRACE:
     case IntrinsicType::TEST_COMP_ERROR:
       if (e->get_node_type() != ASTNodeType::FUNC_CALL)
-        error(_curr, "Invalid usage of intrinsic");
+        error(ErrorType::SEMANTIC_ERROR, _curr, _curr, "Invalid usage of intrinsic");
       break;
     case IntrinsicType::INVALID:
       TAN_ASSERT(false);
@@ -783,15 +814,17 @@ private:
     default:
       break;
     }
+
+    p->set_end(_curr - 1);
   }
 
   void parse_import(ASTBase *_p) {
     auto *p = ast_cast<Import>(_p);
 
-    _curr.offset_by(1); /// skip "import"
+    ++_curr; // skip "import"
     auto rhs = peek();
     if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
-      error(_curr, "Invalid import statement");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid import statement");
     }
     parse_node(rhs);
     str filename = ast_cast<StringLiteral>(rhs)->get_value();
@@ -800,16 +833,19 @@ private:
 
   void parse_package_stmt(ASTBase *_p) {
     auto *p = ast_cast<PackageStmt>(_p);
-    _curr.offset_by(1);
+    ++_curr;
 
     auto rhs = peek();
     if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
-      error(_curr, "Invalid package statement");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid package statement");
     }
     parse_node(rhs);
     str name = ast_cast<StringLiteral>(rhs)->get_value();
 
     p->set_name(name);
+
+    p->set_end(_curr - 1);
+
     // TODO: _ctx->set_package_name(name);
   }
 
@@ -818,27 +854,29 @@ private:
       p->_access_type = MemberAccess::MemberAccessBracket;
     }
 
-    _curr.offset_by(1); /// skip "." or "["
+    ++_curr; // skip "." or "["
 
-    /// lhs
+    // lhs
     p->set_lhs(left);
 
-    /// rhs
+    // rhs
     auto _right = peek();
     Expr *right = expect_expression(_right);
     parse_node(right);
     p->set_rhs(right);
 
-    if (p->_access_type == MemberAccess::MemberAccessBracket) { /// bracket access
-      _curr.offset_by(1);                                       /// skip ]
+    if (p->_access_type == MemberAccess::MemberAccessBracket) { // bracket access
+      ++_curr;                                                  // skip ]
     }
+
+    p->set_end(_curr - 1);
   }
 
   void parse_compound_stmt(ASTBase *_p) {
     auto p = ast_cast<CompoundStmt>(_p);
     ScopeGuard scope_guard(_curr_scope, p);
 
-    _curr.offset_by(1); /// skip "{"
+    ++_curr; // skip "{"
 
     ASTBase *node = nullptr;
     while ((node = next_expression(PREC_LOWEST)) != nullptr) {
@@ -846,56 +884,62 @@ private:
 
       str s = at(_curr)->get_value();
       if (!check_terminal_token(at(_curr))) {
-        error(_curr, "Expect a terminal token");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a terminal token");
       }
-      _curr.offset_by(1);
+      ++_curr;
     }
 
     if (at(_curr)->get_value() != "}") {
-      error(_curr, "Expect a closing '}'");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a closing '}'");
     }
+
+    p->set_end(_curr);
   }
 
   void parse_return(ASTBase *_p) {
     auto *p = ast_cast<Return>(_p);
 
-    _curr.offset_by(1);
+    ++_curr; // skip "return"
 
     auto _rhs = next_expression(PREC_LOWEST);
     if (_rhs) {
       Expr *rhs = expect_expression(_rhs);
       p->set_rhs(rhs);
     }
+
+    p->set_end(_curr - 1);
   }
 
   void parse_struct_decl(ASTBase *_p) {
     auto *p = ast_cast<StructDecl>(_p);
 
-    _curr.offset_by(1); /// skip "struct"
+    ++_curr; // skip "struct"
 
-    /// struct typename
+    // struct typename
     auto _id = peek();
     if (_id->get_node_type() != ASTNodeType::ID) {
-      error(_curr, "Expecting a typename");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expecting a typename");
     }
     parse_node(_id);
     auto id = ast_cast<Identifier>(_id);
     p->set_name(id->get_name());
 
-    /// struct body
+    p->set_end(_curr - 1);
+
+    // struct body
     if (at(_curr)->get_value() != "{") {
-      error(_curr, "Expect struct body");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect struct body");
     }
 
     ScopeGuard scope_guard(_curr_scope, p);
 
     auto _comp_stmt = next_expression(PREC_LOWEST);
     if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
-      error(_curr, "struct definition requires a valid body");
+      error(ErrorType::SEMANTIC_ERROR, _curr, _curr, "struct definition requires a valid body");
     }
     auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
 
-    /// copy member declarations
+    // copy member declarations
     auto children = comp_stmt->get_children();
     vector<Expr *> member_decls{};
     for (const auto &c : children) {
@@ -904,7 +948,7 @@ private:
               || c->get_node_type() == ASTNodeType::ASSIGN    //
               || c->get_node_type() == ASTNodeType::FUNC_DECL //
               )) {
-        error(c->loc(), "Invalid struct member");
+        error(ErrorType::SEMANTIC_ERROR, c, "Invalid struct member");
       }
       member_decls.push_back(ast_cast<Expr>(c));
     }
@@ -914,28 +958,28 @@ private:
   ArrayType *parse_ty_array(Type *p) {
     ArrayType *ret = nullptr;
     while (true) {
-      _curr.offset_by(1); /// skip "["
+      ++_curr; // skip "["
 
-      /// size
+      // size
       ASTBase *_size = peek();
       if (_size->get_node_type() != ASTNodeType::INTEGER_LITERAL) {
-        error(_curr, "Expect an unsigned integer as the array size");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect an unsigned integer as the array size");
       }
       parse_node(_size);
 
       auto size = ast_cast<IntegerLiteral>(_size);
       size_t array_size = size->get_value();
       if (static_cast<int64_t>(array_size) < 0) {
-        error(_curr, "Expect an unsigned integer as the array size");
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect an unsigned integer as the array size");
       }
 
       ret = Type::GetArrayType(p, (int)array_size);
 
-      /// skip "]"
+      // skip "]"
       peek("]");
-      _curr.offset_by(1);
+      ++_curr;
 
-      /// if followed by a "[", this is a multi-dimension array
+      // if followed by a "[", this is a multi-dimension array
       if (at(_curr)->get_value() == "[") {
         p = ret;
         ret = nullptr;
@@ -955,22 +999,22 @@ private:
       Token *token = at(_curr);
 
       auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
-      if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { /// primitive
+      if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { // primitive
         ret = PrimitiveType::Create(it->second);
-      } else if (token->get_value() == "*") {            /// pointer
+      } else if (token->get_value() == "*") {            // pointer
         TAN_ASSERT(ret);
         ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {
         ret = Type::GetStringType();
-      } else if (token->get_type() == TokenType::ID) { /// struct/typedefs etc.
+      } else if (token->get_type() == TokenType::ID) { // struct/typedefs etc.
         /// type referred will be resolved in analysis phase
       } else {
         break;
       }
-      _curr.offset_by(1);
+      ++_curr;
     }
 
-    /// array
+    // array
     Token *token = at(_curr);
     if (token->get_value() == "[") {
       TAN_ASSERT(ret);
@@ -983,37 +1027,41 @@ private:
   void parse_var_decl(ASTBase *_p) {
     auto *p = ast_cast<VarDecl>(_p);
 
-    _curr.offset_by(1); /// skip 'var'
+    ++_curr; // skip 'var'
 
-    /// name
+    // name
     auto name_token = at(_curr);
     p->set_name(name_token->get_value());
-    _curr.offset_by(1);
+    ++_curr;
 
-    /// type
+    // type
     if (at(_curr)->get_value() == ":") {
-      _curr.offset_by(1);
+      ++_curr;
       Type *ty = peek_type();
       p->set_type(parse_ty(ty));
     }
+
+    p->set_end(_curr - 1);
   }
 
   void parse_arg_decl(ASTBase *_p) {
     auto *p = ast_cast<ArgDecl>(_p);
 
-    /// name
+    // name
     auto name_token = at(_curr);
     p->set_name(name_token->get_value());
-    _curr.offset_by(1);
+    ++_curr;
 
     if (at(_curr)->get_value() != ":") {
-      error(_curr, "Expect a type being specified");
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a type being specified");
     }
-    _curr.offset_by(1);
+    ++_curr;
 
-    /// type
+    // type
     Type *ty = peek_type();
     p->set_type(parse_ty(ty));
+
+    p->set_end(_curr - 1);
   }
 
 private:

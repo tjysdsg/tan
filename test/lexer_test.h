@@ -3,8 +3,8 @@
 
 #include "base.h"
 #include "lexer/lexer.h"
-#include "lexer/token.h"
-#include "lexer/source_file.h"
+#include "source_file/token.h"
+#include "source_file/source_file.h"
 #include <gtest/gtest.h>
 #include <iostream>
 

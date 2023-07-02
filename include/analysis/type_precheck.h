@@ -27,13 +27,13 @@ private:
    *        In strict mode, an error is raised.
    * \return The referred type if successfully resolved. Return \p p as is if failed.
    */
-  Type *check_type_ref(Type *p, SrcLoc loc, ASTBase *node);
+  Type *check_type_ref(Type *p, ASTBase *node);
 
   /**
    * \brief Resolve a type. If \p is a type reference, we find out the type associated with the typename.
    * \note Returned pointer can be different from \p p.
    */
-  Type *check_type(Type *p, SrcLoc loc, ASTBase *node);
+  Type *check_type(Type *p, ASTBase *node);
 
 public:
   // DECLARE_AST_VISITOR_IMPL(Program);

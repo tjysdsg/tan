@@ -2,7 +2,7 @@
 #define __TAN_SRC_AST_CONSTRUCTOR_H__
 #include "base.h"
 #include "fwd.h"
-#include "source_manager.h"
+#include "source_file/source_manager.h"
 #include <variant>
 
 namespace llvm {
@@ -40,14 +40,14 @@ public:
    * \note Make sure default_val's type is resolved
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(SrcLoc loc, uint64_t default_val = 0, size_t bit_size = 32,
+  static BasicConstructor *CreateIntegerConstructor(SourceFile *src, uint64_t default_val = 0, size_t bit_size = 32,
                                                     bool is_unsigned = false);
-  static BasicConstructor *CreateBoolConstructor(SrcLoc loc, bool default_val = false);
-  static BasicConstructor *CreateFPConstructor(SrcLoc loc, double default_val = 0, size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(SrcLoc loc, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(SrcLoc loc, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(SrcLoc loc, Type *element_type = {});
-  static BasicConstructor *CreateNullPointerConstructor(SrcLoc loc, Type *element_type);
+  static BasicConstructor *CreateBoolConstructor(SourceFile *src, bool default_val = false);
+  static BasicConstructor *CreateFPConstructor(SourceFile *src, double default_val = 0, size_t bit_size = 32);
+  static BasicConstructor *CreateStringConstructor(SourceFile *src, str default_val = "");
+  static BasicConstructor *CreateCharConstructor(SourceFile *src, uint8_t default_val = 0);
+  static BasicConstructor *CreateArrayConstructor(SourceFile *src, Type *element_type = {});
+  static BasicConstructor *CreateNullPointerConstructor(SourceFile *src, Type *element_type);
 
   CompTimeExpr *get_value() const;
   void set_value(CompTimeExpr *val);

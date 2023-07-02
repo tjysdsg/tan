@@ -1,7 +1,6 @@
 #include <fstream>
-#include <algorithm>
-#include "lexer/source_file.h"
 #include "base.h"
+#include "source_file/source_file.h"
 
 /// we always assume that the line number and column number can be contained within 32bit int
 #pragma clang diagnostic push
@@ -52,7 +51,7 @@ void SourceFile::from_string(const str &code) {
   }
 }
 
-bool SourceFile::is_cursor_valid(const Cursor &c) const {
+bool SourceFile::is_cursor_valid(const SrcLoc &c) const {
   if (c.l >= _lines.size()) {
     return false;
   }
@@ -65,11 +64,11 @@ bool SourceFile::is_cursor_valid(const Cursor &c) const {
   }
 }
 
-str SourceFile::substr(const Cursor &start, const Cursor &_end) const {
+str SourceFile::substr(const SrcLoc &start, const SrcLoc &_end) const {
   TAN_ASSERT(is_cursor_valid(start));
 
   /// if the end cursor is out of boundary, make it point to EOF
-  Cursor end(_end);
+  SrcLoc end(_end);
   if (end.l >= _lines.size() || end.c > _lines[end.l].size()) {
     end.l = (uint32_t)_lines.size() - 1;
     end.c = (uint32_t)_lines.back().size();
@@ -92,12 +91,12 @@ str SourceFile::substr(const Cursor &start, const Cursor &_end) const {
   return ret;
 }
 
-str SourceFile::substr(const Cursor &start) const {
-  Cursor end(start.l, (uint32_t)get_line(start.l).size(), this);
+str SourceFile::substr(const SrcLoc &start) const {
+  SrcLoc end(start.l, (uint32_t)get_line(start.l).size(), this);
   return substr(start, end);
 }
 
-Cursor SourceFile::forward(Cursor ptr) {
+SrcLoc SourceFile::forward(SrcLoc ptr) {
   if (ptr.l >= _lines.size()) {
     return ptr;
   }
@@ -115,14 +114,14 @@ Cursor SourceFile::forward(Cursor ptr) {
 
 str SourceFile::get_filename() const { return _filename; }
 
-Cursor SourceFile::end() const {
+SrcLoc SourceFile::end() const {
   if (_lines.empty()) {
-    return Cursor(0, 1, this);
+    return SrcLoc(0, 1, this);
   }
-  return Cursor((uint32_t)_lines.size() - 1, (uint32_t)_lines.back().length(), this);
+  return SrcLoc((uint32_t)_lines.size() - 1, (uint32_t)_lines.back().length(), this);
 }
 
-char SourceFile::at(const Cursor &ptr) const {
+char SourceFile::at(const SrcLoc &ptr) const {
   TAN_ASSERT(ptr.l != -1u && ptr.c != -1u);
   if (ptr.l >= this->size()) {
     return '\0';
@@ -133,7 +132,7 @@ char SourceFile::at(const Cursor &ptr) const {
   return _lines[ptr.l][ptr.c];
 }
 
-Cursor SourceFile::begin() const { return Cursor(0, 0, this); }
+SrcLoc SourceFile::begin() const { return SrcLoc(0, 0, this); }
 
 str SourceFile::get_line(size_t index) const {
   TAN_ASSERT(index < _lines.size());
@@ -145,13 +144,13 @@ const char *SourceFile::get_line_c_str(size_t index) const {
   return _lines[index].c_str();
 }
 
-Cursor::Cursor(uint32_t r, uint32_t c, const SourceFile *src) : l(r), c(c), _src((SourceFile *)src) {}
+SrcLoc::SrcLoc(uint32_t r, uint32_t c, const SourceFile *src) : l(r), c(c), _src((SourceFile *)src) {}
 
-bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
+bool SrcLoc::operator==(const SrcLoc &other) const { return l == other.l && c == other.c; }
 
-bool Cursor::operator!=(const Cursor &other) const { return !(*this == other); }
+bool SrcLoc::operator!=(const SrcLoc &other) const { return !(*this == other); }
 
-bool Cursor::operator<=(const Cursor &other) const {
+bool SrcLoc::operator<=(const SrcLoc &other) const {
   if (l < other.l) {
     return true;
   } else if (l > other.l) {
@@ -161,7 +160,7 @@ bool Cursor::operator<=(const Cursor &other) const {
   }
 }
 
-bool Cursor::operator<(const Cursor &other) const {
+bool SrcLoc::operator<(const SrcLoc &other) const {
   if (l < other.l) {
     return true;
   } else if (l > other.l) {
@@ -171,7 +170,7 @@ bool Cursor::operator<(const Cursor &other) const {
   }
 }
 
-bool Cursor::operator>(const Cursor &other) const {
+bool SrcLoc::operator>(const SrcLoc &other) const {
   if (l > other.l) {
     return true;
   } else if (l < other.l) {
@@ -181,23 +180,23 @@ bool Cursor::operator>(const Cursor &other) const {
   }
 }
 
-Cursor &Cursor::operator++() {
+SrcLoc &SrcLoc::operator++() {
   *this = _src->forward(*this);
   return *this;
 }
 
-Cursor Cursor::operator++(int) {
+SrcLoc SrcLoc::operator++(int) {
   auto ret = *this;
   *this = _src->forward(*this);
   return ret;
 }
 
-char Cursor::operator*() {
+char SrcLoc::operator*() {
   TAN_ASSERT(_src);
   return _src->at(*this);
 }
 
-SourceSpan::SourceSpan(const Cursor &start, const Cursor &end) : _start(start), _end(end) {
+SourceSpan::SourceSpan(const SrcLoc &start, const SrcLoc &end) : _start(start), _end(end) {
   TAN_ASSERT(start._src == end._src);
   TAN_ASSERT(start.l <= end.l);
   if (start.l == end.l) {
@@ -207,9 +206,9 @@ SourceSpan::SourceSpan(const Cursor &start, const Cursor &end) : _start(start), 
 
 SourceFile *SourceSpan::src() const { return _start._src; }
 
-const Cursor &SourceSpan::start() const { return _start; }
+const SrcLoc &SourceSpan::start() const { return _start; }
 
-const Cursor &SourceSpan::end() const { return _end; }
+const SrcLoc &SourceSpan::end() const { return _end; }
 
 } // namespace tanlang
 

@@ -186,7 +186,7 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     return loaded;
   }
 
-  error(expr, "Cannot perform type conversion");
+  error(ErrorType::SEMANTIC_ERROR, expr, "Cannot perform type conversion");
 }
 
 llvm::Value *CodeGenerator::load_if_is_lvalue(Expr *expr) {
@@ -262,7 +262,7 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   return ret;
 }
 
-llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, SrcLoc loc) {
+llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
   TAN_ASSERT(p);
   TAN_ASSERT(!p->is_ref());
 
@@ -351,14 +351,9 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
 }
 
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
-  unsigned line = _sm->get_line(p->loc()) + 1;
-  unsigned col = _sm->get_col(p->loc()) + 1;
+  unsigned line = _sm->get_line(p->start()) + 1;
+  unsigned col = _sm->get_col(p->start()) + 1;
   _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
-}
-
-void CodeGenerator::error(ASTBase *p, const str &message) {
-  Error err(_sm->get_filename(), _sm->get_token(p->loc()), message);
-  err.raise();
 }
 
 DIScope *CodeGenerator::get_current_di_scope() const { return _di_scope.back(); }
@@ -366,7 +361,7 @@ void CodeGenerator::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); 
 void CodeGenerator::pop_di_scope() { _di_scope.pop_back(); }
 
 DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
-  return DILocation::get(*_llvm_ctx, _sm->get_line(p->loc()), _sm->get_col(p->loc()), scope);
+  return DILocation::get(*_llvm_ctx, _sm->get_line(p->start()), _sm->get_col(p->start()), scope);
 }
 
 // ===================================================
@@ -379,7 +374,7 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
   if (p->get_node_type() == ASTNodeType::VAR_DECL) {
     auto *default_value = codegen_type_default_value(p->get_type());
     if (!default_value) {
-      error(p, "Fail to instantiate this type");
+      error(ErrorType::SEMANTIC_ERROR, p, "Fail to instantiate this type");
     }
     _builder->CreateStore(default_value, ret);
   }
@@ -387,8 +382,8 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
   /// debug info
   {
     auto *curr_di_scope = get_current_di_scope();
-    auto *arg_meta = to_llvm_metadata(p->get_type(), p->loc());
-    auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->loc()),
+    auto *arg_meta = to_llvm_metadata(p->get_type(), p->start());
+    auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->start()),
                                                    (DIType *)arg_meta);
     _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
                                _builder->GetInsertBlock());
@@ -405,19 +400,18 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
     int size_bits = p->get_size_bits();
 
     if (p->is_int()) {
-      ret = codegen_constructor(
-          BasicConstructor::CreateIntegerConstructor(SrcLoc(0), 0, (size_t)size_bits, p->is_unsigned()));
+      ret = codegen_constructor(BasicConstructor::CreateIntegerConstructor(0, 0, (size_t)size_bits, p->is_unsigned()));
     } else if (p->is_char()) {
-      ret = codegen_constructor(BasicConstructor::CreateCharConstructor(SrcLoc(0), 0));
+      ret = codegen_constructor(BasicConstructor::CreateCharConstructor(0, 0));
     } else if (p->is_bool()) {
-      ret = codegen_constructor(BasicConstructor::CreateBoolConstructor(SrcLoc(0), false));
+      ret = codegen_constructor(BasicConstructor::CreateBoolConstructor(0, false));
     } else if (p->is_float()) {
-      ret = codegen_constructor(BasicConstructor::CreateFPConstructor(SrcLoc(0), 0, (size_t)size_bits));
+      ret = codegen_constructor(BasicConstructor::CreateFPConstructor(0, 0, (size_t)size_bits));
     } else {
       TAN_ASSERT(false);
     }
   } else if (p->is_string()) { /// str as char*
-    ret = codegen_constructor(BasicConstructor::CreateStringConstructor(SrcLoc(0), ""));
+    ret = codegen_constructor(BasicConstructor::CreateStringConstructor(0, ""));
   } else if (p->is_struct()) { /// struct
     // TODO: use codegen_constructor()
     auto member_types = ((StructType *)p)->get_member_types();
@@ -426,12 +420,10 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
       values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
     }
     ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(p), values);
-  } else if (p->is_array()) { /// array as pointer
-    ret =
-        codegen_constructor(BasicConstructor::CreateArrayConstructor(SrcLoc(0), ((ArrayType *)p)->get_element_type()));
+  } else if (p->is_array()) {   /// array as pointer
+    ret = codegen_constructor(BasicConstructor::CreateArrayConstructor(0, ((ArrayType *)p)->get_element_type()));
   } else if (p->is_pointer()) { /// the pointer literal is nullptr
-    ret = codegen_constructor(
-        BasicConstructor::CreateNullPointerConstructor(SrcLoc(0), ((PointerType *)p)->get_pointee()));
+    ret = codegen_constructor(BasicConstructor::CreateNullPointerConstructor(0, ((PointerType *)p)->get_pointee()));
   } else {
     TAN_ASSERT(false);
   }
@@ -578,7 +570,7 @@ Value *CodeGenerator::codegen_relop(BinaryOperator *p) {
 Value *CodeGenerator::codegen_bnot(UnaryOperator *p) {
   auto *rhs = cached_visit(p->get_rhs());
   if (!rhs) {
-    error(p, "Invalid operand");
+    error(ErrorType::SEMANTIC_ERROR, p, "Invalid operand");
   }
   if (p->get_rhs()->is_lvalue()) {
     rhs = _builder->CreateLoad(to_llvm_type(p->get_rhs()->get_type()), rhs);
@@ -590,7 +582,7 @@ Value *CodeGenerator::codegen_lnot(UnaryOperator *p) {
   auto *rhs = cached_visit(p->get_rhs());
 
   if (!rhs) {
-    error(p, "Invalid operand");
+    error(ErrorType::SEMANTIC_ERROR, p, "Invalid operand");
   }
 
   if (p->get_rhs()->is_lvalue()) {
@@ -604,12 +596,12 @@ Value *CodeGenerator::codegen_lnot(UnaryOperator *p) {
     return _builder->CreateICmpEQ(rhs, ConstantInt::get(_builder->getIntNTy((unsigned)size_in_bits), 0, false));
   }
 
-  error(p, "Invalid operand");
+  error(ErrorType::SEMANTIC_ERROR, p, "Invalid operand");
 }
 
 Value *CodeGenerator::codegen_address_of(UnaryOperator *p) {
   if (!p->get_rhs()->is_lvalue()) {
-    error(p, "Cannot get address of rvalue");
+    error(ErrorType::SEMANTIC_ERROR, p, "Cannot get address of rvalue");
   }
 
   return cached_visit(p->get_rhs());
@@ -1025,7 +1017,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, Assignment) {
 
   // type of lhs is the same as type of the assignment
   if (!lhs->is_lvalue()) {
-    error(lhs, "Value can only be assigned to an lvalue");
+    error(ErrorType::SEMANTIC_ERROR, lhs, "Value can only be assigned to an lvalue");
   }
 
   Value *from = cached_visit(rhs);
@@ -1049,7 +1041,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionCall) {
     auto actual_arg = p->_args[i];
     auto *a = cached_visit(actual_arg);
     if (!a) {
-      error(actual_arg, "Invalid function call argument");
+      error(ErrorType::SEMANTIC_ERROR, actual_arg, "Invalid function call argument");
     }
 
     // implicit cast
@@ -1068,7 +1060,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
   auto *func_type = (tanlang::FunctionType *)p->get_type();
 
   auto ret_ty = func_type->get_return_type();
-  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->loc());
+  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->start());
 
   /// get function name
   str func_name = p->get_name();
@@ -1085,7 +1077,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
   vector<Metadata *> arg_metas;
   for (size_t i = 0; i < p->get_n_args(); ++i) {
     auto ty = func_type->get_arg_types()[i];
-    arg_metas.push_back(to_llvm_metadata(ty, p->loc()));
+    arg_metas.push_back(to_llvm_metadata(ty, p->start()));
   }
 
   /// function implementation
@@ -1098,7 +1090,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
     DIScope *di_scope = get_current_di_scope();
     auto *di_func_t = create_function_debug_info_type(ret_meta, arg_metas);
     DISubprogram *subprogram = _di_builder->createFunction(
-        di_scope, func_name, func_name, _di_file, _sm->get_line(p->loc()), di_func_t, _sm->get_col(p->loc()),
+        di_scope, func_name, func_name, _di_file, _sm->get_line(p->start()), di_func_t, _sm->get_col(p->start()),
         DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
     F->setSubprogram(subprogram);
     push_di_scope(subprogram);
@@ -1111,9 +1103,9 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
       _builder->CreateStore(&a, arg_val);
 
       /// create a debug descriptor for the arguments
-      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->loc());
+      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->start());
       llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
-          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->loc()), (DIType *)arg_meta, true);
+          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->start()), (DIType *)arg_meta, true);
       _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
                                  debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
       ++i;
@@ -1217,7 +1209,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, Loop) {
     _builder->SetInsertPoint(p->_loop_start);
     auto *cond = cached_visit(p->get_predicate());
     if (!cond) {
-      error(p, "Expected a condition expression");
+      error(ErrorType::SEMANTIC_ERROR, p, "Expected a condition expression");
     }
     _builder->CreateCondBr(cond, loop_body, p->_loop_end);
 
@@ -1261,5 +1253,9 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, BreakContinue) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, VarRef) { _llvm_value_cache[p] = cached_visit(p->get_referred()); }
+
+void CodeGenerator::error(ErrorType type, ASTBase *p, const str &message) {
+  Error(type, _sm->get_token(p->start()), _sm->get_token(p->end()), message).raise();
+}
 
 } // namespace tanlang

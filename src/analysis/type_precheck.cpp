@@ -9,7 +9,7 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "ast/context.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
 #include <set>
@@ -47,7 +47,7 @@ void TypePrecheck::run_impl(CompilationUnit *cu) {
   pop_scope();
 }
 
-Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
+Type *TypePrecheck::check_type_ref(Type *p, ASTBase *node) {
   TAN_ASSERT(p->is_ref());
   Type *ret = p;
 
@@ -60,25 +60,25 @@ Type *TypePrecheck::check_type_ref(Type *p, SrcLoc loc, ASTBase *node) {
       _cu->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
-    Error(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name)).raise();
+    error(ErrorType::TYPE_ERROR, node, fmt::format("Unknown type {}", referred_name));
   }
 
   return ret;
 }
 
-Type *TypePrecheck::check_type(Type *p, SrcLoc loc, ASTBase *node) {
+Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
   TAN_ASSERT(p);
   TAN_ASSERT(node);
 
   Type *ret = p;
   if (p->is_ref()) {
-    ret = check_type_ref(p, loc, node);
+    ret = check_type_ref(p, node);
   } else if (p->is_pointer()) {
     auto *pointee = ((PointerType *)p)->get_pointee();
 
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
-      pointee = check_type_ref(pointee, loc, node);
+      pointee = check_type_ref(pointee, node);
       if (pointee->is_canonical()) {
         ret = Type::GetPointerType(pointee);
       }
@@ -94,7 +94,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   str file = p->get_filename();
   auto imported = Compiler::resolve_import(_sm->get_filename(), file);
   if (imported.empty()) {
-    error(p, "Cannot import: " + file);
+    error(ErrorType::IMPORT_ERROR, p, "Cannot import: " + file);
   }
 
   auto *compiler = new Compiler(imported);
@@ -106,7 +106,9 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
   vector<FunctionDecl *> pub_funcs{};
   for (auto *f : funcs) {
-    f->set_loc(p->loc()); // FIXME[HACK]: source location of imported function is not usable in current file
+    f->set_start(p->start()); // FIXME[HACK]: source location of imported function is not usable in current file
+    f->set_end(p->end());
+
     if (f->is_public() || f->is_external()) {
       auto *existing = top_ctx()->get_func_decl(f->get_name());
       if (!existing) {
@@ -167,18 +169,18 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Intrinsic) {
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, VarDecl) {
   Type *ty = p->get_type();
   if (ty) {
-    p->set_type(check_type(ty, p->loc(), p));
+    p->set_type(check_type(ty, p));
   }
 }
 
-DEFINE_AST_VISITOR_IMPL(TypePrecheck, ArgDecl) { p->set_type(check_type(p->get_type(), p->loc(), p)); }
+DEFINE_AST_VISITOR_IMPL(TypePrecheck, ArgDecl) { p->set_type(check_type(p->get_type(), p)); }
 
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, FunctionDecl) {
   push_scope(p);
 
   /// update return type
   auto *func_type = (FunctionType *)p->get_type();
-  auto *ret_type = check_type(func_type->get_return_type(), p->loc(), p);
+  auto *ret_type = check_type(func_type->get_return_type(), p);
   func_type->set_return_type(ret_type);
 
   /// type_check_ast args
@@ -230,7 +232,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       auto bm = ast_cast<Assignment>(m);
 
       if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
-        error(bm, "Expect a member variable declaration");
+        error(ErrorType::SEMANTIC_ERROR, bm, "Expect a member variable declaration");
       }
       auto decl = ast_cast<VarDecl>(bm->get_lhs());
 
@@ -242,7 +244,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       (*ty)[i] = f->get_type();
       p->set_member_index(f->get_name(), (int)i);
     } else {
-      error(p, "Invalid struct member");
+      error(ErrorType::SEMANTIC_ERROR, p, "Invalid struct member");
     }
   }
 

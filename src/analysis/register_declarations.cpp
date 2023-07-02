@@ -53,7 +53,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, If) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, VarDecl) {
   str name = p->get_name();
   if (ctx()->get_decl(name)) {
-    error(p, fmt::format("Cannot redeclare variable named {}", name));
+    error(ErrorType::SEMANTIC_ERROR, p, fmt::format("Cannot redeclare variable named {}", name));
   }
   ctx()->set_decl(name, p);
 }
@@ -61,7 +61,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, VarDecl) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, ArgDecl) {
   str name = p->get_name();
   if (ctx()->get_decl(name)) {
-    error(p, fmt::format("Cannot redeclare argument named {}", name));
+    error(ErrorType::SEMANTIC_ERROR, p, fmt::format("Cannot redeclare argument named {}", name));
   }
   ctx()->set_decl(name, p);
 }
@@ -111,7 +111,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
   auto *root_ctx = top_ctx();
   auto *prev_decl = root_ctx->get_decl(struct_name);
   if (prev_decl && prev_decl != p) {
-    error(p, "Cannot redeclare a struct");
+    error(ErrorType::SEMANTIC_ERROR, p, "Cannot redeclare a struct");
   }
 
   // TODO IMPORTANT: distinguish publicly and privately defined struct types

@@ -6,35 +6,35 @@
 
 using namespace tanlang;
 
-Expr::Expr(ASTNodeType type, SrcLoc loc, int bp) : ASTBase(type, loc, bp) {}
+Expr::Expr(ASTNodeType type, SourceFile *src, int bp) : ASTBase(type, src, bp) {}
 
 vector<ASTBase *> Expr::get_children() const { return {}; }
 
 /// \section Literals
 
-Literal::Literal(ASTNodeType type, SrcLoc loc, int bp) : CompTimeExpr(type, loc, bp) {}
+Literal::Literal(ASTNodeType type, SourceFile *src, int bp) : CompTimeExpr(type, src, bp) {}
 
-BoolLiteral *BoolLiteral::Create(SrcLoc loc, bool val) {
-  auto ret = new BoolLiteral(loc);
+BoolLiteral *BoolLiteral::Create(SourceFile *src, bool val) {
+  auto ret = new BoolLiteral(src);
   ret->_value = val;
   return ret;
 }
 
 bool BoolLiteral::get_value() const { return _value; }
 
-BoolLiteral::BoolLiteral(SrcLoc loc) : Literal(ASTNodeType::BOOL_LITERAL, loc, 0) {}
+BoolLiteral::BoolLiteral(SourceFile *src) : Literal(ASTNodeType::BOOL_LITERAL, src, 0) {}
 
-IntegerLiteral::IntegerLiteral(SrcLoc loc) : Literal(ASTNodeType::INTEGER_LITERAL, loc, 0) {}
+IntegerLiteral::IntegerLiteral(SourceFile *src) : Literal(ASTNodeType::INTEGER_LITERAL, src, 0) {}
 
-IntegerLiteral *IntegerLiteral::Create(SrcLoc loc, uint64_t val, bool is_unsigned) {
-  auto ret = new IntegerLiteral(loc);
+IntegerLiteral *IntegerLiteral::Create(SourceFile *src, uint64_t val, bool is_unsigned) {
+  auto ret = new IntegerLiteral(src);
   ret->_value = val;
   ret->_is_unsigned = is_unsigned;
   return ret;
 }
 
-FloatLiteral *FloatLiteral::Create(SrcLoc loc, double val) {
-  auto ret = new FloatLiteral(loc);
+FloatLiteral *FloatLiteral::Create(SourceFile *src, double val) {
+  auto ret = new FloatLiteral(src);
   ret->_value = val;
   return ret;
 }
@@ -43,20 +43,20 @@ double FloatLiteral::get_value() const { return _value; }
 
 void FloatLiteral::set_value(double value) { _value = value; }
 
-FloatLiteral::FloatLiteral(SrcLoc loc) : Literal(ASTNodeType::FLOAT_LITERAL, loc, 0) {}
+FloatLiteral::FloatLiteral(SourceFile *src) : Literal(ASTNodeType::FLOAT_LITERAL, src, 0) {}
 
-StringLiteral *StringLiteral::Create(SrcLoc loc, const str &val) {
-  auto ret = new StringLiteral(loc);
+StringLiteral *StringLiteral::Create(SourceFile *src, const str &val) {
+  auto ret = new StringLiteral(src);
   ret->_value = val;
   return ret;
 }
 
 str StringLiteral::get_value() const { return _value; }
 
-StringLiteral::StringLiteral(SrcLoc loc) : Literal(ASTNodeType::STRING_LITERAL, loc, 0) {}
+StringLiteral::StringLiteral(SourceFile *src) : Literal(ASTNodeType::STRING_LITERAL, src, 0) {}
 
-CharLiteral *CharLiteral::Create(SrcLoc loc, uint8_t val) {
-  auto ret = new CharLiteral(loc);
+CharLiteral *CharLiteral::Create(SourceFile *src, uint8_t val) {
+  auto ret = new CharLiteral(src);
   ret->_value = val;
   return ret;
 }
@@ -65,36 +65,36 @@ void CharLiteral::set_value(uint8_t val) { _value = val; }
 
 uint8_t CharLiteral::get_value() const { return _value; }
 
-CharLiteral::CharLiteral(SrcLoc loc) : Literal(ASTNodeType::CHAR_LITERAL, loc, 0) {}
+CharLiteral::CharLiteral(SourceFile *src) : Literal(ASTNodeType::CHAR_LITERAL, src, 0) {}
 
-ArrayLiteral *ArrayLiteral::Create(SrcLoc loc, vector<Literal *> val) {
-  auto ret = new ArrayLiteral(loc);
+ArrayLiteral *ArrayLiteral::Create(SourceFile *src, vector<Literal *> val) {
+  auto ret = new ArrayLiteral(src);
   ret->_elements = std::move(val);
   return ret;
 }
 
-ArrayLiteral *ArrayLiteral::Create(SrcLoc loc) { return new ArrayLiteral(loc); }
+ArrayLiteral *ArrayLiteral::Create(SourceFile *src) { return new ArrayLiteral(src); }
 
 void ArrayLiteral::set_elements(const vector<Literal *> &elements) { _elements = elements; }
 
 vector<Literal *> ArrayLiteral::get_elements() const { return _elements; }
 
-ArrayLiteral::ArrayLiteral(SrcLoc loc) : Literal(ASTNodeType::ARRAY_LITERAL, loc, 0) {}
+ArrayLiteral::ArrayLiteral(SourceFile *src) : Literal(ASTNodeType::ARRAY_LITERAL, src, 0) {}
 
-NullPointerLiteral::NullPointerLiteral(SrcLoc loc) : Literal(ASTNodeType::NULLPTR_LITERAL, loc, 0) {}
+NullPointerLiteral::NullPointerLiteral(SourceFile *src) : Literal(ASTNodeType::NULLPTR_LITERAL, src, 0) {}
 
-NullPointerLiteral *NullPointerLiteral::Create(SrcLoc loc) { return new NullPointerLiteral(loc); }
+NullPointerLiteral *NullPointerLiteral::Create(SourceFile *src) { return new NullPointerLiteral(src); }
 
 /// \section Identifier
 
-VarRef *VarRef::Create(SrcLoc loc, const str &name, Decl *referred) {
-  auto ret = new VarRef(loc);
+VarRef *VarRef::Create(SourceFile *src, const str &name, Decl *referred) {
+  auto ret = new VarRef(src);
   ret->set_name(name);
   ret->_referred = referred;
   return ret;
 }
 
-VarRef::VarRef(SrcLoc loc) : Expr(ASTNodeType::VAR_REF, loc, 0) { _is_lvalue = true; }
+VarRef::VarRef(SourceFile *src) : Expr(ASTNodeType::VAR_REF, src, 0) { _is_lvalue = true; }
 
 Decl *VarRef::get_referred() const { return _referred; }
 
@@ -105,10 +105,10 @@ Type *VarRef::get_type() const {
 
 void VarRef::set_type(Type *) { TAN_ASSERT(false); }
 
-Identifier::Identifier(SrcLoc loc) : Expr(ASTNodeType::ID, loc, 0) {}
+Identifier::Identifier(SourceFile *src) : Expr(ASTNodeType::ID, src, 0) {}
 
-Identifier *Identifier::Create(SrcLoc loc, const str &name) {
-  auto ret = new Identifier(loc);
+Identifier *Identifier::Create(SourceFile *src, const str &name) {
+  auto ret = new Identifier(src);
   ret->set_name(name);
   return ret;
 }
@@ -142,8 +142,8 @@ void Identifier::set_lvalue(bool) { TAN_ASSERT(false); }
 
 /// \section Binary operators
 
-BinaryOperator::BinaryOperator(BinaryOpKind op, SrcLoc loc)
-    : Expr(ASTNodeType::BOP, loc, BinaryOperator::BOPPrecedence[op]), _op(op) {}
+BinaryOperator::BinaryOperator(BinaryOpKind op, SourceFile *src)
+    : Expr(ASTNodeType::BOP, src, BinaryOperator::BOPPrecedence[op]), _op(op) {}
 
 umap<BinaryOpKind, int> BinaryOperator::BOPPrecedence = {
     {BinaryOpKind::SUM,           PREC_TERM       },
@@ -165,10 +165,10 @@ umap<BinaryOpKind, int> BinaryOperator::BOPPrecedence = {
     {BinaryOpKind::MEMBER_ACCESS, PREC_HIGHEST    }
 };
 
-BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SrcLoc loc) { return new BinaryOperator(op, loc); }
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SourceFile *src) { return new BinaryOperator(op, src); }
 
-BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SrcLoc loc, Expr *lhs, Expr *rhs) {
-  auto ret = new BinaryOperator(op, loc);
+BinaryOperator *BinaryOperator::Create(BinaryOpKind op, SourceFile *src, Expr *lhs, Expr *rhs) {
+  auto ret = new BinaryOperator(op, src);
   ret->_lhs = lhs;
   ret->_rhs = rhs;
   return ret;
@@ -197,15 +197,15 @@ umap<UnaryOpKind, int> UnaryOperator::UOPPrecedence = {
     {UnaryOpKind::PTR_DEREF,  PREC_HIGHEST}
 };
 
-UnaryOperator::UnaryOperator(UnaryOpKind op, SrcLoc loc)
-    : Expr(ASTNodeType::UOP, loc, UnaryOperator::UOPPrecedence[op]), _op(op) {}
+UnaryOperator::UnaryOperator(UnaryOpKind op, SourceFile *src)
+    : Expr(ASTNodeType::UOP, src, UnaryOperator::UOPPrecedence[op]), _op(op) {}
 
 void UnaryOperator::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SrcLoc loc) { return new UnaryOperator(op, loc); }
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SourceFile *src) { return new UnaryOperator(op, src); }
 
-UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SrcLoc loc, Expr *rhs) {
-  auto ret = new UnaryOperator(op, loc);
+UnaryOperator *UnaryOperator::Create(UnaryOpKind op, SourceFile *src, Expr *rhs) {
+  auto ret = new UnaryOperator(op, src);
   ret->_rhs = rhs;
   return ret;
 }
@@ -218,10 +218,10 @@ vector<ASTBase *> UnaryOperator::get_children() const { return {_rhs}; }
 
 /// \section Parenthesis
 
-Parenthesis *Parenthesis::Create(SrcLoc loc) { return new Parenthesis(loc); }
+Parenthesis *Parenthesis::Create(SourceFile *src) { return new Parenthesis(src); }
 
-Parenthesis::Parenthesis(SrcLoc loc)
-    : Expr(ASTNodeType::PARENTHESIS, loc, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
+Parenthesis::Parenthesis(SourceFile *src)
+    : Expr(ASTNodeType::PARENTHESIS, src, ASTBase::OpPrecedence[ASTNodeType::PARENTHESIS]) {}
 
 void Parenthesis::set_sub(Expr *sub) { _sub = sub; }
 
@@ -235,9 +235,9 @@ bool Parenthesis::is_lvalue() { return _sub->is_lvalue(); }
 
 /// \section MEMBER_ACCESS operator
 
-MemberAccess *MemberAccess::Create(SrcLoc loc) { return new MemberAccess(loc); }
+MemberAccess *MemberAccess::Create(SourceFile *src) { return new MemberAccess(src); }
 
-MemberAccess::MemberAccess(SrcLoc loc) : BinaryOperator(BinaryOpKind::MEMBER_ACCESS, loc) {}
+MemberAccess::MemberAccess(SourceFile *src) : BinaryOperator(BinaryOpKind::MEMBER_ACCESS, src) {}
 
 void MemberAccess::set_lvalue(bool) { TAN_ASSERT(false); }
 
@@ -248,9 +248,9 @@ bool MemberAccess::is_lvalue() {
 
 /// \section Function call
 
-FunctionCall *FunctionCall::Create(SrcLoc loc) { return new FunctionCall(loc); }
+FunctionCall *FunctionCall::Create(SourceFile *src) { return new FunctionCall(src); }
 
-FunctionCall::FunctionCall(SrcLoc loc) : Expr(ASTNodeType::FUNC_CALL, loc, PREC_LOWEST) {}
+FunctionCall::FunctionCall(SourceFile *src) : Expr(ASTNodeType::FUNC_CALL, src, PREC_LOWEST) {}
 
 size_t FunctionCall::get_n_args() const { return _args.size(); }
 
@@ -271,9 +271,9 @@ Expr *Assignment::get_rhs() const { return _rhs; }
 
 void Assignment::set_rhs(Expr *rhs) { _rhs = rhs; }
 
-Assignment *Assignment::Create(SrcLoc loc) { return new Assignment(loc); }
+Assignment *Assignment::Create(SourceFile *src) { return new Assignment(src); }
 
-Assignment::Assignment(SrcLoc loc) : Expr(ASTNodeType::ASSIGN, loc, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
+Assignment::Assignment(SourceFile *src) : Expr(ASTNodeType::ASSIGN, src, ASTBase::OpPrecedence[ASTNodeType::ASSIGN]) {}
 
 ASTBase *Assignment::get_lhs() const { return _lhs; }
 
@@ -291,15 +291,15 @@ bool Cast::is_lvalue() { return _lhs->is_lvalue(); }
 
 void Cast::set_lvalue(bool) { TAN_ASSERT(false); }
 
-Cast *Cast::Create(SrcLoc loc) { return new Cast(loc); }
+Cast *Cast::Create(SourceFile *src) { return new Cast(src); }
 
-Cast::Cast(SrcLoc loc) : Expr(ASTNodeType::CAST, loc, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
+Cast::Cast(SourceFile *src) : Expr(ASTNodeType::CAST, src, ASTBase::OpPrecedence[ASTNodeType::CAST]) {}
 
 vector<ASTBase *> Cast::get_children() const { return {_lhs}; }
 
-BinaryOrUnary::BinaryOrUnary(SrcLoc loc, int bp) : Expr(ASTNodeType::BOP_OR_UOP, loc, bp) {}
+BinaryOrUnary::BinaryOrUnary(SourceFile *src, int bp) : Expr(ASTNodeType::BOP_OR_UOP, src, bp) {}
 
-BinaryOrUnary *BinaryOrUnary::Create(SrcLoc loc, int bp) { return new BinaryOrUnary(loc, bp); }
+BinaryOrUnary *BinaryOrUnary::Create(SourceFile *src, int bp) { return new BinaryOrUnary(src, bp); }
 
 void BinaryOrUnary::set_bop(BinaryOperator *bop) {
   TAN_ASSERT(_kind == UNKNOWN); /// prevent setting this twice
@@ -338,47 +338,47 @@ void BinaryOrUnary::set_lvalue(bool is_lvalue) { get_expr_ptr()->set_lvalue(is_l
 
 bool CompTimeExpr::is_comptime_known() { return true; }
 
-CompTimeExpr::CompTimeExpr(ASTNodeType type, SrcLoc loc, int bp) : Expr(type, loc, bp) {}
+CompTimeExpr::CompTimeExpr(ASTNodeType type, SourceFile *src, int bp) : Expr(type, src, bp) {}
 
-IntegerLiteral *Literal::CreateIntegerLiteral(SrcLoc loc, uint64_t val, size_t bit_size, bool is_unsigned) {
-  auto *ret = IntegerLiteral::Create(loc, val, is_unsigned);
+IntegerLiteral *Literal::CreateIntegerLiteral(SourceFile *src, uint64_t val, size_t bit_size, bool is_unsigned) {
+  auto *ret = IntegerLiteral::Create(src, val, is_unsigned);
   ret->set_type(Type::GetIntegerType(bit_size, is_unsigned));
   return ret;
 }
 
-BoolLiteral *Literal::CreateBoolLiteral(SrcLoc loc, bool val) {
-  auto *ret = BoolLiteral::Create(loc, val);
+BoolLiteral *Literal::CreateBoolLiteral(SourceFile *src, bool val) {
+  auto *ret = BoolLiteral::Create(src, val);
   ret->set_type(Type::GetBoolType());
   return ret;
 }
 
-FloatLiteral *Literal::CreateFloatLiteral(SrcLoc loc, double val, size_t bit_size) {
-  auto *ret = FloatLiteral::Create(loc, val);
+FloatLiteral *Literal::CreateFloatLiteral(SourceFile *src, double val, size_t bit_size) {
+  auto *ret = FloatLiteral::Create(src, val);
   ret->set_type(Type::GetFloatType(bit_size));
   return ret;
 }
 
-StringLiteral *Literal::CreateStringLiteral(SrcLoc loc, str val) {
-  auto *ret = StringLiteral::Create(loc, val);
+StringLiteral *Literal::CreateStringLiteral(SourceFile *src, str val) {
+  auto *ret = StringLiteral::Create(src, val);
   ret->set_type(Type::GetStringType());
   return ret;
 }
 
-CharLiteral *Literal::CreateCharLiteral(SrcLoc loc, uint8_t val) {
-  auto *ret = CharLiteral::Create(loc, val);
+CharLiteral *Literal::CreateCharLiteral(SourceFile *src, uint8_t val) {
+  auto *ret = CharLiteral::Create(src, val);
   ret->set_type(Type::GetCharType());
   return ret;
 }
 
-ArrayLiteral *Literal::CreateArrayLiteral(SrcLoc loc, Type *element_type, int size) {
-  auto *ret = ArrayLiteral::Create(loc);
+ArrayLiteral *Literal::CreateArrayLiteral(SourceFile *src, Type *element_type, int size) {
+  auto *ret = ArrayLiteral::Create(src);
   vector<Type *> sub_types{};
   ret->set_type(Type::GetArrayType(element_type, size));
   return ret;
 }
 
-NullPointerLiteral *Literal::CreateNullPointerLiteral(SrcLoc loc, Type *element_type) {
-  auto *ret = NullPointerLiteral::Create(loc);
+NullPointerLiteral *Literal::CreateNullPointerLiteral(SourceFile *src, Type *element_type) {
+  auto *ret = NullPointerLiteral::Create(src);
   ret->set_type(Type::GetPointerType(element_type));
   return ret;
 }

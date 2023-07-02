@@ -9,7 +9,7 @@
 #include "ast/intrinsic.h"
 #include "ast/context.h"
 #include "fmt/core.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
 #include <csetjmp>
@@ -48,12 +48,13 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
 
   FunctionDecl *candidate = top_ctx()->get_func_decl(name);
   if (!candidate) {
-    error(p, fmt::format("Unknown function call: {}", name));
+    error(ErrorType::TYPE_ERROR, p, fmt::format("Unknown function call: {}", name));
   }
 
   size_t n = candidate->get_n_args();
   if (n != args.size()) {
-    error(p, fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
+    error(ErrorType::SEMANTIC_ERROR, p,
+          fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
   }
 
   auto *func_type = (FunctionType *)candidate->get_type();
@@ -66,8 +67,9 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
 
     if (actual_type != expected_type) {
       if (!CanImplicitlyConvert(actual_type, expected_type)) {
-        error(p, fmt::format("Cannot implicitly convert the type of argument {}: expect {} but found {}", i + 1,
-                             actual_type->get_typename(), expected_type->get_typename()));
+        error(ErrorType::TYPE_ERROR, p,
+              fmt::format("Cannot implicitly convert the type of argument {}: expect {} but found {}", i + 1,
+                          actual_type->get_typename(), expected_type->get_typename()));
       }
     }
   }
@@ -75,7 +77,7 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
   return candidate;
 }
 
-Type *TypeCheck::resolve_type_ref(Type *p, SrcLoc loc) {
+Type *TypeCheck::resolve_type_ref(Type *p, ASTBase *node) {
   TAN_ASSERT(p->is_ref());
   Type *ret = p;
 
@@ -84,26 +86,25 @@ Type *TypeCheck::resolve_type_ref(Type *p, SrcLoc loc) {
   if (decl && decl->is_type_decl()) {
     ret = decl->get_type();
   } else {
-    Error err(_sm->get_filename(), _sm->get_token(loc), fmt::format("Unknown type {}", referred_name));
-    err.raise();
+    error(ErrorType::TYPE_ERROR, node, fmt::format("Unknown type {}", referred_name));
   }
 
   TAN_ASSERT(ret);
   return ret;
 }
 
-Type *TypeCheck::resolve_type(Type *p, SrcLoc loc) {
+Type *TypeCheck::resolve_type(Type *p, ASTBase *node) {
   TAN_ASSERT(p);
 
   Type *ret = p;
   if (p->is_ref()) {
-    ret = resolve_type_ref(p, loc);
+    ret = resolve_type_ref(p, node);
   } else if (p->is_pointer()) {
     auto *pointee = ((PointerType *)p)->get_pointee();
 
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
-      pointee = resolve_type_ref(pointee, loc);
+      pointee = resolve_type_ref(pointee, node);
       ret = Type::GetPointerType(pointee);
     }
   }
@@ -119,7 +120,7 @@ void TypeCheck::analyze_func_decl_prototype(ASTBase *_p) {
 
   /// update return type
   auto *func_type = (FunctionType *)p->get_type();
-  auto *ret_type = resolve_type(func_type->get_return_type(), p->loc());
+  auto *ret_type = resolve_type(func_type->get_return_type(), p);
   func_type->set_return_type(ret_type);
 
   /// type_check_ast args
@@ -160,10 +161,10 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     break;
   case IntrinsicType::GET_DECL: {
     if (func_call->get_n_args() != 1) {
-      error(func_call, "Expect the number of args to be 1");
+      error(ErrorType::SEMANTIC_ERROR, func_call, "Expect the number of args to be 1");
     }
     auto *target = func_call->get_arg(0);
-    auto *source_str = Literal::CreateStringLiteral(p->loc(), _sm->get_source_code(target->loc()));
+    auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(target->start()));
 
     // FEATURE: Return AST?
     p->set_sub(source_str);
@@ -176,11 +177,11 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     // FEATURE: print with var args
     auto args = func_call->_args;
     if (args.size() != 1 || args[0]->get_node_type() != ASTNodeType::STRING_LITERAL) {
-      error(p, "Invalid call to compprint, one argument with type 'str' required");
+      error(ErrorType::TYPE_ERROR, p, "Invalid call to compprint, one argument with type 'str' required");
     }
 
     str msg = ast_cast<StringLiteral>(args[0])->get_value();
-    std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->loc()), msg);
+    std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->start()), msg);
     break;
   }
   default:
@@ -191,12 +192,12 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
 // ASSUMES lhs has been already analyzed, while rhs has not
 void TypeCheck::analyze_member_func_call(MemberAccess *p, Expr *lhs, FunctionCall *rhs) {
   if (!lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
-    error(p, "Invalid member function call");
+    error(ErrorType::TYPE_ERROR, p, "Invalid member function call");
   }
 
   // insert the address of the struct instance as the first parameter
   if (lhs->is_lvalue() && !lhs->get_type()->is_pointer()) {
-    Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->loc(), lhs);
+    Expr *tmp = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, lhs->src(), lhs);
     visit(tmp);
     rhs->_args.insert(rhs->_args.begin(), tmp);
   } else {
@@ -212,15 +213,15 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
   visit(rhs);
 
   if (!lhs->is_lvalue()) {
-    error(p, "Expect lhs to be an lvalue");
+    error(ErrorType::TYPE_ERROR, p, "Expect lhs to be an lvalue");
   }
 
   auto *lhs_type = lhs->get_type();
   if (!(lhs_type->is_pointer() || lhs_type->is_array() || lhs_type->is_string())) {
-    error(p, "Expect a type that supports bracket access");
+    error(ErrorType::TYPE_ERROR, p, "Expect a type that supports bracket access");
   }
   if (!rhs->get_type()->is_int()) {
-    error(rhs, "Expect an integer");
+    error(ErrorType::TYPE_ERROR, rhs, "Expect an integer");
   }
 
   Type *sub_type = nullptr;
@@ -233,8 +234,9 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
       uint64_t size = ast_cast<IntegerLiteral>(rhs)->get_value();
       if (lhs->get_type()->is_array() && (int)size >= array_type->get_size()) {
-        error(p, fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
-                             std::to_string(array_type->get_size())));
+        error(ErrorType::TYPE_ERROR, p,
+              fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
+                          std::to_string(array_type->get_size())));
       }
     }
   } else if (lhs_type->is_string()) {
@@ -255,32 +257,33 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
     struct_ty = lhs->get_type();
   }
 
-  struct_ty = resolve_type(struct_ty, lhs->loc());
+  struct_ty = resolve_type(struct_ty, lhs);
   if (!struct_ty->is_struct()) {
-    error(lhs, "Expect a struct type");
+    error(ErrorType::TYPE_ERROR, lhs, "Expect a struct type");
   }
 
   auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   if (p->_access_idx == -1) {
-    error(p, fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
+    error(ErrorType::UNKNOWN_SYMBOL, p,
+          fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
   }
   auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
-  p->set_type(resolve_type(ty, p->loc()));
+  p->set_type(resolve_type(ty, p));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
   auto *referred = search_decl_in_scopes(p->get_name());
   if (referred) {
     if (referred->is_type_decl()) { /// refers to a type
-      auto *ty = resolve_type_ref(referred->get_type(), p->loc());
+      auto *ty = resolve_type_ref(referred->get_type(), p);
       p->set_type_ref(ty);
     } else { /// refers to a variable
-      p->set_var_ref(VarRef::Create(p->loc(), p->get_name(), referred));
-      p->set_type(resolve_type(referred->get_type(), p->loc()));
+      p->set_var_ref(VarRef::Create(p->src(), p->get_name(), referred));
+      p->set_type(resolve_type(referred->get_type(), p));
     }
   } else {
-    error(p, "Unknown identifier");
+    error(ErrorType::UNKNOWN_SYMBOL, p, "Unknown identifier");
   }
 }
 
@@ -309,17 +312,17 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, VarDecl) {
   // assume the type is always non-null
   // type_check_assignment is responsible for setting the deduced type if necessary
   if (!ty) {
-    error(p, "Cannot deduce the type of variable declaration");
+    error(ErrorType::TYPE_ERROR, p, "Cannot deduce the type of variable declaration");
   }
-  p->set_type(resolve_type(ty, p->loc()));
+  p->set_type(resolve_type(ty, p));
 }
 
-DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p->loc())); }
+DEFINE_AST_VISITOR_IMPL(TypeCheck, ArgDecl) { p->set_type(resolve_type(p->get_type(), p)); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
   FunctionDecl *func = search_node_in_parent_scopes<FunctionDecl, ASTNodeType::FUNC_DECL>();
   if (!func) {
-    error(p, "Return statement must be inside a function definition");
+    error(ErrorType::TYPE_ERROR, p, "Return statement must be inside a function definition");
   }
 
   auto *rhs = p->get_rhs();
@@ -330,7 +333,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
   }
   // check if return type is the same as the function return type
   if (!CanImplicitlyConvert(ret_type, ((FunctionType *)func->get_type())->get_return_type())) {
-    error(p, "Returned type cannot be coerced to function return type");
+    error(ErrorType::TYPE_ERROR, p, "Returned type cannot be coerced to function return type");
   }
 }
 
@@ -406,7 +409,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
     break;
   case UnaryOpKind::BNOT:
     if (!rhs_type->is_int()) {
-      error(rhs, "Expect an integer type");
+      error(ErrorType::TYPE_ERROR, rhs, "Expect an integer type");
     }
     p->set_type(rhs_type);
     break;
@@ -415,7 +418,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
     break;
   case UnaryOpKind::PTR_DEREF:
     if (!rhs_type->is_pointer()) {
-      error(rhs, "Expect a pointer type");
+      error(ErrorType::TYPE_ERROR, rhs, "Expect a pointer type");
     }
     TAN_ASSERT(rhs->is_lvalue());
     p->set_lvalue(true);
@@ -424,7 +427,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
   case UnaryOpKind::PLUS:
   case UnaryOpKind::MINUS: /// unary plus/minus
     if (!rhs_type->is_num()) {
-      error(rhs, "Expect a numerical type");
+      error(ErrorType::TYPE_ERROR, rhs, "Expect a numerical type");
     }
     p->set_type(rhs_type);
     break;
@@ -436,7 +439,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Cast) {
   Expr *lhs = p->get_lhs();
   visit(lhs);
-  p->set_type(resolve_type(p->get_type(), p->loc()));
+  p->set_type(resolve_type(p->get_type(), p));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
@@ -462,7 +465,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
     case ASTNodeType::ID: {
       auto *id = ast_cast<Identifier>(lhs);
       if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
-        error(lhs, "Can only assign value to a variable");
+        error(ErrorType::TYPE_ERROR, lhs, "Can only assign value to a variable");
       }
       lhs_type = id->get_type();
       break;
@@ -474,7 +477,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
       lhs_type = ast_cast<Expr>(lhs)->get_type();
       break;
     default:
-      error(lhs, "Invalid left-hand operand");
+      error(ErrorType::TYPE_ERROR, lhs, "Invalid left-hand operand");
     }
   }
   p->set_type(lhs_type);
@@ -503,7 +506,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {
-    auto sub = IntegerLiteral::Create(p->loc(), _sm->get_line(p->loc()), true);
+    auto sub = IntegerLiteral::Create(p->src(), _sm->get_line(p->start()), true);
     auto type = PrimitiveType::GetIntegerType(32, true);
     sub->set_type(type);
     p->set_type(type);
@@ -511,7 +514,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     break;
   }
   case IntrinsicType::FILENAME: {
-    auto sub = StringLiteral::Create(p->loc(), _sm->get_filename());
+    auto sub = StringLiteral::Create(p->src(), _sm->get_filename());
     auto type = Type::GetStringType();
     sub->set_type(type);
     p->set_type(type);
@@ -534,7 +537,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     }
 
     if (!error_caught)
-      error(p, "Expect a compile error");
+      error(ErrorType::TYPE_ERROR, p, "Expect a compile error");
     break;
   }
   case IntrinsicType::NOOP:
@@ -556,18 +559,18 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, StringLiteral) {
-  p->set_value(_sm->get_token_str(p->loc()));
+  p->set_value(_sm->get_token_str(p->start()));
   p->set_type(Type::GetStringType());
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) {
   p->set_type(Type::GetCharType());
-  p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->loc())[0]));
+  p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->start())[0]));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, IntegerLiteral) {
   Type *ty;
-  if (_sm->get_token(p->loc())->is_unsigned()) {
+  if (_sm->get_token(p->start())->is_unsigned()) {
     ty = Type::GetIntegerType(32, true);
   } else {
     ty = Type::GetIntegerType(32, false);
@@ -612,7 +615,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, MemberAccess) {
     p->_access_type = MemberAccess::MemberAccessMemberVariable;
     analyze_member_access_member_variable(p, lhs, rhs);
   } else {
-    error(p, "Invalid right-hand operand");
+    error(ErrorType::UNKNOWN_SYMBOL, p, "Invalid right-hand operand");
   }
 }
 
@@ -629,13 +632,13 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
     Expr *m = members[i];
 
     if (m->get_node_type() == ASTNodeType::VAR_DECL) {      // member variable without initial value
-      (*ty)[i] = resolve_type((*ty)[i], m->loc());
+      (*ty)[i] = resolve_type((*ty)[i], m);
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
       auto init_val = ast_cast<Assignment>(m)->get_rhs();
-      (*ty)[i] = resolve_type((*ty)[i], m->loc());
+      (*ty)[i] = resolve_type((*ty)[i], m);
 
       if (!init_val->is_comptime_known()) {
-        error(p, "Initial value of a member variable must be compile-time known");
+        error(ErrorType::TYPE_ERROR, p, "Initial value of a member variable must be compile-time known");
       }
       // TODO: initial values
       //   auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
@@ -644,7 +647,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
       auto f = ast_cast<FunctionDecl>(m);
       (*ty)[i] = f->get_type();
     } else {
-      error(p, "Invalid struct member");
+      error(ErrorType::TYPE_ERROR, p, "Invalid struct member");
     }
   }
 
@@ -663,7 +666,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
   Loop *loop = search_node_in_parent_scopes<Loop, ASTNodeType::LOOP>();
   if (!loop) {
-    error(p, "Break or continue must be inside a loop");
+    error(ErrorType::SEMANTIC_ERROR, p, "Break or continue must be inside a loop");
   }
   p->set_parent_loop(ast_cast<Loop>(loop));
 }

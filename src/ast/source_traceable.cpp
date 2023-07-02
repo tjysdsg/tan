@@ -1,11 +1,18 @@
 #include "ast/source_traceable.h"
-#include "lexer/token.h"
-#include <iostream>
+#include "source_file/token.h"
 
 using namespace tanlang;
 
-SourceTraceable::SourceTraceable(SrcLoc loc) : _loc(loc) {}
+TokenSpan::TokenSpan(uint32_t start, uint32_t end) : _start(start), _end(end) {}
 
-const SrcLoc &SourceTraceable::loc() const { return _loc; }
+SourceTraceable::SourceTraceable(SourceFile *src) : _span(TokenSpan(0, 0)), _src(src) {}
 
-void SourceTraceable::set_loc(SrcLoc loc) { _loc = loc; }
+uint32_t SourceTraceable::start() const { return _span._start; }
+
+uint32_t SourceTraceable::end() const { return _span._end; }
+
+void SourceTraceable::set_start(uint32_t val) { _span._start = val; }
+
+void SourceTraceable::set_end(uint32_t val) { _span._end = val; }
+
+SourceFile *SourceTraceable::src() const { return _src; }

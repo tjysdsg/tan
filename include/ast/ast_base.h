@@ -20,7 +20,7 @@ public:
 
 public:
   ASTBase() = delete;
-  ASTBase(ASTNodeType node_type, SrcLoc loc, int bp);
+  ASTBase(ASTNodeType node_type, SourceFile *src, int bp);
   virtual ~ASTBase() = default;
 
 public:

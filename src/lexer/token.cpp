@@ -1,4 +1,4 @@
-#include "lexer/token.h"
+#include "source_file/token.h"
 
 namespace tanlang {
 
@@ -69,9 +69,11 @@ uint32_t Token::get_line() const { return _line; }
 uint32_t Token::get_col() const { return _col; }
 
 SourceSpan Token::GetSourceSpan(const Token &start, const Token &end) {
-  Cursor c1(start._line, start._col, start._src);
-  Cursor c2(end._line, end._col, end._src);
+  SrcLoc c1(start._line, start._col, start._src);
+  SrcLoc c2(end._line, end._col + (uint32_t)end.get_value().length() - 1, end._src);
   return SourceSpan(c1, c2);
 }
+
+SourceFile *Token::src() const { return _src; }
 
 } // namespace tanlang
