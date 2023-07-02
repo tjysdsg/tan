@@ -49,13 +49,13 @@ private:
    * \brief Resolve a type reference.
    * \return Non-null
    */
-  Type *resolve_type_ref(Type *p, SrcLoc loc);
+  Type *resolve_type_ref(Type *p, ASTBase* node);
 
   /**
    * \brief Resolve a type.
    * \return Non-null
    */
-  Type *resolve_type(Type *p, SrcLoc loc);
+  Type *resolve_type(Type *p, ASTBase *node);
 
 public:
   // DECLARE_AST_VISITOR_IMPL(Program);
