@@ -9,7 +9,7 @@
 #include "ast/intrinsic.h"
 #include "ast/context.h"
 #include "fmt/core.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include "compiler/compiler.h"
 #include <iostream>
 #include <csetjmp>

@@ -1,5 +1,5 @@
 #include "ast/source_traceable.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include <iostream>
 
 using namespace tanlang;

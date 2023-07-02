@@ -1,6 +1,6 @@
 #include "compiler/compiler.h"
 #include "lexer/lexer.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include "analysis/type_check.h"
 #include "analysis/register_declarations.h"
 #include "analysis/type_precheck.h"
@@ -10,7 +10,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/context.h"
-#include "lexer/source_file.h"
+#include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
 #include <filesystem>

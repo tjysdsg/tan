@@ -6,7 +6,7 @@
 #include "ast/type.h"
 #include "ast/context.h"
 #include "ast/intrinsic.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include <iostream>
 
 using namespace tanlang;

@@ -1,5 +1,5 @@
 #include "base/error.h"
-#include "lexer/token.h"
+#include "source_file/token.h"
 #include <fmt/core.h>
 
 using namespace tanlang;

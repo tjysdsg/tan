@@ -1,6 +1,6 @@
 #include <fstream>
 #include <algorithm>
-#include "lexer/source_file.h"
+#include "source_file/source_file.h"
 #include "base.h"
 
 /// we always assume that the line number and column number can be contained within 32bit int

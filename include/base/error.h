@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_BASE_ERROR_H__
 #define __TAN_SRC_BASE_ERROR_H__
 #include "base/container.h"
-#include "lexer/source_file.h"
+#include "source_file/source_file.h"
 #include <stdexcept>
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
