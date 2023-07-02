@@ -46,6 +46,7 @@ public:
   void set_is_unsigned(bool is_unsigned);
   [[nodiscard]] uint32_t get_line() const;
   [[nodiscard]] uint32_t get_col() const;
+  SourceFile *src() const;
 
 private:
   TokenType _type = TokenType::END;

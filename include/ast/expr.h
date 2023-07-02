@@ -11,7 +11,7 @@ namespace tanlang {
 
 class Expr : public ASTBase, public Typed {
 protected:
-  Expr(ASTNodeType type, SrcLoc loc, int bp);
+  Expr(ASTNodeType type, SourceFile *src, int bp);
 
 public:
   virtual bool is_comptime_known() { return false; }
@@ -31,7 +31,7 @@ protected:
  */
 class CompTimeExpr : public Expr {
 protected:
-  CompTimeExpr(ASTNodeType type, SrcLoc loc, int bp);
+  CompTimeExpr(ASTNodeType type, SourceFile *src, int bp);
 
 public:
   bool is_comptime_known() override;
@@ -39,24 +39,24 @@ public:
 
 class Literal : public CompTimeExpr {
 protected:
-  Literal(ASTNodeType type, SrcLoc loc, int bp);
+  Literal(ASTNodeType type, SourceFile *src, int bp);
 
 public:
-  static IntegerLiteral *CreateIntegerLiteral(SrcLoc loc, uint64_t val, size_t bit_size, bool is_unsigned);
-  static BoolLiteral *CreateBoolLiteral(SrcLoc loc, bool val);
-  static FloatLiteral *CreateFloatLiteral(SrcLoc loc, double val, size_t bit_size);
-  static StringLiteral *CreateStringLiteral(SrcLoc loc, str val);
-  static CharLiteral *CreateCharLiteral(SrcLoc loc, uint8_t val);
-  static ArrayLiteral *CreateArrayLiteral(SrcLoc loc, Type *element_type, int size);
-  static NullPointerLiteral *CreateNullPointerLiteral(SrcLoc loc, Type *element_type);
+  static IntegerLiteral *CreateIntegerLiteral(SourceFile *src, uint64_t val, size_t bit_size, bool is_unsigned);
+  static BoolLiteral *CreateBoolLiteral(SourceFile *src, bool val);
+  static FloatLiteral *CreateFloatLiteral(SourceFile *src, double val, size_t bit_size);
+  static StringLiteral *CreateStringLiteral(SourceFile *src, str val);
+  static CharLiteral *CreateCharLiteral(SourceFile *src, uint8_t val);
+  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, int size);
+  static NullPointerLiteral *CreateNullPointerLiteral(SourceFile *src, Type *element_type);
 };
 
 class BoolLiteral : public Literal {
 protected:
-  explicit BoolLiteral(SrcLoc loc);
+  explicit BoolLiteral(SourceFile *src);
 
 public:
-  static BoolLiteral *Create(SrcLoc loc, bool val);
+  static BoolLiteral *Create(SourceFile *src, bool val);
   [[nodiscard]] bool get_value() const;
 
 private:
@@ -65,10 +65,10 @@ private:
 
 class IntegerLiteral : public Literal {
 protected:
-  explicit IntegerLiteral(SrcLoc loc);
+  explicit IntegerLiteral(SourceFile *src);
 
 public:
-  static IntegerLiteral *Create(SrcLoc loc, uint64_t val, bool is_unsigned = false);
+  static IntegerLiteral *Create(SourceFile *src, uint64_t val, bool is_unsigned = false);
 
   [[nodiscard]] uint64_t get_value() const { return _value; }
   [[nodiscard]] bool is_unsigned() const { return _is_unsigned; }
@@ -80,10 +80,10 @@ private:
 
 class FloatLiteral : public Literal {
 protected:
-  explicit FloatLiteral(SrcLoc loc);
+  explicit FloatLiteral(SourceFile *src);
 
 public:
-  static FloatLiteral *Create(SrcLoc loc, double val);
+  static FloatLiteral *Create(SourceFile *src, double val);
   [[nodiscard]] double get_value() const;
   void set_value(double value);
 
@@ -93,10 +93,10 @@ private:
 
 class StringLiteral : public Literal {
 protected:
-  explicit StringLiteral(SrcLoc loc);
+  explicit StringLiteral(SourceFile *src);
 
 public:
-  static StringLiteral *Create(SrcLoc loc, const str &val);
+  static StringLiteral *Create(SourceFile *src, const str &val);
 
   [[nodiscard]] str get_value() const;
   void set_value(str val) { _value = std::move(val); }
@@ -107,10 +107,10 @@ private:
 
 class CharLiteral : public Literal {
 protected:
-  explicit CharLiteral(SrcLoc loc);
+  explicit CharLiteral(SourceFile *src);
 
 public:
-  static CharLiteral *Create(SrcLoc loc, uint8_t val);
+  static CharLiteral *Create(SourceFile *src, uint8_t val);
 
   void set_value(uint8_t val);
   [[nodiscard]] uint8_t get_value() const;
@@ -121,11 +121,11 @@ private:
 
 class ArrayLiteral : public Literal {
 protected:
-  explicit ArrayLiteral(SrcLoc loc);
+  explicit ArrayLiteral(SourceFile *src);
 
 public:
-  static ArrayLiteral *Create(SrcLoc loc, vector<Literal *> val);
-  static ArrayLiteral *Create(SrcLoc loc);
+  static ArrayLiteral *Create(SourceFile *src, vector<Literal *> val);
+  static ArrayLiteral *Create(SourceFile *src);
 
   void set_elements(const vector<Literal *> &elements);
   [[nodiscard]] vector<Literal *> get_elements() const;
@@ -136,18 +136,18 @@ private:
 
 class NullPointerLiteral : public Literal {
 protected:
-  explicit NullPointerLiteral(SrcLoc loc);
+  explicit NullPointerLiteral(SourceFile *src);
 
 public:
-  static NullPointerLiteral *Create(SrcLoc loc);
+  static NullPointerLiteral *Create(SourceFile *src);
 };
 
 class VarRef : public Expr, public ASTNamed {
 protected:
-  explicit VarRef(SrcLoc loc);
+  explicit VarRef(SourceFile *src);
 
 public:
-  static VarRef *Create(SrcLoc loc, const str &name, Decl *referred);
+  static VarRef *Create(SourceFile *src, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
   [[nodiscard]] Type *get_type() const override;
@@ -165,10 +165,10 @@ enum class IdentifierType {
 
 class Identifier : public Expr, public ASTNamed {
 protected:
-  explicit Identifier(SrcLoc loc);
+  explicit Identifier(SourceFile *src);
 
 public:
-  static Identifier *Create(SrcLoc loc, const str &name);
+  static Identifier *Create(SourceFile *src, const str &name);
 
   [[nodiscard]] IdentifierType get_id_type() const;
   void set_var_ref(VarRef *var_ref);
@@ -205,11 +205,11 @@ enum class BinaryOpKind {
 
 class BinaryOperator : public Expr {
 protected:
-  BinaryOperator(BinaryOpKind op, SrcLoc loc);
+  BinaryOperator(BinaryOpKind op, SourceFile *src);
 
 public:
-  static BinaryOperator *Create(BinaryOpKind op, SrcLoc loc);
-  static BinaryOperator *Create(BinaryOpKind op, SrcLoc loc, Expr *lhs, Expr *rhs);
+  static BinaryOperator *Create(BinaryOpKind op, SourceFile *src);
+  static BinaryOperator *Create(BinaryOpKind op, SourceFile *src, Expr *lhs, Expr *rhs);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
@@ -229,10 +229,10 @@ protected:
 
 class MemberAccess : public BinaryOperator {
 protected:
-  explicit MemberAccess(SrcLoc loc);
+  explicit MemberAccess(SourceFile *src);
 
 public:
-  static MemberAccess *Create(SrcLoc loc);
+  static MemberAccess *Create(SourceFile *src);
   bool is_lvalue() override;
   void set_lvalue(bool is_lvalue) override;
 
@@ -259,11 +259,11 @@ enum class UnaryOpKind {
 
 class UnaryOperator : public Expr {
 protected:
-  UnaryOperator(UnaryOpKind op, SrcLoc loc);
+  UnaryOperator(UnaryOpKind op, SourceFile *src);
 
 public:
-  static UnaryOperator *Create(UnaryOpKind op, SrcLoc loc);
-  static UnaryOperator *Create(UnaryOpKind op, SrcLoc loc, Expr *rhs);
+  static UnaryOperator *Create(UnaryOpKind op, SourceFile *src);
+  static UnaryOperator *Create(UnaryOpKind op, SourceFile *src, Expr *rhs);
 
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
@@ -285,10 +285,10 @@ protected:
  */
 class BinaryOrUnary : public Expr {
 protected:
-  BinaryOrUnary(SrcLoc loc, int bp);
+  BinaryOrUnary(SourceFile *src, int bp);
 
 public:
-  static BinaryOrUnary *Create(SrcLoc loc, int bp);
+  static BinaryOrUnary *Create(SourceFile *src, int bp);
 
   enum BinaryOrUnaryKind {
     UNKNOWN,
@@ -319,10 +319,10 @@ private:
 
 class Parenthesis : public Expr {
 protected:
-  explicit Parenthesis(SrcLoc loc);
+  explicit Parenthesis(SourceFile *src);
 
 public:
-  static Parenthesis *Create(SrcLoc loc);
+  static Parenthesis *Create(SourceFile *src);
 
   void set_sub(Expr *sub);
   [[nodiscard]] Expr *get_sub() const;
@@ -337,10 +337,10 @@ private:
 
 class FunctionCall : public Expr, public ASTNamed {
 protected:
-  explicit FunctionCall(SrcLoc loc);
+  explicit FunctionCall(SourceFile *src);
 
 public:
-  static FunctionCall *Create(SrcLoc loc);
+  static FunctionCall *Create(SourceFile *src);
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] Expr *get_arg(size_t i) const;
 
@@ -353,10 +353,10 @@ public:
 
 class Assignment : public Expr {
 protected:
-  explicit Assignment(SrcLoc loc);
+  explicit Assignment(SourceFile *src);
 
 public:
-  static Assignment *Create(SrcLoc loc);
+  static Assignment *Create(SourceFile *src);
 
   [[nodiscard]] ASTBase *get_lhs() const;
   void set_lhs(ASTBase *lhs);
@@ -372,10 +372,10 @@ protected:
 
 class Cast : public Expr {
 protected:
-  explicit Cast(SrcLoc loc);
+  explicit Cast(SourceFile *src);
 
 public:
-  static Cast *Create(SrcLoc loc);
+  static Cast *Create(SourceFile *src);
   [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
 

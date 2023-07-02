@@ -14,11 +14,11 @@ namespace tanlang {
    x == '<' || x == '>' || x == '/' || x == '?' || x == '\\' || x == '|' || x == '{' || x == '}' || x == '[' ||       \
    x == ']' || x == '\'' || x == '"' || x == ':')
 
-[[noreturn]] static void report_error(SourceFile *src, Cursor c, const str &message) {
+[[noreturn]] static void report_error(SourceFile *src, SrcLoc c, const str &message) {
   Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message).raise();
 }
 
-Cursor skip_whitespace(SourceFile *src, Cursor ptr) {
+SrcLoc skip_whitespace(SourceFile *src, SrcLoc ptr) {
   const auto end = src->end();
   while (ptr < end && (std::isspace(*ptr) || *ptr == '\0')) {
     ++ptr;
@@ -32,7 +32,7 @@ Cursor skip_whitespace(SourceFile *src, Cursor ptr) {
  * \note: Call of tokenize_keyword must before that of
  *      tokenize_id
  */
-Token *tokenize_id(SourceFile *src, Cursor &start) {
+Token *tokenize_id(SourceFile *src, SrcLoc &start) {
   Token *ret = nullptr;
   auto forward = start;
   const auto end = src->end();
@@ -50,10 +50,10 @@ Token *tokenize_id(SourceFile *src, Cursor &start) {
   return ret;
 }
 
-Token *tokenize_keyword(SourceFile *src, Cursor &start) {
+Token *tokenize_keyword(SourceFile *src, SrcLoc &start) {
   // find whether the value is in KEYWORDS (in token.h/token.cpp) based on
   // returned value of tokenize_id()
-  Cursor forward = start;
+  SrcLoc forward = start;
   auto *t = tokenize_id(src, forward);
   if (t) {
     if (std::find(KEYWORDS.begin(), KEYWORDS.end(), t->get_value()) != KEYWORDS.end()) {
@@ -67,7 +67,7 @@ Token *tokenize_keyword(SourceFile *src, Cursor &start) {
   return t;
 }
 
-Token *tokenize_comments(SourceFile *src, Cursor &start) {
+Token *tokenize_comments(SourceFile *src, SrcLoc &start) {
   Token *t = nullptr;
   auto next = src->forward(start);
   if (*next == '/') { /// line comments
@@ -103,7 +103,7 @@ Token *tokenize_comments(SourceFile *src, Cursor &start) {
   return t;
 }
 
-Token *tokenize_number(SourceFile *src, Cursor &start) {
+Token *tokenize_number(SourceFile *src, SrcLoc &start) {
   auto forward = start;
   const auto end = src->end();
   bool is_float = false;
@@ -164,7 +164,7 @@ char escape_char(char c) {
   }
 }
 
-Token *tokenize_char(SourceFile *src, Cursor &start) {
+Token *tokenize_char(SourceFile *src, SrcLoc &start) {
   Token *t = nullptr;
   auto forward = src->forward(start);
   const auto end = src->end();
@@ -197,7 +197,7 @@ Token *tokenize_char(SourceFile *src, Cursor &start) {
   return t;
 }
 
-Token *tokenize_string(SourceFile *src, Cursor &start) {
+Token *tokenize_string(SourceFile *src, SrcLoc &start) {
   Token *t = nullptr;
   auto forward = src->forward(start);
   const auto end = src->end();
@@ -236,7 +236,7 @@ Token *tokenize_string(SourceFile *src, Cursor &start) {
   return t;
 }
 
-Token *tokenize_punctuation(SourceFile *src, Cursor &start) {
+Token *tokenize_punctuation(SourceFile *src, SrcLoc &start) {
   Token *t = nullptr;
   auto next = src->forward(start);
   size_t lineno = start.l;
@@ -250,9 +250,9 @@ Token *tokenize_punctuation(SourceFile *src, Cursor &start) {
   } else if (std::find(OP.begin(), OP.end(), *start) != OP.end()) { /// operators
     str value;
     {
-      Cursor nnext = src->forward(next);
-      Cursor nnnext = src->forward(nnext);
-      Cursor back_ptr = src->end();
+      SrcLoc nnext = src->forward(next);
+      SrcLoc nnnext = src->forward(nnext);
+      SrcLoc back_ptr = src->end();
       str two = src->substr(start, nnext);
       str three = src->substr(start, src->forward(nnext));
 
@@ -286,7 +286,7 @@ Token *tokenize_punctuation(SourceFile *src, Cursor &start) {
 }
 
 vector<Token *> tokenize(SourceFile *src) {
-  Cursor start = src->begin();
+  SrcLoc start = src->begin();
   if (src->size() == 0) {
     return {};
   }

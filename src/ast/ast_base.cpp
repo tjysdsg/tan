@@ -5,7 +5,8 @@
 
 using namespace tanlang;
 
-ASTBase::ASTBase(ASTNodeType node_type, SrcLoc loc, int bp) : SourceTraceable(loc), _node_type(node_type), _bp(bp) {}
+ASTBase::ASTBase(ASTNodeType node_type, SourceFile *src, int bp)
+    : SourceTraceable(src), _node_type(node_type), _bp(bp) {}
 
 ASTNodeType ASTBase::get_node_type() const { return _node_type; }
 

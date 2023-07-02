@@ -17,36 +17,36 @@ public:
   virtual bool is_type_decl() const { return false; }
 
 protected:
-  Decl(ASTNodeType type, SrcLoc loc, int bp);
+  Decl(ASTNodeType type, SourceFile *src, int bp);
 };
 
 class VarDecl : public Decl {
 protected:
-  explicit VarDecl(SrcLoc loc);
+  explicit VarDecl(SourceFile *src);
 
 public:
-  static VarDecl *Create(SrcLoc loc);
-  static VarDecl *Create(SrcLoc loc, const str &name, Type *ty);
+  static VarDecl *Create(SourceFile *src);
+  static VarDecl *Create(SourceFile *src, const str &name, Type *ty);
 };
 
 class ArgDecl : public Decl {
 protected:
-  explicit ArgDecl(SrcLoc loc);
+  explicit ArgDecl(SourceFile *src);
 
 public:
-  static ArgDecl *Create(SrcLoc loc);
-  static ArgDecl *Create(SrcLoc loc, const str &name, Type *ty);
+  static ArgDecl *Create(SourceFile *src);
+  static ArgDecl *Create(SourceFile *src, const str &name, Type *ty);
 };
 
 class FunctionType;
 class FunctionDecl : public Decl {
 protected:
-  explicit FunctionDecl(SrcLoc loc);
+  explicit FunctionDecl(SourceFile *src);
 
 public:
-  static FunctionDecl *Create(SrcLoc loc);
-  static FunctionDecl *Create(SrcLoc loc, const str &name, FunctionType *func_type, bool is_external, bool is_public,
-                              Stmt *body = nullptr);
+  static FunctionDecl *Create(SourceFile *src);
+  static FunctionDecl *Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
+                              bool is_public, Stmt *body = nullptr);
 
   void set_body(Stmt *body);
   [[nodiscard]] Stmt *get_body() const;
@@ -76,16 +76,16 @@ private:
 
 class TypeDecl : public Decl {
 public:
-  TypeDecl(ASTNodeType node_type, SrcLoc loc);
+  TypeDecl(ASTNodeType node_type, SourceFile *src);
   bool is_type_decl() const override { return true; }
 };
 
 class StructDecl : public TypeDecl {
 protected:
-  explicit StructDecl(SrcLoc loc);
+  explicit StructDecl(SourceFile *src);
 
 public:
-  static StructDecl *Create(SrcLoc loc);
+  static StructDecl *Create(SourceFile *src);
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
   Type *get_struct_member_ty(int i) const;

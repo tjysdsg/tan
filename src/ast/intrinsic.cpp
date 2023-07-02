@@ -37,18 +37,20 @@ vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
 
   // TODO: prevent user from directly calling abort(), must use @abort()
 
+  auto *src = new SourceFile();
+
   /// compprint
-  ret.push_back(FunctionDecl::Create(SrcLoc(0), "compprint",
+  ret.push_back(FunctionDecl::Create(src, "compprint",
                                      Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
   /// abort
-  ret.push_back(FunctionDecl::Create(SrcLoc(0), "abort", Type::GetFunctionType(Type::GetVoidType(), {}), true, false));
+  ret.push_back(FunctionDecl::Create(src, "abort", Type::GetFunctionType(Type::GetVoidType(), {}), true, false));
 
   return ret;
 }
 
-Intrinsic *Intrinsic::Create(SrcLoc loc) { return new Intrinsic(loc); }
+Intrinsic *Intrinsic::Create(SourceFile *src) { return new Intrinsic(src); }
 
-Intrinsic::Intrinsic(SrcLoc loc) : Expr(ASTNodeType::INTRINSIC, loc, 0) {}
+Intrinsic::Intrinsic(SourceFile *src) : Expr(ASTNodeType::INTRINSIC, src, 0) {}
 
 IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
 

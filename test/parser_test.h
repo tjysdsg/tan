@@ -3,7 +3,7 @@
 
 #include "lexer/lexer.h"
 #include "source_file/token.h"
-#include "ast/source_manager.h"
+#include "source_file/source_manager.h"
 #include "compiler/compiler.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"

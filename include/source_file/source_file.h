@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-struct Cursor;
+struct SrcLoc;
 
 class SourceFile final {
 public:
@@ -21,31 +21,31 @@ public:
    */
   [[nodiscard]] str get_line(size_t index) const;
   [[nodiscard]] const char *get_line_c_str(size_t index) const;
-  [[nodiscard]] char at(const Cursor &ptr) const;
+  [[nodiscard]] char at(const SrcLoc &ptr) const;
 
   /**
    * \brief Get a substring from start to the end of the current line
    * \param start start of the string, inclusive
    * */
-  [[nodiscard]] str substr(const Cursor &start) const;
+  [[nodiscard]] str substr(const SrcLoc &start) const;
 
   /**
    * \brief Get a substring from the source code
    * \param start start of the string, inclusive
    * \param end end of the string, exclusive
    * */
-  [[nodiscard]] str substr(const Cursor &start, const Cursor &end) const;
+  [[nodiscard]] str substr(const SrcLoc &start, const SrcLoc &end) const;
 
   /**
    * \brief Check if a cursor is in bound
    */
-  [[nodiscard]] bool is_cursor_valid(const Cursor &c) const;
+  [[nodiscard]] bool is_cursor_valid(const SrcLoc &c) const;
 
-  [[nodiscard]] Cursor begin() const;
-  [[nodiscard]] Cursor end() const;
+  [[nodiscard]] SrcLoc begin() const;
+  [[nodiscard]] SrcLoc end() const;
 
   /// \brief Return a copy of code_ptr that points to the next character
-  [[nodiscard]] Cursor forward(Cursor c);
+  [[nodiscard]] SrcLoc forward(SrcLoc c);
 
   [[nodiscard]] str get_filename() const;
 
@@ -54,7 +54,7 @@ private:
   str _filename = "memory";
 };
 
-struct Cursor {
+class SrcLoc {
 public:
   friend class SourceFile;
   friend class SourceSpan;
@@ -62,22 +62,22 @@ public:
   uint32_t c = 0;
 
 public:
-  Cursor(uint32_t r, uint32_t c, const SourceFile *src);
+  SrcLoc(uint32_t r, uint32_t c, const SourceFile *src);
 
 public:
-  Cursor() = delete;
-  Cursor &operator=(const Cursor &other) = default;
-  Cursor(const Cursor &other) = default;
-  ~Cursor() = default;
-  bool operator==(const Cursor &other) const;
-  bool operator!=(const Cursor &other) const;
-  bool operator<=(const Cursor &other) const;
-  bool operator<(const Cursor &other) const;
-  bool operator>(const Cursor &other) const;
+  SrcLoc() = delete;
+  SrcLoc &operator=(const SrcLoc &other) = default;
+  SrcLoc(const SrcLoc &other) = default;
+  ~SrcLoc() = default;
+  bool operator==(const SrcLoc &other) const;
+  bool operator!=(const SrcLoc &other) const;
+  bool operator<=(const SrcLoc &other) const;
+  bool operator<(const SrcLoc &other) const;
+  bool operator>(const SrcLoc &other) const;
   // prefix increment
-  Cursor &operator++();
+  SrcLoc &operator++();
   // postfix increment
-  Cursor operator++(int);
+  SrcLoc operator++(int);
   char operator*();
 
 private:
@@ -90,14 +90,14 @@ private:
 class SourceSpan {
 public:
   SourceSpan() = delete;
-  SourceSpan(const Cursor &start, const Cursor &end);
+  SourceSpan(const SrcLoc &start, const SrcLoc &end);
   [[nodiscard]] SourceFile *src() const;
-  [[nodiscard]] const Cursor &start() const;
-  [[nodiscard]] const Cursor &end() const;
+  [[nodiscard]] const SrcLoc &start() const;
+  [[nodiscard]] const SrcLoc &end() const;
 
 private:
-  const Cursor &_start;
-  const Cursor &_end;
+  SrcLoc _start;
+  SrcLoc _end;
 };
 
 } // namespace tanlang

@@ -5,15 +5,15 @@ using namespace tanlang;
 
 /// \section Stmt
 
-Stmt::Stmt(ASTNodeType type, SrcLoc loc) : ASTBase(type, loc, PREC_LOWEST) {}
+Stmt::Stmt(ASTNodeType type, SourceFile *src) : ASTBase(type, src, PREC_LOWEST) {}
 
 vector<ASTBase *> Stmt::get_children() const { return {}; }
 
 /// \section Compound statement
 
-CompoundStmt *CompoundStmt::Create(SrcLoc loc) { return new CompoundStmt(loc); }
+CompoundStmt *CompoundStmt::Create(SourceFile *src) { return new CompoundStmt(src); }
 
-CompoundStmt::CompoundStmt(SrcLoc loc) : Stmt(ASTNodeType::COMPOUND_STATEMENT, loc) {}
+CompoundStmt::CompoundStmt(SourceFile *src) : Stmt(ASTNodeType::COMPOUND_STATEMENT, src) {}
 
 void CompoundStmt::set_child_at(size_t idx, ASTBase *node) {
   TAN_ASSERT(_children.size() > idx);
@@ -32,15 +32,15 @@ vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
 
 /// \section Program
 
-Program *Program::Create(SrcLoc loc) { return new Program(loc); }
+Program *Program::Create(SourceFile *src) { return new Program(src); }
 
-Program::Program(SrcLoc loc) : CompoundStmt(loc) { set_node_type((ASTNodeType::PROGRAM)); }
+Program::Program(SourceFile *src) : CompoundStmt(src) { set_node_type((ASTNodeType::PROGRAM)); }
 
-Return *Return::Create(SrcLoc loc) { return new Return(loc); }
+Return *Return::Create(SourceFile *src) { return new Return(src); }
 
 /// \section Return
 
-Return::Return(SrcLoc loc) : Stmt(ASTNodeType::RET, loc) {}
+Return::Return(SourceFile *src) : Stmt(ASTNodeType::RET, src) {}
 
 void Return::set_rhs(Expr *rhs) { _rhs = rhs; }
 
@@ -50,9 +50,9 @@ vector<ASTBase *> Return::get_children() const { return {(ASTBase *)_rhs}; }
 
 /// \section Import
 
-Import *Import::Create(SrcLoc loc) { return new Import(loc); }
+Import *Import::Create(SourceFile *src) { return new Import(src); }
 
-Import::Import(SrcLoc loc) : Stmt(ASTNodeType::IMPORT, loc) {}
+Import::Import(SourceFile *src) : Stmt(ASTNodeType::IMPORT, src) {}
 
 void Import::set_filename(const str &s) { _filename = s; }
 
@@ -64,7 +64,7 @@ void Import::set_imported_funcs(const vector<FunctionDecl *> &imported_funcs) { 
 
 /// \section Break or continue statement
 
-BreakContinue::BreakContinue(ASTNodeType type, SrcLoc loc) : Stmt(type, loc) {
+BreakContinue::BreakContinue(ASTNodeType type, SourceFile *src) : Stmt(type, src) {
   TAN_ASSERT(type == ASTNodeType::BREAK || type == ASTNodeType::CONTINUE);
 }
 
@@ -72,19 +72,19 @@ Loop *BreakContinue::get_parent_loop() const { return _parent_loop; }
 
 void BreakContinue::set_parent_loop(Loop *parent_loop) { _parent_loop = parent_loop; }
 
-Break *Break::Create(SrcLoc loc) { return new Break(loc); }
+Break *Break::Create(SourceFile *src) { return new Break(src); }
 
-Break::Break(SrcLoc loc) : BreakContinue(ASTNodeType::BREAK, loc) {}
+Break::Break(SourceFile *src) : BreakContinue(ASTNodeType::BREAK, src) {}
 
-Continue *Continue::Create(SrcLoc loc) { return new Continue(loc); }
+Continue *Continue::Create(SourceFile *src) { return new Continue(src); }
 
-Continue::Continue(SrcLoc loc) : BreakContinue(ASTNodeType::CONTINUE, loc) {}
+Continue::Continue(SourceFile *src) : BreakContinue(ASTNodeType::CONTINUE, src) {}
 
 /// \section Loop
 
-Loop *Loop::Create(SrcLoc loc) { return new Loop(loc); }
+Loop *Loop::Create(SourceFile *src) { return new Loop(src); }
 
-Loop::Loop(SrcLoc loc) : Stmt(ASTNodeType::LOOP, loc) {}
+Loop::Loop(SourceFile *src) : Stmt(ASTNodeType::LOOP, src) {}
 
 void Loop::set_body(Stmt *body) { _body = body; }
 
@@ -98,9 +98,9 @@ vector<ASTBase *> Loop::get_children() const { return {(ASTBase *)_predicate, _b
 
 /// \section If-else
 
-If::If(SrcLoc loc) : Stmt(ASTNodeType::IF, loc) {}
+If::If(SourceFile *src) : Stmt(ASTNodeType::IF, src) {}
 
-If *If::Create(SrcLoc loc) { return new If(loc); }
+If *If::Create(SourceFile *src) { return new If(src); }
 
 void If::add_if_then_branch(Expr *pred, Stmt *branch) {
   TAN_ASSERT(pred);
@@ -137,9 +137,9 @@ vector<ASTBase *> If::get_children() const {
   return ret;
 }
 
-PackageStmt::PackageStmt(SrcLoc loc) : Stmt(ASTNodeType::PACKAGE, loc) {}
+PackageStmt::PackageStmt(SourceFile *src) : Stmt(ASTNodeType::PACKAGE, src) {}
 
-PackageStmt *PackageStmt::Create(SrcLoc loc) { return new PackageStmt(loc); }
+PackageStmt *PackageStmt::Create(SourceFile *src) { return new PackageStmt(src); }
 
 str PackageStmt::get_name() const { return _name; }
 

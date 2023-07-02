@@ -15,15 +15,15 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 protected:
-  Stmt(ASTNodeType type, SrcLoc loc);
+  Stmt(ASTNodeType type, SourceFile *src);
 };
 
 class CompoundStmt : public Stmt {
 protected:
-  explicit CompoundStmt(SrcLoc loc);
+  explicit CompoundStmt(SourceFile *src);
 
 public:
-  static CompoundStmt *Create(SrcLoc loc);
+  static CompoundStmt *Create(SourceFile *src);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -38,18 +38,18 @@ protected:
 
 class Program : public CompoundStmt {
 protected:
-  explicit Program(SrcLoc loc);
+  explicit Program(SourceFile *src);
 
 public:
-  static Program *Create(SrcLoc loc);
+  static Program *Create(SourceFile *src);
 };
 
 class Return : public Stmt {
 protected:
-  explicit Return(SrcLoc loc);
+  explicit Return(SourceFile *src);
 
 public:
-  static Return *Create(SrcLoc loc);
+  static Return *Create(SourceFile *src);
 
   void set_rhs(Expr *rhs);
   [[nodiscard]] Expr *get_rhs() const;
@@ -62,10 +62,10 @@ private:
 
 class Import : public Stmt {
 protected:
-  explicit Import(SrcLoc loc);
+  explicit Import(SourceFile *src);
 
 public:
-  static Import *Create(SrcLoc loc);
+  static Import *Create(SourceFile *src);
 
   void set_filename(const str &s);
   [[nodiscard]] const str &get_filename() const;
@@ -79,7 +79,7 @@ private:
 
 class BreakContinue : public Stmt {
 protected:
-  BreakContinue(ASTNodeType type, SrcLoc loc);
+  BreakContinue(ASTNodeType type, SourceFile *src);
 
 public:
   [[nodiscard]] Loop *get_parent_loop() const;
@@ -91,28 +91,28 @@ private:
 
 class Break : public BreakContinue {
 protected:
-  explicit Break(SrcLoc loc);
+  explicit Break(SourceFile *src);
 
 public:
-  static Break *Create(SrcLoc loc);
+  static Break *Create(SourceFile *src);
 };
 
 class Continue : public BreakContinue {
 protected:
-  explicit Continue(SrcLoc loc);
+  explicit Continue(SourceFile *src);
 
 public:
-  static Continue *Create(SrcLoc loc);
+  static Continue *Create(SourceFile *src);
 };
 
 enum ASTLoopType { FOR, WHILE };
 
 class Loop final : public Stmt {
 protected:
-  explicit Loop(SrcLoc loc);
+  explicit Loop(SourceFile *src);
 
 public:
-  static Loop *Create(SrcLoc loc);
+  static Loop *Create(SourceFile *src);
 
   void set_predicate(Expr *pred);
   void set_body(Stmt *body);
@@ -136,10 +136,10 @@ private:
  */
 class If : public Stmt {
 protected:
-  explicit If(SrcLoc loc);
+  explicit If(SourceFile *src);
 
 public:
-  static If *Create(SrcLoc loc);
+  static If *Create(SourceFile *src);
 
 public:
   void add_if_then_branch(Expr *pred, Stmt *branch);
@@ -165,10 +165,10 @@ private:
 
 class PackageStmt : public Stmt {
 protected:
-  explicit PackageStmt(SrcLoc loc);
+  explicit PackageStmt(SourceFile *src);
 
 public:
-  static PackageStmt *Create(SrcLoc loc);
+  static PackageStmt *Create(SourceFile *src);
 
 public:
   str get_name() const;
