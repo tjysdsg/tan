@@ -68,42 +68,30 @@ void CodeGenerator::emit_to_file(const str &filename) {
   auto opt_level = _target_machine->getOptLevel();
   bool debug = opt_level == llvm::CodeGenOpt::Level::None;
 
-  /// pass manager builder
-  auto *pm_builder = new PassManagerBuilder();
-  pm_builder->OptLevel = opt_level;
-  pm_builder->SizeLevel = 0; // TODO: optimize for size?
-  pm_builder->DisableUnrollLoops = debug;
-  pm_builder->SLPVectorize = !debug;
-  pm_builder->LoopVectorize = !debug;
-  pm_builder->RerollLoops = !debug;
-  pm_builder->NewGVN = !debug;
-  pm_builder->DisableGVNLoadPRE = !debug;
-  pm_builder->MergeFunctions = !debug;
-  pm_builder->VerifyInput = true;
-  pm_builder->VerifyOutput = true;
-  auto *tlii = new llvm::TargetLibraryInfoImpl(Triple(_module->getTargetTriple()));
-  pm_builder->LibraryInfo = tlii;
-  pm_builder->Inliner = llvm::createFunctionInliningPass();
+  if (!debug) {
+    // Create the analysis managers
+    LoopAnalysisManager LAM;
+    FunctionAnalysisManager FAM;
+    CGSCCAnalysisManager CGAM;
+    ModuleAnalysisManager MAM;
 
-  /// module pass
-  PassManager mpm;
-  mpm.add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
-  pm_builder->populateModulePassManager(mpm);
-  mpm.run(*_module);
+    // Create the new pass manager builder
+    PassBuilder PB(_target_machine);
 
-  /// function pass
-  FunctionPassManager fpm(_module);
-  fpm.add(createTargetTransformInfoWrapperPass(_target_machine->getTargetIRAnalysis()));
-  fpm.add(llvm::createVerifierPass());
-  pm_builder->populateFunctionPassManager(fpm);
-  fpm.doInitialization();
-  for (auto &f : *_module) {
-    if (f.getName() == "tan_main") { /// mark tan_main as used, prevent LLVM from deleting it
-      llvm::appendToUsed(*_module, {(GlobalValue *)&f});
-    }
-    fpm.run(f);
+    // Register all the basic analyses with the managers
+    PB.registerModuleAnalyses(MAM);
+    PB.registerCGSCCAnalyses(CGAM);
+    PB.registerFunctionAnalyses(FAM);
+    PB.registerLoopAnalyses(LAM);
+    PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+
+    // Create the pass manager.
+    // TODO: opt level
+    // FIXME: string.tan failed if using optimization
+    ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O2);
+    // Optimize the IR
+    MPM.run(*_module, MAM);
   }
-  fpm.doFinalization();
 
   /// generate object files
   std::error_code ec;

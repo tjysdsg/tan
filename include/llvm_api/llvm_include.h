@@ -195,6 +195,9 @@
 #include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
 #include <clang/CodeGen/CodeGenAction.h>
 #include <lld/Common/Driver.h>
+#include <llvm/Analysis/LoopAnalysisManager.h>
+#include <llvm/Analysis/CGSCCPassManager.h>
+#include <llvm/Passes/PassBuilder.h>
 
 #ifdef _WIN32
 #include <llvm/Support/Windows/WindowsSupport.h>
@@ -233,10 +236,10 @@ using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
 
 using llvm::DebugLoc;
-using llvm::DILocation;
 using llvm::DIBuilder;
 using llvm::DICompileUnit;
 using llvm::DIFile;
+using llvm::DILocation;
 using llvm::DINode;
 using llvm::DIScope;
 using llvm::DISubprogram;
@@ -244,6 +247,13 @@ using llvm::DISubroutineType;
 using llvm::DIType;
 using llvm::MDNode;
 using llvm::Metadata;
+
+using llvm::CGSCCAnalysisManager;
+using llvm::FunctionAnalysisManager;
+using llvm::LoopAnalysisManager;
+using llvm::ModuleAnalysisManager;
+using llvm::ModulePassManager;
+using llvm::PassBuilder;
 
 } // namespace tanlang
 
