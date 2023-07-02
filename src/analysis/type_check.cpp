@@ -685,6 +685,4 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
   p->set_parent_loop(ast_cast<Loop>(loop));
 }
 
-#include "implicit_cast.hpp"
-
 } // namespace tanlang

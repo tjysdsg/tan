@@ -1,3 +1,15 @@
+#include "analysis/type_check.h"
+#include "ast/type.h"
+#include "ast/expr.h"
+#include "ast/stmt.h"
+#include "ast/intrinsic.h"
+#include "ast/context.h"
+#include "fmt/core.h"
+#include "source_file/token.h"
+#include <set>
+
+using namespace tanlang;
+
 bool TypeCheck::CanImplicitlyConvert(Type *from, Type *to) {
   TAN_ASSERT(from && to);
 
