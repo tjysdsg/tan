@@ -8,7 +8,7 @@ namespace tanlang {
 class Token;
 class SourceFile;
 
-vector<Token *> tokenize(SourceFile *p_reader);
+vector<Token *> tokenize(SourceFile *src);
 
 } // namespace tanlang
 

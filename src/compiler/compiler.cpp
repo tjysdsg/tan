@@ -67,11 +67,12 @@ void Compiler::dump_ast() const {
 
 void Compiler::parse() {
   for (const str &file : _files) {
-    SourceFile source;
-    source.open(file);
+    SourceFile *source = new SourceFile();
+    source->open(file);
+    _srcs.push_back(source);
 
     // tokenization
-    auto tokens = tokenize(&source);
+    auto tokens = tokenize(source);
 
     auto *sm = new SourceManager(file, tokens);
     auto *parser = new Parser(sm);

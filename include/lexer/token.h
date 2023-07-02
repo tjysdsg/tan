@@ -1,5 +1,6 @@
 #ifndef TAN_LEXDEF_H
 #define TAN_LEXDEF_H
+
 #include "base.h"
 #include <array>
 
@@ -33,22 +34,22 @@ class Token {
 public:
   Token() = delete;
   ~Token() = default;
-  Token(TokenType tokenType, uint32_t line, uint32_t col, str value, str source_line);
-  TokenType get_type() const;
+  Token(TokenType tokenType, uint32_t line, uint32_t col, str value, const char *source_line);
+  [[nodiscard]] TokenType get_type() const;
   void set_type(TokenType type);
-  const str &get_value() const;
-  str get_source_line() const;
-  bool is_unsigned() const;
+  [[nodiscard]] const str &get_value() const;
+  [[nodiscard]] str get_source_line() const;
+  [[nodiscard]] bool is_unsigned() const;
   void set_is_unsigned(bool is_unsigned);
-  uint32_t get_line() const;
-  uint32_t get_col() const;
+  [[nodiscard]] uint32_t get_line() const;
+  [[nodiscard]] uint32_t get_col() const;
 
 private:
   TokenType _type = TokenType::END;
   str _value{};
   uint32_t _line = 0;
   uint32_t _col = 0;
-  str _source_line{};
+  const char *_source_line = nullptr;
   bool _is_unsigned = false;
 };
 

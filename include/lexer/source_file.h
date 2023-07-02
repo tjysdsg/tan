@@ -19,26 +19,27 @@ public:
   /** \brief Return source at a specific line
    *  \param index line of code starting from 0
    */
-  str get_line(const size_t index) const;
-  char at(const Cursor &ptr) const;
+  [[nodiscard]] str get_line(size_t index) const;
+  [[nodiscard]] const char *get_line_c_str(size_t index) const;
+  [[nodiscard]] char at(const Cursor &ptr) const;
 
   /**
    * \brief Get a substring from start to the end of the current line
    * \param start start of the string, inclusive
    * */
-  str substr(const Cursor &start) const;
+  [[nodiscard]] str substr(const Cursor &start) const;
 
   /**
    * \brief Get a substring from the source code
    * \param start start of the string, inclusive
    * \param end end of the string, exclusive
    * */
-  str substr(const Cursor &start, const Cursor &end) const;
+  [[nodiscard]] str substr(const Cursor &start, const Cursor &end) const;
 
   /**
    * \brief Check if a cursor is in bound
    */
-  bool is_cursor_valid(const Cursor &c) const;
+  [[nodiscard]] bool is_cursor_valid(const Cursor &c) const;
 
   [[nodiscard]] Cursor begin() const;
   [[nodiscard]] Cursor end() const;
@@ -46,7 +47,7 @@ public:
   /// \brief Return a copy of code_ptr that points to the next character
   [[nodiscard]] Cursor forward(Cursor c);
 
-  str get_filename() const;
+  [[nodiscard]] str get_filename() const;
 
 private:
   vector<str> _lines{};

@@ -14,6 +14,7 @@ class CodeGenerator;
 class Program;
 class SourceManager;
 class CompilationUnit;
+class SourceFile;
 
 /**
  * \brief Parse, Analyze, and compile a list of tan source files. The compilation consists of multiple stages,
@@ -89,6 +90,7 @@ public:
 
 private:
   vector<str> _files{};
+  vector<SourceFile *> _srcs{};
   vector<CompilationUnit *> _cu{};
   umap<CompilationUnit *, CodeGenerator *> _cg{};
 };

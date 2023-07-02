@@ -140,6 +140,11 @@ str SourceFile::get_line(size_t index) const {
   return _lines[index];
 }
 
+const char *SourceFile::get_line_c_str(size_t index) const {
+  TAN_ASSERT(index < _lines.size());
+  return _lines[index].c_str();
+}
+
 Cursor::Cursor(uint32_t r, uint32_t c, const SourceFile *reader) : l(r), c(c), _reader((SourceFile *)reader) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }

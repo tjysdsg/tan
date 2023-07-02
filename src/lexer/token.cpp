@@ -49,8 +49,8 @@ umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
     pair("<<=", TokenType::BOP), pair("<<", TokenType::BOP), pair(">>=", TokenType::BOP), pair(">>", TokenType::BOP),
     pair("!=", TokenType::BOP), pair(",", TokenType::BOP), pair(".", TokenType::BOP), pair("=", TokenType::BOP)};
 
-Token::Token(TokenType tokenType, uint32_t line, uint32_t col, str value, str source_line)
-    : _type(tokenType), _value(std::move(value)), _line(line), _col(col), _source_line(std::move(source_line)) {}
+Token::Token(TokenType tokenType, uint32_t line, uint32_t col, str value, const char *source_line)
+    : _type(tokenType), _value(std::move(value)), _line(line), _col(col), _source_line(source_line) {}
 
 TokenType Token::get_type() const { return _type; }
 
