@@ -714,7 +714,7 @@ private:
     try {
       parse_node(body);
       p->set_sub(body);
-    } catch (const CompileError &e) {
+    } catch (const CompileException &e) {
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
       p->set_sub(nullptr); // no need to check again in later stages
 

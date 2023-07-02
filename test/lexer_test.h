@@ -12,6 +12,20 @@ using tanlang::SourceFile;
 using tanlang::tokenize;
 using tanlang::TokenType;
 
+TEST(tokenize, invalid_file) {
+  SourceFile r;
+
+  bool catched = false;
+  try {
+    r.open("FKJDLSJFKJSDKLJFKDSJFKJKSDKFJsxxxS");
+  } catch (const tanlang::CompileException &e) {
+    EXPECT_EQ(e.type(), tanlang::ErrorType::FILE_NOT_FOUND);
+    catched = true;
+  }
+
+  EXPECT_TRUE(catched);
+}
+
 TEST(tokenize, empty) {
   str code = "";
   SourceFile r;

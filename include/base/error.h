@@ -13,23 +13,46 @@ namespace tanlang {
 #define TAN_ASSERT(expr)
 #endif
 
-class CompileError : public std::runtime_error {
+// TODO: start transitioning to categorized errors
+// REMEMBER to add to Error::ERROR_TYPE_ENUM_TO_STRING
+enum class ErrorType {
+  GENERIC_ERROR,
+  ASSERTION_FAILED,
+  FILE_NOT_FOUND,
+};
+
+class Error;
+
+class CompileException : public std::runtime_error {
 public:
-  explicit CompileError(const str &msg);
-  explicit CompileError(const char *msg);
+  CompileException(Error *err, const str &msg);
+  CompileException(Error *err, const char *msg);
+
+  [[nodiscard]] ErrorType type() const;
+
+private:
+  Error *_error = nullptr;
 };
 
 class Token;
 
 class Error {
 public:
+  static umap<ErrorType, str> ERROR_TYPE_ENUM_TO_STRING;
+
+public:
   explicit Error(const str &error_message);
-  Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message);
-  Error(const str &filename, Token *token, const str &error_message);
+  Error(ErrorType type, const str &error_message);
+
+  [[deprecated]] Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message);
+  [[deprecated]] Error(const str &filename, Token *token, const str &error_message);
   [[noreturn]] void raise() const;
+
+  [[nodiscard]] ErrorType type() const { return _type; }
 
 private:
   str _msg;
+  ErrorType _type = ErrorType::GENERIC_ERROR;
 };
 
 } // namespace tanlang

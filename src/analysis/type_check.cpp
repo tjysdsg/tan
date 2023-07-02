@@ -528,7 +528,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
       } else { // sub is nullptr if it's already checked
         error_caught = true;
       }
-    } catch (const CompileError &e) {
+    } catch (const CompileException &e) {
       error_caught = true;
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
     }

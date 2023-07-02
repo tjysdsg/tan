@@ -150,7 +150,7 @@ int cli_main(int argc, char **argv) {
     }
 
     return !compile_files(tan_files, &config);
-  } catch (const CompileError &e) {
+  } catch (const CompileException &e) {
     std::cerr << e.what() << '\n';
   }
 

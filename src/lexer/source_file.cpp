@@ -12,8 +12,7 @@ void SourceFile::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
   if (!ifs) {
-    Error err("Cannot open file: " + filename);
-    err.raise();
+    Error(ErrorType::FILE_NOT_FOUND, "Cannot open file: " + filename).raise();
   }
   _filename = filename;
 

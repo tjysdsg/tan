@@ -29,7 +29,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Intrinsic) {
         for (auto *c : sub->get_children())
           visit(c);
       }
-    } catch (const CompileError &e) {
+    } catch (const CompileException &e) {
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
       p->set_sub(nullptr); // no need to check again in later stages
     }
