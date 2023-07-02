@@ -32,9 +32,12 @@ extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 
 class Token {
 public:
+  static SourceSpan GetSourceSpan(const Token &start, const Token &end);
+
+public:
   Token() = delete;
   ~Token() = default;
-  Token(TokenType tokenType, uint32_t line, uint32_t col, str value, const char *source_line);
+  Token(TokenType tokenType, uint32_t line, uint32_t col, str value, SourceFile *src);
   [[nodiscard]] TokenType get_type() const;
   void set_type(TokenType type);
   [[nodiscard]] const str &get_value() const;
@@ -49,8 +52,8 @@ private:
   str _value{};
   uint32_t _line = 0;
   uint32_t _col = 0;
-  const char *_source_line = nullptr;
   bool _is_unsigned = false;
+  SourceFile *_src;
 };
 
 } // namespace tanlang

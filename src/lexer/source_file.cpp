@@ -1,6 +1,7 @@
 #include <fstream>
 #include <algorithm>
 #include "lexer/source_file.h"
+#include "base.h"
 
 /// we always assume that the line number and column number can be contained within 32bit int
 #pragma clang diagnostic push
@@ -144,7 +145,7 @@ const char *SourceFile::get_line_c_str(size_t index) const {
   return _lines[index].c_str();
 }
 
-Cursor::Cursor(uint32_t r, uint32_t c, const SourceFile *reader) : l(r), c(c), _reader((SourceFile *)reader) {}
+Cursor::Cursor(uint32_t r, uint32_t c, const SourceFile *src) : l(r), c(c), _src((SourceFile *)src) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 
@@ -181,20 +182,34 @@ bool Cursor::operator>(const Cursor &other) const {
 }
 
 Cursor &Cursor::operator++() {
-  *this = _reader->forward(*this);
+  *this = _src->forward(*this);
   return *this;
 }
 
 Cursor Cursor::operator++(int) {
   auto ret = *this;
-  *this = _reader->forward(*this);
+  *this = _src->forward(*this);
   return ret;
 }
 
 char Cursor::operator*() {
-  TAN_ASSERT(_reader);
-  return _reader->at(*this);
+  TAN_ASSERT(_src);
+  return _src->at(*this);
 }
+
+SourceSpan::SourceSpan(const Cursor &start, const Cursor &end) : _start(start), _end(end) {
+  TAN_ASSERT(start._src == end._src);
+  TAN_ASSERT(start.l <= end.l);
+  if (start.l == end.l) {
+    TAN_ASSERT(start.c <= end.c);
+  }
+}
+
+SourceFile *SourceSpan::src() const { return _start._src; }
+
+const Cursor &SourceSpan::start() const { return _start; }
+
+const Cursor &SourceSpan::end() const { return _end; }
 
 } // namespace tanlang
 

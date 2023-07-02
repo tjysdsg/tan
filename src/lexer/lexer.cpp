@@ -15,7 +15,7 @@ namespace tanlang {
    x == ']' || x == '\'' || x == '"' || x == ':')
 
 [[noreturn]] static void report_error(SourceFile *src, Cursor c, const str &message) {
-  Error(src->get_filename(), src->get_line(c.l), c.l + 1, c.c + 1, message).raise();
+  Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message).raise();
 }
 
 Cursor skip_whitespace(SourceFile *src, Cursor ptr) {
@@ -42,7 +42,7 @@ Token *tokenize_id(SourceFile *src, Cursor &start) {
     } else if (start == forward) {
       return nullptr;
     } else {
-      ret = new Token(TokenType::ID, start.l, start.c, src->substr(start, forward), src->get_line_c_str(start.l));
+      ret = new Token(TokenType::ID, start.l, start.c, src->substr(start, forward), src);
       break;
     }
   }
@@ -72,7 +72,7 @@ Token *tokenize_comments(SourceFile *src, Cursor &start) {
   auto next = src->forward(start);
   if (*next == '/') { /// line comments
     auto value = src->substr(src->forward(next));
-    t = new Token(TokenType::COMMENTS, start.l, start.c, value, src->get_line_c_str(start.l));
+    t = new Token(TokenType::COMMENTS, start.l, start.c, value, src);
     start.c = (uint32_t)src->get_line(start.l).length();
     ++start;
   } else if (*next == '*') {                   /// block comments
@@ -86,7 +86,7 @@ Token *tokenize_comments(SourceFile *src, Cursor &start) {
       if (std::regex_search(s, result, re)) {
         forward.c = (uint32_t)result.position(0); // forward is the position of */
         str comment_val = src->substr(start, forward);
-        t = new Token(TokenType::COMMENTS, start.l, start.c, comment_val, src->get_line_c_str(start.l));
+        t = new Token(TokenType::COMMENTS, start.l, start.c, comment_val, src);
         forward.c += 2;
         start = forward;
         break;
@@ -128,8 +128,7 @@ Token *tokenize_number(SourceFile *src, Cursor &start) {
     ++forward;
   }
 
-  auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT, start.l, start.c, src->substr(start, forward),
-                      src->get_line_c_str(start.l));
+  auto *t = new Token(is_float ? TokenType::FLOAT : TokenType::INT, start.l, start.c, src->substr(start, forward), src);
   t->set_is_unsigned(is_unsigned);
   start = forward;
   return t;
@@ -192,7 +191,7 @@ Token *tokenize_char(SourceFile *src, Cursor &start) {
     } else if (value.length() != 1) {
       report_error(src, forward, "Invalid character literal");
     }
-    t = new Token(TokenType::CHAR, start.l, start.c, value, src->get_line_c_str(start.l));
+    t = new Token(TokenType::CHAR, start.l, start.c, value, src);
     start = src->forward(forward);
   }
   return t;
@@ -231,7 +230,7 @@ Token *tokenize_string(SourceFile *src, Cursor &start) {
       ++i;
     }
     escaped += value.substr(start_i, l - start_i);
-    t = new Token(TokenType::STRING, start.l, start.c, escaped, src->get_line_c_str(start.l));
+    t = new Token(TokenType::STRING, start.l, start.c, escaped, src);
     start = (*src).forward(forward);
   }
   return t;
@@ -275,10 +274,10 @@ Token *tokenize_punctuation(SourceFile *src, Cursor &start) {
     }
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, start.l, start.c, value, src->get_line_c_str(lineno));
+    t = new Token(type, start.l, start.c, value, src);
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
-    t = new Token(TokenType::PUNCTUATION, start.l, start.c, str(1, *start), src->get_line_c_str(lineno));
+    t = new Token(TokenType::PUNCTUATION, start.l, start.c, str(1, *start), src);
     start = next;
   } else {
     t = nullptr;

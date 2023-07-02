@@ -1,6 +1,7 @@
 #ifndef __TAN_SRC_BASE_ERROR_H__
 #define __TAN_SRC_BASE_ERROR_H__
 #include "base/container.h"
+#include "lexer/source_file.h"
 #include <stdexcept>
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno);
@@ -19,6 +20,7 @@ enum class ErrorType {
   GENERIC_ERROR,
   ASSERTION_FAILED,
   FILE_NOT_FOUND,
+  SYNTAX_ERROR,
 };
 
 class Error;
@@ -43,7 +45,9 @@ public:
 public:
   explicit Error(const str &error_message);
   Error(ErrorType type, const str &error_message);
+  Error(ErrorType type, Token *start, Token *end, const str &error_message);
 
+  Error(ErrorType type, SourceSpan span, const str &error_message);
   [[deprecated]] Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message);
   [[deprecated]] Error(const str &filename, Token *token, const str &error_message);
   [[noreturn]] void raise() const;

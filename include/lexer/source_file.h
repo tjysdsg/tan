@@ -1,7 +1,7 @@
 #ifndef TAN_READER_READER_H
 #define TAN_READER_READER_H
 #include "config.h"
-#include "base.h"
+#include "base/container.h"
 
 namespace tanlang {
 
@@ -55,12 +55,14 @@ private:
 };
 
 struct Cursor {
+public:
   friend class SourceFile;
+  friend class SourceSpan;
   uint32_t l = 0;
   uint32_t c = 0;
 
-private:
-  Cursor(uint32_t r, uint32_t c, const SourceFile *reader);
+public:
+  Cursor(uint32_t r, uint32_t c, const SourceFile *src);
 
 public:
   Cursor() = delete;
@@ -79,7 +81,23 @@ public:
   char operator*();
 
 private:
-  SourceFile *_reader = nullptr;
+  SourceFile *_src = nullptr;
+};
+
+/**
+ * \brief A span of source code tokens, inclusive on both ends.
+ */
+class SourceSpan {
+public:
+  SourceSpan() = delete;
+  SourceSpan(const Cursor &start, const Cursor &end);
+  [[nodiscard]] SourceFile *src() const;
+  [[nodiscard]] const Cursor &start() const;
+  [[nodiscard]] const Cursor &end() const;
+
+private:
+  const Cursor &_start;
+  const Cursor &_end;
 };
 
 } // namespace tanlang
