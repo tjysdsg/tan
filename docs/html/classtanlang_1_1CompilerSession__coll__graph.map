@@ -1,6 +1,0 @@
-<map id="tanlang::CompilerSession" name="tanlang::CompilerSession">
-<area shape="rect" id="node1" title="Wraps all LLVM classes used for code generation." alt="" coords="87,185,275,212"/>
-<area shape="rect" id="node2" title="STL class." alt="" coords="31,96,118,123"/>
-<area shape="rect" id="node3" title="STL class." alt="" coords="5,5,144,47"/>
-<area shape="rect" id="node4" href="$classtanlang_1_1SourceManager.html" title=" " alt="" coords="142,96,322,123"/>
-</map>

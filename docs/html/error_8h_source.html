@@ -54,61 +54,78 @@
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef __TAN_SRC_BASE_ERROR_H__</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define __TAN_SRC_BASE_ERROR_H__</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;base/container.h&quot;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>[[noreturn]] <span class="keywordtype">void</span> __tan_assert_fail(<span class="keyword">const</span> <span class="keywordtype">char</span> *expr, <span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">size_t</span> lineno);</div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>[[noreturn]] <span class="keywordtype">void</span> __tan_abort();</div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetanlang.html">tanlang</a> {</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#ifdef DEBUG</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#define TAN_ASSERT(expr) (static_cast&lt;bool&gt;((expr)) ? void(0) : __tan_assert_fail(#expr, __FILE__, __LINE__))</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#define TAN_ASSERT(expr)</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#ifdef DEBUG</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#define ABORT() __tan_abort()</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#else</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#define ABORT() exit(1)</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">class </span>Token;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="classtanlang_1_1ErrorCatcher.html">   24</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1ErrorCatcher.html">ErrorCatcher</a> {</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  <span class="keyword">using </span>callback_t = std::function&lt;void(str)&gt;;</div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;source_file/source_file.h&quot;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;stdexcept&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>[[noreturn]] <span class="keywordtype">void</span> __tan_assert_fail(<span class="keyword">const</span> <span class="keywordtype">char</span> *expr, <span class="keyword">const</span> <span class="keywordtype">char</span> *file, <span class="keywordtype">size_t</span> lineno);</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#ifdef DEBUG</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#define TAN_ASSERT(expr) (static_cast&lt;bool&gt;((expr)) ? void(0) : __tan_assert_fail(#expr, __FILE__, __LINE__))</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#define TAN_ASSERT(expr)</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// TODO: start transitioning to categorized errors</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// REMEMBER to add to Error::ERROR_TYPE_ENUM_TO_STRING</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="keyword">enum class</span> ErrorType {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  GENERIC_ERROR,</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  ASSERTION_FAILED,</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  FILE_NOT_FOUND,</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  SYNTAX_ERROR,</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>  SEMANTIC_ERROR,</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>  UNKNOWN_SYMBOL,</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  IMPORT_ERROR,</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  TYPE_ERROR,</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  <a class="code hl_class" href="classtanlang_1_1ErrorCatcher.html">ErrorCatcher</a>(callback_t handler);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  NOT_IMPLEMENTED,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>};</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  callback_t _callback;</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>};</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="classtanlang_1_1Error.html">   36</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> {</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> CatchErrors(<a class="code hl_class" href="classtanlang_1_1ErrorCatcher.html">ErrorCatcher</a> *handler_class);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keyword">static</span> <span class="keywordtype">void</span> ResetErrorCatcher();</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">class </span>Error;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="classtanlang_1_1CompileException.html">   34</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1CompileException.html">CompileException</a> : <span class="keyword">public</span> std::runtime_error {</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  <a class="code hl_class" href="classtanlang_1_1CompileException.html">CompileException</a>(<a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> *err, <span class="keyword">const</span> str &amp;msg);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <a class="code hl_class" href="classtanlang_1_1CompileException.html">CompileException</a>(<a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> *err, <span class="keyword">const</span> <span class="keywordtype">char</span> *msg);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  [[nodiscard]] ErrorType type() <span class="keyword">const</span>;</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keyword">explicit</span> <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;error_message);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;filename, <span class="keyword">const</span> str &amp;source, <span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col, <span class="keyword">const</span> str &amp;error_message);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;filename, <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *token, <span class="keyword">const</span> str &amp;error_message);</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  [[noreturn]] <span class="keywordtype">void</span> raise() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> *_error = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>};</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Token.html">Token</a>;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keyword">static</span> <span class="keyword">inline</span> <a class="code hl_class" href="classtanlang_1_1ErrorCatcher.html">ErrorCatcher</a> *__catcher = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  str _msg;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>};</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>} <span class="comment">// namespace tanlang</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif </span><span class="comment">// __TAN_SRC_BASE_ERROR_H__</span></div>
-<div class="ttc" id="aclasstanlang_1_1ErrorCatcher_html"><div class="ttname"><a href="classtanlang_1_1ErrorCatcher.html">tanlang::ErrorCatcher</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00024">error.h:24</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Error_html"><div class="ttname"><a href="classtanlang_1_1Error.html">tanlang::Error</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00036">error.h:36</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00032">token.h:32</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00006">register_declarations.cpp:6</a></div></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="classtanlang_1_1Error.html">   47</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> {</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keyword">static</span> umap&lt;ErrorType, str&gt; ERROR_TYPE_ENUM_TO_STRING;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keyword">explicit</span> <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(ErrorType type, <span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(ErrorType type, <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *start, <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *end, <span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(ErrorType type, <a class="code hl_class" href="classtanlang_1_1SourceSpan.html">SourceSpan</a> span, <span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  [[deprecated]] <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;filename, <span class="keyword">const</span> str &amp;source, <span class="keywordtype">size_t</span> line, <span class="keywordtype">size_t</span> col, <span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  [[deprecated]] <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a>(<span class="keyword">const</span> str &amp;filename, <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *token, <span class="keyword">const</span> str &amp;error_message);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  [[noreturn]] <span class="keywordtype">void</span> raise() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  [[nodiscard]] ErrorType type()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _type; }</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  str _msg;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  ErrorType _type = ErrorType::GENERIC_ERROR;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>};</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif </span><span class="comment">// __TAN_SRC_BASE_ERROR_H__</span></div>
+<div class="ttc" id="aclasstanlang_1_1CompileException_html"><div class="ttname"><a href="classtanlang_1_1CompileException.html">tanlang::CompileException</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00034">error.h:34</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Error_html"><div class="ttname"><a href="classtanlang_1_1Error.html">tanlang::Error</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00047">error.h:47</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SourceSpan_html"><div class="ttname"><a href="classtanlang_1_1SourceSpan.html">tanlang::SourceSpan</a></div><div class="ttdoc">A span of source code tokens, inclusive on both ends.</div><div class="ttdef"><b>Definition:</b> <a href="source__file_8h_source.html#l00090">source_file.h:90</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00033">token.h:33</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00007">register_declarations.cpp:7</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

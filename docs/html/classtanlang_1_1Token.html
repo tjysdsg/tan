@@ -53,6 +53,7 @@
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classtanlang_1_1Token-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tanlang::Token Class Reference</div></div>
 </div><!--header-->
@@ -60,8 +61,8 @@
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a0017b65c5a12b8bdad94e80b96e71bd3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#a0017b65c5a12b8bdad94e80b96e71bd3">Token</a> (<a class="el" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> tokenType, uint32_t line, uint32_t col, str value, str source_line)</td></tr>
-<tr class="separator:a0017b65c5a12b8bdad94e80b96e71bd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac04891ee80fcfe9beb81535130fa7c21"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#ac04891ee80fcfe9beb81535130fa7c21">Token</a> (<a class="el" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> tokenType, uint32_t line, uint32_t col, str value, <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
+<tr class="separator:ac04891ee80fcfe9beb81535130fa7c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf9468dd7bbb2cd494f0c2c8706666ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#abf9468dd7bbb2cd494f0c2c8706666ec">get_type</a> () const</td></tr>
 <tr class="separator:abf9468dd7bbb2cd494f0c2c8706666ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac405e22a5b361ec48f0e845e9d0677a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#ac405e22a5b361ec48f0e845e9d0677a2">set_type</a> (<a class="el" href="namespacetanlang.html#ab1915b7257030ed75158b8bef8d715f9">TokenType</a> type)</td></tr>
@@ -78,13 +79,20 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a72391bc2976775c528bec035043394b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1add461713a494f590831d8c5cacb45e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#a1add461713a494f590831d8c5cacb45e">get_col</a> () const</td></tr>
 <tr class="separator:a1add461713a494f590831d8c5cacb45e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a153a2411f74bb1fec4b08238cca20b76"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#a153a2411f74bb1fec4b08238cca20b76">src</a> () const</td></tr>
+<tr class="separator:a153a2411f74bb1fec4b08238cca20b76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ab1e085686e91e370707833b3e05ed2a2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1SourceSpan.html">SourceSpan</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Token.html#ab1e085686e91e370707833b3e05ed2a2">GetSourceSpan</a> (const <a class="el" href="classtanlang_1_1Token.html">Token</a> &amp;start, const <a class="el" href="classtanlang_1_1Token.html">Token</a> &amp;end)</td></tr>
+<tr class="separator:ab1e085686e91e370707833b3e05ed2a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="token_8h_source.html#l00032">32</a> of file <a class="el" href="token_8h_source.html">token.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="token_8h_source.html#l00033">33</a> of file <a class="el" href="token_8h_source.html">token.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a0017b65c5a12b8bdad94e80b96e71bd3" name="a0017b65c5a12b8bdad94e80b96e71bd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0017b65c5a12b8bdad94e80b96e71bd3">&#9670;&#160;</a></span>Token()</h2>
+<a id="ac04891ee80fcfe9beb81535130fa7c21" name="ac04891ee80fcfe9beb81535130fa7c21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac04891ee80fcfe9beb81535130fa7c21">&#9670;&#160;</a></span>Token()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -116,8 +124,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">str&#160;</td>
-          <td class="paramname"><em>source_line</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -227,6 +235,44 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ab1e085686e91e370707833b3e05ed2a2" name="ab1e085686e91e370707833b3e05ed2a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1e085686e91e370707833b3e05ed2a2">&#9670;&#160;</a></span>GetSourceSpan()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1SourceSpan.html">SourceSpan</a> tanlang::Token::GetSourceSpan </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1Token.html">Token</a> &amp;&#160;</td>
+          <td class="paramname"><em>start</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1Token.html">Token</a> &amp;&#160;</td>
+          <td class="paramname"><em>end</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="token_8cpp_source.html#l00071">71</a> of file <a class="el" href="token_8cpp_source.html">token.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a56f52500593f24add266b5bfa79c72c0" name="a56f52500593f24add266b5bfa79c72c0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a56f52500593f24add266b5bfa79c72c0">&#9670;&#160;</a></span>is_unsigned()</h2>
 
@@ -286,8 +332,27 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a153a2411f74bb1fec4b08238cca20b76" name="a153a2411f74bb1fec4b08238cca20b76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a153a2411f74bb1fec4b08238cca20b76">&#9670;&#160;</a></span>src()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> * tanlang::Token::src </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="token_8cpp_source.html#l00077">77</a> of file <a class="el" href="token_8cpp_source.html">token.cpp</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>E:/repos/tan/include/lexer/<a class="el" href="token_8h_source.html">token.h</a></li>
+<li>E:/repos/tan/include/source_file/<a class="el" href="token_8h_source.html">token.h</a></li>
 <li>E:/repos/tan/src/lexer/<a class="el" href="token_8cpp_source.html">token.cpp</a></li>
 </ul>
 </div><!-- contents -->

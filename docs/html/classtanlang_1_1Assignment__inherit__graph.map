@@ -1,7 +1,0 @@
-<map id="tanlang::Assignment" name="tanlang::Assignment">
-<area shape="rect" id="node1" title=" " alt="" coords="95,229,251,256"/>
-<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="119,155,227,181"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,80,166,107"/>
-<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="" coords="5,5,191,32"/>
-<area shape="rect" id="node5" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,80,307,107"/>
-</map>

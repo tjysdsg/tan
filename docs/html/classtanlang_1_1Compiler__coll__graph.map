@@ -1,6 +1,0 @@
-<map id="tanlang::Compiler" name="tanlang::Compiler">
-<area shape="rect" id="node1" title="Abstraction of a compiler." alt="" coords="26,275,165,301"/>
-<area shape="rect" id="node2" href="$structtanlang_1_1TanCompilation.html" title="Compilation configuration." alt="" coords="5,185,185,212"/>
-<area shape="rect" id="node3" title="STL class." alt="" coords="52,96,139,123"/>
-<area shape="rect" id="node4" title="STL class." alt="" coords="26,5,165,47"/>
-</map>

@@ -65,7 +65,7 @@ Inheritance diagram for tanlang::ASTBase:</div>
  <div class="center">
   <img src="classtanlang_1_1ASTBase.png" usemap="#tanlang::ASTBase_map" alt=""/>
   <map id="tanlang::ASTBase_map" name="tanlang::ASTBase_map">
-<area href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to the token at the exact location in the source file." alt="tanlang::SourceTraceable" shape="rect" coords="167,0,324,24"/>
+<area href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="tanlang::SourceTraceable" shape="rect" coords="167,0,324,24"/>
 <area href="classtanlang_1_1Expr.html" alt="tanlang::Expr" shape="rect" coords="0,112,157,136"/>
 <area href="classtanlang_1_1Stmt.html" alt="tanlang::Stmt" shape="rect" coords="334,112,491,136"/>
 <area href="classtanlang_1_1Assignment.html" alt="tanlang::Assignment" shape="rect" coords="167,168,324,192"/>
@@ -92,8 +92,8 @@ Inheritance diagram for tanlang::ASTBase:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa30f0086bde5abf0c1ab3886ae99e630"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aa30f0086bde5abf0c1ab3886ae99e630">ASTBase</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type, <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc, int bp)</td></tr>
-<tr class="separator:aa30f0086bde5abf0c1ab3886ae99e630"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adaac58c12919b12434e75d7800d8c056"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#adaac58c12919b12434e75d7800d8c056">ASTBase</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type, <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src, int bp)</td></tr>
+<tr class="separator:adaac58c12919b12434e75d7800d8c056"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4930aaa6604ad9eebbc6a479118b308e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4930aaa6604ad9eebbc6a479118b308e">get_node_type</a> () const</td></tr>
 <tr class="separator:a4930aaa6604ad9eebbc6a479118b308e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac47cf78eaccbf82371d490c8ce7987d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aac47cf78eaccbf82371d490c8ce7987d">set_node_type</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type)</td></tr>
@@ -109,12 +109,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a9e04d4b8ded519990d5a8fd0a3d469ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pretty-print AST tree.  <br /></td></tr>
 <tr class="separator:a9e04d4b8ded519990d5a8fd0a3d469ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1SourceTraceable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1SourceTraceable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1SourceTraceable.html">tanlang::SourceTraceable</a></td></tr>
-<tr class="memitem:ab0aef6caa41ad3e56d33508a8f67c5f4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#ab0aef6caa41ad3e56d33508a8f67c5f4">SourceTraceable</a> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> source_loc)</td></tr>
-<tr class="separator:ab0aef6caa41ad3e56d33508a8f67c5f4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a741a3a24d33deca4d9b5489410f9d8b4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a741a3a24d33deca4d9b5489410f9d8b4">loc</a> () const</td></tr>
-<tr class="separator:a741a3a24d33deca4d9b5489410f9d8b4 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba7d947529c04a598f2ea83b251cf19a inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#aba7d947529c04a598f2ea83b251cf19a">set_loc</a> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)</td></tr>
-<tr class="separator:aba7d947529c04a598f2ea83b251cf19a inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f9056761ed7f5d86d54611f461d9459 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a9f9056761ed7f5d86d54611f461d9459">SourceTraceable</a> (<a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
+<tr class="separator:a9f9056761ed7f5d86d54611f461d9459 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a834a8e9ea744a740cc225ebbc8bd0cec inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a834a8e9ea744a740cc225ebbc8bd0cec">start</a> () const</td></tr>
+<tr class="separator:a834a8e9ea744a740cc225ebbc8bd0cec inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a592a4afdc1717a1fc5e1ab318123fa35 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a592a4afdc1717a1fc5e1ab318123fa35">end</a> () const</td></tr>
+<tr class="separator:a592a4afdc1717a1fc5e1ab318123fa35 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24844ebf48d9580bc65f62faadda716e inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a24844ebf48d9580bc65f62faadda716e">set_start</a> (uint32_t val)</td></tr>
+<tr class="separator:a24844ebf48d9580bc65f62faadda716e inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a1b2255d648d739d6526677af709972 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a6a1b2255d648d739d6526677af709972">set_end</a> (uint32_t val)</td></tr>
+<tr class="separator:a6a1b2255d648d739d6526677af709972 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addc2f2093eddd0806c703d398c2c82f0 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#addc2f2093eddd0806c703d398c2c82f0">src</a> () const</td></tr>
+<tr class="separator:addc2f2093eddd0806c703d398c2c82f0 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -132,19 +138,13 @@ Protected Member Functions</h2></td></tr>
 <tr class="memitem:a3396a56c67b56ba2aa87eb8b98645df7"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a3396a56c67b56ba2aa87eb8b98645df7">get</a> () const</td></tr>
 <tr class="memdesc:a3396a56c67b56ba2aa87eb8b98645df7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the "actual" this. Used for implementing proxy classes.  <br /></td></tr>
 <tr class="separator:a3396a56c67b56ba2aa87eb8b98645df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pro_attribs_classtanlang_1_1SourceTraceable"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classtanlang_1_1SourceTraceable')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classtanlang_1_1SourceTraceable.html">tanlang::SourceTraceable</a></td></tr>
-<tr class="memitem:aa980261c3e3be417b087510ec9250d57 inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#aa980261c3e3be417b087510ec9250d57">_loc</a> = <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(0)</td></tr>
-<tr class="separator:aa980261c3e3be417b087510ec9250d57 inherit pro_attribs_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="ast__base_8h_source.html#l00013">13</a> of file <a class="el" href="ast__base_8h_source.html">ast_base.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="aa30f0086bde5abf0c1ab3886ae99e630" name="aa30f0086bde5abf0c1ab3886ae99e630"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa30f0086bde5abf0c1ab3886ae99e630">&#9670;&#160;</a></span>ASTBase()</h2>
+<a id="adaac58c12919b12434e75d7800d8c056" name="adaac58c12919b12434e75d7800d8c056"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adaac58c12919b12434e75d7800d8c056">&#9670;&#160;</a></span>ASTBase()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -158,8 +158,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td>
-          <td class="paramname"><em>loc</em>, </td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -195,7 +195,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00016">16</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00017">17</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -226,7 +226,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented in <a class="el" href="classtanlang_1_1BinaryOrUnary.html#a2cb26c7765d8d3d65096b8dc74e32e24">tanlang::BinaryOrUnary</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00059">59</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00060">60</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -245,7 +245,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00014">14</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00015">15</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -276,7 +276,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented in <a class="el" href="classtanlang_1_1Decl.html#a4e55a9997f65ffb9628b0c1d71f8402d">tanlang::Decl</a>, <a class="el" href="classtanlang_1_1FunctionDecl.html#a2cd6a4527bf4f87f451a131f41a49fbb">tanlang::FunctionDecl</a>, <a class="el" href="classtanlang_1_1StructDecl.html#a79a869c2df5e1d5aabf3e78c9bd1b4a1">tanlang::StructDecl</a>, <a class="el" href="classtanlang_1_1Expr.html#afd26c8a413f86b31904ab0d210b1fd8c">tanlang::Expr</a>, <a class="el" href="classtanlang_1_1BinaryOperator.html#a6020cf914667767a92e2f27aa6a9994b">tanlang::BinaryOperator</a>, <a class="el" href="classtanlang_1_1UnaryOperator.html#ae1c0ecf5cbe9d6cd83d47da679daabda">tanlang::UnaryOperator</a>, <a class="el" href="classtanlang_1_1BinaryOrUnary.html#a95c5900f1c5cc27125cab445cf81efba">tanlang::BinaryOrUnary</a>, <a class="el" href="classtanlang_1_1Parenthesis.html#a9afeada51dfd4e35dbe34158a0d7f63d">tanlang::Parenthesis</a>, <a class="el" href="classtanlang_1_1FunctionCall.html#a80fd49f895bf91807148f20e3b6a5e78">tanlang::FunctionCall</a>, <a class="el" href="classtanlang_1_1Assignment.html#a38841bcc816c1fa43180a97bcc04ec4a">tanlang::Assignment</a>, <a class="el" href="classtanlang_1_1Cast.html#a69a7f13f18d8b25158b08c713ec75a20">tanlang::Cast</a>, <a class="el" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">tanlang::Intrinsic</a>, <a class="el" href="classtanlang_1_1Stmt.html#a889be2119f4f36d11f5321840ad5cc97">tanlang::Stmt</a>, <a class="el" href="classtanlang_1_1CompoundStmt.html#ac943608b21a4e3a2fc2989854116a6f5">tanlang::CompoundStmt</a>, <a class="el" href="classtanlang_1_1Return.html#aa314a594ef38067bb718d740c6398b93">tanlang::Return</a>, <a class="el" href="classtanlang_1_1Loop.html#a6410fa70889c7f5225ceb7b8cfc6ca15">tanlang::Loop</a>, and <a class="el" href="classtanlang_1_1If.html#a7d257c8b1d8ebb675af5050c43776749">tanlang::If</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00061">61</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00062">62</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -295,7 +295,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00010">10</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00011">11</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -316,7 +316,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Pretty-print AST tree. </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00022">22</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00023">23</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -336,7 +336,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00012">12</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00013">13</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>
@@ -364,7 +364,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00051">51</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__base_8cpp_source.html#l00052">52</a> of file <a class="el" href="ast__base_8cpp_source.html">ast_base.cpp</a>.</p>
 
 </div>
 </div>

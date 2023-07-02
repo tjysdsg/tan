@@ -1,9 +1,0 @@
-<map id="tanlang::Type" name="tanlang::Type">
-<area shape="rect" id="node1" title="Type is immutable once created, and it&#39;s made sure that each type has only one instance." alt="" coords="5,132,115,159"/>
-<area shape="rect" id="node2" href="$classtanlang_1_1ArrayType.html" title=" " alt="" coords="175,5,319,32"/>
-<area shape="rect" id="node3" href="$classtanlang_1_1PointerType.html" title=" " alt="" coords="169,56,324,83"/>
-<area shape="rect" id="node4" href="$classtanlang_1_1PrimitiveType.html" title=" " alt="" coords="163,107,331,133"/>
-<area shape="rect" id="node5" href="$classtanlang_1_1StringType.html" title=" " alt="" coords="173,157,320,184"/>
-<area shape="rect" id="node6" href="$classtanlang_1_1StructType.html" title=" " alt="" coords="173,208,320,235"/>
-<area shape="rect" id="node7" href="$classtanlang_1_1TypeRef.html" title="Placeholder during parsing." alt="" coords="181,259,312,285"/>
-</map>

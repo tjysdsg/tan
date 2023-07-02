@@ -53,13 +53,12 @@
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classtanlang_1_1SourceTraceable-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tanlang::SourceTraceable Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Represents the nodes that can be traced back to the token at the exact location in the source file.  
+<p>Represents the nodes that can be traced back to tokens in the source file.  
  <a href="classtanlang_1_1SourceTraceable.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="source__traceable_8h_source.html">source_traceable.h</a>&gt;</code></p>
@@ -96,60 +95,53 @@ Inheritance diagram for tanlang::SourceTraceable:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab0aef6caa41ad3e56d33508a8f67c5f4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#ab0aef6caa41ad3e56d33508a8f67c5f4">SourceTraceable</a> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> source_loc)</td></tr>
-<tr class="separator:ab0aef6caa41ad3e56d33508a8f67c5f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a741a3a24d33deca4d9b5489410f9d8b4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a741a3a24d33deca4d9b5489410f9d8b4">loc</a> () const</td></tr>
-<tr class="separator:a741a3a24d33deca4d9b5489410f9d8b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba7d947529c04a598f2ea83b251cf19a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#aba7d947529c04a598f2ea83b251cf19a">set_loc</a> (<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)</td></tr>
-<tr class="separator:aba7d947529c04a598f2ea83b251cf19a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
-Protected Attributes</h2></td></tr>
-<tr class="memitem:aa980261c3e3be417b087510ec9250d57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#aa980261c3e3be417b087510ec9250d57">_loc</a> = <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(0)</td></tr>
-<tr class="separator:aa980261c3e3be417b087510ec9250d57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f9056761ed7f5d86d54611f461d9459"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a9f9056761ed7f5d86d54611f461d9459">SourceTraceable</a> (<a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
+<tr class="separator:a9f9056761ed7f5d86d54611f461d9459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a834a8e9ea744a740cc225ebbc8bd0cec"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a834a8e9ea744a740cc225ebbc8bd0cec">start</a> () const</td></tr>
+<tr class="separator:a834a8e9ea744a740cc225ebbc8bd0cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a592a4afdc1717a1fc5e1ab318123fa35"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a592a4afdc1717a1fc5e1ab318123fa35">end</a> () const</td></tr>
+<tr class="separator:a592a4afdc1717a1fc5e1ab318123fa35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24844ebf48d9580bc65f62faadda716e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a24844ebf48d9580bc65f62faadda716e">set_start</a> (uint32_t val)</td></tr>
+<tr class="separator:a24844ebf48d9580bc65f62faadda716e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a1b2255d648d739d6526677af709972"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a6a1b2255d648d739d6526677af709972">set_end</a> (uint32_t val)</td></tr>
+<tr class="separator:a6a1b2255d648d739d6526677af709972"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addc2f2093eddd0806c703d398c2c82f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#addc2f2093eddd0806c703d398c2c82f0">src</a> () const</td></tr>
+<tr class="separator:addc2f2093eddd0806c703d398c2c82f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Represents the nodes that can be traced back to the token at the exact location in the source file. </p>
+<div class="textblock"><p>Represents the nodes that can be traced back to tokens in the source file. </p>
 
-<p class="definition">Definition at line <a class="el" href="source__traceable_8h_source.html#l00011">11</a> of file <a class="el" href="source__traceable_8h_source.html">source_traceable.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__traceable_8h_source.html#l00023">23</a> of file <a class="el" href="source__traceable_8h_source.html">source_traceable.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab0aef6caa41ad3e56d33508a8f67c5f4" name="ab0aef6caa41ad3e56d33508a8f67c5f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab0aef6caa41ad3e56d33508a8f67c5f4">&#9670;&#160;</a></span>SourceTraceable()</h2>
+<a id="a9f9056761ed7f5d86d54611f461d9459" name="a9f9056761ed7f5d86d54611f461d9459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f9056761ed7f5d86d54611f461d9459">&#9670;&#160;</a></span>SourceTraceable()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">SourceTraceable::SourceTraceable </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td>
-          <td class="paramname"><em>source_loc</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramname"><em>src</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">explicit</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00007">7</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00008">8</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a741a3a24d33deca4d9b5489410f9d8b4" name="a741a3a24d33deca4d9b5489410f9d8b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a741a3a24d33deca4d9b5489410f9d8b4">&#9670;&#160;</a></span>loc()</h2>
+<a id="a592a4afdc1717a1fc5e1ab318123fa35" name="a592a4afdc1717a1fc5e1ab318123fa35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a592a4afdc1717a1fc5e1ab318123fa35">&#9670;&#160;</a></span>end()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp; SourceTraceable::loc </td>
+          <td class="memname">uint32_t SourceTraceable::end </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -157,52 +149,85 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00009">9</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00012">12</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
 
 </div>
 </div>
-<a id="aba7d947529c04a598f2ea83b251cf19a" name="aba7d947529c04a598f2ea83b251cf19a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba7d947529c04a598f2ea83b251cf19a">&#9670;&#160;</a></span>set_loc()</h2>
+<a id="a6a1b2255d648d739d6526677af709972" name="a6a1b2255d648d739d6526677af709972"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a1b2255d648d739d6526677af709972">&#9670;&#160;</a></span>set_end()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void SourceTraceable::set_loc </td>
+          <td class="memname">void SourceTraceable::set_end </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td>
-          <td class="paramname"><em>loc</em></td><td>)</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>val</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00011">11</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00016">16</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
 
 </div>
 </div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="aa980261c3e3be417b087510ec9250d57" name="aa980261c3e3be417b087510ec9250d57"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa980261c3e3be417b087510ec9250d57">&#9670;&#160;</a></span>_loc</h2>
+<a id="a24844ebf48d9580bc65f62faadda716e" name="a24844ebf48d9580bc65f62faadda716e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24844ebf48d9580bc65f62faadda716e">&#9670;&#160;</a></span>set_start()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> tanlang::SourceTraceable::_loc = <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>(0)</td>
+          <td class="memname">void SourceTraceable::set_start </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>val</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__traceable_8h_source.html#l00019">19</a> of file <a class="el" href="source__traceable_8h_source.html">source_traceable.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00014">14</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
+
+</div>
+</div>
+<a id="addc2f2093eddd0806c703d398c2c82f0" name="addc2f2093eddd0806c703d398c2c82f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addc2f2093eddd0806c703d398c2c82f0">&#9670;&#160;</a></span>src()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> * SourceTraceable::src </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00018">18</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a834a8e9ea744a740cc225ebbc8bd0cec" name="a834a8e9ea744a740cc225ebbc8bd0cec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a834a8e9ea744a740cc225ebbc8bd0cec">&#9670;&#160;</a></span>start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t SourceTraceable::start </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__traceable_8cpp_source.html#l00010">10</a> of file <a class="el" href="source__traceable_8cpp_source.html">source_traceable.cpp</a>.</p>
 
 </div>
 </div>

@@ -53,100 +53,256 @@
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classtanlang_1_1SrcLoc-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tanlang::SrcLoc Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
-
-<p>Stores the location information of a token in <a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a>.  
- <a href="classtanlang_1_1SrcLoc.html#details">More...</a></p>
-
-<p><code>#include &lt;<a class="el" href="source__manager_8h_source.html">source_manager.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6505e4603318996c00919d8e99f0b768"><td class="memItemLeft" align="right" valign="top"><a id="a6505e4603318996c00919d8e99f0b768" name="a6505e4603318996c00919d8e99f0b768"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SrcLoc</b> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;)=default</td></tr>
-<tr class="separator:a6505e4603318996c00919d8e99f0b768"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01f684c90bd201c98e86f0be1330249d"><td class="memItemLeft" align="right" valign="top"><a id="a01f684c90bd201c98e86f0be1330249d" name="a01f684c90bd201c98e86f0be1330249d"></a>
-<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;)=default</td></tr>
-<tr class="separator:a01f684c90bd201c98e86f0be1330249d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2a9e0c7116aedcb889f85e0b6c5dccb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#ac2a9e0c7116aedcb889f85e0b6c5dccb">SrcLoc</a> (size_t index)</td></tr>
-<tr class="separator:ac2a9e0c7116aedcb889f85e0b6c5dccb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ae97dc826587eacc2aed0769cb51027"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a3ae97dc826587eacc2aed0769cb51027">offset_by</a> (int64_t offset)</td></tr>
-<tr class="separator:a3ae97dc826587eacc2aed0769cb51027"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d736dac65811e06e79e01357e162da1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a9d736dac65811e06e79e01357e162da1">SrcLoc</a> (uint32_t r, uint32_t c, const <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
+<tr class="separator:a9d736dac65811e06e79e01357e162da1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66b9943253f31056a8047cc3039e5292"><td class="memItemLeft" align="right" valign="top"><a id="a66b9943253f31056a8047cc3039e5292" name="a66b9943253f31056a8047cc3039e5292"></a>
+<a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other)=default</td></tr>
+<tr class="separator:a66b9943253f31056a8047cc3039e5292"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65d7d2732b5976588c0db6f42c1abd79"><td class="memItemLeft" align="right" valign="top"><a id="a65d7d2732b5976588c0db6f42c1abd79" name="a65d7d2732b5976588c0db6f42c1abd79"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SrcLoc</b> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other)=default</td></tr>
+<tr class="separator:a65d7d2732b5976588c0db6f42c1abd79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac14ca07897cdb42a442cda4d1383506"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#aac14ca07897cdb42a442cda4d1383506">operator==</a> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other) const</td></tr>
+<tr class="separator:aac14ca07897cdb42a442cda4d1383506"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a580481f9442c2e735ab3db2b70d7fda2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a580481f9442c2e735ab3db2b70d7fda2">operator!=</a> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other) const</td></tr>
+<tr class="separator:a580481f9442c2e735ab3db2b70d7fda2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2d99d04392b1f48f34607ed48a0b0c3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#ac2d99d04392b1f48f34607ed48a0b0c3">operator&lt;=</a> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other) const</td></tr>
+<tr class="separator:ac2d99d04392b1f48f34607ed48a0b0c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa17c5f0e56dfdc5365e63b3cfb2fca97"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#aa17c5f0e56dfdc5365e63b3cfb2fca97">operator&lt;</a> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other) const</td></tr>
+<tr class="separator:aa17c5f0e56dfdc5365e63b3cfb2fca97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa613a81870c370812460569afeebcdc8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#aa613a81870c370812460569afeebcdc8">operator&gt;</a> (const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;other) const</td></tr>
+<tr class="separator:aa613a81870c370812460569afeebcdc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcc3e99af4d7b84d32f863b5f351a5dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#abcc3e99af4d7b84d32f863b5f351a5dc">operator++</a> ()</td></tr>
+<tr class="separator:abcc3e99af4d7b84d32f863b5f351a5dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a675fd8c1077ca67268cd0cb5bcf4c9ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a675fd8c1077ca67268cd0cb5bcf4c9ad">operator++</a> (int)</td></tr>
+<tr class="separator:a675fd8c1077ca67268cd0cb5bcf4c9ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a993f3d205d7591340f1971c9928c1941"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a993f3d205d7591340f1971c9928c1941">operator*</a> ()</td></tr>
+<tr class="separator:a993f3d205d7591340f1971c9928c1941"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a9325c027b47c8ed8a5e1ba7976bf79a6"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a9325c027b47c8ed8a5e1ba7976bf79a6">l</a> = 0</td></tr>
+<tr class="separator:a9325c027b47c8ed8a5e1ba7976bf79a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32b639b7da6a6adc934ca02032695ba5"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#a32b639b7da6a6adc934ca02032695ba5">c</a> = 0</td></tr>
+<tr class="separator:a32b639b7da6a6adc934ca02032695ba5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
-<tr class="memitem:aa2732a8586b0c018d6e610cefa09e7a4"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#aa2732a8586b0c018d6e610cefa09e7a4">SourceManager</a></td></tr>
-<tr class="separator:aa2732a8586b0c018d6e610cefa09e7a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada58f25b3c0eedba66fd23d19f666e75"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#ada58f25b3c0eedba66fd23d19f666e75">SourceFile</a></td></tr>
+<tr class="separator:ada58f25b3c0eedba66fd23d19f666e75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4800d816c279bc543ca7631222b886e"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SrcLoc.html#aa4800d816c279bc543ca7631222b886e">SourceSpan</a></td></tr>
+<tr class="separator:aa4800d816c279bc543ca7631222b886e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Stores the location information of a token in <a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a>. </p>
-
-<p class="definition">Definition at line <a class="el" href="source__manager_8h_source.html#l00010">10</a> of file <a class="el" href="source__manager_8h_source.html">source_manager.h</a>.</p>
+<div class="textblock">
+<p class="definition">Definition at line <a class="el" href="source__file_8h_source.html#l00057">57</a> of file <a class="el" href="source__file_8h_source.html">source_file.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ac2a9e0c7116aedcb889f85e0b6c5dccb" name="ac2a9e0c7116aedcb889f85e0b6c5dccb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac2a9e0c7116aedcb889f85e0b6c5dccb">&#9670;&#160;</a></span>SrcLoc()</h2>
+<a id="a9d736dac65811e06e79e01357e162da1" name="a9d736dac65811e06e79e01357e162da1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d736dac65811e06e79e01357e162da1">&#9670;&#160;</a></span>SrcLoc()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">tanlang::SrcLoc::SrcLoc </td>
           <td>(</td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>index</em></td><td>)</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__manager_8h_source.html#l00018">18</a> of file <a class="el" href="source__manager_8h_source.html">source_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00147">147</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3ae97dc826587eacc2aed0769cb51027" name="a3ae97dc826587eacc2aed0769cb51027"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ae97dc826587eacc2aed0769cb51027">&#9670;&#160;</a></span>offset_by()</h2>
+<a id="a580481f9442c2e735ab3db2b70d7fda2" name="a580481f9442c2e735ab3db2b70d7fda2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a580481f9442c2e735ab3db2b70d7fda2">&#9670;&#160;</a></span>operator!=()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void tanlang::SrcLoc::offset_by </td>
+          <td class="memname">bool tanlang::SrcLoc::operator!= </td>
           <td>(</td>
-          <td class="paramtype">int64_t&#160;</td>
-          <td class="paramname"><em>offset</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00151">151</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a993f3d205d7591340f1971c9928c1941" name="a993f3d205d7591340f1971c9928c1941"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a993f3d205d7591340f1971c9928c1941">&#9670;&#160;</a></span>operator*()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char tanlang::SrcLoc::operator* </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__manager_8h_source.html#l00019">19</a> of file <a class="el" href="source__manager_8h_source.html">source_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00194">194</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="abcc3e99af4d7b84d32f863b5f351a5dc" name="abcc3e99af4d7b84d32f863b5f351a5dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcc3e99af4d7b84d32f863b5f351a5dc">&#9670;&#160;</a></span>operator++() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp; tanlang::SrcLoc::operator++ </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00183">183</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a675fd8c1077ca67268cd0cb5bcf4c9ad" name="a675fd8c1077ca67268cd0cb5bcf4c9ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a675fd8c1077ca67268cd0cb5bcf4c9ad">&#9670;&#160;</a></span>operator++() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> tanlang::SrcLoc::operator++ </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00188">188</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aa17c5f0e56dfdc5365e63b3cfb2fca97" name="aa17c5f0e56dfdc5365e63b3cfb2fca97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa17c5f0e56dfdc5365e63b3cfb2fca97">&#9670;&#160;</a></span>operator&lt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tanlang::SrcLoc::operator&lt; </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00163">163</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ac2d99d04392b1f48f34607ed48a0b0c3" name="ac2d99d04392b1f48f34607ed48a0b0c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2d99d04392b1f48f34607ed48a0b0c3">&#9670;&#160;</a></span>operator&lt;=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tanlang::SrcLoc::operator&lt;= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00153">153</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aac14ca07897cdb42a442cda4d1383506" name="aac14ca07897cdb42a442cda4d1383506"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac14ca07897cdb42a442cda4d1383506">&#9670;&#160;</a></span>operator==()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tanlang::SrcLoc::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00149">149</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aa613a81870c370812460569afeebcdc8" name="aa613a81870c370812460569afeebcdc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa613a81870c370812460569afeebcdc8">&#9670;&#160;</a></span>operator&gt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tanlang::SrcLoc::operator&gt; </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8cpp_source.html#l00173">173</a> of file <a class="el" href="source__file_8cpp_source.html">source_file.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
-<a id="aa2732a8586b0c018d6e610cefa09e7a4" name="aa2732a8586b0c018d6e610cefa09e7a4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa2732a8586b0c018d6e610cefa09e7a4">&#9670;&#160;</a></span>SourceManager</h2>
+<a id="ada58f25b3c0eedba66fd23d19f666e75" name="ada58f25b3c0eedba66fd23d19f666e75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada58f25b3c0eedba66fd23d19f666e75">&#9670;&#160;</a></span>SourceFile</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -155,7 +311,7 @@ Friends</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">friend class <a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a></td>
+          <td class="memname">friend class <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a></td>
         </tr>
       </table>
   </td>
@@ -165,12 +321,70 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="source__manager_8h_source.html#l00012">12</a> of file <a class="el" href="source__manager_8h_source.html">source_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="source__file_8h_source.html#l00059">59</a> of file <a class="el" href="source__file_8h_source.html">source_file.h</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li>E:/repos/tan/include/ast/<a class="el" href="source__manager_8h_source.html">source_manager.h</a></li>
+<a id="aa4800d816c279bc543ca7631222b886e" name="aa4800d816c279bc543ca7631222b886e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4800d816c279bc543ca7631222b886e">&#9670;&#160;</a></span>SourceSpan</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtanlang_1_1SourceSpan.html">SourceSpan</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8h_source.html#l00060">60</a> of file <a class="el" href="source__file_8h_source.html">source_file.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a32b639b7da6a6adc934ca02032695ba5" name="a32b639b7da6a6adc934ca02032695ba5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32b639b7da6a6adc934ca02032695ba5">&#9670;&#160;</a></span>c</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t tanlang::SrcLoc::c = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8h_source.html#l00062">62</a> of file <a class="el" href="source__file_8h_source.html">source_file.h</a>.</p>
+
+</div>
+</div>
+<a id="a9325c027b47c8ed8a5e1ba7976bf79a6" name="a9325c027b47c8ed8a5e1ba7976bf79a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9325c027b47c8ed8a5e1ba7976bf79a6">&#9670;&#160;</a></span>l</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t tanlang::SrcLoc::l = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="source__file_8h_source.html#l00061">61</a> of file <a class="el" href="source__file_8h_source.html">source_file.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>E:/repos/tan/include/source_file/<a class="el" href="source__file_8h_source.html">source_file.h</a></li>
+<li>E:/repos/tan/src/source_file/<a class="el" href="source__file_8cpp_source.html">source_file.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

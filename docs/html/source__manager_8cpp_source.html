@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.6"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>tan: E:/repos/tan/src/ast/source_manager.cpp Source File</title>
+<title>tan: E:/repos/tan/src/source_file/source_manager.cpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -44,58 +44,59 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_203e5988f1ed315d29383d699972de6f.html">ast</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_0b304fbf33282e8d50208190cdd5e80f.html">source_file</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">source_manager.cpp</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#include &quot;ast/source_manager.h&quot;</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &quot;ast/ast_base.h&quot;</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;lexer/token.h&quot;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span> </div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespacetanlang.html">tanlang</a>;</div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>SourceManager::SourceManager(str filename, vector&lt;Token *&gt; tokens)</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    : _filename(std::move(filename)), _tokens(std::move(tokens)) {</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>  <span class="keywordflow">if</span> (_tokens.empty()) { <span class="comment">/// if the file is empty, insert a token so that source location 0:0 is always valid</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    _tokens.push_back(<span class="keyword">new</span> <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a>(TokenType::COMMENTS, 0, 0, <span class="stringliteral">&quot;&quot;</span>, <span class="stringliteral">&quot;&quot;</span>));</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>  }</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>}</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *SourceManager::get_token(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  <span class="keywordflow">if</span> (loc._index &gt;= _tokens.size()) {</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> err(<span class="stringliteral">&quot;Invalid source location {filename}:{line}&quot;</span>);</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    err.raise();</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  }</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <span class="keywordflow">return</span> _tokens[loc._index];</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>}</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>uint32_t SourceManager::get_line(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_line() + 1; }</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>uint32_t SourceManager::get_col(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_col() + 1; }</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>str SourceManager::get_token_str(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_value(); }</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *SourceManager::get_last_token()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _tokens.back(); }</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keywordtype">bool</span> SourceManager::is_eof(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> loc._index &gt;= _tokens.size(); }</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>str SourceManager::get_source_code(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="comment">// TODO: return the string that also covers the child nodes, instead of only p&#39;s own token str</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keywordflow">return</span> get_token_str(loc);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>}</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>str SourceManager::get_filename()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _filename; }</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>str SourceManager::get_src_location_str(<a class="code hl_class" href="classtanlang_1_1SrcLoc.html">SrcLoc</a> loc)<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordflow">return</span> get_filename() + <span class="stringliteral">&quot;:&quot;</span> + std::to_string(get_line(loc));</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>}</div>
-<div class="ttc" id="aclasstanlang_1_1Error_html"><div class="ttname"><a href="classtanlang_1_1Error.html">tanlang::Error</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00036">error.h:36</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1SrcLoc_html"><div class="ttname"><a href="classtanlang_1_1SrcLoc.html">tanlang::SrcLoc</a></div><div class="ttdoc">Stores the location information of a token in SourceManager.</div><div class="ttdef"><b>Definition:</b> <a href="source__manager_8h_source.html#l00010">source_manager.h:10</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00032">token.h:32</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00006">register_declarations.cpp:6</a></div></div>
+<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#include &quot;source_file/source_manager.h&quot;</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &quot;source_file/token.h&quot;</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="keyword">using namespace </span><a class="code hl_namespace" href="namespacetanlang.html">tanlang</a>;</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span>SourceManager::SourceManager(str filename, vector&lt;Token *&gt; tokens)</div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>    : _filename(std::move(filename)), _tokens(std::move(tokens)) {</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>  <span class="keywordflow">if</span> (_tokens.empty()) { <span class="comment">/// if the file is empty, insert a token so that source location 0:0 is always valid</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>    _tokens.push_back(<span class="keyword">new</span> <a class="code hl_class" href="classtanlang_1_1Token.html">Token</a>(TokenType::COMMENTS, 0, 0, <span class="stringliteral">&quot;&quot;</span>, <span class="keyword">new</span> <a class="code hl_class" href="classtanlang_1_1SourceFile.html">SourceFile</a>()));</div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>  }</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>}</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *SourceManager::get_token(uint32_t loc)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  <span class="keywordflow">if</span> (loc &gt;= _tokens.size()) {</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <a class="code hl_class" href="classtanlang_1_1Error.html">Error</a> err(<span class="stringliteral">&quot;Invalid source location {filename}:{line}&quot;</span>);</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    err.raise();</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  }</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  <span class="keywordflow">return</span> _tokens[loc];</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>}</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>uint32_t SourceManager::get_line(uint32_t loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_line() + 1; }</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>uint32_t SourceManager::get_col(uint32_t loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_col() + 1; }</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>str SourceManager::get_token_str(uint32_t loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> get_token(loc)-&gt;get_value(); }</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><a class="code hl_class" href="classtanlang_1_1Token.html">Token</a> *SourceManager::get_last_token()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _tokens.back(); }</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keywordtype">bool</span> SourceManager::is_eof(uint32_t loc)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> loc &gt;= _tokens.size(); }</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>str SourceManager::get_source_code(uint32_t loc)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="comment">// TODO: return the string that also covers the child nodes, instead of only p&#39;s own token str</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>  <span class="keywordflow">return</span> get_token_str(loc);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>}</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>str SourceManager::get_filename()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _filename; }</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>str SourceManager::get_src_location_str(uint32_t loc)<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordflow">return</span> get_filename() + <span class="stringliteral">&quot;:&quot;</span> + std::to_string(get_line(loc));</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>}</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><a class="code hl_class" href="classtanlang_1_1SourceFile.html">SourceFile</a> *SourceManager::src()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _tokens[0]-&gt;src(); }</div>
+<div class="ttc" id="aclasstanlang_1_1Error_html"><div class="ttname"><a href="classtanlang_1_1Error.html">tanlang::Error</a></div><div class="ttdef"><b>Definition:</b> <a href="error_8h_source.html#l00047">error.h:47</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1SourceFile_html"><div class="ttname"><a href="classtanlang_1_1SourceFile.html">tanlang::SourceFile</a></div><div class="ttdef"><b>Definition:</b> <a href="source__file_8h_source.html#l00010">source_file.h:10</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Token_html"><div class="ttname"><a href="classtanlang_1_1Token.html">tanlang::Token</a></div><div class="ttdef"><b>Definition:</b> <a href="token_8h_source.html#l00033">token.h:33</a></div></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00007">register_declarations.cpp:7</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

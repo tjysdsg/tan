@@ -49,8 +49,8 @@
 <h2 class="groupheader">Concept definition</h2>
 <div class="fragment"><div class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> C, <span class="keyword">typename</span> Input, <span class="keyword">typename</span> Output&gt;</div>
 <div class="line"><span class="keyword">concept </span><a class="code hl_concept" href="concepttanlang_1_1HasImpl.html">tanlang::HasImpl</a> =  <span class="keyword">requires</span>(C c, Input input) {</div>
-<div class="line">                    { c.run_impl(input) } -&gt; <a class="code hl_concept" href="concepttanlang_1_1same__as.html">same_as&lt;Output&gt;</a>;</div>
-<div class="line">                  }</div>
+<div class="line">  { c.run_impl(input) } -&gt; <a class="code hl_concept" href="concepttanlang_1_1same__as.html">same_as&lt;Output&gt;</a>;</div>
+<div class="line">}</div>
 <div class="ttc" id="aconcepttanlang_1_1HasImpl_html"><div class="ttname"><a href="concepttanlang_1_1HasImpl.html">tanlang::HasImpl</a></div><div class="ttdef"><b>Definition:</b> <a href="compiler__action_8h_source.html#l00018">compiler_action.h:18</a></div></div>
 <div class="ttc" id="aconcepttanlang_1_1same__as_html"><div class="ttname"><a href="concepttanlang_1_1same__as.html">tanlang::same_as</a></div><div class="ttdoc">Some compilers don't have std::same_as.</div><div class="ttdef"><b>Definition:</b> <a href="compiler__action_8h_source.html#l00015">compiler_action.h:15</a></div></div>
 </div><!-- fragment --><a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

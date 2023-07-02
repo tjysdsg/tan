@@ -80,41 +80,48 @@
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    {<span class="stringliteral">&quot;noop&quot;</span>,                         <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e">IntrinsicType::NOOP</a>           },</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    {<span class="stringliteral">&quot;get_decl&quot;</span>,                     <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7">IntrinsicType::GET_DECL</a>       },</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    {<span class="stringliteral">&quot;test_comp_error&quot;</span>,              <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162">IntrinsicType::TEST_COMP_ERROR</a>},</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    {<span class="stringliteral">&quot;stack_trace&quot;</span>,                  <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    },</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    {STACK_TRACE_FUNCTION_REAL_NAME, <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    }</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>};</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>vector&lt;FunctionDecl *&gt; Intrinsic::GetIntrinsicFunctionDeclarations() {</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  vector&lt;FunctionDecl *&gt; ret{};</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment"></span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">  /// compprint</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment"></span>  ret.push_back(FunctionDecl::Create(SrcLoc(0), <span class="stringliteral">&quot;compprint&quot;</span>,</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), <span class="keyword">true</span>, <span class="keyword">false</span>));</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordflow">return</span> ret;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>}</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>Intrinsic *Intrinsic::Create(SrcLoc loc) { <span class="keywordflow">return</span> <span class="keyword">new</span> Intrinsic(loc); }</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>Intrinsic::Intrinsic(SrcLoc loc) : Expr(<a class="code hl_enumeration" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::<a class="code hl_enumvalue" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232a02cea4d4b742f194a426d192f80379dd">INTRINSIC</a>, loc, 0) {}</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    {<span class="stringliteral">&quot;abort&quot;</span>,                        IntrinsicType::ABORT          },</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    {<span class="stringliteral">&quot;stack_trace&quot;</span>,                  <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    },</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    {STACK_TRACE_FUNCTION_REAL_NAME, <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    }</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>};</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>vector&lt;FunctionDecl *&gt; Intrinsic::GetIntrinsicFunctionDeclarations() {</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  vector&lt;FunctionDecl *&gt; ret{};</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="comment">// TODO: prevent user from directly calling abort(), must use @abort()</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keyword">auto</span> *src = <span class="keyword">new</span> SourceFile();</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="comment"></span> </div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="comment">  /// compprint</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="comment"></span>  ret.push_back(FunctionDecl::Create(src, <span class="stringliteral">&quot;compprint&quot;</span>,</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), <span class="keyword">true</span>, <span class="keyword">false</span>));<span class="comment"></span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment">  /// abort</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment"></span>  ret.push_back(FunctionDecl::Create(src, <span class="stringliteral">&quot;abort&quot;</span>, Type::GetFunctionType(Type::GetVoidType(), {}), <span class="keyword">true</span>, <span class="keyword">false</span>));</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><a class="code hl_enumeration" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> Intrinsic::get_intrinsic_type()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _intrinsic_type; }</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keywordtype">void</span> Intrinsic::set_intrinsic_type(IntrinsicType intrinsic_type) { _intrinsic_type = intrinsic_type; }</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>ASTBase *Intrinsic::get_sub()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _sub; }</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keywordtype">void</span> Intrinsic::set_sub(ASTBase *sub) { _sub = sub; }</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">   56</a></span>vector&lt;ASTBase *&gt; Intrinsic::get_children()<span class="keyword"> const </span>{</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keywordflow">if</span> (_sub) {</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">return</span> _sub-&gt;get_children();</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  }</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  <span class="keywordflow">return</span> {};</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>}</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>}</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>Intrinsic *Intrinsic::Create(SourceFile *src) { <span class="keywordflow">return</span> <span class="keyword">new</span> Intrinsic(src); }</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>Intrinsic::Intrinsic(SourceFile *src) : Expr(<a class="code hl_enumeration" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>::<a class="code hl_enumvalue" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232a02cea4d4b742f194a426d192f80379dd">INTRINSIC</a>, src, 0) {}</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><a class="code hl_enumeration" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> Intrinsic::get_intrinsic_type()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _intrinsic_type; }</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keywordtype">void</span> Intrinsic::set_intrinsic_type(IntrinsicType intrinsic_type) { _intrinsic_type = intrinsic_type; }</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>ASTBase *Intrinsic::get_sub()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> _sub; }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keywordtype">void</span> Intrinsic::set_sub(ASTBase *sub) { _sub = sub; }</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>} <span class="comment">// namespace tanlang</span></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00006">register_declarations.cpp:6</a></div></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">   63</a></span>vector&lt;ASTBase *&gt; Intrinsic::get_children()<span class="keyword"> const </span>{</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  <span class="keywordflow">if</span> (_sub) {</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordflow">return</span> _sub-&gt;get_children();</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  }</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">return</span> {};</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>} <span class="comment">// namespace tanlang</span></div>
+<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00007">register_declarations.cpp:7</a></div></div>
 <div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8f"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">tanlang::IntrinsicType</a></div><div class="ttdeci">IntrinsicType</div><div class="ttdef"><b>Definition:</b> <a href="intrinsic_8h_source.html#l00015">intrinsic.h:15</a></div></div>
 <div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2">tanlang::IntrinsicType::RANGE</a></div><div class="ttdeci">@ RANGE</div><div class="ttdoc">memcpy</div></div>
 <div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3">tanlang::IntrinsicType::MAX_OF</a></div><div class="ttdeci">@ MAX_OF</div><div class="ttdoc">minimum value of an integer type</div></div>
