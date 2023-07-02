@@ -24,8 +24,10 @@ class SourceTraceable {
 public:
   SourceTraceable() = delete;
   SourceTraceable(SourceFile *src);
-  [[nodiscard]] const TokenSpan &span() const;
-  void set_span(TokenSpan span);
+  [[nodiscard]] uint32_t start() const;
+  [[nodiscard]] uint32_t end() const;
+  void set_start(uint32_t val);
+  void set_end(uint32_t val);
 
 private:
   TokenSpan _span;

@@ -2,8 +2,6 @@
 #define TAN_PARSER_H
 #include "base.h"
 #include "ast/fwd.h"
-#include <memory>
-#include <stack>
 
 namespace tanlang {
 

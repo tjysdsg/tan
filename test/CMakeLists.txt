@@ -7,14 +7,14 @@ macro(enable_tests)
     add_executable(lexer_tests ${TEST_DIR}/lexer_test.cpp)
     target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/test)
-    target_link_libraries(lexer_tests Tan gtest ${DEP_LIBS})
+    target_link_libraries(lexer_tests TanSourceFile TanBase TanCommon TanLexer gtest ${DEP_LIBS})
     set_target_common_compile_options(lexer_tests)
 
     # parser tests
     add_executable(parser_tests ${TEST_DIR}/parser_test.cpp)
     target_include_directories(parser_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/test)
-    target_link_libraries(parser_tests Tan gtest ${DEP_LIBS})
+    target_link_libraries(parser_tests TanParser TanSourceFile TanBase TanAST TanCommon TanLexer gtest ${DEP_LIBS})
     set_target_common_compile_options(parser_tests)
 
     # This tells the executable where to write test coverage output

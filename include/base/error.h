@@ -21,6 +21,10 @@ enum class ErrorType {
   ASSERTION_FAILED,
   FILE_NOT_FOUND,
   SYNTAX_ERROR,
+  SEMANTIC_ERROR,
+  UNKNOWN_SYMBOL,
+
+  NOT_IMPLEMENTED,
 };
 
 class Error;
