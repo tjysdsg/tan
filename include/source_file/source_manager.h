@@ -17,10 +17,11 @@ public:
   str get_token_str(uint32_t loc) const;
   Token *get_last_token() const;
   bool is_eof(uint32_t loc) const;
-  str get_source_code(uint32_t loc) const;
   str get_filename() const;
   str get_src_location_str(uint32_t loc) const;
   SourceFile *src() const;
+
+  str get_source_code(uint32_t start, uint32_t end) const;
 
 private:
   str _filename;

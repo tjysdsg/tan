@@ -26,6 +26,12 @@ pub fn main(argc: int, argv: char**) : int {
         @get_decl();
     }
     @test_comp_error(invalid_intrinsic_func_call) {
+        @get_decl(var a = 10);
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
+        @get_decl(i32);
+    }
+    @test_comp_error(invalid_intrinsic_func_call) {
         @compprint();
     }
     @test_comp_error(invalid_intrinsic_func_call) {

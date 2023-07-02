@@ -74,6 +74,8 @@ SourceSpan Token::GetSourceSpan(const Token &start, const Token &end) {
   return SourceSpan(c1, c2);
 }
 
+SrcLoc Token::GetSrcLoc(const Token *tok) { return SrcLoc(tok->get_line(), tok->get_col(), tok->src()); }
+
 SourceFile *Token::src() const { return _src; }
 
 } // namespace tanlang

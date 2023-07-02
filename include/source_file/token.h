@@ -33,6 +33,7 @@ extern umap<str, TokenType> OPERATION_VALUE_TYPE_MAP;
 class Token {
 public:
   static SourceSpan GetSourceSpan(const Token &start, const Token &end);
+  static SrcLoc GetSrcLoc(const Token *tok);
 
 public:
   Token() = delete;

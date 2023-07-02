@@ -168,7 +168,7 @@ private:
     } else if (token->get_type() == TokenType::CHAR) {   /// char literal
       node = CharLiteral::Create(_sm->src(), static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) {            /// should not encounter types if parsed properly
-      TAN_ASSERT(false);
+      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected type name");
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       Token *next_token = at(++next);

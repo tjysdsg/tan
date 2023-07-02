@@ -28,9 +28,15 @@ Token *SourceManager::get_last_token() const { return _tokens.back(); }
 
 bool SourceManager::is_eof(uint32_t loc) const { return loc >= _tokens.size(); }
 
-str SourceManager::get_source_code(uint32_t loc) const {
-  // TODO: return the string that also covers the child nodes, instead of only p's own token str
-  return get_token_str(loc);
+str SourceManager::get_source_code(uint32_t start, uint32_t end) const {
+  str ret;
+
+  Token *start_tok = get_token(start);
+  Token *end_tok = get_token(end);
+
+  TAN_ASSERT(start_tok->src() == end_tok->src());
+
+  return start_tok->src()->substr(Token::GetSrcLoc(start_tok), ++Token::GetSrcLoc(end_tok));
 }
 
 str SourceManager::get_filename() const { return _filename; }

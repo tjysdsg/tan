@@ -163,8 +163,23 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     if (func_call->get_n_args() != 1) {
       error(ErrorType::SEMANTIC_ERROR, func_call, "Expect the number of args to be 1");
     }
+
     auto *target = func_call->get_arg(0);
-    auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(target->start()));
+    if (target->get_node_type() != ASTNodeType::ID) {
+      error(ErrorType::TYPE_ERROR, target,
+            fmt::format("Expect an identifier as the operand, but got {}",
+                        ASTBase::ASTTypeNames[target->get_node_type()]));
+    }
+
+    visit(target);
+
+    auto *id = ast_cast<Identifier>(target);
+    if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
+      error(ErrorType::TYPE_ERROR, id, fmt::format("Expect a value but got type"));
+    }
+
+    auto *decl = id->get_var_ref()->get_referred();
+    auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(decl->start(), decl->end()));
 
     // FEATURE: Return AST?
     p->set_sub(source_str);
