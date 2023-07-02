@@ -2,10 +2,6 @@
 #include "base.h"
 #include "source_file/source_file.h"
 
-/// we always assume that the line number and column number can be contained within 32bit int
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-
 namespace tanlang {
 
 void SourceFile::open(const str &filename) {
@@ -196,6 +192,12 @@ char SrcLoc::operator*() {
   return _src->at(*this);
 }
 
+SourceSpan::SourceSpan(const SourceFile *src, uint32_t start_line, uint32_t start_col, uint32_t end_line,
+                       uint32_t end_col)
+    : SourceSpan(SrcLoc(start_line, start_col, src), SrcLoc(end_line, end_col, src)) {}
+
+SourceSpan::SourceSpan(const SourceFile *src, uint32_t line, uint32_t col) : SourceSpan(src, line, col, line, col) {}
+
 SourceSpan::SourceSpan(const SrcLoc &start, const SrcLoc &end) : _start(start), _end(end) {
   TAN_ASSERT(start._src == end._src);
   TAN_ASSERT(start.l <= end.l);
@@ -211,5 +213,3 @@ const SrcLoc &SourceSpan::start() const { return _start; }
 const SrcLoc &SourceSpan::end() const { return _end; }
 
 } // namespace tanlang
-
-#pragma clang diagnostic pop

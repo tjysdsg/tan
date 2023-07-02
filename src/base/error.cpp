@@ -54,31 +54,17 @@ Error::Error(ErrorType type, SourceSpan span, const str &error_message) : _type(
 Error::Error(ErrorType type, Token *start, Token *end, const str &error_message)
     : Error(type, Token::GetSourceSpan(*start, *end), error_message) {}
 
-Error::Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message)
-    : _type(ErrorType::GENERIC_ERROR) {
-  str indent = col > 0 ? str(col - 1, ' ') : "";
-  _msg = fmt::format("[GENERIC_ERROR] at {}:{} {}\n{}\n{}^", filename, line, error_message, source, indent);
-}
-
-Error::Error(const str &filename, Token *token, const str &error_message) : _type(ErrorType::GENERIC_ERROR) {
-  str indent = token->get_col() > 0 ? str(token->get_col() - 1, ' ') : "";
-  _msg = fmt::format("[GENERIC_ERROR] at {}:{} {}\n{}\n{}^", filename, token->get_line() + 1, error_message,
-                     token->get_source_line(), indent);
-}
-
 void Error::raise() const { throw CompileException((Error *)this, _msg); }
+
+ErrorType Error::type() const { return _type; }
 
 #define ERROR_TYPE_TO_STRING_HELPER(x) \
   { ErrorType::x, #x }
 
 umap<ErrorType, str> Error::ERROR_TYPE_ENUM_TO_STRING{
-    ERROR_TYPE_TO_STRING_HELPER(GENERIC_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(ASSERTION_FAILED),
-    ERROR_TYPE_TO_STRING_HELPER(FILE_NOT_FOUND),
-    ERROR_TYPE_TO_STRING_HELPER(SYNTAX_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(NOT_IMPLEMENTED),
-    ERROR_TYPE_TO_STRING_HELPER(SEMANTIC_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(UNKNOWN_SYMBOL),
-    ERROR_TYPE_TO_STRING_HELPER(IMPORT_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(GENERIC_ERROR),   ERROR_TYPE_TO_STRING_HELPER(ASSERTION_FAILED),
+    ERROR_TYPE_TO_STRING_HELPER(FILE_NOT_FOUND),  ERROR_TYPE_TO_STRING_HELPER(SYNTAX_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(NOT_IMPLEMENTED), ERROR_TYPE_TO_STRING_HELPER(SEMANTIC_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(UNKNOWN_SYMBOL),  ERROR_TYPE_TO_STRING_HELPER(IMPORT_ERROR),
     ERROR_TYPE_TO_STRING_HELPER(TYPE_ERROR),
 };

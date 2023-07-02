@@ -90,6 +90,8 @@ private:
 class SourceSpan {
 public:
   SourceSpan() = delete;
+  SourceSpan(const SourceFile *src, uint32_t line, uint32_t col);
+  SourceSpan(const SourceFile *src, uint32_t start_line, uint32_t start_col, uint32_t end_line, uint32_t end_col);
   SourceSpan(const SrcLoc &start, const SrcLoc &end);
   [[nodiscard]] SourceFile *src() const;
   [[nodiscard]] const SrcLoc &start() const;

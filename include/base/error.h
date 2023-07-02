@@ -52,13 +52,10 @@ public:
   explicit Error(const str &error_message);
   Error(ErrorType type, const str &error_message);
   Error(ErrorType type, Token *start, Token *end, const str &error_message);
-
   Error(ErrorType type, SourceSpan span, const str &error_message);
-  [[deprecated]] Error(const str &filename, const str &source, size_t line, size_t col, const str &error_message);
-  [[deprecated]] Error(const str &filename, Token *token, const str &error_message);
-  [[noreturn]] void raise() const;
 
-  [[nodiscard]] ErrorType type() const { return _type; }
+  [[noreturn]] void raise() const;
+  [[nodiscard]] ErrorType type() const;
 
 private:
   str _msg;
