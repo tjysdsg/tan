@@ -25,6 +25,9 @@ public:
   void dump_ir() const;
 
 private:
+  [[noreturn]] void error(ErrorType type, ASTBase *p, const str &message);
+
+private:
   /**
    * \brief Convert a value to from orig type to dest type.
    * \details Returns nullptr if failed to convert.
@@ -39,7 +42,7 @@ private:
   llvm::Value *load_if_is_lvalue(Expr *expr);
 
   llvm::Type *to_llvm_type(Type *p);
-  llvm::Metadata *to_llvm_metadata(Type *p, SrcLoc loc);
+  llvm::Metadata *to_llvm_metadata(Type *p, uint32_t loc);
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
@@ -61,7 +64,6 @@ private:
   llvm::DIFile *_di_file = nullptr;
 
 private:
-  [[noreturn]] void error(ASTBase *p, const str &message);
   llvm::DIScope *get_current_di_scope() const;
   void push_di_scope(llvm::DIScope *scope);
   void pop_di_scope();
