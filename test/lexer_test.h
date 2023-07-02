@@ -4,17 +4,17 @@
 #include "base.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
-#include "lexer/reader.h"
+#include "lexer/source_file.h"
 #include <gtest/gtest.h>
 #include <iostream>
 
-using tanlang::Reader;
+using tanlang::SourceFile;
 using tanlang::tokenize;
 using tanlang::TokenType;
 
 TEST(tokenize, empty) {
   str code = "";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 0);
@@ -22,7 +22,7 @@ TEST(tokenize, empty) {
 
 TEST(tokenize, line_comment) {
   str code = "// this is a comment";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 1);
@@ -36,7 +36,7 @@ TEST(tokenize, line_comment) {
 
 TEST(tokenize, string_literal) {
   str code = "\"hello world, motherfucker dsfs \nshit \t\"";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 1);
@@ -64,7 +64,7 @@ TEST(tokenize, string_literal_escape) {
                         "he says, \"fuck you\"\n"};
   for (size_t i = 0; i < input.size(); ++i) {
     str code = input[i];
-    Reader r;
+    SourceFile r;
     r.from_string(code);
     auto result = tokenize(&r);
     EXPECT_EQ(result.size(), 1);
@@ -82,7 +82,7 @@ TEST(tokenize, char_literal) {
   vector<str> output = {"\\", "\n", "\t", "'", "\""};
   for (size_t i = 0; i < input.size(); ++i) {
     str code = input[i];
-    Reader r;
+    SourceFile r;
     r.from_string(code);
     auto result = tokenize(&r);
     EXPECT_EQ(result.size(), 1);
@@ -97,7 +97,7 @@ TEST(tokenize, char_literal) {
 
 TEST(tokenize, block_comment1) {
   str code = "/* this is a comment */";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 1);
@@ -111,7 +111,7 @@ TEST(tokenize, block_comment1) {
 
 TEST(tokenize, block_comment2) {
   str code = "/*\n\nblock\n \tis a comment \n*/xxx";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ(result.size(), 2);
@@ -125,7 +125,7 @@ TEST(tokenize, block_comment2) {
 
 TEST(tokenize, number_literal) {
   str code = "0b10010111 + 0xaBFd,-,-10,4.2";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ((int)result[0]->get_type(), (int)TokenType::INT);
@@ -144,7 +144,7 @@ TEST(tokenize, number_literal) {
 
 TEST(tokenize, number_literal1) {
   str code = "1u + 2. - 3.0";
-  Reader r;
+  SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
   EXPECT_EQ((int)result[0]->get_type(), (int)TokenType::INT);

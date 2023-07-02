@@ -7,9 +7,9 @@ namespace tanlang {
 
 struct Cursor;
 
-class Reader final {
+class SourceFile final {
 public:
-  Reader() = default;
+  SourceFile() = default;
   void open(const str &filename);
   void from_string(const str &code);
 
@@ -54,12 +54,12 @@ private:
 };
 
 struct Cursor {
-  friend class Reader;
+  friend class SourceFile;
   uint32_t l = 0;
   uint32_t c = 0;
 
 private:
-  Cursor(uint32_t r, uint32_t c, const Reader *reader);
+  Cursor(uint32_t r, uint32_t c, const SourceFile *reader);
 
 public:
   Cursor() = delete;
@@ -78,7 +78,7 @@ public:
   char operator*();
 
 private:
-  Reader *_reader = nullptr;
+  SourceFile *_reader = nullptr;
 };
 
 } // namespace tanlang

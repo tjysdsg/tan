@@ -5,7 +5,7 @@
 #include "lexer/token.h"
 #include "ast/source_manager.h"
 #include "compiler/compiler.h"
-#include "lexer/reader.h"
+#include "lexer/source_file.h"
 #include "parser/parser.h"
 #include "ast/ast_base.h"
 #include "ast/ast_node_type.h"
@@ -16,10 +16,10 @@
 using namespace tanlang;
 
 ASTBase *parse_string(str code) {
-  Reader reader;
-  reader.from_string(code);
-  auto result = tokenize(&reader);
-  auto tokens = tokenize(&reader);
+  SourceFile src;
+  src.from_string(code);
+  auto result = tokenize(&src);
+  auto tokens = tokenize(&src);
 
   auto *parser = new Parser(new SourceManager("test module", tokens));
   return parser->parse();

@@ -1,6 +1,6 @@
 #include <fstream>
 #include <algorithm>
-#include "lexer/reader.h"
+#include "lexer/source_file.h"
 
 /// we always assume that the line number and column number can be contained within 32bit int
 #pragma clang diagnostic push
@@ -8,7 +8,7 @@
 
 namespace tanlang {
 
-void Reader::open(const str &filename) {
+void SourceFile::open(const str &filename) {
   std::ifstream ifs;
   ifs.open(filename, std::ios::in);
   if (!ifs) {
@@ -26,7 +26,7 @@ void Reader::open(const str &filename) {
   from_string(content);
 }
 
-void Reader::from_string(const str &code) {
+void SourceFile::from_string(const str &code) {
   str line;
   size_t line_start = 0;
   str new_line;
@@ -52,7 +52,7 @@ void Reader::from_string(const str &code) {
   }
 }
 
-bool Reader::is_cursor_valid(const Cursor &c) const {
+bool SourceFile::is_cursor_valid(const Cursor &c) const {
   if (c.l >= _lines.size()) {
     return false;
   }
@@ -65,7 +65,7 @@ bool Reader::is_cursor_valid(const Cursor &c) const {
   }
 }
 
-str Reader::substr(const Cursor &start, const Cursor &_end) const {
+str SourceFile::substr(const Cursor &start, const Cursor &_end) const {
   TAN_ASSERT(is_cursor_valid(start));
 
   /// if the end cursor is out of boundary, make it point to EOF
@@ -92,12 +92,12 @@ str Reader::substr(const Cursor &start, const Cursor &_end) const {
   return ret;
 }
 
-str Reader::substr(const Cursor &start) const {
+str SourceFile::substr(const Cursor &start) const {
   Cursor end(start.l, (uint32_t)get_line(start.l).size(), this);
   return substr(start, end);
 }
 
-Cursor Reader::forward(Cursor ptr) {
+Cursor SourceFile::forward(Cursor ptr) {
   if (ptr.l >= _lines.size()) {
     return ptr;
   }
@@ -113,16 +113,16 @@ Cursor Reader::forward(Cursor ptr) {
   return ptr;
 }
 
-str Reader::get_filename() const { return _filename; }
+str SourceFile::get_filename() const { return _filename; }
 
-Cursor Reader::end() const {
+Cursor SourceFile::end() const {
   if (_lines.empty()) {
     return Cursor(0, 1, this);
   }
   return Cursor((uint32_t)_lines.size() - 1, (uint32_t)_lines.back().length(), this);
 }
 
-char Reader::at(const Cursor &ptr) const {
+char SourceFile::at(const Cursor &ptr) const {
   TAN_ASSERT(ptr.l != -1u && ptr.c != -1u);
   if (ptr.l >= this->size()) {
     return '\0';
@@ -133,14 +133,14 @@ char Reader::at(const Cursor &ptr) const {
   return _lines[ptr.l][ptr.c];
 }
 
-Cursor Reader::begin() const { return Cursor(0, 0, this); }
+Cursor SourceFile::begin() const { return Cursor(0, 0, this); }
 
-str Reader::get_line(size_t index) const {
+str SourceFile::get_line(size_t index) const {
   TAN_ASSERT(index < _lines.size());
   return _lines[index];
 }
 
-Cursor::Cursor(uint32_t r, uint32_t c, const Reader *reader) : l(r), c(c), _reader((Reader *)reader) {}
+Cursor::Cursor(uint32_t r, uint32_t c, const SourceFile *reader) : l(r), c(c), _reader((SourceFile *)reader) {}
 
 bool Cursor::operator==(const Cursor &other) const { return l == other.l && c == other.c; }
 

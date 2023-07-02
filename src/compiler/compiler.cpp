@@ -10,7 +10,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/context.h"
-#include "lexer/reader.h"
+#include "lexer/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
 #include <filesystem>
@@ -67,11 +67,11 @@ void Compiler::dump_ast() const {
 
 void Compiler::parse() {
   for (const str &file : _files) {
-    Reader reader;
-    reader.open(file);
+    SourceFile source;
+    source.open(file);
 
     // tokenization
-    auto tokens = tokenize(&reader);
+    auto tokens = tokenize(&source);
 
     auto *sm = new SourceManager(file, tokens);
     auto *parser = new Parser(sm);
