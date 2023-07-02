@@ -33,12 +33,12 @@ add_custom_target(run_tanc_lib_tests ALL DEPENDS test_compile_lib test_use_lib)
 add_custom_command(TARGET run_tanc_lib_tests POST_BUILD
         # test compiling a shared library and linking against it
         COMMAND rm -f libtest.a libtest.so
-        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_compile_lib> true
-        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_use_lib>
+        COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_compile_lib> true
+        COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_use_lib>
 
         # test compiling a static library and linking against it
         COMMAND rm -f libtest.a libtest.so
-        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_compile_lib> false
-        COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:test_use_lib>
+        COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_compile_lib> false
+        COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_use_lib>
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )

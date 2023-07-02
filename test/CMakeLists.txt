@@ -17,6 +17,9 @@ macro(enable_tests)
     target_link_libraries(parser_tests Tan gtest ${DEP_LIBS})
     set_target_common_compile_options(parser_tests)
 
+    # This tells the executable where to write test coverage output
+    set(RUN_TEST_COMMAND_PREFIX ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=%p.profraw)
+
     # tanc exec tests
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_exec)
     # tanc library tests
@@ -25,11 +28,11 @@ macro(enable_tests)
     # tests target that runs all defined tests
     add_custom_target(tests ALL DEPENDS lexer_tests parser_tests run_tanc_exec_tests run_tanc_lib_tests)
     add_custom_command(TARGET tests POST_BUILD
-            COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:lexer_tests>
+            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:lexer_tests>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
     add_custom_command(TARGET tests POST_BUILD
-            COMMAND LLVM_PROFILE_FILE=%p.profraw $<TARGET_FILE:parser_tests>
+            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:parser_tests>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 
