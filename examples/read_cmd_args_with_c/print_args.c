@@ -7,5 +7,3 @@ void print_args(int argc, char **argv) {
     printf("Argument #%d: %s\n", i + 1, argv[i]);
   }
 }
-
-
