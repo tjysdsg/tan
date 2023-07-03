@@ -7,10 +7,10 @@ Literal *DefaultValue::CreateTypeDefaultValueLiteral(SourceFile *src, Type *type
   Literal *ret = nullptr;
 
   if (type->is_pointer()) {
-    ret = Literal::CreateNullPointerLiteral(src, ((PointerType *)type)->get_pointee());
+    ret = Literal::CreateNullPointerLiteral(src, pcast<PointerType>(type)->get_pointee());
 
   } else if (type->is_array()) {
-    ArrayType *at = (ArrayType *)type;
+    ArrayType *at = pcast<ArrayType>(type);
     Type *element_type = at->get_element_type();
     size_t size = (size_t)at->array_size();
 

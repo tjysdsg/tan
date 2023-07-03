@@ -74,7 +74,7 @@ Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
   if (p->is_ref()) {
     ret = check_type_ref(p, node);
   } else if (p->is_pointer()) {
-    auto *pointee = ((PointerType *)p)->get_pointee();
+    auto *pointee = pcast<PointerType>(p)->get_pointee();
 
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
@@ -189,7 +189,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, FunctionDecl) {
   push_scope(p);
 
   /// update return type
-  auto *func_type = (FunctionType *)p->get_type();
+  auto *func_type = pcast<FunctionType>(p->get_type());
   auto *ret_type = check_type(func_type->get_return_type(), p);
   func_type->set_return_type(ret_type);
 
@@ -211,7 +211,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
 
   auto members = p->get_member_decls();
   size_t n = members.size();
-  auto *ty = (StructType *)p->get_type();
+  auto *ty = pcast<StructType>(p->get_type());
   TAN_ASSERT(ty);
 
   push_scope(p);

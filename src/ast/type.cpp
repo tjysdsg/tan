@@ -102,8 +102,7 @@ FunctionType *Type::GetFunctionType(Type *ret_type, const vector<Type *> &arg_ty
 StructType *Type::GetStructType(StructDecl *decl) {
   auto it = NAMED_TYPE_CACHE.find(decl->get_name());
   if (it != NAMED_TYPE_CACHE.end()) {
-    auto *t = (StructType *)it->second;
-    TAN_ASSERT(t->is_struct());
+    auto *t = pcast<StructType>(it->second);
     t->_member_types = decl->get_member_types(); // update forward declaration
     return t;
   } else {

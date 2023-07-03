@@ -57,7 +57,7 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
           fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
   }
 
-  auto *func_type = (FunctionType *)candidate->get_type();
+  auto *func_type = pcast<FunctionType>(candidate->get_type());
 
   // Check if argument types match (return type not checked)
   // Allow implicit cast from actual arguments to expected arguments
@@ -100,7 +100,7 @@ Type *TypeCheck::resolve_type(Type *p, ASTBase *node) {
   if (p->is_ref()) {
     ret = resolve_type_ref(p, node);
   } else if (p->is_pointer()) {
-    auto *pointee = ((PointerType *)p)->get_pointee();
+    auto *pointee = pcast<PointerType>(p)->get_pointee();
 
     TAN_ASSERT(pointee);
     if (pointee->is_ref()) {
@@ -119,7 +119,7 @@ void TypeCheck::analyze_func_decl_prototype(ASTBase *_p) {
   push_scope(p);
 
   /// update return type
-  auto *func_type = (FunctionType *)p->get_type();
+  auto *func_type = pcast<FunctionType>(p->get_type());
   auto *ret_type = resolve_type(func_type->get_return_type(), p);
   func_type->set_return_type(ret_type);
 
@@ -162,7 +162,7 @@ void TypeCheck::analyze_function_call(FunctionCall *p, bool include_intrinsics) 
           fmt::format("Unknown function call. Maybe use @{} if you want to call this intrinsic?", p->get_name()));
   }
 
-  auto *func_type = (FunctionType *)callee->get_type();
+  auto *func_type = pcast<FunctionType>(callee->get_type());
   p->set_type(func_type->get_return_type());
 }
 
@@ -258,9 +258,9 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
 
   Type *sub_type = nullptr;
   if (lhs_type->is_pointer()) {
-    sub_type = ((PointerType *)lhs_type)->get_pointee();
+    sub_type = pcast<PointerType>(lhs_type)->get_pointee();
   } else if (lhs_type->is_array()) {
-    auto *array_type = (ArrayType *)lhs_type;
+    auto *array_type = pcast<ArrayType>(lhs_type);
     sub_type = array_type->get_element_type();
     /// check if array index is out-of-bound
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
@@ -284,7 +284,7 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
   Type *struct_ty = nullptr;
   /// auto dereference pointers
   if (lhs->get_type()->is_pointer()) {
-    struct_ty = ((PointerType *)lhs->get_type())->get_pointee();
+    struct_ty = pcast<PointerType>(lhs->get_type())->get_pointee();
   } else {
     struct_ty = lhs->get_type();
   }
@@ -363,7 +363,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Return) {
     ret_type = rhs->get_type();
   }
   // check if return type is the same as the function return type
-  if (!CanImplicitlyConvert(ret_type, ((FunctionType *)func->get_type())->get_return_type())) {
+  if (!CanImplicitlyConvert(ret_type, pcast<FunctionType>(func->get_type())->get_return_type())) {
     error(ErrorType::TYPE_ERROR, p, "Returned type cannot be coerced to function return type");
   }
 }
@@ -453,7 +453,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, UnaryOperator) {
     }
     TAN_ASSERT(rhs->is_lvalue());
     p->set_lvalue(true);
-    p->set_type(((PointerType *)rhs_type)->get_pointee());
+    p->set_type(pcast<PointerType>(rhs_type)->get_pointee());
     break;
   case UnaryOpKind::PLUS:
   case UnaryOpKind::MINUS: /// unary plus/minus
@@ -644,7 +644,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, MemberAccess) {
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
   str struct_name = p->get_name();
-  auto *ty = (StructType *)p->get_type();
+  auto *ty = pcast<StructType>(p->get_type());
   TAN_ASSERT(ty && ty->is_struct());
   auto members = p->get_member_decls();
 

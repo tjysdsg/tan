@@ -241,20 +241,20 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   } else if (p->is_struct()) { /// struct
     // avoid infinite recursion
     _llvm_type_cache[p] = ret = llvm::StructType::create(*_llvm_ctx, p->get_typename());
-    auto types = ((StructType *)p)->get_member_types();
+    auto types = pcast<StructType>(p)->get_member_types();
     vector<llvm::Type *> elements(types.size(), nullptr);
     for (size_t i = 0; i < types.size(); ++i) {
       elements[i] = to_llvm_type(types[i]);
     }
     ((llvm::StructType *)ret)->setBody(elements);
   } else if (p->is_array()) { /// array as pointer
-    auto *e_type = to_llvm_type(((ArrayType *)p)->get_element_type());
+    auto *e_type = to_llvm_type(pcast<ArrayType>(p)->get_element_type());
     ret = e_type->getPointerTo();
   } else if (p->is_pointer()) { /// pointer
-    auto *e_type = to_llvm_type(((PointerType *)p)->get_pointee());
+    auto *e_type = to_llvm_type(pcast<PointerType>(p)->get_pointee());
     ret = e_type->getPointerTo();
   } else if (p->is_function()) {
-    auto *func_type = (tanlang::FunctionType *)p;
+    auto *func_type = pcast<tanlang::FunctionType>(p);
     vector<llvm::Type *> arg_types{};
     for (auto *t : func_type->get_arg_types()) {
       arg_types.push_back(to_llvm_type(t));
@@ -313,7 +313,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
   } else if (p->is_struct()) { /// struct
-    auto member_types = ((StructType *)p)->get_member_types();
+    auto member_types = pcast<StructType>(p)->get_member_types();
     unsigned n = (unsigned)member_types.size();
 
     // avoid infinite recursion by inserting a placeholder
@@ -329,7 +329,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
     // work around replaceElements()'s check
     ret->replaceOperandWith(4, _di_builder->getOrCreateArray(elements).get());
   } else if (p->is_array()) { /// array as pointer
-    auto *sub = to_llvm_metadata(((ArrayType *)p)->get_element_type(), loc);
+    auto *sub = to_llvm_metadata(pcast<ArrayType>(p)->get_element_type(), loc);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
@@ -338,7 +338,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
     _llvm_meta_cache[p] = ret = _di_builder->createPointerType(nullptr, _target_machine->getPointerSizeInBits(0),
                                                                (unsigned)_target_machine->getPointerSizeInBits(0),
                                                                llvm::None, p->get_typename());
-    auto *sub = to_llvm_metadata(((PointerType *)p)->get_pointee(), loc);
+    auto *sub = to_llvm_metadata(pcast<PointerType>(p)->get_pointee(), loc);
     ret->replaceOperandWith(3, sub);
   } else {
     TAN_ASSERT(false);
@@ -424,7 +424,7 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
     ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_sm->src(), p));
 
   } else if (p->is_struct()) {
-    ret = codegen_struct_default_value((StructType *)p);
+    ret = codegen_struct_default_value(pcast<StructType>(p));
   } else {
     TAN_ASSERT(false);
   }
@@ -462,7 +462,7 @@ Value *CodeGenerator::codegen_literals(Literal *p) {
 
     /// element type
     auto elements = arr->get_elements();
-    auto *e_type = to_llvm_type(((ArrayType *)ptype)->get_element_type());
+    auto *e_type = to_llvm_type(pcast<ArrayType>(ptype)->get_element_type());
 
     /// codegen element values
     size_t n = elements.size();
@@ -756,12 +756,12 @@ Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
 
     llvm::Type *element_type = nullptr;
     if (lhs->get_type()->is_array()) { /// array
-      auto *lhs_type = (tanlang::ArrayType *)lhs->get_type();
+      auto *lhs_type = pcast<tanlang::ArrayType>(lhs->get_type());
       element_type = to_llvm_type(lhs_type->get_element_type());
     } else if (lhs->get_type()->is_string()) {  /// string
       element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
     } else if (lhs->get_type()->is_pointer()) { /// pointer
-      auto *lhs_type = (tanlang::PointerType *)lhs->get_type();
+      auto *lhs_type = pcast<tanlang::PointerType>(lhs->get_type());
       element_type = to_llvm_type(lhs_type->get_pointee());
     } else {
       TAN_ASSERT(false);
@@ -773,9 +773,9 @@ Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
     StructType *st = nullptr;
     if (lhs->get_type()->is_pointer()) { /// auto dereference pointers
       lhs_val = load_if_is_lvalue(lhs);
-      st = (StructType *)((PointerType *)lhs->get_type())->get_pointee();
+      st = pcast<StructType>(pcast<PointerType>(lhs->get_type())->get_pointee());
     } else {
-      st = (StructType *)lhs->get_type();
+      st = pcast<StructType>(lhs->get_type());
     }
     TAN_ASSERT(st->is_struct());
     TAN_ASSERT(lhs_val->getType()->isPointerTy());
@@ -1011,7 +1011,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, Assignment) {
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionCall) {
   FunctionDecl *callee = p->_callee;
-  auto *callee_type = (tanlang::FunctionType *)callee->get_type();
+  auto *callee_type = pcast<tanlang::FunctionType>(callee->get_type());
   size_t n = callee->get_n_args();
 
   // args
@@ -1036,7 +1036,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionCall) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
-  auto *func_type = (tanlang::FunctionType *)p->get_type();
+  auto *func_type = pcast<tanlang::FunctionType>(p->get_type());
 
   auto ret_ty = func_type->get_return_type();
   Metadata *ret_meta = to_llvm_metadata(ret_ty, p->start());
