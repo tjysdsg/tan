@@ -50,7 +50,7 @@ class BreakContinue;
 #endif
 
 #ifndef CALL_AST_VISITOR
-#define CALL_AST_VISITOR(AST_NAME, NODE) Visit##AST_NAME(ast_cast<AST_NAME>(NODE))
+#define CALL_AST_VISITOR(AST_NAME, NODE) Visit##AST_NAME(pcast<AST_NAME>(NODE))
 #endif
 
 template <typename Derived> class ASTVisitor {

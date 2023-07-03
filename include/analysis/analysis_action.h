@@ -60,7 +60,7 @@ protected:
     for (int i = n - 1; i >= 0; --i) {
       auto *node = _scopes[(size_t)i];
       if (node->get_node_type() == node_type) {
-        return ast_cast<T>(node);
+        return pcast<T>(node);
       }
     }
 

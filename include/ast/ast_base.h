@@ -54,28 +54,6 @@ private:
   Context *_ctx = nullptr;
 };
 
-/**
- * \brief A helper function to cast between pointers to different AST node types, with safety checks in DEBUG mode.
- * \details Uses dynamic_cast for runtime type checking in DEBUG mode, C-style type casting in RELEASE mode.
- * \tparam To Target type
- * \tparam From Optional, source type
- * \param p Pointer
- * \return Converted pointer
- */
-template <typename To, typename From> To *ast_cast(From *p) {
-  static_assert(std::is_base_of<ASTBase, From>::value, "Input type can only be a subclass of ASTBase");
-  static_assert(std::is_base_of<ASTBase, To>::value, "Target type can only be a subclass of ASTBase");
-
-#ifdef DEBUG
-  auto *ret = dynamic_cast<To *>(p);
-#else
-  auto *ret = (To *)p;
-#endif
-
-  TAN_ASSERT(ret);
-  return ret;
-}
-
 } // namespace tanlang
 
 #endif //__TAN_SRC_AST_AST_BASE_H__

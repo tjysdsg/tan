@@ -25,7 +25,7 @@ void TypeCheck::run_impl(CompilationUnit *cu) {
 
   // std::cout << "Sorted unresolved symbol dependency:\n";
   // for (auto *d : sorted_top_level_decls) {
-  //   str name = ast_cast<Decl>(d)->get_name();
+  //   str name = pcast<Decl>(d)->get_name();
   //   std::cout << name << '\n';
   // }
 
@@ -114,7 +114,7 @@ Type *TypeCheck::resolve_type(Type *p, ASTBase *node) {
 }
 
 void TypeCheck::analyze_func_decl_prototype(ASTBase *_p) {
-  auto *p = ast_cast<FunctionDecl>(_p);
+  auto *p = pcast<FunctionDecl>(_p);
 
   push_scope(p);
 
@@ -138,7 +138,7 @@ void TypeCheck::analyze_func_decl_prototype(ASTBase *_p) {
 }
 
 void TypeCheck::analyze_func_body(ASTBase *_p) {
-  auto *p = ast_cast<FunctionDecl>(_p);
+  auto *p = pcast<FunctionDecl>(_p);
 
   push_scope(p);
 
@@ -190,7 +190,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
 
     visit(target);
 
-    auto *id = ast_cast<Identifier>(target);
+    auto *id = pcast<Identifier>(target);
     if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
       error(ErrorType::TYPE_ERROR, id, fmt::format("Expect a value but got type"));
     }
@@ -212,7 +212,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
       error(ErrorType::TYPE_ERROR, p, "Invalid call to compprint, one argument with type 'str' required");
     }
 
-    str msg = ast_cast<StringLiteral>(args[0])->get_value();
+    str msg = pcast<StringLiteral>(args[0])->get_value();
     std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->start()), msg);
     break;
   }
@@ -264,7 +264,7 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     sub_type = array_type->get_element_type();
     /// check if array index is out-of-bound
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
-      uint64_t size = ast_cast<IntegerLiteral>(rhs)->get_value();
+      uint64_t size = pcast<IntegerLiteral>(rhs)->get_value();
       if (lhs->get_type()->is_array() && (int)size >= array_type->array_size()) {
         error(ErrorType::TYPE_ERROR, p,
               fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
@@ -280,7 +280,7 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
 
 // ASSUMES lhs has been already analyzed, while rhs has not
 void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
-  str m_name = ast_cast<Identifier>(rhs)->get_name();
+  str m_name = pcast<Identifier>(rhs)->get_name();
   Type *struct_ty = nullptr;
   /// auto dereference pointers
   if (lhs->get_type()->is_pointer()) {
@@ -294,7 +294,7 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
     error(ErrorType::TYPE_ERROR, lhs, "Expect a struct type");
   }
 
-  auto *struct_decl = ast_cast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
+  auto *struct_decl = pcast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   if (p->_access_idx == -1) {
     error(ErrorType::UNKNOWN_SYMBOL, p,
@@ -480,7 +480,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
   auto *lhs = p->get_lhs();
   Type *lhs_type = nullptr;
   if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
-    auto *var_decl = ast_cast<VarDecl>(lhs);
+    auto *var_decl = pcast<VarDecl>(lhs);
 
     // deduce type of variable declaration
     if (!var_decl->get_type()) {
@@ -494,7 +494,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
 
     switch (lhs->get_node_type()) {
     case ASTNodeType::ID: {
-      auto *id = ast_cast<Identifier>(lhs);
+      auto *id = pcast<Identifier>(lhs);
       if (id->get_id_type() != IdentifierType::ID_VAR_REF) {
         error(ErrorType::TYPE_ERROR, lhs, "Can only assign value to a variable");
       }
@@ -505,7 +505,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
     case ASTNodeType::BOP_OR_UOP:
     case ASTNodeType::UOP:
     case ASTNodeType::BOP:
-      lhs_type = ast_cast<Expr>(lhs)->get_type();
+      lhs_type = pcast<Expr>(lhs)->get_type();
       break;
     default:
       error(ErrorType::TYPE_ERROR, lhs, "Invalid left-hand operand");
@@ -572,7 +572,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   default: {
     auto *c = p->get_sub();
     if (c->get_node_type() == ASTNodeType::FUNC_CALL) {
-      analyze_intrinsic_func_call(p, ast_cast<FunctionCall>(c));
+      analyze_intrinsic_func_call(p, pcast<FunctionCall>(c));
       return;
     }
 
@@ -630,7 +630,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, MemberAccess) {
 
   if (rhs->get_node_type() == ASTNodeType::FUNC_CALL) { /// method call
     p->_access_type = MemberAccess::MemberAccessMemberFunction;
-    auto func_call = ast_cast<FunctionCall>(rhs);
+    auto func_call = pcast<FunctionCall>(rhs);
     analyze_member_func_call(p, lhs, func_call);
   } else if (p->_access_type == MemberAccess::MemberAccessBracket) {
     analyze_bracket_access(p, lhs, rhs);
@@ -654,11 +654,11 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
   for (size_t i = 0; i < n; ++i) {
     Expr *m = members[i];
 
-    if (m->get_node_type() == ASTNodeType::VAR_DECL) {      // member variable without initial value
+    if (m->get_node_type() == ASTNodeType::VAR_DECL) { // member variable without initial value
       (*ty)[i] = resolve_type((*ty)[i], m);
 
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
-      auto init_val = ast_cast<Assignment>(m)->get_rhs();
+      auto init_val = pcast<Assignment>(m)->get_rhs();
       visit(init_val);
 
       (*ty)[i] = resolve_type((*ty)[i], m);
@@ -668,7 +668,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
       }
 
     } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { // TODO: member functions
-      auto f = ast_cast<FunctionDecl>(m);
+      auto f = pcast<FunctionDecl>(m);
       (*ty)[i] = f->get_type();
 
     } else {
@@ -693,7 +693,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, BreakContinue) {
   if (!loop) {
     error(ErrorType::SEMANTIC_ERROR, p, "Break or continue must be inside a loop");
   }
-  p->set_parent_loop(ast_cast<Loop>(loop));
+  p->set_parent_loop(pcast<Loop>(loop));
 }
 
 } // namespace tanlang

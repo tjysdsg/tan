@@ -31,7 +31,7 @@ TEST(parser, function_decl) {
              "}";
   auto node = parse_string(code);
   EXPECT_EQ(ASTNodeType::PROGRAM, node->get_node_type());
-  auto program = ast_cast<Program>(node);
+  auto program = pcast<Program>(node);
   EXPECT_EQ(1, program->get_children_size());
   EXPECT_EQ(ASTNodeType::FUNC_DECL, program->get_children()[0]->get_node_type());
 }

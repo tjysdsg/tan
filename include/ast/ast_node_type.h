@@ -10,31 +10,31 @@ enum class ASTNodeType {
   ARG_DECL,
   VAR_DECL,
   STRUCT_DECL,
-  COMPOUND_STATEMENT,   /// compound statements
-  BOP,         /// binary operators, see BinaryOpKind
-  UOP,         /// unary operators, see UnaryOpKind
-  BOP_OR_UOP,  /// a special type, denoting a node that we cannot determine whether it's a BOP or an UOP
-  ASSIGN,      /// =
-  CAST,        /// as
-  ID,          /// identifiers
-  LOOP,        /// for, while, ...
-  CONTINUE,    /// continue
-  BREAK,       /// break
-  PARENTHESIS, /// ()
-  RET,         /// return
-  IF,          /// if
-  IMPORT,      /// import
-  VAR_REF,     /// variable reference
-  INTRINSIC,   /// intrinsic functions, operators, qualifiers, etc.
-  PACKAGE,     /// specify package name
+  COMPOUND_STATEMENT, /// compound statements
+  BOP,                /// binary operators, see BinaryOpKind
+  UOP,                /// unary operators, see UnaryOpKind
+  BOP_OR_UOP,         /// a special type, denoting a node that we cannot determine whether it's a BOP or an UOP
+  ASSIGN,             /// =
+  CAST,               /// as
+  ID,                 /// identifiers
+  LOOP,               /// for, while, ...
+  CONTINUE,           /// continue
+  BREAK,              /// break
+  PARENTHESIS,        /// ()
+  RET,                /// return
+  IF,                 /// if
+  IMPORT,             /// import
+  VAR_REF,            /// variable reference
+  INTRINSIC,          /// intrinsic functions, operators, qualifiers, etc.
+  PACKAGE,            /// specify package name
 
-  BOOL_LITERAL,    /// bool literal
-  INTEGER_LITERAL, /// int literal
-  FLOAT_LITERAL,   /// float literal
-  CHAR_LITERAL,    /// 's'
-  STRING_LITERAL,  /// "xxx"
-  ARRAY_LITERAL,   /// [1, 2, 3]
-  NULLPTR_LITERAL, /// nullptr
+  BOOL_LITERAL,       /// bool literal
+  INTEGER_LITERAL,    /// int literal
+  FLOAT_LITERAL,      /// float literal
+  CHAR_LITERAL,       /// 's'
+  STRING_LITERAL,     /// "xxx"
+  ARRAY_LITERAL,      /// [1, 2, 3]
+  NULLPTR_LITERAL,    /// nullptr
 };
 
 }

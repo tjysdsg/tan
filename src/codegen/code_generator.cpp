@@ -440,25 +440,25 @@ Value *CodeGenerator::codegen_literals(Literal *p) {
     int size_bits = ptype->get_size_bits();
 
     if (ptype->is_char()) { // NOTE: must be before is_int() check because char is technically an integer
-      ret = ConstantInt::get(type, ast_cast<CharLiteral>(p)->get_value());
+      ret = ConstantInt::get(type, pcast<CharLiteral>(p)->get_value());
     } else if (ptype->is_int()) {
-      auto pp = ast_cast<IntegerLiteral>(p);
+      auto pp = pcast<IntegerLiteral>(p);
       ret = ConstantInt::get(_builder->getIntNTy((unsigned)size_bits), pp->get_value(), !pp->is_unsigned());
     } else if (ptype->is_bool()) {
-      auto pp = ast_cast<BoolLiteral>(p);
+      auto pp = pcast<BoolLiteral>(p);
       ret = ConstantInt::get(type, (uint64_t)pp->get_value());
     } else if (ptype->is_float()) {
-      ret = ConstantFP::get(type, ast_cast<FloatLiteral>(p)->get_value());
+      ret = ConstantFP::get(type, pcast<FloatLiteral>(p)->get_value());
     } else {
       TAN_ASSERT(false);
     }
   } else if (ptype->is_string()) { /// str as char*
-    ret = _builder->CreateGlobalStringPtr(ast_cast<StringLiteral>(p)->get_value());
+    ret = _builder->CreateGlobalStringPtr(pcast<StringLiteral>(p)->get_value());
   } else if (ptype->is_struct()) { /// struct
     // TODO: Implement struct literal
     TAN_ASSERT(false);
   } else if (ptype->is_array()) { /// array as pointer
-    auto arr = ast_cast<ArrayLiteral>(p);
+    auto arr = pcast<ArrayLiteral>(p);
 
     /// element type
     auto elements = arr->get_elements();
@@ -740,7 +740,7 @@ Value *CodeGenerator::codegen_comparison(BinaryOperator *p) {
 }
 
 Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
-  auto *p = ast_cast<MemberAccess>(_p);
+  auto *p = pcast<MemberAccess>(_p);
   auto lhs = p->get_lhs();
   auto rhs = p->get_rhs();
 
@@ -991,7 +991,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, Cast) {
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, Assignment) {
   /// codegen the lhs and rhs
-  auto *lhs = ast_cast<Expr>(p->get_lhs());
+  auto *lhs = pcast<Expr>(p->get_lhs());
   auto *rhs = p->get_rhs();
 
   // type of lhs is the same as type of the assignment

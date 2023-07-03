@@ -289,7 +289,7 @@ private:
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      auto *pp = ast_cast<BinaryOrUnary>(p);
+      auto *pp = pcast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
       str tok = _sm->get_token_str(p->start());
       TAN_ASSERT(tok.length());
@@ -330,7 +330,7 @@ private:
   void parse_node(ASTBase *left, ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
-      auto *pp = ast_cast<BinaryOrUnary>(p);
+      auto *pp = pcast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
       str tok = _sm->get_token_str(p->start());
       TAN_ASSERT(tok.length());
@@ -386,7 +386,7 @@ private:
   Expr *expect_expression(ASTBase *p) {
     TAN_ASSERT(p);
     Expr *ret = nullptr;
-    if (!(ret = ast_cast<Expr>(p))) {
+    if (!(ret = pcast<Expr>(p))) {
       error(ErrorType::SYNTAX_ERROR, p, "Expect an expression");
     }
     return ret;
@@ -395,14 +395,14 @@ private:
   Stmt *expect_stmt(ASTBase *p) {
     TAN_ASSERT(p);
     Stmt *ret = nullptr;
-    if (!(ret = ast_cast<Stmt>(p))) {
+    if (!(ret = pcast<Stmt>(p))) {
       error(ErrorType::SYNTAX_ERROR, p, "Expect a statement");
     }
     return ret;
   }
 
   void parse_assignment(ASTBase *left, ASTBase *_p) {
-    auto p = ast_cast<Assignment>(_p);
+    auto p = pcast<Assignment>(_p);
 
     ++_curr; // skip =
 
@@ -416,8 +416,8 @@ private:
   }
 
   void parse_cast(ASTBase *left, ASTBase *_p) {
-    auto lhs = ast_cast<Expr>(left);
-    auto p = ast_cast<Cast>(_p);
+    auto lhs = pcast<Expr>(left);
+    auto p = pcast<Cast>(_p);
 
     ++_curr; // skip as
 
@@ -434,7 +434,7 @@ private:
   void parse_generic_token(ASTBase *p) { p->set_end(_curr++); }
 
   void parse_if(ASTBase *_p) {
-    auto p = ast_cast<If>(_p);
+    auto p = pcast<If>(_p);
 
     p->set_end(_curr); // the end of token of If AST ends here
 
@@ -471,7 +471,7 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a parenthesis expression");
     }
     parse_parenthesis(_pred);
-    Expr *pred = ast_cast<Expr>(_pred);
+    Expr *pred = pcast<Expr>(_pred);
 
     /// then clause
     auto *_then = peek("{");
@@ -482,7 +482,7 @@ private:
   }
 
   void parse_loop(ASTBase *_p) {
-    auto p = ast_cast<Loop>(_p);
+    auto p = pcast<Loop>(_p);
 
     if (at(_curr)->get_value() == "for") {
       // TODO: implement for loop
@@ -518,7 +518,7 @@ private:
   }
 
   void parse_array_literal(ASTBase *_p) {
-    auto *p = ast_cast<ArrayLiteral>(_p);
+    auto *p = pcast<ArrayLiteral>(_p);
 
     ++_curr; // skip '['
 
@@ -544,7 +544,7 @@ private:
       }
 
       parse_node(node);
-      elements.push_back(ast_cast<Literal>(node));
+      elements.push_back(pcast<Literal>(node));
     }
 
     p->set_elements(elements);
@@ -552,15 +552,15 @@ private:
   }
 
   void parse_bop(ASTBase *_lhs, ASTBase *_p) {
-    Expr *lhs = ast_cast<Expr>(_lhs);
+    Expr *lhs = pcast<Expr>(_lhs);
 
     Token *token = at(_p->start());
     if (token->get_value() == "." || token->get_value() == "[") { /// delegate to parse_member_access
-      parse_member_access(lhs, ast_cast<MemberAccess>(_p));
+      parse_member_access(lhs, pcast<MemberAccess>(_p));
       return;
     }
 
-    auto *p = ast_cast<BinaryOperator>(_p);
+    auto *p = pcast<BinaryOperator>(_p);
 
     ++_curr; // skip the operator
 
@@ -573,10 +573,10 @@ private:
   }
 
   void parse_uop(ASTBase *_p) {
-    auto *p = ast_cast<UnaryOperator>(_p);
+    auto *p = pcast<UnaryOperator>(_p);
 
     ++_curr;
-    auto rhs = ast_cast<Expr>(next_expression(p->get_bp()));
+    auto rhs = pcast<Expr>(next_expression(p->get_bp()));
     if (!rhs) {
       error(ErrorType::SEMANTIC_ERROR, rhs, "Invalid operand");
     }
@@ -585,7 +585,7 @@ private:
   }
 
   void parse_parenthesis(ASTBase *_p) {
-    auto *p = ast_cast<Parenthesis>(_p);
+    auto *p = pcast<Parenthesis>(_p);
 
     ++_curr; // skip "("
     while (true) {
@@ -606,7 +606,7 @@ private:
   }
 
   void parse_func_decl(ASTBase *_p) {
-    auto *p = ast_cast<FunctionDecl>(_p);
+    auto *p = pcast<FunctionDecl>(_p);
 
     bool is_public = false;
     bool is_external = false;
@@ -699,7 +699,7 @@ private:
   }
 
   void parse_func_call(ASTBase *_p) {
-    auto *p = ast_cast<FunctionCall>(_p);
+    auto *p = pcast<FunctionCall>(_p);
 
     p->set_name(at(_curr)->get_value()); // function name
     ++_curr;
@@ -736,7 +736,7 @@ private:
     }
 
     parse_node(e);
-    auto *test_name = ast_cast<Parenthesis>(e)->get_sub();
+    auto *test_name = pcast<Parenthesis>(e)->get_sub();
 
     p->set_end(_curr - 1);
 
@@ -761,7 +761,7 @@ private:
   }
 
   void parse_intrinsic(ASTBase *_p) {
-    auto *p = ast_cast<Intrinsic>(_p);
+    auto *p = pcast<Intrinsic>(_p);
 
     ++_curr; // skip "@"
 
@@ -782,10 +782,10 @@ private:
     str name;
     switch (e->get_node_type()) {
     case ASTNodeType::FUNC_CALL:
-      name = ast_cast<FunctionCall>(e)->get_name();
+      name = pcast<FunctionCall>(e)->get_name();
       break;
     case ASTNodeType::ID:
-      name = ast_cast<Identifier>(e)->get_name();
+      name = pcast<Identifier>(e)->get_name();
       break;
     default:
       TAN_ASSERT(false);
@@ -825,7 +825,7 @@ private:
   }
 
   void parse_import(ASTBase *_p) {
-    auto *p = ast_cast<Import>(_p);
+    auto *p = pcast<Import>(_p);
 
     ++_curr; // skip "import"
     auto rhs = peek();
@@ -833,12 +833,12 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid import statement");
     }
     parse_node(rhs);
-    str filename = ast_cast<StringLiteral>(rhs)->get_value();
+    str filename = pcast<StringLiteral>(rhs)->get_value();
     p->set_filename(filename);
   }
 
   void parse_package_stmt(ASTBase *_p) {
-    auto *p = ast_cast<PackageStmt>(_p);
+    auto *p = pcast<PackageStmt>(_p);
     ++_curr;
 
     auto rhs = peek();
@@ -846,7 +846,7 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid package statement");
     }
     parse_node(rhs);
-    str name = ast_cast<StringLiteral>(rhs)->get_value();
+    str name = pcast<StringLiteral>(rhs)->get_value();
 
     p->set_name(name);
 
@@ -879,7 +879,7 @@ private:
   }
 
   void parse_compound_stmt(ASTBase *_p) {
-    auto p = ast_cast<CompoundStmt>(_p);
+    auto p = pcast<CompoundStmt>(_p);
     ScopeGuard scope_guard(_curr_scope, p);
 
     ++_curr; // skip "{"
@@ -903,7 +903,7 @@ private:
   }
 
   void parse_return(ASTBase *_p) {
-    auto *p = ast_cast<Return>(_p);
+    auto *p = pcast<Return>(_p);
 
     ++_curr; // skip "return"
 
@@ -917,7 +917,7 @@ private:
   }
 
   void parse_struct_decl(ASTBase *_p) {
-    auto *p = ast_cast<StructDecl>(_p);
+    auto *p = pcast<StructDecl>(_p);
 
     ++_curr; // skip "struct"
 
@@ -927,7 +927,7 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expecting a typename");
     }
     parse_node(_id);
-    auto id = ast_cast<Identifier>(_id);
+    auto id = pcast<Identifier>(_id);
     p->set_name(id->get_name());
 
     p->set_end(_curr - 1);
@@ -943,7 +943,7 @@ private:
     if (!_comp_stmt || _comp_stmt->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
       error(ErrorType::SEMANTIC_ERROR, _curr, _curr, "struct definition requires a valid body");
     }
-    auto comp_stmt = ast_cast<CompoundStmt>(_comp_stmt);
+    auto comp_stmt = pcast<CompoundStmt>(_comp_stmt);
 
     // copy member declarations
     auto children = comp_stmt->get_children();
@@ -956,7 +956,7 @@ private:
               )) {
         error(ErrorType::SEMANTIC_ERROR, c, "Invalid struct member");
       }
-      member_decls.push_back(ast_cast<Expr>(c));
+      member_decls.push_back(pcast<Expr>(c));
     }
     p->set_member_decls(member_decls);
   }
@@ -973,7 +973,7 @@ private:
       }
       parse_node(_size);
 
-      auto size = ast_cast<IntegerLiteral>(_size);
+      auto size = pcast<IntegerLiteral>(_size);
       size_t array_size = size->get_value();
       if (static_cast<int64_t>(array_size) < 0) {
         error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect an unsigned integer as the array size");
@@ -1031,7 +1031,7 @@ private:
   }
 
   void parse_var_decl(ASTBase *_p) {
-    auto *p = ast_cast<VarDecl>(_p);
+    auto *p = pcast<VarDecl>(_p);
 
     ++_curr; // skip 'var'
 
@@ -1051,7 +1051,7 @@ private:
   }
 
   void parse_arg_decl(ASTBase *_p) {
-    auto *p = ast_cast<ArgDecl>(_p);
+    auto *p = pcast<ArgDecl>(_p);
 
     // name
     auto name_token = at(_curr);

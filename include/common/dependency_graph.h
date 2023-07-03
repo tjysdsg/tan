@@ -55,9 +55,9 @@ public:
     }
 
     // for (auto [d1, d2] : _forward) {
-    //   str d1name = ast_cast<Decl>(d1)->get_name();
+    //   str d1name = pcast<Decl>(d1)->get_name();
     //   for (auto *d : d2) {
-    //     str d2name = ast_cast<Decl>(d)->get_name();
+    //     str d2name = pcast<Decl>(d)->get_name();
     //     std::cout << fmt::format("{} depends on {}\n", d1name, d2name);
     //   }
     // }

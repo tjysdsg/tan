@@ -181,7 +181,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Assignment) {
 
   // at this stage, we find out the type of assignment only if it's specified
   if (lhs->get_node_type() == ASTNodeType::VAR_DECL) {
-    p->set_type(ast_cast<Decl>(lhs)->get_type());
+    p->set_type(pcast<Decl>(lhs)->get_type());
   }
 }
 
@@ -236,18 +236,18 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
 
     /// member variable without initial value
     if (m->get_node_type() == ASTNodeType::VAR_DECL) {
-      str name = ast_cast<VarDecl>(m)->get_name();
+      str name = pcast<VarDecl>(m)->get_name();
       p->set_member_index(name, (int)i);
       (*ty)[i] = m->get_type();
 
       /// member variable with an initial value
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) {
-      auto assign = ast_cast<Assignment>(m);
+      auto assign = pcast<Assignment>(m);
 
       if (assign->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
         error(ErrorType::SEMANTIC_ERROR, assign, "Expect a member variable declaration");
       }
-      auto decl = ast_cast<VarDecl>(assign->get_lhs());
+      auto decl = pcast<VarDecl>(assign->get_lhs());
 
       (*ty)[i] = decl->get_type();
 
@@ -263,7 +263,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
 
       /// member functions
     } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
-      auto f = ast_cast<FunctionDecl>(m);
+      auto f = pcast<FunctionDecl>(m);
 
       (*ty)[i] = f->get_type();
       p->set_member_index(f->get_name(), (int)i);
