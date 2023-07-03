@@ -1,10 +1,11 @@
+.idea/
+
 include/config.h
 fuzzing/
 dep-build/
 build*/
 gtest-build/
 cmake-build*/
-.idea/workspace.xml
 /bin/
 /lib/
 # made by ctest
