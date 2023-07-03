@@ -65,6 +65,9 @@ public:
   static vector<FunctionDecl *> GetIntrinsicFunctionDeclarations();
 
   static inline const str STACK_TRACE_FUNCTION_REAL_NAME = "__tan_runtime_stack_trace";
+  static inline const str TEST_COMP_ERROR_NAME = "test_comp_error";
+  static inline const str ABORT_NAME = "abort";
+  static inline const str COMP_PRINT_NAME = "compprint";
 
 public:
   IntrinsicType get_intrinsic_type() const;

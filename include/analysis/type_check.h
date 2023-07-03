@@ -49,7 +49,7 @@ private:
    * \brief Resolve a type reference.
    * \return Non-null
    */
-  Type *resolve_type_ref(Type *p, ASTBase* node);
+  Type *resolve_type_ref(Type *p, ASTBase *node);
 
   /**
    * \brief Resolve a type.
@@ -90,6 +90,8 @@ private:
   void analyze_func_decl_prototype(ASTBase *_p);
 
   void analyze_func_body(ASTBase *_p);
+
+  void analyze_function_call(FunctionCall *p, bool include_intrinsics);
 
   void analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call);
 

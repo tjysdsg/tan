@@ -765,7 +765,7 @@ private:
 
     ++_curr; // skip "@"
 
-    if (_sm->get_token_str(_curr) == "test_comp_error") {
+    if (_sm->get_token_str(_curr) == Intrinsic::TEST_COMP_ERROR_NAME) {
       parse_test_comp_error_intrinsic(p);
       return;
     }

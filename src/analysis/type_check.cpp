@@ -149,6 +149,23 @@ void TypeCheck::analyze_func_body(ASTBase *_p) {
   pop_scope();
 }
 
+void TypeCheck::analyze_function_call(FunctionCall *p, bool include_intrinsics) {
+  for (const auto &a : p->_args) {
+    visit(a);
+  }
+
+  FunctionDecl *callee = search_function_callee(p);
+  if (include_intrinsics || !callee->is_intrinsic()) {
+    p->_callee = callee;
+  } else {
+    error(ErrorType::UNKNOWN_SYMBOL, p,
+          fmt::format("Unknown function call. Maybe use @{} if you want to call this intrinsic?", p->get_name()));
+  }
+
+  auto *func_type = (FunctionType *)callee->get_type();
+  p->set_type(func_type->get_return_type());
+}
+
 void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_call) {
   auto *void_type = Type::GetVoidType();
   switch (p->get_intrinsic_type()) {
@@ -156,7 +173,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     func_call->set_name(Intrinsic::STACK_TRACE_FUNCTION_REAL_NAME);
     [[fallthrough]];
   case IntrinsicType::ABORT:
-    visit(func_call);
+    analyze_function_call(func_call, true);
     p->set_type(void_type);
     break;
   case IntrinsicType::GET_DECL: {
@@ -502,14 +519,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Assignment) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionCall) {
-  for (const auto &a : p->_args) {
-    visit(a);
-  }
-
-  FunctionDecl *callee = search_function_callee(p);
-  p->_callee = callee;
-  auto *func_type = (FunctionType *)callee->get_type();
-  p->set_type(func_type->get_return_type());
+  analyze_function_call(p, false); // intrinsic function call is handled elsewhere
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {

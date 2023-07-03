@@ -44,6 +44,10 @@ pub fn main(argc: int, argv: char**) : int {
         @compprint("hi", "hello");
     }
 
+    @test_comp_error(intrinsic_func_call_without_at) {
+        abort();
+    }
+
     @noop();
 
     print("SUCCESS\n");

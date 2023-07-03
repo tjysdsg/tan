@@ -46,7 +46,7 @@ protected:
 public:
   static FunctionDecl *Create(SourceFile *src);
   static FunctionDecl *Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
-                              bool is_public, Stmt *body = nullptr);
+                              bool is_public, Stmt *body = nullptr, bool is_intrinsic = false);
 
   void set_body(Stmt *body);
   [[nodiscard]] Stmt *get_body() const;
@@ -61,12 +61,15 @@ public:
   [[nodiscard]] bool is_external() const;
   void set_external(bool is_external);
   void set_public(bool is_public);
+  bool is_intrinsic() const;
+  void set_is_intrinsic(bool is_intrinsic);
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 private:
   bool _is_external = false;
   bool _is_public = false;
+  bool _is_intrinsic = false;
 
   vector<str> _arg_names{};
   vector<ArgDecl *> _arg_decls{};

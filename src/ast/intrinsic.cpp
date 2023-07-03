@@ -10,7 +10,7 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
     {"memset",                       IntrinsicType::MEMSET         },
     {"memcpy",                       IntrinsicType::MEMCPY         },
     {"range",                        IntrinsicType::RANGE          },
-    {"compprint",                    IntrinsicType::COMP_PRINT     },
+    {COMP_PRINT_NAME,                IntrinsicType::COMP_PRINT     },
     {"file",                         IntrinsicType::FILENAME       },
     {"line",                         IntrinsicType::LINENO         },
     {"define",                       IntrinsicType::DEFINE         },
@@ -26,24 +26,24 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
     {"expect",                       IntrinsicType::EXPECT         },
     {"noop",                         IntrinsicType::NOOP           },
     {"get_decl",                     IntrinsicType::GET_DECL       },
-    {"test_comp_error",              IntrinsicType::TEST_COMP_ERROR},
-    {"abort",                        IntrinsicType::ABORT          },
+    {TEST_COMP_ERROR_NAME,           IntrinsicType::TEST_COMP_ERROR},
+    {ABORT_NAME,                     IntrinsicType::ABORT          },
     {"stack_trace",                  IntrinsicType::STACK_TRACE    },
     {STACK_TRACE_FUNCTION_REAL_NAME, IntrinsicType::STACK_TRACE    }
 };
 
 vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
   vector<FunctionDecl *> ret{};
-
-  // TODO: prevent user from directly calling abort(), must use @abort()
-
   auto *src = new SourceFile();
 
-  /// compprint
-  ret.push_back(FunctionDecl::Create(src, "compprint",
-                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false));
-  /// abort
-  ret.push_back(FunctionDecl::Create(src, "abort", Type::GetFunctionType(Type::GetVoidType(), {}), true, false));
+  // compprint
+  ret.push_back(FunctionDecl::Create(src, COMP_PRINT_NAME,
+                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false,
+                                     nullptr, true));
+
+  // abort
+  ret.push_back(FunctionDecl::Create(src, ABORT_NAME, Type::GetFunctionType(Type::GetVoidType(), {}), true, false,
+                                     nullptr, true));
 
   return ret;
 }

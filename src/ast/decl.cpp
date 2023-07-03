@@ -35,7 +35,7 @@ FunctionDecl::FunctionDecl(SourceFile *src) : Decl(ASTNodeType::FUNC_DECL, src, 
 FunctionDecl *FunctionDecl::Create(SourceFile *src) { return new FunctionDecl(src); }
 
 FunctionDecl *FunctionDecl::Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
-                                   bool is_public, Stmt *body) {
+                                   bool is_public, Stmt *body, bool is_intrinsic) {
   auto ret = new FunctionDecl(src);
   ret->set_name(name);
   if (!body) {
@@ -44,6 +44,7 @@ FunctionDecl *FunctionDecl::Create(SourceFile *src, const str &name, FunctionTyp
   ret->set_type(func_type);
   ret->_is_external = is_external;
   ret->_is_public = is_public;
+  ret->_is_intrinsic = is_intrinsic;
   return ret;
 }
 
@@ -64,6 +65,10 @@ Stmt *FunctionDecl::get_body() const { return _body; }
 void FunctionDecl::set_external(bool is_external) { _is_external = is_external; }
 
 void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
+
+bool FunctionDecl::is_intrinsic() const { return _is_intrinsic; }
+
+void FunctionDecl::set_is_intrinsic(bool is_intrinsic) { _is_intrinsic = is_intrinsic; }
 
 const vector<ArgDecl *> &FunctionDecl::get_arg_decls() const { return _arg_decls; }
 
