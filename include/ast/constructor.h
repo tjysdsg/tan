@@ -40,17 +40,9 @@ public:
    * \note Make sure default_val's type is resolved
    */
   static BasicConstructor *Create(CompTimeExpr *default_val);
-  static BasicConstructor *CreateIntegerConstructor(SourceFile *src, uint64_t default_val = 0, size_t bit_size = 32,
-                                                    bool is_unsigned = false);
-  static BasicConstructor *CreateBoolConstructor(SourceFile *src, bool default_val = false);
-  static BasicConstructor *CreateFPConstructor(SourceFile *src, double default_val = 0, size_t bit_size = 32);
-  static BasicConstructor *CreateStringConstructor(SourceFile *src, str default_val = "");
-  static BasicConstructor *CreateCharConstructor(SourceFile *src, uint8_t default_val = 0);
-  static BasicConstructor *CreateArrayConstructor(SourceFile *src, Type *element_type = {});
-  static BasicConstructor *CreateNullPointerConstructor(SourceFile *src, Type *element_type);
 
+public:
   CompTimeExpr *get_value() const;
-  void set_value(CompTimeExpr *val);
 
 protected:
   BasicConstructor() : Constructor(ConstructorType::BASIC){};

@@ -370,10 +370,12 @@ CharLiteral *Literal::CreateCharLiteral(SourceFile *src, uint8_t val) {
   return ret;
 }
 
-ArrayLiteral *Literal::CreateArrayLiteral(SourceFile *src, Type *element_type, int size) {
-  auto *ret = ArrayLiteral::Create(src);
+ArrayLiteral *Literal::CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal *> elements) {
+  auto *ret = ArrayLiteral::Create(src, elements);
+
   vector<Type *> sub_types{};
-  ret->set_type(Type::GetArrayType(element_type, size));
+  ret->set_type(Type::GetArrayType(element_type, (int)elements.size()));
+
   return ret;
 }
 

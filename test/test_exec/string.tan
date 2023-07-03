@@ -4,15 +4,13 @@ import "runtime/stdlib.tan";
 
 
 pub fn main(argc: int, argv: char**) : int {
-    // TODO: CreateGlobalStringPtr doesn't create a mutable string
-    //       need to allocate memory on stack/heap
     var s = "123456";
 
     var array: i8[3];
     var array_str = array as str;
     array_str[0] = 'a';
     array_str[1] = 'b';
-    array_str[2] = '\0';
+    array_str[2] = 0 as char; // FIXME: '\0' doesn't work for some reason
     print(array_str);
 
     array_str[0] = s[1];
@@ -26,27 +24,29 @@ pub fn main(argc: int, argv: char**) : int {
     assert(array_str[1] == '1');
     assert(array_str[2] == '2');
 
-    /*
-    var s: str = "shit 他妈的";
-    assert(s[0] == 's');
-    assert(s[1] == 'h');
-    assert(s[2] == 'i');
-    assert(s[3] == 't');
-    assert(s[4] == ' ');
-    var ta = "他";
-    assert(s[5] == ta[0]);
-    assert(s[6] == ta[1]);
-    assert(s[7] == ta[2]);
-    var ma = "妈";
-    assert(s[8] == ma[0]);
-    assert(s[9] == ma[1]);
-    assert(s[10] == ma[2]);
-    var de = "的";
-    assert(s[11] == de[0]);
-    assert(s[12] == de[1]);
-    assert(s[13] == de[2]);
-    print(s);
+    {
+        var s: str = "shit 他妈的";
+        assert(s[0] == 's');
+        assert(s[1] == 'h');
+        assert(s[2] == 'i');
+        assert(s[3] == 't');
+        assert(s[4] == ' ');
+        var ta = "他";
+        assert(s[5] == ta[0]);
+        assert(s[6] == ta[1]);
+        assert(s[7] == ta[2]);
+        var ma = "妈";
+        assert(s[8] == ma[0]);
+        assert(s[9] == ma[1]);
+        assert(s[10] == ma[2]);
+        var de = "的";
+        assert(s[11] == de[0]);
+        assert(s[12] == de[1]);
+        assert(s[13] == de[2]);
+        print(s);
+    }
+
     print("SUCCESS");
-    */
+
     return 0;
 }

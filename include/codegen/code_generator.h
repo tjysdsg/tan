@@ -22,6 +22,7 @@ public:
   void default_visit(ASTBase *) override;
 
   void emit_to_file(const str &filename);
+  void run_passes();
   void dump_ir() const;
 
 private:

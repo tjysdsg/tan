@@ -47,7 +47,7 @@ public:
   static FloatLiteral *CreateFloatLiteral(SourceFile *src, double val, size_t bit_size);
   static StringLiteral *CreateStringLiteral(SourceFile *src, str val);
   static CharLiteral *CreateCharLiteral(SourceFile *src, uint8_t val);
-  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, int size);
+  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal*> elements = {});
   static NullPointerLiteral *CreateNullPointerLiteral(SourceFile *src, Type *element_type);
 };
 

@@ -265,10 +265,10 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     /// check if array index is out-of-bound
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
       uint64_t size = ast_cast<IntegerLiteral>(rhs)->get_value();
-      if (lhs->get_type()->is_array() && (int)size >= array_type->get_size()) {
+      if (lhs->get_type()->is_array() && (int)size >= array_type->array_size()) {
         error(ErrorType::TYPE_ERROR, p,
               fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
-                          std::to_string(array_type->get_size())));
+                          std::to_string(array_type->array_size())));
       }
     }
   } else if (lhs_type->is_string()) {

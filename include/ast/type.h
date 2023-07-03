@@ -191,7 +191,7 @@ private:
 class ArrayType : public Type {
 public:
   Type *get_element_type() { return _element_type; }
-  int get_size() { return _size; }
+  int array_size() { return _size; }
   [[nodiscard]] bool is_array() const override { return true; }
   int get_align_bits() override;
   int get_size_bits() override;

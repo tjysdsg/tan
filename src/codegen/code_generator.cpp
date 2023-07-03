@@ -6,6 +6,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
+#include "ast/default_value.h"
 #include "compiler/compiler.h"
 #include "llvm_api/llvm_include.h"
 
@@ -46,7 +47,15 @@ CodeGenerator::~CodeGenerator() {
     delete _llvm_ctx;
 }
 
-llvm::Value *CodeGenerator::run_impl(CompilationUnit *cu) { return cached_visit(cu->ast()); }
+llvm::Value *CodeGenerator::run_impl(CompilationUnit *cu) {
+  auto *ret = cached_visit(cu->ast());
+
+  _di_builder->finalize(); // do this before any pass
+
+  run_passes();
+
+  return ret;
+}
 
 llvm::Value *CodeGenerator::cached_visit(ASTBase *p) {
   auto it = _llvm_value_cache.find(p);
@@ -62,9 +71,7 @@ llvm::Value *CodeGenerator::cached_visit(ASTBase *p) {
 
 void CodeGenerator::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-void CodeGenerator::emit_to_file(const str &filename) {
-  _di_builder->finalize(); /// important: do this before any pass
-
+void CodeGenerator::run_passes() {
   auto opt_level = _target_machine->getOptLevel();
   bool debug = opt_level == llvm::CodeGenOpt::Level::None;
 
@@ -92,8 +99,9 @@ void CodeGenerator::emit_to_file(const str &filename) {
     // Optimize the IR
     MPM.run(*_module, MAM);
   }
+}
 
-  /// generate object files
+void CodeGenerator::emit_to_file(const str &filename) {
   std::error_code ec;
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
   if (ec) {
@@ -396,22 +404,9 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
   TAN_ASSERT(!p->is_ref());
 
   Value *ret = nullptr;
-  if (p->is_primitive()) { /// primitive types
-    int size_bits = p->get_size_bits();
+  if (p->is_primitive() || p->is_string() || p->is_array() || p->is_pointer()) {
+    ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_sm->src(), p));
 
-    if (p->is_int()) {
-      ret = codegen_constructor(BasicConstructor::CreateIntegerConstructor(0, 0, (size_t)size_bits, p->is_unsigned()));
-    } else if (p->is_char()) {
-      ret = codegen_constructor(BasicConstructor::CreateCharConstructor(0, 0));
-    } else if (p->is_bool()) {
-      ret = codegen_constructor(BasicConstructor::CreateBoolConstructor(0, false));
-    } else if (p->is_float()) {
-      ret = codegen_constructor(BasicConstructor::CreateFPConstructor(0, 0, (size_t)size_bits));
-    } else {
-      TAN_ASSERT(false);
-    }
-  } else if (p->is_string()) { /// str as char*
-    ret = codegen_constructor(BasicConstructor::CreateStringConstructor(0, ""));
   } else if (p->is_struct()) { /// struct
     // TODO: use codegen_constructor()
     auto member_types = ((StructType *)p)->get_member_types();
@@ -420,10 +415,7 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
       values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
     }
     ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(p), values);
-  } else if (p->is_array()) {   /// array as pointer
-    ret = codegen_constructor(BasicConstructor::CreateArrayConstructor(0, ((ArrayType *)p)->get_element_type()));
-  } else if (p->is_pointer()) { /// the pointer literal is nullptr
-    ret = codegen_constructor(BasicConstructor::CreateNullPointerConstructor(0, ((PointerType *)p)->get_pointee()));
+
   } else {
     TAN_ASSERT(false);
   }
@@ -487,7 +479,7 @@ Value *CodeGenerator::codegen_literals(Literal *p) {
 
     /// codegen element values
     size_t n = elements.size();
-    ret = create_block_alloca(_builder->GetInsertBlock(), e_type, n, "const_array");
+    ret = create_block_alloca(_builder->GetInsertBlock(), e_type, n, "array_storage");
     for (size_t i = 0; i < n; ++i) {
       auto *idx = _builder->getInt32((unsigned)i);
       auto *e_val = cached_visit(elements[i]);
