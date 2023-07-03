@@ -20,7 +20,7 @@ class SourceFile;
  * \brief Parse, Analyze, and compile a list of tan source files. The compilation consists of multiple stages,
  *        performed using the CompilerAction interface.
  */
-class Compiler {
+class Compiler final {
 public:
   /**
    * \brief Get information about the current machine

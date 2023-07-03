@@ -18,7 +18,21 @@
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-Compiler::~Compiler() {}
+Compiler::~Compiler() {
+  for (const auto &it : _cg) {
+    delete it.second;
+  }
+  _cg.clear();
+
+  for (CompilationUnit *c : _cu) {
+    delete c;
+  }
+  _cu.clear();
+
+  for (SourceFile *s : _srcs) {
+    delete s;
+  }
+}
 
 Compiler::Compiler(const vector<str> &files) : _files(files) {
   /// target machine and data layout
