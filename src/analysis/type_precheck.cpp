@@ -97,10 +97,11 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
     error(ErrorType::IMPORT_ERROR, p, "Cannot import: " + file);
   }
 
-  auto *compiler = new CompilerDriver(imported);
-  compiler->parse();
-  compiler->analyze();
-  Context *imported_ctx = compiler->get_compilation_units()[0]->ast()->ctx();
+  auto *compiler = CompilerDriver::instance();
+  TAN_ASSERT(compiler);
+  const auto &cu = compiler->parse(imported);
+  compiler->analyze(cu);
+  Context *imported_ctx = cu[0]->ast()->ctx();
 
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();

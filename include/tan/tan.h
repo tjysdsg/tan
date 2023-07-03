@@ -56,21 +56,6 @@ struct TanCompilation {
 bool init_compiler(int argc, char **argv);
 
 /**
- * \brief Compile multiple source files.
- * \details The output files are named as "<name of the source file>.o" and they are located at current working
- * directory. If current build is release, all exceptions are captured and `e.what()` is printed out to stderr. If
- * current build is debug, all exceptions are not captured, making debugging easier. \param n_files The number of source
- * files. \param input_paths The path of the input files, can be relative or absolute path. The input files can be tan
- * source files, or object files. They will be distinguished by their file extensions,
- *  ".tan" and ".o".
- * \param config Compilation configuration, \see TanCompilation
- * \return If current build is release, returns true if no error occurred, and vice versa.
- *  If current build is debug, either returns true or doesn't return, because all errors are captured by
- *         a try-catch clause.
- */
-bool compile_files(vector<str> input_paths, TanCompilation *config);
-
-/**
  * \brief Get optimization level compiler flag from the enum value.
  * \note This must match clang's option string.
  */

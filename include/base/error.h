@@ -17,6 +17,7 @@ namespace tanlang {
 // REMEMBER to add to Error::ERROR_TYPE_ENUM_TO_STRING
 enum class ErrorType {
   GENERIC_ERROR,
+  NOT_IMPLEMENTED,
   ASSERTION_FAILED,
   FILE_NOT_FOUND,
   SYNTAX_ERROR,
@@ -24,8 +25,8 @@ enum class ErrorType {
   UNKNOWN_SYMBOL,
   IMPORT_ERROR,
   TYPE_ERROR,
-
-  NOT_IMPLEMENTED,
+  COMPILE_ERROR,
+  LINK_ERROR,
 };
 
 class Error;

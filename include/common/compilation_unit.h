@@ -13,7 +13,8 @@ class SourceManager;
 class CompilationUnit {
 public:
   CompilationUnit() = delete;
-  CompilationUnit(Program *program, SourceManager *sm);
+  CompilationUnit(SourceFile *src, SourceManager *sm, Program *program);
+  ~CompilationUnit();
 
   str filename() const;
   SourceManager *source_manager() const;
@@ -23,6 +24,7 @@ public:
   DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 
 private:
+  SourceFile *_src = nullptr;
   Program *_program = nullptr;
   SourceManager *_sm = nullptr;
 };

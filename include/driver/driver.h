@@ -17,26 +17,21 @@ class CompilationUnit;
 class SourceFile;
 
 /**
- * \brief Parse, Analyze, and compile a list of C++ or tan source files.
- *       The compilation consists of multiple stages, performed using the CompilerAction interface.
+ * \brief Compile a list of C++ and/or tan source files, and perform linking.
  */
 class CompilerDriver final {
 public:
-  /**
-   * \brief Get information about the current machine
-   * */
-  static llvm::TargetMachine *GetDefaultTargetMachine();
+  static CompilerDriver *instance() { return singleton; }
 
+private:
+  static inline CompilerDriver *singleton = nullptr;
+
+public:
   /**
    * \brief Import search directories
    * \details This is set by compile_files() in libtanc.h
    */
   static inline vector<str> import_dirs{};
-
-  /**
-   * \brief Current compile configuration
-   */
-  static inline TanCompilation compile_config{};
 
   /**
    * \brief Get a list of possible files that corresponds to an import
@@ -56,43 +51,53 @@ private:
 
 public:
   CompilerDriver() = delete;
-
-  explicit CompilerDriver(const vector<str> &files);
+  explicit CompilerDriver(TanCompilation config);
   ~CompilerDriver();
+
+  /**
+   * \brief Compile CXX or TAN source files and link their output object files
+   * \details The object files are named as "<name of the source file>.o" and they are located at current working
+   *          directory.
+   *          If current build is release, all exceptions are captured and `e.what()` is printed out to stderr.
+   *          If current build is debug, all exceptions are not captured, making debugging easier.
+   *
+   * \param files The path to source files, can be relative or absolute path.
+   *              They will be distinguished by their file extensions.
+   * \param config Compilation configuration, \see TanCompilation
+   */
+  void run(const vector<str> &files);
 
   /**
    * \brief Parse the corresponding source file, and build AST
    */
-  void parse();
+  vector<CompilationUnit *> parse(const vector<str> &files);
 
   /**
    * \brief Perform Semantic Analysis
    */
-  void analyze();
+  void analyze(vector<CompilationUnit *> cu);
 
   /**
    * \brief Generate LLVM IR
    */
-  llvm::Value *codegen(CompilationUnit *cu, bool print_ir);
+  CodeGenerator *codegen(CompilationUnit *cu, bool print_ir);
 
   /**
    * \brief Compile to object files
    * \details Resulting *.o files are stored in the current working directory
    */
-  void emit_object(CompilationUnit *cu, const str &out_file);
+  void emit_object(CodeGenerator *cg, const str &out_file);
 
-  /**
-   * \brief Pretty-print AST
-   */
-  void dump_ast() const;
-
-  const vector<CompilationUnit *> &get_compilation_units() const;
+  void link(const vector<str> &input_paths);
 
 private:
-  vector<str> _files{};
-  vector<SourceFile *> _srcs{};
-  vector<CompilationUnit *> _cu{};
-  umap<CompilationUnit *, CodeGenerator *> _cg{};
+  /**
+   * \brief Compile TAN files and return a list of object files
+   */
+  vector<str> compile_tan(const vector<str> &files);
+
+private:
+  TanCompilation _config{};
 };
 
 } // namespace tanlang

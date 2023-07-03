@@ -13,29 +13,43 @@
 #include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
+#include "llvm_api/clang_frontend.h"
+#include "linker/linker.h"
+#include "llvm_api/llvm_ar.h"
 #include <filesystem>
 
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-CompilerDriver::~CompilerDriver() {
-  for (const auto &it : _cg) {
-    delete it.second;
-  }
-  _cg.clear();
+/// \see https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html
+static constexpr std::array CXX_EXTS{".cpp", ".CPP", ".cxx", ".c",  ".cc",  ".C",   ".c++", ".cp",  ".i",  ".ii",
+                                     ".h",   ".hh",  ".H",   ".hp", ".hxx", ".hpp", ".HPP", ".h++", ".tcc"};
+static constexpr str_view TAN_EXT = ".tan";
 
-  for (CompilationUnit *c : _cu) {
-    delete c;
-  }
-  _cu.clear();
+void verify_dirs(const vector<str> &dirs);
 
-  for (SourceFile *s : _srcs) {
-    delete s;
-  }
-}
+/**
+ * \brief Compile CXX files using clang frontend and return a list of object files
+ */
+vector<str> compile_cxx(const vector<str> &files, TanCompilation config);
 
-CompilerDriver::CompilerDriver(const vector<str> &files) : _files(files) {
-  /// target machine and data layout
+static str search_library(const vector<str> &lib_dirs, const str &lib_name);
+
+CompilerDriver::~CompilerDriver() { singleton = nullptr; }
+
+CompilerDriver::CompilerDriver(TanCompilation config) {
+  // Verify config
+  verify_dirs(config.lib_dirs);
+  verify_dirs(config.import_dirs);
+  _config = config;
+
+  // Register import dirs
+  size_t n_import = _config.import_dirs.size();
+  CompilerDriver::import_dirs.reserve(n_import);
+  CompilerDriver::import_dirs.insert(CompilerDriver::import_dirs.begin(), _config.import_dirs.begin(),
+                                     _config.import_dirs.end());
+
+  // Initialize LLVM
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
@@ -56,34 +70,127 @@ CompilerDriver::CompilerDriver(const vector<str> &files) : _files(files) {
     auto RM = llvm::Reloc::Model::PIC_;
     CompilerDriver::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
+
+  singleton = this;
 }
 
-void CompilerDriver::emit_object(CompilationUnit *cu, const str &out_file) {
-  auto *cg = _cg[cu];
-  cg->emit_to_file(out_file);
-}
+void CompilerDriver::run(const vector<str> &files) {
+  // Check if files exist
+  // and separate cxx and tan source files based on their file extensions
+  vector<str> tan_files{};
+  vector<str> cxx_files{};
+  for (size_t i = 0; i < files.size(); ++i) {
+    fs::path f = fs::path(files[i]);
+    str ext = f.extension().string();
 
-Value *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
-  TAN_ASSERT(_cg.find(cu) == _cg.end());
-  auto *cg = _cg[cu] = new CodeGenerator(target_machine);
-  auto *ret = cg->run(cu);
+    if (!fs::exists(f))
+      Error(ErrorType::FILE_NOT_FOUND, fmt::format("File not found: {}", files[i])).raise();
 
-  if (print_ir) {
-    cg->dump_ir();
+    bool is_cxx = std::any_of(CXX_EXTS.begin(), CXX_EXTS.end(), [=](const str &e) { return e == ext; });
+    if (is_cxx) {
+      cxx_files.push_back(files[i]);
+    } else if (ext == TAN_EXT) {
+      tan_files.push_back(files[i]);
+    } else {
+      Error(ErrorType::GENERIC_ERROR, fmt::format("Unrecognized source file: {}", files[i])).raise();
+    }
   }
 
+  // Compiling
+  auto cxx_objs = compile_cxx(cxx_files, _config);
+  auto tan_objs = compile_tan(tan_files);
+
+  // Linking
+  vector<str> obj_files(cxx_objs.size() + tan_objs.size());
+  size_t i = 0;
+  for (const str &o : cxx_objs)
+    obj_files[i++] = o;
+  for (const str &o : tan_objs)
+    obj_files[i++] = o;
+
+  link(obj_files);
+}
+
+vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
+  bool print_ir_code = _config.verbose >= 1;
+  size_t n_files = files.size();
+  vector<str> ret(n_files);
+
+  // Parse
+  auto cu = parse(files);
+
+  // TODO: bool print_ast = _config.verbose >= 2;
+  //       if (print_ast)
+
+  // Semantic analysis
+  analyze(cu);
+
+  // Code generation
+  size_t i = 0;
+  for (auto *c : cu) {
+    std::cout << fmt::format("Compiling TAN file: {}\n", c->filename());
+
+    // IR
+    auto *cg = codegen(c, print_ir_code);
+
+    // object file
+    str ofile = ret[i] = fs::path(c->filename() + ".o").filename().string();
+    emit_object(cg, ofile);
+
+    ++i;
+
+    delete cg;
+  }
+
+  for (auto *c : cu) {
+    delete c;
+  }
   return ret;
 }
 
-void CompilerDriver::dump_ast() const {
-  // TODO: dump_ast()
+vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
+  vector<str> obj_files{};
+
+  if (!files.empty()) {
+    std::cout << "Compiling " << files.size() << " CXX file(s): ";
+    std::for_each(files.begin(), files.end(), [=](auto f) { std::cout << f << " "; });
+    std::cout << "\n";
+
+    auto err_code = clang_compile(files, &config);
+    if (err_code)
+      Error(ErrorType::GENERIC_ERROR, "Failed to compile CXX files").raise();
+
+    // object file paths
+    size_t n = files.size();
+    obj_files.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      auto p = fs::path(str(files[i])).replace_extension(".o").filename();
+      obj_files.push_back(p.string());
+    }
+  }
+
+  return obj_files;
 }
 
-void CompilerDriver::parse() {
-  for (const str &file : _files) {
+void CompilerDriver::emit_object(CodeGenerator *cg, const str &out_file) { cg->emit_to_file(out_file); }
+
+CodeGenerator *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
+  auto *cg = new CodeGenerator(target_machine);
+
+  cg->run(cu);
+
+  if (print_ir)
+    cg->dump_ir();
+
+  return cg;
+}
+
+vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
+  vector<CompilationUnit *> cu{};
+
+  for (const str &file : files) {
     SourceFile *source = new SourceFile();
     source->open(file);
-    _srcs.push_back(source);
 
     // tokenization
     auto tokens = tokenize(source);
@@ -98,26 +205,23 @@ void CompilerDriver::parse() {
       ast->ctx()->set_function_decl(f);
     }
 
-    _cu.push_back(new CompilationUnit(ast, sm));
+    cu.push_back(new CompilationUnit(source, sm, ast));
   }
+
+  return cu;
 }
 
-void CompilerDriver::analyze() {
-  for (auto *cu : _cu) {
+void CompilerDriver::analyze(vector<CompilationUnit *> cu) {
+  for (auto *c : cu) {
     RegisterDeclarations rtld;
-    rtld.run(cu);
+    rtld.run(c);
 
     TypePrecheck tp;
-    tp.run(cu);
+    tp.run(c);
 
     TypeCheck analyzer;
-    analyzer.run(cu);
+    analyzer.run(c);
   }
-}
-
-TargetMachine *CompilerDriver::GetDefaultTargetMachine() {
-  TAN_ASSERT(CompilerDriver::target_machine);
-  return CompilerDriver::target_machine;
 }
 
 vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {
@@ -142,4 +246,87 @@ vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &im
   return ret;
 }
 
-const vector<CompilationUnit *> &CompilerDriver::get_compilation_units() const { return _cu; }
+void CompilerDriver::link(const std::vector<str> &files) {
+  if (_config.type == SLIB) { // static
+    // also add files specified by -l option
+    vector<str> all_files(files.begin(), files.end());
+    for (const auto &lib : _config.link_files) {
+      str path = search_library(_config.lib_dirs, lib);
+
+      if (path.empty())
+        Error(ErrorType::LINK_ERROR, fmt::format("Unable to find library: {}", lib)).raise();
+
+      all_files.push_back(path);
+    }
+
+    llvm_ar_create_static_lib(_config.out_file, all_files);
+    return;
+  }
+
+  // shared, obj, or exe
+  using tanlang::Linker;
+  Linker linker;
+  linker.add_files(files);
+  linker.add_flag("-o" + str(_config.out_file));
+  if (_config.type == EXE) {
+    linker.add_flags({"-fPIE"});
+  } else if (_config.type == DLIB) {
+    linker.add_flags({"-shared"});
+  }
+
+  // -L
+  size_t n_lib_dirs = _config.lib_dirs.size();
+  for (size_t i = 0; i < n_lib_dirs; ++i) {
+    auto p = fs::absolute(fs::path(_config.lib_dirs[i]));
+    linker.add_flag("-L" + p.string());
+    linker.add_flag("-Wl,-rpath," + p.string());
+  }
+
+  // -l
+  size_t n_link_files = _config.link_files.size();
+  for (size_t i = 0; i < n_link_files; ++i) {
+    linker.add_flag("-l" + std::string(_config.link_files[i]));
+  }
+  linker.add_flag(opt_level_to_string(_config.opt_level));
+
+  if (!linker.link())
+    Error(ErrorType::LINK_ERROR, "Failed linking").raise();
+}
+
+/**
+ * \section Helpers
+ */
+
+void verify_dirs(const vector<str> &dirs) {
+  for (size_t i = 0; i < dirs.size(); ++i) {
+    fs::path p = fs::path(dirs[i]);
+
+    if (!fs::exists(p))
+      Error(ErrorType::FILE_NOT_FOUND, fmt::format("File not found: {}", dirs[i])).raise();
+
+    if (!fs::is_directory(p))
+      Error(ErrorType::FILE_NOT_FOUND, fmt::format("Not a directory: {}", dirs[i])).raise();
+  }
+}
+
+str search_library(const std::vector<str> &lib_dirs, const str &lib_name) {
+  // TODO: platform specific extensions
+  for (const str &dir : lib_dirs) {
+    vector<fs::path> candidates = {
+        /// possible filenames
+        fs::path(dir) / fs::path(lib_name),                 //
+        fs::path(dir) / fs::path(lib_name + ".a"),          //
+        fs::path(dir) / fs::path(lib_name + ".so"),         //
+        fs::path(dir) / fs::path("lib" + lib_name + ".a"),  //
+        fs::path(dir) / fs::path("lib" + lib_name + ".so"), //
+    };
+
+    for (const auto &p : candidates) {
+      if (fs::exists(p)) {
+        return p.string();
+      }
+    }
+  }
+
+  return "";
+}
