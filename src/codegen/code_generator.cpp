@@ -377,25 +377,43 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
   llvm::Type *type = to_llvm_type(p->get_type());
   auto *ret = create_block_alloca(_builder->GetInsertBlock(), type, 1, p->get_name());
 
-  /// default value of only var declaration
+  // default value of var declaration
   if (p->get_node_type() == ASTNodeType::VAR_DECL) {
-    auto *default_value = codegen_type_default_value(p->get_type());
-    if (!default_value) {
-      error(ErrorType::SEMANTIC_ERROR, p, "Fail to instantiate this type");
-    }
+    Value *default_value = codegen_type_default_value(p->get_type());
+    TAN_ASSERT(default_value);
     _builder->CreateStore(default_value, ret);
   }
 
-  /// debug info
-  {
-    auto *curr_di_scope = get_current_di_scope();
-    auto *arg_meta = to_llvm_metadata(p->get_type(), p->start());
-    auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->start()),
-                                                   (DIType *)arg_meta);
-    _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
-                               _builder->GetInsertBlock());
-  }
+  // debug info
+  auto *curr_di_scope = get_current_di_scope();
+  auto *arg_meta = to_llvm_metadata(p->get_type(), p->start());
+  auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->start()),
+                                                 (DIType *)arg_meta);
+  _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
+                             _builder->GetInsertBlock());
   return ret;
+}
+
+Value *CodeGenerator::codegen_struct_default_value(StructType *ty) {
+  StructDecl *struct_decl = ty->get_decl();
+
+  auto member_types = ty->get_member_types();
+  TAN_ASSERT(member_types.size() == struct_decl->get_member_decls().size());
+
+  vector<Constant *> values(member_types.size(), nullptr);
+  for (size_t i = 0; i < member_types.size(); ++i) {
+    Expr *v = struct_decl->get_member_default_val((int)i);
+
+    if (v) {
+      TAN_ASSERT(v->is_comptime_known());
+      // default value is set in the struct definition
+      values[i] = (llvm::Constant *)cached_visit(v);
+    } else {
+      values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
+    }
+  }
+
+  return ConstantStruct::get((llvm::StructType *)to_llvm_type(ty), values);
 }
 
 Value *CodeGenerator::codegen_type_default_value(Type *p) {
@@ -406,14 +424,7 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
     ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_sm->src(), p));
 
   } else if (p->is_struct()) {
-    // TODO: use codegen_constructor()
-    auto member_types = ((StructType *)p)->get_member_types();
-    vector<Constant *> values(member_types.size(), nullptr);
-    for (size_t i = 0; i < member_types.size(); ++i) {
-      values[i] = (llvm::Constant *)codegen_type_default_value(member_types[i]);
-    }
-    ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(p), values);
-
+    ret = codegen_struct_default_value((StructType *)p);
   } else {
     TAN_ASSERT(false);
   }

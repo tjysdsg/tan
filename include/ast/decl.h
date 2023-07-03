@@ -89,15 +89,26 @@ protected:
 
 public:
   static StructDecl *Create(SourceFile *src);
+
+public:
   const vector<Expr *> &get_member_decls() const;
   void set_member_decls(const vector<Expr *> &member_decls);
+
   Type *get_struct_member_ty(int i) const;
+  vector<Type *> get_member_types() const;
+
   int get_struct_member_index(const str &name) const;
   void set_member_index(const str &name, int idx);
+
+  Expr *get_member_default_val(int i) const;
+  void set_member_default_val(int i, Expr *val);
+
+public:
   vector<ASTBase *> get_children() const override;
 
 private:
   vector<Expr *> _member_decls{};
+  umap<int, Expr *> _default_vals{};
   umap<str, int> _member_indices{};
 };
 

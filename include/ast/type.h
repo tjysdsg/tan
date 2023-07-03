@@ -32,7 +32,7 @@ public:
   [[nodiscard]] static ArrayType *GetArrayType(Type *element_type, int size);
 
   [[nodiscard]] static FunctionType *GetFunctionType(Type *ret_type, const vector<Type *> &arg_types);
-  [[nodiscard]] static StructType *GetStructType(const str &name, const vector<Type *> &member_types);
+  [[nodiscard]] static StructType *GetStructType(StructDecl *decl);
   [[nodiscard]] static TypeRef *GetTypeRef(const str &name);
 
   static inline vector<str> ALL_TYPE_NAMES{"bool", "int", "float", "f32", "str", "char", "f64", "i8",
@@ -227,6 +227,7 @@ public:
   int get_align_bits() override;
   int get_size_bits() override;
   [[nodiscard]] vector<Type *> children() const override;
+  StructDecl *get_decl() const;
 
   void append_member_type(Type *t);
   Type *&operator[](size_t index);
@@ -235,10 +236,11 @@ public:
   friend class Type;
 
 protected:
-  StructType(const str &name, const vector<Type *> &member_types);
+  StructType(StructDecl *decl);
 
 private:
   vector<Type *> _member_types{};
+  StructDecl *_decl = nullptr;
 };
 
 class FunctionType : public Type {

@@ -91,6 +91,14 @@ Type *StructDecl::get_struct_member_ty(int i) const {
   return _member_decls[(size_t)i]->get_type();
 }
 
+vector<Type *> StructDecl::get_member_types() const {
+  auto ret = vector<Type *>(_member_decls.size(), nullptr);
+  for (size_t i = 0; i < _member_decls.size(); ++i) {
+    ret[i] = _member_decls[i]->get_type();
+  }
+  return ret;
+}
+
 int StructDecl::get_struct_member_index(const str &name) const {
   auto search = _member_indices.find(name);
   if (search == _member_indices.end()) {
@@ -109,3 +117,13 @@ vector<ASTBase *> StructDecl::get_children() const {
   std::for_each(_member_decls.begin(), _member_decls.end(), [&](Expr *e) { ret.push_back(e); });
   return ret;
 }
+
+Expr *StructDecl::get_member_default_val(int i) const {
+  auto it = _default_vals.find(i);
+  if (it == _default_vals.end()) {
+    return nullptr;
+  }
+  return it->second;
+}
+
+void StructDecl::set_member_default_val(int i, Expr *val) { _default_vals[i] = val; }

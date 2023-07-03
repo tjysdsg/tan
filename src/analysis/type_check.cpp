@@ -656,19 +656,21 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
 
     if (m->get_node_type() == ASTNodeType::VAR_DECL) {      // member variable without initial value
       (*ty)[i] = resolve_type((*ty)[i], m);
+
     } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
       auto init_val = ast_cast<Assignment>(m)->get_rhs();
+      visit(init_val);
+
       (*ty)[i] = resolve_type((*ty)[i], m);
 
       if (!init_val->is_comptime_known()) {
         error(ErrorType::TYPE_ERROR, p, "Initial value of a member variable must be compile-time known");
       }
-      // TODO: initial values
-      //   auto *ctr = cast_ptr<StructConstructor>(ty->get_constructor());
-      //   ctr->get_member_constructors().push_back(BasicConstructor::Create(ast_cast<CompTimeExpr>(init_val)));
+
     } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { // TODO: member functions
       auto f = ast_cast<FunctionDecl>(m);
       (*ty)[i] = f->get_type();
+
     } else {
       error(ErrorType::TYPE_ERROR, p, "Invalid struct member");
     }

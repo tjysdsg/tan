@@ -297,6 +297,8 @@ Cast::Cast(SourceFile *src) : Expr(ASTNodeType::CAST, src, ASTBase::OpPrecedence
 
 vector<ASTBase *> Cast::get_children() const { return {_lhs}; }
 
+bool Cast::is_comptime_known() { return _lhs->is_comptime_known(); }
+
 BinaryOrUnary::BinaryOrUnary(SourceFile *src, int bp) : Expr(ASTNodeType::BOP_OR_UOP, src, bp) {}
 
 BinaryOrUnary *BinaryOrUnary::Create(SourceFile *src, int bp) { return new BinaryOrUnary(src, bp); }

@@ -118,7 +118,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
   root_ctx->set_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference
-  p->set_type(Type::GetStructType(struct_name, vector<Type *>(p->get_children().size(), nullptr)));
+  p->set_type(Type::GetStructType(p));
 }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Loop) {

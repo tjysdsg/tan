@@ -9,6 +9,7 @@
 namespace tanlang {
 
 class ASTBase;
+class StructType;
 
 class CodeGenerator final : public CompilerAction<CodeGenerator, CompilationUnit *, llvm::Value *> {
 public:
@@ -82,6 +83,7 @@ private:
 
 private:
   Value *codegen_var_arg_decl(Decl *p);
+  Value *codegen_struct_default_value(StructType *ty);
   Value *codegen_type_default_value(Type *p);
   Value *codegen_literals(Literal *p);
   Value *codegen_func_prototype(FunctionDecl *p, bool import_ = false);

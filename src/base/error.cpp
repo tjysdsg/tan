@@ -1,10 +1,12 @@
 #include "base/error.h"
 #include "source_file/token.h"
+#include "backtrace/tan_backtrace.h"
 #include <fmt/core.h>
 
 using namespace tanlang;
 
 [[noreturn]] void __tan_assert_fail(const char *expr, const char *file, size_t lineno) {
+  print_back_trace();
   Error(ErrorType::ASSERTION_FAILED,
         fmt::format("ASSERTION FAILED: {}\nat {}:{}\n", expr, file, std::to_string(lineno)))
       .raise();

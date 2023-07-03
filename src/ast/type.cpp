@@ -1,4 +1,5 @@
 #include "ast/type.h"
+#include "ast/decl.h"
 #include <unordered_set>
 #include <queue>
 #include <fmt/format.h>
@@ -98,16 +99,16 @@ FunctionType *Type::GetFunctionType(Type *ret_type, const vector<Type *> &arg_ty
   return new FunctionType(ret_type, arg_types);
 }
 
-StructType *Type::GetStructType(const str &name, const vector<Type *> &member_types) {
-  auto it = NAMED_TYPE_CACHE.find(name);
+StructType *Type::GetStructType(StructDecl *decl) {
+  auto it = NAMED_TYPE_CACHE.find(decl->get_name());
   if (it != NAMED_TYPE_CACHE.end()) {
     auto *t = (StructType *)it->second;
     TAN_ASSERT(t->is_struct());
-    t->_member_types = member_types; /// update forward declaration
+    t->_member_types = decl->get_member_types(); // update forward declaration
     return t;
   } else {
-    auto *ret = new StructType(name, member_types);
-    NAMED_TYPE_CACHE[name] = ret;
+    auto *ret = new StructType(decl);
+    NAMED_TYPE_CACHE[decl->get_name()] = ret;
     return ret;
   }
 }
@@ -158,9 +159,10 @@ vector<Type *> ArrayType::children() const { return {_element_type}; }
 
 StringType::StringType() { _type_name = "str"; }
 
-StructType::StructType(const str &name, const vector<Type *> &member_types) {
-  _type_name = name;
-  _member_types = member_types;
+StructType::StructType(StructDecl *decl) {
+  _decl = decl;
+  _type_name = decl->get_name();
+  _member_types = decl->get_member_types();
 }
 
 int StructType::get_align_bits() {
@@ -182,6 +184,7 @@ Type *&StructType::operator[](size_t index) { return _member_types[index]; }
 Type *StructType::operator[](size_t index) const { return _member_types[index]; }
 vector<Type *> StructType::children() const { return _member_types; }
 vector<Type *> StructType::get_member_types() const { return _member_types; }
+StructDecl *StructType::get_decl() const { return _decl; }
 
 TypeRef::TypeRef(const str &name) { _type_name = name; }
 

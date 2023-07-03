@@ -47,7 +47,7 @@ public:
   static FloatLiteral *CreateFloatLiteral(SourceFile *src, double val, size_t bit_size);
   static StringLiteral *CreateStringLiteral(SourceFile *src, str val);
   static CharLiteral *CreateCharLiteral(SourceFile *src, uint8_t val);
-  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal*> elements = {});
+  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal *> elements = {});
   static NullPointerLiteral *CreateNullPointerLiteral(SourceFile *src, Type *element_type);
 };
 
@@ -383,6 +383,7 @@ public:
 
   bool is_lvalue() override;
   void set_lvalue(bool is_lvalue) override;
+  bool is_comptime_known() override;
 
 protected:
   Expr *_lhs = nullptr;
