@@ -10,7 +10,7 @@ add_subdirectory(analysis)
 # things that depends on LLVM
 add_subdirectory(llvm_api)
 add_subdirectory(codegen)
-add_subdirectory(compiler)
+add_subdirectory(driver)
 add_subdirectory(linker)
 
 # libTan

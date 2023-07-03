@@ -10,7 +10,7 @@
 namespace tanlang {
 
 class Parser;
-class Compiler;
+class CompilerDriver;
 
 /**
  * \enum TanCompileType
@@ -70,6 +70,10 @@ bool init_compiler(int argc, char **argv);
  */
 bool compile_files(vector<str> input_paths, TanCompilation *config);
 
+/**
+ * \brief Get optimization level compiler flag from the enum value.
+ * \note This must match clang's option string.
+ */
 inline str opt_level_to_string(TanOptLevel l) {
   switch (l) {
   case O0:

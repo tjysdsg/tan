@@ -6,7 +6,6 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "ast/default_value.h"
-#include "compiler/compiler.h"
 #include "llvm_api/llvm_include.h"
 
 namespace tanlang {
@@ -19,8 +18,9 @@ void CodeGenerator::init(CompilationUnit *cu) {
   _module = new Module(_sm->get_filename(), *_llvm_ctx);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
-  auto opt_level = (llvm::CodeGenOpt::Level)Compiler::compile_config.opt_level;
-  _target_machine->setOptLevel(opt_level);
+  // FIXME: auto opt_level = (llvm::CodeGenOpt::Level)CompilerDriver::compile_config.opt_level;
+  //       _target_machine->setOptLevel(opt_level);
+  _target_machine->setOptLevel(llvm::CodeGenOpt::None);
 
   /// add_ctx the current debug info version into the module
   _module->addModuleFlag(Module::Warning, "Dwarf Version", llvm::dwarf::DWARF_VERSION);

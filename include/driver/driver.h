@@ -17,10 +17,10 @@ class CompilationUnit;
 class SourceFile;
 
 /**
- * \brief Parse, Analyze, and compile a list of tan source files. The compilation consists of multiple stages,
- *        performed using the CompilerAction interface.
+ * \brief Parse, Analyze, and compile a list of C++ or tan source files.
+ *       The compilation consists of multiple stages, performed using the CompilerAction interface.
  */
-class Compiler final {
+class CompilerDriver final {
 public:
   /**
    * \brief Get information about the current machine
@@ -41,7 +41,7 @@ public:
   /**
    * \brief Get a list of possible files that corresponds to an import
    * \details Suppose there's an import statement `import "../parent.tan"`, in a file at "./src.tan",
-   *    the call to resolve_import should be like `Compiler::resolve_import("./src.tan", "../parent.tan")`
+   *    the call to resolve_import should be like `CompilerDriver::resolve_import("./src.tan", "../parent.tan")`
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
    */
@@ -49,16 +49,16 @@ public:
 
 private:
   /**
-   * \brief Compiler instances created due to import statements
+   * \brief CompilerDriver instances created due to import statements
    * \details These instances do NOT generate any code, they only serve as a parser
    */
   static inline llvm::TargetMachine *target_machine = nullptr;
 
 public:
-  Compiler() = delete;
+  CompilerDriver() = delete;
 
-  explicit Compiler(const vector<str> &files);
-  ~Compiler();
+  explicit CompilerDriver(const vector<str> &files);
+  ~CompilerDriver();
 
   /**
    * \brief Parse the corresponding source file, and build AST

@@ -10,7 +10,7 @@
 #include "ast/intrinsic.h"
 #include "ast/context.h"
 #include "source_file/token.h"
-#include "compiler/compiler.h"
+#include "driver/driver.h"
 #include <iostream>
 #include <set>
 
@@ -92,12 +92,12 @@ Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
 // TODO: check recursive import
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   str file = p->get_filename();
-  auto imported = Compiler::resolve_import(_sm->get_filename(), file);
+  auto imported = CompilerDriver::resolve_import(_sm->get_filename(), file);
   if (imported.empty()) {
     error(ErrorType::IMPORT_ERROR, p, "Cannot import: " + file);
   }
 
-  auto *compiler = new Compiler(imported);
+  auto *compiler = new CompilerDriver(imported);
   compiler->parse();
   compiler->analyze();
   Context *imported_ctx = compiler->get_compilation_units()[0]->ast()->ctx();

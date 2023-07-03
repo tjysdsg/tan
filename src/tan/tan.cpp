@@ -1,5 +1,5 @@
 #include "tan/tan.h"
-#include "compiler/compiler.h"
+#include "driver/driver.h"
 #include "common/compilation_unit.h"
 #include "lexer/lexer.h"
 #include "linker/linker.h"
@@ -96,14 +96,15 @@ bool compile_files(vector<str> input_paths, TanCompilation *config) {
   }
   n_files = files.size();
   /// config
-  Compiler::compile_config = *config;
+  CompilerDriver::compile_config = *config;
   /// import dirs
   size_t n_import = config->import_dirs.size();
-  Compiler::import_dirs.reserve(n_import);
-  Compiler::import_dirs.insert(Compiler::import_dirs.begin(), config->import_dirs.begin(), config->import_dirs.end());
+  CompilerDriver::import_dirs.reserve(n_import);
+  CompilerDriver::import_dirs.insert(CompilerDriver::import_dirs.begin(), config->import_dirs.begin(),
+                                     config->import_dirs.end());
 
   // Parse
-  Compiler compiler(files);
+  CompilerDriver compiler(files);
   compiler.parse();
   if (print_ast) {
     compiler.dump_ast();

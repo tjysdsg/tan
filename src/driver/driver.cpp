@@ -1,4 +1,4 @@
-#include "compiler/compiler.h"
+#include "driver/driver.h"
 #include "lexer/lexer.h"
 #include "source_file/token.h"
 #include "analysis/type_check.h"
@@ -18,7 +18,7 @@
 using namespace tanlang;
 namespace fs = std::filesystem;
 
-Compiler::~Compiler() {
+CompilerDriver::~CompilerDriver() {
   for (const auto &it : _cg) {
     delete it.second;
   }
@@ -34,7 +34,7 @@ Compiler::~Compiler() {
   }
 }
 
-Compiler::Compiler(const vector<str> &files) : _files(files) {
+CompilerDriver::CompilerDriver(const vector<str> &files) : _files(files) {
   /// target machine and data layout
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
@@ -48,22 +48,22 @@ Compiler::Compiler(const vector<str> &files) : _files(files) {
     Error err(error);
     err.raise();
   }
-  if (!Compiler::target_machine) {
+  if (!CompilerDriver::target_machine) {
     auto CPU = "generic";
     auto features = "";
     llvm::TargetOptions opt;
     /// relocation model
     auto RM = llvm::Reloc::Model::PIC_;
-    Compiler::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
+    CompilerDriver::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
   }
 }
 
-void Compiler::emit_object(CompilationUnit *cu, const str &out_file) {
+void CompilerDriver::emit_object(CompilationUnit *cu, const str &out_file) {
   auto *cg = _cg[cu];
   cg->emit_to_file(out_file);
 }
 
-Value *Compiler::codegen(CompilationUnit *cu, bool print_ir) {
+Value *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
   TAN_ASSERT(_cg.find(cu) == _cg.end());
   auto *cg = _cg[cu] = new CodeGenerator(target_machine);
   auto *ret = cg->run(cu);
@@ -75,11 +75,11 @@ Value *Compiler::codegen(CompilationUnit *cu, bool print_ir) {
   return ret;
 }
 
-void Compiler::dump_ast() const {
+void CompilerDriver::dump_ast() const {
   // TODO: dump_ast()
 }
 
-void Compiler::parse() {
+void CompilerDriver::parse() {
   for (const str &file : _files) {
     SourceFile *source = new SourceFile();
     source->open(file);
@@ -102,7 +102,7 @@ void Compiler::parse() {
   }
 }
 
-void Compiler::analyze() {
+void CompilerDriver::analyze() {
   for (auto *cu : _cu) {
     RegisterDeclarations rtld;
     rtld.run(cu);
@@ -115,12 +115,12 @@ void Compiler::analyze() {
   }
 }
 
-TargetMachine *Compiler::GetDefaultTargetMachine() {
-  TAN_ASSERT(Compiler::target_machine);
-  return Compiler::target_machine;
+TargetMachine *CompilerDriver::GetDefaultTargetMachine() {
+  TAN_ASSERT(CompilerDriver::target_machine);
+  return CompilerDriver::target_machine;
 }
 
-vector<str> Compiler::resolve_import(const str &callee_path, const str &import_name) {
+vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {
   vector<str> ret{};
   auto import_path = fs::path(import_name);
   /// search relative to callee's path
@@ -131,8 +131,8 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
       ret.push_back(p.string());
     }
   }
-  /// search relative to directories in Compiler::import_dirs
-  for (const auto &rel : Compiler::import_dirs) {
+  /// search relative to directories in CompilerDriver::import_dirs
+  for (const auto &rel : CompilerDriver::import_dirs) {
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
     if (fs::exists(p)) {
@@ -142,4 +142,4 @@ vector<str> Compiler::resolve_import(const str &callee_path, const str &import_n
   return ret;
 }
 
-const vector<CompilationUnit *> &Compiler::get_compilation_units() const { return _cu; }
+const vector<CompilationUnit *> &CompilerDriver::get_compilation_units() const { return _cu; }
