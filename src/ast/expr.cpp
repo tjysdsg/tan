@@ -12,7 +12,7 @@ vector<ASTBase *> Expr::get_children() const { return {}; }
 
 /// \section Literals
 
-Literal::Literal(ASTNodeType type, SourceFile *src, int bp) : CompTimeExpr(type, src, bp) {}
+Literal::Literal(ASTNodeType type, SourceFile *src, int bp) : Expr(type, src, bp) {}
 
 BoolLiteral *BoolLiteral::Create(SourceFile *src, bool val) {
   auto ret = new BoolLiteral(src);
@@ -337,10 +337,6 @@ vector<ASTBase *> BinaryOrUnary::get_children() const { return get_expr_ptr()->g
 bool BinaryOrUnary::is_lvalue() { return get_expr_ptr()->is_lvalue(); }
 
 void BinaryOrUnary::set_lvalue(bool is_lvalue) { get_expr_ptr()->set_lvalue(is_lvalue); }
-
-bool CompTimeExpr::is_comptime_known() { return true; }
-
-CompTimeExpr::CompTimeExpr(ASTNodeType type, SourceFile *src, int bp) : Expr(type, src, bp) {}
 
 IntegerLiteral *Literal::CreateIntegerLiteral(SourceFile *src, uint64_t val, size_t bit_size, bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(src, val, is_unsigned);

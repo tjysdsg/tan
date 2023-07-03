@@ -23,21 +23,7 @@ protected:
   bool _is_lvalue = false;
 };
 
-/**
- * \brief Compile-time expression
- * \details Compile-time expression can be a value known by itself at compile time, or the result of compile-time
- * evaluation.
- * TODO: implement this
- */
-class CompTimeExpr : public Expr {
-protected:
-  CompTimeExpr(ASTNodeType type, SourceFile *src, int bp);
-
-public:
-  bool is_comptime_known() override;
-};
-
-class Literal : public CompTimeExpr {
+class Literal : public Expr {
 protected:
   Literal(ASTNodeType type, SourceFile *src, int bp);
 
@@ -49,6 +35,9 @@ public:
   static CharLiteral *CreateCharLiteral(SourceFile *src, uint8_t val);
   static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal *> elements = {});
   static NullPointerLiteral *CreateNullPointerLiteral(SourceFile *src, Type *element_type);
+
+public:
+  bool is_comptime_known() override { return true; }
 };
 
 class BoolLiteral : public Literal {

@@ -1,5 +1,6 @@
 #include "ast/default_value.h"
 #include "ast/type.h"
+#include "ast/decl.h"
 
 using namespace tanlang;
 
