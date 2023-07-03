@@ -6,6 +6,7 @@
 #include "base.h"
 #include <gtest/gtest.h>
 #include <utility>
+#include <filesystem>
 
 #ifndef TAN_PROJECT_SOURCE_DIR
 #error "Define TAN_PROJECT_SOURCE_DIR before compiling this"
@@ -17,23 +18,33 @@
 #error "Define TAN_TEST_SOURCE_DIR before compiling this"
 #endif
 
+namespace fs = std::filesystem;
+
+struct TestConfig {
+  str filename;
+  int expected_compilation_return_value = 0;
+  int expected_run_return_value = 0;
+  str tmp_dir = "out";
+  str output_file = "a.out";
+
+  vector<str> flags{};
+};
+
 class TanCExecTests : public ::testing::Test {
 private:
-  str _filename;
-  int _expected_compilation_return_value = 0;
+  TestConfig _config{};
 
 public:
-  TanCExecTests(str filename, int expected_compilation_return_value)
-      : _filename(std::move(filename)), _expected_compilation_return_value(expected_compilation_return_value) {}
+  TanCExecTests(TestConfig config) : _config(std::move(config)) {}
 
   void TestBody() override {
     vector<const char *> cmd{__STR__(TANC_PATH),
                              "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
                              "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
                              "-lruntime",
-                             _filename.c_str(),
+                             _config.filename.c_str(),
                              "-o",
-                             "a.out"};
+                             _config.output_file.c_str()};
     for (auto *c : cmd) {
       std::cout << c << " ";
     }
@@ -42,25 +53,41 @@ public:
     // compile
     int argc = static_cast<int>(cmd.size());
     auto *argv = (char **)cmd.data();
-    ASSERT_EQ(_expected_compilation_return_value, cli_main(argc, argv));
+    ASSERT_EQ(_config.expected_compilation_return_value, cli_main(argc, argv));
 
     // run if compilation succeeded
-    if (0 == _expected_compilation_return_value) {
-      EXPECT_EQ(0, system("./a.out"));
+    if (0 == _config.expected_compilation_return_value) {
+      EXPECT_EQ(_config.expected_run_return_value, system(_config.output_file.c_str()));
     }
   }
 };
 
-// usage: tanc_exec_tests.cpp xxx.tan <expected_compilation_return_value>
+vector<str> opt_levels{"", "-g", "-O0", "-O1", "-O2", "-O3"};
+
+// usage: tanc_exec_tests.cpp xxx.tan <expected_compilation_return_value> output_dir
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  assert(argc == 3);
+  assert(argc == 4);
 
-  str file(argv[1]);
+  fs::path file(argv[1]);
   int expected_compilation_return_value = std::stoi(argv[2]);
+  fs::path output_dir(argv[3]);
 
-  ::testing::RegisterTest("tanc_test_fixture", ("test_" + file).c_str(), nullptr, file.c_str(), __FILE__, __LINE__,
-                          [=]() { return new TanCExecTests(file, expected_compilation_return_value); });
+  if (!fs::exists(output_dir)) {
+    fs::create_directory(output_dir);
+  }
+
+  str filename = std::filesystem::path(file).filename();
+
+  for (const auto &opt : opt_levels) {
+    str test_name = fmt::format("test_{}_{}", filename, opt);
+    str output_file = output_dir / (test_name + ".out");
+
+    TestConfig config{file, expected_compilation_return_value, 0, output_dir, output_file, {opt}};
+
+    ::testing::RegisterTest("tanc_exec_tests", test_name.c_str(), nullptr, file.c_str(), __FILE__, __LINE__,
+                            [=]() { return new TanCExecTests(config); });
+  }
 
   return RUN_ALL_TESTS();
 }

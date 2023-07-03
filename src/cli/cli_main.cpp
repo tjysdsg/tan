@@ -15,8 +15,6 @@ static constexpr std::array cxx_ext{"cpp", "CPP", "cxx", "c",  "cc",  "C",   "c+
                                     "h",   "hh",  "H",   "hp", "hxx", "hpp", "HPP", "h++", "tcc"};
 
 int cli_main(int argc, char **argv) {
-  llvm::cl::ResetCommandLineParser();
-
   // cmd parser
   cmd::OptionCategory cl_category("tanc");
   cmd::opt<str> opt_output_file("o", cmd::desc("Output filename"), cmd::value_desc("output"), cmd::init("a.out"),
@@ -154,5 +152,6 @@ int cli_main(int argc, char **argv) {
     std::cerr << e.what() << '\n';
   }
 
+  llvm::cl::ResetCommandLineParser();
   return 1;
 }

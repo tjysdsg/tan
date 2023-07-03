@@ -42,7 +42,7 @@ set(TEST_SRCS
         )
 foreach (test_src ${TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
-            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 0
+            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 0 out/
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 endforeach ()
@@ -53,7 +53,7 @@ set(TEST_SRCS
         )
 foreach (test_src ${TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
-            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 1
+            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 1 out/
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             )
 endforeach ()
