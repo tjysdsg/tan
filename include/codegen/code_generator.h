@@ -83,7 +83,6 @@ private:
 private:
   Value *codegen_var_arg_decl(Decl *p);
   Value *codegen_type_default_value(Type *p);
-  Value *codegen_constructor(Constructor *p);
   Value *codegen_literals(Literal *p);
   Value *codegen_func_prototype(FunctionDecl *p, bool import_ = false);
   Value *codegen_ptr_deref(UnaryOperator *p);

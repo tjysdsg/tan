@@ -224,25 +224,32 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       _cu->top_level_symbol_dependency.add_dependency(m, p);
     }
 
-    if (m->get_node_type() == ASTNodeType::VAR_DECL) { /// member variable without initial value
+    /// member variable without initial value
+    if (m->get_node_type() == ASTNodeType::VAR_DECL) {
       str name = ast_cast<VarDecl>(m)->get_name();
       p->set_member_index(name, (int)i);
       (*ty)[i] = m->get_type();
-    } else if (m->get_node_type() == ASTNodeType::ASSIGN) { /// member variable with an initial value
-      auto bm = ast_cast<Assignment>(m);
 
-      if (bm->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
-        error(ErrorType::SEMANTIC_ERROR, bm, "Expect a member variable declaration");
+      /// member variable with an initial value
+    } else if (m->get_node_type() == ASTNodeType::ASSIGN) {
+      auto assign = ast_cast<Assignment>(m);
+
+      if (assign->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
+        error(ErrorType::SEMANTIC_ERROR, assign, "Expect a member variable declaration");
       }
-      auto decl = ast_cast<VarDecl>(bm->get_lhs());
+
+      auto decl = ast_cast<VarDecl>(assign->get_lhs());
 
       (*ty)[i] = decl->get_type();
       p->set_member_index(decl->get_name(), (int)i);
-    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { /// member functions
+
+      /// member functions
+    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
       auto f = ast_cast<FunctionDecl>(m);
 
       (*ty)[i] = f->get_type();
       p->set_member_index(f->get_name(), (int)i);
+
     } else {
       error(ErrorType::SEMANTIC_ERROR, p, "Invalid struct member");
     }

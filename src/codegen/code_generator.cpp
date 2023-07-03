@@ -1,7 +1,6 @@
 #include "codegen/code_generator.h"
 #include "ast/ast_base.h"
 #include "ast/type.h"
-#include "ast/constructor.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
 #include "ast/decl.h"
@@ -400,14 +399,13 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
 }
 
 Value *CodeGenerator::codegen_type_default_value(Type *p) {
-  // TODO: TAN_ASSERT(p->get_constructor());
   TAN_ASSERT(!p->is_ref());
 
   Value *ret = nullptr;
   if (p->is_primitive() || p->is_string() || p->is_array() || p->is_pointer()) {
     ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_sm->src(), p));
 
-  } else if (p->is_struct()) { /// struct
+  } else if (p->is_struct()) {
     // TODO: use codegen_constructor()
     auto member_types = ((StructType *)p)->get_member_types();
     vector<Constant *> values(member_types.size(), nullptr);
@@ -420,28 +418,6 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
     TAN_ASSERT(false);
   }
 
-  return ret;
-}
-
-Value *CodeGenerator::codegen_constructor(Constructor *p) {
-  Value *ret = nullptr;
-  switch (p->get_type()) {
-  case ConstructorType::BASIC:
-    ret = cached_visit(((BasicConstructor *)p)->get_value());
-    break;
-  case ConstructorType::STRUCT: {
-    auto *ctr = (StructConstructor *)p;
-    vector<Constructor *> sub_ctrs = ctr->get_member_constructors();
-    vector<Constant *> values{};
-    values.reserve(sub_ctrs.size());
-    std::transform(sub_ctrs.begin(), sub_ctrs.end(), values.begin(),
-                   [&](Constructor *c) { return (Constant *)codegen_constructor(c); });
-    ret = ConstantStruct::get((llvm::StructType *)to_llvm_type(ctr->get_struct_type()), values);
-    break;
-  }
-  default:
-    TAN_ASSERT(false);
-  }
   return ret;
 }
 
