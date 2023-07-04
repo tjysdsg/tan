@@ -8,8 +8,6 @@
 #include "common/compilation_unit.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
-#include "ast/decl.h"
-#include "ast/context.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/llvm_include.h"
@@ -62,14 +60,13 @@ CompilerDriver::CompilerDriver(TanCompilation config) {
     Error err(error);
     err.raise();
   }
-  if (!CompilerDriver::target_machine) {
-    auto CPU = "generic";
-    auto features = "";
-    llvm::TargetOptions opt;
-    /// relocation model
-    auto RM = llvm::Reloc::Model::PIC_;
-    CompilerDriver::target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
-  }
+
+  auto CPU = "generic";
+  auto features = "";
+  llvm::TargetOptions opt;
+  /// relocation model
+  auto RM = llvm::Reloc::Model::PIC_;
+  _target_machine = target->createTargetMachine(target_triple, CPU, features, opt, RM);
 
   singleton = this;
 }
@@ -174,8 +171,16 @@ vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
 
 void CompilerDriver::emit_object(CodeGenerator *cg, const str &out_file) { cg->emit_to_file(out_file); }
 
+static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
+    {O0, llvm::CodeGenOpt::None      },
+    {O1, llvm::CodeGenOpt::Less      },
+    {O2, llvm::CodeGenOpt::Default   },
+    {O3, llvm::CodeGenOpt::Aggressive},
+};
+
 CodeGenerator *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
-  auto *cg = new CodeGenerator(target_machine);
+  _target_machine->setOptLevel(tan_to_llvm_opt_level[_config.opt_level]);
+  auto *cg = new CodeGenerator(_target_machine);
 
   cg->run(cu);
 

@@ -45,6 +45,11 @@ public:
                              _config.filename.c_str(),
                              "-o",
                              _config.output_file.c_str()};
+    for (const str &f : _config.flags) {
+      if (!f.empty())
+        cmd.push_back(f.c_str());
+    }
+
     for (auto *c : cmd) {
       std::cout << c << " ";
     }

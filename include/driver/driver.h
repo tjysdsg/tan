@@ -42,13 +42,6 @@ public:
    */
   static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
-private:
-  /**
-   * \brief CompilerDriver instances created due to import statements
-   * \details These instances do NOT generate any code, they only serve as a parser
-   */
-  static inline llvm::TargetMachine *target_machine = nullptr;
-
 public:
   CompilerDriver() = delete;
   explicit CompilerDriver(TanCompilation config);
@@ -98,6 +91,7 @@ private:
 
 private:
   TanCompilation _config{};
+  llvm::TargetMachine *_target_machine = nullptr;
 };
 
 } // namespace tanlang
