@@ -88,3 +88,19 @@ TEST(SrcLoc, comparison) {
   EXPECT_TRUE(f.begin() <= loc);
   EXPECT_TRUE(f.begin() != loc);
 }
+
+TEST(SourceManager, empty) {
+  SourceManager sm("file", {});
+
+  Token *tok = sm.get_token(0);
+  EXPECT_EQ(tok->get_type(), TokenType::COMMENTS);
+  EXPECT_EQ(tok->get_line(), 0);
+  EXPECT_EQ(tok->get_col(), 0);
+  EXPECT_EQ(tok->get_source_line(), "");
+  EXPECT_EQ(tok->get_value(), "");
+
+  EXPECT_EQ(sm.get_last_token(), tok);
+
+  EXPECT_EQ(sm.is_eof(0), false);
+  EXPECT_EQ(sm.is_eof(1), true);
+}

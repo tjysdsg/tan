@@ -5,16 +5,15 @@ using namespace tanlang;
 
 SourceManager::SourceManager(str filename, vector<Token *> tokens)
     : _filename(std::move(filename)), _tokens(std::move(tokens)) {
-  if (_tokens.empty()) { /// if the file is empty, insert a token so that source location 0:0 is always valid
-    _tokens.push_back(new Token(TokenType::COMMENTS, 0, 0, "", new SourceFile()));
+  if (_tokens.empty()) { // if empty, insert a token so that source location 0:0 is always valid
+    auto *f = new SourceFile();
+    f->from_string("\n");
+    _tokens.push_back(new Token(TokenType::COMMENTS, 0, 0, "", f));
   }
 }
 
 Token *SourceManager::get_token(uint32_t loc) const {
-  if (loc >= _tokens.size()) {
-    Error err("Invalid source location {filename}:{line}");
-    err.raise();
-  }
+  TAN_ASSERT(loc < _tokens.size());
   return _tokens[loc];
 }
 

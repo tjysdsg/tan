@@ -12,36 +12,33 @@ void SourceFile::open(const str &filename) {
   }
   _filename = filename;
 
-  /// read the whole file at once
+  // read the whole file at once
   str content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-  /// count the number of lines
-  size_t n_lines = (size_t)std::count(content.begin(), content.end(), '\n');
-  /// reserve memory ahead
-  _lines.reserve(n_lines);
+
   from_string(content);
 }
 
 void SourceFile::from_string(const str &code) {
-  str line;
   size_t line_start = 0;
-  str new_line;
   size_t code_len = code.length();
   for (size_t c = 0; c < code_len; ++c) {
     if (code[c] == '\n' || c == code.length() - 1) {
+      str line;
       if (code[c] == '\n') {
-        line = code.substr(line_start, c - line_start); /// not including trailing '\n'
+        line = code.substr(line_start, c - line_start); // not including trailing '\n'
       } else {
         line = code.substr(line_start, c - line_start + 1);
       }
-      new_line = line;
-      /// delete whitespace at the beginning of the line
+
+      // delete whitespace at the beginning of the line
       for (size_t i = 0; i < line.length(); ++i) {
         if (!isspace(line[i])) { // avoid confusion with isspace in <locale>
-          new_line = line.substr(i);
+          line = line.substr(i);
           break;
         }
       }
-      _lines.push_back(new_line);
+
+      _lines.push_back(line);
       line_start = c + 1;
     }
   }
