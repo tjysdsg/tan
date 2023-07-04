@@ -15,7 +15,9 @@ namespace tanlang {
    x == ']' || x == '\'' || x == '"' || x == ':')
 
 [[noreturn]] static void report_error(SrcLoc c, const str &message) {
-  Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message).raise();
+  // need to allocate memory otherwise this gets optimized out
+  auto *err = new Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message);
+  err->raise();
 }
 
 SrcLoc skip_whitespace(SourceFile *src, SrcLoc ptr) {
@@ -103,6 +105,7 @@ Token *tokenize_comments(SourceFile *src, SrcLoc &start) {
   return t;
 }
 
+// we don't care about if the number literal is actually correct
 Token *tokenize_number(SourceFile *src, SrcLoc &start) {
   auto forward = start;
   const auto end = src->end();
@@ -112,19 +115,26 @@ Token *tokenize_number(SourceFile *src, SrcLoc &start) {
   auto start_digit_i = start;
   while (forward < end) {
     const char ch = *forward;
+
     if (std::isdigit(ch)) {
       contains_digit = true;
-    } else if (*start_digit_i == '0' && contains_digit &&
+
+    } else if (*start_digit_i == '0' &&
                ((ch <= 'F' && ch >= 'A') || (ch <= 'f' && ch >= 'a') || ch == 'x' || ch == 'X')) {
-    } else if (contains_digit && !is_float && ch == 'u') { /// explicitly unsigned
+
+    } else if (contains_digit && !is_float && ch == 'u') { // explicitly unsigned
       is_unsigned = true;
+
     } else if (contains_digit && ch == '.') {
       is_float = true;
+
     } else if (IS_DELIMITER(ch)) {
       break;
+
     } else {
       report_error(forward, "Unexpected character within a number literal");
     }
+
     ++forward;
   }
 

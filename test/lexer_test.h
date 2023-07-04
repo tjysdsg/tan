@@ -8,9 +8,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-using tanlang::SourceFile;
-using tanlang::tokenize;
-using tanlang::TokenType;
+using namespace tanlang;
 
 TEST(tokenize, empty) {
   str code = "";
@@ -124,21 +122,41 @@ TEST(tokenize, block_comment2) {
 }
 
 TEST(tokenize, number_literal) {
-  str code = "0b10010111 + 0xaBFd,-,-10,4.2";
+  str code = "0b10010111 + 0xaBFd -10 4.2 071";
   SourceFile r;
   r.from_string(code);
   auto result = tokenize(&r);
+
   EXPECT_EQ((int)result[0]->get_type(), (int)TokenType::INT);
   EXPECT_EQ(result[0]->get_value(), "0b10010111");
+
   EXPECT_EQ((int)result[2]->get_type(), (int)TokenType::INT);
   EXPECT_EQ(result[2]->get_value(), "0xaBFd");
-  EXPECT_EQ((int)result[7]->get_type(), (int)TokenType::INT);
-  EXPECT_EQ(result[7]->get_value(), "10");
-  EXPECT_EQ((int)result[9]->get_type(), (int)TokenType::FLOAT);
-  EXPECT_EQ(result[9]->get_value(), "4.2");
-  for (auto *&t : result) {
-    delete t;
-    t = nullptr;
+
+  EXPECT_EQ((int)result[4]->get_type(), (int)TokenType::INT);
+  EXPECT_EQ(result[4]->get_value(), "10");
+
+  EXPECT_EQ((int)result[5]->get_type(), (int)TokenType::FLOAT);
+  EXPECT_EQ(result[5]->get_value(), "4.2");
+
+  EXPECT_EQ((int)result[6]->get_type(), (int)TokenType::INT);
+  EXPECT_EQ(result[6]->get_value(), "071");
+}
+
+TEST(tokenize, number_literal_negative) {
+  vector<str> inputs{"1a", "1b.", "1.1u"};
+  for (const str &code : inputs) {
+    SourceFile f;
+    f.from_string(code);
+
+    bool catched = false;
+    try {
+      tokenize(&f);
+    } catch (const CompileException &e) {
+      EXPECT_EQ(e.type(), ErrorType::SYNTAX_ERROR);
+      catched = true;
+    }
+    EXPECT_TRUE(catched);
   }
 }
 
@@ -157,6 +175,23 @@ TEST(tokenize, number_literal1) {
   for (auto *&t : result) {
     delete t;
     t = nullptr;
+  }
+}
+
+TEST(tokenize, operators) {
+  str input = "";
+  for (const str &s : OP_ALL) {
+    input += " " + s;
+  }
+
+  SourceFile r;
+  r.from_string(input);
+  auto result = tokenize(&r);
+
+  EXPECT_EQ(result.size(), OP_ALL.size());
+  for (size_t i = 0; i < OP_ALL.size(); ++i) {
+    EXPECT_EQ(result[i]->get_type(), OPERATION_VALUE_TYPE_MAP[OP_ALL[i]]);
+    EXPECT_EQ(result[i]->get_value(), OP_ALL[i]);
   }
 }
 
