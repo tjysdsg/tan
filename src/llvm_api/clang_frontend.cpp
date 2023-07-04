@@ -1,4 +1,4 @@
-// 2020 modified by Jiyang Tang
+// Based on https://github.com/llvm/llvm-project/blob/main/clang/tools/driver/driver.cpp
 
 //===-- driver.cpp - Clang GCC-Compatible Driver --------------------------===//
 //
@@ -7,10 +7,30 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
-#include "llvm_api/llvm_include.h"
-#include "base.h"
 #include "tan/tan.h"
 #include <iostream>
+
+#include <clang/Driver/Driver.h>
+#include <clang/Basic/DiagnosticOptions.h>
+#include <clang/Basic/Stack.h>
+#include <clang/Driver/Compilation.h>
+#include <clang/Driver/ToolChain.h>
+#include <clang/Frontend/ChainedDiagnosticConsumer.h>
+#include <clang/Frontend/CompilerInvocation.h>
+#include <clang/Frontend/SerializedDiagnosticPrinter.h>
+#include <clang/Frontend/TextDiagnosticPrinter.h>
+#include <clang/Frontend/Utils.h>
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/CrashRecoveryContext.h>
+#include <llvm/Support/InitLLVM.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/Process.h>
+#include <llvm/Support/Program.h>
+#include <llvm/Support/StringSaver.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/Host.h>
 
 using namespace clang;
 using namespace clang::driver;

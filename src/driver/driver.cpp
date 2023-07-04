@@ -10,11 +10,56 @@
 #include "ast/stmt.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"
-#include "llvm_api/llvm_include.h"
 #include "llvm_api/clang_frontend.h"
 #include "linker/linker.h"
 #include "llvm_api/llvm_ar.h"
 #include <filesystem>
+
+#include "llvm/ADT/StringRef.h"
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/MC/TargetRegistry.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/InstCombine/InstCombine.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Support/CodeGen.h>
+#include <clang/Basic/TargetOptions.h>
+#include <clang/Frontend/CompilerInvocation.h>
+#include <llvm/LinkAllPasses.h>
+#include <llvm/Option/OptTable.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Analysis/TargetTransformInfo.h>
+#include <clang/Basic/Diagnostic.h>
+#include <clang/Basic/DiagnosticOptions.h>
+#include <llvm/MC/MCAsmBackend.h>
+#include <llvm/MC/MCAsmInfo.h>
+#include <llvm/MC/MCCodeEmitter.h>
+#include <llvm/MC/MCContext.h>
+#include <llvm/MC/MCInstrInfo.h>
+#include <llvm/MC/MCObjectWriter.h>
+#include <llvm/MC/MCParser/MCAsmParser.h>
+#include <llvm/MC/MCParser/MCTargetAsmParser.h>
+#include <llvm/MC/MCRegisterInfo.h>
+#include <llvm/MC/MCSectionMachO.h>
+#include <llvm/MC/MCStreamer.h>
+#include <llvm/MC/MCSubtargetInfo.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/Regex.h>
+#include <llvm/Support/StringSaver.h>
+#include <llvm/Object/Archive.h>
+#include <llvm/Object/IRObjectFile.h>
+#include <llvm/Support/ConvertUTF.h>
+#include <llvm/Support/FormatVariadic.h>
+#include <llvm/Support/LineIterator.h>
+#include <lld/Common/Driver.h>
+#include <llvm/Analysis/LoopAnalysisManager.h>
+#include <llvm/Analysis/CGSCCPassManager.h>
+#include <llvm/Passes/PassBuilder.h>
 
 using namespace tanlang;
 namespace fs = std::filesystem;

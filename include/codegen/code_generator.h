@@ -2,9 +2,21 @@
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #include "base.h"
 #include "ast/fwd.h"
-#include "llvm_api/llvm_include.h"
 #include "common/compilation_unit.h"
 #include "common/compiler_action.h"
+
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Value.h>
+#include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/BasicBlock.h>
+using llvm::AllocaInst;
+using llvm::BasicBlock;
+using llvm::DIBuilder;
+using llvm::IRBuilder;
+using llvm::TargetMachine;
+using llvm::Value;
 
 namespace tanlang {
 

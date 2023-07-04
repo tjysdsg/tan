@@ -52,9 +52,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/dep)
 message(STATUS "DEP_INCLUDES ${DEP_INCLUDES}")
 message(STATUS "DEP_LIBS: ${DEP_LIBS}")
 message(STATUS "DEP_LIB_DIRS: ${DEP_LIB_DIRS}")
-
-include_directories(${DEP_INCLUDES})
-link_directories(${DEP_LIB_DIRS})
 # =================================================================================== #
 
 # generate include/config.h using include/config.h.in
@@ -75,6 +72,9 @@ macro(set_target_common_compile_options target_name)
                 PRIVATE -Wconversion)
     endif ()
     target_include_directories(${target_name} PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include)
+
+    target_include_directories(${target_name} SYSTEM PRIVATE ${DEP_INCLUDES})
+    target_link_directories(${target_name} PRIVATE ${DEP_LIB_DIRS})
 
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         # add `DEBUG` and `_DEBUG` macro

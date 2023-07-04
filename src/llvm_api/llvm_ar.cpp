@@ -1,4 +1,4 @@
-// 2020 modified by Jiyang Tang
+// Based on https://github.com/llvm/llvm-project/blob/main/llvm/tools/llvm-ar/llvm-ar.cpp
 
 //===-- llvm-ar.cpp - LLVM archive librarian utility ----------------------===//
 //
@@ -13,12 +13,36 @@
 //
 //===----------------------------------------------------------------------===//
 #include "llvm_api/llvm_ar.h"
-#include "llvm_api/llvm_include.h"
+
+#include <llvm/ADT/StringSwitch.h>
+#include <llvm/BinaryFormat/Magic.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/Object/Archive.h>
+#include <llvm/Object/ArchiveWriter.h>
+#include <llvm/Object/SymbolicFile.h>
+#include <llvm/Support/Chrono.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ConvertUTF.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/Format.h>
+#include <llvm/Support/FormatVariadic.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/WithColor.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/ToolDrivers/llvm-lib/LibDriver.h>
+#include <llvm/Support/Casting.h>
+#include <llvm/Object/ObjectFile.h>
+#include <llvm/Object/MachO.h>
+#include <llvm/Object/IRObjectFile.h>
+#include <llvm/Support/Host.h>
 
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
 #include <unistd.h>
 #else
 #include <io.h>
+#include <stringapiset.h>
 #endif
 
 using namespace llvm;

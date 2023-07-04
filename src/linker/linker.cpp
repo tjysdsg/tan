@@ -1,6 +1,6 @@
 #include "linker/linker.h"
 #include <string>
-#include "llvm_api.h"
+#include "llvm_api/clang_frontend.h"
 
 namespace tanlang {
 
