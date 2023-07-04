@@ -135,11 +135,6 @@ str SourceFile::get_line(size_t index) const {
   return _lines[index];
 }
 
-const char *SourceFile::get_line_c_str(size_t index) const {
-  TAN_ASSERT(index < _lines.size());
-  return _lines[index].c_str();
-}
-
 SrcLoc::SrcLoc(uint32_t r, uint32_t c, const SourceFile *src) : l(r), c(c), _src((SourceFile *)src) {}
 
 bool SrcLoc::operator==(const SrcLoc &other) const { return l == other.l && c == other.c; }

@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-struct SrcLoc;
+class SrcLoc;
 
 class SourceFile final {
 public:
@@ -20,7 +20,6 @@ public:
    *  \param index line of code starting from 0
    */
   [[nodiscard]] str get_line(size_t index) const;
-  [[nodiscard]] const char *get_line_c_str(size_t index) const;
   [[nodiscard]] char at(const SrcLoc &ptr) const;
 
   /**
@@ -41,7 +40,14 @@ public:
    */
   [[nodiscard]] bool is_cursor_valid(const SrcLoc &c) const;
 
+  /**
+   * \brief The start of source file (inclusive).
+   */
   [[nodiscard]] SrcLoc begin() const;
+
+  /**
+   * \brief The end of source file (exclusive).
+   */
   [[nodiscard]] SrcLoc end() const;
 
   /// \brief Return a copy of code_ptr that points to the next character

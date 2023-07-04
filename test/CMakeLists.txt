@@ -3,43 +3,55 @@ macro(enable_tests)
     add_subdirectory(${PROJECT_SOURCE_DIR}/dep/googletest)
     set(TEST_DIR ${PROJECT_SOURCE_DIR}/test)
 
-    # lexer tests
-    add_executable(lexer_tests ${TEST_DIR}/lexer_test.cpp)
-    target_include_directories(lexer_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/test)
-    target_link_libraries(lexer_tests TanSourceFile TanBase TanCommon TanLexer gtest ${DEP_LIBS})
-    set_target_common_compile_options(lexer_tests)
+    # ==========
+    # Unit tests
+    # ==========
+    add_executable(unit_test ${TEST_DIR}/unit_test.cpp)
+    target_include_directories(
+            unit_test
+            PRIVATE
+            ${TEST_DIR}
+            ${PROJECT_SOURCE_DIR}
+            ${PROJECT_SOURCE_DIR}/include
+    )
+    target_link_libraries(
+            unit_test
+            PRIVATE
+            TanBase
+            TanCommon
+            TanSourceFile
+            TanLexer
+            TanParser
+            TanAST
+            gtest
+            ${DEP_LIBS}
+    )
+    set_target_common_compile_options(unit_test)
 
-    # parser tests
-    add_executable(parser_tests ${TEST_DIR}/parser_test.cpp)
-    target_include_directories(parser_tests PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include
-            ${PROJECT_SOURCE_DIR}/test)
-    target_link_libraries(parser_tests TanParser TanSourceFile TanBase TanAST TanCommon TanLexer gtest ${DEP_LIBS})
-    set_target_common_compile_options(parser_tests)
-
+    # ============
+    # System tests
+    # ============
     # This tells the executable where to write test coverage output
     set(RUN_TEST_COMMAND_PREFIX ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=%p.profraw)
+    add_subdirectory(${TEST_DIR}/test_exec)
+    add_subdirectory(${TEST_DIR}/test_lib)
 
-    # tanc exec tests
-    add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_exec)
-    # tanc library tests
-    add_subdirectory(${PROJECT_SOURCE_DIR}/test/test_lib)
-
-    # tests target that runs all defined tests
-    add_custom_target(tests ALL DEPENDS lexer_tests parser_tests run_tanc_exec_tests run_tanc_lib_tests)
-    add_custom_command(TARGET tests POST_BUILD
-            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:lexer_tests>
+    # ======================
+    # Build-time Test runner
+    # ======================
+    add_custom_target(tests ALL DEPENDS unit_test run_tanc_exec_tests run_tanc_lib_tests)
+    add_custom_command(
+            TARGET tests POST_BUILD
+            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:unit_test>
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
-    add_custom_command(TARGET tests POST_BUILD
-            COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:parser_tests>
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
+    )
 
     # add extra dependencies between test run targets so that they are run sequentially
     add_dependencies(run_tanc_lib_tests run_tanc_exec_tests)
 
-    # generate coverage
+    # ========
+    # Coverage
+    # ========
     if (DEFINED ENABLE_COVERAGE)
         add_custom_target(coverage ALL
                 DEPENDS tests
