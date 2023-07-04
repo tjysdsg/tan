@@ -20,22 +20,26 @@ Context *ASTBase::ctx() {
   return _ctx;
 }
 
-str ASTBase::repr(const str &prefix) const {
-  str ret = fmt::format("{} {}\n", prefix, this->to_string());
+str ASTBase::repr(SourceManager *sm, const str &prefix) const {
+  str ret = fmt::format("{} {}\n", prefix, this->to_string(sm));
 
   vector<ASTBase *> children = get_children();
   size_t n_children = children.size();
   for (size_t i = 0; i < n_children; ++i) {
     auto *c = children[i];
     if (c) {
-      ret += c->repr(prefix + "-");
+      ret += c->repr(sm, prefix + "-");
     }
   }
 
   return ret;
 }
 
-str ASTBase::to_string() const { return ASTTypeNames[this->_node_type]; }
+str ASTBase::to_string(SourceManager *sm) const {
+  str ty = ASTTypeNames[_node_type];
+  str code = sm->get_source_code(start(), end());
+  return fmt::format("{}: `{}`", ty, code);
+}
 
 ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
 

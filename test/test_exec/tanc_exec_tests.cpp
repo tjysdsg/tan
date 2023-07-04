@@ -38,13 +38,16 @@ public:
   TanCExecTests(TestConfig config) : _config(std::move(config)) {}
 
   void TestBody() override {
-    vector<const char *> cmd{__STR__(TANC_PATH),
-                             "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
-                             "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
-                             "-lruntime",
-                             _config.filename.c_str(),
-                             "-o",
-                             _config.output_file.c_str()};
+    vector<const char *> cmd{
+        __STR__(TANC_PATH),
+        "-I" __STR__(TAN_PROJECT_SOURCE_DIR),
+        "-L" __STR__(TAN_PROJECT_SOURCE_DIR) "/runtime",
+        "-lruntime",
+        _config.filename.c_str(),
+        "-o",
+        _config.output_file.c_str(),
+        "--print-ast",
+    };
     for (const str &f : _config.flags) {
       if (!f.empty())
         cmd.push_back(f.c_str());

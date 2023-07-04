@@ -35,11 +35,11 @@ public:
   [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
   /// AST tree string representation
-  str repr(const str &prefix = "-") const;
+  str repr(SourceManager *sm, const str &prefix = "-") const;
 
 protected:
   /// Different from repr, to_string output doesn't include child nodes
-  [[nodiscard]] virtual str to_string() const;
+  [[nodiscard]] virtual str to_string(SourceManager *sm) const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.
