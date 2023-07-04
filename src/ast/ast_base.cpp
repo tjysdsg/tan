@@ -20,42 +20,22 @@ Context *ASTBase::ctx() {
   return _ctx;
 }
 
-void ASTBase::printTree() const {
-  using std::cout;
-  cout << this->to_string(true) << "\n";
-  vector<ASTBase *> children = get_children();
-  size_t n_children = children.size();
-  for (size_t i = 0; i < n_children; ++i) {
-    auto *ch = children[i];
-    if (ch) {
-      ch->printTree("", i >= n_children - 1);
-    }
-  }
-}
+str ASTBase::repr(const str &prefix) const {
+  str ret = fmt::format("{} {}\n", prefix, this->to_string());
 
-void ASTBase::printTree(const str &prefix, bool last_child) const {
-  using std::cout;
   vector<ASTBase *> children = get_children();
-  cout << prefix << (last_child ? "└── " : "├── ") << this->to_string(true) << "\n";
-  if (children.empty()) {
-    return;
-  }
   size_t n_children = children.size();
   for (size_t i = 0; i < n_children; ++i) {
     auto *c = children[i];
     if (c) {
-      c->printTree(prefix + (last_child ? "     " : "│    "), i >= n_children - 1);
+      ret += c->repr(prefix + "-");
     }
   }
+
+  return ret;
 }
 
-str ASTBase::to_string(bool print_prefix) const {
-  if (print_prefix) {
-    return ASTTypeNames[this->_node_type];
-  } else {
-    return "";
-  }
-}
+str ASTBase::to_string() const { return ASTTypeNames[this->_node_type]; }
 
 ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
 

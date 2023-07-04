@@ -34,19 +34,17 @@ public:
    */
   [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
-  /// Pretty-print AST tree
-  void printTree() const;
+  /// AST tree string representation
+  str repr(const str &prefix = "-") const;
 
 protected:
-  [[nodiscard]] virtual str to_string(bool print_prefix = true) const;
+  /// Different from repr, to_string output doesn't include child nodes
+  [[nodiscard]] virtual str to_string() const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.
    */
   [[nodiscard]] virtual ASTBase *get() const;
-
-private:
-  void printTree(const str &prefix, bool last_child) const;
 
 private:
   ASTNodeType _node_type;
