@@ -33,13 +33,13 @@ class Error;
 
 class CompileException : public std::runtime_error {
 public:
-  CompileException(Error *err, const str &msg);
-  CompileException(Error *err, const char *msg);
+  CompileException(ErrorType error_type, const str &msg);
+  CompileException(ErrorType error_type, const char *msg);
 
   [[nodiscard]] ErrorType type() const;
 
 private:
-  Error *_error = nullptr;
+  ErrorType _type = ErrorType::GENERIC_ERROR;
 };
 
 class Token;

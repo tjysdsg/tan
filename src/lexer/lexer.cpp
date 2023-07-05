@@ -15,9 +15,7 @@ namespace tanlang {
    x == ']' || x == '\'' || x == '"' || x == ':')
 
 [[noreturn]] static void report_error(SrcLoc c, const str &message) {
-  // need to allocate memory otherwise this gets optimized out
-  auto *err = new Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message);
-  err->raise();
+  Error(ErrorType::SYNTAX_ERROR, SourceSpan(c, c), message).raise();
 }
 
 SrcLoc skip_whitespace(SourceFile *src, SrcLoc ptr) {

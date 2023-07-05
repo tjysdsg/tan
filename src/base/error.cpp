@@ -12,17 +12,12 @@ using namespace tanlang;
       .raise();
 }
 
-CompileException::CompileException(Error *err, const str &msg) : std::runtime_error(msg), _error(err) {}
+CompileException::CompileException(ErrorType error_type, const str &msg) : std::runtime_error(msg), _type(error_type) {}
 
-CompileException::CompileException(Error *err, const char *msg) : std::runtime_error(msg), _error(err) {}
+CompileException::CompileException(ErrorType error_type, const char *msg)
+    : std::runtime_error(msg), _type(error_type) {}
 
-ErrorType CompileException::type() const {
-  if (_error) {
-    return _error->type();
-  }
-
-  return ErrorType::GENERIC_ERROR;
-}
+ErrorType CompileException::type() const { return _type; }
 
 Error::Error(const str &error_message) { _msg = "[ERROR] " + error_message; }
 
@@ -56,7 +51,7 @@ Error::Error(ErrorType type, SourceSpan span, const str &error_message) : _type(
 Error::Error(ErrorType type, Token *start, Token *end, const str &error_message)
     : Error(type, Token::GetSourceSpan(*start, *end), error_message) {}
 
-void Error::raise() const { throw CompileException((Error *)this, _msg); }
+void Error::raise() const { throw CompileException(type(), _msg); }
 
 ErrorType Error::type() const { return _type; }
 
