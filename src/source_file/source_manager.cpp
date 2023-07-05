@@ -31,11 +31,28 @@ str SourceManager::get_source_code(uint32_t start, uint32_t end) const {
   str ret;
 
   Token *start_tok = get_token(start);
-  Token *end_tok = get_token(end);
+  SrcLoc start_loc = Token::GetSrcLoc(start_tok);
 
-  TAN_ASSERT(start_tok->src() == end_tok->src());
+  SourceFile *src = start_tok->src();
 
-  return start_tok->src()->substr(Token::GetSrcLoc(start_tok), ++Token::GetSrcLoc(end_tok));
+  // cover until the end of last token
+  SrcLoc end_loc = start_loc;
+  if (end >= _tokens.size()) {
+    end_loc = src->end();
+  } else {
+    end_loc = Token::GetSrcLoc(get_token(end + 1));
+  }
+
+  ret = src->substr(start_loc, end_loc);
+
+  // right trim
+  int i;
+  for (i = (int)ret.length() - 1; i >= 0; --i) {
+    if (!isspace(ret[(size_t)i]))
+      break;
+  }
+
+  return ret.substr(0, (size_t)i + 1);
 }
 
 str SourceManager::get_filename() const { return _filename; }

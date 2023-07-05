@@ -253,14 +253,19 @@ Token *tokenize_punctuation(SourceFile *src, SrcLoc &start) {
   Token *t = nullptr;
   auto next = src->forward(start);
 
-  if (*start == '/' && (*next == '/' || *next == '*')) {            /// line comment or block comment
+  if (*start == '/' && (*next == '/' || *next == '*')) { /// line comment or block comment
     t = tokenize_comments(src, start);
-  } else if (*start == '\'') {                                      /// char literal
+
+  } else if (*start == '\'') { /// char literal
     t = tokenize_char(src, start);
-  } else if (*start == '"') {                                       /// string literal
+
+  } else if (*start == '"') { /// string literal
     t = tokenize_string(src, start);
+
   } else if (std::find(OP.begin(), OP.end(), *start) != OP.end()) { /// operators
     str value;
+    SrcLoc orig_start = start;
+
     {
       SrcLoc nnext = src->forward(next);
       SrcLoc nnnext = src->forward(nnext);
@@ -284,16 +289,20 @@ Token *tokenize_punctuation(SourceFile *src, SrcLoc &start) {
         start = next;
       }
     }
+
     // create new token, fill in token
     TokenType type = OPERATION_VALUE_TYPE_MAP[value];
-    t = new Token(type, start.l, start.c, value, src);
+    t = new Token(type, orig_start.l, orig_start.c, value, src);
+
   } /// other punctuations
   else if (std::find(PUNCTUATIONS.begin(), PUNCTUATIONS.end(), *start) != PUNCTUATIONS.end()) {
     t = new Token(TokenType::PUNCTUATION, start.l, start.c, str(1, *start), src);
     start = next;
+
   } else {
     t = nullptr;
   }
+
   return t;
 }
 

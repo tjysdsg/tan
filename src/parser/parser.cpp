@@ -313,6 +313,8 @@ private:
       pp->set_uop(actual);
 
       parse_node(pp->get_expr_ptr());
+
+      pp->set_end(pp->get_expr_ptr()->end());
       return;
     }
 
@@ -353,6 +355,9 @@ private:
       }
       pp->set_bop(actual);
       parse_node(left, pp->get_expr_ptr());
+
+      pp->set_start(pp->get_expr_ptr()->start());
+      pp->set_end(pp->get_expr_ptr()->end());
       return;
     }
 
@@ -569,6 +574,7 @@ private:
     auto rhs = next_expression(p->get_bp());
     p->set_rhs(expect_expression(rhs));
 
+    p->set_start(lhs->start());
     p->set_end(_curr - 1);
   }
 
@@ -675,7 +681,6 @@ private:
       }
 
       peek(")");
-      p->set_end(_curr);
       ++_curr;
 
       p->set_arg_names(arg_names);
@@ -688,6 +693,8 @@ private:
       auto *ret_type = peek_type();
       auto *func_type = Type::GetFunctionType(parse_ty(ret_type), arg_types);
       p->set_type(func_type);
+
+      p->set_end(_curr - 1);
 
       /// body
       if (!is_external) {
@@ -828,6 +835,8 @@ private:
     auto *p = pcast<Import>(_p);
 
     ++_curr; // skip "import"
+    p->set_end(_curr);
+
     auto rhs = peek();
     if (rhs->get_node_type() != ASTNodeType::STRING_LITERAL) {
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid import statement");

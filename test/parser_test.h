@@ -36,4 +36,8 @@ TEST(parser, function_decl) {
   EXPECT_EQ(ASTNodeType::FUNC_DECL, program->get_children()[0]->get_node_type());
 }
 
+TEST(parser, ast_repr) {
+  // TODO: test parser ast repr
+}
+
 #endif /* TAN_PARSER_TEST_H */

@@ -33,6 +33,9 @@ public:
   vector<ASTBase *> &get_children();
 
 protected:
+  str to_string(SourceManager *) const override { return ASTBase::to_string(); }
+
+protected:
   vector<ASTBase *> _children{};
 };
 

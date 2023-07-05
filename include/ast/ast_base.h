@@ -40,6 +40,7 @@ public:
 protected:
   /// Different from repr, to_string output doesn't include child nodes
   [[nodiscard]] virtual str to_string(SourceManager *sm) const;
+  [[nodiscard]] virtual str to_string() const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.

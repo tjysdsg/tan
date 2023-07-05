@@ -41,6 +41,8 @@ str ASTBase::to_string(SourceManager *sm) const {
   return fmt::format("{}: `{}`", ty, code);
 }
 
+str ASTBase::to_string() const { return ASTTypeNames[_node_type]; }
+
 ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
 
 vector<ASTBase *> ASTBase::get_children() const {
