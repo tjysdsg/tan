@@ -132,8 +132,7 @@ private:
     } else if (token->get_value() == "~") { /// binary not
       node = UnaryOperator::Create(UnaryOpKind::BNOT, _sm->src());
     } else if (token->get_value() == "[") {
-      auto prev = _curr;
-      Token *prev_token = at(--prev);
+      Token *prev_token = at(_curr - 1);
       if (prev_token->get_type() != TokenType::ID && prev_token->get_value() != "]" && prev_token->get_value() != ")") {
         /// array literal if there is no identifier, "]", or ")" before
         node = ArrayLiteral::Create(_sm->src());

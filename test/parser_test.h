@@ -24,6 +24,18 @@ ASTBase *parse_string(str code) {
   return parser->parse();
 }
 
+void negative_test(str code, ErrorType err_type) {
+  bool caught = false;
+  try {
+    parse_string(code);
+  } catch (const CompileException &e) {
+    caught = true;
+    EXPECT_EQ(e.type(), err_type);
+  }
+
+  EXPECT_TRUE(caught);
+}
+
 TEST(parser, function_decl) {
   str code = "pub fn greet_cj(is_cj: bool, big_smoke: str) : i32 {"
              "  // you picked the wrong house, fool\n"
@@ -38,6 +50,16 @@ TEST(parser, function_decl) {
 
 TEST(parser, ast_repr) {
   // TODO: test parser ast repr
+}
+
+TEST(parser, if_stmt) {
+  negative_test("if true", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true) {", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true) {} e", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true) {} else ", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true) {} elif { ", ErrorType::SYNTAX_ERROR);
+  // FIXME: negative_test("if (true) {} elif }", ErrorType::SYNTAX_ERROR);
 }
 
 #endif /* TAN_PARSER_TEST_H */
