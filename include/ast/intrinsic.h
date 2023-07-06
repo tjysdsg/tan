@@ -77,6 +77,9 @@ public:
 
   vector<ASTBase *> get_children() const override;
 
+public:
+  str terminal_token() const override;
+
 private:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
   ASTBase *_sub = nullptr;

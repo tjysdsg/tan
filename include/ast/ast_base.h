@@ -37,6 +37,13 @@ public:
   /// AST tree string representation
   str repr(SourceManager *sm, const str &prefix = "-") const;
 
+public:
+  virtual bool is_stmt() const { return false; }
+  virtual bool is_expr() const { return false; }
+
+  /// Which terminal token is expected immediately after this node
+  virtual str terminal_token() const { return ";"; }
+
 protected:
   /// Different from repr, to_string output doesn't include child nodes
   [[nodiscard]] virtual str to_string(SourceManager *sm) const;

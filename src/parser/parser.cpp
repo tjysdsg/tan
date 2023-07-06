@@ -44,24 +44,24 @@ public:
 
   Program *parse() {
     _root = Program::Create(_sm->src());
-    parse_program(_root);
+
+    ScopeGuard scope_guard(_curr_scope, _root);
+
+    while (!eof(_curr)) {
+      ASTBase *node = next_expression(PREC_LOWEST);
+      if (!node)
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected terminal token");
+
+      _root->append_child(node);
+
+      expect_token(node->terminal_token());
+      ++_curr;
+    }
+
     return _root;
   }
 
 private:
-  SourceManager *_sm = nullptr;
-  uint32_t _curr = 0;
-
-  ASTBase *peek(const str &value) {
-    Token *token = at(_curr);
-    if (token->get_value() != value) {
-      Error(ErrorType::SYNTAX_ERROR, token, token,
-            fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()))
-          .raise();
-    }
-    return peek();
-  }
-
   ASTBase *peek_keyword(Token *token) {
     ASTBase *ret = nullptr;
     str tok = token->get_value();
@@ -267,23 +267,6 @@ private:
     return left;
   }
 
-  void parse_program(Program *p) {
-    ScopeGuard scope_guard(_curr_scope, p);
-
-    while (!eof(_curr)) {
-      ASTBase *node = next_expression(PREC_LOWEST);
-      if (!node)
-        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected terminal token");
-
-      p->append_child(node);
-      if (!check_terminal_token(at(_curr))) {
-        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a terminal token");
-      }
-
-      ++_curr;
-    }
-  }
-
   /// Parse NUD
   void parse_node(ASTBase *p) {
     /// special tokens that require whether p is led or nud to determine the node type
@@ -370,6 +353,7 @@ private:
     (this->*func)(left, p);
   }
 
+private:
   [[nodiscard]] Token *at(uint32_t loc) const {
     if (this->eof(loc)) {
       Error(ErrorType::SYNTAX_ERROR, _sm->get_last_token(), _sm->get_last_token(), "Unexpected EOF").raise();
@@ -389,20 +373,47 @@ private:
 
   Expr *expect_expression(ASTBase *p) {
     TAN_ASSERT(p);
-    Expr *ret = nullptr;
-    if (!(ret = pcast<Expr>(p))) {
+    if (!p->is_expr())
       error(ErrorType::SYNTAX_ERROR, p, "Expect an expression");
-    }
-    return ret;
+
+    return pcast<Expr>(p);
   }
 
   Stmt *expect_stmt(ASTBase *p) {
     TAN_ASSERT(p);
-    Stmt *ret = nullptr;
-    if (!(ret = pcast<Stmt>(p))) {
+    if (!p->is_stmt())
       error(ErrorType::SYNTAX_ERROR, p, "Expect a statement");
+
+    return pcast<Stmt>(p);
+  }
+
+  void expect_token(const str &value) {
+    Token *token = at(_curr);
+    if (token->get_value() != value) {
+      Error(ErrorType::SYNTAX_ERROR, token, token,
+            fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()))
+          .raise();
     }
-    return ret;
+  }
+
+private:
+  void parse_compound_stmt(ASTBase *_p) {
+    auto p = pcast<CompoundStmt>(_p);
+    ScopeGuard scope_guard(_curr_scope, p);
+
+    ++_curr; // skip "{"
+
+    ASTBase *node = nullptr;
+    while ((node = next_expression(PREC_LOWEST)) != nullptr) {
+      p->append_child(node);
+
+      str s = at(_curr)->get_value();
+      expect_token(node->terminal_token());
+      ++_curr;
+    }
+
+    expect_token("}");
+    p->set_end(_curr);
   }
 
   void parse_assignment(ASTBase *left, ASTBase *_p) {
@@ -469,16 +480,18 @@ private:
   void parse_if_then_branch(If *p) {
     ++_curr; // skip "if"
 
-    /// predicate
-    auto _pred = peek("(");
+    // predicate
+    expect_token("(");
+    auto *_pred = peek();
     if (_pred->get_node_type() != ASTNodeType::PARENTHESIS) {
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a parenthesis expression");
     }
     parse_parenthesis(_pred);
     Expr *pred = pcast<Expr>(_pred);
 
-    /// then clause
-    auto *_then = peek("{");
+    // then clause
+    expect_token("{");
+    auto *_then = peek();
     parse_node(_then);
     Stmt *then_clause = expect_stmt(_then);
 
@@ -503,11 +516,11 @@ private:
     switch (p->_loop_type) {
     case ASTLoopType::WHILE: {
       /// predicate
-      peek("(");
+      expect_token("(");
       auto _pred = next_expression(PREC_LOWEST);
       Expr *pred = expect_expression(_pred);
       p->set_predicate(pred);
-      peek("{");
+      expect_token("{");
 
       /// loop body
       auto _body = next_expression(PREC_LOWEST);
@@ -644,7 +657,7 @@ private:
     parse_node(id);
     p->set_name(id->get_name());
 
-    peek("(");
+    expect_token("(");
     ++_curr;
 
     // Register in the parent context
@@ -679,13 +692,13 @@ private:
         }
       }
 
-      peek(")");
+      expect_token(")");
       ++_curr;
 
       p->set_arg_names(arg_names);
       p->set_arg_decls(arg_decls);
 
-      peek(":");
+      expect_token(":");
       ++_curr;
 
       /// function type
@@ -697,7 +710,8 @@ private:
 
       /// body
       if (!is_external) {
-        auto body = peek("{");
+        expect_token("{");
+        auto body = peek();
         parse_node(body);
         p->set_body(expect_stmt(body));
       }
@@ -727,7 +741,7 @@ private:
       }
     }
 
-    peek(")");
+    expect_token(")");
     p->set_end(_curr);
     ++_curr;
   }
@@ -753,7 +767,8 @@ private:
     p->set_name("test_comp_error");
     p->set_intrinsic_type(IntrinsicType::TEST_COMP_ERROR);
 
-    auto *body = peek("{");
+    expect_token("{");
+    auto *body = peek();
     try {
       parse_node(body);
       p->set_sub(body);
@@ -886,30 +901,6 @@ private:
     p->set_end(_curr - 1);
   }
 
-  void parse_compound_stmt(ASTBase *_p) {
-    auto p = pcast<CompoundStmt>(_p);
-    ScopeGuard scope_guard(_curr_scope, p);
-
-    ++_curr; // skip "{"
-
-    ASTBase *node = nullptr;
-    while ((node = next_expression(PREC_LOWEST)) != nullptr) {
-      p->append_child(node);
-
-      str s = at(_curr)->get_value();
-      if (!check_terminal_token(at(_curr))) {
-        error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a terminal token");
-      }
-      ++_curr;
-    }
-
-    if (at(_curr)->get_value() != "}") {
-      error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Expect a closing '}'");
-    }
-
-    p->set_end(_curr);
-  }
-
   void parse_return(ASTBase *_p) {
     auto *p = pcast<Return>(_p);
 
@@ -990,7 +981,7 @@ private:
       ret = Type::GetArrayType(p, (int)array_size);
 
       // skip "]"
-      peek("]");
+      expect_token("]");
       ++_curr;
 
       // if followed by a "[", this is a multi-dimension array
@@ -1079,6 +1070,8 @@ private:
   }
 
 private:
+  SourceManager *_sm = nullptr;
+  uint32_t _curr = 0;
   str _filename;
   Program *_root = nullptr;
   ASTBase *_curr_scope = nullptr;
@@ -1134,5 +1127,6 @@ static bool check_typename_token(Token *token) {
 }
 
 static bool check_terminal_token(Token *token) {
-  return token->get_type() == TokenType::PUNCTUATION && is_string_in(token->get_value(), TERMINAL_TOKENS);
+  // return token->get_type() == TokenType::PUNCTUATION && is_string_in(token->get_value(), TERMINAL_TOKENS);
+  return is_string_in(token->get_value(), TERMINAL_TOKENS);
 }

@@ -67,4 +67,12 @@ vector<ASTBase *> Intrinsic::get_children() const {
   return {};
 }
 
+str Intrinsic::terminal_token() const {
+  if (_intrinsic_type == IntrinsicType::TEST_COMP_ERROR) {
+    return "}";
+  }
+
+  return ";";
+}
+
 } // namespace tanlang

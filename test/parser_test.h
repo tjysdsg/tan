@@ -52,6 +52,13 @@ TEST(parser, ast_repr) {
   // TODO: test parser ast repr
 }
 
+TEST(parser, simple) {
+  negative_test("return 0:", ErrorType::SYNTAX_ERROR);
+  negative_test("return 0]", ErrorType::SYNTAX_ERROR);
+  negative_test("return 0)", ErrorType::SYNTAX_ERROR);
+  negative_test("return 0}", ErrorType::SYNTAX_ERROR);
+}
+
 TEST(parser, if_stmt) {
   negative_test("if true", ErrorType::SYNTAX_ERROR);
   negative_test("if (true", ErrorType::SYNTAX_ERROR);
@@ -59,7 +66,8 @@ TEST(parser, if_stmt) {
   negative_test("if (true) {} e", ErrorType::SYNTAX_ERROR);
   negative_test("if (true) {} else ", ErrorType::SYNTAX_ERROR);
   negative_test("if (true) {} elif { ", ErrorType::SYNTAX_ERROR);
-  // FIXME: negative_test("if (true) {} elif }", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true) {} else }", ErrorType::SYNTAX_ERROR);
+  negative_test("if (true);", ErrorType::SYNTAX_ERROR);
 }
 
 #endif /* TAN_PARSER_TEST_H */

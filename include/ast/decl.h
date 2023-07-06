@@ -48,6 +48,9 @@ public:
   static FunctionDecl *Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                               bool is_public, Stmt *body = nullptr, bool is_intrinsic = false);
 
+public:
+  str terminal_token() const override;
+
   void set_body(Stmt *body);
   [[nodiscard]] Stmt *get_body() const;
 
@@ -105,6 +108,8 @@ public:
 
 public:
   vector<ASTBase *> get_children() const override;
+
+  str terminal_token() const override { return "}"; }
 
 private:
   vector<Expr *> _member_decls{};

@@ -76,6 +76,12 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 
 vector<ASTBase *> FunctionDecl::get_children() const { return {(ASTBase *)_body}; }
 
+str FunctionDecl::terminal_token() const {
+  if (_is_external)
+    return ";";
+  return "}";
+}
+
 TypeDecl::TypeDecl(ASTNodeType node_type, SourceFile *src) : Decl(node_type, src, 0) {}
 
 StructDecl::StructDecl(SourceFile *src) : TypeDecl(ASTNodeType::STRUCT_DECL, src) {}

@@ -19,6 +19,8 @@ public:
   virtual void set_lvalue(bool is_lvalue) { _is_lvalue = is_lvalue; }
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
+  bool is_expr() const override { return true; }
+
 protected:
   bool _is_lvalue = false;
 };

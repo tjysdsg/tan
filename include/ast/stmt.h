@@ -14,6 +14,8 @@ class Stmt : public ASTBase {
 public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
+  bool is_stmt() const override { return true; }
+
 protected:
   Stmt(ASTNodeType type, SourceFile *src);
 };
@@ -31,6 +33,8 @@ public:
   [[nodiscard]] size_t get_children_size() const;
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   vector<ASTBase *> &get_children();
+
+  str terminal_token() const override { return "}"; }
 
 protected:
   str to_string(SourceManager *) const override { return ASTBase::to_string(); }
@@ -117,12 +121,16 @@ protected:
 public:
   static Loop *Create(SourceFile *src);
 
+public:
   void set_predicate(Expr *pred);
   void set_body(Stmt *body);
   [[nodiscard]] Expr *get_predicate() const;
   [[nodiscard]] Stmt *get_body() const;
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
+
+public:
+  str terminal_token() const override { return "}"; }
 
 public:
   ASTLoopType _loop_type = ASTLoopType::WHILE;
@@ -143,6 +151,9 @@ protected:
 
 public:
   static If *Create(SourceFile *src);
+
+public:
+  str terminal_token() const override { return "}"; }
 
 public:
   void add_if_then_branch(Expr *pred, Stmt *branch);
