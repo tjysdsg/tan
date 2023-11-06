@@ -3,6 +3,7 @@
 #include "base.h"
 #include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
+#include "ast/package.h"
 
 namespace tanlang {
 
@@ -13,9 +14,9 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypeCheck : public SemanticAnalysisAction<TypeCheck, CompilationUnit *, void> {
+class TypeCheck : public SemanticAnalysisAction<TypeCheck, Package *, void> {
 public:
-  void run_impl(CompilationUnit *cu);
+  void run_impl(Package *cu);
 
 private:
   /**

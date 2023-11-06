@@ -6,6 +6,7 @@
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
+#include "ast/package.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "ast/context.h"
@@ -18,10 +19,8 @@ namespace tanlang {
 
 void TypePrecheck::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-void TypePrecheck::run_impl(CompilationUnit *cu) {
-  _cu = cu;
-
-  auto *p = cu->ast();
+void TypePrecheck::run_impl(Package *p) {
+  _package = p;
 
   push_scope(p);
 
@@ -57,7 +56,7 @@ Type *TypePrecheck::check_type_ref(Type *p, ASTBase *node) {
     ret = decl->get_type();
     TAN_ASSERT(ret);
     if (!ret->is_canonical()) {
-      _cu->top_level_symbol_dependency.add_dependency(decl, node);
+      _package->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
     error(ErrorType::TYPE_ERROR, node, fmt::format("Unknown type {}", referred_name));
@@ -91,17 +90,12 @@ Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
 
 // TODO: check recursive import
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
-  str file = p->get_filename();
-  auto imported = CompilerDriver::resolve_import(_sm->get_filename(), file);
-  if (imported.empty()) {
-    error(ErrorType::IMPORT_ERROR, p, "Cannot import: " + file);
-  }
+  str name = p->get_name();
 
   auto *compiler = CompilerDriver::instance();
   TAN_ASSERT(compiler);
-  const auto &cu = compiler->parse(imported);
-  compiler->analyze(cu);
-  Context *imported_ctx = cu[0]->ast()->ctx();
+  Package *package = compiler->get_package(name);
+  Context *imported_ctx = package->ctx();
 
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
@@ -232,7 +226,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
      *    pointer.
      */
     if (!m->get_type()->is_canonical() && !m->get_type()->is_pointer()) {
-      _cu->top_level_symbol_dependency.add_dependency(m, p);
+      _package->top_level_symbol_dependency.add_dependency(m, p);
     }
 
     /// member variable without initial value

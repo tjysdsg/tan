@@ -10,7 +10,7 @@ class ASTBase;
 class Program;
 class SourceManager;
 
-// TODO: rename to FileParseResult
+// TODO: rename to FileParseResult or remove this class
 class CompilationUnit {
 public:
   CompilationUnit() = delete;

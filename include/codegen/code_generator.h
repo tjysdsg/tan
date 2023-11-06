@@ -138,6 +138,7 @@ public:
   DECLARE_AST_VISITOR_IMPL(Loop);
   DECLARE_AST_VISITOR_IMPL(BreakContinue);
   DECLARE_AST_VISITOR_IMPL(VarRef);
+  DECLARE_AST_VISITOR_IMPL(PackageDecl);
 };
 
 } // namespace tanlang

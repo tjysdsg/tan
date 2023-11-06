@@ -10,6 +10,7 @@
 #include "include/ast/package.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/package.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/clang_frontend.h"
@@ -155,6 +156,16 @@ void CompilerDriver::run(const vector<str> &files) {
   link(obj_files);
 }
 
+Package *CompilerDriver::get_package(const str &name) {
+  auto q = _packages.find(name);
+  if (q != _packages.end()) {
+    return q->second;
+  }
+  return nullptr;
+}
+
+void CompilerDriver::register_package(const str &name, Package *package) { _packages[name] = package; }
+
 vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   bool print_ir_code = _config.verbose >= 1;
   size_t n_files = files.size();
@@ -180,13 +191,18 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   OrganizePackages op;
   vector<Package *> packages = op.run(cu);
 
+  // register all the packages BEFORE running semantic analysis, so that we can search for them during analysis
+  for (auto *p : packages) {
+    register_package(p->get_name(), p);
+  }
+
   // Semantic analysis
   for (auto *p : packages) {
     TypePrecheck tp;
-    tp.run(c);
+    tp.run(p);
 
     TypeCheck analyzer;
-    analyzer.run(c);
+    analyzer.run(p);
   }
 
   // Code generation

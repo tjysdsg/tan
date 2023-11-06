@@ -16,13 +16,16 @@ public:
   Package() = delete;
   Package(const str &name, vector<ASTBase *> subtrees);
   [[nodiscard]] vector<ASTBase *> get_children() const override;
+  str get_name() const { return _name; }
+
+public:
+  DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 
 protected:
   str to_string(SourceManager *) const override;
 
 private:
   str _name;
-  DependencyGraph<ASTBase *> top_level_symbol_dependency{};
   vector<ASTBase *> _subtrees{};
 };
 

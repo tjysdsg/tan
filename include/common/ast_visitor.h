@@ -35,6 +35,7 @@ class MemberAccess;
 class StructDecl;
 class Loop;
 class BreakContinue;
+class PackageDecl;
 
 #ifndef DEFINE_AST_VISITOR_INTERFACE
 #define DEFINE_AST_VISITOR_INTERFACE(AST_NAME)                                     \
@@ -84,6 +85,7 @@ public:
   DEFINE_AST_VISITOR_INTERFACE(Loop)
   DEFINE_AST_VISITOR_INTERFACE(BreakContinue)
   DEFINE_AST_VISITOR_INTERFACE(VarRef)
+  DEFINE_AST_VISITOR_INTERFACE(PackageDecl)
 
   void visit(ASTBase *p) {
     TAN_ASSERT(p);
@@ -174,6 +176,9 @@ public:
       break;
     case ASTNodeType::VAR_REF:
       CALL_AST_VISITOR(VarRef, p);
+      break;
+    case ASTNodeType::PACKAGE_DECL:
+      CALL_AST_VISITOR(PackageDecl, p);
       break;
     default:
       TAN_ASSERT(false);

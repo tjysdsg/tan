@@ -11,14 +11,11 @@ namespace tanlang {
 
 template <typename Derived, typename Input, typename Output>
 class SemanticAnalysisAction : public CompilerAction<Derived, Input, Output> {
-public:
-  [[nodiscard]] SourceManager *get_sm() const { return _sm; };
-
 protected:
-  void init(CompilationUnit *cu) override { _sm = cu->source_manager(); }
-
   [[noreturn]] void error(ErrorType type, ASTBase *p, const str &message) {
-    Error(type, get_sm()->get_token(p->start()), get_sm()->get_token(p->end()), message).raise();
+    // Error(type, get_sm()->get_token(p->start()), get_sm()->get_token(p->end()), message).raise();
+    // TODO: implement a way to find source span of an AST node that could be in any file
+    Error(type, message).raise();
   }
 
   void push_scope(ASTBase *scope) { _scopes.push_back(scope); }

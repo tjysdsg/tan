@@ -74,13 +74,13 @@ protected:
 public:
   static Import *Create(SourceFile *src);
 
-  void set_filename(const str &s);
-  [[nodiscard]] const str &get_filename() const;
+  void set_name(const str &s);
+  [[nodiscard]] const str &get_name() const;
   [[nodiscard]] const vector<FunctionDecl *> &get_imported_funcs() const;
   void set_imported_funcs(const vector<FunctionDecl *> &imported_funcs);
 
 private:
-  str _filename;
+  str _name;
   vector<FunctionDecl *> _imported_funcs{};
 };
 
@@ -177,12 +177,12 @@ private:
   vector<Stmt *> _branches{};
 };
 
-class PackageStmt : public Stmt {
+class PackageDecl : public Stmt {
 protected:
-  explicit PackageStmt(SourceFile *src);
+  explicit PackageDecl(SourceFile *src);
 
 public:
-  static PackageStmt *Create(SourceFile *src);
+  static PackageDecl *Create(SourceFile *src);
 
 public:
   str get_name() const;

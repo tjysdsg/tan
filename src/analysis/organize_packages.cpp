@@ -47,8 +47,8 @@ DEFINE_AST_VISITOR_IMPL(OrganizePackages, Program) {
   vector<ASTBase *> asts{};
   str package_name;
   for (auto *n : p->get_children()) {
-    if (n->get_node_type() == ASTNodeType::PACKAGE) {
-      pcast<PackageStmt>(n)->get_name();
+    if (n->get_node_type() == ASTNodeType::PACKAGE_DECL) {
+      package_name = pcast<PackageDecl>(n)->get_name();
     } else {
       visit(n);
       asts.push_back(n);

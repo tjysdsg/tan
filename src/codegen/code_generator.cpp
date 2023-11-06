@@ -273,9 +273,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_float() && dest->is_float()) { /// float <-> double
     return _builder->CreateFPCast(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_int()) {    /// bool to int
+  } else if (orig->is_bool() && dest->is_int()) { /// bool to int
     return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_float()) {  /// bool to float
+  } else if (orig->is_bool() && dest->is_float()) { /// bool to float
     return _builder->CreateUIToFP(loaded, to_llvm_type(dest));
   } else if (dest->is_bool()) {
     if (orig->is_float()) { /// float to bool
@@ -294,9 +294,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_pointer()) {  /// array to pointer, don't need to do anything
+  } else if (orig->is_array() && dest->is_pointer()) { /// array to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_string()) {   /// array to string, don't need to do anything
+  } else if (orig->is_array() && dest->is_string()) { /// array to string, don't need to do anything
     return loaded;
   }
 
@@ -865,7 +865,7 @@ Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
     if (lhs->get_type()->is_array()) { /// array
       auto *lhs_type = pcast<tanlang::ArrayType>(lhs->get_type());
       element_type = to_llvm_type(lhs_type->get_element_type());
-    } else if (lhs->get_type()->is_string()) {  /// string
+    } else if (lhs->get_type()->is_string()) { /// string
       element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
     } else if (lhs->get_type()->is_pointer()) { /// pointer
       auto *lhs_type = pcast<tanlang::PointerType>(lhs->get_type());
@@ -1339,6 +1339,8 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, BreakContinue) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, VarRef) { _llvm_value_cache[p] = cached_visit(p->get_referred()); }
+
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, PackageDecl) {}
 
 void CodeGenerator::error(ErrorType type, ASTBase *p, const str &message) {
   Error(type, _sm->get_token(p->start()), _sm->get_token(p->end()), message).raise();

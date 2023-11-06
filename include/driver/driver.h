@@ -15,6 +15,7 @@ class Program;
 class SourceManager;
 class CompilationUnit;
 class SourceFile;
+class Package;
 
 /**
  * \brief Compile a list of C++ and/or tan source files, and perform linking.
@@ -39,6 +40,9 @@ public:
    *    the call to resolve_import should be like `CompilerDriver::resolve_import("./src.tan", "../parent.tan")`
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
+   * \deprecated
+   *
+   * TODO: remove file-based importing
    */
   static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
@@ -78,6 +82,16 @@ public:
 
   void link(const vector<str> &input_paths);
 
+  /**
+   * \brief Register a Package that has been spotted from source files, with top-level context stored inside.
+   */
+  void register_package(const str &name, Package *package);
+
+  /**
+   * \brief Get a pointer to a Package. Semantic analysis is not guaranteed to be fully performed on it.
+   */
+  Package *get_package(const str &name);
+
 private:
   /**
    * \brief Compile TAN files and return a list of object files
@@ -87,6 +101,8 @@ private:
 private:
   TanCompilation _config{};
   llvm::TargetMachine *_target_machine = nullptr;
+
+  umap<str, Package *> _packages{};
 };
 
 } // namespace tanlang

@@ -90,7 +90,7 @@ private:
     else if (tok == "false")
       ret = BoolLiteral::Create(_sm->src(), false);
     else if (tok == "package")
-      ret = PackageStmt::Create(_sm->src());
+      ret = PackageDecl::Create(_sm->src());
 
     TAN_ASSERT(ret);
     return ret;
@@ -856,12 +856,12 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid import statement");
     }
     parse_node(rhs);
-    str filename = pcast<StringLiteral>(rhs)->get_value();
-    p->set_filename(filename);
+    str name = pcast<StringLiteral>(rhs)->get_value();
+    p->set_name(name);
   }
 
   void parse_package_stmt(ASTBase *_p) {
-    auto *p = pcast<PackageStmt>(_p);
+    auto *p = pcast<PackageDecl>(_p);
     ++_curr;
 
     auto rhs = peek();
@@ -874,8 +874,6 @@ private:
     p->set_name(name);
 
     p->set_end(_curr - 1);
-
-    // TODO: _ctx->set_package_name(name);
   }
 
   void parse_member_access(Expr *left, MemberAccess *p) {
@@ -1110,7 +1108,7 @@ const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE =
     {ASTNodeType::CHAR_LITERAL,       &ParserImpl::parse_generic_token},
     {ASTNodeType::STRING_LITERAL,     &ParserImpl::parse_generic_token},
     {ASTNodeType::BOOL_LITERAL,       &ParserImpl::parse_generic_token},
-    {ASTNodeType::PACKAGE,            &ParserImpl::parse_package_stmt },
+    {ASTNodeType::PACKAGE_DECL,            &ParserImpl::parse_package_stmt },
 };
 } // namespace tanlang
 

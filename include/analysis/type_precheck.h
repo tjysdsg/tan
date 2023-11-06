@@ -3,6 +3,7 @@
 #include "base.h"
 #include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
+#include "ast/package.h"
 
 namespace tanlang {
 
@@ -13,9 +14,9 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypePrecheck : public SemanticAnalysisAction<TypePrecheck, CompilationUnit *, void> {
+class TypePrecheck : public SemanticAnalysisAction<TypePrecheck, Package *, void> {
 public:
-  void run_impl(CompilationUnit *cu);
+  void run_impl(Package *cu);
 
   void default_visit(ASTBase *p) override;
 
@@ -65,7 +66,7 @@ public:
   // DECLARE_AST_VISITOR_IMPL(BreakContinue);
 
 private:
-  CompilationUnit *_cu = nullptr;
+  Package *_package = nullptr;
 };
 
 } // namespace tanlang

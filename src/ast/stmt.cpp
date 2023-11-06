@@ -54,9 +54,9 @@ Import *Import::Create(SourceFile *src) { return new Import(src); }
 
 Import::Import(SourceFile *src) : Stmt(ASTNodeType::IMPORT, src) {}
 
-void Import::set_filename(const str &s) { _filename = s; }
+void Import::set_name(const str &s) { _name = s; }
 
-const str &Import::get_filename() const { return _filename; }
+const str &Import::get_name() const { return _name; }
 
 const vector<FunctionDecl *> &Import::get_imported_funcs() const { return _imported_funcs; }
 
@@ -137,10 +137,10 @@ vector<ASTBase *> If::get_children() const {
   return ret;
 }
 
-PackageStmt::PackageStmt(SourceFile *src) : Stmt(ASTNodeType::PACKAGE, src) {}
+PackageDecl::PackageDecl(SourceFile *src) : Stmt(ASTNodeType::PACKAGE_DECL, src) {}
 
-PackageStmt *PackageStmt::Create(SourceFile *src) { return new PackageStmt(src); }
+PackageDecl *PackageDecl::Create(SourceFile *src) { return new PackageDecl(src); }
 
-str PackageStmt::get_name() const { return _name; }
+str PackageDecl::get_name() const { return _name; }
 
-void PackageStmt::set_name(const str &name) { _name = name; }
+void PackageDecl::set_name(const str &name) { _name = name; }

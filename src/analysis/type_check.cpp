@@ -15,11 +15,10 @@
 
 namespace tanlang {
 
-void TypeCheck::run_impl(CompilationUnit *cu) {
-  auto *p = cu->ast();
+void TypeCheck::run_impl(Package *p) {
   push_scope(p);
 
-  auto sorted_top_level_decls = cu->top_level_symbol_dependency.topological_sort();
+  auto sorted_top_level_decls = p->top_level_symbol_dependency.topological_sort();
 
   // std::cout << "Sorted unresolved symbol dependency:\n";
   // for (auto *d : sorted_top_level_decls) {
@@ -580,18 +579,15 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, StringLiteral) {
-  p->set_value(_sm->get_token_str(p->start()));
+  TAN_ASSERT(!p->get_value().empty());
   p->set_type(Type::GetStringType());
 }
 
-DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) {
-  p->set_type(Type::GetCharType());
-  p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->start())[0]));
-}
+DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) { p->set_type(Type::GetCharType()); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, IntegerLiteral) {
   Type *ty;
-  if (_sm->get_token(p->start())->is_unsigned()) {
+  if (p->is_unsigned()) {
     ty = Type::GetIntegerType(32, true);
   } else {
     ty = Type::GetIntegerType(32, false);

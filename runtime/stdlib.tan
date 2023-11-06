@@ -1,3 +1,5 @@
+package "std";
+
 fn reverse(s: str, len: u32) : void {
     var start: u32 = 0u;
     var end: u32 = len - 1u;
