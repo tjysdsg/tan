@@ -177,7 +177,7 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   // (Optional): Print AST tree
   if (_config.verbose >= 2) {
     for (auto *c : cu) {
-      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr(c->src()));
+      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr());
     }
   }
 

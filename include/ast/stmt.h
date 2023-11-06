@@ -17,15 +17,15 @@ public:
   bool is_stmt() const override { return true; }
 
 protected:
-  Stmt(ASTNodeType type, SourceFile *src);
+  Stmt(ASTNodeType type, TokenizedSourceFile *src);
 };
 
 class CompoundStmt : public Stmt {
 protected:
-  explicit CompoundStmt(SourceFile *src);
+  explicit CompoundStmt(TokenizedSourceFile *src);
 
 public:
-  static CompoundStmt *Create(SourceFile *src);
+  static CompoundStmt *Create(TokenizedSourceFile *src);
 
   void set_child_at(size_t idx, ASTBase *node);
   void append_child(ASTBase *node);
@@ -37,7 +37,7 @@ public:
   str terminal_token() const override { return "}"; }
 
 protected:
-  str to_string(TokenizedSourceFile *) const override { return ASTBase::to_string(); }
+  str to_string(bool = false) const override { return Stmt::to_string(false); }
 
 protected:
   vector<ASTBase *> _children{};
@@ -45,18 +45,18 @@ protected:
 
 class Program : public CompoundStmt {
 protected:
-  explicit Program(SourceFile *src);
+  explicit Program(TokenizedSourceFile *src);
 
 public:
-  static Program *Create(SourceFile *src);
+  static Program *Create(TokenizedSourceFile *src);
 };
 
 class Return : public Stmt {
 protected:
-  explicit Return(SourceFile *src);
+  explicit Return(TokenizedSourceFile *src);
 
 public:
-  static Return *Create(SourceFile *src);
+  static Return *Create(TokenizedSourceFile *src);
 
   void set_rhs(Expr *rhs);
   [[nodiscard]] Expr *get_rhs() const;
@@ -69,10 +69,10 @@ private:
 
 class Import : public Stmt {
 protected:
-  explicit Import(SourceFile *src);
+  explicit Import(TokenizedSourceFile *src);
 
 public:
-  static Import *Create(SourceFile *src);
+  static Import *Create(TokenizedSourceFile *src);
 
   void set_name(const str &s);
   [[nodiscard]] const str &get_name() const;
@@ -86,7 +86,7 @@ private:
 
 class BreakContinue : public Stmt {
 protected:
-  BreakContinue(ASTNodeType type, SourceFile *src);
+  BreakContinue(ASTNodeType type, TokenizedSourceFile *src);
 
 public:
   [[nodiscard]] Loop *get_parent_loop() const;
@@ -98,28 +98,28 @@ private:
 
 class Break : public BreakContinue {
 protected:
-  explicit Break(SourceFile *src);
+  explicit Break(TokenizedSourceFile *src);
 
 public:
-  static Break *Create(SourceFile *src);
+  static Break *Create(TokenizedSourceFile *src);
 };
 
 class Continue : public BreakContinue {
 protected:
-  explicit Continue(SourceFile *src);
+  explicit Continue(TokenizedSourceFile *src);
 
 public:
-  static Continue *Create(SourceFile *src);
+  static Continue *Create(TokenizedSourceFile *src);
 };
 
 enum ASTLoopType { FOR, WHILE };
 
 class Loop final : public Stmt {
 protected:
-  explicit Loop(SourceFile *src);
+  explicit Loop(TokenizedSourceFile *src);
 
 public:
-  static Loop *Create(SourceFile *src);
+  static Loop *Create(TokenizedSourceFile *src);
 
 public:
   void set_predicate(Expr *pred);
@@ -147,10 +147,10 @@ private:
  */
 class If : public Stmt {
 protected:
-  explicit If(SourceFile *src);
+  explicit If(TokenizedSourceFile *src);
 
 public:
-  static If *Create(SourceFile *src);
+  static If *Create(TokenizedSourceFile *src);
 
 public:
   str terminal_token() const override { return "}"; }
@@ -179,10 +179,10 @@ private:
 
 class PackageDecl : public Stmt {
 protected:
-  explicit PackageDecl(SourceFile *src);
+  explicit PackageDecl(TokenizedSourceFile *src);
 
 public:
-  static PackageDecl *Create(SourceFile *src);
+  static PackageDecl *Create(TokenizedSourceFile *src);
 
 public:
   str get_name() const;

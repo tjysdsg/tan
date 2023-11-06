@@ -11,7 +11,7 @@ namespace tanlang {
 
 class Expr : public ASTBase, public Typed {
 protected:
-  Expr(ASTNodeType type, SourceFile *src, int bp);
+  Expr(ASTNodeType type, TokenizedSourceFile *src, int bp);
 
 public:
   virtual bool is_comptime_known() { return false; }
@@ -27,16 +27,18 @@ protected:
 
 class Literal : public Expr {
 protected:
-  Literal(ASTNodeType type, SourceFile *src, int bp);
+  Literal(ASTNodeType type, TokenizedSourceFile *src, int bp);
 
 public:
-  static IntegerLiteral *CreateIntegerLiteral(SourceFile *src, uint64_t val, size_t bit_size, bool is_unsigned);
-  static BoolLiteral *CreateBoolLiteral(SourceFile *src, bool val);
-  static FloatLiteral *CreateFloatLiteral(SourceFile *src, double val, size_t bit_size);
-  static StringLiteral *CreateStringLiteral(SourceFile *src, str val);
-  static CharLiteral *CreateCharLiteral(SourceFile *src, uint8_t val);
-  static ArrayLiteral *CreateArrayLiteral(SourceFile *src, Type *element_type, vector<Literal *> elements = {});
-  static NullPointerLiteral *CreateNullPointerLiteral(SourceFile *src, Type *element_type);
+  static IntegerLiteral *CreateIntegerLiteral(TokenizedSourceFile *src, uint64_t val, size_t bit_size,
+                                              bool is_unsigned);
+  static BoolLiteral *CreateBoolLiteral(TokenizedSourceFile *src, bool val);
+  static FloatLiteral *CreateFloatLiteral(TokenizedSourceFile *src, double val, size_t bit_size);
+  static StringLiteral *CreateStringLiteral(TokenizedSourceFile *src, str val);
+  static CharLiteral *CreateCharLiteral(TokenizedSourceFile *src, uint8_t val);
+  static ArrayLiteral *CreateArrayLiteral(TokenizedSourceFile *src, Type *element_type,
+                                          vector<Literal *> elements = {});
+  static NullPointerLiteral *CreateNullPointerLiteral(TokenizedSourceFile *src, Type *element_type);
 
 public:
   bool is_comptime_known() override { return true; }
@@ -44,10 +46,10 @@ public:
 
 class BoolLiteral : public Literal {
 protected:
-  explicit BoolLiteral(SourceFile *src);
+  explicit BoolLiteral(TokenizedSourceFile *src);
 
 public:
-  static BoolLiteral *Create(SourceFile *src, bool val);
+  static BoolLiteral *Create(TokenizedSourceFile *src, bool val);
   [[nodiscard]] bool get_value() const;
 
 private:
@@ -56,10 +58,10 @@ private:
 
 class IntegerLiteral : public Literal {
 protected:
-  explicit IntegerLiteral(SourceFile *src);
+  explicit IntegerLiteral(TokenizedSourceFile *src);
 
 public:
-  static IntegerLiteral *Create(SourceFile *src, uint64_t val, bool is_unsigned = false);
+  static IntegerLiteral *Create(TokenizedSourceFile *src, uint64_t val, bool is_unsigned = false);
 
   [[nodiscard]] uint64_t get_value() const { return _value; }
   [[nodiscard]] bool is_unsigned() const { return _is_unsigned; }
@@ -71,10 +73,10 @@ private:
 
 class FloatLiteral : public Literal {
 protected:
-  explicit FloatLiteral(SourceFile *src);
+  explicit FloatLiteral(TokenizedSourceFile *src);
 
 public:
-  static FloatLiteral *Create(SourceFile *src, double val);
+  static FloatLiteral *Create(TokenizedSourceFile *src, double val);
   [[nodiscard]] double get_value() const;
   void set_value(double value);
 
@@ -84,10 +86,10 @@ private:
 
 class StringLiteral : public Literal {
 protected:
-  explicit StringLiteral(SourceFile *src);
+  explicit StringLiteral(TokenizedSourceFile *src);
 
 public:
-  static StringLiteral *Create(SourceFile *src, const str &val);
+  static StringLiteral *Create(TokenizedSourceFile *src, const str &val);
 
   [[nodiscard]] str get_value() const;
   void set_value(str val) { _value = std::move(val); }
@@ -98,10 +100,10 @@ private:
 
 class CharLiteral : public Literal {
 protected:
-  explicit CharLiteral(SourceFile *src);
+  explicit CharLiteral(TokenizedSourceFile *src);
 
 public:
-  static CharLiteral *Create(SourceFile *src, uint8_t val);
+  static CharLiteral *Create(TokenizedSourceFile *src, uint8_t val);
 
   void set_value(uint8_t val);
   [[nodiscard]] uint8_t get_value() const;
@@ -112,11 +114,11 @@ private:
 
 class ArrayLiteral : public Literal {
 protected:
-  explicit ArrayLiteral(SourceFile *src);
+  explicit ArrayLiteral(TokenizedSourceFile *src);
 
 public:
-  static ArrayLiteral *Create(SourceFile *src, vector<Literal *> val);
-  static ArrayLiteral *Create(SourceFile *src);
+  static ArrayLiteral *Create(TokenizedSourceFile *src, vector<Literal *> val);
+  static ArrayLiteral *Create(TokenizedSourceFile *src);
 
   void set_elements(const vector<Literal *> &elements);
   [[nodiscard]] vector<Literal *> get_elements() const;
@@ -127,18 +129,18 @@ private:
 
 class NullPointerLiteral : public Literal {
 protected:
-  explicit NullPointerLiteral(SourceFile *src);
+  explicit NullPointerLiteral(TokenizedSourceFile *src);
 
 public:
-  static NullPointerLiteral *Create(SourceFile *src);
+  static NullPointerLiteral *Create(TokenizedSourceFile *src);
 };
 
 class VarRef : public Expr, public ASTNamed {
 protected:
-  explicit VarRef(SourceFile *src);
+  explicit VarRef(TokenizedSourceFile *src);
 
 public:
-  static VarRef *Create(SourceFile *src, const str &name, Decl *referred);
+  static VarRef *Create(TokenizedSourceFile *src, const str &name, Decl *referred);
   [[nodiscard]] Decl *get_referred() const;
 
   [[nodiscard]] Type *get_type() const override;
@@ -156,10 +158,10 @@ enum class IdentifierType {
 
 class Identifier : public Expr, public ASTNamed {
 protected:
-  explicit Identifier(SourceFile *src);
+  explicit Identifier(TokenizedSourceFile *src);
 
 public:
-  static Identifier *Create(SourceFile *src, const str &name);
+  static Identifier *Create(TokenizedSourceFile *src, const str &name);
 
   [[nodiscard]] IdentifierType get_id_type() const;
   void set_var_ref(VarRef *var_ref);
@@ -196,11 +198,11 @@ enum class BinaryOpKind {
 
 class BinaryOperator : public Expr {
 protected:
-  BinaryOperator(BinaryOpKind op, SourceFile *src);
+  BinaryOperator(BinaryOpKind op, TokenizedSourceFile *src);
 
 public:
-  static BinaryOperator *Create(BinaryOpKind op, SourceFile *src);
-  static BinaryOperator *Create(BinaryOpKind op, SourceFile *src, Expr *lhs, Expr *rhs);
+  static BinaryOperator *Create(BinaryOpKind op, TokenizedSourceFile *src);
+  static BinaryOperator *Create(BinaryOpKind op, TokenizedSourceFile *src, Expr *lhs, Expr *rhs);
 
   /// binary operator precedence
   static umap<BinaryOpKind, int> BOPPrecedence;
@@ -220,10 +222,10 @@ protected:
 
 class MemberAccess : public BinaryOperator {
 protected:
-  explicit MemberAccess(SourceFile *src);
+  explicit MemberAccess(TokenizedSourceFile *src);
 
 public:
-  static MemberAccess *Create(SourceFile *src);
+  static MemberAccess *Create(TokenizedSourceFile *src);
   bool is_lvalue() override;
   void set_lvalue(bool is_lvalue) override;
 
@@ -250,11 +252,11 @@ enum class UnaryOpKind {
 
 class UnaryOperator : public Expr {
 protected:
-  UnaryOperator(UnaryOpKind op, SourceFile *src);
+  UnaryOperator(UnaryOpKind op, TokenizedSourceFile *src);
 
 public:
-  static UnaryOperator *Create(UnaryOpKind op, SourceFile *src);
-  static UnaryOperator *Create(UnaryOpKind op, SourceFile *src, Expr *rhs);
+  static UnaryOperator *Create(UnaryOpKind op, TokenizedSourceFile *src);
+  static UnaryOperator *Create(UnaryOpKind op, TokenizedSourceFile *src, Expr *rhs);
 
   /// binary operator precedence
   static umap<UnaryOpKind, int> UOPPrecedence;
@@ -276,10 +278,10 @@ protected:
  */
 class BinaryOrUnary : public Expr {
 protected:
-  BinaryOrUnary(SourceFile *src, int bp);
+  BinaryOrUnary(TokenizedSourceFile *src, int bp);
 
 public:
-  static BinaryOrUnary *Create(SourceFile *src, int bp);
+  static BinaryOrUnary *Create(TokenizedSourceFile *src, int bp);
 
   enum BinaryOrUnaryKind {
     UNKNOWN,
@@ -310,10 +312,10 @@ private:
 
 class Parenthesis : public Expr {
 protected:
-  explicit Parenthesis(SourceFile *src);
+  explicit Parenthesis(TokenizedSourceFile *src);
 
 public:
-  static Parenthesis *Create(SourceFile *src);
+  static Parenthesis *Create(TokenizedSourceFile *src);
 
   void set_sub(Expr *sub);
   [[nodiscard]] Expr *get_sub() const;
@@ -328,10 +330,10 @@ private:
 
 class FunctionCall : public Expr, public ASTNamed {
 protected:
-  explicit FunctionCall(SourceFile *src);
+  explicit FunctionCall(TokenizedSourceFile *src);
 
 public:
-  static FunctionCall *Create(SourceFile *src);
+  static FunctionCall *Create(TokenizedSourceFile *src);
   [[nodiscard]] size_t get_n_args() const;
   [[nodiscard]] Expr *get_arg(size_t i) const;
 
@@ -344,10 +346,10 @@ public:
 
 class Assignment : public Expr {
 protected:
-  explicit Assignment(SourceFile *src);
+  explicit Assignment(TokenizedSourceFile *src);
 
 public:
-  static Assignment *Create(SourceFile *src);
+  static Assignment *Create(TokenizedSourceFile *src);
 
   [[nodiscard]] ASTBase *get_lhs() const;
   void set_lhs(ASTBase *lhs);
@@ -363,10 +365,10 @@ protected:
 
 class Cast : public Expr {
 protected:
-  explicit Cast(SourceFile *src);
+  explicit Cast(TokenizedSourceFile *src);
 
 public:
-  static Cast *Create(SourceFile *src);
+  static Cast *Create(TokenizedSourceFile *src);
   [[nodiscard]] Expr *get_lhs() const;
   void set_lhs(Expr *lhs);
 

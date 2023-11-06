@@ -4,7 +4,7 @@
 
 using namespace tanlang;
 
-Literal *DefaultValue::CreateTypeDefaultValueLiteral(SourceFile *src, Type *type) {
+Literal *DefaultValue::CreateTypeDefaultValueLiteral(TokenizedSourceFile *src, Type *type) {
   Literal *ret = nullptr;
 
   if (type->is_pointer()) {

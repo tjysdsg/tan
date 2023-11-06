@@ -4,37 +4,37 @@
 
 using namespace tanlang;
 
-Decl::Decl(ASTNodeType type, SourceFile *src, int bp) : Expr(type, src, bp) {}
+Decl::Decl(ASTNodeType type, TokenizedSourceFile *src, int bp) : Expr(type, src, bp) {}
 
 vector<ASTBase *> Decl::get_children() const { return {}; }
 
-ArgDecl::ArgDecl(SourceFile *src) : Decl(ASTNodeType::ARG_DECL, src, 0) {}
+ArgDecl::ArgDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::ARG_DECL, src, 0) {}
 
-ArgDecl *ArgDecl::Create(SourceFile *src) { return new ArgDecl(src); }
+ArgDecl *ArgDecl::Create(TokenizedSourceFile *src) { return new ArgDecl(src); }
 
-ArgDecl *ArgDecl::Create(SourceFile *src, const str &name, Type *ty) {
+ArgDecl *ArgDecl::Create(TokenizedSourceFile *src, const str &name, Type *ty) {
   auto ret = new ArgDecl(src);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
 }
 
-VarDecl::VarDecl(SourceFile *src) : Decl(ASTNodeType::VAR_DECL, src, 0) {}
+VarDecl::VarDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::VAR_DECL, src, 0) {}
 
-VarDecl *VarDecl::Create(SourceFile *src) { return new VarDecl(src); }
+VarDecl *VarDecl::Create(TokenizedSourceFile *src) { return new VarDecl(src); }
 
-VarDecl *VarDecl::Create(SourceFile *src, const str &name, Type *ty) {
+VarDecl *VarDecl::Create(TokenizedSourceFile *src, const str &name, Type *ty) {
   auto ret = new VarDecl(src);
   ret->set_name(name);
   ret->set_type(ty);
   return ret;
 }
 
-FunctionDecl::FunctionDecl(SourceFile *src) : Decl(ASTNodeType::FUNC_DECL, src, 0) {}
+FunctionDecl::FunctionDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::FUNC_DECL, src, 0) {}
 
-FunctionDecl *FunctionDecl::Create(SourceFile *src) { return new FunctionDecl(src); }
+FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src) { return new FunctionDecl(src); }
 
-FunctionDecl *FunctionDecl::Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
+FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                                    bool is_public, Stmt *body, bool is_intrinsic) {
   auto ret = new FunctionDecl(src);
   ret->set_name(name);
@@ -82,11 +82,11 @@ str FunctionDecl::terminal_token() const {
   return "}";
 }
 
-TypeDecl::TypeDecl(ASTNodeType node_type, SourceFile *src) : Decl(node_type, src, 0) {}
+TypeDecl::TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src) : Decl(node_type, src, 0) {}
 
-StructDecl::StructDecl(SourceFile *src) : TypeDecl(ASTNodeType::STRUCT_DECL, src) {}
+StructDecl::StructDecl(TokenizedSourceFile *src) : TypeDecl(ASTNodeType::STRUCT_DECL, src) {}
 
-StructDecl *StructDecl::Create(SourceFile *src) { return new StructDecl(src); }
+StructDecl *StructDecl::Create(TokenizedSourceFile *src) { return new StructDecl(src); }
 
 const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decls; }
 

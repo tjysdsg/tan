@@ -425,8 +425,8 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
 
     // avoid infinite recursion by inserting a placeholder
     ret = _di_builder->createStructType(
-        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_src->get_line(loc), (uint32_t)p->get_size_bits(),
-        (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
+        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_src->get_line(loc),
+        (uint32_t)p->get_size_bits(), (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
         _di_builder->getOrCreateArray(vector<Metadata *>(n, nullptr)), 0, nullptr, p->get_typename());
 
     vector<Metadata *> elements(member_types.size(), nullptr);
@@ -528,7 +528,7 @@ Value *CodeGenerator::codegen_type_default_value(Type *p) {
 
   Value *ret = nullptr;
   if (p->is_primitive() || p->is_string() || p->is_array() || p->is_pointer()) {
-    ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_src->src(), p));
+    ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_src, p));
 
   } else if (p->is_struct()) {
     ret = codegen_struct_default_value(pcast<StructType>(p));

@@ -7,7 +7,7 @@ namespace tanlang {
 
 class DefaultValue {
 public:
-  static Literal *CreateTypeDefaultValueLiteral(SourceFile *src, Type *type);
+  static Literal *CreateTypeDefaultValueLiteral(TokenizedSourceFile *src, Type *type);
 };
 
 } // namespace tanlang

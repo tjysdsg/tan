@@ -5,15 +5,15 @@ using namespace tanlang;
 
 /// \section Stmt
 
-Stmt::Stmt(ASTNodeType type, SourceFile *src) : ASTBase(type, src, PREC_LOWEST) {}
+Stmt::Stmt(ASTNodeType type, TokenizedSourceFile *src) : ASTBase(type, src, PREC_LOWEST) {}
 
 vector<ASTBase *> Stmt::get_children() const { return {}; }
 
 /// \section Compound statement
 
-CompoundStmt *CompoundStmt::Create(SourceFile *src) { return new CompoundStmt(src); }
+CompoundStmt *CompoundStmt::Create(TokenizedSourceFile *src) { return new CompoundStmt(src); }
 
-CompoundStmt::CompoundStmt(SourceFile *src) : Stmt(ASTNodeType::COMPOUND_STATEMENT, src) {}
+CompoundStmt::CompoundStmt(TokenizedSourceFile *src) : Stmt(ASTNodeType::COMPOUND_STATEMENT, src) {}
 
 void CompoundStmt::set_child_at(size_t idx, ASTBase *node) {
   TAN_ASSERT(_children.size() > idx);
@@ -32,15 +32,15 @@ vector<ASTBase *> CompoundStmt::get_children() const { return _children; }
 
 /// \section Program
 
-Program *Program::Create(SourceFile *src) { return new Program(src); }
+Program *Program::Create(TokenizedSourceFile *src) { return new Program(src); }
 
-Program::Program(SourceFile *src) : CompoundStmt(src) { set_node_type((ASTNodeType::PROGRAM)); }
+Program::Program(TokenizedSourceFile *src) : CompoundStmt(src) { set_node_type((ASTNodeType::PROGRAM)); }
 
-Return *Return::Create(SourceFile *src) { return new Return(src); }
+Return *Return::Create(TokenizedSourceFile *src) { return new Return(src); }
 
 /// \section Return
 
-Return::Return(SourceFile *src) : Stmt(ASTNodeType::RET, src) {}
+Return::Return(TokenizedSourceFile *src) : Stmt(ASTNodeType::RET, src) {}
 
 void Return::set_rhs(Expr *rhs) { _rhs = rhs; }
 
@@ -50,9 +50,9 @@ vector<ASTBase *> Return::get_children() const { return {(ASTBase *)_rhs}; }
 
 /// \section Import
 
-Import *Import::Create(SourceFile *src) { return new Import(src); }
+Import *Import::Create(TokenizedSourceFile *src) { return new Import(src); }
 
-Import::Import(SourceFile *src) : Stmt(ASTNodeType::IMPORT, src) {}
+Import::Import(TokenizedSourceFile *src) : Stmt(ASTNodeType::IMPORT, src) {}
 
 void Import::set_name(const str &s) { _name = s; }
 
@@ -64,7 +64,7 @@ void Import::set_imported_funcs(const vector<FunctionDecl *> &imported_funcs) { 
 
 /// \section Break or continue statement
 
-BreakContinue::BreakContinue(ASTNodeType type, SourceFile *src) : Stmt(type, src) {
+BreakContinue::BreakContinue(ASTNodeType type, TokenizedSourceFile *src) : Stmt(type, src) {
   TAN_ASSERT(type == ASTNodeType::BREAK || type == ASTNodeType::CONTINUE);
 }
 
@@ -72,19 +72,19 @@ Loop *BreakContinue::get_parent_loop() const { return _parent_loop; }
 
 void BreakContinue::set_parent_loop(Loop *parent_loop) { _parent_loop = parent_loop; }
 
-Break *Break::Create(SourceFile *src) { return new Break(src); }
+Break *Break::Create(TokenizedSourceFile *src) { return new Break(src); }
 
-Break::Break(SourceFile *src) : BreakContinue(ASTNodeType::BREAK, src) {}
+Break::Break(TokenizedSourceFile *src) : BreakContinue(ASTNodeType::BREAK, src) {}
 
-Continue *Continue::Create(SourceFile *src) { return new Continue(src); }
+Continue *Continue::Create(TokenizedSourceFile *src) { return new Continue(src); }
 
-Continue::Continue(SourceFile *src) : BreakContinue(ASTNodeType::CONTINUE, src) {}
+Continue::Continue(TokenizedSourceFile *src) : BreakContinue(ASTNodeType::CONTINUE, src) {}
 
 /// \section Loop
 
-Loop *Loop::Create(SourceFile *src) { return new Loop(src); }
+Loop *Loop::Create(TokenizedSourceFile *src) { return new Loop(src); }
 
-Loop::Loop(SourceFile *src) : Stmt(ASTNodeType::LOOP, src) {}
+Loop::Loop(TokenizedSourceFile *src) : Stmt(ASTNodeType::LOOP, src) {}
 
 void Loop::set_body(Stmt *body) { _body = body; }
 
@@ -98,9 +98,9 @@ vector<ASTBase *> Loop::get_children() const { return {(ASTBase *)_predicate, _b
 
 /// \section If-else
 
-If::If(SourceFile *src) : Stmt(ASTNodeType::IF, src) {}
+If::If(TokenizedSourceFile *src) : Stmt(ASTNodeType::IF, src) {}
 
-If *If::Create(SourceFile *src) { return new If(src); }
+If *If::Create(TokenizedSourceFile *src) { return new If(src); }
 
 void If::add_if_then_branch(Expr *pred, Stmt *branch) {
   TAN_ASSERT(pred);
@@ -137,9 +137,9 @@ vector<ASTBase *> If::get_children() const {
   return ret;
 }
 
-PackageDecl::PackageDecl(SourceFile *src) : Stmt(ASTNodeType::PACKAGE_DECL, src) {}
+PackageDecl::PackageDecl(TokenizedSourceFile *src) : Stmt(ASTNodeType::PACKAGE_DECL, src) {}
 
-PackageDecl *PackageDecl::Create(SourceFile *src) { return new PackageDecl(src); }
+PackageDecl *PackageDecl::Create(TokenizedSourceFile *src) { return new PackageDecl(src); }
 
 str PackageDecl::get_name() const { return _name; }
 

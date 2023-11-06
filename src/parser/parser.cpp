@@ -43,7 +43,7 @@ public:
   explicit ParserImpl(TokenizedSourceFile *src) : _src(src), _filename(src->get_filename()) {}
 
   Program *parse() {
-    _root = Program::Create(_src->src());
+    _root = Program::Create(_src);
 
     ScopeGuard scope_guard(_curr_scope, _root);
 
@@ -66,31 +66,31 @@ private:
     ASTBase *ret = nullptr;
     str tok = token->get_value();
     if (tok == "var")
-      ret = VarDecl::Create(_src->src());
+      ret = VarDecl::Create(_src);
     else if (tok == "fn" || tok == "pub" || tok == "extern")
-      ret = FunctionDecl::Create(_src->src());
+      ret = FunctionDecl::Create(_src);
     else if (tok == "import")
-      ret = Import::Create(_src->src());
+      ret = Import::Create(_src);
     else if (tok == "if") /// else clause should be covered by If statement as well
-      ret = If::Create(_src->src());
+      ret = If::Create(_src);
     else if (tok == "return")
-      ret = Return::Create(_src->src());
+      ret = Return::Create(_src);
     else if (tok == "while" || tok == "for")
-      ret = Loop::Create(_src->src());
+      ret = Loop::Create(_src);
     else if (tok == "struct")
-      ret = StructDecl::Create(_src->src());
+      ret = StructDecl::Create(_src);
     else if (tok == "break")
-      ret = Break::Create(_src->src());
+      ret = Break::Create(_src);
     else if (tok == "continue")
-      ret = Continue::Create(_src->src());
+      ret = Continue::Create(_src);
     else if (tok == "as")
-      ret = Cast::Create(_src->src());
+      ret = Cast::Create(_src);
     else if (tok == "true")
-      ret = BoolLiteral::Create(_src->src(), true);
+      ret = BoolLiteral::Create(_src, true);
     else if (tok == "false")
-      ret = BoolLiteral::Create(_src->src(), false);
+      ret = BoolLiteral::Create(_src, false);
     else if (tok == "package")
-      ret = PackageDecl::Create(_src->src());
+      ret = PackageDecl::Create(_src);
 
     TAN_ASSERT(ret);
     return ret;
@@ -124,21 +124,21 @@ private:
 
     ASTBase *node = nullptr;
     if (token->get_value() == "@") { /// intrinsics
-      node = Intrinsic::Create(_src->src());
+      node = Intrinsic::Create(_src);
     } else if (token->get_value() == "=" && token->get_type() == TokenType::BOP) {
-      node = Assignment::Create(_src->src());
+      node = Assignment::Create(_src);
     } else if (token->get_value() == "!") { /// logical not
-      node = UnaryOperator::Create(UnaryOpKind::LNOT, _src->src());
+      node = UnaryOperator::Create(UnaryOpKind::LNOT, _src);
     } else if (token->get_value() == "~") { /// binary not
-      node = UnaryOperator::Create(UnaryOpKind::BNOT, _src->src());
+      node = UnaryOperator::Create(UnaryOpKind::BNOT, _src);
     } else if (token->get_value() == "[") {
       Token *prev_token = at(_curr - 1);
       if (prev_token->get_type() != TokenType::ID && prev_token->get_value() != "]" && prev_token->get_value() != ")") {
         /// array literal if there is no identifier, "]", or ")" before
-        node = ArrayLiteral::Create(_src->src());
+        node = ArrayLiteral::Create(_src);
       } else {
         /// otherwise bracket access
-        node = MemberAccess::Create(_src->src());
+        node = MemberAccess::Create(_src);
       }
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op;
@@ -163,15 +163,15 @@ private:
         error(ErrorType::NOT_IMPLEMENTED, _curr, _curr,
               fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
 
-      node = BinaryOperator::Create(op, _src->src());
+      node = BinaryOperator::Create(op, _src);
     } else if (token->get_type() == TokenType::INT) {
-      node = IntegerLiteral::Create(_src->src(), (uint64_t)std::stol(token->get_value()), token->is_unsigned());
+      node = IntegerLiteral::Create(_src, (uint64_t)std::stol(token->get_value()), token->is_unsigned());
     } else if (token->get_type() == TokenType::FLOAT) {
-      node = FloatLiteral::Create(_src->src(), std::stod(token->get_value()));
+      node = FloatLiteral::Create(_src, std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
-      node = StringLiteral::Create(_src->src(), token->get_value());
+      node = StringLiteral::Create(_src, token->get_value());
     } else if (token->get_type() == TokenType::CHAR) { /// char literal
-      node = CharLiteral::Create(_src->src(), static_cast<uint8_t>(token->get_value()[0]));
+      node = CharLiteral::Create(_src, static_cast<uint8_t>(token->get_value()[0]));
     } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected type name");
     } else if (token->get_type() == TokenType::ID) {
@@ -179,53 +179,53 @@ private:
       Token *next_token = at(++next);
       if (next_token->get_value() == "(") {
         /// identifier followed by a "(" is a function call
-        node = FunctionCall::Create(_src->src());
+        node = FunctionCall::Create(_src);
       } else {
         /// actually an identifier
-        node = Identifier::Create(_src->src(), token->get_value());
+        node = Identifier::Create(_src, token->get_value());
       }
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "(") {
-      node = Parenthesis::Create(_src->src());
+      node = Parenthesis::Create(_src);
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token);
       if (!node) {
         error(ErrorType::NOT_IMPLEMENTED, _curr, _curr, "Keyword not implemented: " + token->get_value());
       }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
-      node = MemberAccess::Create(_src->src());
+      node = MemberAccess::Create(_src);
     } else if (token->get_value() == "&") {
       /// BOP or UOP? ambiguous
-      node = BinaryOrUnary::Create(_src->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
+      node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
-      node = CompoundStmt::Create(_src->src());
+      node = CompoundStmt::Create(_src);
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       TAN_ASSERT(token->get_value().length());
       switch (token->get_value()[0]) {
       case '/':
-        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _src->src());
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _src);
         break;
       case '%':
-        node = BinaryOperator::Create(BinaryOpKind::MOD, _src->src());
+        node = BinaryOperator::Create(BinaryOpKind::MOD, _src);
         break;
       case '|':
-        node = BinaryOperator::Create(BinaryOpKind::BOR, _src->src());
+        node = BinaryOperator::Create(BinaryOpKind::BOR, _src);
         break;
       case '^':
-        node = BinaryOperator::Create(BinaryOpKind::XOR, _src->src());
+        node = BinaryOperator::Create(BinaryOpKind::XOR, _src);
         break;
         /// Operators that are possibly BOP or UOP at this stage
         /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
       case '*':
         // MULTIPLY / PTR_DEREF
-        node = BinaryOrUnary::Create(_src->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
         break;
       case '+':
         // SUM / PLUS
-        node = BinaryOrUnary::Create(_src->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
       case '-':
         // SUBTRACT / MINUS
-        node = BinaryOrUnary::Create(_src->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         TAN_ASSERT(false);
@@ -277,16 +277,16 @@ private:
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, _src->src());
+        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, _src);
         break;
       case '&':
-        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, _src->src());
+        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, _src);
         break;
       case '+':
-        actual = UnaryOperator::Create(UnaryOpKind::PLUS, _src->src());
+        actual = UnaryOperator::Create(UnaryOpKind::PLUS, _src);
         break;
       case '-':
-        actual = UnaryOperator::Create(UnaryOpKind::MINUS, _src->src());
+        actual = UnaryOperator::Create(UnaryOpKind::MINUS, _src);
         break;
       default:
         TAN_ASSERT(false);
@@ -320,16 +320,16 @@ private:
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, _src->src());
+        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, _src);
         break;
       case '&':
-        actual = BinaryOperator::Create(BinaryOpKind::BAND, _src->src());
+        actual = BinaryOperator::Create(BinaryOpKind::BAND, _src);
         break;
       case '+':
-        actual = BinaryOperator::Create(BinaryOpKind::SUM, _src->src());
+        actual = BinaryOperator::Create(BinaryOpKind::SUM, _src);
         break;
       case '-':
-        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, _src->src());
+        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, _src);
         break;
       default:
         TAN_ASSERT(false);
@@ -648,7 +648,7 @@ private:
     // but we only want the function name as an identifier
     // [X] auto id = peek();
     Token *id_token = at(_curr);
-    auto id = Identifier::Create(_src->src(), id_token->get_value());
+    auto id = Identifier::Create(_src, id_token->get_value());
     id->set_start(_curr);
     id->set_end(_curr);
     if (id->get_node_type() != ASTNodeType::ID) {
@@ -676,7 +676,7 @@ private:
       vector<ArgDecl *> arg_decls{};
       if (at(_curr)->get_value() != ")") {
         while (!eof(_curr)) {
-          auto arg = ArgDecl::Create(_src->src());
+          auto arg = ArgDecl::Create(_src);
           arg->set_start(_curr);
           parse_node(arg);
 

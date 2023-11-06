@@ -21,9 +21,6 @@ public:
 public:
   DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 
-protected:
-  str to_string(TokenizedSourceFile *) const override;
-
 private:
   str _name;
   vector<ASTBase *> _subtrees{};

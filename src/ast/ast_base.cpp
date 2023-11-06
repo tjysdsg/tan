@@ -5,7 +5,7 @@
 
 using namespace tanlang;
 
-ASTBase::ASTBase(ASTNodeType node_type, SourceFile *src, int bp)
+ASTBase::ASTBase(ASTNodeType node_type, TokenizedSourceFile *src, int bp)
     : SourceTraceable(src), _node_type(node_type), _bp(bp) {}
 
 ASTNodeType ASTBase::get_node_type() const { return _node_type; }
@@ -20,28 +20,31 @@ Context *ASTBase::ctx() {
   return _ctx;
 }
 
-str ASTBase::repr(TokenizedSourceFile *src, const str &prefix) const {
-  str ret = fmt::format("{} {}\n", prefix, this->to_string(src));
+str ASTBase::repr(const str &prefix) const {
+  str ret = fmt::format("{} {}\n", prefix, this->to_string(true));
 
   vector<ASTBase *> children = get_children();
   size_t n_children = children.size();
   for (size_t i = 0; i < n_children; ++i) {
     auto *c = children[i];
     if (c) {
-      ret += c->repr(src, prefix + "-");
+      ret += c->repr(prefix + "-");
     }
   }
 
   return ret;
 }
 
-str ASTBase::to_string(TokenizedSourceFile *src) const {
-  str ty = ASTTypeNames[_node_type];
-  str code = src->get_source_code(start(), end());
-  return fmt::format("{}: `{}`", ty, code);
-}
+str ASTBase::to_string(bool include_source_code) const {
+  str ret = ASTTypeNames[_node_type];
 
-str ASTBase::to_string() const { return ASTTypeNames[_node_type]; }
+  if (include_source_code) {
+    str code = src()->get_source_code(start(), end());
+    ret = fmt::format("{}: `{}`", ret, code);
+  }
+
+  return ret;
+}
 
 ASTBase *ASTBase::get() const { return const_cast<ASTBase *>(this); }
 
