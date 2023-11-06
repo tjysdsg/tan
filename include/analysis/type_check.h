@@ -13,7 +13,7 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypeCheck : public SingleUnitAnalysisAction<TypeCheck, void> {
+class TypeCheck : public SemanticAnalysisAction<TypeCheck, CompilationUnit *, void> {
 public:
   void run_impl(CompilationUnit *cu);
 

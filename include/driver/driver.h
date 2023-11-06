@@ -66,11 +66,6 @@ public:
   vector<CompilationUnit *> parse(const vector<str> &files);
 
   /**
-   * \brief Perform Semantic Analysis
-   */
-  void analyze(vector<CompilationUnit *> cu);
-
-  /**
    * \brief Generate LLVM IR
    */
   CodeGenerator *codegen(CompilationUnit *cu, bool print_ir);

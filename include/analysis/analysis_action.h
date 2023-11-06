@@ -9,11 +9,9 @@
 
 namespace tanlang {
 
-template <typename Derived, typename Output>
-class SingleUnitAnalysisAction : public CompilerAction<Derived, CompilationUnit *, Output> {
+template <typename Derived, typename Input, typename Output>
+class SemanticAnalysisAction : public CompilerAction<Derived, Input, Output> {
 public:
-  using AnalysisActionType = SingleUnitAnalysisAction<Derived, Output>;
-
   [[nodiscard]] SourceManager *get_sm() const { return _sm; };
 
 protected:
@@ -69,7 +67,7 @@ protected:
 
 private:
   friend Derived;
-  SingleUnitAnalysisAction() = default;
+  SemanticAnalysisAction() = default;
 
 private:
   vector<ASTBase *> _scopes{};

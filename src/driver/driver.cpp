@@ -3,9 +3,11 @@
 #include "source_file/token.h"
 #include "analysis/type_check.h"
 #include "analysis/register_declarations.h"
+#include "analysis/organize_packages.h"
 #include "analysis/type_precheck.h"
 #include "codegen/code_generator.h"
 #include "common/compilation_unit.h"
+#include "include/ast/package.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "source_file/source_file.h"
@@ -168,8 +170,24 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
     }
   }
 
+  // Register all declarations in their local contexts
+  for (auto *c : cu) {
+    RegisterDeclarations rd;
+    rd.run(c);
+  }
+
+  // Organize input files into modules
+  OrganizePackages op;
+  vector<Package *> packages = op.run(cu);
+
   // Semantic analysis
-  analyze(cu);
+  for (auto *p : packages) {
+    TypePrecheck tp;
+    tp.run(c);
+
+    TypeCheck analyzer;
+    analyzer.run(c);
+  }
 
   // Code generation
   size_t i = 0;
@@ -254,6 +272,7 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
     auto *ast = parser->parse();
 
     // register top-level declarations
+    // TODO: put intrinsics into a dedicated module
     auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
     for (auto *f : intrinsic_funcs) {
       ast->ctx()->set_function_decl(f);
@@ -263,19 +282,6 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
   }
 
   return cu;
-}
-
-void CompilerDriver::analyze(vector<CompilationUnit *> cu) {
-  for (auto *c : cu) {
-    RegisterDeclarations rtld;
-    rtld.run(c);
-
-    TypePrecheck tp;
-    tp.run(c);
-
-    TypeCheck analyzer;
-    analyzer.run(c);
-  }
 }
 
 vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {

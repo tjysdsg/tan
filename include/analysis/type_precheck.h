@@ -13,7 +13,7 @@ class Program;
 class SourceManager;
 class ASTBase;
 
-class TypePrecheck : public SingleUnitAnalysisAction<TypePrecheck, void> {
+class TypePrecheck : public SemanticAnalysisAction<TypePrecheck, CompilationUnit *, void> {
 public:
   void run_impl(CompilationUnit *cu);
 

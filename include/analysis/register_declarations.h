@@ -5,7 +5,7 @@
 
 namespace tanlang {
 
-class RegisterDeclarations : public SingleUnitAnalysisAction<RegisterDeclarations, void> {
+class RegisterDeclarations : public SemanticAnalysisAction<RegisterDeclarations, CompilationUnit *, void> {
 public:
   void run_impl(CompilationUnit *cu);
 

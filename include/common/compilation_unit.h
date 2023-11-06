@@ -10,6 +10,7 @@ class ASTBase;
 class Program;
 class SourceManager;
 
+// TODO: rename to FileParseResult
 class CompilationUnit {
 public:
   CompilationUnit() = delete;
@@ -19,9 +20,6 @@ public:
   str filename() const;
   SourceManager *source_manager() const;
   Program *ast() const;
-
-public:
-  DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 
 private:
   SourceFile *_src = nullptr;
