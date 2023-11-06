@@ -2,7 +2,6 @@
 #include "ast/ast_base.h"
 #include "ast/ast_node_type.h"
 #include "common/ast_visitor.h"
-#include "common/compilation_unit.h"
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
@@ -13,7 +12,6 @@
 #include "source_file/token.h"
 #include "driver/driver.h"
 #include <iostream>
-#include <set>
 
 namespace tanlang {
 

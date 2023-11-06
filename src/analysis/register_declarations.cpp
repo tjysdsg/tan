@@ -2,6 +2,7 @@
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "ast/type.h"
+#include "ast/package.h"
 #include <iostream>
 
 namespace tanlang {

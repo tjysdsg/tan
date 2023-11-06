@@ -26,7 +26,8 @@ enum class ASTNodeType {
   IMPORT,             /// import
   VAR_REF,            /// variable reference
   INTRINSIC,          /// intrinsic functions, operators, qualifiers, etc.
-  PACKAGE_DECL,            /// specify package name
+  PACKAGE_DECL,       /// specify package name
+  PACKAGE,
 
   BOOL_LITERAL,       /// bool literal
   INTEGER_LITERAL,    /// int literal

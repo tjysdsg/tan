@@ -72,6 +72,13 @@ static constexpr std::array CXX_EXTS{".cpp", ".CPP", ".cxx", ".c",  ".cc",  ".C"
                                      ".h",   ".hh",  ".H",   ".hp", ".hxx", ".hpp", ".HPP", ".h++", ".tcc"};
 static constexpr str_view TAN_EXT = ".tan";
 
+static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
+    {O0, llvm::CodeGenOpt::None      },
+    {O1, llvm::CodeGenOpt::Less      },
+    {O2, llvm::CodeGenOpt::Default   },
+    {O3, llvm::CodeGenOpt::Aggressive},
+};
+
 void verify_dirs(const vector<str> &dirs);
 
 /**
@@ -207,15 +214,20 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
 
   // Code generation
   size_t i = 0;
-  for (auto *c : cu) {
-    std::cout << fmt::format("Compiling TAN file: {}\n", c->filename());
+  for (auto *p : packages) {
+    std::cout << fmt::format("Compiling TAN package: {}\n", p->get_name());
 
     // IR
-    auto *cg = codegen(c, print_ir_code);
+    _target_machine->setOptLevel(tan_to_llvm_opt_level[_config.opt_level]);
+    auto *cg = new CodeGenerator(_target_machine);
+    cg->run(p);
+
+    if (print_ir_code)
+      cg->dump_ir();
 
     // object file
-    str ofile = ret[i] = fs::path(c->filename() + ".o").filename().string();
-    emit_object(cg, ofile);
+    str ofile = ret[i] = fs::path(p->get_name() + ".o").filename().string();
+    cg->emit_to_file(ofile);
 
     ++i;
 
@@ -226,51 +238,6 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
     delete c;
   }
   return ret;
-}
-
-vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
-  vector<str> obj_files{};
-
-  if (!files.empty()) {
-    std::cout << "Compiling " << files.size() << " CXX file(s): ";
-    std::for_each(files.begin(), files.end(), [=](auto f) { std::cout << f << " "; });
-    std::cout << "\n";
-
-    auto err_code = clang_compile(files, &config);
-    if (err_code)
-      Error(ErrorType::GENERIC_ERROR, "Failed to compile CXX files").raise();
-
-    // object file paths
-    size_t n = files.size();
-    obj_files.reserve(n);
-    for (size_t i = 0; i < n; ++i) {
-      auto p = fs::path(str(files[i])).replace_extension(".o").filename();
-      obj_files.push_back(p.string());
-    }
-  }
-
-  return obj_files;
-}
-
-void CompilerDriver::emit_object(CodeGenerator *cg, const str &out_file) { cg->emit_to_file(out_file); }
-
-static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
-    {O0, llvm::CodeGenOpt::None      },
-    {O1, llvm::CodeGenOpt::Less      },
-    {O2, llvm::CodeGenOpt::Default   },
-    {O3, llvm::CodeGenOpt::Aggressive},
-};
-
-CodeGenerator *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
-  _target_machine->setOptLevel(tan_to_llvm_opt_level[_config.opt_level]);
-  auto *cg = new CodeGenerator(_target_machine);
-
-  cg->run(cu);
-
-  if (print_ir)
-    cg->dump_ir();
-
-  return cg;
 }
 
 vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
@@ -372,6 +339,30 @@ void CompilerDriver::link(const std::vector<str> &files) {
 /**
  * \section Helpers
  */
+
+vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
+  vector<str> obj_files{};
+
+  if (!files.empty()) {
+    std::cout << "Compiling " << files.size() << " CXX file(s): ";
+    std::for_each(files.begin(), files.end(), [=](auto f) { std::cout << f << " "; });
+    std::cout << "\n";
+
+    auto err_code = clang_compile(files, &config);
+    if (err_code)
+      Error(ErrorType::GENERIC_ERROR, "Failed to compile CXX files").raise();
+
+    // object file paths
+    size_t n = files.size();
+    obj_files.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      auto p = fs::path(str(files[i])).replace_extension(".o").filename();
+      obj_files.push_back(p.string());
+    }
+  }
+
+  return obj_files;
+}
 
 void verify_dirs(const vector<str> &dirs) {
   for (size_t i = 0; i < dirs.size(); ++i) {

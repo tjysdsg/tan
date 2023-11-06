@@ -13,9 +13,8 @@ template <typename Derived, typename Input, typename Output>
 class SemanticAnalysisAction : public CompilerAction<Derived, Input, Output> {
 protected:
   [[noreturn]] void error(ErrorType type, ASTBase *p, const str &message) {
-    // Error(type, get_sm()->get_token(p->start()), get_sm()->get_token(p->end()), message).raise();
-    // TODO: implement a way to find source span of an AST node that could be in any file
-    Error(type, message).raise();
+    auto *src = p->src();
+    Error(type, src->get_token(p->start()), src->get_token(p->end()), message).raise();
   }
 
   void push_scope(ASTBase *scope) { _scopes.push_back(scope); }
@@ -68,7 +67,6 @@ private:
 
 private:
   vector<ASTBase *> _scopes{};
-  TokenizedSourceFile *_src = nullptr;
 };
 
 } // namespace tanlang

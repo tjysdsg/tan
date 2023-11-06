@@ -7,6 +7,7 @@
 namespace tanlang {
 
 class Program;
+class Package;
 class Identifier;
 class VarRef;
 class Parenthesis;
@@ -57,6 +58,7 @@ class PackageDecl;
 template <typename Derived> class ASTVisitor {
 public:
   DEFINE_AST_VISITOR_INTERFACE(Program)
+  DEFINE_AST_VISITOR_INTERFACE(Package)
   DEFINE_AST_VISITOR_INTERFACE(Identifier)
   DEFINE_AST_VISITOR_INTERFACE(Parenthesis)
   DEFINE_AST_VISITOR_INTERFACE(If)
@@ -93,6 +95,9 @@ public:
     switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM:
       CALL_AST_VISITOR(Program, p);
+      break;
+    case ASTNodeType::PACKAGE:
+      CALL_AST_VISITOR(Package, p);
       break;
     case ASTNodeType::COMPOUND_STATEMENT:
       CALL_AST_VISITOR(CompoundStmt, p);

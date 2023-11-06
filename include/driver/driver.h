@@ -69,17 +69,6 @@ public:
    */
   vector<CompilationUnit *> parse(const vector<str> &files);
 
-  /**
-   * \brief Generate LLVM IR
-   */
-  CodeGenerator *codegen(CompilationUnit *cu, bool print_ir);
-
-  /**
-   * \brief Compile to object files
-   * \details Resulting *.o files are stored in the current working directory
-   */
-  void emit_object(CodeGenerator *cg, const str &out_file);
-
   void link(const vector<str> &input_paths);
 
   /**
