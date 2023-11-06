@@ -34,7 +34,7 @@ class SourceTraceable;
 class ASTNamed;
 class Token;
 class SrcLoc;
-class SourceManager;
+class TokenizedSourceFile;
 class Intrinsic;
 class If;
 class VarRef;

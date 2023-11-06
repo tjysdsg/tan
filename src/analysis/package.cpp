@@ -7,4 +7,4 @@ Package::Package(const str &name, vector<ASTBase *> subtrees)
 
 vector<ASTBase *> Package::get_children() const { return _subtrees; }
 
-str Package::to_string(SourceManager *) const { return "Package " + _name; }
+str Package::to_string(TokenizedSourceFile *) const { return "Package " + _name; }

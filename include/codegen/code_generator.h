@@ -61,7 +61,7 @@ private:
 
 private:
   CompilationUnit *_cu = nullptr;
-  SourceManager *_sm = nullptr;
+  TokenizedSourceFile *_src = nullptr;
 
   umap<Type *, llvm::Type *> _llvm_type_cache{};
   umap<Type *, llvm::Metadata *> _llvm_meta_cache{};

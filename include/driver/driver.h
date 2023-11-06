@@ -12,7 +12,7 @@ namespace tanlang {
 
 class CodeGenerator;
 class Program;
-class SourceManager;
+class TokenizedSourceFile;
 class CompilationUnit;
 class SourceFile;
 class Package;

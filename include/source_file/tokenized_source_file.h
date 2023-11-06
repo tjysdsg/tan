@@ -5,12 +5,12 @@
 namespace tanlang {
 
 /**
- * \brief Different from SourceFile, SourceManager manages the tokenized text of a source file.
+ * \brief Different from SourceFile, TokenizedSourceFile manages the tokenized text of a source file.
  */
-class SourceManager {
+class TokenizedSourceFile {
 public:
-  SourceManager() = delete;
-  SourceManager(str filename, vector<Token *> tokens);
+  TokenizedSourceFile() = delete;
+  TokenizedSourceFile(str filename, vector<Token *> tokens);
   Token *get_token(uint32_t loc) const;
   uint32_t get_line(uint32_t loc) const;
   uint32_t get_col(uint32_t loc) const;

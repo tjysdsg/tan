@@ -20,24 +20,24 @@ Context *ASTBase::ctx() {
   return _ctx;
 }
 
-str ASTBase::repr(SourceManager *sm, const str &prefix) const {
-  str ret = fmt::format("{} {}\n", prefix, this->to_string(sm));
+str ASTBase::repr(TokenizedSourceFile *src, const str &prefix) const {
+  str ret = fmt::format("{} {}\n", prefix, this->to_string(src));
 
   vector<ASTBase *> children = get_children();
   size_t n_children = children.size();
   for (size_t i = 0; i < n_children; ++i) {
     auto *c = children[i];
     if (c) {
-      ret += c->repr(sm, prefix + "-");
+      ret += c->repr(src, prefix + "-");
     }
   }
 
   return ret;
 }
 
-str ASTBase::to_string(SourceManager *sm) const {
+str ASTBase::to_string(TokenizedSourceFile *src) const {
   str ty = ASTTypeNames[_node_type];
-  str code = sm->get_source_code(start(), end());
+  str code = src->get_source_code(start(), end());
   return fmt::format("{}: `{}`", ty, code);
 }
 

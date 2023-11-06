@@ -37,7 +37,7 @@ public:
   str terminal_token() const override { return "}"; }
 
 protected:
-  str to_string(SourceManager *) const override { return ASTBase::to_string(); }
+  str to_string(TokenizedSourceFile *) const override { return ASTBase::to_string(); }
 
 protected:
   vector<ASTBase *> _children{};

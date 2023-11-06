@@ -1,21 +1,21 @@
 #include "common/compilation_unit.h"
-#include "source_file/source_manager.h"
+#include "source_file/tokenized_source_file.h"
 #include "ast/stmt.h"
 
 namespace tanlang {
 
-CompilationUnit::CompilationUnit(SourceFile *src, SourceManager *sm, Program *program)
-    : _src(src), _program(program), _sm(sm) {}
+CompilationUnit::CompilationUnit(SourceFile *src, TokenizedSourceFile *tsrc, Program *program)
+    : _src(src), _program(program), _tsrc(tsrc) {}
 
-str CompilationUnit::filename() const { return _sm->get_filename(); }
+str CompilationUnit::filename() const { return _tsrc->get_filename(); }
 
-SourceManager *CompilationUnit::source_manager() const { return _sm; }
+TokenizedSourceFile *CompilationUnit::src() const { return _tsrc; }
 
 Program *CompilationUnit::ast() const { return _program; }
 
 CompilationUnit::~CompilationUnit() {
   delete _program;
-  delete _sm;
+  delete _tsrc;
   delete _src;
 }
 

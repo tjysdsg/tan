@@ -68,7 +68,7 @@ private:
 
 private:
   vector<ASTBase *> _scopes{};
-  SourceManager *_sm = nullptr;
+  TokenizedSourceFile *_src = nullptr;
 };
 
 } // namespace tanlang

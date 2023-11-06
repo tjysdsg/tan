@@ -35,7 +35,7 @@ public:
   [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
   /// AST tree string representation
-  str repr(SourceManager *sm, const str &prefix = "-") const;
+  str repr(TokenizedSourceFile *src, const str &prefix = "-") const;
 
 public:
   virtual bool is_stmt() const { return false; }
@@ -46,7 +46,7 @@ public:
 
 protected:
   /// Different from repr, to_string output doesn't include child nodes
-  [[nodiscard]] virtual str to_string(SourceManager *sm) const;
+  [[nodiscard]] virtual str to_string(TokenizedSourceFile *src) const;
   [[nodiscard]] virtual str to_string() const;
 
   /**

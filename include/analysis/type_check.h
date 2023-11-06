@@ -11,7 +11,7 @@ class Decl;
 class Expr;
 class Type;
 class Program;
-class SourceManager;
+class TokenizedSourceFile;
 class ASTBase;
 
 class TypeCheck : public SemanticAnalysisAction<TypeCheck, Package *, void> {

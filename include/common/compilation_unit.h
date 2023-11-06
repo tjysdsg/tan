@@ -8,23 +8,23 @@ namespace tanlang {
 
 class ASTBase;
 class Program;
-class SourceManager;
+class TokenizedSourceFile;
 
 // TODO: rename to FileParseResult or remove this class
 class CompilationUnit {
 public:
   CompilationUnit() = delete;
-  CompilationUnit(SourceFile *src, SourceManager *sm, Program *program);
+  CompilationUnit(SourceFile *src, TokenizedSourceFile *tsrc, Program *program);
   ~CompilationUnit();
 
   str filename() const;
-  SourceManager *source_manager() const;
+  TokenizedSourceFile *src() const;
   Program *ast() const;
 
 private:
   SourceFile *_src = nullptr;
   Program *_program = nullptr;
-  SourceManager *_sm = nullptr;
+  TokenizedSourceFile *_tsrc = nullptr;
 };
 
 } // namespace tanlang

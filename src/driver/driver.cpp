@@ -177,7 +177,7 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   // (Optional): Print AST tree
   if (_config.verbose >= 2) {
     for (auto *c : cu) {
-      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr(c->source_manager()));
+      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr(c->src()));
     }
   }
 
@@ -283,7 +283,7 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
     // tokenization
     auto tokens = tokenize(source);
 
-    auto *sm = new SourceManager(file, tokens);
+    auto *sm = new TokenizedSourceFile(file, tokens);
     auto *parser = new Parser(sm);
     auto *ast = parser->parse();
 

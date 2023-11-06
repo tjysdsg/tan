@@ -193,7 +193,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     }
 
     auto *decl = id->get_var_ref()->get_referred();
-    auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(decl->start(), decl->end()));
+    auto *source_str = Literal::CreateStringLiteral(p->src(), _src->get_source_code(decl->start(), decl->end()));
 
     // FEATURE: Return AST?
     p->set_sub(source_str);
@@ -210,7 +210,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     }
 
     str msg = pcast<StringLiteral>(args[0])->get_value();
-    std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->start()), msg);
+    std::cout << fmt::format("Message ({}): {}\n", _src->get_src_location_str(p->start()), msg);
     break;
   }
   default:
@@ -527,7 +527,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {
-    auto sub = IntegerLiteral::Create(p->src(), _sm->get_line(p->start()), true);
+    auto sub = IntegerLiteral::Create(p->src(), _src->get_line(p->start()), true);
     auto type = PrimitiveType::GetIntegerType(32, true);
     sub->set_type(type);
     p->set_type(type);
@@ -535,7 +535,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     break;
   }
   case IntrinsicType::FILENAME: {
-    auto sub = StringLiteral::Create(p->src(), _sm->get_filename());
+    auto sub = StringLiteral::Create(p->src(), _src->get_filename());
     auto type = Type::GetStringType();
     sub->set_type(type);
     p->set_type(type);

@@ -3,7 +3,7 @@
 
 #include "lexer/lexer.h"
 #include "source_file/token.h"
-#include "source_file/source_manager.h"
+#include "source_file/tokenized_source_file.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "ast/ast_base.h"
@@ -20,7 +20,7 @@ ASTBase *parse_string(str code) {
   auto result = tokenize(&src);
   auto tokens = tokenize(&src);
 
-  auto *parser = new Parser(new SourceManager("test module", tokens));
+  auto *parser = new Parser(new TokenizedSourceFile("test module", tokens));
   return parser->parse();
 }
 
