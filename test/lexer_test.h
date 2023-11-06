@@ -32,7 +32,7 @@ TEST(tokenize, line_comment) {
   }
 }
 
-TEST(tokenize, string_literal) {
+TEST(tokenize, string_literal1) {
   str code = "\"hello world, motherfucker dsfs \nshit \t\"";
   SourceFile r;
   r.from_string(code);
@@ -46,7 +46,7 @@ TEST(tokenize, string_literal) {
   }
 }
 
-TEST(tokenize, string_literal_escape) {
+TEST(tokenize, string_literal2) {
   vector<str> input = {R"raw("\"hello world")raw",
                        R"raw("\\")raw",
                        R"raw("\n")raw",
@@ -75,7 +75,21 @@ TEST(tokenize, string_literal_escape) {
   }
 }
 
-TEST(tokenize, char_literal) {
+TEST(tokenize, string_literal3) {
+  str code = "\"";
+  SourceFile r;
+  r.from_string(code);
+
+  bool caught = false;
+  try {
+    auto result = tokenize(&r);
+  } catch (const CompileException &e) {
+    caught = true;
+  }
+  EXPECT_TRUE(caught);
+}
+
+TEST(tokenize, char_literal1) {
   vector<str> input = {"'\\\\'", "'\\n'", "'\\t'", "'\\''", "'\\\"'"};
   vector<str> output = {"\\", "\n", "\t", "'", "\""};
   for (size_t i = 0; i < input.size(); ++i) {
@@ -90,6 +104,22 @@ TEST(tokenize, char_literal) {
       delete t;
       t = nullptr;
     }
+  }
+}
+
+TEST(tokenize, char_literal2) {
+  vector<str> input = {"'a", "'\\ab'", "'abc'"};
+  for (const str &code : input) {
+    SourceFile r;
+    r.from_string(code);
+
+    bool caught = false;
+    try {
+      auto result = tokenize(&r);
+    } catch (const CompileException &e) {
+      caught = true;
+    }
+    EXPECT_TRUE(caught);
   }
 }
 
@@ -119,6 +149,20 @@ TEST(tokenize, block_comment2) {
     delete t;
     t = nullptr;
   }
+}
+
+TEST(tokenize, block_comment3) {
+  str code = "/* block comment error";
+  SourceFile r;
+  r.from_string(code);
+
+  bool caught = false;
+  try {
+    auto result = tokenize(&r);
+  } catch (const CompileException &e) {
+    caught = true;
+  }
+  EXPECT_TRUE(caught);
 }
 
 TEST(tokenize, number_literal) {
