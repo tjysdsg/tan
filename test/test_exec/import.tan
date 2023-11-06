@@ -1,9 +1,8 @@
-import "struct.tan";
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import "struct";
+import "runtime";
 
 @test_comp_error(unknown_import) {
-    import "shit.tan";
+    import "shit";
 }
 
 @test_comp_error(import_not_string) {

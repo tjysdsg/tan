@@ -1,3 +1,5 @@
+package "lib1";
+
 pub fn lib_func1(a: i32) : i32 {
     return a * a;
 }

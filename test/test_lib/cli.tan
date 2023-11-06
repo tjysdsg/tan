@@ -1,8 +1,6 @@
-import "lib1.tan";
-import "lib2.tan";
-import "runtime/print.tan";
-import "runtime/stdlib.tan";
-import "runtime/debug.tan";
+import "lib1";
+import "lib2";
+import "runtime";
 
 pub fn main() : int {
     var a = lib_func1(3) + lib_func2(3); // 9 + 6

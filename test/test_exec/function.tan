@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import "runtime";
 
 fn work1(a: float, b: float): float {
     return a * b;

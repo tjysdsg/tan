@@ -1,4 +1,4 @@
-package "std";
+package "runtime";
 
 pub fn fabs(a: float): float {
     if (a >= 0.) {

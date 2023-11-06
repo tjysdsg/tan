@@ -1,4 +1,4 @@
-package "std";
+package "runtime";
 
 fn reverse(s: str, len: u32) : void {
     var start: u32 = 0u;

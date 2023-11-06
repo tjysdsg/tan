@@ -1,5 +1,4 @@
-import "runtime/debug.tan";
-import "runtime/print.tan";
+import "runtime";
 
 struct A {
     var a: i32;

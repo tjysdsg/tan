@@ -1,4 +1,4 @@
-package "std";
+package "runtime";
 
 extern fn puts(s: str) : int;
 

@@ -1,4 +1,4 @@
-package "std";
+package "runtime";
 
 pub fn assert(b: bool) : void {
     if(!b) {

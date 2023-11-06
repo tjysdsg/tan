@@ -1,4 +1,4 @@
-import "runtime/print.tan";
+import "runtime";
 
 struct List {
     var val: Value;
