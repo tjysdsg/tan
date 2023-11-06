@@ -55,8 +55,9 @@ DEFINE_AST_VISITOR_IMPL(OrganizePackages, Program) {
     }
   }
 
-  if (package_name.empty()) {
-    Error(ErrorType::SEMANTIC_ERROR, fmt::format("Missing a package stmt in {}", p->src()->get_filename())).raise();
+  if (package_name.empty()) { // default package name to "main" if not specified
+    // Error(ErrorType::SEMANTIC_ERROR, fmt::format("Missing a package stmt in {}", p->src()->get_filename())).raise();
+    package_name = "main";
   }
 
   // register ASTs
