@@ -138,9 +138,13 @@ void CodeGenerator::init(Package *package) {
   /// debug related
   _di_builder = new DIBuilder(*_module);
 
-  // Package-level debug info
-  auto *di_package = _di_builder->createFile("PACKAGE:" + package->get_name(), ".");
-  _di_scope = {di_package};
+  auto *di_package = _di_builder->createFile("<package-" + package->get_name() + ">", ".");
+
+  // FIXME: isOptimized flag
+  auto *cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, di_package, package->get_name(), false, "", 0);
+  // NOTE: compilation unit is bound to package-level DIFile, so we must set the root scope to this so that all
+  // top-level declarations are bound to it as well.
+  _di_scope.push_back(di_package);
 }
 
 CodeGenerator::CodeGenerator(TargetMachine *target_machine) : _target_machine(target_machine) {}
@@ -440,7 +444,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, DIFile *di_file, uint32
 
     // avoid infinite recursion by inserting a placeholder
     ret = _di_builder->createStructType(
-        get_current_di_scope(), p->get_typename(), di_file, (unsigned)lineno, (uint32_t)p->get_size_bits(),
+        di_file, p->get_typename(), di_file, (unsigned)lineno, (uint32_t)p->get_size_bits(),
         (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
         _di_builder->getOrCreateArray(vector<Metadata *>(n, nullptr)), 0, nullptr, p->get_typename());
 
@@ -482,7 +486,7 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
   unsigned line = AST_LINENO(p) + 1;
   unsigned col = AST_COL(p) + 1;
-  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
+  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, get_current_di_scope()));
 }
 
 DIScope *CodeGenerator::get_current_di_scope() const { return _di_scope.back(); }
