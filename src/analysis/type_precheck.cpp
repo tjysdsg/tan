@@ -93,6 +93,10 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   auto *compiler = CompilerDriver::instance();
   TAN_ASSERT(compiler);
   Package *package = compiler->get_package(name);
+  if (!package) {
+    error(ErrorType::IMPORT_ERROR, p, "Cannot find package named: " + name);
+  }
+
   Context *imported_ctx = package->ctx();
 
   // import functions
