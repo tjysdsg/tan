@@ -241,10 +241,12 @@ DIFile *CodeGenerator::get_or_create_di_file(ASTBase *p) {
   auto q = _di_files.find(src);
   if (q != _di_files.end()) {
     return q->second;
-  } else {
-    auto *ret = _di_builder->createFile(src->get_filename(), ".");
-    _di_files[src] = ret;
   }
+
+  auto *ret = _di_builder->createFile(src->get_filename(), ".");
+  _di_files[src] = ret;
+
+  return ret;
 }
 
 AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
