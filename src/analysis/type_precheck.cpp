@@ -2,26 +2,23 @@
 #include "ast/ast_base.h"
 #include "ast/ast_node_type.h"
 #include "common/ast_visitor.h"
-#include "common/compilation_unit.h"
 #include "ast/type.h"
 #include "ast/expr.h"
 #include "ast/stmt.h"
+#include "ast/package.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 #include "ast/context.h"
 #include "source_file/token.h"
 #include "driver/driver.h"
 #include <iostream>
-#include <set>
 
 namespace tanlang {
 
 void TypePrecheck::default_visit(ASTBase *) { TAN_ASSERT(false); }
 
-void TypePrecheck::run_impl(CompilationUnit *cu) {
-  _cu = cu;
-
-  auto *p = cu->ast();
+void TypePrecheck::run_impl(Package *p) {
+  _package = p;
 
   push_scope(p);
 
@@ -57,7 +54,7 @@ Type *TypePrecheck::check_type_ref(Type *p, ASTBase *node) {
     ret = decl->get_type();
     TAN_ASSERT(ret);
     if (!ret->is_canonical()) {
-      _cu->top_level_symbol_dependency.add_dependency(decl, node);
+      _package->top_level_symbol_dependency.add_dependency(decl, node);
     }
   } else {
     error(ErrorType::TYPE_ERROR, node, fmt::format("Unknown type {}", referred_name));
@@ -89,19 +86,21 @@ Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
   return ret;
 }
 
-// TODO: check recursive import
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
-  str file = p->get_filename();
-  auto imported = CompilerDriver::resolve_import(_sm->get_filename(), file);
-  if (imported.empty()) {
-    error(ErrorType::IMPORT_ERROR, p, "Cannot import: " + file);
-  }
+  str name = p->get_name();
 
   auto *compiler = CompilerDriver::instance();
   TAN_ASSERT(compiler);
-  const auto &cu = compiler->parse(imported);
-  compiler->analyze(cu);
-  Context *imported_ctx = cu[0]->ast()->ctx();
+  Package *package = compiler->get_package(name);
+  if (!package) {
+    error(ErrorType::IMPORT_ERROR, p, "Cannot find package named: " + name);
+  }
+
+  Context *imported_ctx = package->ctx();
+
+  // Imported declarations are stored in both the package's context and this import AST node:
+  // 1. The context only serves as a search table
+  // 2. The type checker and code generator will operate on the declarations stored in the import node
 
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
@@ -113,21 +112,21 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
     if (f->is_public() || f->is_external()) {
       auto *existing = top_ctx()->get_func_decl(f->get_name());
       if (!existing) {
-        // TODO: merge multiple declarations of the same symbol, fail if they don't match
+        // FIXME: merge multiple declarations of the same symbol, fail if they don't match
         pub_funcs.push_back(f);
         top_ctx()->set_function_decl(f);
       }
     }
   }
-  p->set_imported_funcs(pub_funcs);
+  p->_imported_funcs = pub_funcs;
 
-  // import type declarations
-  // TODO: distinguish local and global type decls
+  // imported types
+  // FIXME: only import public declarations
   vector<Decl *> decls = imported_ctx->get_decls();
-  vector<TypeDecl *> type_decls{};
   for (auto *t : decls) {
     if (t->is_type_decl()) {
       top_ctx()->set_decl(t->get_name(), t);
+      p->_imported_types.push_back(pcast<TypeDecl>(t));
     }
   }
 }
@@ -232,7 +231,7 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
      *    pointer.
      */
     if (!m->get_type()->is_canonical() && !m->get_type()->is_pointer()) {
-      _cu->top_level_symbol_dependency.add_dependency(m, p);
+      _package->top_level_symbol_dependency.add_dependency(m, p);
     }
 
     /// member variable without initial value

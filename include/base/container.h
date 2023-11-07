@@ -2,6 +2,7 @@
 #define __TAN_SRC_BASE_CONTAINER_H__
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <stack>
 #include <string>
@@ -13,8 +14,10 @@ template <typename T> using vector = std::vector<T>;
 using str = std::string;
 using str_view = std::string_view;
 
-template <typename Key, typename Value, typename Hash = std::hash<Key>> // support custom hash
+template <typename Key, typename Value, typename Hash = std::hash<Key>>
 using umap = std::unordered_map<Key, Value, Hash>;
+
+template <typename Key, typename Hash = std::hash<Key>> using uset = std::unordered_set<Key, Hash>;
 
 using std::pair;
 using std::stack;

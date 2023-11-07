@@ -1,5 +1,6 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+package "struct";
+
+import "runtime";
 
 struct Useless {
     var shit: i8 = 1 as i8;

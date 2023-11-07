@@ -1,9 +1,9 @@
-import "struct.tan";
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import "struct";
+import "runtime";
+import "symbol_resolution";
 
 @test_comp_error(unknown_import) {
-    import "shit.tan";
+    import "shit";
 }
 
 @test_comp_error(import_not_string) {
@@ -14,6 +14,11 @@ pub fn main(argc: int, argv: u8**) : i32 {
     var f: Fuck;
     f.val = 100;
     assert(f.val == 100);
+
+    // TODO: make Value private and see if this still works
+    var list: List;
+    list.val.v = 1;
+    assert(list.val.v == 1);
 
     print("SUCCESS\n");
     return 0;

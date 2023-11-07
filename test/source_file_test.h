@@ -90,7 +90,7 @@ TEST(SrcLoc, comparison) {
 }
 
 TEST(SourceManager, empty) {
-  SourceManager sm("file", {});
+  TokenizedSourceFile sm("file", {});
 
   Token *tok = sm.get_token(0);
   EXPECT_EQ(tok->get_type(), TokenType::COMMENTS);

@@ -1,3 +1,5 @@
+package "runtime";
+
 pub fn fabs(a: float): float {
     if (a >= 0.) {
         return a;

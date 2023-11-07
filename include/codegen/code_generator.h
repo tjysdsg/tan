@@ -2,7 +2,6 @@
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #include "base.h"
 #include "ast/fwd.h"
-#include "common/compilation_unit.h"
 #include "common/compiler_action.h"
 
 #include <llvm/Target/TargetMachine.h>
@@ -22,15 +21,16 @@ namespace tanlang {
 
 class ASTBase;
 class StructType;
+class Package;
 
-class CodeGenerator final : public CompilerAction<CodeGenerator, CompilationUnit *, llvm::Value *> {
+class CodeGenerator final : public CompilerAction<CodeGenerator, Package *, void> {
 public:
   CodeGenerator() = delete;
   explicit CodeGenerator(TargetMachine *target_machine);
   ~CodeGenerator();
 
-  void init(CompilationUnit *cu) override;
-  llvm::Value *run_impl(CompilationUnit *cu);
+  void init(Package *package) override;
+  void run_impl(Package *package);
   llvm::Value *cached_visit(ASTBase *p);
   void default_visit(ASTBase *) override;
 
@@ -56,16 +56,16 @@ private:
   llvm::Value *load_if_is_lvalue(Expr *expr);
 
   llvm::Type *to_llvm_type(Type *p);
-  llvm::Metadata *to_llvm_metadata(Type *p, uint32_t loc);
+  llvm::Metadata *to_llvm_metadata(Type *p, llvm::DIFile *di_file, uint32_t lineno);
   llvm::DISubroutineType *create_function_debug_info_type(llvm::Metadata *ret, vector<llvm::Metadata *> args);
 
 private:
-  CompilationUnit *_cu = nullptr;
-  SourceManager *_sm = nullptr;
-
   umap<Type *, llvm::Type *> _llvm_type_cache{};
   umap<Type *, llvm::Metadata *> _llvm_meta_cache{};
   umap<ASTBase *, llvm::Value *> _llvm_value_cache{};
+
+  // Map source files to their DIFile instances
+  umap<TokenizedSourceFile *, llvm::DIFile *> _di_files{};
 
   /// LLVM things
   llvm::IRBuilder<> *_builder = nullptr;
@@ -74,8 +74,6 @@ private:
   llvm::Module *_module = nullptr;
   vector<llvm::DIScope *> _di_scope{};
   llvm::TargetMachine *_target_machine = nullptr;
-  llvm::DICompileUnit *_di_cu = nullptr;
-  llvm::DIFile *_di_file = nullptr;
 
 private:
   llvm::DIScope *get_current_di_scope() const;
@@ -108,8 +106,13 @@ private:
   Value *codegen_comparison(BinaryOperator *p);
   Value *codegen_member_access(BinaryOperator *p);
 
+  /**
+   * \brief Get or create a DIFile instance for the source file that contains node p
+   */
+  llvm::DIFile *get_or_create_di_file(ASTBase *p);
+
 public:
-  DECLARE_AST_VISITOR_IMPL(Program);
+  DECLARE_AST_VISITOR_IMPL(Package);
   DECLARE_AST_VISITOR_IMPL(Identifier);
   DECLARE_AST_VISITOR_IMPL(Parenthesis);
   DECLARE_AST_VISITOR_IMPL(If);
@@ -138,6 +141,7 @@ public:
   DECLARE_AST_VISITOR_IMPL(Loop);
   DECLARE_AST_VISITOR_IMPL(BreakContinue);
   DECLARE_AST_VISITOR_IMPL(VarRef);
+  DECLARE_AST_VISITOR_IMPL(PackageDecl);
 };
 
 } // namespace tanlang

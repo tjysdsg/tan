@@ -16,7 +16,7 @@ class Program;
 class Parser final {
 public:
   Parser() = delete;
-  explicit Parser(SourceManager *ctx);
+  explicit Parser(TokenizedSourceFile *src);
   ~Parser();
   Program *parse();
 

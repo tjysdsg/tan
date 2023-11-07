@@ -40,10 +40,10 @@ private:
 class ParserImpl final {
 public:
   ParserImpl() = delete;
-  explicit ParserImpl(SourceManager *sm) : _sm(sm), _filename(sm->get_filename()) {}
+  explicit ParserImpl(TokenizedSourceFile *src) : _src(src), _filename(src->get_filename()) {}
 
   Program *parse() {
-    _root = Program::Create(_sm->src());
+    _root = Program::Create(_src);
 
     ScopeGuard scope_guard(_curr_scope, _root);
 
@@ -66,31 +66,31 @@ private:
     ASTBase *ret = nullptr;
     str tok = token->get_value();
     if (tok == "var")
-      ret = VarDecl::Create(_sm->src());
+      ret = VarDecl::Create(_src);
     else if (tok == "fn" || tok == "pub" || tok == "extern")
-      ret = FunctionDecl::Create(_sm->src());
+      ret = FunctionDecl::Create(_src);
     else if (tok == "import")
-      ret = Import::Create(_sm->src());
+      ret = Import::Create(_src);
     else if (tok == "if") /// else clause should be covered by If statement as well
-      ret = If::Create(_sm->src());
+      ret = If::Create(_src);
     else if (tok == "return")
-      ret = Return::Create(_sm->src());
+      ret = Return::Create(_src);
     else if (tok == "while" || tok == "for")
-      ret = Loop::Create(_sm->src());
+      ret = Loop::Create(_src);
     else if (tok == "struct")
-      ret = StructDecl::Create(_sm->src());
+      ret = StructDecl::Create(_src);
     else if (tok == "break")
-      ret = Break::Create(_sm->src());
+      ret = Break::Create(_src);
     else if (tok == "continue")
-      ret = Continue::Create(_sm->src());
+      ret = Continue::Create(_src);
     else if (tok == "as")
-      ret = Cast::Create(_sm->src());
+      ret = Cast::Create(_src);
     else if (tok == "true")
-      ret = BoolLiteral::Create(_sm->src(), true);
+      ret = BoolLiteral::Create(_src, true);
     else if (tok == "false")
-      ret = BoolLiteral::Create(_sm->src(), false);
+      ret = BoolLiteral::Create(_src, false);
     else if (tok == "package")
-      ret = PackageStmt::Create(_sm->src());
+      ret = PackageDecl::Create(_src);
 
     TAN_ASSERT(ret);
     return ret;
@@ -124,21 +124,21 @@ private:
 
     ASTBase *node = nullptr;
     if (token->get_value() == "@") { /// intrinsics
-      node = Intrinsic::Create(_sm->src());
+      node = Intrinsic::Create(_src);
     } else if (token->get_value() == "=" && token->get_type() == TokenType::BOP) {
-      node = Assignment::Create(_sm->src());
+      node = Assignment::Create(_src);
     } else if (token->get_value() == "!") { /// logical not
-      node = UnaryOperator::Create(UnaryOpKind::LNOT, _sm->src());
+      node = UnaryOperator::Create(UnaryOpKind::LNOT, _src);
     } else if (token->get_value() == "~") { /// binary not
-      node = UnaryOperator::Create(UnaryOpKind::BNOT, _sm->src());
+      node = UnaryOperator::Create(UnaryOpKind::BNOT, _src);
     } else if (token->get_value() == "[") {
       Token *prev_token = at(_curr - 1);
       if (prev_token->get_type() != TokenType::ID && prev_token->get_value() != "]" && prev_token->get_value() != ")") {
         /// array literal if there is no identifier, "]", or ")" before
-        node = ArrayLiteral::Create(_sm->src());
+        node = ArrayLiteral::Create(_src);
       } else {
         /// otherwise bracket access
-        node = MemberAccess::Create(_sm->src());
+        node = MemberAccess::Create(_src);
       }
     } else if (token->get_type() == TokenType::RELOP) { /// comparisons
       BinaryOpKind op;
@@ -163,69 +163,69 @@ private:
         error(ErrorType::NOT_IMPLEMENTED, _curr, _curr,
               fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
 
-      node = BinaryOperator::Create(op, _sm->src());
+      node = BinaryOperator::Create(op, _src);
     } else if (token->get_type() == TokenType::INT) {
-      node = IntegerLiteral::Create(_sm->src(), (uint64_t)std::stol(token->get_value()), token->is_unsigned());
+      node = IntegerLiteral::Create(_src, (uint64_t)std::stol(token->get_value()), token->is_unsigned());
     } else if (token->get_type() == TokenType::FLOAT) {
-      node = FloatLiteral::Create(_sm->src(), std::stod(token->get_value()));
+      node = FloatLiteral::Create(_src, std::stod(token->get_value()));
     } else if (token->get_type() == TokenType::STRING) { /// string literal
-      node = StringLiteral::Create(_sm->src(), token->get_value());
-    } else if (token->get_type() == TokenType::CHAR) {   /// char literal
-      node = CharLiteral::Create(_sm->src(), static_cast<uint8_t>(token->get_value()[0]));
-    } else if (check_typename_token(token)) {            /// should not encounter types if parsed properly
+      node = StringLiteral::Create(_src, token->get_value());
+    } else if (token->get_type() == TokenType::CHAR) { /// char literal
+      node = CharLiteral::Create(_src, static_cast<uint8_t>(token->get_value()[0]));
+    } else if (check_typename_token(token)) { /// should not encounter types if parsed properly
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Unexpected type name");
     } else if (token->get_type() == TokenType::ID) {
       auto next = _curr;
       Token *next_token = at(++next);
       if (next_token->get_value() == "(") {
         /// identifier followed by a "(" is a function call
-        node = FunctionCall::Create(_sm->src());
+        node = FunctionCall::Create(_src);
       } else {
         /// actually an identifier
-        node = Identifier::Create(_sm->src(), token->get_value());
+        node = Identifier::Create(_src, token->get_value());
       }
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "(") {
-      node = Parenthesis::Create(_sm->src());
+      node = Parenthesis::Create(_src);
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
       node = peek_keyword(token);
       if (!node) {
         error(ErrorType::NOT_IMPLEMENTED, _curr, _curr, "Keyword not implemented: " + token->get_value());
       }
     } else if (token->get_type() == TokenType::BOP && token->get_value() == ".") { /// member access
-      node = MemberAccess::Create(_sm->src());
+      node = MemberAccess::Create(_src);
     } else if (token->get_value() == "&") {
       /// BOP or UOP? ambiguous
-      node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
+      node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::BAND]);
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "{") { /// statement(s)
-      node = CompoundStmt::Create(_sm->src());
+      node = CompoundStmt::Create(_src);
     } else if (token->get_type() == TokenType::BOP) { /// binary operators that haven't been processed yet
       TAN_ASSERT(token->get_value().length());
       switch (token->get_value()[0]) {
       case '/':
-        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _sm->src());
+        node = BinaryOperator::Create(BinaryOpKind::DIVIDE, _src);
         break;
       case '%':
-        node = BinaryOperator::Create(BinaryOpKind::MOD, _sm->src());
+        node = BinaryOperator::Create(BinaryOpKind::MOD, _src);
         break;
       case '|':
-        node = BinaryOperator::Create(BinaryOpKind::BOR, _sm->src());
+        node = BinaryOperator::Create(BinaryOpKind::BOR, _src);
         break;
       case '^':
-        node = BinaryOperator::Create(BinaryOpKind::XOR, _sm->src());
+        node = BinaryOperator::Create(BinaryOpKind::XOR, _src);
         break;
         /// Operators that are possibly BOP or UOP at this stage
         /// NOTE: using the precedence of the BOP form so that the parsing works correctly if it's really a BOP
       case '*':
         // MULTIPLY / PTR_DEREF
-        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::MULTIPLY]);
         break;
       case '+':
         // SUM / PLUS
-        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::SUM]);
         break;
       case '-':
         // SUBTRACT / MINUS
-        node = BinaryOrUnary::Create(_sm->src(), BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
+        node = BinaryOrUnary::Create(_src, BinaryOperator::BOPPrecedence[BinaryOpKind::SUBTRACT]);
         break;
       default:
         TAN_ASSERT(false);
@@ -273,20 +273,20 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = pcast<BinaryOrUnary>(p);
       UnaryOperator *actual = nullptr;
-      str tok = _sm->get_token_str(p->start());
+      str tok = _src->get_token_str(p->start());
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, _sm->src());
+        actual = UnaryOperator::Create(UnaryOpKind::PTR_DEREF, _src);
         break;
       case '&':
-        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, _sm->src());
+        actual = UnaryOperator::Create(UnaryOpKind::ADDRESS_OF, _src);
         break;
       case '+':
-        actual = UnaryOperator::Create(UnaryOpKind::PLUS, _sm->src());
+        actual = UnaryOperator::Create(UnaryOpKind::PLUS, _src);
         break;
       case '-':
-        actual = UnaryOperator::Create(UnaryOpKind::MINUS, _sm->src());
+        actual = UnaryOperator::Create(UnaryOpKind::MINUS, _src);
         break;
       default:
         TAN_ASSERT(false);
@@ -316,20 +316,20 @@ private:
     if (p->get_node_type() == ASTNodeType::BOP_OR_UOP) {
       auto *pp = pcast<BinaryOrUnary>(p);
       BinaryOperator *actual = nullptr;
-      str tok = _sm->get_token_str(p->start());
+      str tok = _src->get_token_str(p->start());
       TAN_ASSERT(tok.length());
       switch (tok[0]) {
       case '*':
-        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, _sm->src());
+        actual = BinaryOperator::Create(BinaryOpKind::MULTIPLY, _src);
         break;
       case '&':
-        actual = BinaryOperator::Create(BinaryOpKind::BAND, _sm->src());
+        actual = BinaryOperator::Create(BinaryOpKind::BAND, _src);
         break;
       case '+':
-        actual = BinaryOperator::Create(BinaryOpKind::SUM, _sm->src());
+        actual = BinaryOperator::Create(BinaryOpKind::SUM, _src);
         break;
       case '-':
-        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, _sm->src());
+        actual = BinaryOperator::Create(BinaryOpKind::SUBTRACT, _src);
         break;
       default:
         TAN_ASSERT(false);
@@ -356,12 +356,12 @@ private:
 private:
   [[nodiscard]] Token *at(uint32_t loc) const {
     if (this->eof(loc)) {
-      Error(ErrorType::SYNTAX_ERROR, _sm->get_last_token(), _sm->get_last_token(), "Unexpected EOF").raise();
+      Error(ErrorType::SYNTAX_ERROR, _src->get_last_token(), _src->get_last_token(), "Unexpected EOF").raise();
     }
-    return _sm->get_token(loc);
+    return _src->get_token(loc);
   }
 
-  [[nodiscard]] bool eof(uint32_t loc) const { return _sm->is_eof(loc); }
+  [[nodiscard]] bool eof(uint32_t loc) const { return _src->is_eof(loc); }
 
   [[noreturn]] void error(ErrorType type, ASTBase *node, const str &error_message) const {
     Error(type, at(node->start()), at(node->end()), error_message).raise();
@@ -459,8 +459,8 @@ private:
 
     /// else or elif clause, if any
     while (at(_curr)->get_value() == "else") {
-      ++_curr;                                    // skip "else"
-      if (at(_curr)->get_value() == "if") {       /// elif
+      ++_curr;                              // skip "else"
+      if (at(_curr)->get_value() == "if") { /// elif
         parse_if_then_branch(p);
       } else if (at(_curr)->get_value() == "{") { /// else
         auto else_clause = peek();
@@ -629,7 +629,7 @@ private:
     bool is_public = false;
     bool is_external = false;
     str token_str = at(_curr)->get_value();
-    if (token_str == "fn") {         /// "fn"
+    if (token_str == "fn") { /// "fn"
       ++_curr;
     } else if (token_str == "pub") { /// "pub fn"
       is_public = true;
@@ -648,7 +648,7 @@ private:
     // but we only want the function name as an identifier
     // [X] auto id = peek();
     Token *id_token = at(_curr);
-    auto id = Identifier::Create(_sm->src(), id_token->get_value());
+    auto id = Identifier::Create(_src, id_token->get_value());
     id->set_start(_curr);
     id->set_end(_curr);
     if (id->get_node_type() != ASTNodeType::ID) {
@@ -676,7 +676,7 @@ private:
       vector<ArgDecl *> arg_decls{};
       if (at(_curr)->get_value() != ")") {
         while (!eof(_curr)) {
-          auto arg = ArgDecl::Create(_sm->src());
+          auto arg = ArgDecl::Create(_src);
           arg->set_start(_curr);
           parse_node(arg);
 
@@ -786,7 +786,7 @@ private:
 
     ++_curr; // skip "@"
 
-    if (_sm->get_token_str(_curr) == Intrinsic::TEST_COMP_ERROR_NAME) {
+    if (_src->get_token_str(_curr) == Intrinsic::TEST_COMP_ERROR_NAME) {
       parse_test_comp_error_intrinsic(p);
       return;
     }
@@ -856,12 +856,12 @@ private:
       error(ErrorType::SYNTAX_ERROR, _curr, _curr, "Invalid import statement");
     }
     parse_node(rhs);
-    str filename = pcast<StringLiteral>(rhs)->get_value();
-    p->set_filename(filename);
+    str name = pcast<StringLiteral>(rhs)->get_value();
+    p->set_name(name);
   }
 
   void parse_package_stmt(ASTBase *_p) {
-    auto *p = pcast<PackageStmt>(_p);
+    auto *p = pcast<PackageDecl>(_p);
     ++_curr;
 
     auto rhs = peek();
@@ -874,8 +874,6 @@ private:
     p->set_name(name);
 
     p->set_end(_curr - 1);
-
-    // TODO: _ctx->set_package_name(name);
   }
 
   void parse_member_access(Expr *left, MemberAccess *p) {
@@ -1006,7 +1004,7 @@ private:
       auto it = PrimitiveType::TYPENAME_TO_KIND.find(token->get_value());
       if (it != PrimitiveType::TYPENAME_TO_KIND.end()) { // primitive
         ret = PrimitiveType::Create(it->second);
-      } else if (token->get_value() == "*") {            // pointer
+      } else if (token->get_value() == "*") { // pointer
         TAN_ASSERT(ret);
         ret = Type::GetPointerType(ret);
       } else if (token->get_value() == "str") {
@@ -1070,7 +1068,7 @@ private:
   }
 
 private:
-  SourceManager *_sm = nullptr;
+  TokenizedSourceFile *_src = nullptr;
   uint32_t _curr = 0;
   str _filename;
   Program *_root = nullptr;
@@ -1081,7 +1079,7 @@ private:
   const static umap<ASTNodeType, led_parsing_func_t> LED_PARSING_FUNC_TABLE;
 };
 
-Parser::Parser(SourceManager *sm) { _impl = new ParserImpl(sm); }
+Parser::Parser(TokenizedSourceFile *src) { _impl = new ParserImpl(src); }
 
 Program *Parser::parse() { return _impl->parse(); }
 
@@ -1110,7 +1108,7 @@ const umap<ASTNodeType, nud_parsing_func_t> ParserImpl::NUD_PARSING_FUNC_TABLE =
     {ASTNodeType::CHAR_LITERAL,       &ParserImpl::parse_generic_token},
     {ASTNodeType::STRING_LITERAL,     &ParserImpl::parse_generic_token},
     {ASTNodeType::BOOL_LITERAL,       &ParserImpl::parse_generic_token},
-    {ASTNodeType::PACKAGE,            &ParserImpl::parse_package_stmt },
+    {ASTNodeType::PACKAGE_DECL,       &ParserImpl::parse_package_stmt },
 };
 } // namespace tanlang
 

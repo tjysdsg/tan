@@ -17,35 +17,35 @@ public:
   virtual bool is_type_decl() const { return false; }
 
 protected:
-  Decl(ASTNodeType type, SourceFile *src, int bp);
+  Decl(ASTNodeType type, TokenizedSourceFile *src, int bp);
 };
 
 class VarDecl : public Decl {
 protected:
-  explicit VarDecl(SourceFile *src);
+  explicit VarDecl(TokenizedSourceFile *src);
 
 public:
-  static VarDecl *Create(SourceFile *src);
-  static VarDecl *Create(SourceFile *src, const str &name, Type *ty);
+  static VarDecl *Create(TokenizedSourceFile *src);
+  static VarDecl *Create(TokenizedSourceFile *src, const str &name, Type *ty);
 };
 
 class ArgDecl : public Decl {
 protected:
-  explicit ArgDecl(SourceFile *src);
+  explicit ArgDecl(TokenizedSourceFile *src);
 
 public:
-  static ArgDecl *Create(SourceFile *src);
-  static ArgDecl *Create(SourceFile *src, const str &name, Type *ty);
+  static ArgDecl *Create(TokenizedSourceFile *src);
+  static ArgDecl *Create(TokenizedSourceFile *src, const str &name, Type *ty);
 };
 
 class FunctionType;
 class FunctionDecl : public Decl {
 protected:
-  explicit FunctionDecl(SourceFile *src);
+  explicit FunctionDecl(TokenizedSourceFile *src);
 
 public:
-  static FunctionDecl *Create(SourceFile *src);
-  static FunctionDecl *Create(SourceFile *src, const str &name, FunctionType *func_type, bool is_external,
+  static FunctionDecl *Create(TokenizedSourceFile *src);
+  static FunctionDecl *Create(TokenizedSourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                               bool is_public, Stmt *body = nullptr, bool is_intrinsic = false);
 
 public:
@@ -82,16 +82,16 @@ private:
 
 class TypeDecl : public Decl {
 public:
-  TypeDecl(ASTNodeType node_type, SourceFile *src);
+  TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src);
   bool is_type_decl() const override { return true; }
 };
 
 class StructDecl : public TypeDecl {
 protected:
-  explicit StructDecl(SourceFile *src);
+  explicit StructDecl(TokenizedSourceFile *src);
 
 public:
-  static StructDecl *Create(SourceFile *src);
+  static StructDecl *Create(TokenizedSourceFile *src);
 
 public:
   const vector<Expr *> &get_member_decls() const;

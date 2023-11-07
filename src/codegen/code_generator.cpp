@@ -5,6 +5,7 @@
 #include "ast/stmt.h"
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
+#include "ast/package.h"
 #include "ast/default_value.h"
 #include "tan/tan.h"
 
@@ -118,14 +119,15 @@ using llvm::verifyFunction;
 using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
 
+#define AST_LINENO(p) (p->src()->get_line(p->start()))
+#define AST_COL(p) (p->src()->get_col(p->start()))
+
 namespace tanlang {
 
-void CodeGenerator::init(CompilationUnit *cu) {
-  _cu = cu;
-  _sm = cu->source_manager();
+void CodeGenerator::init(Package *package) {
   _llvm_ctx = new LLVMContext();
   _builder = new IRBuilder<>(*_llvm_ctx);
-  _module = new Module(_sm->get_filename(), *_llvm_ctx);
+  _module = new Module(package->get_name(), *_llvm_ctx);
   _module->setDataLayout(_target_machine->createDataLayout());
   _module->setTargetTriple(_target_machine->getTargetTriple().str());
 
@@ -135,9 +137,14 @@ void CodeGenerator::init(CompilationUnit *cu) {
 
   /// debug related
   _di_builder = new DIBuilder(*_module);
-  _di_file = _di_builder->createFile(_sm->get_filename(), ".");
-  _di_cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, _di_file, "tan compiler", false, "", 0);
-  _di_scope = {_di_file};
+
+  auto *di_package = _di_builder->createFile("<package-" + package->get_name() + ">", ".");
+
+  // FIXME: isOptimized flag
+  auto *cu = _di_builder->createCompileUnit(llvm::dwarf::DW_LANG_C, di_package, package->get_name(), false, "", 0);
+  // NOTE: compilation unit is bound to package-level DIFile, so we must set the root scope to this so that all
+  // top-level declarations are bound to it as well.
+  _di_scope.push_back(di_package);
 }
 
 CodeGenerator::CodeGenerator(TargetMachine *target_machine) : _target_machine(target_machine) {}
@@ -153,14 +160,14 @@ CodeGenerator::~CodeGenerator() {
     delete _llvm_ctx;
 }
 
-llvm::Value *CodeGenerator::run_impl(CompilationUnit *cu) {
-  auto *ret = cached_visit(cu->ast());
+void CodeGenerator::run_impl(Package *package) {
+  // Not using cached_visit because we package doesn't have a source file instance, and there's no need to set debug
+  // location or cache value of this node.
+  visit(package);
 
   _di_builder->finalize(); // do this before any pass
 
   run_passes();
-
-  return ret;
 }
 
 llvm::Value *CodeGenerator::cached_visit(ASTBase *p) {
@@ -228,6 +235,20 @@ void CodeGenerator::dump_ir() const { _module->print(llvm::outs(), nullptr); }
 
 // ===================================================
 
+DIFile *CodeGenerator::get_or_create_di_file(ASTBase *p) {
+  auto *src = p->src();
+
+  auto q = _di_files.find(src);
+  if (q != _di_files.end()) {
+    return q->second;
+  }
+
+  auto *ret = _di_builder->createFile(src->get_filename(), ".");
+  _di_files[src] = ret;
+
+  return ret;
+}
+
 AllocaInst *CodeGenerator::create_block_alloca(BasicBlock *block, llvm::Type *type, size_t size, const str &name) {
   block = &block->getParent()->getEntryBlock();
   IRBuilder<> tmp_builder(block, block->begin());
@@ -273,9 +294,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_float() && dest->is_float()) { /// float <-> double
     return _builder->CreateFPCast(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_int()) {    /// bool to int
+  } else if (orig->is_bool() && dest->is_int()) { /// bool to int
     return _builder->CreateZExtOrTrunc(loaded, to_llvm_type(dest));
-  } else if (orig->is_bool() && dest->is_float()) {  /// bool to float
+  } else if (orig->is_bool() && dest->is_float()) { /// bool to float
     return _builder->CreateUIToFP(loaded, to_llvm_type(dest));
   } else if (dest->is_bool()) {
     if (orig->is_float()) { /// float to bool
@@ -294,9 +315,9 @@ llvm::Value *CodeGenerator::convert_llvm_type_to(Expr *expr, Type *dest) {
     }
   } else if (orig->is_string() && dest->is_pointer()) { /// string to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_pointer()) {  /// array to pointer, don't need to do anything
+  } else if (orig->is_array() && dest->is_pointer()) { /// array to pointer, don't need to do anything
     return loaded;
-  } else if (orig->is_array() && dest->is_string()) {   /// array to string, don't need to do anything
+  } else if (orig->is_array() && dest->is_string()) { /// array to string, don't need to do anything
     return loaded;
   }
 
@@ -376,7 +397,7 @@ llvm::Type *CodeGenerator::to_llvm_type(Type *p) {
   return ret;
 }
 
-llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
+llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, DIFile *di_file, uint32_t lineno) {
   TAN_ASSERT(p);
   TAN_ASSERT(!p->is_ref());
 
@@ -425,18 +446,18 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
 
     // avoid infinite recursion by inserting a placeholder
     ret = _di_builder->createStructType(
-        get_current_di_scope(), p->get_typename(), _di_file, (unsigned)_sm->get_line(loc), (uint32_t)p->get_size_bits(),
+        di_file, p->get_typename(), di_file, (unsigned)lineno, (uint32_t)p->get_size_bits(),
         (uint32_t)p->get_align_bits(), DINode::DIFlags::FlagZero, nullptr,
         _di_builder->getOrCreateArray(vector<Metadata *>(n, nullptr)), 0, nullptr, p->get_typename());
 
     vector<Metadata *> elements(member_types.size(), nullptr);
     for (unsigned i = 0; i < n; ++i) {
-      elements[i] = to_llvm_metadata(member_types[i], loc);
+      elements[i] = to_llvm_metadata(member_types[i], di_file, lineno);
     }
     // work around replaceElements()'s check
     ret->replaceOperandWith(4, _di_builder->getOrCreateArray(elements).get());
   } else if (p->is_array()) { /// array as pointer
-    auto *sub = to_llvm_metadata(pcast<ArrayType>(p)->get_element_type(), loc);
+    auto *sub = to_llvm_metadata(pcast<ArrayType>(p)->get_element_type(), di_file, lineno);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
                                          (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
                                          p->get_typename());
@@ -445,7 +466,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, uint32_t loc) {
     _llvm_meta_cache[p] = ret = _di_builder->createPointerType(nullptr, _target_machine->getPointerSizeInBits(0),
                                                                (unsigned)_target_machine->getPointerSizeInBits(0),
                                                                llvm::None, p->get_typename());
-    auto *sub = to_llvm_metadata(pcast<PointerType>(p)->get_pointee(), loc);
+    auto *sub = to_llvm_metadata(pcast<PointerType>(p)->get_pointee(), di_file, lineno);
     ret->replaceOperandWith(3, sub);
   } else {
     TAN_ASSERT(false);
@@ -465,9 +486,9 @@ llvm::DISubroutineType *CodeGenerator::create_function_debug_info_type(llvm::Met
 }
 
 void CodeGenerator::set_current_debug_location(ASTBase *p) {
-  unsigned line = _sm->get_line(p->start()) + 1;
-  unsigned col = _sm->get_col(p->start()) + 1;
-  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, this->get_current_di_scope()));
+  unsigned line = AST_LINENO(p) + 1;
+  unsigned col = AST_COL(p) + 1;
+  _builder->SetCurrentDebugLocation(DILocation::get(*_llvm_ctx, line, col, get_current_di_scope()));
 }
 
 DIScope *CodeGenerator::get_current_di_scope() const { return _di_scope.back(); }
@@ -475,7 +496,7 @@ void CodeGenerator::push_di_scope(DIScope *scope) { _di_scope.push_back(scope); 
 void CodeGenerator::pop_di_scope() { _di_scope.pop_back(); }
 
 DebugLoc CodeGenerator::debug_loc_of_node(ASTBase *p, MDNode *scope) {
-  return DILocation::get(*_llvm_ctx, _sm->get_line(p->start()), _sm->get_col(p->start()), scope);
+  return DILocation::get(*_llvm_ctx, AST_LINENO(p), AST_COL(p), scope);
 }
 
 // ===================================================
@@ -493,9 +514,10 @@ Value *CodeGenerator::codegen_var_arg_decl(Decl *p) {
 
   // debug info
   auto *curr_di_scope = get_current_di_scope();
-  auto *arg_meta = to_llvm_metadata(p->get_type(), p->start());
-  auto *di_arg = _di_builder->createAutoVariable(curr_di_scope, p->get_name(), _di_file, _sm->get_line(p->start()),
-                                                 (DIType *)arg_meta);
+  auto *di_file = get_or_create_di_file(p);
+  auto *arg_meta = to_llvm_metadata(p->get_type(), di_file, AST_LINENO(p));
+  auto *di_arg =
+      _di_builder->createAutoVariable(curr_di_scope, p->get_name(), di_file, AST_LINENO(p), (DIType *)arg_meta);
   _di_builder->insertDeclare(ret, di_arg, _di_builder->createExpression(), debug_loc_of_node(p, curr_di_scope),
                              _builder->GetInsertBlock());
   return ret;
@@ -526,9 +548,12 @@ Value *CodeGenerator::codegen_struct_default_value(StructType *ty) {
 Value *CodeGenerator::codegen_type_default_value(Type *p) {
   TAN_ASSERT(!p->is_ref());
 
+  // FIXME: might need something better
+  auto *src = new TokenizedSourceFile("__plain_type_default_value__", {});
+
   Value *ret = nullptr;
   if (p->is_primitive() || p->is_string() || p->is_array() || p->is_pointer()) {
-    ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(_sm->src(), p));
+    ret = cached_visit(DefaultValue::CreateTypeDefaultValueLiteral(src, p));
 
   } else if (p->is_struct()) {
     ret = codegen_struct_default_value(pcast<StructType>(p));
@@ -865,7 +890,7 @@ Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
     if (lhs->get_type()->is_array()) { /// array
       auto *lhs_type = pcast<tanlang::ArrayType>(lhs->get_type());
       element_type = to_llvm_type(lhs_type->get_element_type());
-    } else if (lhs->get_type()->is_string()) {  /// string
+    } else if (lhs->get_type()->is_string()) { /// string
       element_type = llvm::Type::getInt8Ty(*_llvm_ctx);
     } else if (lhs->get_type()->is_pointer()) { /// pointer
       auto *lhs_type = pcast<tanlang::PointerType>(lhs->get_type());
@@ -904,7 +929,7 @@ Value *CodeGenerator::codegen_member_access(BinaryOperator *_p) {
 
 // ===================================================
 
-DEFINE_AST_VISITOR_IMPL(CodeGenerator, Program) {
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, Package) {
   for (auto *c : p->get_children()) {
     cached_visit(c);
   }
@@ -1146,7 +1171,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
   auto *func_type = pcast<tanlang::FunctionType>(p->get_type());
 
   auto ret_ty = func_type->get_return_type();
-  Metadata *ret_meta = to_llvm_metadata(ret_ty, p->start());
+  Metadata *ret_meta = to_llvm_metadata(ret_ty, get_or_create_di_file(p), AST_LINENO(p));
 
   /// get function name
   str func_name = p->get_name();
@@ -1163,7 +1188,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
   vector<Metadata *> arg_metas;
   for (size_t i = 0; i < p->get_n_args(); ++i) {
     auto ty = func_type->get_arg_types()[i];
-    arg_metas.push_back(to_llvm_metadata(ty, p->start()));
+    arg_metas.push_back(to_llvm_metadata(ty, get_or_create_di_file(p), AST_LINENO(p)));
   }
 
   /// function implementation
@@ -1175,9 +1200,10 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
     /// debug information
     DIScope *di_scope = get_current_di_scope();
     auto *di_func_t = create_function_debug_info_type(ret_meta, arg_metas);
-    DISubprogram *subprogram = _di_builder->createFunction(
-        di_scope, func_name, func_name, _di_file, _sm->get_line(p->start()), di_func_t, _sm->get_col(p->start()),
-        DINode::FlagPrototyped, DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
+    DISubprogram *subprogram =
+        _di_builder->createFunction(di_scope, func_name, func_name, get_or_create_di_file(p), AST_LINENO(p), di_func_t,
+                                    p->src()->get_col(p->start()), DINode::FlagPrototyped,
+                                    DISubprogram::SPFlagDefinition, nullptr, nullptr, nullptr);
     F->setSubprogram(subprogram);
     push_di_scope(subprogram);
 
@@ -1189,9 +1215,9 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
       _builder->CreateStore(&a, arg_val);
 
       /// create a debug descriptor for the arguments
-      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], p->start());
+      auto *arg_meta = to_llvm_metadata(func_type->get_arg_types()[i], get_or_create_di_file(p), AST_LINENO(p));
       llvm::DILocalVariable *di_arg = _di_builder->createParameterVariable(
-          subprogram, arg_name, (unsigned)i + 1, _di_file, _sm->get_line(p->start()), (DIType *)arg_meta, true);
+          subprogram, arg_name, (unsigned)i + 1, get_or_create_di_file(p), AST_LINENO(p), (DIType *)arg_meta, true);
       _di_builder->insertDeclare(arg_val, di_arg, _di_builder->createExpression(),
                                  debug_loc_of_node(p->get_arg_decls()[i], subprogram), _builder->GetInsertBlock());
       ++i;
@@ -1218,7 +1244,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, Import) {
-  for (FunctionDecl *f : p->get_imported_funcs()) {
+  for (FunctionDecl *f : p->_imported_funcs) {
     /// do nothing for already defined intrinsics
     auto *func = _module->getFunction(f->get_name());
     if (func) {
@@ -1340,8 +1366,10 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, BreakContinue) {
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, VarRef) { _llvm_value_cache[p] = cached_visit(p->get_referred()); }
 
+DEFINE_AST_VISITOR_IMPL(CodeGenerator, PackageDecl) {}
+
 void CodeGenerator::error(ErrorType type, ASTBase *p, const str &message) {
-  Error(type, _sm->get_token(p->start()), _sm->get_token(p->end()), message).raise();
+  Error(type, p->src()->get_token(p->start()), p->src()->get_token(p->end()), message).raise();
 }
 
 } // namespace tanlang

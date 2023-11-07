@@ -3,11 +3,14 @@
 #include "source_file/token.h"
 #include "analysis/type_check.h"
 #include "analysis/register_declarations.h"
+#include "analysis/organize_packages.h"
 #include "analysis/type_precheck.h"
+#include "analysis/scan_imports.h"
 #include "codegen/code_generator.h"
-#include "common/compilation_unit.h"
+#include "include/ast/package.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
+#include "ast/package.h"
 #include "source_file/source_file.h"
 #include "parser/parser.h"
 #include "llvm_api/clang_frontend.h"
@@ -68,6 +71,13 @@ namespace fs = std::filesystem;
 static constexpr std::array CXX_EXTS{".cpp", ".CPP", ".cxx", ".c",  ".cc",  ".C",   ".c++", ".cp",  ".i",  ".ii",
                                      ".h",   ".hh",  ".H",   ".hp", ".hxx", ".hpp", ".HPP", ".h++", ".tcc"};
 static constexpr str_view TAN_EXT = ".tan";
+
+static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
+    {O0, llvm::CodeGenOpt::None      },
+    {O1, llvm::CodeGenOpt::Less      },
+    {O2, llvm::CodeGenOpt::Default   },
+    {O3, llvm::CodeGenOpt::Aggressive},
+};
 
 void verify_dirs(const vector<str> &dirs);
 
@@ -153,94 +163,138 @@ void CompilerDriver::run(const vector<str> &files) {
   link(obj_files);
 }
 
+Package *CompilerDriver::get_package(const str &name) {
+  auto q = _packages.find(name);
+  if (q != _packages.end()) {
+    return q->second;
+  }
+  return nullptr;
+}
+
+void CompilerDriver::register_package(const str &name, Package *package) { _packages[name] = package; }
+
+vector<Package *> CompilerDriver::stage1_analysis(vector<Program *> programs) {
+  TAN_ASSERT(!programs.empty());
+
+  // Register all declarations in their local contexts
+  for (auto *p : programs) {
+    RegisterDeclarations rd;
+    rd.run(p);
+  }
+
+  // Organize input files into packages
+  OrganizePackages op;
+  vector<Package *> ps = op.run(programs);
+
+  // Skip packages that are already processed, and check for cyclic dependencies
+  vector<Package *> packages{};
+  for (Package *p : ps) {
+    AnalyzeStatus status = _package_status[p->get_name()];
+    if (status == AnalyzeStatus::None) {
+      packages.push_back(p);
+    } else if (status == AnalyzeStatus::Processing) {
+      // TODO: better error message
+      Error(ErrorType::IMPORT_ERROR, "Cyclic package dependency detected for package: " + p->get_name()).raise();
+    }
+  }
+
+  // Register packages we found BEFORE running semantic analysis,
+  // so that we can search for them during analysis
+  for (auto *p : packages) {
+    register_package(p->get_name(), p);
+  }
+
+  // Scan package imports and find the source files needed
+  for (auto *p : packages) {
+    _package_status[p->get_name()] = AnalyzeStatus::Processing;
+
+    uset<str> import_files{};
+    uset<str> import_names{};
+
+    ScanImports si;
+    auto res = si.run(p);
+    for (const auto &e : res) {
+      import_names.insert(e.first);
+      import_files.insert(e.second.begin(), e.second.end());
+    }
+
+    // Analyze imported files and store results
+    if (!import_files.empty()) {
+      vector<Package *> import_packages = stage1_analysis(parse(vector<str>(import_files.begin(), import_files.end())));
+      for (Package *ip : import_packages) {
+        if (import_names.contains(ip->get_name())) { // import_packages might have some unrelated packages
+          register_package(ip->get_name(), ip);
+        }
+      }
+    }
+
+    _package_status[p->get_name()] = AnalyzeStatus::Done;
+  }
+
+  // Partial type checking
+  for (auto *p : packages) {
+    TypePrecheck tp;
+    tp.run(p);
+  }
+
+  return packages;
+}
+
 vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   bool print_ir_code = _config.verbose >= 1;
   size_t n_files = files.size();
   vector<str> ret(n_files);
 
   // Parse
-  auto cu = parse(files);
+  auto programs = parse(files);
 
   // (Optional): Print AST tree
   if (_config.verbose >= 2) {
-    for (auto *c : cu) {
-      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr(c->source_manager()));
+    for (auto *p : programs) {
+      std::cout << fmt::format("AST Tree of {}:\n{}", p->src()->get_filename(), p->repr());
     }
   }
 
-  // Semantic analysis
-  analyze(cu);
+  vector<Package *> packages = stage1_analysis(programs);
+
+  // Full semantic analysis
+  for (auto *p : packages) {
+    TypeCheck analyzer;
+    analyzer.run(p);
+  }
 
   // Code generation
   size_t i = 0;
-  for (auto *c : cu) {
-    std::cout << fmt::format("Compiling TAN file: {}\n", c->filename());
+  for (auto *p : packages) {
+    std::cout << fmt::format("Compiling TAN package: {}\n", p->get_name());
 
     // IR
-    auto *cg = codegen(c, print_ir_code);
+    _target_machine->setOptLevel(tan_to_llvm_opt_level[_config.opt_level]);
+    auto *cg = new CodeGenerator(_target_machine);
+    cg->run(p);
+
+    if (print_ir_code)
+      cg->dump_ir();
 
     // object file
-    str ofile = ret[i] = fs::path(c->filename() + ".o").filename().string();
-    emit_object(cg, ofile);
+    str ofile = ret[i] = fs::path(p->get_name() + ".o").filename().string();
+    cg->emit_to_file(ofile);
 
     ++i;
 
     delete cg;
   }
 
-  for (auto *c : cu) {
-    delete c;
+  for (auto *p : programs) {
+    delete p;
   }
   return ret;
 }
 
-vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
-  vector<str> obj_files{};
+vector<Program *> CompilerDriver::parse(const vector<str> &files) {
+  TAN_ASSERT(!files.empty());
 
-  if (!files.empty()) {
-    std::cout << "Compiling " << files.size() << " CXX file(s): ";
-    std::for_each(files.begin(), files.end(), [=](auto f) { std::cout << f << " "; });
-    std::cout << "\n";
-
-    auto err_code = clang_compile(files, &config);
-    if (err_code)
-      Error(ErrorType::GENERIC_ERROR, "Failed to compile CXX files").raise();
-
-    // object file paths
-    size_t n = files.size();
-    obj_files.reserve(n);
-    for (size_t i = 0; i < n; ++i) {
-      auto p = fs::path(str(files[i])).replace_extension(".o").filename();
-      obj_files.push_back(p.string());
-    }
-  }
-
-  return obj_files;
-}
-
-void CompilerDriver::emit_object(CodeGenerator *cg, const str &out_file) { cg->emit_to_file(out_file); }
-
-static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
-    {O0, llvm::CodeGenOpt::None      },
-    {O1, llvm::CodeGenOpt::Less      },
-    {O2, llvm::CodeGenOpt::Default   },
-    {O3, llvm::CodeGenOpt::Aggressive},
-};
-
-CodeGenerator *CompilerDriver::codegen(CompilationUnit *cu, bool print_ir) {
-  _target_machine->setOptLevel(tan_to_llvm_opt_level[_config.opt_level]);
-  auto *cg = new CodeGenerator(_target_machine);
-
-  cg->run(cu);
-
-  if (print_ir)
-    cg->dump_ir();
-
-  return cg;
-}
-
-vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
-  vector<CompilationUnit *> cu{};
+  vector<Program *> ret{};
 
   for (const str &file : files) {
     SourceFile *source = new SourceFile();
@@ -249,54 +303,52 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
     // tokenization
     auto tokens = tokenize(source);
 
-    auto *sm = new SourceManager(file, tokens);
+    auto *sm = new TokenizedSourceFile(file, tokens);
     auto *parser = new Parser(sm);
     auto *ast = parser->parse();
 
     // register top-level declarations
+    // TODO: put intrinsics into a dedicated module
     auto intrinsic_funcs = Intrinsic::GetIntrinsicFunctionDeclarations();
     for (auto *f : intrinsic_funcs) {
       ast->ctx()->set_function_decl(f);
     }
 
-    cu.push_back(new CompilationUnit(source, sm, ast));
+    ret.push_back(ast);
   }
 
-  return cu;
+  return ret;
 }
 
-void CompilerDriver::analyze(vector<CompilationUnit *> cu) {
-  for (auto *c : cu) {
-    RegisterDeclarations rtld;
-    rtld.run(c);
-
-    TypePrecheck tp;
-    tp.run(c);
-
-    TypeCheck analyzer;
-    analyzer.run(c);
-  }
-}
-
-vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {
-  vector<str> ret{};
+vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const str &import_name) {
   auto import_path = fs::path(import_name);
-  /// search relative to callee's path
+
+  // importing using an absolute path
+  if (import_path.is_absolute() && fs::exists(import_path)) {
+    return {import_path}; // no reason to continue
+  }
+
+  vector<str> ret{};
+
+  // search relative to callee's path
   {
     auto p = fs::path(callee_path).parent_path() / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) {
-      ret.push_back(p.string());
+    if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
+      ret.push_back(fs::absolute(p));
     }
   }
-  /// search relative to directories in CompilerDriver::import_dirs
+
+  // user-defined include dirs
   for (const auto &rel : CompilerDriver::import_dirs) {
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) {
-      ret.push_back(p.string());
+    if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
+      ret.push_back(fs::absolute(p));
     }
   }
+
+  // TODO: system directories
   return ret;
 }
 
@@ -350,6 +402,30 @@ void CompilerDriver::link(const std::vector<str> &files) {
 /**
  * \section Helpers
  */
+
+vector<str> compile_cxx(const vector<str> &files, TanCompilation config) {
+  vector<str> obj_files{};
+
+  if (!files.empty()) {
+    std::cout << "Compiling " << files.size() << " CXX file(s): ";
+    std::for_each(files.begin(), files.end(), [=](auto f) { std::cout << f << " "; });
+    std::cout << "\n";
+
+    auto err_code = clang_compile(files, &config);
+    if (err_code)
+      Error(ErrorType::GENERIC_ERROR, "Failed to compile CXX files").raise();
+
+    // object file paths
+    size_t n = files.size();
+    obj_files.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+      auto p = fs::path(str(files[i])).replace_extension(".o").filename();
+      obj_files.push_back(p.string());
+    }
+  }
+
+  return obj_files;
+}
 
 void verify_dirs(const vector<str> &dirs) {
   for (size_t i = 0; i < dirs.size(); ++i) {

@@ -1,5 +1,4 @@
-import "runtime/print.tan";
-import "runtime/debug.tan";
+import "runtime";
 
 // After the first semantic analysis pass, only Type is a fully resolved.
 // List depends on Value, Value depends on Metadata, Metadata depends on Type.

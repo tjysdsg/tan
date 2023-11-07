@@ -1,7 +1,7 @@
 #ifndef __TAN_SRC_AST_SOURCE_TRACEABLE_H__
 #define __TAN_SRC_AST_SOURCE_TRACEABLE_H__
 #include "base.h"
-#include "source_file/source_manager.h"
+#include "source_file/tokenized_source_file.h"
 
 namespace tanlang {
 
@@ -23,16 +23,16 @@ public:
 class SourceTraceable {
 public:
   SourceTraceable() = delete;
-  SourceTraceable(SourceFile *src);
+  SourceTraceable(TokenizedSourceFile *src);
   [[nodiscard]] uint32_t start() const;
   [[nodiscard]] uint32_t end() const;
   void set_start(uint32_t val);
   void set_end(uint32_t val);
-  SourceFile *src() const;
+  TokenizedSourceFile *src() const;
 
 private:
   TokenSpan _span;
-  SourceFile *_src;
+  TokenizedSourceFile *_src;
 };
 
 } // namespace tanlang

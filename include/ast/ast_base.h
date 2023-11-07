@@ -20,7 +20,7 @@ public:
 
 public:
   ASTBase() = delete;
-  ASTBase(ASTNodeType node_type, SourceFile *src, int bp);
+  ASTBase(ASTNodeType node_type, TokenizedSourceFile *src, int bp);
   virtual ~ASTBase() = default;
 
 public:
@@ -35,7 +35,7 @@ public:
   [[nodiscard]] virtual vector<ASTBase *> get_children() const;
 
   /// AST tree string representation
-  str repr(SourceManager *sm, const str &prefix = "-") const;
+  str repr(const str &prefix = "-") const;
 
 public:
   virtual bool is_stmt() const { return false; }
@@ -46,8 +46,7 @@ public:
 
 protected:
   /// Different from repr, to_string output doesn't include child nodes
-  [[nodiscard]] virtual str to_string(SourceManager *sm) const;
-  [[nodiscard]] virtual str to_string() const;
+  [[nodiscard]] virtual str to_string(bool include_source_code = false) const;
 
   /**
    * \brief Get the "actual" this. Used for implementing proxy classes.

@@ -12,9 +12,9 @@ namespace tanlang {
 
 class CodeGenerator;
 class Program;
-class SourceManager;
-class CompilationUnit;
+class TokenizedSourceFile;
 class SourceFile;
+class Package;
 
 /**
  * \brief Compile a list of C++ and/or tan source files, and perform linking.
@@ -29,18 +29,17 @@ private:
 public:
   /**
    * \brief Import search directories
-   * \details This is set by compile_files() in libtanc.h
+   * FIXME: static variable?
    */
   static inline vector<str> import_dirs{};
 
   /**
-   * \brief Get a list of possible files that corresponds to an import
-   * \details Suppose there's an import statement `import "../parent.tan"`, in a file at "./src.tan",
-   *    the call to resolve_import should be like `CompilerDriver::resolve_import("./src.tan", "../parent.tan")`
+   * \brief Get a list of possible files that corresponds to an import. Check PACKAGES.md
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
+   * \return A list of absolute paths to candidate files
    */
-  static vector<str> resolve_import(const str &callee_path, const str &import_name);
+  static vector<str> resolve_package_import(const str &callee_path, const str &import_name);
 
 public:
   CompilerDriver() = delete;
@@ -63,25 +62,29 @@ public:
   /**
    * \brief Parse the corresponding source file, and build AST
    */
-  vector<CompilationUnit *> parse(const vector<str> &files);
-
-  /**
-   * \brief Perform Semantic Analysis
-   */
-  void analyze(vector<CompilationUnit *> cu);
-
-  /**
-   * \brief Generate LLVM IR
-   */
-  CodeGenerator *codegen(CompilationUnit *cu, bool print_ir);
-
-  /**
-   * \brief Compile to object files
-   * \details Resulting *.o files are stored in the current working directory
-   */
-  void emit_object(CodeGenerator *cg, const str &out_file);
+  vector<Program *> parse(const vector<str> &files);
 
   void link(const vector<str> &input_paths);
+
+  /**
+   * \brief Register a Package that has been spotted from source files, with top-level context stored inside.
+   */
+  void register_package(const str &name, Package *package);
+
+  /**
+   * \brief Get a pointer to a Package. Semantic analysis is not guaranteed to be fully performed on it.
+   */
+  Package *get_package(const str &name);
+
+  /**
+   * \brief Get a set of partially analyzed packages that can be used for cross-package dependency analysis.
+   *        Note that some composite types need a full analysis for the dependent packages to work during codegen.
+   * \details Package dependencies are analyzed recursively but there's no guarantee that all of them are found.
+   * \note This function raises an error if it detects cyclic dependency.
+   * \param ps A list of Program's returned by the Parser
+   * \return A list of partially analyzed packages
+   */
+  vector<Package *> stage1_analysis(vector<Program *> ps);
 
 private:
   /**
@@ -92,6 +95,15 @@ private:
 private:
   TanCompilation _config{};
   llvm::TargetMachine *_target_machine = nullptr;
+
+  umap<str, Package *> _packages{}; // including external dependencies, which are likely only partially analyzed
+
+  enum class AnalyzeStatus : int {
+    None = 0, // umap default value relies on this
+    Processing,
+    Done,
+  };
+  umap<str, AnalyzeStatus> _package_status{}; // used to avoid recursive importing
 };
 
 } // namespace tanlang

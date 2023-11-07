@@ -3,6 +3,7 @@
 #include "base.h"
 #include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
+#include "ast/package.h"
 
 namespace tanlang {
 
@@ -10,12 +11,12 @@ class Decl;
 class Expr;
 class Type;
 class Program;
-class SourceManager;
+class TokenizedSourceFile;
 class ASTBase;
 
-class TypeCheck : public SingleUnitAnalysisAction<TypeCheck, void> {
+class TypeCheck : public SemanticAnalysisAction<TypeCheck, Package *, void> {
 public:
-  void run_impl(CompilationUnit *cu);
+  void run_impl(Package *cu);
 
 private:
   /**
@@ -73,7 +74,7 @@ public:
   DECLARE_AST_VISITOR_IMPL(Assignment);
   DECLARE_AST_VISITOR_IMPL(FunctionCall);
   DECLARE_AST_VISITOR_IMPL(FunctionDecl);
-  // DECLARE_AST_VISITOR_IMPL(Import);
+  DECLARE_AST_VISITOR_IMPL(Import);
   DECLARE_AST_VISITOR_IMPL(Intrinsic);
   DECLARE_AST_VISITOR_IMPL(ArrayLiteral);
   DECLARE_AST_VISITOR_IMPL(CharLiteral);

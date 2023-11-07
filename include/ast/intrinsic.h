@@ -56,10 +56,10 @@ enum class IntrinsicType {
  */
 class Intrinsic : public Expr, public ASTNamed {
 protected:
-  explicit Intrinsic(SourceFile *src);
+  explicit Intrinsic(TokenizedSourceFile *src);
 
 public:
-  static Intrinsic *Create(SourceFile *src);
+  static Intrinsic *Create(TokenizedSourceFile *src);
   static inline llvm::Function *abort_function = nullptr;
   static umap<str, IntrinsicType> intrinsics;
   static vector<FunctionDecl *> GetIntrinsicFunctionDeclarations();

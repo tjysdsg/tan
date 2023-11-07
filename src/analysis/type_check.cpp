@@ -15,23 +15,21 @@
 
 namespace tanlang {
 
-void TypeCheck::run_impl(CompilationUnit *cu) {
-  auto *p = cu->ast();
+void TypeCheck::run_impl(Package *p) {
   push_scope(p);
 
-  auto sorted_top_level_decls = cu->top_level_symbol_dependency.topological_sort();
+  // check unresolved symbols
+  auto [unresolved_symbols, error_node] = p->top_level_symbol_dependency.topological_sort();
+  if (error_node.has_value()) {
+    error(ErrorType::COMPILE_ERROR, error_node.value(), "Cyclic dependency detected");
+  }
 
-  // std::cout << "Sorted unresolved symbol dependency:\n";
-  // for (auto *d : sorted_top_level_decls) {
-  //   str name = pcast<Decl>(d)->get_name();
-  //   std::cout << name << '\n';
-  // }
-
-  for (auto *c : sorted_top_level_decls) {
+  for (auto *c : unresolved_symbols.value()) {
     visit(c);
   }
 
-  std::set<ASTBase *> s(sorted_top_level_decls.begin(), sorted_top_level_decls.end());
+  // check remaining ones
+  std::set<ASTBase *> s(unresolved_symbols.value().begin(), unresolved_symbols.value().end());
   for (auto *c : p->get_children()) {
     if (!s.contains(c))
       visit(c);
@@ -194,7 +192,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     }
 
     auto *decl = id->get_var_ref()->get_referred();
-    auto *source_str = Literal::CreateStringLiteral(p->src(), _sm->get_source_code(decl->start(), decl->end()));
+    auto *source_str = Literal::CreateStringLiteral(p->src(), decl->src()->get_source_code(decl->start(), decl->end()));
 
     // FEATURE: Return AST?
     p->set_sub(source_str);
@@ -211,7 +209,7 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
     }
 
     str msg = pcast<StringLiteral>(args[0])->get_value();
-    std::cout << fmt::format("Message ({}): {}\n", _sm->get_src_location_str(p->start()), msg);
+    std::cout << fmt::format("Message ({}): {}\n", p->src()->get_src_location_str(p->start()), msg);
     break;
   }
   default:
@@ -525,10 +523,16 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
   analyze_func_body(p);
 }
 
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Import) {
+  for (TypeDecl *t : p->_imported_types) {
+    visit(t);
+  }
+}
+
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {
-    auto sub = IntegerLiteral::Create(p->src(), _sm->get_line(p->start()), true);
+    auto sub = IntegerLiteral::Create(p->src(), p->src()->get_line(p->start()), true);
     auto type = PrimitiveType::GetIntegerType(32, true);
     sub->set_type(type);
     p->set_type(type);
@@ -536,7 +540,7 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     break;
   }
   case IntrinsicType::FILENAME: {
-    auto sub = StringLiteral::Create(p->src(), _sm->get_filename());
+    auto sub = StringLiteral::Create(p->src(), p->src()->get_filename());
     auto type = Type::GetStringType();
     sub->set_type(type);
     p->set_type(type);
@@ -580,18 +584,15 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, StringLiteral) {
-  p->set_value(_sm->get_token_str(p->start()));
+  TAN_ASSERT(!p->get_value().empty());
   p->set_type(Type::GetStringType());
 }
 
-DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) {
-  p->set_type(Type::GetCharType());
-  p->set_value(static_cast<uint8_t>(_sm->get_token_str(p->start())[0]));
-}
+DEFINE_AST_VISITOR_IMPL(TypeCheck, CharLiteral) { p->set_type(Type::GetCharType()); }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, IntegerLiteral) {
   Type *ty;
-  if (_sm->get_token(p->start())->is_unsigned()) {
+  if (p->is_unsigned()) {
     ty = Type::GetIntegerType(32, true);
   } else {
     ty = Type::GetIntegerType(32, false);

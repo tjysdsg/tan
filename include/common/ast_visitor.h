@@ -7,6 +7,7 @@
 namespace tanlang {
 
 class Program;
+class Package;
 class Identifier;
 class VarRef;
 class Parenthesis;
@@ -35,6 +36,7 @@ class MemberAccess;
 class StructDecl;
 class Loop;
 class BreakContinue;
+class PackageDecl;
 
 #ifndef DEFINE_AST_VISITOR_INTERFACE
 #define DEFINE_AST_VISITOR_INTERFACE(AST_NAME)                                     \
@@ -56,6 +58,7 @@ class BreakContinue;
 template <typename Derived> class ASTVisitor {
 public:
   DEFINE_AST_VISITOR_INTERFACE(Program)
+  DEFINE_AST_VISITOR_INTERFACE(Package)
   DEFINE_AST_VISITOR_INTERFACE(Identifier)
   DEFINE_AST_VISITOR_INTERFACE(Parenthesis)
   DEFINE_AST_VISITOR_INTERFACE(If)
@@ -84,6 +87,7 @@ public:
   DEFINE_AST_VISITOR_INTERFACE(Loop)
   DEFINE_AST_VISITOR_INTERFACE(BreakContinue)
   DEFINE_AST_VISITOR_INTERFACE(VarRef)
+  DEFINE_AST_VISITOR_INTERFACE(PackageDecl)
 
   void visit(ASTBase *p) {
     TAN_ASSERT(p);
@@ -91,6 +95,9 @@ public:
     switch (p->get_node_type()) {
     case ASTNodeType::PROGRAM:
       CALL_AST_VISITOR(Program, p);
+      break;
+    case ASTNodeType::PACKAGE:
+      CALL_AST_VISITOR(Package, p);
       break;
     case ASTNodeType::COMPOUND_STATEMENT:
       CALL_AST_VISITOR(CompoundStmt, p);
@@ -174,6 +181,9 @@ public:
       break;
     case ASTNodeType::VAR_REF:
       CALL_AST_VISITOR(VarRef, p);
+      break;
+    case ASTNodeType::PACKAGE_DECL:
+      CALL_AST_VISITOR(PackageDecl, p);
       break;
     default:
       TAN_ASSERT(false);

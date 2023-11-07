@@ -1,4 +1,4 @@
-import "stdlib.tan";
+package "runtime";
 
 pub fn assert(b: bool) : void {
     if(!b) {

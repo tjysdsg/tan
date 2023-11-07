@@ -1,3 +1,5 @@
+package "runtime";
+
 extern fn puts(s: str) : int;
 
 pub fn print(s: str) : int {

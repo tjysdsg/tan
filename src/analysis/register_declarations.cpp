@@ -2,11 +2,12 @@
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
 #include "ast/type.h"
+#include "ast/package.h"
 #include <iostream>
 
 namespace tanlang {
 
-void RegisterDeclarations::run_impl(CompilationUnit *cu) { visit(cu->ast()); }
+void RegisterDeclarations::run_impl(Program *p) { visit(p); }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
   push_scope(p);

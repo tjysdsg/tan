@@ -3,6 +3,7 @@
 #include "base.h"
 #include "analysis/analysis_action.h"
 #include "common/dependency_graph.h"
+#include "ast/package.h"
 
 namespace tanlang {
 
@@ -10,62 +11,56 @@ class Decl;
 class Expr;
 class Type;
 class Program;
-class SourceManager;
+class TokenizedSourceFile;
 class ASTBase;
 
-class TypePrecheck : public SingleUnitAnalysisAction<TypePrecheck, void> {
+/**
+ * \brief Perform preliminary type checking. We try our best to resolve types,
+ *        and remember those that cannot be fully resolved plus their symbol dependencies.
+ * \details This class only operates on top-level declarations, such as functions, structs, ...
+ *          And it expects all input AST nodes to contain a non-empty type.
+ */
+class TypePrecheck : public SemanticAnalysisAction<TypePrecheck, Package *, void> {
 public:
-  void run_impl(CompilationUnit *cu);
+  void run_impl(Package *cu);
 
   void default_visit(ASTBase *p) override;
 
 private:
   /**
-   * \brief Resolve type reference.
-   *        In non-strict mode, this adds a dependency from \p node to the referred declaration D
-   *        if D doesn't have a resolved type yet.
-   *        In strict mode, an error is raised.
-   * \return The referred type if successfully resolved. Return \p p as is if failed.
+   * \brief Try to resolve a type by its name.
+   *        By resolve we mean figuring out all required information related to bit size, alignment, etc.
+   *        If this is currently not possible, it will be stored in a dependency graph and analyzed again in later
+   *        stages.
+   *
+   * \param p The type
+   * \param node The AST node requires \p p to be resolved.
+   * \return The resolved type. Returns \p p as is if failed.
    */
   Type *check_type_ref(Type *p, ASTBase *node);
 
   /**
-   * \brief Resolve a type. If \p is a type reference, we find out the type associated with the typename.
-   * \note Returned pointer can be different from \p p.
+   * \brief Try to resolve a type. Trivial if it's plain old data.
+   *        Most of the work is done for functions, structs, typedefs, etc.
+   *
+   * \param p The type
+   * \param node The AST node requires p to be resolved.
+   * \return A resolved type, could be a different Type instance than \p p.
+   * \sa check_type_ref
    */
   Type *check_type(Type *p, ASTBase *node);
 
 public:
-  // DECLARE_AST_VISITOR_IMPL(Program);
-  // DECLARE_AST_VISITOR_IMPL(Identifier);
-  // DECLARE_AST_VISITOR_IMPL(Parenthesis);
-  // DECLARE_AST_VISITOR_IMPL(If);
   DECLARE_AST_VISITOR_IMPL(VarDecl);
   DECLARE_AST_VISITOR_IMPL(ArgDecl);
-  // DECLARE_AST_VISITOR_IMPL(Return);
-  // DECLARE_AST_VISITOR_IMPL(CompoundStmt);
-  // DECLARE_AST_VISITOR_IMPL(BinaryOrUnary);
-  // DECLARE_AST_VISITOR_IMPL(BinaryOperator);
-  // DECLARE_AST_VISITOR_IMPL(UnaryOperator);
-  // DECLARE_AST_VISITOR_IMPL(Cast);
   DECLARE_AST_VISITOR_IMPL(Assignment);
-  // DECLARE_AST_VISITOR_IMPL(FunctionCall);
   DECLARE_AST_VISITOR_IMPL(FunctionDecl);
   DECLARE_AST_VISITOR_IMPL(Import);
   DECLARE_AST_VISITOR_IMPL(Intrinsic);
-  // DECLARE_AST_VISITOR_IMPL(ArrayLiteral);
-  // DECLARE_AST_VISITOR_IMPL(CharLiteral);
-  // DECLARE_AST_VISITOR_IMPL(BoolLiteral);
-  // DECLARE_AST_VISITOR_IMPL(IntegerLiteral);
-  // DECLARE_AST_VISITOR_IMPL(FloatLiteral);
-  // DECLARE_AST_VISITOR_IMPL(StringLiteral);
-  // DECLARE_AST_VISITOR_IMPL(MemberAccess);
   DECLARE_AST_VISITOR_IMPL(StructDecl);
-  // DECLARE_AST_VISITOR_IMPL(Loop);
-  // DECLARE_AST_VISITOR_IMPL(BreakContinue);
 
 private:
-  CompilationUnit *_cu = nullptr;
+  Package *_package = nullptr;
 };
 
 } // namespace tanlang

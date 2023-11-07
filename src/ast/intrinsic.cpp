@@ -34,7 +34,7 @@ umap<str, IntrinsicType> Intrinsic::intrinsics{
 
 vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
   vector<FunctionDecl *> ret{};
-  auto *src = new SourceFile();
+  auto *src = new TokenizedSourceFile("__intrinsics__", {});
 
   // compprint
   ret.push_back(FunctionDecl::Create(src, COMP_PRINT_NAME,
@@ -48,9 +48,9 @@ vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
   return ret;
 }
 
-Intrinsic *Intrinsic::Create(SourceFile *src) { return new Intrinsic(src); }
+Intrinsic *Intrinsic::Create(TokenizedSourceFile *src) { return new Intrinsic(src); }
 
-Intrinsic::Intrinsic(SourceFile *src) : Expr(ASTNodeType::INTRINSIC, src, 0) {}
+Intrinsic::Intrinsic(TokenizedSourceFile *src) : Expr(ASTNodeType::INTRINSIC, src, 0) {}
 
 IntrinsicType Intrinsic::get_intrinsic_type() const { return _intrinsic_type; }
 
