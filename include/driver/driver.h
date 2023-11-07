@@ -79,10 +79,12 @@ public:
   Package *get_package(const str &name);
 
   /**
-   * \brief The packages can be used as external dependencies after stage 1 analysis is done,
-   *        but not ready for code generation.
+   * \brief Get a set of partially analyzed packages that can be used for cross-package dependency analysis.
+   *        Note that some composite types need a full analysis for the dependent packages to work during codegen.
+   * \details Package dependencies are analyzed recursively but there's no guarantee that all of them are found.
+   * \note This function raises an error if it detects cyclic dependency.
    * \param cu A list of CompilationUnit returned by the Parser
-   * \return A list of analyzed packages
+   * \return A list of partially analyzed packages
    */
   vector<Package *> stage1_analysis(vector<CompilationUnit *> cu);
 
@@ -97,6 +99,13 @@ private:
   llvm::TargetMachine *_target_machine = nullptr;
 
   umap<str, Package *> _packages{}; // including external dependencies, which are likely only partially analyzed
+
+  enum class AnalyzeStatus : int {
+    None = 0, // umap default value relies on this
+    Processing,
+    Done,
+  };
+  umap<str, AnalyzeStatus> _package_status{}; // used to avoid recursive importing
 };
 
 } // namespace tanlang

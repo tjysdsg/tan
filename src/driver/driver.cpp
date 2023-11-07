@@ -175,6 +175,8 @@ Package *CompilerDriver::get_package(const str &name) {
 void CompilerDriver::register_package(const str &name, Package *package) { _packages[name] = package; }
 
 vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) {
+  TAN_ASSERT(!cu.empty());
+
   // Register all declarations in their local contexts
   for (auto *c : cu) {
     RegisterDeclarations rd;
@@ -183,7 +185,20 @@ vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) 
 
   // Organize input files into packages
   OrganizePackages op;
-  vector<Package *> packages = op.run(cu);
+  vector<Package *> ps = op.run(cu);
+
+  // Skip packages that are already processed, and check for cyclic dependencies
+  vector<Package *> packages{};
+  for (Package *p : ps) {
+    AnalyzeStatus status = _package_status[p->get_name()];
+    if (status == AnalyzeStatus::None) {
+      packages.push_back(p);
+      _package_status[p->get_name()] = AnalyzeStatus::Processing;
+    } else if (status == AnalyzeStatus::Processing) {
+      // TODO: better error message
+      Error(ErrorType::IMPORT_ERROR, "Cyclic package dependency detected for package: " + p->get_name()).raise();
+    }
+  }
 
   // Register packages we found BEFORE running semantic analysis,
   // so that we can search for them during analysis
@@ -191,6 +206,33 @@ vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) 
     register_package(p->get_name(), p);
   }
 
+  // Scan package imports and find the source files needed
+  uset<str> import_files{};
+  uset<str> import_names{};
+  for (auto *p : packages) {
+    ScanImports si;
+    auto res = si.run(p);
+    for (const auto &e : res) {
+      import_names.insert(e.first);
+      import_files.insert(e.second.begin(), e.second.end());
+    }
+  }
+
+  // Analyze relevant files and store results
+  // We can find public symbols in a package when we analyze import statements in future stages
+  if (!import_files.empty()) {
+    vector<Package *> import_packages = stage1_analysis(parse(vector<str>(import_files.begin(), import_files.end())));
+    for (Package *ip : import_packages) {
+      // TODO: should we assume files under a directory are in the same package?
+      if (import_names.contains(ip->get_name())) { // import_packages might have some unrelated packages
+        register_package(ip->get_name(), ip);
+      }
+    }
+  }
+
+  for (Package *p : packages) {
+    _package_status[p->get_name()] = AnalyzeStatus::Done;
+  }
   return packages;
 }
 
@@ -252,6 +294,8 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
 }
 
 vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
+  TAN_ASSERT(!files.empty());
+
   vector<CompilationUnit *> cu{};
 
   for (const str &file : files) {

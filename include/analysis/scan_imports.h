@@ -8,12 +8,15 @@ namespace tanlang {
 
 class Package;
 
+// package name => [file paths]
+using ScanImportsOutputType = umap<str, uset<str>>;
+
 /**
- * \brief Scans all dependencies in a package and return their names
+ * \brief Scans all dependencies in a package, and return their names and paths to relevant source files
  */
-class ScanImports : public SemanticAnalysisAction<ScanImports, Package *, uset<str>> {
+class ScanImports : public SemanticAnalysisAction<ScanImports, Package *, ScanImportsOutputType> {
 public:
-  uset<str> run_impl(Package *package);
+  ScanImportsOutputType run_impl(Package *package);
 };
 
 } // namespace tanlang

@@ -86,7 +86,6 @@ Type *TypePrecheck::check_type(Type *p, ASTBase *node) {
   return ret;
 }
 
-// TODO: Move this to a separate stage and check for recursive importing
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
   str name = p->get_name();
 
