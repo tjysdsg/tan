@@ -35,13 +35,12 @@ public:
   static inline vector<str> import_dirs{};
 
   /**
-   * \brief Get a list of possible files that corresponds to an import
-   * \details Suppose there's an import statement `import "../parent.tan"`, in a file at "./src.tan",
-   *    the call to resolve_import should be like `CompilerDriver::resolve_import("./src.tan", "../parent.tan")`
+   * \brief Get a list of possible files that corresponds to an import. Check PACKAGES.md
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
+   * \return A list of absolute paths to candidate files
    */
-  static vector<str> resolve_import(const str &callee_path, const str &import_name);
+  static vector<str> resolve_package_import(const str &callee_path, const str &import_name);
 
 public:
   CompilerDriver() = delete;

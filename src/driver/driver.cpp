@@ -193,7 +193,6 @@ vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) 
     AnalyzeStatus status = _package_status[p->get_name()];
     if (status == AnalyzeStatus::None) {
       packages.push_back(p);
-      _package_status[p->get_name()] = AnalyzeStatus::Processing;
     } else if (status == AnalyzeStatus::Processing) {
       // TODO: better error message
       Error(ErrorType::IMPORT_ERROR, "Cyclic package dependency detected for package: " + p->get_name()).raise();
@@ -207,32 +206,32 @@ vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) 
   }
 
   // Scan package imports and find the source files needed
-  uset<str> import_files{};
-  uset<str> import_names{};
   for (auto *p : packages) {
+    _package_status[p->get_name()] = AnalyzeStatus::Processing;
+
+    uset<str> import_files{};
+    uset<str> import_names{};
+
     ScanImports si;
     auto res = si.run(p);
     for (const auto &e : res) {
       import_names.insert(e.first);
       import_files.insert(e.second.begin(), e.second.end());
     }
-  }
 
-  // Analyze relevant files and store results
-  // We can find public symbols in a package when we analyze import statements in future stages
-  if (!import_files.empty()) {
-    vector<Package *> import_packages = stage1_analysis(parse(vector<str>(import_files.begin(), import_files.end())));
-    for (Package *ip : import_packages) {
-      // TODO: should we assume files under a directory are in the same package?
-      if (import_names.contains(ip->get_name())) { // import_packages might have some unrelated packages
-        register_package(ip->get_name(), ip);
+    // Analyze imported files and store results
+    if (!import_files.empty()) {
+      vector<Package *> import_packages = stage1_analysis(parse(vector<str>(import_files.begin(), import_files.end())));
+      for (Package *ip : import_packages) {
+        if (import_names.contains(ip->get_name())) { // import_packages might have some unrelated packages
+          register_package(ip->get_name(), ip);
+        }
       }
     }
-  }
 
-  for (Package *p : packages) {
     _package_status[p->get_name()] = AnalyzeStatus::Done;
   }
+
   return packages;
 }
 
@@ -322,29 +321,31 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
   return cu;
 }
 
-vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {
-  vector<str> ret{};
+vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const str &import_name) {
   auto import_path = fs::path(import_name);
 
+  // importing using an absolute path
   if (import_path.is_absolute() && fs::exists(import_path)) {
-    ret.push_back(import_path);
+    return {import_path}; // no reason to continue
   }
+
+  vector<str> ret{};
 
   // search relative to callee's path
   {
     auto p = fs::path(callee_path).parent_path() / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) {
-      ret.push_back(p.string());
+    if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
+      ret.push_back(fs::absolute(p));
     }
   }
 
-  // search relative to directories in CompilerDriver::import_dirs
+  // user-defined include dirs
   for (const auto &rel : CompilerDriver::import_dirs) {
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
-    if (fs::exists(p)) {
-      ret.push_back(p.string());
+    if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
+      ret.push_back(fs::absolute(p));
     }
   }
 

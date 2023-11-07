@@ -18,8 +18,7 @@ ScanImportsOutputType ScanImports::run_impl(Package *package) {
       str name = p->get_name();
 
       // Find source files of the package
-      // TODO: should we look around callee_path?
-      auto res = driver->resolve_import(node->src()->get_filename(), name);
+      auto res = driver->resolve_package_import(node->src()->get_filename(), name);
       if (res.empty())
         error(ErrorType::IMPORT_ERROR, node, "Cannot find package: " + name);
 
@@ -30,8 +29,9 @@ ScanImportsOutputType ScanImports::run_impl(Package *package) {
             ret[name].insert(path);
           }
         }
-      } else { // TODO: a tan source file with the package name?
-        TAN_ASSERT(false);
+      } else { // a tan source file with the package name
+        TAN_ASSERT(fs::exists(res[0]));
+        ret[name].insert(res[0]);
       }
     }
   }

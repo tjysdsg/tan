@@ -7,6 +7,9 @@
 #include "ast/decl.h"
 #include "ast/intrinsic.h"
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 using namespace tanlang;
 
 vector<Package *> OrganizePackages::run_impl(vector<CompilationUnit *> cu) {
@@ -61,9 +64,14 @@ DEFINE_AST_VISITOR_IMPL(OrganizePackages, Program) {
     }
   }
 
-  if (package_name.empty()) { // default package name to "main" if not specified
-    // Error(ErrorType::SEMANTIC_ERROR, fmt::format("Missing a package stmt in {}", p->src()->get_filename())).raise();
-    package_name = "main";
+  if (package_name.empty()) { // default package name
+    package_name = fs::path(p->src()->get_filename()).filename().replace_extension();
+
+    if (package_name.empty()) { // ".tan" is invalid
+      Error(ErrorType::GENERIC_ERROR,
+            fmt::format("Cannot deduce default package name for {}", p->src()->get_filename()))
+          .raise();
+    }
   }
 
   // register ASTs
