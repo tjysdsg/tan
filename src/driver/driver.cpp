@@ -232,6 +232,12 @@ vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) 
     _package_status[p->get_name()] = AnalyzeStatus::Done;
   }
 
+  // Partial type checking
+  for (auto *p : packages) {
+    TypePrecheck tp;
+    tp.run(p);
+  }
+
   return packages;
 }
 
@@ -251,12 +257,6 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   }
 
   vector<Package *> packages = stage1_analysis(cu);
-
-  // Partial type checking
-  for (auto *p : packages) {
-    TypePrecheck tp;
-    tp.run(p);
-  }
 
   // Full semantic analysis
   for (auto *p : packages) {

@@ -18,19 +18,18 @@ namespace tanlang {
 void TypeCheck::run_impl(Package *p) {
   push_scope(p);
 
-  auto sorted_top_level_decls = p->top_level_symbol_dependency.topological_sort();
+  // check unresolved symbols
+  auto [unresolved_symbols, error_node] = p->top_level_symbol_dependency.topological_sort();
+  if (error_node.has_value()) {
+    error(ErrorType::COMPILE_ERROR, error_node.value(), "Cyclic dependency detected");
+  }
 
-  // std::cout << "Sorted unresolved symbol dependency:\n";
-  // for (auto *d : sorted_top_level_decls) {
-  //   str name = pcast<Decl>(d)->get_name();
-  //   std::cout << name << '\n';
-  // }
-
-  for (auto *c : sorted_top_level_decls) {
+  for (auto *c : unresolved_symbols.value()) {
     visit(c);
   }
 
-  std::set<ASTBase *> s(sorted_top_level_decls.begin(), sorted_top_level_decls.end());
+  // check remaining ones
+  std::set<ASTBase *> s(unresolved_symbols.value().begin(), unresolved_symbols.value().end());
   for (auto *c : p->get_children()) {
     if (!s.contains(c))
       visit(c);

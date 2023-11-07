@@ -4,6 +4,7 @@
 #include "base.h"
 #include <unordered_set>
 #include <queue>
+#include <optional>
 
 namespace tanlang {
 
@@ -21,9 +22,11 @@ public:
 
   /**
    * \brief Sort topologically so for no element is dependent on its succeeding element(s).
-   * \return Empty vector if there is a dependency cycle.
+   * \return (res, node)
+   *         - If successful, res is a sorted vector of T and node is nullopt
+   *         - Otherwise, res is nullopt, and node is the node that has cyclic dependency
    */
-  vector<T> topological_sort() const {
+  std::pair<std::optional<vector<T>>, std::optional<T>> topological_sort() const {
     umap<T, int> num_depend{};
     std::queue<T> q{};
 
@@ -65,10 +68,10 @@ public:
     // check if cyclic
     for (auto [node, n_depend] : num_depend) {
       if (n_depend)
-        return {};
+        return std::make_pair(std::nullopt, node);
     }
 
-    return ret;
+    return std::make_pair(ret, std::nullopt);
   }
 
   /**
