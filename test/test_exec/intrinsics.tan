@@ -7,7 +7,7 @@ pub fn main(argc: int, argv: char**) : int {
     print("\nSource filename is:");
     print(@file);
 
-    assert(@line == 12u);
+    assert(@line == 10u);
 
     print("\nSource code of variable argc is:");
     print(@get_decl(argc));
