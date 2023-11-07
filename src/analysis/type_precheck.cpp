@@ -98,6 +98,10 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
 
   Context *imported_ctx = package->ctx();
 
+  // Imported declarations are stored in both the package's context and this import AST node:
+  // 1. The context only serves as a search table
+  // 2. The type checker and code generator will operate on the declarations stored in the import node
+
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
   vector<FunctionDecl *> pub_funcs{};
@@ -108,21 +112,21 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
     if (f->is_public() || f->is_external()) {
       auto *existing = top_ctx()->get_func_decl(f->get_name());
       if (!existing) {
-        // TODO: merge multiple declarations of the same symbol, fail if they don't match
+        // FIXME: merge multiple declarations of the same symbol, fail if they don't match
         pub_funcs.push_back(f);
         top_ctx()->set_function_decl(f);
       }
     }
   }
-  p->set_imported_funcs(pub_funcs);
+  p->_imported_funcs = pub_funcs;
 
-  // import type declarations
-  // TODO: distinguish local and global type decls
+  // imported types
+  // FIXME: only import public declarations
   vector<Decl *> decls = imported_ctx->get_decls();
-  vector<TypeDecl *> type_decls{};
   for (auto *t : decls) {
     if (t->is_type_decl()) {
       top_ctx()->set_decl(t->get_name(), t);
+      p->_imported_types.push_back(pcast<TypeDecl>(t));
     }
   }
 }

@@ -76,12 +76,13 @@ public:
 
   void set_name(const str &s);
   [[nodiscard]] const str &get_name() const;
-  [[nodiscard]] const vector<FunctionDecl *> &get_imported_funcs() const;
-  void set_imported_funcs(const vector<FunctionDecl *> &imported_funcs);
+
+public:
+  vector<FunctionDecl *> _imported_funcs{};
+  vector<TypeDecl *> _imported_types{};
 
 private:
   str _name;
-  vector<FunctionDecl *> _imported_funcs{};
 };
 
 class BreakContinue : public Stmt {

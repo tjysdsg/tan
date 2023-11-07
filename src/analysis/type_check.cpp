@@ -523,6 +523,12 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, FunctionDecl) {
   analyze_func_body(p);
 }
 
+DEFINE_AST_VISITOR_IMPL(TypeCheck, Import) {
+  for (TypeDecl *t : p->_imported_types) {
+    visit(t);
+  }
+}
+
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
   switch (p->get_intrinsic_type()) {
   case IntrinsicType::LINENO: {

@@ -58,10 +58,6 @@ void Import::set_name(const str &s) { _name = s; }
 
 const str &Import::get_name() const { return _name; }
 
-const vector<FunctionDecl *> &Import::get_imported_funcs() const { return _imported_funcs; }
-
-void Import::set_imported_funcs(const vector<FunctionDecl *> &imported_funcs) { _imported_funcs = imported_funcs; }
-
 /// \section Break or continue statement
 
 BreakContinue::BreakContinue(ASTNodeType type, TokenizedSourceFile *src) : Stmt(type, src) {

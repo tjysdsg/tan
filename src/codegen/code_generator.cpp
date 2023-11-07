@@ -1242,7 +1242,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, FunctionDecl) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, Import) {
-  for (FunctionDecl *f : p->get_imported_funcs()) {
+  for (FunctionDecl *f : p->_imported_funcs) {
     /// do nothing for already defined intrinsics
     auto *func = _module->getFunction(f->get_name());
     if (func) {
