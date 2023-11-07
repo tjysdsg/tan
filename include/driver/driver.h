@@ -13,7 +13,6 @@ namespace tanlang {
 class CodeGenerator;
 class Program;
 class TokenizedSourceFile;
-class CompilationUnit;
 class SourceFile;
 class Package;
 
@@ -63,7 +62,7 @@ public:
   /**
    * \brief Parse the corresponding source file, and build AST
    */
-  vector<CompilationUnit *> parse(const vector<str> &files);
+  vector<Program *> parse(const vector<str> &files);
 
   void link(const vector<str> &input_paths);
 
@@ -82,10 +81,10 @@ public:
    *        Note that some composite types need a full analysis for the dependent packages to work during codegen.
    * \details Package dependencies are analyzed recursively but there's no guarantee that all of them are found.
    * \note This function raises an error if it detects cyclic dependency.
-   * \param cu A list of CompilationUnit returned by the Parser
+   * \param ps A list of Program's returned by the Parser
    * \return A list of partially analyzed packages
    */
-  vector<Package *> stage1_analysis(vector<CompilationUnit *> cu);
+  vector<Package *> stage1_analysis(vector<Program *> ps);
 
 private:
   /**

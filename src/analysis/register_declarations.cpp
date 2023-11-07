@@ -7,7 +7,7 @@
 
 namespace tanlang {
 
-void RegisterDeclarations::run_impl(CompilationUnit *cu) { visit(cu->ast()); }
+void RegisterDeclarations::run_impl(Program *p) { visit(p); }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
   push_scope(p);

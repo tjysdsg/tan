@@ -9,8 +9,6 @@ namespace tanlang {
 
 class ASTBase;
 
-class CompilationUnit;
-
 class Package : public ASTBase {
 public:
   Package() = delete;

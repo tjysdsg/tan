@@ -2,7 +2,6 @@
 #define __TAN_SRC_CODEGEN_CODE_GENERATOR_H__
 #include "base.h"
 #include "ast/fwd.h"
-#include "common/compilation_unit.h"
 #include "common/compiler_action.h"
 
 #include <llvm/Target/TargetMachine.h>

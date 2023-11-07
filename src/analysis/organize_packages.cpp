@@ -1,6 +1,5 @@
 #include <iostream>
 #include "analysis/organize_packages.h"
-#include "common/compilation_unit.h"
 #include "ast/package.h"
 #include "ast/context.h"
 #include "ast/stmt.h"
@@ -12,15 +11,14 @@ namespace fs = std::filesystem;
 
 using namespace tanlang;
 
-vector<Package *> OrganizePackages::run_impl(vector<CompilationUnit *> cu) {
+vector<Package *> OrganizePackages::run_impl(vector<Program *> ps) {
   // reset
   _package_top_level_ctx.clear();
   _package_top_level_asts.clear();
 
   // visit top-level ASTs and remember top-level ASTs
-  for (auto *c : cu) {
-    auto *ast = c->ast();
-    visit(ast);
+  for (auto *p : ps) {
+    visit(p);
   }
 
   vector<Package *> ret{};

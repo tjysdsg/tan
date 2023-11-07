@@ -7,7 +7,6 @@
 #include "analysis/type_precheck.h"
 #include "analysis/scan_imports.h"
 #include "codegen/code_generator.h"
-#include "common/compilation_unit.h"
 #include "include/ast/package.h"
 #include "ast/intrinsic.h"
 #include "ast/stmt.h"
@@ -174,18 +173,18 @@ Package *CompilerDriver::get_package(const str &name) {
 
 void CompilerDriver::register_package(const str &name, Package *package) { _packages[name] = package; }
 
-vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) {
-  TAN_ASSERT(!cu.empty());
+vector<Package *> CompilerDriver::stage1_analysis(vector<Program *> programs) {
+  TAN_ASSERT(!programs.empty());
 
   // Register all declarations in their local contexts
-  for (auto *c : cu) {
+  for (auto *p : programs) {
     RegisterDeclarations rd;
-    rd.run(c);
+    rd.run(p);
   }
 
   // Organize input files into packages
   OrganizePackages op;
-  vector<Package *> ps = op.run(cu);
+  vector<Package *> ps = op.run(programs);
 
   // Skip packages that are already processed, and check for cyclic dependencies
   vector<Package *> packages{};
@@ -247,16 +246,16 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   vector<str> ret(n_files);
 
   // Parse
-  auto cu = parse(files);
+  auto programs = parse(files);
 
   // (Optional): Print AST tree
   if (_config.verbose >= 2) {
-    for (auto *c : cu) {
-      std::cout << fmt::format("AST Tree of {}:\n{}", c->filename(), c->ast()->repr());
+    for (auto *p : programs) {
+      std::cout << fmt::format("AST Tree of {}:\n{}", p->src()->get_filename(), p->repr());
     }
   }
 
-  vector<Package *> packages = stage1_analysis(cu);
+  vector<Package *> packages = stage1_analysis(programs);
 
   // Full semantic analysis
   for (auto *p : packages) {
@@ -286,16 +285,16 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
     delete cg;
   }
 
-  for (auto *c : cu) {
-    delete c;
+  for (auto *p : programs) {
+    delete p;
   }
   return ret;
 }
 
-vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
+vector<Program *> CompilerDriver::parse(const vector<str> &files) {
   TAN_ASSERT(!files.empty());
 
-  vector<CompilationUnit *> cu{};
+  vector<Program *> ret{};
 
   for (const str &file : files) {
     SourceFile *source = new SourceFile();
@@ -315,10 +314,10 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
       ast->ctx()->set_function_decl(f);
     }
 
-    cu.push_back(new CompilationUnit(source, sm, ast));
+    ret.push_back(ast);
   }
 
-  return cu;
+  return ret;
 }
 
 vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const str &import_name) {

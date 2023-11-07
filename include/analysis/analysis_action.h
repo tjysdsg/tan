@@ -3,7 +3,6 @@
 
 #include "ast/ast_node_type.h"
 #include "common/compiler_action.h"
-#include "common/compilation_unit.h"
 #include "ast/decl.h"
 #include "ast/context.h"
 

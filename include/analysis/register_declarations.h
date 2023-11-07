@@ -9,9 +9,9 @@ namespace tanlang {
  * \brief Register all declarations (including local) in the corresponding scopes.
  *        Run this stage early to easily obtain a list of top-level declarations from each source file.
  */
-class RegisterDeclarations : public SemanticAnalysisAction<RegisterDeclarations, CompilationUnit *, void> {
+class RegisterDeclarations : public SemanticAnalysisAction<RegisterDeclarations, Program *, void> {
 public:
-  void run_impl(CompilationUnit *cu);
+  void run_impl(Program *p);
 
   DECLARE_AST_VISITOR_IMPL(Program);
   // DECLARE_AST_VISITOR_IMPL(Identifier);

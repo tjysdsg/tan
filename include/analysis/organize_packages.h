@@ -6,7 +6,6 @@
 
 namespace tanlang {
 
-class CompilationUnit;
 class Package;
 
 /**
@@ -15,9 +14,9 @@ class Package;
  * \note The input will likely contain outdated information so any CompilerAction pass this should only operates
  * on the package-level.
  */
-class OrganizePackages : public CompilerAction<OrganizePackages, vector<CompilationUnit *>, vector<Package *>> {
+class OrganizePackages : public CompilerAction<OrganizePackages, vector<Program *>, vector<Package *>> {
 public:
-  vector<Package *> run_impl(vector<CompilationUnit *> cu);
+  vector<Package *> run_impl(vector<Program *> ps);
 
   DECLARE_AST_VISITOR_IMPL(Program);
   DECLARE_AST_VISITOR_IMPL(Intrinsic);
