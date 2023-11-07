@@ -30,7 +30,7 @@ private:
 public:
   /**
    * \brief Import search directories
-   * \details This is set by compile_files() in libtanc.h
+   * FIXME: static variable?
    */
   static inline vector<str> import_dirs{};
 
@@ -40,9 +40,6 @@ public:
    *    the call to resolve_import should be like `CompilerDriver::resolve_import("./src.tan", "../parent.tan")`
    * \param callee_path The path to the file which the import statement is in
    * \param import_name The filename specified by the import statement
-   * \deprecated
-   *
-   * TODO: remove file-based importing
    */
   static vector<str> resolve_import(const str &callee_path, const str &import_name);
 
@@ -81,6 +78,14 @@ public:
    */
   Package *get_package(const str &name);
 
+  /**
+   * \brief The packages can be used as external dependencies after stage 1 analysis is done,
+   *        but not ready for code generation.
+   * \param cu A list of CompilationUnit returned by the Parser
+   * \return A list of analyzed packages
+   */
+  vector<Package *> stage1_analysis(vector<CompilationUnit *> cu);
+
 private:
   /**
    * \brief Compile TAN files and return a list of object files
@@ -91,7 +96,7 @@ private:
   TanCompilation _config{};
   llvm::TargetMachine *_target_machine = nullptr;
 
-  umap<str, Package *> _packages{};
+  umap<str, Package *> _packages{}; // including external dependencies, which are likely only partially analyzed
 };
 
 } // namespace tanlang

@@ -5,6 +5,7 @@
 #include "analysis/register_declarations.h"
 #include "analysis/organize_packages.h"
 #include "analysis/type_precheck.h"
+#include "analysis/scan_imports.h"
 #include "codegen/code_generator.h"
 #include "common/compilation_unit.h"
 #include "include/ast/package.h"
@@ -173,6 +174,26 @@ Package *CompilerDriver::get_package(const str &name) {
 
 void CompilerDriver::register_package(const str &name, Package *package) { _packages[name] = package; }
 
+vector<Package *> CompilerDriver::stage1_analysis(vector<CompilationUnit *> cu) {
+  // Register all declarations in their local contexts
+  for (auto *c : cu) {
+    RegisterDeclarations rd;
+    rd.run(c);
+  }
+
+  // Organize input files into packages
+  OrganizePackages op;
+  vector<Package *> packages = op.run(cu);
+
+  // Register packages we found BEFORE running semantic analysis,
+  // so that we can search for them during analysis
+  for (auto *p : packages) {
+    register_package(p->get_name(), p);
+  }
+
+  return packages;
+}
+
 vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   bool print_ir_code = _config.verbose >= 1;
   size_t n_files = files.size();
@@ -188,26 +209,16 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
     }
   }
 
-  // Register all declarations in their local contexts
-  for (auto *c : cu) {
-    RegisterDeclarations rd;
-    rd.run(c);
-  }
+  vector<Package *> packages = stage1_analysis(cu);
 
-  // Organize input files into modules
-  OrganizePackages op;
-  vector<Package *> packages = op.run(cu);
-
-  // register all the packages BEFORE running semantic analysis, so that we can search for them during analysis
-  for (auto *p : packages) {
-    register_package(p->get_name(), p);
-  }
-
-  // Semantic analysis
+  // Partial type checking
   for (auto *p : packages) {
     TypePrecheck tp;
     tp.run(p);
+  }
 
+  // Full semantic analysis
+  for (auto *p : packages) {
     TypeCheck analyzer;
     analyzer.run(p);
   }
@@ -270,7 +281,12 @@ vector<CompilationUnit *> CompilerDriver::parse(const vector<str> &files) {
 vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &import_name) {
   vector<str> ret{};
   auto import_path = fs::path(import_name);
-  /// search relative to callee's path
+
+  if (import_path.is_absolute() && fs::exists(import_path)) {
+    ret.push_back(import_path);
+  }
+
+  // search relative to callee's path
   {
     auto p = fs::path(callee_path).parent_path() / import_path;
     p = p.lexically_normal();
@@ -278,7 +294,8 @@ vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &im
       ret.push_back(p.string());
     }
   }
-  /// search relative to directories in CompilerDriver::import_dirs
+
+  // search relative to directories in CompilerDriver::import_dirs
   for (const auto &rel : CompilerDriver::import_dirs) {
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
@@ -286,6 +303,8 @@ vector<str> CompilerDriver::resolve_import(const str &callee_path, const str &im
       ret.push_back(p.string());
     }
   }
+
+  // TODO: system directories
   return ret;
 }
 

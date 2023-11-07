@@ -48,6 +48,12 @@ DEFINE_AST_VISITOR_IMPL(OrganizePackages, Program) {
   str package_name;
   for (auto *n : p->get_children()) {
     if (n->get_node_type() == ASTNodeType::PACKAGE_DECL) {
+
+      if (!package_name.empty()) { // repeated declaration
+        Error(ErrorType::SEMANTIC_ERROR, fmt::format("Can only have one package stmt in {}", p->src()->get_filename()))
+            .raise();
+      }
+
       package_name = pcast<PackageDecl>(n)->get_name();
     } else {
       visit(n);
