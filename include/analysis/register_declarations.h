@@ -5,6 +5,10 @@
 
 namespace tanlang {
 
+/**
+ * \brief Register all declarations (including local) in the corresponding scopes.
+ *        Run this stage early to easily obtain a list of top-level declarations from each source file.
+ */
 class RegisterDeclarations : public SemanticAnalysisAction<RegisterDeclarations, CompilationUnit *, void> {
 public:
   void run_impl(CompilationUnit *cu);
@@ -15,26 +19,15 @@ public:
   DECLARE_AST_VISITOR_IMPL(If);
   DECLARE_AST_VISITOR_IMPL(VarDecl);
   DECLARE_AST_VISITOR_IMPL(ArgDecl);
-  // DECLARE_AST_VISITOR_IMPL(Return);
   DECLARE_AST_VISITOR_IMPL(CompoundStmt);
   DECLARE_AST_VISITOR_IMPL(BinaryOrUnary);
   DECLARE_AST_VISITOR_IMPL(BinaryOperator);
   DECLARE_AST_VISITOR_IMPL(UnaryOperator);
-  // DECLARE_AST_VISITOR_IMPL(Cast);
   DECLARE_AST_VISITOR_IMPL(Assignment);
-  // DECLARE_AST_VISITOR_IMPL(FunctionCall);
   DECLARE_AST_VISITOR_IMPL(FunctionDecl);
   DECLARE_AST_VISITOR_IMPL(Intrinsic);
-  // DECLARE_AST_VISITOR_IMPL(ArrayLiteral);
-  // DECLARE_AST_VISITOR_IMPL(CharLiteral);
-  // DECLARE_AST_VISITOR_IMPL(BoolLiteral);
-  // DECLARE_AST_VISITOR_IMPL(IntegerLiteral);
-  // DECLARE_AST_VISITOR_IMPL(FloatLiteral);
-  // DECLARE_AST_VISITOR_IMPL(StringLiteral);
-  // DECLARE_AST_VISITOR_IMPL(MemberAccess);
   DECLARE_AST_VISITOR_IMPL(StructDecl);
   DECLARE_AST_VISITOR_IMPL(Loop);
-  // DECLARE_AST_VISITOR_IMPL(BreakContinue);
 };
 
 } // namespace tanlang

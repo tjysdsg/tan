@@ -9,6 +9,12 @@ namespace tanlang {
 class CompilationUnit;
 class Package;
 
+/**
+ * \brief Organize a list of source files into their corresponding packages according to the code.
+ *        Run this stage early since semantic analysis is performed on the package level.
+ * \note The input will likely contain outdated information so any CompilerAction pass this should only operates
+ * on the package-level.
+ */
 class OrganizePackages : public CompilerAction<OrganizePackages, vector<CompilationUnit *>, vector<Package *>> {
 public:
   vector<Package *> run_impl(vector<CompilationUnit *> cu);
