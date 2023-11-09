@@ -51,7 +51,12 @@ Error::Error(ErrorType type, SourceSpan span, const str &error_message) : _type(
 Error::Error(ErrorType type, Token *start, Token *end, const str &error_message)
     : Error(type, Token::GetSourceSpan(*start, *end), error_message) {}
 
-void Error::raise() const { throw CompileException(type(), _msg); }
+void Error::raise() const {
+#if DEBUG
+  print_back_trace();
+#endif
+  throw CompileException(type(), _msg);
+}
 
 ErrorType Error::type() const { return _type; }
 
