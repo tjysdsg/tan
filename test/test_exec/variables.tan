@@ -66,6 +66,7 @@ pub fn main(argc: int, argv: char**) : int {
     }
 
     @test_comp_error(redeclare_variable) {
+        var var1: i8;
         var var1: i32;
     }
 

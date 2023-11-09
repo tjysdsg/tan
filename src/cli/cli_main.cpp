@@ -39,12 +39,13 @@ int cli_main(int argc, char **argv) {
   cmd::ParseCommandLineOptions(
       argc, argv, fmt::format("tanc version: {}.{}.{} \n", TAN_VERSION[0], TAN_VERSION[1], TAN_VERSION[2]));
 
-  try {
-    // Init
-    if (!init_compiler(argc, argv)) {
-      Error("Unable to init tanc compiler").raise();
-    }
+  // Init
+  if (!init_compiler(argc, argv)) {
+    // Cannot use Error class here since it's not initialized
+    throw std::runtime_error("Unable to init tanc compiler");
+  }
 
+  try {
     vector<str> source_files;
     source_files.reserve(opt_source_files.size());
     /*
