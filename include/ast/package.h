@@ -16,6 +16,9 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   str get_name() const { return _name; }
 
+  bool is_expr() const override { return false; }
+  bool is_stmt() const override { return false; }
+
 public:
   DependencyGraph<ASTBase *> top_level_symbol_dependency{};
 

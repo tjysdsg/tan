@@ -38,8 +38,8 @@ public:
   str repr(const str &prefix = "-") const;
 
 public:
-  virtual bool is_stmt() const { return false; }
-  virtual bool is_expr() const { return false; }
+  virtual bool is_stmt() const = 0;
+  virtual bool is_expr() const = 0;
 
   /// Which terminal token is expected immediately after this node
   virtual str terminal_token() const { return ";"; }

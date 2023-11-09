@@ -20,6 +20,7 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
   bool is_expr() const override { return true; }
+  bool is_stmt() const override { return false; }
 
 protected:
   bool _is_lvalue = false;

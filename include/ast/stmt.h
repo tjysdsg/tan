@@ -15,6 +15,7 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
   bool is_stmt() const override { return true; }
+  bool is_expr() const override { return false; }
 
 protected:
   Stmt(ASTNodeType type, TokenizedSourceFile *src);
