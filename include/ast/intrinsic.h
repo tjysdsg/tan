@@ -2,7 +2,7 @@
 #define __TAN_INCLUDE_INTRINSIC_H__
 #include "expr.h"
 #include "ast_named.h"
-#include "fwd.h"
+#include "stmt.h"
 #include <memory>
 
 namespace llvm {
@@ -50,9 +50,7 @@ enum class IntrinsicType {
 };
 
 /**
- * has type
- * has value
- * rvalue
+ * \brief A generic representation of Intrinsic variables/functions
  */
 class Intrinsic : public Expr, public ASTNamed {
 protected:
@@ -60,8 +58,15 @@ protected:
 
 public:
   static Intrinsic *Create(TokenizedSourceFile *src);
-  static inline llvm::Function *abort_function = nullptr;
-  static umap<str, IntrinsicType> intrinsics;
+
+  /**
+   * \brief A mapping from intrinsic names to IntrinsicType
+   */
+  static umap<str, IntrinsicType> INTRINSIC_NAME_TO_TYPES;
+
+  /**
+   * \brief Generate a list of intrinsics function prototypes/declarations, such as `@abort`
+   */
   static vector<FunctionDecl *> GetIntrinsicFunctionDeclarations();
 
   static inline const str STACK_TRACE_FUNCTION_REAL_NAME = "__tan_runtime_stack_trace";
@@ -83,6 +88,13 @@ public:
 private:
   IntrinsicType _intrinsic_type = IntrinsicType::INVALID;
   ASTBase *_sub = nullptr;
+};
+
+class TestCompError : public CompoundStmt {
+public:
+  explicit TestCompError(TokenizedSourceFile *src) : CompoundStmt(src) {}
+
+  bool _caught = false;
 };
 
 } // namespace tanlang

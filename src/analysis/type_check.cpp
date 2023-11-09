@@ -548,22 +548,23 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, Intrinsic) {
     break;
   }
   case IntrinsicType::TEST_COMP_ERROR: {
-    bool error_caught = false;
+    auto *tce = pcast<TestCompError>(p->get_sub());
+    if (tce->_caught)
+      return;
+
+    push_scope(p);
 
     try {
-      auto *sub = p->get_sub();
-      if (sub) {
-        visit(sub);
-      } else { // sub is nullptr if it's already checked
-        error_caught = true;
-      }
+      visit(tce);
     } catch (const CompileException &e) {
-      error_caught = true;
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
+      tce->_caught = true;
     }
 
-    if (!error_caught)
+    if (!tce->_caught)
       error(ErrorType::TYPE_ERROR, p, "Expect a compile error");
+
+    pop_scope();
     break;
   }
   case IntrinsicType::NOOP:

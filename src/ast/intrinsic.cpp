@@ -4,7 +4,7 @@
 
 namespace tanlang {
 
-umap<str, IntrinsicType> Intrinsic::intrinsics{
+umap<str, IntrinsicType> Intrinsic::INTRINSIC_NAME_TO_TYPES{
     {"asm",                          IntrinsicType::ASM            },
     {"swap",                         IntrinsicType::SWAP           },
     {"memset",                       IntrinsicType::MEMSET         },

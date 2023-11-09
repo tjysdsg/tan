@@ -28,6 +28,13 @@ public:
   DECLARE_AST_VISITOR_IMPL(Intrinsic);
   DECLARE_AST_VISITOR_IMPL(StructDecl);
   DECLARE_AST_VISITOR_IMPL(Loop);
+
+private:
+  bool _within_test_comp_error = false;
+
+private:
+  void register_public_type_decl(const str& name, TypeDecl *decl);
+  void register_public_func_decl(FunctionDecl *decl);
 };
 
 } // namespace tanlang

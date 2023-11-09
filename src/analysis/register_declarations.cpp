@@ -22,18 +22,24 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Program) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Intrinsic) {
   // check children if this is @test_comp_error
   if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+    _within_test_comp_error = true;
+
+    auto *tce = pcast<TestCompError>(p->get_sub());
+    if (tce->_caught)
+      return;
+
+    push_scope(p);
 
     try {
-      auto *sub = p->get_sub();
-      if (sub) {
-        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
-        for (auto *c : sub->get_children())
-          visit(c);
-      }
+      for (auto *c : tce->get_children())
+        visit(c);
     } catch (const CompileException &e) {
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
-      p->set_sub(nullptr); // no need to check again in later stages
+      tce->_caught = true;
     }
+
+    pop_scope();
+    _within_test_comp_error = false;
   }
 }
 
@@ -56,6 +62,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, VarDecl) {
   if (ctx()->get_decl(name)) {
     error(ErrorType::SEMANTIC_ERROR, p, fmt::format("Cannot redeclare variable named {}", name));
   }
+
   ctx()->set_decl(name, p);
 }
 
@@ -64,6 +71,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, ArgDecl) {
   if (ctx()->get_decl(name)) {
     error(ErrorType::SEMANTIC_ERROR, p, fmt::format("Cannot redeclare argument named {}", name));
   }
+
   ctx()->set_decl(name, p);
 }
 
@@ -90,7 +98,8 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Assignment) {
 }
 
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, FunctionDecl) {
-  top_ctx()->set_function_decl(p);
+  register_public_func_decl(p);
+
   push_scope(p);
 
   size_t n = p->get_n_args();
@@ -116,7 +125,7 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
   }
 
   // TODO IMPORTANT: distinguish publicly and privately defined struct types
-  root_ctx->set_decl(struct_name, p);
+  register_public_type_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference
   p->set_type(Type::GetStructType(p));
@@ -129,6 +138,18 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Loop) {
   visit(p->get_body());
 
   pop_scope();
+}
+
+void RegisterDeclarations::register_public_type_decl(const str &name, TypeDecl *decl) {
+  if (!_within_test_comp_error) {
+    top_ctx()->set_decl(name, decl);
+  }
+}
+
+void RegisterDeclarations::register_public_func_decl(FunctionDecl *decl) {
+  if (!_within_test_comp_error) {
+    top_ctx()->set_function_decl(decl);
+  }
 }
 
 } // namespace tanlang

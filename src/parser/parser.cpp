@@ -767,18 +767,33 @@ private:
     p->set_name("test_comp_error");
     p->set_intrinsic_type(IntrinsicType::TEST_COMP_ERROR);
 
-    expect_token("{");
+    // parse body
     auto *body = peek();
+    if (body->get_node_type() != ASTNodeType::COMPOUND_STATEMENT) {
+      error(ErrorType::SYNTAX_ERROR, body, "Expect a compound statement");
+    }
+
+    // we need to check if there's a parsing error even before the TestCompError instance is fully initialized
+    bool caught = false;
+    auto *sub = new TestCompError(_src);
     try {
       parse_node(body);
-      p->set_sub(body);
     } catch (const CompileException &e) {
+      caught = true;
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
-      p->set_sub(nullptr); // no need to check again in later stages
 
-      while (at(_curr)->get_value() != "}")
+      while (at(_curr)->get_value() != "}") // will throw if EOF
         ++_curr;
     }
+    sub->_caught = caught;
+
+    if (!caught) {
+      for (auto *c : body->get_children()) {
+        sub->append_child(c);
+      }
+    }
+
+    p->set_sub(sub);
   }
 
   void parse_intrinsic(ASTBase *_p) {
@@ -816,8 +831,8 @@ private:
 
     // figure out which intrinsic
     p->set_name(name);
-    auto q = Intrinsic::intrinsics.find(name);
-    if (q == Intrinsic::intrinsics.end()) {
+    auto q = Intrinsic::INTRINSIC_NAME_TO_TYPES.find(name);
+    if (q == Intrinsic::INTRINSIC_NAME_TO_TYPES.end()) {
       error(ErrorType::UNKNOWN_SYMBOL, _curr, _curr, fmt::format("Unknown intrinsic {}", name));
     }
     p->set_intrinsic_type(q->second);

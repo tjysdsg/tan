@@ -151,18 +151,21 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Identifier) {
 DEFINE_AST_VISITOR_IMPL(TypePrecheck, Intrinsic) {
   // check children if this is @test_comp_error
   if (p->get_intrinsic_type() == IntrinsicType::TEST_COMP_ERROR) {
+    auto *tce = pcast<TestCompError>(p->get_sub());
+    if (tce->_caught)
+      return;
+
+    push_scope(p);
 
     try {
-      auto *sub = p->get_sub();
-      if (sub) {
-        TAN_ASSERT(sub->get_node_type() == ASTNodeType::COMPOUND_STATEMENT);
-        for (auto *c : sub->get_children())
-          visit(c);
-      }
+      for (auto *c : tce->get_children())
+        visit(c);
     } catch (const CompileException &e) {
       std::cerr << fmt::format("Caught expected compile error: {}\nContinue compilation...\n", e.what());
-      p->set_sub(nullptr); // no need to check again in later stages
+      tce->_caught = true;
     }
+
+    pop_scope();
   }
 }
 
@@ -218,6 +221,22 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
 
   for (size_t i = 0; i < n; ++i) {
     Expr *m = members[i];
+
+    // Check if m is a struct member declaration before visiting
+    switch (m->get_node_type()) {
+    case ASTNodeType::VAR_DECL:
+    case ASTNodeType::FUNC_DECL:
+      break;
+    case ASTNodeType::ASSIGN: {
+      auto *assign = pcast<Assignment>(m);
+      if (assign->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL)
+        error(ErrorType::SEMANTIC_ERROR, assign, "Expect a member variable declaration");
+      break;
+    }
+    default:
+      error(ErrorType::SEMANTIC_ERROR, p, "Invalid struct member");
+    }
+
     visit(m);
 
     /*
@@ -234,19 +253,13 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       _package->top_level_symbol_dependency.add_dependency(m, p);
     }
 
-    /// member variable without initial value
-    if (m->get_node_type() == ASTNodeType::VAR_DECL) {
+    if (m->get_node_type() == ASTNodeType::VAR_DECL) { // member variable without initial value
       str name = pcast<VarDecl>(m)->get_name();
       p->set_member_index(name, (int)i);
       (*ty)[i] = m->get_type();
 
-      /// member variable with an initial value
-    } else if (m->get_node_type() == ASTNodeType::ASSIGN) {
-      auto assign = pcast<Assignment>(m);
-
-      if (assign->get_lhs()->get_node_type() != ASTNodeType::VAR_DECL) {
-        error(ErrorType::SEMANTIC_ERROR, assign, "Expect a member variable declaration");
-      }
+    } else if (m->get_node_type() == ASTNodeType::ASSIGN) { // member variable with an initial value
+      auto *assign = pcast<Assignment>(m);
       auto decl = pcast<VarDecl>(assign->get_lhs());
 
       (*ty)[i] = decl->get_type();
@@ -261,15 +274,13 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, StructDecl) {
       }
       p->set_member_default_val((int)i, rhs);
 
-      /// member functions
-    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) {
+    } else if (m->get_node_type() == ASTNodeType::FUNC_DECL) { // member functions
       auto f = pcast<FunctionDecl>(m);
 
       (*ty)[i] = f->get_type();
       p->set_member_index(f->get_name(), (int)i);
-
     } else {
-      error(ErrorType::SEMANTIC_ERROR, p, "Invalid struct member");
+      TAN_ASSERT(false);
     }
   }
 
