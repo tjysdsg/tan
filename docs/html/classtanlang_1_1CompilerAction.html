@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1CompilerAction.html">CompilerAction</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1CompilerAction.html">CompilerAction</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -65,13 +64,16 @@ Inheritance diagram for tanlang::CompilerAction&lt; Derived, Input, Output &gt;:
  <div class="center">
   <img src="classtanlang_1_1CompilerAction.png" usemap="#tanlang::CompilerAction_3C_20Derived_2C_20Input_2C_20Output_20_3E_map" alt=""/>
   <map id="tanlang::CompilerAction_3C_20Derived_2C_20Input_2C_20Output_20_3E_map" name="tanlang::CompilerAction_3C_20Derived_2C_20Input_2C_20Output_20_3E_map">
-<area href="classtanlang_1_1ASTVisitor.html" alt="tanlang::ASTVisitor&lt; Derived &gt;" shape="rect" coords="383,0,756,24"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; RegisterDeclarations, void &gt;" shape="rect" coords="0,112,373,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; TypeCheck, void &gt;" shape="rect" coords="383,112,756,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;" shape="rect" coords="766,112,1139,136"/>
-<area href="classtanlang_1_1RegisterDeclarations.html" alt="tanlang::RegisterDeclarations" shape="rect" coords="0,168,373,192"/>
-<area href="classtanlang_1_1TypeCheck.html" alt="tanlang::TypeCheck" shape="rect" coords="383,168,756,192"/>
-<area href="classtanlang_1_1TypePrecheck.html" alt="tanlang::TypePrecheck" shape="rect" coords="766,168,1139,192"/>
+<area href="classtanlang_1_1ASTVisitor.html" alt="tanlang::ASTVisitor&lt; Derived &gt;" shape="rect" coords="1020,0,1520,24"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; RegisterDeclarations, Program *, void &gt;" shape="rect" coords="0,112,500,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; ScanImports, Package *, ScanImportsOutputType &gt;" shape="rect" coords="510,112,1010,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; TypeCheck, Package *, void &gt;" shape="rect" coords="1020,112,1520,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; TypePrecheck, Package *, void &gt;" shape="rect" coords="1530,112,2030,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; Derived, Input, Output &gt;" shape="rect" coords="2040,112,2540,136"/>
+<area href="classtanlang_1_1RegisterDeclarations.html" title="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..." alt="tanlang::RegisterDeclarations" shape="rect" coords="0,168,500,192"/>
+<area href="classtanlang_1_1ScanImports.html" title="Scans all dependencies in a package, and return their names and paths to relevant source files." alt="tanlang::ScanImports" shape="rect" coords="510,168,1010,192"/>
+<area href="classtanlang_1_1TypeCheck.html" alt="tanlang::TypeCheck" shape="rect" coords="1020,168,1520,192"/>
+<area href="classtanlang_1_1TypePrecheck.html" title="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..." alt="tanlang::TypePrecheck" shape="rect" coords="1530,168,2030,192"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -87,6 +89,8 @@ Public Member Functions</h2></td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTVisitor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTVisitor')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td></tr>
 <tr class="memitem:a03921f1a22af11ba3121ee5358fb73fc inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a03921f1a22af11ba3121ee5358fb73fc">VisitProgram</a> (<a class="el" href="classtanlang_1_1Program.html">Program</a> *p)</td></tr>
 <tr class="separator:a03921f1a22af11ba3121ee5358fb73fc inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae06ac83719e17ca15967d92ef7481620 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#ae06ac83719e17ca15967d92ef7481620">VisitPackage</a> (<a class="el" href="classtanlang_1_1Package.html">Package</a> *p)</td></tr>
+<tr class="separator:ae06ac83719e17ca15967d92ef7481620 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec5e714924589cfd80ca57fe7390d002 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#aec5e714924589cfd80ca57fe7390d002">VisitIdentifier</a> (<a class="el" href="classtanlang_1_1Identifier.html">Identifier</a> *p)</td></tr>
 <tr class="separator:aec5e714924589cfd80ca57fe7390d002 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365e5b03dd1acd94d1540b1e8ca86dc5 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a365e5b03dd1acd94d1540b1e8ca86dc5">VisitParenthesis</a> (<a class="el" href="classtanlang_1_1Parenthesis.html">Parenthesis</a> *p)</td></tr>
@@ -143,6 +147,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a02c681de4922bb5a67dc92668abdd990 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404c6e7532f1c313d53e79fc8258056d inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a404c6e7532f1c313d53e79fc8258056d">VisitVarRef</a> (<a class="el" href="classtanlang_1_1VarRef.html">VarRef</a> *p)</td></tr>
 <tr class="separator:a404c6e7532f1c313d53e79fc8258056d inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c476b43b15f092020732fed147ed937 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a0c476b43b15f092020732fed147ed937">VisitPackageDecl</a> (<a class="el" href="classtanlang_1_1PackageDecl.html">PackageDecl</a> *p)</td></tr>
+<tr class="separator:a0c476b43b15f092020732fed147ed937 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18c309aef0de72be771f0b12c8b60048 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a18c309aef0de72be771f0b12c8b60048">visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p)</td></tr>
 <tr class="separator:a18c309aef0de72be771f0b12c8b60048 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6946c3890e1b44caf76e3921b5b5d27e inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a6946c3890e1b44caf76e3921b5b5d27e">default_visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *)</td></tr>

@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1Intrinsic.html">Intrinsic</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Intrinsic.html">Intrinsic</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -60,6 +59,9 @@
   <div class="headertitle"><div class="title">tanlang::Intrinsic Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A generic representation of <a class="el" href="classtanlang_1_1Intrinsic.html" title="A generic representation of Intrinsic variables/functions.">Intrinsic</a> variables/functions.  
+ <a href="classtanlang_1_1Intrinsic.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>&gt;</code></p>
 <div class="dynheader">
@@ -78,9 +80,9 @@ Inheritance diagram for tanlang::Intrinsic:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a10bd22138dc2645f0387c5f29100f475"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a10bd22138dc2645f0387c5f29100f475">get_intrinsic_type</a> () const</td></tr>
+<tr class="memitem:a10bd22138dc2645f0387c5f29100f475"><td class="memItemLeft" align="right" valign="top">IntrinsicType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a10bd22138dc2645f0387c5f29100f475">get_intrinsic_type</a> () const</td></tr>
 <tr class="separator:a10bd22138dc2645f0387c5f29100f475"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5bde66211c0e3c2ab0b25d7111831801"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a5bde66211c0e3c2ab0b25d7111831801">set_intrinsic_type</a> (<a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> intrinsic_type)</td></tr>
+<tr class="memitem:a5bde66211c0e3c2ab0b25d7111831801"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a5bde66211c0e3c2ab0b25d7111831801">set_intrinsic_type</a> (IntrinsicType intrinsic_type)</td></tr>
 <tr class="separator:a5bde66211c0e3c2ab0b25d7111831801"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a56882e6ab33ba5aa73b4e9ea0a8539"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a6a56882e6ab33ba5aa73b4e9ea0a8539">get_sub</a> () const</td></tr>
 <tr class="separator:a6a56882e6ab33ba5aa73b4e9ea0a8539"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -89,6 +91,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a91f4c7397dcdf71028294fb80e0a40bd"><td class="memItemLeft" align="right" valign="top">vector&lt; <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a91f4c7397dcdf71028294fb80e0a40bd">get_children</a> () const override</td></tr>
 <tr class="memdesc:a91f4c7397dcdf71028294fb80e0a40bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a ordered list of child nodes.  <br /></td></tr>
 <tr class="separator:a91f4c7397dcdf71028294fb80e0a40bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbf1772c70fdd1d3944c062e64418762"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#acbf1772c70fdd1d3944c062e64418762">terminal_token</a> () const override</td></tr>
+<tr class="memdesc:acbf1772c70fdd1d3944c062e64418762"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which terminal token is expected immediately after this node.  <br /></td></tr>
+<tr class="separator:acbf1772c70fdd1d3944c062e64418762"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1Expr"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1Expr')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1Expr.html">tanlang::Expr</a></td></tr>
 <tr class="memitem:aea3669527b7952280561f337433bceb8 inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#aea3669527b7952280561f337433bceb8">is_comptime_known</a> ()</td></tr>
 <tr class="separator:aea3669527b7952280561f337433bceb8 inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -99,12 +104,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afd26c8a413f86b31904ab0d210b1fd8c inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">vector&lt; <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#afd26c8a413f86b31904ab0d210b1fd8c">get_children</a> () const override</td></tr>
 <tr class="memdesc:afd26c8a413f86b31904ab0d210b1fd8c inherit pub_methods_classtanlang_1_1Expr"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a ordered list of child nodes.  <br /></td></tr>
 <tr class="separator:afd26c8a413f86b31904ab0d210b1fd8c inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3d2479e4c07091b4b4ebd91c9c4f2ea inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#ad3d2479e4c07091b4b4ebd91c9c4f2ea">is_expr</a> () const override</td></tr>
+<tr class="separator:ad3d2479e4c07091b4b4ebd91c9c4f2ea inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23bf7df692222439507df77c9870ace4 inherit pub_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#a23bf7df692222439507df77c9870ace4">is_stmt</a> () const override</td></tr>
+<tr class="separator:a23bf7df692222439507df77c9870ace4 inherit pub_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:adaac58c12919b12434e75d7800d8c056 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#adaac58c12919b12434e75d7800d8c056">ASTBase</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type, <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src, int bp)</td></tr>
-<tr class="separator:adaac58c12919b12434e75d7800d8c056 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4930aaa6604ad9eebbc6a479118b308e inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4930aaa6604ad9eebbc6a479118b308e">get_node_type</a> () const</td></tr>
+<tr class="memitem:aaeb578b80e9262827fdaf9d00390b0e5 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aaeb578b80e9262827fdaf9d00390b0e5">ASTBase</a> (ASTNodeType node_type, <a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *src, int bp)</td></tr>
+<tr class="separator:aaeb578b80e9262827fdaf9d00390b0e5 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4930aaa6604ad9eebbc6a479118b308e inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">ASTNodeType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4930aaa6604ad9eebbc6a479118b308e">get_node_type</a> () const</td></tr>
 <tr class="separator:a4930aaa6604ad9eebbc6a479118b308e inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac47cf78eaccbf82371d490c8ce7987d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aac47cf78eaccbf82371d490c8ce7987d">set_node_type</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> node_type)</td></tr>
+<tr class="memitem:aac47cf78eaccbf82371d490c8ce7987d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aac47cf78eaccbf82371d490c8ce7987d">set_node_type</a> (ASTNodeType node_type)</td></tr>
 <tr class="separator:aac47cf78eaccbf82371d490c8ce7987d inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ae28fbb62185d87852f5fa447aa8055 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a3ae28fbb62185d87852f5fa447aa8055">get_bp</a> () const</td></tr>
 <tr class="separator:a3ae28fbb62185d87852f5fa447aa8055 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,12 +122,21 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae1f79565123171b172631af9d0d57340 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">virtual vector&lt; <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ae1f79565123171b172631af9d0d57340">get_children</a> () const</td></tr>
 <tr class="memdesc:ae1f79565123171b172631af9d0d57340 inherit pub_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a ordered list of child nodes.  <br /></td></tr>
 <tr class="separator:ae1f79565123171b172631af9d0d57340 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e04d4b8ded519990d5a8fd0a3d469ce inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a9e04d4b8ded519990d5a8fd0a3d469ce">printTree</a> () const</td></tr>
-<tr class="memdesc:a9e04d4b8ded519990d5a8fd0a3d469ce inherit pub_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pretty-print AST tree.  <br /></td></tr>
-<tr class="separator:a9e04d4b8ded519990d5a8fd0a3d469ce inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab913f6be387057bbf415592456e178c7 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ab913f6be387057bbf415592456e178c7">repr</a> (const str &amp;prefix=&quot;-&quot;) const</td></tr>
+<tr class="memdesc:ab913f6be387057bbf415592456e178c7 inherit pub_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">AST tree string representation.  <br /></td></tr>
+<tr class="separator:ab913f6be387057bbf415592456e178c7 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa21c10631c04d99722585a5ba9fe8a78 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="aa21c10631c04d99722585a5ba9fe8a78" name="aa21c10631c04d99722585a5ba9fe8a78"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_stmt</b> () const =0</td></tr>
+<tr class="separator:aa21c10631c04d99722585a5ba9fe8a78 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18ee9d4656e21ecdac0c8b29c6a28736 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top"><a id="a18ee9d4656e21ecdac0c8b29c6a28736" name="a18ee9d4656e21ecdac0c8b29c6a28736"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_expr</b> () const =0</td></tr>
+<tr class="separator:a18ee9d4656e21ecdac0c8b29c6a28736 inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca86f06c20218df762744f20b75908bb inherit pub_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">virtual str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aca86f06c20218df762744f20b75908bb">terminal_token</a> () const</td></tr>
+<tr class="memdesc:aca86f06c20218df762744f20b75908bb inherit pub_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which terminal token is expected immediately after this node.  <br /></td></tr>
+<tr class="separator:aca86f06c20218df762744f20b75908bb inherit pub_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1SourceTraceable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1SourceTraceable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1SourceTraceable.html">tanlang::SourceTraceable</a></td></tr>
-<tr class="memitem:a9f9056761ed7f5d86d54611f461d9459 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a9f9056761ed7f5d86d54611f461d9459">SourceTraceable</a> (<a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
-<tr class="separator:a9f9056761ed7f5d86d54611f461d9459 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b5015b25e833ef0cefb2fecada14655 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a2b5015b25e833ef0cefb2fecada14655">SourceTraceable</a> (<a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *src)</td></tr>
+<tr class="separator:a2b5015b25e833ef0cefb2fecada14655 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a834a8e9ea744a740cc225ebbc8bd0cec inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a834a8e9ea744a740cc225ebbc8bd0cec">start</a> () const</td></tr>
 <tr class="separator:a834a8e9ea744a740cc225ebbc8bd0cec inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a592a4afdc1717a1fc5e1ab318123fa35 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a592a4afdc1717a1fc5e1ab318123fa35">end</a> () const</td></tr>
@@ -127,8 +145,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a24844ebf48d9580bc65f62faadda716e inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a1b2255d648d739d6526677af709972 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#a6a1b2255d648d739d6526677af709972">set_end</a> (uint32_t val)</td></tr>
 <tr class="separator:a6a1b2255d648d739d6526677af709972 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addc2f2093eddd0806c703d398c2c82f0 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#addc2f2093eddd0806c703d398c2c82f0">src</a> () const</td></tr>
-<tr class="separator:addc2f2093eddd0806c703d398c2c82f0 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4512da088b4f89ba9b6df1fc88a0b99 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SourceTraceable.html#ab4512da088b4f89ba9b6df1fc88a0b99">src</a> () const</td></tr>
+<tr class="separator:ab4512da088b4f89ba9b6df1fc88a0b99 inherit pub_methods_classtanlang_1_1SourceTraceable"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1Typed"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1Typed')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1Typed.html">tanlang::Typed</a></td></tr>
 <tr class="memitem:a6c21023a01b66354aa723df2546fe965 inherit pub_methods_classtanlang_1_1Typed"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Typed.html#a6c21023a01b66354aa723df2546fe965">get_type</a> () const</td></tr>
 <tr class="separator:a6c21023a01b66354aa723df2546fe965 inherit pub_methods_classtanlang_1_1Typed"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,37 +160,44 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a53a3803df64e10ded828130bd3ccd4aa"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a53a3803df64e10ded828130bd3ccd4aa">Create</a> (<a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
-<tr class="separator:a53a3803df64e10ded828130bd3ccd4aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc3c16ed8c8d1bea1a5abac1900b8bf1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#acc3c16ed8c8d1bea1a5abac1900b8bf1">Create</a> (<a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *src)</td></tr>
+<tr class="separator:acc3c16ed8c8d1bea1a5abac1900b8bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65c953ccde5447aa5afefc795ab84c5b"><td class="memItemLeft" align="right" valign="top">static vector&lt; <a class="el" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a65c953ccde5447aa5afefc795ab84c5b">GetIntrinsicFunctionDeclarations</a> ()</td></tr>
+<tr class="memdesc:a65c953ccde5447aa5afefc795ab84c5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a list of intrinsics function prototypes/declarations, such as <code>@abort</code>  <br /></td></tr>
 <tr class="separator:a65c953ccde5447aa5afefc795ab84c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:ad75540b124ea06973c8456cb2ac72252"><td class="memItemLeft" align="right" valign="top">static llvm::Function *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#ad75540b124ea06973c8456cb2ac72252">abort_function</a> = nullptr</td></tr>
-<tr class="separator:ad75540b124ea06973c8456cb2ac72252"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa1ed9fceec63775bd305eda2c5803bed"><td class="memItemLeft" align="right" valign="top">static umap&lt; str, <a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#aa1ed9fceec63775bd305eda2c5803bed">intrinsics</a></td></tr>
-<tr class="separator:aa1ed9fceec63775bd305eda2c5803bed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bba02d09e02f0818c748dd9bf234c82"><td class="memItemLeft" align="right" valign="top">static umap&lt; str, IntrinsicType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a1bba02d09e02f0818c748dd9bf234c82">INTRINSIC_NAME_TO_TYPES</a></td></tr>
+<tr class="memdesc:a1bba02d09e02f0818c748dd9bf234c82"><td class="mdescLeft">&#160;</td><td class="mdescRight">A mapping from intrinsic names to IntrinsicType.  <br /></td></tr>
+<tr class="separator:a1bba02d09e02f0818c748dd9bf234c82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa41d3ffd30d771ccf563a207c0dceded"><td class="memItemLeft" align="right" valign="top">static const str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#aa41d3ffd30d771ccf563a207c0dceded">STACK_TRACE_FUNCTION_REAL_NAME</a> = &quot;__tan_runtime_stack_trace&quot;</td></tr>
 <tr class="separator:aa41d3ffd30d771ccf563a207c0dceded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ce7a8744aef4a3e48ebaba57ce72a8"><td class="memItemLeft" align="right" valign="top">static const str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#ac3ce7a8744aef4a3e48ebaba57ce72a8">TEST_COMP_ERROR_NAME</a> = &quot;test_comp_error&quot;</td></tr>
+<tr class="separator:ac3ce7a8744aef4a3e48ebaba57ce72a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41a3a144e41dff3583e8ea33aafa8adc"><td class="memItemLeft" align="right" valign="top">static const str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a41a3a144e41dff3583e8ea33aafa8adc">ABORT_NAME</a> = &quot;abort&quot;</td></tr>
+<tr class="separator:a41a3a144e41dff3583e8ea33aafa8adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a650a4b77303a8449e2ec8e3cdf064481"><td class="memItemLeft" align="right" valign="top">static const str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a650a4b77303a8449e2ec8e3cdf064481">COMP_PRINT_NAME</a> = &quot;compprint&quot;</td></tr>
+<tr class="separator:a650a4b77303a8449e2ec8e3cdf064481"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_attribs_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; <a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>, str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4d72ca1ef30a7f571a975ba0446f4634">ASTTypeNames</a></td></tr>
+<tr class="memitem:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; ASTNodeType, str &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a4d72ca1ef30a7f571a975ba0446f4634">ASTTypeNames</a></td></tr>
 <tr class="memdesc:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">string representation of ASTNodeType  <br /></td></tr>
 <tr class="separator:a4d72ca1ef30a7f571a975ba0446f4634 inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; <a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a>, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ac168fc18b692ecc531c55ef54a8b163e">OpPrecedence</a></td></tr>
+<tr class="memitem:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">static umap&lt; ASTNodeType, int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#ac168fc18b692ecc531c55ef54a8b163e">OpPrecedence</a></td></tr>
 <tr class="memdesc:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">operator precedence of tokens  <br /></td></tr>
 <tr class="separator:ac168fc18b692ecc531c55ef54a8b163e inherit pub_static_attribs_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a9c631a710b567e5e6aa90dd616aa1cc1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#a9c631a710b567e5e6aa90dd616aa1cc1">Intrinsic</a> (<a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src)</td></tr>
-<tr class="separator:a9c631a710b567e5e6aa90dd616aa1cc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5bc041697b9dc6411521790c9574f25"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Intrinsic.html#ae5bc041697b9dc6411521790c9574f25">Intrinsic</a> (<a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *src)</td></tr>
+<tr class="separator:ae5bc041697b9dc6411521790c9574f25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1Expr"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1Expr')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1Expr.html">tanlang::Expr</a></td></tr>
-<tr class="memitem:a71ced1b6ed38df69682581eb31b8761e inherit pro_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#a71ced1b6ed38df69682581eb31b8761e">Expr</a> (<a class="el" href="namespacetanlang.html#ad5ec8893294ac5f55afa3edb445c5232">ASTNodeType</a> type, <a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *src, int bp)</td></tr>
-<tr class="separator:a71ced1b6ed38df69682581eb31b8761e inherit pro_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacad4c5032a9278a0c0d593f15dc17d7 inherit pro_methods_classtanlang_1_1Expr"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Expr.html#aacad4c5032a9278a0c0d593f15dc17d7">Expr</a> (ASTNodeType type, <a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *src, int bp)</td></tr>
+<tr class="separator:aacad4c5032a9278a0c0d593f15dc17d7 inherit pro_methods_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1ASTBase"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1ASTBase')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1ASTBase.html">tanlang::ASTBase</a></td></tr>
-<tr class="memitem:a60318276359d10692796b1aec4ad590f inherit pro_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">virtual str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a60318276359d10692796b1aec4ad590f">to_string</a> (bool print_prefix=true) const</td></tr>
-<tr class="separator:a60318276359d10692796b1aec4ad590f inherit pro_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa39619eb1426100c8d5cd3eef1bd9808 inherit pro_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">virtual str&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#aa39619eb1426100c8d5cd3eef1bd9808">to_string</a> (bool include_source_code=false) const</td></tr>
+<tr class="memdesc:aa39619eb1426100c8d5cd3eef1bd9808 inherit pro_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Different from repr, to_string output doesn't include child nodes.  <br /></td></tr>
+<tr class="separator:aa39619eb1426100c8d5cd3eef1bd9808 inherit pro_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3396a56c67b56ba2aa87eb8b98645df7 inherit pro_methods_classtanlang_1_1ASTBase"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTBase.html#a3396a56c67b56ba2aa87eb8b98645df7">get</a> () const</td></tr>
 <tr class="memdesc:a3396a56c67b56ba2aa87eb8b98645df7 inherit pro_methods_classtanlang_1_1ASTBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the "actual" this. Used for implementing proxy classes.  <br /></td></tr>
 <tr class="separator:a3396a56c67b56ba2aa87eb8b98645df7 inherit pro_methods_classtanlang_1_1ASTBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,12 +209,12 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a3eb17f9cd69ce1a1df3d2fec0a035608 inherit pro_attribs_classtanlang_1_1Expr"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>has type has value rvalue </p>
+<div class="textblock"><p>A generic representation of <a class="el" href="classtanlang_1_1Intrinsic.html" title="A generic representation of Intrinsic variables/functions.">Intrinsic</a> variables/functions. </p>
 
-<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00057">57</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00055">55</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a9c631a710b567e5e6aa90dd616aa1cc1" name="a9c631a710b567e5e6aa90dd616aa1cc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c631a710b567e5e6aa90dd616aa1cc1">&#9670;&#160;</a></span>Intrinsic()</h2>
+<a id="ae5bc041697b9dc6411521790c9574f25" name="ae5bc041697b9dc6411521790c9574f25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5bc041697b9dc6411521790c9574f25">&#9670;&#160;</a></span>Intrinsic()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -200,7 +225,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">tanlang::Intrinsic::Intrinsic </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *&#160;</td>
           <td class="paramname"><em>src</em></td><td>)</td>
           <td></td>
         </tr>
@@ -217,8 +242,8 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a53a3803df64e10ded828130bd3ccd4aa" name="a53a3803df64e10ded828130bd3ccd4aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53a3803df64e10ded828130bd3ccd4aa">&#9670;&#160;</a></span>Create()</h2>
+<a id="acc3c16ed8c8d1bea1a5abac1900b8bf1" name="acc3c16ed8c8d1bea1a5abac1900b8bf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc3c16ed8c8d1bea1a5abac1900b8bf1">&#9670;&#160;</a></span>Create()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -229,7 +254,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="classtanlang_1_1Intrinsic.html">Intrinsic</a> * tanlang::Intrinsic::Create </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1SourceFile.html">SourceFile</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1TokenizedSourceFile.html">TokenizedSourceFile</a> *&#160;</td>
           <td class="paramname"><em>src</em></td><td>)</td>
           <td></td>
         </tr>
@@ -283,7 +308,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> tanlang::Intrinsic::get_intrinsic_type </td>
+          <td class="memname">IntrinsicType tanlang::Intrinsic::get_intrinsic_type </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -337,6 +362,8 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Generate a list of intrinsics function prototypes/declarations, such as <code>@abort</code> </p>
+
 <p class="definition">Definition at line <a class="el" href="intrinsic_8cpp_source.html#l00035">35</a> of file <a class="el" href="intrinsic_8cpp_source.html">intrinsic.cpp</a>.</p>
 
 </div>
@@ -350,7 +377,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void tanlang::Intrinsic::set_intrinsic_type </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a>&#160;</td>
+          <td class="paramtype">IntrinsicType&#160;</td>
           <td class="paramname"><em>intrinsic_type</em></td><td>)</td>
           <td></td>
         </tr>
@@ -381,9 +408,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="ad75540b124ea06973c8456cb2ac72252" name="ad75540b124ea06973c8456cb2ac72252"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad75540b124ea06973c8456cb2ac72252">&#9670;&#160;</a></span>abort_function</h2>
+<a id="acbf1772c70fdd1d3944c062e64418762" name="acbf1772c70fdd1d3944c062e64418762"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acbf1772c70fdd1d3944c062e64418762">&#9670;&#160;</a></span>terminal_token()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -392,7 +418,39 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">llvm::Function* tanlang::Intrinsic::abort_function = nullptr</td>
+          <td class="memname">str tanlang::Intrinsic::terminal_token </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Which terminal token is expected immediately after this node. </p>
+
+<p>Reimplemented from <a class="el" href="classtanlang_1_1ASTBase.html#aca86f06c20218df762744f20b75908bb">tanlang::ASTBase</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="intrinsic_8cpp_source.html#l00070">70</a> of file <a class="el" href="intrinsic_8cpp_source.html">intrinsic.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a41a3a144e41dff3583e8ea33aafa8adc" name="a41a3a144e41dff3583e8ea33aafa8adc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41a3a144e41dff3583e8ea33aafa8adc">&#9670;&#160;</a></span>ABORT_NAME</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const str tanlang::Intrinsic::ABORT_NAME = &quot;abort&quot;</td>
         </tr>
       </table>
   </td>
@@ -402,12 +460,12 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00063">63</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00074">74</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
 
 </div>
 </div>
-<a id="aa1ed9fceec63775bd305eda2c5803bed" name="aa1ed9fceec63775bd305eda2c5803bed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa1ed9fceec63775bd305eda2c5803bed">&#9670;&#160;</a></span>intrinsics</h2>
+<a id="a650a4b77303a8449e2ec8e3cdf064481" name="a650a4b77303a8449e2ec8e3cdf064481"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a650a4b77303a8449e2ec8e3cdf064481">&#9670;&#160;</a></span>COMP_PRINT_NAME</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -416,7 +474,31 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">umap&lt; str, <a class="el" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8f">IntrinsicType</a> &gt; tanlang::Intrinsic::intrinsics</td>
+          <td class="memname">const str tanlang::Intrinsic::COMP_PRINT_NAME = &quot;compprint&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00075">75</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+
+</div>
+</div>
+<a id="a1bba02d09e02f0818c748dd9bf234c82" name="a1bba02d09e02f0818c748dd9bf234c82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bba02d09e02f0818c748dd9bf234c82">&#9670;&#160;</a></span>INTRINSIC_NAME_TO_TYPES</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">umap&lt; str, IntrinsicType &gt; tanlang::Intrinsic::INTRINSIC_NAME_TO_TYPES</td>
         </tr>
       </table>
   </td>
@@ -426,57 +508,36 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">{</div>
-<div class="line">    {<span class="stringliteral">&quot;asm&quot;</span>,                          <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed">IntrinsicType::ASM</a>            },</div>
-<div class="line">    {<span class="stringliteral">&quot;swap&quot;</span>,                         <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8">IntrinsicType::SWAP</a>           },</div>
-<div class="line">    {<span class="stringliteral">&quot;memset&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921">IntrinsicType::MEMSET</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;memcpy&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4">IntrinsicType::MEMCPY</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;range&quot;</span>,                        <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2">IntrinsicType::RANGE</a>          },</div>
-<div class="line">    {<span class="stringliteral">&quot;compprint&quot;</span>,                    <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70">IntrinsicType::COMP_PRINT</a>     },</div>
-<div class="line">    {<span class="stringliteral">&quot;file&quot;</span>,                         <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497">IntrinsicType::FILENAME</a>       },</div>
-<div class="line">    {<span class="stringliteral">&quot;line&quot;</span>,                         <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805">IntrinsicType::LINENO</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;define&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53">IntrinsicType::DEFINE</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;sizeof&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090">IntrinsicType::SIZE_OF</a>        },</div>
-<div class="line">    {<span class="stringliteral">&quot;offsetof&quot;</span>,                     <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99">IntrinsicType::OFFSET_OF</a>      },</div>
-<div class="line">    {<span class="stringliteral">&quot;isa&quot;</span>,                          <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047">IntrinsicType::ISA</a>            },</div>
-<div class="line">    {<span class="stringliteral">&quot;alignof&quot;</span>,                      <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5">IntrinsicType::ALIGN_OF</a>       },</div>
-<div class="line">    {<span class="stringliteral">&quot;min_of&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32">IntrinsicType::MIN_OF</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;max_of&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3">IntrinsicType::MAX_OF</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;is_unsigned&quot;</span>,                  <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00">IntrinsicType::IS_UNSIGNED</a>    },</div>
-<div class="line">    {<span class="stringliteral">&quot;unlikely&quot;</span>,                     <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00">IntrinsicType::UNLIKELY</a>       },</div>
-<div class="line">    {<span class="stringliteral">&quot;likely&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e">IntrinsicType::LIKELY</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;expect&quot;</span>,                       <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6">IntrinsicType::EXPECT</a>         },</div>
-<div class="line">    {<span class="stringliteral">&quot;noop&quot;</span>,                         <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e">IntrinsicType::NOOP</a>           },</div>
-<div class="line">    {<span class="stringliteral">&quot;get_decl&quot;</span>,                     <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7">IntrinsicType::GET_DECL</a>       },</div>
-<div class="line">    {<span class="stringliteral">&quot;test_comp_error&quot;</span>,              <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162">IntrinsicType::TEST_COMP_ERROR</a>},</div>
-<div class="line">    {<span class="stringliteral">&quot;abort&quot;</span>,                        IntrinsicType::ABORT          },</div>
-<div class="line">    {<span class="stringliteral">&quot;stack_trace&quot;</span>,                  <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    },</div>
-<div class="line">    {STACK_TRACE_FUNCTION_REAL_NAME, <a class="code hl_enumvalue" href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">IntrinsicType::STACK_TRACE</a>    }</div>
+<div class="line">    {<span class="stringliteral">&quot;asm&quot;</span>,                          IntrinsicType::ASM            },</div>
+<div class="line">    {<span class="stringliteral">&quot;swap&quot;</span>,                         IntrinsicType::SWAP           },</div>
+<div class="line">    {<span class="stringliteral">&quot;memset&quot;</span>,                       IntrinsicType::MEMSET         },</div>
+<div class="line">    {<span class="stringliteral">&quot;memcpy&quot;</span>,                       IntrinsicType::MEMCPY         },</div>
+<div class="line">    {<span class="stringliteral">&quot;range&quot;</span>,                        IntrinsicType::RANGE          },</div>
+<div class="line">    {COMP_PRINT_NAME,                IntrinsicType::COMP_PRINT     },</div>
+<div class="line">    {<span class="stringliteral">&quot;file&quot;</span>,                         IntrinsicType::FILENAME       },</div>
+<div class="line">    {<span class="stringliteral">&quot;line&quot;</span>,                         IntrinsicType::LINENO         },</div>
+<div class="line">    {<span class="stringliteral">&quot;define&quot;</span>,                       IntrinsicType::DEFINE         },</div>
+<div class="line">    {<span class="stringliteral">&quot;sizeof&quot;</span>,                       IntrinsicType::SIZE_OF        },</div>
+<div class="line">    {<span class="stringliteral">&quot;offsetof&quot;</span>,                     IntrinsicType::OFFSET_OF      },</div>
+<div class="line">    {<span class="stringliteral">&quot;isa&quot;</span>,                          IntrinsicType::ISA            },</div>
+<div class="line">    {<span class="stringliteral">&quot;alignof&quot;</span>,                      IntrinsicType::ALIGN_OF       },</div>
+<div class="line">    {<span class="stringliteral">&quot;min_of&quot;</span>,                       IntrinsicType::MIN_OF         },</div>
+<div class="line">    {<span class="stringliteral">&quot;max_of&quot;</span>,                       IntrinsicType::MAX_OF         },</div>
+<div class="line">    {<span class="stringliteral">&quot;is_unsigned&quot;</span>,                  IntrinsicType::IS_UNSIGNED    },</div>
+<div class="line">    {<span class="stringliteral">&quot;unlikely&quot;</span>,                     IntrinsicType::UNLIKELY       },</div>
+<div class="line">    {<span class="stringliteral">&quot;likely&quot;</span>,                       IntrinsicType::LIKELY         },</div>
+<div class="line">    {<span class="stringliteral">&quot;expect&quot;</span>,                       IntrinsicType::EXPECT         },</div>
+<div class="line">    {<span class="stringliteral">&quot;noop&quot;</span>,                         IntrinsicType::NOOP           },</div>
+<div class="line">    {<span class="stringliteral">&quot;get_decl&quot;</span>,                     IntrinsicType::GET_DECL       },</div>
+<div class="line">    {TEST_COMP_ERROR_NAME,           IntrinsicType::TEST_COMP_ERROR},</div>
+<div class="line">    {ABORT_NAME,                     IntrinsicType::ABORT          },</div>
+<div class="line">    {<span class="stringliteral">&quot;stack_trace&quot;</span>,                  IntrinsicType::STACK_TRACE    },</div>
+<div class="line">    {STACK_TRACE_FUNCTION_REAL_NAME, IntrinsicType::STACK_TRACE    }</div>
 <div class="line">}</div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa01036ddcc971d02f6c32c3da31a119f2">tanlang::IntrinsicType::RANGE</a></div><div class="ttdeci">@ RANGE</div><div class="ttdoc">memcpy</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa0ab86886fbd8ba36ea7d303c7eea6df3">tanlang::IntrinsicType::MAX_OF</a></div><div class="ttdeci">@ MAX_OF</div><div class="ttdoc">minimum value of an integer type</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa20ee42be6f57089bd0e3f92324e15e99">tanlang::IntrinsicType::OFFSET_OF</a></div><div class="ttdeci">@ OFFSET_OF</div><div class="ttdoc">size of a type, in bytes</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa323b116277336d12f9044134153c99a5">tanlang::IntrinsicType::ALIGN_OF</a></div><div class="ttdeci">@ ALIGN_OF</div><div class="ttdoc">offset of a member variable inside a struct, in bytes</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa38f7a4ed59ee3f98d723d262899feb08">tanlang::IntrinsicType::STACK_TRACE</a></div><div class="ttdeci">@ STACK_TRACE</div><div class="ttdoc">get source code of the declaration</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa3f68dc195c127d253534cbb33c027ec7">tanlang::IntrinsicType::GET_DECL</a></div><div class="ttdeci">@ GET_DECL</div><div class="ttdoc">A block of code that are expected to cause a compile error.</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa4182edc3e14dd6893bf006fd2dedbb70">tanlang::IntrinsicType::COMP_PRINT</a></div><div class="ttdeci">@ COMP_PRINT</div><div class="ttdoc">range of integers</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa41d4dbfd78ceea21abb0ecb03c3cc921">tanlang::IntrinsicType::MEMSET</a></div><div class="ttdeci">@ MEMSET</div><div class="ttdoc">swap, atomic for primitive types</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa450eb97d6aff297fe107b8d3a9998d6e">tanlang::IntrinsicType::LIKELY</a></div><div class="ttdeci">@ LIKELY</div><div class="ttdoc">macro definition</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa46fc23bc4e4d57e5469a39658a6dd3e8">tanlang::IntrinsicType::SWAP</a></div><div class="ttdeci">@ SWAP</div><div class="ttdoc">inline assembly</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa496475a066afb2d2e50a4133b9822497">tanlang::IntrinsicType::FILENAME</a></div><div class="ttdeci">@ FILENAME</div><div class="ttdoc">compile-time print</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5335d3381381fc5e5c8a2ef39d82cc53">tanlang::IntrinsicType::DEFINE</a></div><div class="ttdeci">@ DEFINE</div><div class="ttdoc">line number of certain code</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa5b2f27643cc5ed47a277d0907d0f9090">tanlang::IntrinsicType::SIZE_OF</a></div><div class="ttdeci">@ SIZE_OF</div><div class="ttdoc">expect a value to be true, used in tests</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa64f288ef838ec6e8bd8a3a8833c54047">tanlang::IntrinsicType::ISA</a></div><div class="ttdeci">@ ISA</div><div class="ttdoc">alignment size of a pointer, array or struct, in bytes</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa6e9623032f5448428c627541577d8cf6">tanlang::IntrinsicType::EXPECT</a></div><div class="ttdeci">@ EXPECT</div><div class="ttdoc">no-op</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa722d122e81cbbe543bd5520bb8678c0e">tanlang::IntrinsicType::NOOP</a></div><div class="ttdeci">@ NOOP</div><div class="ttdoc">unlikely</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7ccbb03cb795734415a0b6924a8d7aed">tanlang::IntrinsicType::ASM</a></div><div class="ttdeci">@ ASM</div><div class="ttdoc">abort</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa7fbcfbb01e92527ed52ef863cc26b805">tanlang::IntrinsicType::LINENO</a></div><div class="ttdeci">@ LINENO</div><div class="ttdoc">name of a source file</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fa8c6bda5a26d25887ef4431674d641162">tanlang::IntrinsicType::TEST_COMP_ERROR</a></div><div class="ttdeci">@ TEST_COMP_ERROR</div><div class="ttdoc">test if a type is unsigned</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fab727ad8332db3130eae0bd3e2804db32">tanlang::IntrinsicType::MIN_OF</a></div><div class="ttdeci">@ MIN_OF</div><div class="ttdoc">test if a type is equivalent to another one</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fac5d10cc70cce96265c445f14e7f5aba4">tanlang::IntrinsicType::MEMCPY</a></div><div class="ttdeci">@ MEMCPY</div><div class="ttdoc">memset</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8fad8c206977b386a055fc82a685cae4b00">tanlang::IntrinsicType::UNLIKELY</a></div><div class="ttdeci">@ UNLIKELY</div><div class="ttdoc">likely</div></div>
-<div class="ttc" id="anamespacetanlang_html_a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00"><div class="ttname"><a href="namespacetanlang.html#a00be01d6146027d3146f167a8d39ae8faef8d9a368fb0f7b0fa241d707fa45d00">tanlang::IntrinsicType::IS_UNSIGNED</a></div><div class="ttdeci">@ IS_UNSIGNED</div><div class="ttdoc">maximum value of an integer type</div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00064">64</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+<p>A mapping from intrinsic names to IntrinsicType. </p>
+
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00065">65</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
 
 </div>
 </div>
@@ -500,7 +561,31 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00067">67</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00072">72</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
+
+</div>
+</div>
+<a id="ac3ce7a8744aef4a3e48ebaba57ce72a8" name="ac3ce7a8744aef4a3e48ebaba57ce72a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3ce7a8744aef4a3e48ebaba57ce72a8">&#9670;&#160;</a></span>TEST_COMP_ERROR_NAME</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const str tanlang::Intrinsic::TEST_COMP_ERROR_NAME = &quot;test_comp_error&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="intrinsic_8h_source.html#l00073">73</a> of file <a class="el" href="intrinsic_8h_source.html">intrinsic.h</a>.</p>
 
 </div>
 </div>

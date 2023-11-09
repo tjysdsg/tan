@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1StructType.html">StructType</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1StructType.html">StructType</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -81,6 +80,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a2e7008284cc48a6238836c85150da98a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af778f847154b3dd60f52caaf9cc0925e"><td class="memItemLeft" align="right" valign="top">vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#af778f847154b3dd60f52caaf9cc0925e">children</a> () const override</td></tr>
 <tr class="separator:af778f847154b3dd60f52caaf9cc0925e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73e5d0f7db5c204c061abe2c689c6486"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#a73e5d0f7db5c204c061abe2c689c6486">get_decl</a> () const</td></tr>
+<tr class="separator:a73e5d0f7db5c204c061abe2c689c6486"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13a4c9aff7c3f1ee3f1d3d279a955f64"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#a13a4c9aff7c3f1ee3f1d3d279a955f64">append_member_type</a> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *t)</td></tr>
 <tr class="separator:a13a4c9aff7c3f1ee3f1d3d279a955f64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7bbe681d8f8e9d30e159ab60e2c9fb5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#aa7bbe681d8f8e9d30e159ab60e2c9fb5">operator[]</a> (size_t index)</td></tr>
@@ -129,8 +130,8 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:ab7e127b4e408c9e6da167e7a4c252c4e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#ab7e127b4e408c9e6da167e7a4c252c4e">StructType</a> (const str &amp;name, const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;member_types)</td></tr>
-<tr class="separator:ab7e127b4e408c9e6da167e7a4c252c4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c2ec424a7a02887d517485caeca3189"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1StructType.html#a5c2ec424a7a02887d517485caeca3189">StructType</a> (<a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *decl)</td></tr>
+<tr class="separator:a5c2ec424a7a02887d517485caeca3189"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
@@ -158,8 +159,8 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a97edaf4306e127cf93dfde121bfb4b18 inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6af1526d16e04fbf033aa247e746f0ca inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1FunctionType.html">FunctionType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a6af1526d16e04fbf033aa247e746f0ca">GetFunctionType</a> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *ret_type, const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;arg_types)</td></tr>
 <tr class="separator:a6af1526d16e04fbf033aa247e746f0ca inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a342b0554729efa125be58d9b46a3a7ec inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1StructType.html">StructType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a342b0554729efa125be58d9b46a3a7ec">GetStructType</a> (const str &amp;name, const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;member_types)</td></tr>
-<tr class="separator:a342b0554729efa125be58d9b46a3a7ec inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abce6cf4b3c672369462c2772aebc2b5e inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1StructType.html">StructType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#abce6cf4b3c672369462c2772aebc2b5e">GetStructType</a> (<a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *decl)</td></tr>
+<tr class="separator:abce6cf4b3c672369462c2772aebc2b5e inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7281c490b04c6e80e8a4a850f4355b04 inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1TypeRef.html">TypeRef</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a7281c490b04c6e80e8a4a850f4355b04">GetTypeRef</a> (const str &amp;name)</td></tr>
 <tr class="separator:a7281c490b04c6e80e8a4a850f4355b04 inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c2fbac56e1fcbb7c9c5514726c09921 inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a9c2fbac56e1fcbb7c9c5514726c09921">IsCanonical</a> (const <a class="el" href="classtanlang_1_1Type.html">Type</a> &amp;type)</td></tr>
@@ -185,8 +186,8 @@ Additional Inherited Members</h2></td></tr>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00223">223</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab7e127b4e408c9e6da167e7a4c252c4e" name="ab7e127b4e408c9e6da167e7a4c252c4e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab7e127b4e408c9e6da167e7a4c252c4e">&#9670;&#160;</a></span>StructType()</h2>
+<a id="a5c2ec424a7a02887d517485caeca3189" name="a5c2ec424a7a02887d517485caeca3189"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c2ec424a7a02887d517485caeca3189">&#9670;&#160;</a></span>StructType()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -197,19 +198,9 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">StructType::StructType </td>
           <td>(</td>
-          <td class="paramtype">const str &amp;&#160;</td>
-          <td class="paramname"><em>name</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *&#160;</td>
+          <td class="paramname"><em>decl</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;&#160;</td>
-          <td class="paramname"><em>member_types</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -240,7 +231,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00180">180</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00181">181</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -269,7 +260,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classtanlang_1_1Type.html">tanlang::Type</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00183">183</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00184">184</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -298,7 +289,26 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classtanlang_1_1Type.html">tanlang::Type</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00166">166</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00167">167</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a73e5d0f7db5c204c061abe2c689c6486" name="a73e5d0f7db5c204c061abe2c689c6486"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73e5d0f7db5c204c061abe2c689c6486">&#9670;&#160;</a></span>get_decl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> * StructType::get_decl </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00186">186</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -317,7 +327,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00184">184</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00185">185</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -346,7 +356,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classtanlang_1_1Type.html">tanlang::Type</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00175">175</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00176">176</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -395,7 +405,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00181">181</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00182">182</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -415,7 +425,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00182">182</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8cpp_source.html#l00183">183</a> of file <a class="el" href="type_8cpp_source.html">type.cpp</a>.</p>
 
 </div>
 </div>
@@ -440,7 +450,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00235">235</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00236">236</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
 
 </div>
 </div>

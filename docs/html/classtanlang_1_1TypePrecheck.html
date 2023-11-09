@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1TypePrecheck.html">TypePrecheck</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1TypePrecheck.html">TypePrecheck</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -57,28 +56,35 @@
   <div class="headertitle"><div class="title">tanlang::TypePrecheck Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Perform preliminary type checking. We try our best to resolve types, and remember those that cannot be fully resolved plus their symbol dependencies.  
+ <a href="classtanlang_1_1TypePrecheck.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="type__precheck_8h_source.html">type_precheck.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for tanlang::TypePrecheck:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classtanlang_1_1TypePrecheck.png" usemap="#tanlang::TypePrecheck_map" alt=""/>
   <map id="tanlang::TypePrecheck_map" name="tanlang::TypePrecheck_map">
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;" shape="rect" coords="0,112,391,136"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; Derived, Input, Output &gt;" shape="rect" coords="0,56,391,80"/>
-<area href="classtanlang_1_1ASTVisitor.html" alt="tanlang::ASTVisitor&lt; Derived &gt;" shape="rect" coords="0,0,391,24"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; TypePrecheck, Package *, void &gt;" shape="rect" coords="0,112,403,136"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; Derived, Input, Output &gt;" shape="rect" coords="0,56,403,80"/>
+<area href="classtanlang_1_1ASTVisitor.html" alt="tanlang::ASTVisitor&lt; Derived &gt;" shape="rect" coords="0,0,403,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae4d96860a9d3a8afef461601014c37d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#ae4d96860a9d3a8afef461601014c37d0">run_impl</a> (<a class="el" href="classtanlang_1_1CompilationUnit.html">CompilationUnit</a> *cu)</td></tr>
-<tr class="separator:ae4d96860a9d3a8afef461601014c37d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada6595bf849d522d1e3458dd3b5746fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#ada6595bf849d522d1e3458dd3b5746fe">run_impl</a> (<a class="el" href="classtanlang_1_1Package.html">Package</a> *cu)</td></tr>
+<tr class="separator:ada6595bf849d522d1e3458dd3b5746fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bf73458aaed37de20293af1fde64ce7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#a1bf73458aaed37de20293af1fde64ce7">default_visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p) override</td></tr>
 <tr class="separator:a1bf73458aaed37de20293af1fde64ce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addc203e0b4df921b05ac6d27f901f5dd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#addc203e0b4df921b05ac6d27f901f5dd">VisitVarDeclImpl</a> (<a class="el" href="classtanlang_1_1VarDecl.html">VarDecl</a> *p)</td></tr>
 <tr class="separator:addc203e0b4df921b05ac6d27f901f5dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a810178fd7e18eef46080cf4598cba432"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#a810178fd7e18eef46080cf4598cba432">VisitArgDeclImpl</a> (<a class="el" href="classtanlang_1_1ArgDecl.html">ArgDecl</a> *p)</td></tr>
 <tr class="separator:a810178fd7e18eef46080cf4598cba432"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab079e9dd2a71c25dcd945bd897728c0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#ab079e9dd2a71c25dcd945bd897728c0d">VisitAssignmentImpl</a> (<a class="el" href="classtanlang_1_1Assignment.html">Assignment</a> *p)</td></tr>
+<tr class="separator:ab079e9dd2a71c25dcd945bd897728c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abee010be72dfd0946ac690495eb82049"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#abee010be72dfd0946ac690495eb82049">VisitFunctionDeclImpl</a> (<a class="el" href="classtanlang_1_1FunctionDecl.html">FunctionDecl</a> *p)</td></tr>
 <tr class="separator:abee010be72dfd0946ac690495eb82049"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b0548d82e0a0de87c747f36d1debb63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#a1b0548d82e0a0de87c747f36d1debb63">VisitImportImpl</a> (<a class="el" href="classtanlang_1_1Import.html">Import</a> *p)</td></tr>
@@ -87,15 +93,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aa4aa7fb7c42579f653bb7990abad6c6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acca46301298cfc9770e476ef5749d897"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1TypePrecheck.html#acca46301298cfc9770e476ef5749d897">VisitStructDeclImpl</a> (<a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *p)</td></tr>
 <tr class="separator:acca46301298cfc9770e476ef5749d897"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classtanlang_1_1SingleUnitAnalysisAction"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1SingleUnitAnalysisAction')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html">tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;</a></td></tr>
-<tr class="memitem:a9488457419ca88cecdaf6a91976ce73b inherit pub_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1SourceManager.html">SourceManager</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#a9488457419ca88cecdaf6a91976ce73b">get_sm</a> () const</td></tr>
-<tr class="separator:a9488457419ca88cecdaf6a91976ce73b inherit pub_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1CompilerAction"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1CompilerAction')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a></td></tr>
 <tr class="memitem:aa8ba25ae09ee5c5dce0cb530c145ba87 inherit pub_methods_classtanlang_1_1CompilerAction"><td class="memItemLeft" align="right" valign="top">Output&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompilerAction.html#aa8ba25ae09ee5c5dce0cb530c145ba87">run</a> (Input input)</td></tr>
 <tr class="separator:aa8ba25ae09ee5c5dce0cb530c145ba87 inherit pub_methods_classtanlang_1_1CompilerAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classtanlang_1_1ASTVisitor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classtanlang_1_1ASTVisitor')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td></tr>
 <tr class="memitem:a03921f1a22af11ba3121ee5358fb73fc inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a03921f1a22af11ba3121ee5358fb73fc">VisitProgram</a> (<a class="el" href="classtanlang_1_1Program.html">Program</a> *p)</td></tr>
 <tr class="separator:a03921f1a22af11ba3121ee5358fb73fc inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae06ac83719e17ca15967d92ef7481620 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#ae06ac83719e17ca15967d92ef7481620">VisitPackage</a> (<a class="el" href="classtanlang_1_1Package.html">Package</a> *p)</td></tr>
+<tr class="separator:ae06ac83719e17ca15967d92ef7481620 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec5e714924589cfd80ca57fe7390d002 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#aec5e714924589cfd80ca57fe7390d002">VisitIdentifier</a> (<a class="el" href="classtanlang_1_1Identifier.html">Identifier</a> *p)</td></tr>
 <tr class="separator:aec5e714924589cfd80ca57fe7390d002 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365e5b03dd1acd94d1540b1e8ca86dc5 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a365e5b03dd1acd94d1540b1e8ca86dc5">VisitParenthesis</a> (<a class="el" href="classtanlang_1_1Parenthesis.html">Parenthesis</a> *p)</td></tr>
@@ -152,6 +157,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a02c681de4922bb5a67dc92668abdd990 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404c6e7532f1c313d53e79fc8258056d inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a404c6e7532f1c313d53e79fc8258056d">VisitVarRef</a> (<a class="el" href="classtanlang_1_1VarRef.html">VarRef</a> *p)</td></tr>
 <tr class="separator:a404c6e7532f1c313d53e79fc8258056d inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c476b43b15f092020732fed147ed937 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a0c476b43b15f092020732fed147ed937">VisitPackageDecl</a> (<a class="el" href="classtanlang_1_1PackageDecl.html">PackageDecl</a> *p)</td></tr>
+<tr class="separator:a0c476b43b15f092020732fed147ed937 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18c309aef0de72be771f0b12c8b60048 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a18c309aef0de72be771f0b12c8b60048">visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p)</td></tr>
 <tr class="separator:a18c309aef0de72be771f0b12c8b60048 inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6946c3890e1b44caf76e3921b5b5d27e inherit pub_methods_classtanlang_1_1ASTVisitor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a6946c3890e1b44caf76e3921b5b5d27e">default_visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *)</td></tr>
@@ -159,36 +166,33 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classtanlang_1_1SingleUnitAnalysisAction"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classtanlang_1_1SingleUnitAnalysisAction')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html">tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;</a></td></tr>
-<tr class="memitem:ace91604fe2e21e255dcea0a0c2144ae1 inherit pub_types_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#ace91604fe2e21e255dcea0a0c2144ae1">AnalysisActionType</a> = <a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html">SingleUnitAnalysisAction</a>&lt; <a class="el" href="classtanlang_1_1TypePrecheck.html">TypePrecheck</a>, void &gt;</td></tr>
-<tr class="separator:ace91604fe2e21e255dcea0a0c2144ae1 inherit pub_types_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_types_classtanlang_1_1CompilerAction"><td colspan="2" onclick="javascript:toggleInherit('pub_types_classtanlang_1_1CompilerAction')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a></td></tr>
 <tr class="memitem:a0ecde6517690f86eeba9fc35f60171c4 inherit pub_types_classtanlang_1_1CompilerAction"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompilerAction.html#a0ecde6517690f86eeba9fc35f60171c4">CompilerActionType</a> = <a class="el" href="classtanlang_1_1CompilerAction.html">CompilerAction</a>&lt; Derived, Input, Output &gt;</td></tr>
 <tr class="separator:a0ecde6517690f86eeba9fc35f60171c4 inherit pub_types_classtanlang_1_1CompilerAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1SingleUnitAnalysisAction')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html">tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;</a></td></tr>
-<tr class="memitem:afc2c9df25979c6537d7b2204a926eb2f inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#afc2c9df25979c6537d7b2204a926eb2f">init</a> (<a class="el" href="classtanlang_1_1CompilationUnit.html">CompilationUnit</a> *cu) override</td></tr>
-<tr class="separator:afc2c9df25979c6537d7b2204a926eb2f inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad151f08de307447635d6b937623a4db8 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#ad151f08de307447635d6b937623a4db8">error</a> (ErrorType type, <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p, const str &amp;message)</td></tr>
-<tr class="separator:ad151f08de307447635d6b937623a4db8 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfd5991b6f1e53d7f69074ecbd9dc952 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#adfd5991b6f1e53d7f69074ecbd9dc952">push_scope</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *scope)</td></tr>
-<tr class="separator:adfd5991b6f1e53d7f69074ecbd9dc952 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1f12874598513b8ddee09ceded7bf10 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#ab1f12874598513b8ddee09ceded7bf10">pop_scope</a> ()</td></tr>
-<tr class="separator:ab1f12874598513b8ddee09ceded7bf10 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe5a78d8a5ddfe829932d9d1f4f1070f inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Context.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#afe5a78d8a5ddfe829932d9d1f4f1070f">ctx</a> ()</td></tr>
-<tr class="separator:afe5a78d8a5ddfe829932d9d1f4f1070f inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1887956d306a944d95755097c267bef6 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Context.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#a1887956d306a944d95755097c267bef6">top_ctx</a> ()</td></tr>
-<tr class="separator:a1887956d306a944d95755097c267bef6 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3701bac0435da27695020f681f2ef221 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Decl.html">Decl</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#a3701bac0435da27695020f681f2ef221">search_decl_in_scopes</a> (const str &amp;name)</td></tr>
-<tr class="separator:a3701bac0435da27695020f681f2ef221 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71130ab6a26f84ff87451f9947822163 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memItemLeft" align="right" valign="top">T *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SingleUnitAnalysisAction.html#a71130ab6a26f84ff87451f9947822163">search_node_in_parent_scopes</a> ()</td></tr>
-<tr class="separator:a71130ab6a26f84ff87451f9947822163 inherit pro_methods_classtanlang_1_1SingleUnitAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classtanlang_1_1SemanticAnalysisAction"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1SemanticAnalysisAction')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1SemanticAnalysisAction.html">tanlang::SemanticAnalysisAction&lt; TypePrecheck, Package *, void &gt;</a></td></tr>
+<tr class="memitem:af485b70d7ade94a742e09cc824ba3a1a inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#af485b70d7ade94a742e09cc824ba3a1a">error</a> (ErrorType type, <a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p, const str &amp;message)</td></tr>
+<tr class="separator:af485b70d7ade94a742e09cc824ba3a1a inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca1484b85aa95efab92a93131b7adaa6 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#aca1484b85aa95efab92a93131b7adaa6">push_scope</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *scope)</td></tr>
+<tr class="separator:aca1484b85aa95efab92a93131b7adaa6 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb926a37db1a5f04328d284a21959e2e inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#adb926a37db1a5f04328d284a21959e2e">pop_scope</a> ()</td></tr>
+<tr class="separator:adb926a37db1a5f04328d284a21959e2e inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfebaa56679df01e1c7f22d968f51843 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Context.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#adfebaa56679df01e1c7f22d968f51843">ctx</a> ()</td></tr>
+<tr class="separator:adfebaa56679df01e1c7f22d968f51843 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab11f92e9bac9d4be60b73b6ce9883e73 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Context.html">Context</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#ab11f92e9bac9d4be60b73b6ce9883e73">top_ctx</a> ()</td></tr>
+<tr class="separator:ab11f92e9bac9d4be60b73b6ce9883e73 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f63c51fb5ebb35062beeadb574e51c6 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Decl.html">Decl</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#a8f63c51fb5ebb35062beeadb574e51c6">search_decl_in_scopes</a> (const str &amp;name)</td></tr>
+<tr class="separator:a8f63c51fb5ebb35062beeadb574e51c6 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15f7af5cbe715f2e6d7d301cbc1958a4 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memItemLeft" align="right" valign="top">T *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1SemanticAnalysisAction.html#a15f7af5cbe715f2e6d7d301cbc1958a4">search_node_in_parent_scopes</a> ()</td></tr>
+<tr class="separator:a15f7af5cbe715f2e6d7d301cbc1958a4 inherit pro_methods_classtanlang_1_1SemanticAnalysisAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classtanlang_1_1CompilerAction"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classtanlang_1_1CompilerAction')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a></td></tr>
 <tr class="memitem:a62a5cb44f3fbfa50b9f0b2923810adbd inherit pro_methods_classtanlang_1_1CompilerAction"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompilerAction.html#a62a5cb44f3fbfa50b9f0b2923810adbd">init</a> (Input)</td></tr>
 <tr class="separator:a62a5cb44f3fbfa50b9f0b2923810adbd inherit pro_methods_classtanlang_1_1CompilerAction"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="type__precheck_8h_source.html#l00016">16</a> of file <a class="el" href="type__precheck_8h_source.html">type_precheck.h</a>.</p>
+<div class="textblock"><p>Perform preliminary type checking. We try our best to resolve types, and remember those that cannot be fully resolved plus their symbol dependencies. </p>
+<p>This class only operates on top-level declarations, such as functions, structs, ... And it expects all input AST nodes to contain a non-empty type. </p>
+
+<p class="definition">Definition at line <a class="el" href="type__precheck_8h_source.html#l00023">23</a> of file <a class="el" href="type__precheck_8h_source.html">type_precheck.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a1bf73458aaed37de20293af1fde64ce7" name="a1bf73458aaed37de20293af1fde64ce7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1bf73458aaed37de20293af1fde64ce7">&#9670;&#160;</a></span>default_visit()</h2>
@@ -216,12 +220,12 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00019">19</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00018">18</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
-<a id="ae4d96860a9d3a8afef461601014c37d0" name="ae4d96860a9d3a8afef461601014c37d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae4d96860a9d3a8afef461601014c37d0">&#9670;&#160;</a></span>run_impl()</h2>
+<a id="ada6595bf849d522d1e3458dd3b5746fe" name="ada6595bf849d522d1e3458dd3b5746fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada6595bf849d522d1e3458dd3b5746fe">&#9670;&#160;</a></span>run_impl()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -229,14 +233,14 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void tanlang::TypePrecheck::run_impl </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1CompilationUnit.html">CompilationUnit</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Package.html">Package</a> *&#160;</td>
           <td class="paramname"><em>cu</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00021">21</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00020">20</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
@@ -256,7 +260,27 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00176">176</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00179">179</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ab079e9dd2a71c25dcd945bd897728c0d" name="ab079e9dd2a71c25dcd945bd897728c0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab079e9dd2a71c25dcd945bd897728c0d">&#9670;&#160;</a></span>VisitAssignmentImpl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tanlang::TypePrecheck::VisitAssignmentImpl </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Assignment.html">Assignment</a> *&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00181">181</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
@@ -276,7 +300,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00178">178</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00191">191</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
@@ -296,7 +320,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00093">93</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00089">89</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
@@ -336,7 +360,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00199">199</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00212">212</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>
@@ -356,7 +380,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00169">169</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="type__precheck_8cpp_source.html#l00172">172</a> of file <a class="el" href="type__precheck_8cpp_source.html">type_precheck.cpp</a>.</p>
 
 </div>
 </div>

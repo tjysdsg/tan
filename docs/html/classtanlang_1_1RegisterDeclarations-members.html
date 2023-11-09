@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">RegisterDeclarations</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">RegisterDeclarations</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -61,7 +60,7 @@
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>default_visit</b>(ASTBase *) (defined in <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>init</b>(Input) (defined in <a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>run</b>(Input input) (defined in <a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1CompilerAction.html">tanlang::CompilerAction&lt; Derived, Input, Output &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>run_impl</b>(CompilationUnit *cu) (defined in <a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>run_impl</b>(Program *p) (defined in <a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>visit</b>(ASTBase *p) (defined in <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#ac41365b9148624dcd348a281250f26e8">VisitArgDecl</a>(ArgDecl *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>VisitArgDeclImpl</b>(ArgDecl *p) (defined in <a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a></td><td class="entry"></td></tr>
@@ -93,6 +92,8 @@
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>VisitLoopImpl</b>(Loop *p) (defined in <a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#a592db423846a46895ba63d1e40a562f7">VisitMemberAccess</a>(MemberAccess *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="odd"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#af2333911c9c3ca95dd9e540903c5d8a9">VisitNullPointerLiteral</a>(NullPointerLiteral *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#ae06ac83719e17ca15967d92ef7481620">VisitPackage</a>(Package *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="odd"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#a0c476b43b15f092020732fed147ed937">VisitPackageDecl</a>(PackageDecl *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#a365e5b03dd1acd94d1540b1e8ca86dc5">VisitParenthesis</a>(Parenthesis *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>VisitParenthesisImpl</b>(Parenthesis *p) (defined in <a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1RegisterDeclarations.html">tanlang::RegisterDeclarations</a></td><td class="entry"></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html#a03921f1a22af11ba3121ee5358fb73fc">VisitProgram</a>(Program *p)</td><td class="entry"><a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor&lt; Derived &gt;</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>

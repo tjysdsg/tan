@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1CompileException.html">CompileException</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1CompileException.html">CompileException</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -66,10 +65,10 @@ Inheritance diagram for tanlang::CompileException:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a5b298e8c36e0d45ba93a0809d243aee2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompileException.html#a5b298e8c36e0d45ba93a0809d243aee2">CompileException</a> (<a class="el" href="classtanlang_1_1Error.html">Error</a> *err, const str &amp;msg)</td></tr>
-<tr class="separator:a5b298e8c36e0d45ba93a0809d243aee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94f2fb59c1b89b65c63a782710f02eaf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompileException.html#a94f2fb59c1b89b65c63a782710f02eaf">CompileException</a> (<a class="el" href="classtanlang_1_1Error.html">Error</a> *err, const char *msg)</td></tr>
-<tr class="separator:a94f2fb59c1b89b65c63a782710f02eaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71c8509796443725ab9304bdb3921b62"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompileException.html#a71c8509796443725ab9304bdb3921b62">CompileException</a> (ErrorType error_type, const str &amp;msg)</td></tr>
+<tr class="separator:a71c8509796443725ab9304bdb3921b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae97311f5fa389c17e6df90e3ef0299b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompileException.html#aae97311f5fa389c17e6df90e3ef0299b">CompileException</a> (ErrorType error_type, const char *msg)</td></tr>
+<tr class="separator:aae97311f5fa389c17e6df90e3ef0299b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b76155b537aba70b80fed9fe1404aca"><td class="memItemLeft" align="right" valign="top">ErrorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1CompileException.html#a3b76155b537aba70b80fed9fe1404aca">type</a> () const</td></tr>
 <tr class="separator:a3b76155b537aba70b80fed9fe1404aca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -77,8 +76,8 @@ Public Member Functions</h2></td></tr>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="error_8h_source.html#l00034">34</a> of file <a class="el" href="error_8h_source.html">error.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a5b298e8c36e0d45ba93a0809d243aee2" name="a5b298e8c36e0d45ba93a0809d243aee2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b298e8c36e0d45ba93a0809d243aee2">&#9670;&#160;</a></span>CompileException() <span class="overload">[1/2]</span></h2>
+<a id="a71c8509796443725ab9304bdb3921b62" name="a71c8509796443725ab9304bdb3921b62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71c8509796443725ab9304bdb3921b62">&#9670;&#160;</a></span>CompileException() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -86,8 +85,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">CompileException::CompileException </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1Error.html">Error</a> *&#160;</td>
-          <td class="paramname"><em>err</em>, </td>
+          <td class="paramtype">ErrorType&#160;</td>
+          <td class="paramname"><em>error_type</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -103,12 +102,12 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00013">13</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00015">15</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a94f2fb59c1b89b65c63a782710f02eaf" name="a94f2fb59c1b89b65c63a782710f02eaf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a94f2fb59c1b89b65c63a782710f02eaf">&#9670;&#160;</a></span>CompileException() <span class="overload">[2/2]</span></h2>
+<a id="aae97311f5fa389c17e6df90e3ef0299b" name="aae97311f5fa389c17e6df90e3ef0299b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae97311f5fa389c17e6df90e3ef0299b">&#9670;&#160;</a></span>CompileException() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -116,8 +115,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">CompileException::CompileException </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classtanlang_1_1Error.html">Error</a> *&#160;</td>
-          <td class="paramname"><em>err</em>, </td>
+          <td class="paramtype">ErrorType&#160;</td>
+          <td class="paramname"><em>error_type</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -133,7 +132,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00015">15</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00017">17</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
 
 </div>
 </div>
@@ -153,7 +152,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00017">17</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="error_8cpp_source.html#l00020">20</a> of file <a class="el" href="error_8cpp_source.html">error.cpp</a>.</p>
 
 </div>
 </div>

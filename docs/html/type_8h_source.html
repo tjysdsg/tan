@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
@@ -56,7 +55,7 @@
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;ast_base.h&quot;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;fwd.h&quot;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacetanlang.html">tanlang</a> {</div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">namespace </span>tanlang {</div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">class </span>StringType;</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">class </span>PrimitiveType;</div>
@@ -85,7 +84,7 @@
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  [[nodiscard]] <span class="keyword">static</span> <a class="code hl_class" href="classtanlang_1_1ArrayType.html">ArrayType</a> *GetArrayType(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *element_type, <span class="keywordtype">int</span> size);</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  [[nodiscard]] <span class="keyword">static</span> <a class="code hl_class" href="classtanlang_1_1FunctionType.html">FunctionType</a> *GetFunctionType(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *ret_type, <span class="keyword">const</span> vector&lt;Type *&gt; &amp;arg_types);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  [[nodiscard]] <span class="keyword">static</span> <a class="code hl_class" href="classtanlang_1_1StructType.html">StructType</a> *GetStructType(<span class="keyword">const</span> str &amp;name, <span class="keyword">const</span> vector&lt;Type *&gt; &amp;member_types);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  [[nodiscard]] <span class="keyword">static</span> <a class="code hl_class" href="classtanlang_1_1StructType.html">StructType</a> *GetStructType(<a class="code hl_class" href="classtanlang_1_1StructDecl.html">StructDecl</a> *decl);</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  [[nodiscard]] <span class="keyword">static</span> <a class="code hl_class" href="classtanlang_1_1TypeRef.html">TypeRef</a> *GetTypeRef(<span class="keyword">const</span> str &amp;name);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keyword">static</span> <span class="keyword">inline</span> vector&lt;str&gt; ALL_TYPE_NAMES{<span class="stringliteral">&quot;bool&quot;</span>, <span class="stringliteral">&quot;int&quot;</span>, <span class="stringliteral">&quot;float&quot;</span>, <span class="stringliteral">&quot;f32&quot;</span>, <span class="stringliteral">&quot;str&quot;</span>, <span class="stringliteral">&quot;char&quot;</span>, <span class="stringliteral">&quot;f64&quot;</span>, <span class="stringliteral">&quot;i8&quot;</span>,</div>
@@ -244,7 +243,7 @@
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno"><a class="line" href="classtanlang_1_1ArrayType.html">  191</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1ArrayType.html">ArrayType</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> {</div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *get_element_type() { <span class="keywordflow">return</span> _element_type; }</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  <span class="keywordtype">int</span> get_size() { <span class="keywordflow">return</span> _size; }</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  <span class="keywordtype">int</span> array_size() { <span class="keywordflow">return</span> _size; }</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>  [[nodiscard]] <span class="keywordtype">bool</span> is_array()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> <span class="keyword">true</span>; }</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  <span class="keywordtype">int</span> get_align_bits() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keywordtype">int</span> get_size_bits() <span class="keyword">override</span>;</div>
@@ -280,66 +279,68 @@
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="keywordtype">int</span> get_align_bits() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  <span class="keywordtype">int</span> get_size_bits() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>  [[nodiscard]] vector&lt;Type *&gt; children() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>  <span class="keywordtype">void</span> append_member_type(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *t);</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *&amp;operator[](<span class="keywordtype">size_t</span> index);</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *operator[](<span class="keywordtype">size_t</span> index) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>  <a class="code hl_class" href="classtanlang_1_1StructType.html">StructType</a>(<span class="keyword">const</span> str &amp;name, <span class="keyword">const</span> vector&lt;Type *&gt; &amp;member_types);</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>  vector&lt;Type *&gt; _member_types{};</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>};</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionType.html">  244</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1FunctionType.html">FunctionType</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> {</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>  [[nodiscard]] <span class="keywordtype">bool</span> is_function()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> <span class="keyword">true</span>; }</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  [[nodiscard]] <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *get_return_type() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  <span class="keywordtype">void</span> set_return_type(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *t);</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  [[nodiscard]] vector&lt;Type *&gt; get_arg_types() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  <span class="keywordtype">void</span> set_arg_types(<span class="keyword">const</span> vector&lt;Type *&gt; &amp;arg_types);</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  [[nodiscard]] vector&lt;Type *&gt; children() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>  <a class="code hl_class" href="classtanlang_1_1StructDecl.html">StructDecl</a> *get_decl() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  <span class="keywordtype">void</span> append_member_type(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *t);</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *&amp;operator[](<span class="keywordtype">size_t</span> index);</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *operator[](<span class="keywordtype">size_t</span> index) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span> </div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  <a class="code hl_class" href="classtanlang_1_1StructType.html">StructType</a>(<a class="code hl_class" href="classtanlang_1_1StructDecl.html">StructDecl</a> *decl);</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  vector&lt;Type *&gt; _member_types{};</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>  <a class="code hl_class" href="classtanlang_1_1StructDecl.html">StructDecl</a> *_decl = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>};</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span> </div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno"><a class="line" href="classtanlang_1_1FunctionType.html">  246</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1FunctionType.html">FunctionType</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> {</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  [[nodiscard]] <span class="keywordtype">bool</span> is_function()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> <span class="keyword">true</span>; }</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  [[nodiscard]] <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *get_return_type() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  <span class="keywordtype">void</span> set_return_type(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *t);</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  [[nodiscard]] vector&lt;Type *&gt; get_arg_types() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  <span class="keywordtype">void</span> set_arg_types(<span class="keyword">const</span> vector&lt;Type *&gt; &amp;arg_types);</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  [[nodiscard]] vector&lt;Type *&gt; children() <span class="keyword">const override</span>;</div>
 <div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>  <a class="code hl_class" href="classtanlang_1_1FunctionType.html">FunctionType</a>(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *ret_type, <span class="keyword">const</span> vector&lt;Type *&gt; &amp;arg_types);</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span> </div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *_ret_type = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  vector&lt;Type *&gt; _arg_types{};</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>};</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span><span class="comment"></span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="comment">/**</span></div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="comment"> * \brief Placeholder during parsing</span></div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno"><a class="line" href="classtanlang_1_1TypeRef.html">  266</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1TypeRef.html">TypeRef</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> {</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  [[nodiscard]] <span class="keywordtype">bool</span> is_ref()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> <span class="keyword">true</span>; }</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  [[nodiscard]] vector&lt;Type *&gt; children()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> {}; }</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>  <span class="keyword">explicit</span> <a class="code hl_class" href="classtanlang_1_1TypeRef.html">TypeRef</a>(<span class="keyword">const</span> str &amp;name);</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>};</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <a class="code hl_class" href="classtanlang_1_1FunctionType.html">FunctionType</a>(<a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *ret_type, <span class="keyword">const</span> vector&lt;Type *&gt; &amp;arg_types);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>  <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> *_ret_type = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  vector&lt;Type *&gt; _arg_types{};</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>};</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="comment"></span> </div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span><span class="comment">/**</span></div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="comment"> * \brief Placeholder during parsing</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno"><a class="line" href="classtanlang_1_1TypeRef.html">  268</a></span><span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1TypeRef.html">TypeRef</a> : <span class="keyword">public</span> <a class="code hl_class" href="classtanlang_1_1Type.html">Type</a> {</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="classtanlang_1_1Type.html">Type</a>;</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>  [[nodiscard]] <span class="keywordtype">bool</span> is_ref()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> <span class="keyword">true</span>; }</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  [[nodiscard]] vector&lt;Type *&gt; children()<span class="keyword"> const override </span>{ <span class="keywordflow">return</span> {}; }</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>  <span class="keyword">explicit</span> <a class="code hl_class" href="classtanlang_1_1TypeRef.html">TypeRef</a>(<span class="keyword">const</span> str &amp;name);</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>};</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="preprocessor">#endif </span><span class="comment">//__TAN_SRC_AST_TYPE_H__</span></div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>} <span class="comment">// namespace tanlang</span></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="preprocessor">#endif </span><span class="comment">//__TAN_SRC_AST_TYPE_H__</span></div>
 <div class="ttc" id="aclasstanlang_1_1ArrayType_html"><div class="ttname"><a href="classtanlang_1_1ArrayType.html">tanlang::ArrayType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00191">type.h:191</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1FunctionType_html"><div class="ttname"><a href="classtanlang_1_1FunctionType.html">tanlang::FunctionType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00244">type.h:244</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1FunctionType_html"><div class="ttname"><a href="classtanlang_1_1FunctionType.html">tanlang::FunctionType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00246">type.h:246</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1PointerType_html"><div class="ttname"><a href="classtanlang_1_1PointerType.html">tanlang::PointerType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00174">type.h:174</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1PrimitiveType_html"><div class="ttname"><a href="classtanlang_1_1PrimitiveType.html">tanlang::PrimitiveType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00086">type.h:86</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1StringType_html"><div class="ttname"><a href="classtanlang_1_1StringType.html">tanlang::StringType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00210">type.h:210</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1StructDecl_html"><div class="ttname"><a href="classtanlang_1_1StructDecl.html">tanlang::StructDecl</a></div><div class="ttdef"><b>Definition:</b> <a href="decl_8h_source.html#l00089">decl.h:89</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1StructType_html"><div class="ttname"><a href="classtanlang_1_1StructType.html">tanlang::StructType</a></div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00223">type.h:223</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1TypeRef_html"><div class="ttname"><a href="classtanlang_1_1TypeRef.html">tanlang::TypeRef</a></div><div class="ttdoc">Placeholder during parsing.</div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00266">type.h:266</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1TypeRef_html"><div class="ttname"><a href="classtanlang_1_1TypeRef.html">tanlang::TypeRef</a></div><div class="ttdoc">Placeholder during parsing.</div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00268">type.h:268</a></div></div>
 <div class="ttc" id="aclasstanlang_1_1Type_html"><div class="ttname"><a href="classtanlang_1_1Type.html">tanlang::Type</a></div><div class="ttdoc">Type is immutable once created. The exception is StructType. Its information is updated in multiple s...</div><div class="ttdef"><b>Definition:</b> <a href="type_8h_source.html#l00022">type.h:22</a></div></div>
-<div class="ttc" id="aclasstanlang_1_1Type_html_a9c2fbac56e1fcbb7c9c5514726c09921"><div class="ttname"><a href="classtanlang_1_1Type.html#a9c2fbac56e1fcbb7c9c5514726c09921">tanlang::Type::IsCanonical</a></div><div class="ttdeci">static bool IsCanonical(const Type &amp;type)</div><div class="ttdoc">A composite type is canonical only if its subtype(s) are also canonical. A non-composite type is cano...</div><div class="ttdef"><b>Definition:</b> <a href="type_8cpp_source.html#l00207">type.cpp:207</a></div></div>
-<div class="ttc" id="anamespacetanlang_html"><div class="ttname"><a href="namespacetanlang.html">tanlang</a></div><div class="ttdoc">we always assume that the line number and column number can be contained within 32bit int</div><div class="ttdef"><b>Definition:</b> <a href="register__declarations_8cpp_source.html#l00007">register_declarations.cpp:7</a></div></div>
-<div class="ttc" id="astructPairHash_html"><div class="ttname"><a href="structPairHash.html">PairHash</a></div><div class="ttdef"><b>Definition:</b> <a href="container_8h_source.html#l00022">container.h:22</a></div></div>
+<div class="ttc" id="aclasstanlang_1_1Type_html_a9c2fbac56e1fcbb7c9c5514726c09921"><div class="ttname"><a href="classtanlang_1_1Type.html#a9c2fbac56e1fcbb7c9c5514726c09921">tanlang::Type::IsCanonical</a></div><div class="ttdeci">static bool IsCanonical(const Type &amp;type)</div><div class="ttdoc">A composite type is canonical only if its subtype(s) are also canonical. A non-composite type is cano...</div><div class="ttdef"><b>Definition:</b> <a href="type_8cpp_source.html#l00209">type.cpp:209</a></div></div>
+<div class="ttc" id="astructPairHash_html"><div class="ttname"><a href="structPairHash.html">PairHash</a></div><div class="ttdef"><b>Definition:</b> <a href="container_8h_source.html#l00025">container.h:25</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

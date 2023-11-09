@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1ArrayType.html">ArrayType</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1ArrayType.html">ArrayType</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -73,8 +72,8 @@ Inheritance diagram for tanlang::ArrayType:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa21fef0076486bba6a97f3b1257a3a81"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtanlang_1_1Type.html">Type</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ArrayType.html#aa21fef0076486bba6a97f3b1257a3a81">get_element_type</a> ()</td></tr>
 <tr class="separator:aa21fef0076486bba6a97f3b1257a3a81"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a992f5fd62a60d016494eac54d8961832"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ArrayType.html#a992f5fd62a60d016494eac54d8961832">get_size</a> ()</td></tr>
-<tr class="separator:a992f5fd62a60d016494eac54d8961832"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65fa631d1f4e73fc731167e24fb87ca6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ArrayType.html#a65fa631d1f4e73fc731167e24fb87ca6">array_size</a> ()</td></tr>
+<tr class="separator:a65fa631d1f4e73fc731167e24fb87ca6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7dcdec6714178a88a10a383294b551a2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ArrayType.html#a7dcdec6714178a88a10a383294b551a2">is_array</a> () const override</td></tr>
 <tr class="separator:a7dcdec6714178a88a10a383294b551a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1d4c3a5b153da14acd5d5c4eee8c5fa9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ArrayType.html#a1d4c3a5b153da14acd5d5c4eee8c5fa9">get_align_bits</a> () override</td></tr>
@@ -154,8 +153,8 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a97edaf4306e127cf93dfde121bfb4b18 inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6af1526d16e04fbf033aa247e746f0ca inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1FunctionType.html">FunctionType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a6af1526d16e04fbf033aa247e746f0ca">GetFunctionType</a> (<a class="el" href="classtanlang_1_1Type.html">Type</a> *ret_type, const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;arg_types)</td></tr>
 <tr class="separator:a6af1526d16e04fbf033aa247e746f0ca inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a342b0554729efa125be58d9b46a3a7ec inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1StructType.html">StructType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a342b0554729efa125be58d9b46a3a7ec">GetStructType</a> (const str &amp;name, const vector&lt; <a class="el" href="classtanlang_1_1Type.html">Type</a> * &gt; &amp;member_types)</td></tr>
-<tr class="separator:a342b0554729efa125be58d9b46a3a7ec inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abce6cf4b3c672369462c2772aebc2b5e inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1StructType.html">StructType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#abce6cf4b3c672369462c2772aebc2b5e">GetStructType</a> (<a class="el" href="classtanlang_1_1StructDecl.html">StructDecl</a> *decl)</td></tr>
+<tr class="separator:abce6cf4b3c672369462c2772aebc2b5e inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7281c490b04c6e80e8a4a850f4355b04 inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtanlang_1_1TypeRef.html">TypeRef</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a7281c490b04c6e80e8a4a850f4355b04">GetTypeRef</a> (const str &amp;name)</td></tr>
 <tr class="separator:a7281c490b04c6e80e8a4a850f4355b04 inherit pub_static_methods_classtanlang_1_1Type"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c2fbac56e1fcbb7c9c5514726c09921 inherit pub_static_methods_classtanlang_1_1Type"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1Type.html#a9c2fbac56e1fcbb7c9c5514726c09921">IsCanonical</a> (const <a class="el" href="classtanlang_1_1Type.html">Type</a> &amp;type)</td></tr>
@@ -220,6 +219,33 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a65fa631d1f4e73fc731167e24fb87ca6" name="a65fa631d1f4e73fc731167e24fb87ca6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65fa631d1f4e73fc731167e24fb87ca6">&#9670;&#160;</a></span>array_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tanlang::ArrayType::array_size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00194">194</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
+
+</div>
+</div>
 <a id="aeb3a958f823b0b83781d0fad6affa50e" name="aeb3a958f823b0b83781d0fad6affa50e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeb3a958f823b0b83781d0fad6affa50e">&#9670;&#160;</a></span>children()</h2>
 
@@ -302,33 +328,6 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00193">193</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
-
-</div>
-</div>
-<a id="a992f5fd62a60d016494eac54d8961832" name="a992f5fd62a60d016494eac54d8961832"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a992f5fd62a60d016494eac54d8961832">&#9670;&#160;</a></span>get_size()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tanlang::ArrayType::get_size </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="type_8h_source.html#l00194">194</a> of file <a class="el" href="type_8h_source.html">type.h</a>.</p>
 
 </div>
 </div>

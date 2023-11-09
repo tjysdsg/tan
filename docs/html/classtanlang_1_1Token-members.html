@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1Token.html">Token</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Token.html">Token</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -63,13 +62,14 @@
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>get_type</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>get_value</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
   <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>GetSourceSpan</b>(const Token &amp;start, const Token &amp;end) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>is_unsigned</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>set_is_unsigned</b>(bool is_unsigned) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>set_type</b>(TokenType type) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>src</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>Token</b>()=delete (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>Token</b>(TokenType tokenType, uint32_t line, uint32_t col, str value, SourceFile *src) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>~Token</b>()=default (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>GetSrcLoc</b>(const Token *tok) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"><span class="mlabel">static</span></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>is_unsigned</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>set_is_unsigned</b>(bool is_unsigned) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>set_type</b>(TokenType type) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>src</b>() const (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>Token</b>()=delete (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>Token</b>(TokenType tokenType, uint32_t line, uint32_t col, str value, SourceFile *src) (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0" class="odd"><td class="entry"><b>~Token</b>()=default (defined in <a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a>)</td><td class="entry"><a class="el" href="classtanlang_1_1Token.html">tanlang::Token</a></td><td class="entry"></td></tr>
 </table></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

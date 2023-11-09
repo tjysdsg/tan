@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTVisitor.html">ASTVisitor</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1ASTVisitor.html">ASTVisitor</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -63,20 +62,24 @@ Inheritance diagram for tanlang::ASTVisitor&lt; Derived &gt;:</div>
  <div class="center">
   <img src="classtanlang_1_1ASTVisitor.png" usemap="#tanlang::ASTVisitor_3C_20Derived_20_3E_map" alt=""/>
   <map id="tanlang::ASTVisitor_3C_20Derived_20_3E_map" name="tanlang::ASTVisitor_3C_20Derived_20_3E_map">
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; CodeGenerator, CompilationUnit *, llvm::Value * &gt;" shape="rect" coords="0,56,445,80"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; RegisterDeclarations, CompilationUnit *, void &gt;" shape="rect" coords="455,56,900,80"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; Derived, CompilationUnit *, Output &gt;" shape="rect" coords="910,56,1355,80"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; TypeCheck, CompilationUnit *, void &gt;" shape="rect" coords="1365,56,1810,80"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; TypePrecheck, CompilationUnit *, void &gt;" shape="rect" coords="1820,56,2265,80"/>
-<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; Derived, Input, Output &gt;" shape="rect" coords="2275,56,2720,80"/>
-<area href="classtanlang_1_1CodeGenerator.html" alt="tanlang::CodeGenerator" shape="rect" coords="0,112,445,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; Derived, Output &gt;" shape="rect" coords="910,112,1355,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; RegisterDeclarations, void &gt;" shape="rect" coords="1820,112,2265,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; TypeCheck, void &gt;" shape="rect" coords="2275,112,2720,136"/>
-<area href="classtanlang_1_1SingleUnitAnalysisAction.html" alt="tanlang::SingleUnitAnalysisAction&lt; TypePrecheck, void &gt;" shape="rect" coords="2730,112,3175,136"/>
-<area href="classtanlang_1_1RegisterDeclarations.html" alt="tanlang::RegisterDeclarations" shape="rect" coords="1820,168,2265,192"/>
-<area href="classtanlang_1_1TypeCheck.html" alt="tanlang::TypeCheck" shape="rect" coords="2275,168,2720,192"/>
-<area href="classtanlang_1_1TypePrecheck.html" alt="tanlang::TypePrecheck" shape="rect" coords="2730,168,3175,192"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; CodeGenerator, Package *, void &gt;" shape="rect" coords="0,56,535,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; OrganizePackages, vector&lt; Program * &gt;, vector&lt; Package * &gt; &gt;" shape="rect" coords="545,56,1080,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; RegisterDeclarations, Program *, void &gt;" shape="rect" coords="1090,56,1625,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; ScanImports, Package *, ScanImportsOutputType &gt;" shape="rect" coords="1635,56,2170,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; TypeCheck, Package *, void &gt;" shape="rect" coords="2180,56,2715,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; TypePrecheck, Package *, void &gt;" shape="rect" coords="2725,56,3260,80"/>
+<area href="classtanlang_1_1CompilerAction.html" alt="tanlang::CompilerAction&lt; Derived, Input, Output &gt;" shape="rect" coords="3270,56,3805,80"/>
+<area href="classtanlang_1_1CodeGenerator.html" alt="tanlang::CodeGenerator" shape="rect" coords="0,112,535,136"/>
+<area href="classtanlang_1_1OrganizePackages.html" title="Organize a list of source files into their corresponding packages according to the code...." alt="tanlang::OrganizePackages" shape="rect" coords="545,112,1080,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; RegisterDeclarations, Program *, void &gt;" shape="rect" coords="2180,112,2715,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; ScanImports, Package *, ScanImportsOutputType &gt;" shape="rect" coords="2725,112,3260,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; TypeCheck, Package *, void &gt;" shape="rect" coords="3270,112,3805,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; TypePrecheck, Package *, void &gt;" shape="rect" coords="3815,112,4350,136"/>
+<area href="classtanlang_1_1SemanticAnalysisAction.html" alt="tanlang::SemanticAnalysisAction&lt; Derived, Input, Output &gt;" shape="rect" coords="4360,112,4895,136"/>
+<area href="classtanlang_1_1RegisterDeclarations.html" title="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..." alt="tanlang::RegisterDeclarations" shape="rect" coords="2180,168,2715,192"/>
+<area href="classtanlang_1_1ScanImports.html" title="Scans all dependencies in a package, and return their names and paths to relevant source files." alt="tanlang::ScanImports" shape="rect" coords="2725,168,3260,192"/>
+<area href="classtanlang_1_1TypeCheck.html" alt="tanlang::TypeCheck" shape="rect" coords="3270,168,3805,192"/>
+<area href="classtanlang_1_1TypePrecheck.html" title="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..." alt="tanlang::TypePrecheck" shape="rect" coords="3815,168,4350,192"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -84,6 +87,8 @@ Inheritance diagram for tanlang::ASTVisitor&lt; Derived &gt;:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a03921f1a22af11ba3121ee5358fb73fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a03921f1a22af11ba3121ee5358fb73fc">VisitProgram</a> (<a class="el" href="classtanlang_1_1Program.html">Program</a> *p)</td></tr>
 <tr class="separator:a03921f1a22af11ba3121ee5358fb73fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae06ac83719e17ca15967d92ef7481620"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#ae06ac83719e17ca15967d92ef7481620">VisitPackage</a> (<a class="el" href="classtanlang_1_1Package.html">Package</a> *p)</td></tr>
+<tr class="separator:ae06ac83719e17ca15967d92ef7481620"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec5e714924589cfd80ca57fe7390d002"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#aec5e714924589cfd80ca57fe7390d002">VisitIdentifier</a> (<a class="el" href="classtanlang_1_1Identifier.html">Identifier</a> *p)</td></tr>
 <tr class="separator:aec5e714924589cfd80ca57fe7390d002"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365e5b03dd1acd94d1540b1e8ca86dc5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a365e5b03dd1acd94d1540b1e8ca86dc5">VisitParenthesis</a> (<a class="el" href="classtanlang_1_1Parenthesis.html">Parenthesis</a> *p)</td></tr>
@@ -140,6 +145,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a02c681de4922bb5a67dc92668abdd990"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404c6e7532f1c313d53e79fc8258056d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a404c6e7532f1c313d53e79fc8258056d">VisitVarRef</a> (<a class="el" href="classtanlang_1_1VarRef.html">VarRef</a> *p)</td></tr>
 <tr class="separator:a404c6e7532f1c313d53e79fc8258056d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c476b43b15f092020732fed147ed937"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a0c476b43b15f092020732fed147ed937">VisitPackageDecl</a> (<a class="el" href="classtanlang_1_1PackageDecl.html">PackageDecl</a> *p)</td></tr>
+<tr class="separator:a0c476b43b15f092020732fed147ed937"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18c309aef0de72be771f0b12c8b60048"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a18c309aef0de72be771f0b12c8b60048">visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *p)</td></tr>
 <tr class="separator:a18c309aef0de72be771f0b12c8b60048"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6946c3890e1b44caf76e3921b5b5d27e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1ASTVisitor.html#a6946c3890e1b44caf76e3921b5b5d27e">default_visit</a> (<a class="el" href="classtanlang_1_1ASTBase.html">ASTBase</a> *)</td></tr>
@@ -148,7 +155,7 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename Derived&gt;<br />
 class tanlang::ASTVisitor&lt; Derived &gt;</div>
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00056">56</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00058">58</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a6946c3890e1b44caf76e3921b5b5d27e" name="a6946c3890e1b44caf76e3921b5b5d27e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6946c3890e1b44caf76e3921b5b5d27e">&#9670;&#160;</a></span>default_visit()</h2>
@@ -176,7 +183,7 @@ template&lt;typename Derived &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00184">184</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00194">194</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -206,7 +213,7 @@ template&lt;typename Derived &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00088">88</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00092">92</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -237,7 +244,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00063">63</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00066">66</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -268,7 +275,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00075">75</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00078">78</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -299,7 +306,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00070">70</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00073">73</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -330,7 +337,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00067">67</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00070">70</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -361,7 +368,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00066">66</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00069">69</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -392,7 +399,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00077">77</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00080">80</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -423,7 +430,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00085">85</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00088">88</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -454,7 +461,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00069">69</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00072">72</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -485,7 +492,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00076">76</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00079">79</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -516,7 +523,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00065">65</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00068">68</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -547,7 +554,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00079">79</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00082">82</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -578,7 +585,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00071">71</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00074">74</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -609,7 +616,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00072">72</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00075">75</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -640,7 +647,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00059">59</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00062">62</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -671,7 +678,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00061">61</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00064">64</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -702,7 +709,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00073">73</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00076">76</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -733,7 +740,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00078">78</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00081">81</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -764,7 +771,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00074">74</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00077">77</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -795,7 +802,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00084">84</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00087">87</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -826,7 +833,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00082">82</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00085">85</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -857,7 +864,69 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00081">81</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00084">84</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+
+</div>
+</div>
+<a id="ae06ac83719e17ca15967d92ef7481620" name="ae06ac83719e17ca15967d92ef7481620"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae06ac83719e17ca15967d92ef7481620">&#9670;&#160;</a></span>VisitPackage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Derived &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor</a>&lt; Derived &gt;::VisitPackage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1Package.html">Package</a> *&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
+
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00061">61</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+
+</div>
+</div>
+<a id="a0c476b43b15f092020732fed147ed937" name="a0c476b43b15f092020732fed147ed937"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c476b43b15f092020732fed147ed937">&#9670;&#160;</a></span>VisitPackageDecl()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Derived &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classtanlang_1_1ASTVisitor.html">tanlang::ASTVisitor</a>&lt; Derived &gt;::VisitPackageDecl </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtanlang_1_1PackageDecl.html">PackageDecl</a> *&#160;</td>
+          <td class="paramname"><em>p</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
+
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00090">90</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -888,7 +957,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00060">60</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00063">63</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -919,7 +988,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00058">58</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00060">60</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -950,7 +1019,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00064">64</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00067">67</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -981,7 +1050,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00080">80</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00083">83</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -1012,7 +1081,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00083">83</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00086">86</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -1043,7 +1112,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00068">68</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00071">71</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -1074,7 +1143,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00062">62</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00065">65</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>
@@ -1105,7 +1174,7 @@ template&lt;typename Derived &gt; </div>
 </div><div class="memdoc">
 <p>The interface VisitXX calls this-&gt;VisitXXImpl() if defined by Derived </p>
 
-<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00086">86</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ast__visitor_8h_source.html#l00089">89</a> of file <a class="el" href="ast__visitor_8h_source.html">ast_visitor.h</a>.</p>
 
 </div>
 </div>

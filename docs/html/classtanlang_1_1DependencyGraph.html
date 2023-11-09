@@ -31,7 +31,6 @@
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
       <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="concepts.html"><span>Concepts</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
@@ -47,7 +46,7 @@
   </div>
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="namespacetanlang.html">tanlang</a></li><li class="navelem"><a class="el" href="classtanlang_1_1DependencyGraph.html">DependencyGraph</a></li>  </ul>
+<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1DependencyGraph.html">DependencyGraph</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -63,9 +62,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a96ee99d01cbf87877a031398d5026f70"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1DependencyGraph.html#a96ee99d01cbf87877a031398d5026f70">add_dependency</a> (T depended, T dependent)</td></tr>
 <tr class="memdesc:a96ee99d01cbf87877a031398d5026f70"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>dependent</code> depends on <code>depended</code>  <br /></td></tr>
 <tr class="separator:a96ee99d01cbf87877a031398d5026f70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c40062c0b7249327d61c0e3a3614bcd"><td class="memItemLeft" align="right" valign="top">vector&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1DependencyGraph.html#a6c40062c0b7249327d61c0e3a3614bcd">topological_sort</a> () const</td></tr>
-<tr class="memdesc:a6c40062c0b7249327d61c0e3a3614bcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sort topologically so for no element is dependent on its succeeding element(s).  <br /></td></tr>
-<tr class="separator:a6c40062c0b7249327d61c0e3a3614bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a644c14baa07e5b149482ce6aaa26c372"><td class="memItemLeft" align="right" valign="top">std::pair&lt; std::optional&lt; vector&lt; T &gt; &gt;, std::optional&lt; T &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1DependencyGraph.html#a644c14baa07e5b149482ce6aaa26c372">topological_sort</a> () const</td></tr>
+<tr class="memdesc:a644c14baa07e5b149482ce6aaa26c372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sort topologically so for no element is dependent on its succeeding element(s).  <br /></td></tr>
+<tr class="separator:a644c14baa07e5b149482ce6aaa26c372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2b2a5634c885b429607a6776abcd83b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtanlang_1_1DependencyGraph.html#ae2b2a5634c885b429607a6776abcd83b">num_dependent</a> (T depended) const</td></tr>
 <tr class="memdesc:ae2b2a5634c885b429607a6776abcd83b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of nodes that depends on <code>depended</code>.  <br /></td></tr>
 <tr class="separator:ae2b2a5634c885b429607a6776abcd83b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -78,7 +77,7 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
 class tanlang::DependencyGraph&lt; T &gt;</div>
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00010">10</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00011">11</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a96ee99d01cbf87877a031398d5026f70" name="a96ee99d01cbf87877a031398d5026f70"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a96ee99d01cbf87877a031398d5026f70">&#9670;&#160;</a></span>add_dependency()</h2>
@@ -118,7 +117,7 @@ template&lt;typename T &gt; </div>
 
 <p><code>dependent</code> depends on <code>depended</code> </p>
 
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00015">15</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00016">16</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 
 </div>
 </div>
@@ -147,7 +146,7 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00098">98</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00101">101</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 
 </div>
 </div>
@@ -179,7 +178,7 @@ template&lt;typename T &gt; </div>
 
 <p>Number of nodes that <code>dependent</code> depends on. </p>
 
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00089">89</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00092">92</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 
 </div>
 </div>
@@ -211,12 +210,12 @@ template&lt;typename T &gt; </div>
 
 <p>Number of nodes that depends on <code>depended</code>. </p>
 
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00077">77</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00080">80</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 
 </div>
 </div>
-<a id="a6c40062c0b7249327d61c0e3a3614bcd" name="a6c40062c0b7249327d61c0e3a3614bcd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c40062c0b7249327d61c0e3a3614bcd">&#9670;&#160;</a></span>topological_sort()</h2>
+<a id="a644c14baa07e5b149482ce6aaa26c372" name="a644c14baa07e5b149482ce6aaa26c372"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a644c14baa07e5b149482ce6aaa26c372">&#9670;&#160;</a></span>topological_sort()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -227,7 +226,7 @@ template&lt;typename T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">vector&lt; T &gt; <a class="el" href="classtanlang_1_1DependencyGraph.html">tanlang::DependencyGraph</a>&lt; T &gt;::topological_sort </td>
+          <td class="memname">std::pair&lt; std::optional&lt; vector&lt; T &gt; &gt;, std::optional&lt; T &gt; &gt; <a class="el" href="classtanlang_1_1DependencyGraph.html">tanlang::DependencyGraph</a>&lt; T &gt;::topological_sort </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -241,9 +240,13 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Sort topologically so for no element is dependent on its succeeding element(s). </p>
-<dl class="section return"><dt>Returns</dt><dd>Empty vector if there is a dependency cycle. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>(res, node)<ul>
+<li><a class="el" href="classtanlang_1_1If.html" title="Represent if-[else] or if-elif-[else] statements.">If</a> successful, res is a sorted vector of T and node is nullopt</li>
+<li>Otherwise, res is nullopt, and node is the node that has cyclic dependency </li>
+</ul>
+</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00026">26</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="dependency__graph_8h_source.html#l00029">29</a> of file <a class="el" href="dependency__graph_8h_source.html">dependency_graph.h</a>.</p>
 
 </div>
 </div>
