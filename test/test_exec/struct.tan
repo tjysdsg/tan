@@ -18,6 +18,12 @@ struct Fuck {
     }
 }
 
+@test_comp_error(invalid_member_var) {
+    struct FFF {
+        a = b;
+    }
+}
+
 fn set_fuck(self: Fuck*, val: i32) : void {
     self.val = val;
 }

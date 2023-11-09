@@ -21,6 +21,10 @@ fn test_implicit_cast() : void {
         var b: u16 = unsigned;
     }
 
+    @test_comp_error(unknown_type) {
+        var unk: Unknown;
+    }
+
     // rule #2
     signed = 5 as u16; // u16 -> i32
     assert(signed == 5 as i64); // (u32 and i64) -> i64
