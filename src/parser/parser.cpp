@@ -679,9 +679,6 @@ private:
     expect_token("(");
     ++_curr;
 
-    // Register in the parent context
-    p->ctx()->set_function_decl(p);
-
     { // declarations of func arguments and variables in the body are within the local scope
       ScopeGuard scope_guard(_curr_scope, p);
 
