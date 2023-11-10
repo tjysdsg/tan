@@ -63,7 +63,7 @@ DEFINE_AST_VISITOR_IMPL(OrganizePackages, Program) {
   }
 
   if (package_name.empty()) { // default package name
-    package_name = fs::path(p->src()->get_filename()).filename().replace_extension();
+    package_name = fs::path(p->src()->get_filename()).filename().replace_extension().string();
 
     if (package_name.empty()) { // ".tan" is invalid
       Error(ErrorType::GENERIC_ERROR,

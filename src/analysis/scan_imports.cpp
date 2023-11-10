@@ -26,7 +26,7 @@ ScanImportsOutputType ScanImports::run_impl(Package *package) {
         for (const auto &entry : fs::directory_iterator(res[0])) {
           auto path = entry.path();
           if (!fs::is_directory(path) && path.has_extension() && path.extension() == ".tan") {
-            ret[name].insert(path);
+            ret[name].insert(path.string());
           }
         }
       } else { // a tan source file with the package name

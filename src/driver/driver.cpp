@@ -327,7 +327,7 @@ vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const
 
   // importing using an absolute path
   if (import_path.is_absolute() && fs::exists(import_path)) {
-    return {import_path}; // no reason to continue
+    return {import_path.string()}; // no reason to continue
   }
 
   vector<str> ret{};
@@ -337,7 +337,7 @@ vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const
     auto p = fs::path(callee_path).parent_path() / import_path;
     p = p.lexically_normal();
     if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
-      ret.push_back(fs::absolute(p));
+      ret.push_back(fs::absolute(p).string());
     }
   }
 
@@ -346,7 +346,7 @@ vector<str> CompilerDriver::resolve_package_import(const str &callee_path, const
     auto p = fs::path(rel) / import_path;
     p = p.lexically_normal();
     if (fs::exists(p) || fs::exists(p.replace_extension(".tan"))) {
-      ret.push_back(fs::absolute(p));
+      ret.push_back(fs::absolute(p).string());
     }
   }
 
