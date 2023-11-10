@@ -9,7 +9,7 @@ struct Useless {
     var fuck: Fuck;
 }
 
-struct Fuck {
+pub struct Fuck {
     var val: i32 = 2;
 }
 

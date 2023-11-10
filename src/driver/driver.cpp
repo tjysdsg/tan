@@ -258,7 +258,9 @@ vector<str> CompilerDriver::compile_tan(const vector<str> &files) {
   vector<Package *> packages = stage1_analysis(programs);
 
   // Full semantic analysis
-  for (auto *p : packages) {
+  // We still need to perform a full analysis on imported packages, because we might implicitly depend on some private
+  // symbols in the imported packages
+  for (auto [name, p] : _packages) {
     TypeCheck analyzer;
     analyzer.run(p);
   }

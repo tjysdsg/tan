@@ -104,27 +104,25 @@ DEFINE_AST_VISITOR_IMPL(TypePrecheck, Import) {
 
   // import functions
   vector<FunctionDecl *> funcs = imported_ctx->get_func_decls();
-  vector<FunctionDecl *> pub_funcs{};
   for (auto *f : funcs) {
     f->set_start(p->start());
     f->set_end(p->end());
 
     if (f->is_public() || f->is_external()) {
+      // FIXME: merge multiple declarations of the same symbol, fail if they don't match
+      //        for example, intrinsics
       auto *existing = top_ctx()->get_func_decl(f->get_name());
       if (!existing) {
-        // FIXME: merge multiple declarations of the same symbol, fail if they don't match
-        pub_funcs.push_back(f);
+        p->_imported_funcs.push_back(f);
         top_ctx()->set_function_decl(f);
       }
     }
   }
-  p->_imported_funcs = pub_funcs;
 
   // imported types
-  // FIXME: only import public declarations
   vector<Decl *> decls = imported_ctx->get_decls();
   for (auto *t : decls) {
-    if (t->is_type_decl()) {
+    if (t->is_type_decl() && t->is_public()) {
       top_ctx()->set_decl(t->get_name(), t);
       p->_imported_types.push_back(pcast<TypeDecl>(t));
     }

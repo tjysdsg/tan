@@ -15,9 +15,8 @@ pub fn main(argc: int, argv: u8**) : i32 {
     f.val = 100;
     assert(f.val == 100);
 
-    // TODO: make Value private and see if this still works
     var list: List;
-    list.val.v = 1;
+    list.val.v = 1; // Value type is hidden from us, but we can still access its field
     assert(list.val.v == 1);
 
     print("SUCCESS\n");

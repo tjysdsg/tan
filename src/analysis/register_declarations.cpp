@@ -124,7 +124,6 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
     error(ErrorType::SEMANTIC_ERROR, p, "Cannot redeclare a struct");
   }
 
-  // TODO IMPORTANT: distinguish publicly and privately defined struct types
   register_public_type_decl(struct_name, p);
 
   // Create the type first and it will be modified later. Doing this allows recursive type reference

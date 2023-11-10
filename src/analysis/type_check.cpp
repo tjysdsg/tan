@@ -277,27 +277,33 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
 // ASSUMES lhs has been already analyzed, while rhs has not
 void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs, Expr *rhs) {
   str m_name = pcast<Identifier>(rhs)->get_name();
-  Type *struct_ty = nullptr;
-  /// auto dereference pointers
+  Type *t = nullptr;
+
+  // auto dereference pointers
   if (lhs->get_type()->is_pointer()) {
-    struct_ty = pcast<PointerType>(lhs->get_type())->get_pointee();
+    t = pcast<PointerType>(lhs->get_type())->get_pointee();
   } else {
-    struct_ty = lhs->get_type();
+    t = lhs->get_type();
   }
 
-  struct_ty = resolve_type(struct_ty, lhs);
-  if (!struct_ty->is_struct()) {
+  // resole struct type
+  t = resolve_type(t, lhs);
+  if (!t->is_struct()) {
     error(ErrorType::TYPE_ERROR, lhs, "Expect a struct type");
   }
 
-  auto *struct_decl = pcast<StructDecl>(search_decl_in_scopes(struct_ty->get_typename()));
+  // resolve the member being accessed
+  auto *struct_type = pcast<StructType>(t);
+  auto *struct_decl = struct_type->get_decl();
+  TAN_ASSERT(struct_decl);
+
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   if (p->_access_idx == -1) {
     error(ErrorType::UNKNOWN_SYMBOL, p,
           fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
   }
-  auto *ty = struct_decl->get_struct_member_ty(p->_access_idx);
-  p->set_type(resolve_type(ty, p));
+  auto *mem_type = struct_decl->get_struct_member_ty(p->_access_idx);
+  p->set_type(resolve_type(mem_type, p));
 }
 
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Identifier) {
