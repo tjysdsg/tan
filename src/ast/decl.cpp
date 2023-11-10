@@ -4,11 +4,17 @@
 
 using namespace tanlang;
 
-Decl::Decl(ASTNodeType type, TokenizedSourceFile *src, int bp) : Expr(type, src, bp) {}
+Decl::Decl(ASTNodeType type, TokenizedSourceFile *src, int bp, bool is_extern, bool is_public)
+    : Expr(type, src, bp), _is_external(is_extern), _is_public(is_public) {}
 
 vector<ASTBase *> Decl::get_children() const { return {}; }
 
-ArgDecl::ArgDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::ARG_DECL, src, 0) {}
+bool Decl::is_public() const { return _is_public; }
+void Decl::set_public(bool is_public) { _is_public = is_public; }
+bool Decl::is_external() const { return _is_external; }
+void Decl::set_external(bool is_external) { _is_external = is_external; }
+
+ArgDecl::ArgDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::ARG_DECL, src, 0, false, false) {}
 
 ArgDecl *ArgDecl::Create(TokenizedSourceFile *src) { return new ArgDecl(src); }
 
@@ -19,7 +25,7 @@ ArgDecl *ArgDecl::Create(TokenizedSourceFile *src, const str &name, Type *ty) {
   return ret;
 }
 
-VarDecl::VarDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::VAR_DECL, src, 0) {}
+VarDecl::VarDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::VAR_DECL, src, 0, false, false) {}
 
 VarDecl *VarDecl::Create(TokenizedSourceFile *src) { return new VarDecl(src); }
 
@@ -30,20 +36,21 @@ VarDecl *VarDecl::Create(TokenizedSourceFile *src, const str &name, Type *ty) {
   return ret;
 }
 
-FunctionDecl::FunctionDecl(TokenizedSourceFile *src) : Decl(ASTNodeType::FUNC_DECL, src, 0) {}
+FunctionDecl::FunctionDecl(TokenizedSourceFile *src, bool is_extern, bool is_public)
+    : Decl(ASTNodeType::FUNC_DECL, src, 0, is_extern, is_public) {}
 
-FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src) { return new FunctionDecl(src); }
+FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src, bool is_extern, bool is_public) {
+  return new FunctionDecl(src, is_extern, is_public);
+}
 
 FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                                    bool is_public, Stmt *body, bool is_intrinsic) {
-  auto ret = new FunctionDecl(src);
+  auto ret = new FunctionDecl(src, is_external, is_public);
   ret->set_name(name);
   if (!body) {
     ret->set_body(body);
   }
   ret->set_type(func_type);
-  ret->_is_external = is_external;
-  ret->_is_public = is_public;
   ret->_is_intrinsic = is_intrinsic;
   return ret;
 }
@@ -56,15 +63,7 @@ void FunctionDecl::set_body(Stmt *body) { _body = body; }
 
 void FunctionDecl::set_arg_names(const vector<str> &names) { _arg_names = names; }
 
-bool FunctionDecl::is_public() const { return _is_public; }
-
-bool FunctionDecl::is_external() const { return _is_external; }
-
 Stmt *FunctionDecl::get_body() const { return _body; }
-
-void FunctionDecl::set_external(bool is_external) { _is_external = is_external; }
-
-void FunctionDecl::set_public(bool is_public) { _is_public = is_public; }
 
 bool FunctionDecl::is_intrinsic() const { return _is_intrinsic; }
 
@@ -77,16 +76,20 @@ void FunctionDecl::set_arg_decls(const vector<ArgDecl *> &arg_decls) { _arg_decl
 vector<ASTBase *> FunctionDecl::get_children() const { return {(ASTBase *)_body}; }
 
 str FunctionDecl::terminal_token() const {
-  if (_is_external)
+  if (is_external())
     return ";";
   return "}";
 }
 
-TypeDecl::TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src) : Decl(node_type, src, 0) {}
+TypeDecl::TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src, bool is_extern, bool is_public)
+    : Decl(node_type, src, 0, is_extern, is_public) {}
 
-StructDecl::StructDecl(TokenizedSourceFile *src) : TypeDecl(ASTNodeType::STRUCT_DECL, src) {}
+StructDecl::StructDecl(TokenizedSourceFile *src, bool is_extern, bool is_public)
+    : TypeDecl(ASTNodeType::STRUCT_DECL, src, is_extern, is_public) {}
 
-StructDecl *StructDecl::Create(TokenizedSourceFile *src) { return new StructDecl(src); }
+StructDecl *StructDecl::Create(TokenizedSourceFile *src, bool is_extern, bool is_public) {
+  return new StructDecl(src, is_extern, is_public);
+}
 
 const vector<Expr *> &StructDecl::get_member_decls() const { return _member_decls; }
 

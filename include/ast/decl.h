@@ -16,10 +16,20 @@ public:
   [[nodiscard]] vector<ASTBase *> get_children() const override;
   virtual bool is_type_decl() const { return false; }
 
+  [[nodiscard]] bool is_public() const;
+  void set_public(bool is_public);
+  [[nodiscard]] bool is_external() const;
+  void set_external(bool is_external);
+
 protected:
-  Decl(ASTNodeType type, TokenizedSourceFile *src, int bp);
+  Decl(ASTNodeType type, TokenizedSourceFile *src, int bp, bool is_extern, bool is_public);
+
+private:
+  bool _is_external = false;
+  bool _is_public = false;
 };
 
+// TODO: external variables
 class VarDecl : public Decl {
 protected:
   explicit VarDecl(TokenizedSourceFile *src);
@@ -41,10 +51,10 @@ public:
 class FunctionType;
 class FunctionDecl : public Decl {
 protected:
-  explicit FunctionDecl(TokenizedSourceFile *src);
+  explicit FunctionDecl(TokenizedSourceFile *src, bool is_extern, bool is_public);
 
 public:
-  static FunctionDecl *Create(TokenizedSourceFile *src);
+  static FunctionDecl *Create(TokenizedSourceFile *src, bool is_extern, bool is_public);
   static FunctionDecl *Create(TokenizedSourceFile *src, const str &name, FunctionType *func_type, bool is_external,
                               bool is_public, Stmt *body = nullptr, bool is_intrinsic = false);
 
@@ -60,18 +70,12 @@ public:
   [[nodiscard]] const vector<ArgDecl *> &get_arg_decls() const;
   void set_arg_decls(const vector<ArgDecl *> &arg_decls);
 
-  [[nodiscard]] bool is_public() const;
-  [[nodiscard]] bool is_external() const;
-  void set_external(bool is_external);
-  void set_public(bool is_public);
   bool is_intrinsic() const;
   void set_is_intrinsic(bool is_intrinsic);
 
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
 private:
-  bool _is_external = false;
-  bool _is_public = false;
   bool _is_intrinsic = false;
 
   vector<str> _arg_names{};
@@ -82,16 +86,16 @@ private:
 
 class TypeDecl : public Decl {
 public:
-  TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src);
+  TypeDecl(ASTNodeType node_type, TokenizedSourceFile *src, bool is_extern, bool is_public);
   bool is_type_decl() const override { return true; }
 };
 
 class StructDecl : public TypeDecl {
 protected:
-  explicit StructDecl(TokenizedSourceFile *src);
+  explicit StructDecl(TokenizedSourceFile *src, bool is_extern, bool is_public);
 
 public:
-  static StructDecl *Create(TokenizedSourceFile *src);
+  static StructDecl *Create(TokenizedSourceFile *src, bool is_extern, bool is_public);
 
 public:
   const vector<Expr *> &get_member_decls() const;

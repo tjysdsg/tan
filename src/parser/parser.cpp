@@ -62,13 +62,44 @@ public:
   }
 
 private:
-  ASTBase *peek_keyword(Token *token) {
+  ASTBase *peek_keyword() {
     ASTBase *ret = nullptr;
+    Token *token = at(_curr);
+
     str tok = token->get_value();
-    if (tok == "var")
+
+    if (tok == "pub" || tok == "extern") { // need to look ahead
+      if (tok == "pub") {
+        if (_pub)
+          error(ErrorType::SYNTAX_ERROR, _curr, _curr, fmt::format("Repeated `{}`", tok));
+        _pub = true;
+      }
+      if (tok == "extern") {
+        if (_extern)
+          error(ErrorType::SYNTAX_ERROR, _curr, _curr, fmt::format("Repeated `{}`", tok));
+        _extern = true;
+      }
+
+      ++_curr;
+      ret = peek();
+
+      // check if these keywords are used in the right way
+      auto node_type = ret->get_node_type();
+      bool is_func = node_type == ASTNodeType::FUNC_DECL;
+      bool is_struct = node_type == ASTNodeType::STRUCT_DECL;
+      if (tok == "pub" && !is_func && !is_struct)
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+              fmt::format("Cannot use `{}` keyword to qualify {}", tok, ASTBase::ASTTypeNames[node_type]));
+      if (tok == "extern" && !is_func)
+        error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+              fmt::format("Cannot use `{}` keyword to qualify {}", tok, ASTBase::ASTTypeNames[node_type]));
+
+      _pub = false;
+      _extern = false;
+    }
+
+    else if (tok == "var")
       ret = VarDecl::Create(_src);
-    else if (tok == "fn" || tok == "pub" || tok == "extern")
-      ret = FunctionDecl::Create(_src);
     else if (tok == "import")
       ret = Import::Create(_src);
     else if (tok == "if") /// else clause should be covered by If statement as well
@@ -77,8 +108,10 @@ private:
       ret = Return::Create(_src);
     else if (tok == "while" || tok == "for")
       ret = Loop::Create(_src);
+    else if (tok == "fn")
+      ret = FunctionDecl::Create(_src, _extern, _pub);
     else if (tok == "struct")
-      ret = StructDecl::Create(_src);
+      ret = StructDecl::Create(_src, _extern, _pub);
     else if (tok == "break")
       ret = Break::Create(_src);
     else if (tok == "continue")
@@ -110,8 +143,10 @@ private:
     if (eof(_curr)) {
       return nullptr;
     }
+
     Token *token = at(_curr);
-    /// skip comments
+
+    // skip comments
     while (token && token->get_type() == TokenType::COMMENTS) {
       ++_curr;
       if (eof(_curr)) {
@@ -187,7 +222,7 @@ private:
     } else if (token->get_type() == TokenType::PUNCTUATION && token->get_value() == "(") {
       node = Parenthesis::Create(_src);
     } else if (token->get_type() == TokenType::KEYWORD) { /// keywords
-      node = peek_keyword(token);
+      node = peek_keyword();
       if (!node) {
         error(ErrorType::NOT_IMPLEMENTED, _curr, _curr, "Keyword not implemented: " + token->get_value());
       }
@@ -626,27 +661,11 @@ private:
   void parse_func_decl(ASTBase *_p) {
     auto *p = pcast<FunctionDecl>(_p);
 
-    bool is_public = false;
-    bool is_external = false;
-    str token_str = at(_curr)->get_value();
-    if (token_str == "fn") { /// "fn"
-      ++_curr;
-    } else if (token_str == "pub") { /// "pub fn"
-      is_public = true;
-      _curr += 2;
-    } else if (token_str == "extern") { /// "extern"
-      is_external = true;
-      _curr += 2;
-    } else {
-      TAN_ASSERT(false);
-    }
-    p->set_public(is_public);
-    p->set_external(is_external);
+    ++_curr; // skip "fn"
 
-    /// function name
+    // Get function name
     // Don't use peek since it look ahead and returns ASTNodeType::FUNCTION when it finds "(",
     // but we only want the function name as an identifier
-    // [X] auto id = peek();
     Token *id_token = at(_curr);
     auto id = Identifier::Create(_src, id_token->get_value());
     id->set_start(_curr);
@@ -661,11 +680,7 @@ private:
     ++_curr;
 
     // Register in the parent context
-    if (is_public) {
-      p->ctx()->set_function_decl(p);
-    } else {
-      p->ctx()->set_function_decl(p);
-    }
+    p->ctx()->set_function_decl(p);
 
     { // declarations of func arguments and variables in the body are within the local scope
       ScopeGuard scope_guard(_curr_scope, p);
@@ -709,7 +724,7 @@ private:
       p->set_end(_curr - 1);
 
       /// body
-      if (!is_external) {
+      if (!p->is_external()) {
         expect_token("{");
         auto body = peek();
         parse_node(body);
@@ -1088,6 +1103,9 @@ private:
   str _filename;
   Program *_root = nullptr;
   ASTBase *_curr_scope = nullptr;
+
+  bool _pub = false;    /// is processing pub keyword
+  bool _extern = false; /// is processing extern keyword
 
 private:
   const static umap<ASTNodeType, nud_parsing_func_t> NUD_PARSING_FUNC_TABLE;
