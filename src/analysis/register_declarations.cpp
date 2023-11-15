@@ -133,8 +133,12 @@ DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, StructDecl) {
 DEFINE_AST_VISITOR_IMPL(RegisterDeclarations, Loop) {
   push_scope(p);
 
-  visit(p->get_predicate());
-  visit(p->get_body());
+  if (p->_loop_type == ASTLoopType::FOR) {
+    visit(p->_initialization);
+  }
+  // visit(p->_predicate);
+  // visit(p->_iteration);
+  visit(p->_body);
 
   pop_scope();
 }

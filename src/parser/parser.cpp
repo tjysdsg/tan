@@ -536,8 +536,8 @@ private:
   void parse_loop(ASTBase *_p) {
     auto p = pcast<Loop>(_p);
 
+    // determine kind
     if (at(_curr)->get_value() == "for") {
-      // TODO: implement for loop
       p->_loop_type = ASTLoopType::FOR;
     } else if (at(_curr)->get_value() == "while") {
       p->_loop_type = ASTLoopType::WHILE;
@@ -545,28 +545,55 @@ private:
       TAN_ASSERT(false);
     }
 
+    // actual parsing
     p->set_end(_curr);
     ++_curr; // skip while/for
 
     switch (p->_loop_type) {
     case ASTLoopType::WHILE: {
-      /// predicate
+      // predicate
       expect_token("(");
       auto _pred = next_expression(PREC_LOWEST);
       Expr *pred = expect_expression(_pred);
-      p->set_predicate(pred);
-      expect_token("{");
-
-      /// loop body
-      auto _body = next_expression(PREC_LOWEST);
-      Stmt *body = expect_stmt(_body);
-      p->set_body(body);
+      p->_predicate = pred;
       break;
     }
     case ASTLoopType::FOR:
-      // TODO: implement for loop
-      TAN_ASSERT(false);
+      expect_token("(");
+      ++_curr;
+
+      // initialization
+      auto *tmp = next_expression(PREC_LOWEST);
+      Expr *init = expect_expression(tmp);
+      p->_initialization = init;
+
+      expect_token(";");
+      ++_curr;
+
+      // predicate
+      tmp = next_expression(PREC_LOWEST);
+      Expr *pred = expect_expression(tmp);
+      p->_predicate = pred;
+
+      expect_token(";");
+      ++_curr;
+
+      // iteration
+      tmp = next_expression(PREC_LOWEST);
+      Expr *iteration = expect_expression(tmp);
+      p->_iteration = iteration;
+
+      expect_token(")");
+      ++_curr;
+
+      break;
     }
+
+    // body
+    expect_token("{");
+    auto *_body = next_expression(PREC_LOWEST);
+    Stmt *body = expect_stmt(_body);
+    p->_body = body;
   }
 
   void parse_array_literal(ASTBase *_p) {
@@ -643,10 +670,11 @@ private:
     ++_curr; // skip "("
     while (true) {
       auto *t = at(_curr);
-      if (t->get_type() == TokenType::PUNCTUATION && t->get_value() == ")") { /// end at )
+      if (t->get_type() == TokenType::PUNCTUATION && t->get_value() == ")") {
         ++_curr;
         break;
       }
+      // _curr points to whatever after ')'
 
       // NOTE: parenthesis without child expression inside are illegal
       // (except function call, which is parsed elsewhere)

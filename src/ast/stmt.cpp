@@ -82,14 +82,6 @@ Loop *Loop::Create(TokenizedSourceFile *src) { return new Loop(src); }
 
 Loop::Loop(TokenizedSourceFile *src) : Stmt(ASTNodeType::LOOP, src) {}
 
-void Loop::set_body(Stmt *body) { _body = body; }
-
-void Loop::set_predicate(Expr *pred) { _predicate = pred; }
-
-Expr *Loop::get_predicate() const { return _predicate; }
-
-Stmt *Loop::get_body() const { return _body; }
-
 vector<ASTBase *> Loop::get_children() const { return {(ASTBase *)_predicate, _body}; }
 
 /// \section If-else

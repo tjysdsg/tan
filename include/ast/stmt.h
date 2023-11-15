@@ -114,7 +114,7 @@ public:
   static Continue *Create(TokenizedSourceFile *src);
 };
 
-enum ASTLoopType { FOR, WHILE };
+enum class ASTLoopType { FOR, WHILE };
 
 class Loop final : public Stmt {
 protected:
@@ -123,15 +123,8 @@ protected:
 public:
   static Loop *Create(TokenizedSourceFile *src);
 
-public:
-  void set_predicate(Expr *pred);
-  void set_body(Stmt *body);
-  [[nodiscard]] Expr *get_predicate() const;
-  [[nodiscard]] Stmt *get_body() const;
-
   [[nodiscard]] vector<ASTBase *> get_children() const override;
 
-public:
   str terminal_token() const override { return "}"; }
 
 public:
@@ -139,9 +132,10 @@ public:
   llvm::BasicBlock *_loop_start = nullptr;
   llvm::BasicBlock *_loop_end = nullptr;
 
-private:
+  Expr *_initialization = nullptr;
   Expr *_predicate = nullptr;
   Stmt *_body = nullptr;
+  Expr *_iteration = nullptr;
 };
 
 /**

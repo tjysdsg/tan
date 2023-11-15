@@ -1289,57 +1289,83 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, StructDecl) {
 }
 
 DEFINE_AST_VISITOR_IMPL(CodeGenerator, Loop) {
-  if (p->_loop_type == ASTLoopType::WHILE) {
-    /*
-     * Results should like this:
-     *
-     * ...
-     * loop:
-     *    exit condition check, goto 'loop_body' or 'after_loop'
-     * loop_body:
-     *    ...
-     *    goto 'loop'
-     * after_loop:
-     *    ...
-     * */
+  /*
+   * Results should like this:
+   *
+   * ...
+   * goto init
+   *
+   * init:
+   *    perform initialization // optional
+   *    goto predicate
+   *
+   * predicate:
+   *    check condition
+   *    goto 'loop_body' or 'loop_end'
+   *
+   * loop_body:
+   *    ...
+   *    goto iter
+   *
+   * iter:
+   *    run iteration statement // optional
+   *    goto 'predicate'
+   *
+   * loop_end:
+   *    ...
+   *
+   **/
 
-    Function *func = _builder->GetInsertBlock()->getParent();
+  Function *func = _builder->GetInsertBlock()->getParent();
 
-    /// make sure to set _loop_start and _loop_end before generating loop_body, cuz break and continue statements
-    /// use these two (get_loop_start() and get_loop_end())
-    p->_loop_start = BasicBlock::Create(*_llvm_ctx, "loop", func);
-    BasicBlock *loop_body = BasicBlock::Create(*_llvm_ctx, "loop_body", func);
-    p->_loop_end = BasicBlock::Create(*_llvm_ctx, "after_loop", func);
+  // Create needed blocks in advance
+  auto *init_block = BasicBlock::Create(*_llvm_ctx, "init", func);
+  auto *predicate_block = BasicBlock::Create(*_llvm_ctx, "predicate", func);
+  BasicBlock *body_block = BasicBlock::Create(*_llvm_ctx, "loop_body", func);
+  auto *iter_block = BasicBlock::Create(*_llvm_ctx, "iter", func);
+  auto *end_block = BasicBlock::Create(*_llvm_ctx, "loop_end", func);
 
-    /// start loop
-    // create a br instruction if there is no terminator instruction at the end of this block
-    if (!_builder->GetInsertBlock()->back().isTerminator()) {
-      _builder->CreateBr(p->_loop_start);
-    }
+  // Make sure to set _loop_start and _loop_end before generating loop_body,
+  // cuz `break` and `continue` need them to work
+  p->_loop_start = predicate_block;
+  p->_loop_end = end_block;
 
-    /// condition
-    _builder->SetInsertPoint(p->_loop_start);
-    auto *cond = cached_visit(p->get_predicate());
-    if (!cond) {
-      error(ErrorType::SEMANTIC_ERROR, p, "Expected a condition expression");
-    }
-    _builder->CreateCondBr(cond, loop_body, p->_loop_end);
-
-    /// loop body
-    _builder->SetInsertPoint(loop_body);
-    cached_visit(p->get_body());
-
-    /// go back to the start of the loop
-    // create a br instruction if there is no terminator instruction at the end of this block
-    if (!_builder->GetInsertBlock()->back().isTerminator()) {
-      _builder->CreateBr(p->_loop_start);
-    }
-
-    /// end loop
-    _builder->SetInsertPoint(p->_loop_end);
-  } else {
-    TAN_ASSERT(false);
+  // Create a br instruction if there is no terminator instruction at the end of current block
+  // cuz LLVM expects a terminator at the end of every block
+  if (!_builder->GetInsertBlock()->back().isTerminator()) {
+    _builder->CreateBr(init_block);
   }
+
+  // 1. Initialization
+  _builder->SetInsertPoint(init_block);
+  if (p->_loop_type == ASTLoopType::FOR) {
+    cached_visit(p->_initialization);
+  }
+    _builder->CreateBr(predicate_block);
+
+  // 2. Predicate
+  _builder->SetInsertPoint(predicate_block);
+  auto *cond = cached_visit(p->_predicate);
+  _builder->CreateCondBr(cond, body_block, end_block);
+
+  // 3. Body
+  _builder->SetInsertPoint(body_block);
+  cached_visit(p->_body);
+  // go to iteration block, unless there's a return, continue, or break statement
+  if (!_builder->GetInsertBlock()->back().isTerminator()) {
+    _builder->CreateBr(iter_block);
+  }
+
+  // 4. Iteration statement
+  _builder->SetInsertPoint(iter_block);
+  if (p->_loop_type == ASTLoopType::FOR) {
+    cached_visit(p->_iteration);
+  }
+  // go back to loop start
+  _builder->CreateBr(predicate_block);
+
+  // 5. Prepare subsequence code generation
+  _builder->SetInsertPoint(end_block);
 
   _llvm_value_cache[p] = nullptr;
 }

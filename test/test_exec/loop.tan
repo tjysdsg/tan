@@ -55,6 +55,13 @@ pub fn main() : int {
         continue;
     }
 
+    // i here should be in a new scope
+    var counter: u32 = 0u;
+    for (var i: i8 = 0 as i8; i < 10; i = i + 2 as i8) {
+        counter = counter + 1u;
+    }
+    assert(counter == 5u);
+
     print("SUCCESS\n");
     return 0;
 }

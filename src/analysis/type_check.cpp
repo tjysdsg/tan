@@ -688,8 +688,17 @@ DEFINE_AST_VISITOR_IMPL(TypeCheck, StructDecl) {
 DEFINE_AST_VISITOR_IMPL(TypeCheck, Loop) {
   push_scope(p);
 
-  visit(p->get_predicate());
-  visit(p->get_body());
+  if (p->_loop_type == ASTLoopType::FOR) {
+    visit(p->_initialization);
+  }
+
+  visit(p->_predicate);
+
+  if (p->_loop_type == ASTLoopType::FOR) {
+    visit(p->_iteration);
+  }
+
+  visit(p->_body);
 
   pop_scope();
 }
