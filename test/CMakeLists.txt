@@ -64,8 +64,8 @@ macro(enable_tests)
         endforeach ()
 
         add_custom_command(TARGET coverage POST_BUILD
-                COMMAND llvm-profdata-15 merge -sparse *.profraw -o tan.profdata
-                COMMAND llvm-cov-15 export ${LLVM_COV_ARGS} --instr-profile=tan.profdata --format=lcov > coverage.txt
+                COMMAND llvm-profdata-16 merge -sparse *.profraw -o tan.profdata
+                COMMAND llvm-cov-16 export ${LLVM_COV_ARGS} --instr-profile=tan.profdata --format=lcov > coverage.txt
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
     endif ()
