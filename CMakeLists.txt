@@ -23,6 +23,7 @@ option(ENABLE_CCACHE "Enable ccache for faster rebuilding" ON)
 option(LLVM_ROOT_DIR "Custom LLVM location" "")
 option(CLANG_ROOT_DIR "Custom CLANG location" "")
 option(LLD_ROOT_DIR "Custom LLD location" "")
+option(USE_LLD "Use lld to link" OFF)
 
 # ==================== GENERAL CONFIGS ====================
 # default build debug
@@ -41,7 +42,8 @@ if (CCACHE_FOUND)
 endif (CCACHE_FOUND)
 
 # use lld to link libraries
-if (NOT MSVC)
+if (NOT MSVC AND USE_LLD)
+    message(STATUS "Using LLD to link binaries. Make sure ld.lld is in PATH.")
     add_link_options("-fuse-ld=lld")
 endif ()
 
