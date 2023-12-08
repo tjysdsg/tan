@@ -1,7 +1,7 @@
 set(DEP_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # ===== llvm =====
-find_package(LLVM 15 REQUIRED PATHS ${LLVM_ROOT_DIR})
+find_package(LLVM 16 REQUIRED PATHS ${LLVM_ROOT_DIR})
 set(_LLVM_LIBS
         LLVM
         LLVMXRay
@@ -158,7 +158,7 @@ set(_LLVM_LIBS
         LLVMAVRDesc
         LLVMAVRDisassembler
         LLVMAVRInfo
-        )
+)
 message(STATUS "LLVM headers location: ${LLVM_INCLUDE_DIRS}")
 message(STATUS "LLVM library directory: ${LLVM_LIBRARY_DIR}")
 
@@ -167,7 +167,7 @@ macro(FIND_AND_ADD_LLVM_LIB libname libdir)
             PATHS
             ${libdir}
             NO_DEFAULT_PATH
-            )
+    )
     if (LLVM_${libname}_LIB)
         set(LLVM_LIBS ${LLVM_LIBS} ${LLVM_${libname}_LIB})
     endif ()
@@ -177,7 +177,7 @@ foreach (LIB ${_LLVM_LIBS})
 endforeach ()
 
 # ===== clang =====
-find_package(Clang REQUIRED PATHS ${CLANG_ROOT_DIR})
+find_package(Clang 16 REQUIRED PATHS ${CLANG_ROOT_DIR})
 message(STATUS "Clang headers location: ${CLANG_INCLUDE_DIRS}")
 set(CLANG_LIBRARY_DIR ${CLANG_INSTALL_PREFIX}/lib)
 set(_CLANG_LIBRARIES
@@ -221,13 +221,19 @@ set(_CLANG_LIBRARIES
         # Polly
         # PollyISL
         # PollyPPCG
-        )
+)
 foreach (LIB ${_CLANG_LIBRARIES})
     FIND_AND_ADD_LLVM_LIB(${LIB} ${CLANG_LIBRARY_DIR})
 endforeach ()
 
 # ===== lld =====
-# find_package(LLD REQUIRED PATHS ${LLD_ROOT_DIR}) somehow doesn't work on Ubuntu 20.04
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
+set(_LLD_SEARCH_PATH ${CLANG_INSTALL_PREFIX}/lib/cmake/lld)
+find_package(LLD 16 REQUIRED
+        PATHS
+        ${LLD_ROOT_DIR}
+        ${_LLD_SEARCH_PATH} # otherwise won't work on Ubuntu if installed using LLVM's apt repo
+)
 set(LLD_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS})
 set(LLD_LIBRARY_DIR ${LLVM_LIBRARY_DIR})
 set(_LLD_LIBS
@@ -237,7 +243,7 @@ set(_LLD_LIBS
         lldMachO
         lldMinGW
         lldWasm
-        )
+)
 message(STATUS "LLD headers location: ${LLD_INCLUDE_DIRS}")
 message(STATUS "LLD library directory: ${LLD_LIBRARY_DIR}")
 foreach (LIB ${_LLD_LIBS})
@@ -277,7 +283,7 @@ set(DEP_INCLUDES
         ${CLANG_INCLUDE_DIRS}
         ${DEP_DIR}/fmt/include
         CACHE INTERNAL "Include dependencies"
-        )
+)
 message(STATUS "Include dirs of dependencies: ${DEP_INCLUDES}")
 
 set(DEP_LIBS ${LLVM_LIBS} fmt::fmt ${ZLIB_LIBRARIES})

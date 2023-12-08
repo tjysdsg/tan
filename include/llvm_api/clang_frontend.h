@@ -7,9 +7,14 @@ struct TanCompilation;
 }
 
 /**
- * \brief Clang main function
- * */
-int clang_main(int argc, const char **argv);
+ * \brief Call clang with commandline args
+ * \details Requires the system to have `clang` in $PATH.
+ *          This function doesn't directly invoke clang,
+ *          but it uses the binary path to find paths to standard headers and libraries.
+ *          (Try replacing $(which clang) with a blank text file and see if the compiler works :D)
+ *  Defined in clang_driver.cpp
+ */
+extern int clang_main(int argc, char **argv);
 
 /**
  * \brief Compile CXX files to objects using clang::driver::Driver

@@ -26,7 +26,7 @@ bool Linker::link() {
   args.push_back("-lm"); /// link to libm by default
   printf("-lm\n");
 
-  return !clang_main((int)args.size(), args.data());
+  return !clang_main((int)args.size(), (char **)args.data());
 }
 
 void Linker::add_flag(const str &flag) { _flags.push_back(flag); }
