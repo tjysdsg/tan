@@ -1,6 +1,8 @@
 #include "linker/linker.h"
 #include <string>
 #include "llvm_api/clang_frontend.h"
+#include <algorithm>
+#include <iostream>
 
 namespace tanlang {
 
@@ -13,18 +15,18 @@ bool Linker::link() {
   vector<const char *> args{};
   args.push_back("clang");
   args.push_back("-stdlib=libc++"); /// link to libc++ by default
-  printf("clang -stdlib=libc++ ");
 
   for (const str &e : _input_files) {
     args.push_back(e.c_str());
-    printf("%s ", e.c_str());
   }
   for (const str &e : _flags) {
     args.push_back(e.c_str());
-    printf("%s ", e.c_str());
   }
   args.push_back("-lm"); /// link to libm by default
   printf("-lm\n");
+
+  std::ranges::for_each(args, [](const auto &a) { std::cout << a << ' '; });
+  std::cout << ' ';
 
   return !clang_main((int)args.size(), (char **)args.data());
 }

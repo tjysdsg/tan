@@ -1,5 +1,5 @@
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 
 extern "C" bool init_back_trace(const char *filename);
 extern "C" int tan_main(int argc, char **argv);

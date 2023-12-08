@@ -33,6 +33,13 @@ int cli_main(int argc, char **argv) {
                                                            clEnumVal(O1, "Less"), clEnumVal(O2, "Default"),
                                                            clEnumVal(O3, "Aggressive")),
                                                cmd::init(O0), cmd::cat(cl_category));
+
+  // std::cout << "PID: " << getpid() << '\n';
+  // std::cout << "Args: ";
+  // for (int i = 0; i < argc; ++i)
+  //   std::cout << argv[i] << ' ';
+  // std::cout << '\n';
+
   /// Remove options created by LLVM/Clang
   /// We don't want tons of flags not created by this file appearing in the output of `tanc --help`
   cmd::HideUnrelatedOptions(cl_category);
