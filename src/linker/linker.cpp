@@ -1,7 +1,6 @@
 #include "linker/linker.h"
 #include <string>
 #include "llvm_api/clang_frontend.h"
-#include <algorithm>
 #include <iostream>
 
 namespace tanlang {
@@ -25,7 +24,7 @@ bool Linker::link() {
   args.push_back("-lm"); /// link to libm by default
   printf("-lm\n");
 
-  std::ranges::for_each(args, [](const auto &a) { std::cout << a << ' '; });
+  std::for_each(args.begin(), args.end(), [](const auto &a) { std::cout << a << ' '; });
   std::cout << ' ';
 
   return !clang_main((int)args.size(), (char **)args.data());

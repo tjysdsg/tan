@@ -26,9 +26,9 @@ int clang_compile(vector<str> input_files, TanCompilation *config) {
   args.push_back(opt_level.c_str());
 
   // input files
-  std::ranges::for_each(input_files, [&args](const auto &s) { args.push_back(s.c_str()); });
+  std::for_each(input_files.begin(), input_files.end(), [&args](const auto &s) { args.push_back(s.c_str()); });
 
-  std::ranges::for_each(args, [](const auto &a) { std::cout << a << ' '; });
+  std::for_each(input_files.begin(), input_files.end(), [](const auto &a) { std::cout << a << ' '; });
   std::cout << ' ';
 
   return clang_main((int)args.size(), (char **)args.data());

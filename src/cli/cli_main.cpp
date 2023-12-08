@@ -3,13 +3,11 @@
 #include "llvm/Support/CommandLine.h"
 #include <iostream>
 #include <filesystem>
-#include <algorithm>
 #include "config.h"
 #include "driver/driver.h"
 
 namespace cmd = llvm::cl;
 namespace fs = std::filesystem;
-namespace ranges = std::ranges;
 using namespace tanlang;
 
 int cli_main(int argc, char **argv) {
