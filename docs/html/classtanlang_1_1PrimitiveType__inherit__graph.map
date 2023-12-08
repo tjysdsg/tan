@@ -1,0 +1,4 @@
+<map id="tanlang::PrimitiveType" name="tanlang::PrimitiveType">
+<area shape="rect" id="node1" title=" " alt="" coords="5,80,173,107"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Type.html" title="Type is immutable once created. The exception is StructType. Its information is updated in multiple s..." alt="" coords="35,5,144,32"/>
+</map>

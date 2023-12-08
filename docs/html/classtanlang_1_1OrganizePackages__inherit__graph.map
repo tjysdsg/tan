@@ -1,0 +1,5 @@
+<map id="tanlang::OrganizePackages" name="tanlang::OrganizePackages">
+<area shape="rect" id="node1" title="Organize a list of source files into their corresponding packages according to the code...." alt="" coords="524,20,721,47"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1CompilerAction.html" title=" " alt="" coords="200,5,476,61"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="5,13,152,54"/>
+</map>

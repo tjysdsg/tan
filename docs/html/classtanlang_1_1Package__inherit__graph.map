@@ -1,0 +1,5 @@
+<map id="tanlang::Package" name="tanlang::Package">
+<area shape="rect" id="node1" title=" " alt="" coords="32,155,164,181"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,80,166,107"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="5,5,191,32"/>
+</map>

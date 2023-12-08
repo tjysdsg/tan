@@ -1,0 +1,6 @@
+<map id="tanlang::TypeCheck" name="tanlang::TypeCheck">
+<area shape="rect" id="node1" title=" " alt="" coords="35,288,185,315"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="5,184,215,240"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1CompilerAction.html" title=" " alt="" coords="12,95,208,136"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="37,5,183,47"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="tanlang::ScanImports" name="tanlang::ScanImports">
+<area shape="rect" id="node1" title="Scans all dependencies in a package, and return their names and paths to relevant source files." alt="" coords="35,288,195,315"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="5,184,225,240"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1CompilerAction.html" title=" " alt="" coords="17,95,213,136"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="42,5,189,47"/>
+</map>

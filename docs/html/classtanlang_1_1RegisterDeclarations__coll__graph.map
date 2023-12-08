@@ -1,0 +1,6 @@
+<map id="tanlang::RegisterDeclarations" name="tanlang::RegisterDeclarations">
+<area shape="rect" id="node1" title="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..." alt="" coords="7,288,222,315"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="5,184,224,240"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1CompilerAction.html" title=" " alt="" coords="17,95,213,136"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="41,5,188,47"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="tanlang::CompoundStmt" name="tanlang::CompoundStmt">
+<area shape="rect" id="node1" title=" " alt="" coords="72,229,252,256"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Program.html" title=" " alt="" coords="5,304,140,331"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1TestCompError.html" title=" " alt="" coords="164,304,339,331"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Stmt.html" title=" " alt="" coords="107,155,217,181"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="94,80,230,107"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="69,5,255,32"/>
+</map>

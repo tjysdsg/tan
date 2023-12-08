@@ -9,6 +9,10 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -44,11 +48,23 @@
       <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Typed.html">Typed</a></li>  </ul>
-</div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('classtanlang_1_1Typed.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -66,7 +82,36 @@
 Inheritance diagram for tanlang::Typed:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtanlang_1_1Typed__inherit__graph.png" border="0" usemap="#atanlang_1_1Typed_inherit__map" alt="Inheritance graph"/></div>
-<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<map name="atanlang_1_1Typed_inherit__map" id="atanlang_1_1Typed_inherit__map">
+<area shape="rect" title="All typed AST nodes should inherit this class." alt="" coords="5,284,123,311"/>
+<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="171,284,279,311"/>
+<area shape="rect" href="classtanlang_1_1Assignment.html" title=" " alt="" coords="338,5,494,32"/>
+<area shape="rect" href="classtanlang_1_1BinaryOperator.html" title=" " alt="" coords="327,56,505,83"/>
+<area shape="rect" href="classtanlang_1_1BinaryOrUnary.html" title=" " alt="" coords="329,107,503,133"/>
+<area shape="rect" href="classtanlang_1_1Cast.html" title=" " alt="" coords="362,157,470,184"/>
+<area shape="rect" href="classtanlang_1_1Decl.html" title=" " alt="" coords="362,208,470,235"/>
+<area shape="rect" href="classtanlang_1_1FunctionCall.html" title=" " alt="" coords="337,259,495,285"/>
+<area shape="rect" href="classtanlang_1_1Identifier.html" title=" " alt="" coords="347,309,485,336"/>
+<area shape="rect" href="classtanlang_1_1Intrinsic.html" title="A generic representation of Intrinsic variables/functions." alt="" coords="351,360,481,387"/>
+<area shape="rect" href="classtanlang_1_1Literal.html" title=" " alt="" coords="356,411,476,437"/>
+<area shape="rect" href="classtanlang_1_1Parenthesis.html" title=" " alt="" coords="339,461,493,488"/>
+<area shape="rect" href="classtanlang_1_1UnaryOperator.html" title=" " alt="" coords="329,512,503,539"/>
+<area shape="rect" href="classtanlang_1_1VarRef.html" title=" " alt="" coords="355,563,477,589"/>
+<area shape="rect" href="classtanlang_1_1MemberAccess.html" title=" " alt="" coords="560,56,739,83"/>
+<area shape="rect" href="classtanlang_1_1ArgDecl.html" title=" " alt="" coords="584,107,715,133"/>
+<area shape="rect" href="classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="568,157,731,184"/>
+<area shape="rect" href="classtanlang_1_1TypeDecl.html" title=" " alt="" coords="580,208,719,235"/>
+<area shape="rect" href="classtanlang_1_1VarDecl.html" title=" " alt="" coords="585,259,714,285"/>
+<area shape="rect" href="classtanlang_1_1StructDecl.html" title=" " alt="" coords="793,208,940,235"/>
+<area shape="rect" href="classtanlang_1_1ArrayLiteral.html" title=" " alt="" coords="572,309,727,336"/>
+<area shape="rect" href="classtanlang_1_1BoolLiteral.html" title=" " alt="" coords="575,360,724,387"/>
+<area shape="rect" href="classtanlang_1_1CharLiteral.html" title=" " alt="" coords="574,411,725,437"/>
+<area shape="rect" href="classtanlang_1_1FloatLiteral.html" title=" " alt="" coords="573,461,726,488"/>
+<area shape="rect" href="classtanlang_1_1IntegerLiteral.html" title=" " alt="" coords="566,512,733,539"/>
+<area shape="rect" href="classtanlang_1_1NullPointerLiteral.html" title=" " alt="" coords="553,563,745,589"/>
+<area shape="rect" href="classtanlang_1_1StringLiteral.html" title=" " alt="" coords="570,613,729,640"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -86,9 +131,13 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> 
 <li>/home/tjy/repos/tan/src/ast/<a class="el" href="typed_8cpp_source.html">typed.cpp</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><b>tanlang</b></li><li class="navelem"><a class="el" href="classtanlang_1_1Typed.html">Typed</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+  </ul>
+</div>
 </body>
 </html>

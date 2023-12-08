@@ -1,0 +1,10 @@
+<map id="tanlang::Type" name="tanlang::Type">
+<area shape="rect" id="node1" title="Type is immutable once created. The exception is StructType. Its information is updated in multiple s..." alt="" coords="5,157,115,184"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ArrayType.html" title=" " alt="" coords="175,5,319,32"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1FunctionType.html" title=" " alt="" coords="165,56,329,83"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1PointerType.html" title=" " alt="" coords="169,107,324,133"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1PrimitiveType.html" title=" " alt="" coords="163,157,331,184"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1StringType.html" title=" " alt="" coords="173,208,320,235"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1StructType.html" title=" " alt="" coords="173,259,320,285"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1TypeRef.html" title="Placeholder during parsing." alt="" coords="181,309,312,336"/>
+</map>

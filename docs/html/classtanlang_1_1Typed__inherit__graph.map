@@ -1,0 +1,29 @@
+<map id="tanlang::Typed" name="tanlang::Typed">
+<area shape="rect" id="node1" title="All typed AST nodes should inherit this class." alt="" coords="5,284,123,311"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="171,284,279,311"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1Assignment.html" title=" " alt="" coords="338,5,494,32"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1BinaryOperator.html" title=" " alt="" coords="327,56,505,83"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1BinaryOrUnary.html" title=" " alt="" coords="329,107,503,133"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1Cast.html" title=" " alt="" coords="362,157,470,184"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="362,208,470,235"/>
+<area shape="rect" id="node14" href="$classtanlang_1_1FunctionCall.html" title=" " alt="" coords="337,259,495,285"/>
+<area shape="rect" id="node15" href="$classtanlang_1_1Identifier.html" title=" " alt="" coords="347,309,485,336"/>
+<area shape="rect" id="node16" href="$classtanlang_1_1Intrinsic.html" title="A generic representation of Intrinsic variables/functions." alt="" coords="351,360,481,387"/>
+<area shape="rect" id="node17" href="$classtanlang_1_1Literal.html" title=" " alt="" coords="356,411,476,437"/>
+<area shape="rect" id="node25" href="$classtanlang_1_1Parenthesis.html" title=" " alt="" coords="339,461,493,488"/>
+<area shape="rect" id="node26" href="$classtanlang_1_1UnaryOperator.html" title=" " alt="" coords="329,512,503,539"/>
+<area shape="rect" id="node27" href="$classtanlang_1_1VarRef.html" title=" " alt="" coords="355,563,477,589"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1MemberAccess.html" title=" " alt="" coords="560,56,739,83"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1ArgDecl.html" title=" " alt="" coords="584,107,715,133"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="568,157,731,184"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1TypeDecl.html" title=" " alt="" coords="580,208,719,235"/>
+<area shape="rect" id="node13" href="$classtanlang_1_1VarDecl.html" title=" " alt="" coords="585,259,714,285"/>
+<area shape="rect" id="node12" href="$classtanlang_1_1StructDecl.html" title=" " alt="" coords="793,208,940,235"/>
+<area shape="rect" id="node18" href="$classtanlang_1_1ArrayLiteral.html" title=" " alt="" coords="572,309,727,336"/>
+<area shape="rect" id="node19" href="$classtanlang_1_1BoolLiteral.html" title=" " alt="" coords="575,360,724,387"/>
+<area shape="rect" id="node20" href="$classtanlang_1_1CharLiteral.html" title=" " alt="" coords="574,411,725,437"/>
+<area shape="rect" id="node21" href="$classtanlang_1_1FloatLiteral.html" title=" " alt="" coords="573,461,726,488"/>
+<area shape="rect" id="node22" href="$classtanlang_1_1IntegerLiteral.html" title=" " alt="" coords="566,512,733,539"/>
+<area shape="rect" id="node23" href="$classtanlang_1_1NullPointerLiteral.html" title=" " alt="" coords="553,563,745,589"/>
+<area shape="rect" id="node24" href="$classtanlang_1_1StringLiteral.html" title=" " alt="" coords="570,613,729,640"/>
+</map>

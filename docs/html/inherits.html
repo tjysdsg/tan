@@ -9,6 +9,10 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -45,6 +49,22 @@
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('hierarchy.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
 <div class="header">
   <div class="headertitle">
 <div class="title">Class Hierarchy</div>  </div>
@@ -54,58 +74,198 @@
 <p><a href="hierarchy.html">Go to the textual class hierarchy</a></p>
 </div><table border="0" cellspacing="10" cellpadding="0">
 <tr><td><img src="inherit_graph_0.png" border="0" usemap="#allvm_1_1yaml_1_1MappingTraits_3_01ClangInvocationInfo_01_4" alt=""/>
+<map name="allvm_1_1yaml_1_1MappingTraits_3_01ClangInvocationInfo_01_4" id="allvm_1_1yaml_1_1MappingTraits_3_01ClangInvocationInfo_01_4">
+<area shape="rect" href="structllvm_1_1yaml_1_1MappingTraits_3_01ClangInvocationInfo_01_4.html" title=" " alt="" coords="5,5,196,47"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_1.png" border="0" usemap="#allvm_1_1yaml_1_1MappingTraits_3_01UnsavedFileHash_01_4" alt=""/>
+<map name="allvm_1_1yaml_1_1MappingTraits_3_01UnsavedFileHash_01_4" id="allvm_1_1yaml_1_1MappingTraits_3_01UnsavedFileHash_01_4">
+<area shape="rect" href="structllvm_1_1yaml_1_1MappingTraits_3_01UnsavedFileHash_01_4.html" title=" " alt="" coords="5,5,196,47"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_2.png" border="0" usemap="#aPairHash" alt=""/>
+<map name="aPairHash" id="aPairHash">
+<area shape="rect" href="structPairHash.html" title=" " alt="" coords="5,5,84,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_3.png" border="0" usemap="#atanlang_1_1ASTNamed" alt=""/>
+<map name="atanlang_1_1ASTNamed" id="atanlang_1_1ASTNamed">
+<area shape="rect" href="classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="423,107,573,133"/>
+<area shape="rect" href="classtanlang_1_1Decl.html" title=" " alt="" coords="657,157,765,184"/>
+<area shape="rect" href="classtanlang_1_1FunctionCall.html" title=" " alt="" coords="632,208,791,235"/>
+<area shape="rect" href="classtanlang_1_1Identifier.html" title=" " alt="" coords="643,5,780,32"/>
+<area shape="rect" href="classtanlang_1_1Intrinsic.html" title="A generic representation of Intrinsic variables/functions." alt="" coords="646,56,777,83"/>
+<area shape="rect" href="classtanlang_1_1VarRef.html" title=" " alt="" coords="650,107,773,133"/>
+<area shape="rect" href="classtanlang_1_1ArgDecl.html" title=" " alt="" coords="880,81,1011,108"/>
+<area shape="rect" href="classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="864,132,1027,159"/>
+<area shape="rect" href="classtanlang_1_1TypeDecl.html" title=" " alt="" coords="876,183,1015,209"/>
+<area shape="rect" href="classtanlang_1_1VarDecl.html" title=" " alt="" coords="881,233,1010,260"/>
+<area shape="rect" href="classtanlang_1_1StructDecl.html" title=" " alt="" coords="1089,183,1236,209"/>
+<area shape="rect" href="classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="5,576,191,603"/>
+<area shape="rect" href="classtanlang_1_1ASTBase.html" title=" " alt="" coords="239,576,375,603"/>
+<area shape="rect" href="classtanlang_1_1Expr.html" title=" " alt="" coords="444,309,552,336"/>
+<area shape="rect" href="classtanlang_1_1Package.html" title=" " alt="" coords="432,576,564,603"/>
+<area shape="rect" href="classtanlang_1_1Stmt.html" title=" " alt="" coords="443,841,553,868"/>
+<area shape="rect" href="classtanlang_1_1Assignment.html" title=" " alt="" coords="633,309,789,336"/>
+<area shape="rect" href="classtanlang_1_1BinaryOperator.html" title=" " alt="" coords="622,360,801,387"/>
+<area shape="rect" href="classtanlang_1_1BinaryOrUnary.html" title=" " alt="" coords="624,411,799,437"/>
+<area shape="rect" href="classtanlang_1_1Cast.html" title=" " alt="" coords="657,461,765,488"/>
+<area shape="rect" href="classtanlang_1_1Literal.html" title=" " alt="" coords="651,512,771,539"/>
+<area shape="rect" href="classtanlang_1_1Parenthesis.html" title=" " alt="" coords="634,563,789,589"/>
+<area shape="rect" href="classtanlang_1_1UnaryOperator.html" title=" " alt="" coords="624,259,799,285"/>
+<area shape="rect" href="classtanlang_1_1MemberAccess.html" title=" " alt="" coords="856,309,1035,336"/>
+<area shape="rect" href="classtanlang_1_1ArrayLiteral.html" title=" " alt="" coords="868,613,1023,640"/>
+<area shape="rect" href="classtanlang_1_1BoolLiteral.html" title=" " alt="" coords="871,664,1020,691"/>
+<area shape="rect" href="classtanlang_1_1CharLiteral.html" title=" " alt="" coords="870,360,1021,387"/>
+<area shape="rect" href="classtanlang_1_1FloatLiteral.html" title=" " alt="" coords="869,411,1022,437"/>
+<area shape="rect" href="classtanlang_1_1IntegerLiteral.html" title=" " alt="" coords="862,461,1029,488"/>
+<area shape="rect" href="classtanlang_1_1NullPointerLiteral.html" title=" " alt="" coords="849,512,1041,539"/>
+<area shape="rect" href="classtanlang_1_1StringLiteral.html" title=" " alt="" coords="866,563,1025,589"/>
+<area shape="rect" href="classtanlang_1_1BreakContinue.html" title=" " alt="" coords="624,765,799,792"/>
+<area shape="rect" href="classtanlang_1_1CompoundStmt.html" title=" " alt="" coords="621,816,801,843"/>
+<area shape="rect" href="classtanlang_1_1If.html" title="Represent if&#45;[else] or if&#45;elif&#45;[else] statements." alt="" coords="667,867,755,893"/>
+<area shape="rect" href="classtanlang_1_1Import.html" title=" " alt="" coords="650,917,773,944"/>
+<area shape="rect" href="classtanlang_1_1Loop.html" title=" " alt="" coords="656,968,767,995"/>
+<area shape="rect" href="classtanlang_1_1PackageDecl.html" title=" " alt="" coords="631,1019,792,1045"/>
+<area shape="rect" href="classtanlang_1_1Return.html" title=" " alt="" coords="650,715,773,741"/>
+<area shape="rect" href="classtanlang_1_1Break.html" title=" " alt="" coords="887,715,1004,741"/>
+<area shape="rect" href="classtanlang_1_1Continue.html" title=" " alt="" coords="877,765,1014,792"/>
+<area shape="rect" href="classtanlang_1_1Program.html" title=" " alt="" coords="878,816,1013,843"/>
+<area shape="rect" href="classtanlang_1_1TestCompError.html" title=" " alt="" coords="858,867,1033,893"/>
+<area shape="rect" href="classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="248,309,365,336"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_4.png" border="0" usemap="#atanlang_1_1ASTVisitor_3_01Derived_01_4" alt=""/>
+<map name="atanlang_1_1ASTVisitor_3_01Derived_01_4" id="atanlang_1_1ASTVisitor_3_01Derived_01_4">
+<area shape="rect" href="classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="5,93,152,134"/>
+<area shape="rect" href="classtanlang_1_1CompilerAction.html" title=" " alt="" coords="240,5,436,61"/>
+<area shape="rect" href="classtanlang_1_1CompilerAction.html" title=" " alt="" coords="200,85,476,141"/>
+<area shape="rect" href="classtanlang_1_1CompilerAction.html" title=" " alt="" coords="240,263,436,305"/>
+<area shape="rect" href="classtanlang_1_1CodeGenerator.html" title=" " alt="" coords="549,20,727,47"/>
+<area shape="rect" href="classtanlang_1_1OrganizePackages.html" title="Organize a list of source files into their corresponding packages according to the code...." alt="" coords="539,85,737,112"/>
+<area shape="rect" href="classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="529,136,747,192"/>
+<area shape="rect" href="classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="524,216,752,272"/>
+<area shape="rect" href="classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="533,296,743,352"/>
+<area shape="rect" href="classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="528,376,748,432"/>
+<area shape="rect" href="classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="541,456,735,512"/>
+<area shape="rect" href="classtanlang_1_1RegisterDeclarations.html" title="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..." alt="" coords="800,151,1015,177"/>
+<area shape="rect" href="classtanlang_1_1TypePrecheck.html" title="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..." alt="" coords="823,231,991,257"/>
+<area shape="rect" href="classtanlang_1_1TypeCheck.html" title=" " alt="" coords="833,311,982,337"/>
+<area shape="rect" href="classtanlang_1_1ScanImports.html" title="Scans all dependencies in a package, and return their names and paths to relevant source files." alt="" coords="827,391,987,417"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_5.png" border="0" usemap="#atanlang_1_1CompileException" alt=""/>
+<map name="atanlang_1_1CompileException" id="atanlang_1_1CompileException">
+<area shape="rect" title=" " alt="" coords="5,5,120,32"/>
+<area shape="rect" title=" " alt="" coords="168,5,307,32"/>
+<area shape="rect" href="classtanlang_1_1CompileException.html" title=" " alt="" coords="355,5,552,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_6.png" border="0" usemap="#atanlang_1_1CompilerDriver" alt=""/>
+<map name="atanlang_1_1CompilerDriver" id="atanlang_1_1CompilerDriver">
+<area shape="rect" href="classtanlang_1_1CompilerDriver.html" title="Compile a list of C++ and/or tan source files, and perform linking." alt="" coords="5,5,184,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_7.png" border="0" usemap="#atanlang_1_1Context" alt=""/>
+<map name="atanlang_1_1Context" id="atanlang_1_1Context">
+<area shape="rect" href="classtanlang_1_1Context.html" title=" " alt="" coords="5,5,136,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_8.png" border="0" usemap="#atanlang_1_1DefaultValue" alt=""/>
+<map name="atanlang_1_1DefaultValue" id="atanlang_1_1DefaultValue">
+<area shape="rect" href="classtanlang_1_1DefaultValue.html" title=" " alt="" coords="5,5,168,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_9.png" border="0" usemap="#atanlang_1_1DependencyGraph_3_01T_01_4" alt=""/>
+<map name="atanlang_1_1DependencyGraph_3_01T_01_4" id="atanlang_1_1DependencyGraph_3_01T_01_4">
+<area shape="rect" href="classtanlang_1_1DependencyGraph.html" title=" " alt="" coords="5,5,243,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_10.png" border="0" usemap="#atanlang_1_1DependencyGraph_3_01tanlang_1_1ASTBase_01_5_01_4" alt=""/>
+<map name="atanlang_1_1DependencyGraph_3_01tanlang_1_1ASTBase_01_5_01_4" id="atanlang_1_1DependencyGraph_3_01tanlang_1_1ASTBase_01_5_01_4">
+<area shape="rect" href="classtanlang_1_1DependencyGraph.html" title=" " alt="" coords="5,5,204,47"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_11.png" border="0" usemap="#atanlang_1_1Error" alt=""/>
+<map name="atanlang_1_1Error" id="atanlang_1_1Error">
+<area shape="rect" href="classtanlang_1_1Error.html" title=" " alt="" coords="5,5,116,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_12.png" border="0" usemap="#atanlang_1_1Linker" alt=""/>
+<map name="atanlang_1_1Linker" id="atanlang_1_1Linker">
+<area shape="rect" href="classtanlang_1_1Linker.html" title=" " alt="" coords="5,5,124,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_13.png" border="0" usemap="#atanlang_1_1Parser" alt=""/>
+<map name="atanlang_1_1Parser" id="atanlang_1_1Parser">
+<area shape="rect" href="classtanlang_1_1Parser.html" title="Top Down Operator Precedence Parsing." alt="" coords="5,5,124,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_14.png" border="0" usemap="#atanlang_1_1ParserImpl" alt=""/>
+<map name="atanlang_1_1ParserImpl" id="atanlang_1_1ParserImpl">
+<area shape="rect" href="classtanlang_1_1ParserImpl.html" title=" " alt="" coords="5,5,153,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_15.png" border="0" usemap="#atanlang_1_1ScopeGuard" alt=""/>
+<map name="atanlang_1_1ScopeGuard" id="atanlang_1_1ScopeGuard">
+<area shape="rect" href="classtanlang_1_1ScopeGuard.html" title=" " alt="" coords="5,5,163,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_16.png" border="0" usemap="#atanlang_1_1SourceFile" alt=""/>
+<map name="atanlang_1_1SourceFile" id="atanlang_1_1SourceFile">
+<area shape="rect" href="classtanlang_1_1SourceFile.html" title=" " alt="" coords="5,5,152,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_17.png" border="0" usemap="#atanlang_1_1SourceSpan" alt=""/>
+<map name="atanlang_1_1SourceSpan" id="atanlang_1_1SourceSpan">
+<area shape="rect" href="classtanlang_1_1SourceSpan.html" title="A span of source code tokens, inclusive on both ends." alt="" coords="5,5,160,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_18.png" border="0" usemap="#atanlang_1_1SrcLoc" alt=""/>
+<map name="atanlang_1_1SrcLoc" id="atanlang_1_1SrcLoc">
+<area shape="rect" href="classtanlang_1_1SrcLoc.html" title=" " alt="" coords="5,5,127,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_19.png" border="0" usemap="#atanlang_1_1TanCompilation" alt=""/>
+<map name="atanlang_1_1TanCompilation" id="atanlang_1_1TanCompilation">
+<area shape="rect" href="structtanlang_1_1TanCompilation.html" title="Compilation configuration." alt="" coords="5,5,185,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_20.png" border="0" usemap="#atanlang_1_1Token" alt=""/>
+<map name="atanlang_1_1Token" id="atanlang_1_1Token">
+<area shape="rect" href="classtanlang_1_1Token.html" title=" " alt="" coords="5,5,121,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_21.png" border="0" usemap="#atanlang_1_1TokenizedSourceFile" alt=""/>
+<map name="atanlang_1_1TokenizedSourceFile" id="atanlang_1_1TokenizedSourceFile">
+<area shape="rect" href="classtanlang_1_1TokenizedSourceFile.html" title="Different from SourceFile, TokenizedSourceFile manages the tokenized text of a source file." alt="" coords="5,5,216,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_22.png" border="0" usemap="#atanlang_1_1TokenSpan" alt=""/>
+<map name="atanlang_1_1TokenSpan" id="atanlang_1_1TokenSpan">
+<area shape="rect" href="classtanlang_1_1TokenSpan.html" title="Different from SourceSpan, TokenSpan operates on the token level." alt="" coords="5,5,153,32"/>
+</map>
 </td></tr>
 <tr><td><img src="inherit_graph_23.png" border="0" usemap="#atanlang_1_1Type" alt=""/>
+<map name="atanlang_1_1Type" id="atanlang_1_1Type">
+<area shape="rect" href="classtanlang_1_1Type.html" title="Type is immutable once created. The exception is StructType. Its information is updated in multiple s..." alt="" coords="5,157,115,184"/>
+<area shape="rect" href="classtanlang_1_1ArrayType.html" title=" " alt="" coords="175,5,319,32"/>
+<area shape="rect" href="classtanlang_1_1FunctionType.html" title=" " alt="" coords="165,56,329,83"/>
+<area shape="rect" href="classtanlang_1_1PointerType.html" title=" " alt="" coords="169,107,324,133"/>
+<area shape="rect" href="classtanlang_1_1PrimitiveType.html" title=" " alt="" coords="163,157,331,184"/>
+<area shape="rect" href="classtanlang_1_1StringType.html" title=" " alt="" coords="173,208,320,235"/>
+<area shape="rect" href="classtanlang_1_1StructType.html" title=" " alt="" coords="173,259,320,285"/>
+<area shape="rect" href="classtanlang_1_1TypeRef.html" title="Placeholder during parsing." alt="" coords="181,309,312,336"/>
+</map>
 </td></tr>
 </table>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+  </ul>
+</div>
 </body>
 </html>

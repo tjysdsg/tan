@@ -1,0 +1,6 @@
+<map id="tanlang::TypePrecheck" name="tanlang::TypePrecheck">
+<area shape="rect" id="node1" title="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..." alt="" coords="35,288,203,315"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="5,184,233,240"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1CompilerAction.html" title=" " alt="" coords="21,95,217,136"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="46,5,193,47"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="tanlang::Intrinsic" name="tanlang::Intrinsic">
+<area shape="rect" id="node1" title="A generic representation of Intrinsic variables/functions." alt="" coords="265,320,395,347"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="123,172,231,199"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="30,89,166,115"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="5,5,191,32"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="190,89,307,115"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="255,172,405,199"/>
+<area shape="rect" id="node7" title=" " alt="" coords="429,172,516,199"/>
+<area shape="rect" id="node8" title=" " alt="" coords="403,81,542,123"/>
+</map>

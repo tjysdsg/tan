@@ -1,0 +1,10 @@
+<map id="tanlang::FunctionCall" name="tanlang::FunctionCall">
+<area shape="rect" id="node1" title=" " alt="" coords="99,399,257,425"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="221,157,329,184"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1Decl.html" title=" " alt="" coords="124,233,232,260"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="103,81,239,108"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="79,5,264,32"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="263,81,381,108"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ASTNamed.html" title="All named AST nodes should inherit this class." alt="" coords="5,157,156,184"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1FunctionDecl.html" title=" " alt="" coords="97,309,259,336"/>
+</map>

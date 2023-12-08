@@ -1,0 +1,14 @@
+<map id="tanlang::Literal" name="tanlang::Literal">
+<area shape="rect" id="node1" title=" " alt="" coords="579,157,699,184"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1ArrayLiteral.html" title=" " alt="" coords="765,5,920,32"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1BoolLiteral.html" title=" " alt="" coords="768,56,917,83"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1CharLiteral.html" title=" " alt="" coords="767,107,918,133"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1FloatLiteral.html" title=" " alt="" coords="766,157,919,184"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1IntegerLiteral.html" title=" " alt="" coords="759,208,926,235"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1NullPointerLiteral.html" title=" " alt="" coords="747,259,939,285"/>
+<area shape="rect" id="node12" href="$classtanlang_1_1StringLiteral.html" title=" " alt="" coords="763,309,922,336"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1Expr.html" title=" " alt="" coords="423,157,531,184"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1ASTBase.html" title=" " alt="" coords="239,132,375,159"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1SourceTraceable.html" title="Represents the nodes that can be traced back to tokens in the source file." alt="" coords="5,132,191,159"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1Typed.html" title="All typed AST nodes should inherit this class." alt="" coords="248,183,365,209"/>
+</map>

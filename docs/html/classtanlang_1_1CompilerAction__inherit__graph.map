@@ -1,0 +1,13 @@
+<map id="tanlang::CompilerAction&lt; Derived, Input, Output &gt;" name="tanlang::CompilerAction&lt; Derived, Input, Output &gt;">
+<area shape="rect" id="node1" title=" " alt="" coords="200,173,396,214"/>
+<area shape="rect" id="node3" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="449,5,667,61"/>
+<area shape="rect" id="node5" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="444,85,672,141"/>
+<area shape="rect" id="node7" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="453,165,663,221"/>
+<area shape="rect" id="node9" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="448,245,668,301"/>
+<area shape="rect" id="node11" href="$classtanlang_1_1SemanticAnalysisAction.html" title=" " alt="" coords="461,325,655,381"/>
+<area shape="rect" id="node2" href="$classtanlang_1_1ASTVisitor.html" title=" " alt="" coords="5,173,152,214"/>
+<area shape="rect" id="node4" href="$classtanlang_1_1RegisterDeclarations.html" title="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..." alt="" coords="720,20,935,47"/>
+<area shape="rect" id="node6" href="$classtanlang_1_1TypePrecheck.html" title="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..." alt="" coords="743,100,911,127"/>
+<area shape="rect" id="node8" href="$classtanlang_1_1TypeCheck.html" title=" " alt="" coords="753,180,902,207"/>
+<area shape="rect" id="node10" href="$classtanlang_1_1ScanImports.html" title="Scans all dependencies in a package, and return their names and paths to relevant source files." alt="" coords="747,260,907,287"/>
+</map>
