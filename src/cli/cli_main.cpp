@@ -3,11 +3,13 @@
 #include "llvm/Support/CommandLine.h"
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
 #include "config.h"
 #include "driver/driver.h"
 
 namespace cmd = llvm::cl;
 namespace fs = std::filesystem;
+namespace ranges = std::ranges;
 using namespace tanlang;
 
 int cli_main(int argc, char **argv) {
@@ -43,8 +45,11 @@ int cli_main(int argc, char **argv) {
   /// Remove options created by LLVM/Clang
   /// We don't want tons of flags not created by this file appearing in the output of `tanc --help`
   cmd::HideUnrelatedOptions(cl_category);
+
+  // Parse args
   cmd::ParseCommandLineOptions(
       argc, argv, fmt::format("tanc version: {}.{}.{} \n", TAN_VERSION[0], TAN_VERSION[1], TAN_VERSION[2]));
+  vector<str> source_files(opt_source_files);
 
   // Init
   if (!init_compiler(argc, argv)) {
@@ -52,56 +57,27 @@ int cli_main(int argc, char **argv) {
     throw std::runtime_error("Unable to init tanc compiler");
   }
 
+  // Build compilation config
+  TanCompilation config;
+  config.type = EXE;
+  config.out_file = opt_output_file.getValue();
+  config.lib_dirs = vector<str>(opt_library_path);
+  config.link_files = vector<str>(opt_link_libraries);
+  config.import_dirs = vector<str>(opt_import_dirs);
+  config.type = opt_output_type.getValue();
+  config.opt_level = opt_optimization_level.getValue();
+
+  config.verbose = 0;
+  if (opt_print_ast) {
+    config.verbose = 2;
+  } else if (opt_print_ir_code) {
+    config.verbose = 1;
+  }
+
+  // Reset command line parser in case it will be used by clang
+  cmd::ResetCommandLineParser();
+
   try {
-    vector<str> source_files;
-    source_files.reserve(opt_source_files.size());
-    /*
-     * split by space
-     * sometimes llvm::cl doesn't seem to split a string by space, causing opt_source_files containing an element
-     * that should have been two elements
-     */
-    for (const auto &s : opt_source_files) {
-      auto f = std::find(s.begin(), s.end(), ' ');
-      if (f != s.end()) {
-        source_files.emplace_back(s.begin(), f);
-        source_files.emplace_back(f + 1, s.end());
-      } else {
-        source_files.push_back(s);
-      }
-    }
-
-    // Build compilation config
-    vector<str> lib_dirs;
-    lib_dirs.reserve(opt_library_path.size());
-    std::for_each(opt_library_path.begin(), opt_library_path.end(),
-                  [&lib_dirs](const auto &s) { lib_dirs.push_back(s); });
-
-    vector<str> link_files;
-    link_files.reserve(opt_link_libraries.size());
-    std::for_each(opt_link_libraries.begin(), opt_link_libraries.end(),
-                  [&link_files](const auto &s) { link_files.push_back(s); });
-
-    vector<str> import_dirs;
-    import_dirs.reserve(opt_import_dirs.size());
-    std::for_each(opt_import_dirs.begin(), opt_import_dirs.end(),
-                  [&import_dirs](const auto &s) { import_dirs.push_back(s); });
-
-    TanCompilation config;
-    config.type = EXE;
-    config.out_file = opt_output_file;
-    config.lib_dirs = lib_dirs;
-    config.link_files = link_files;
-    config.import_dirs = import_dirs;
-    config.type = opt_output_type.getValue();
-    config.opt_level = opt_optimization_level.getValue();
-
-    config.verbose = 0;
-    if (opt_print_ast) {
-      config.verbose = 2;
-    } else if (opt_print_ir_code) {
-      config.verbose = 1;
-    }
-
     // Create and run CompilerDriver
     CompilerDriver driver(config);
     driver.run(source_files);
@@ -112,6 +88,5 @@ int cli_main(int argc, char **argv) {
     std::cerr << e.what() << '\n';
   }
 
-  llvm::cl::ResetCommandLineParser();
   return 1;
 }
