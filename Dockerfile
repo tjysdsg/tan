@@ -23,9 +23,11 @@ RUN apt-get -y install cmake
 # LLVM
 RUN wget https://apt.llvm.org/llvm.sh
 RUN chmod +x llvm.sh
-RUN ./llvm.sh 15
+RUN ./llvm.sh 16
 
-RUN apt-get -y install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-15-doc llvm-15-examples llvm-15-runtime
-RUN apt-get -y install clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 clang-format-15 clangd-15 libclang-rt-15-dev
-RUN apt-get -y install libfuzzer-15-dev lldb-15 lld-15 lld liblld-15-dev libc++-15-dev libc++abi-15-dev libomp-15-dev libunwind-15 libunwind-15-dev
-RUN rm -f /usr/bin/clang /usr/bin/clang++; ln -s /usr/bin/clang-15 /usr/bin/clang; ln -s /usr/bin/clang++-15 /usr/bin/clang++
+RUN apt-get -y install libllvm-16-ocaml-dev libllvm16 llvm-16 llvm-16-dev llvm-16-doc llvm-16-examples llvm-16-runtime
+RUN apt-get -y install clang-16 clang-tools-16 clang-16-doc libclang-common-16-dev libclang-16-dev libclang1-16 clang-format-16 clangd-16 libclang-rt-16-dev
+RUN apt-get -y install libfuzzer-16-dev lldb-16 lld-16 lld liblld-16-dev libc++-16-dev libc++abi-16-dev libomp-16-dev libunwind-16 libunwind-16-dev
+
+# make sure `clang` and `clang++` are in PATH
+RUN rm -f /usr/bin/clang /usr/bin/clang++; ln -s /usr/bin/clang-16 /usr/bin/clang; ln -s /usr/bin/clang++-16 /usr/bin/clang++
