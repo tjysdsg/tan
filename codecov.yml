@@ -1,2 +1,3 @@
 ignore:
   - "dep"
+  - "src/llvm_api"
