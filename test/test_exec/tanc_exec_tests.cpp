@@ -93,8 +93,9 @@ int main(int argc, char **argv) {
 
     TestConfig config{file, expected_compilation_return_value, 0, output_dir, output_file, {opt}};
 
-    ::testing::RegisterTest("tanc_exec_tests", test_name.c_str(), nullptr, file.c_str(), __FILE__, __LINE__,
-                            [=]() { return new TanCExecTests(config); });
+    ::testing::RegisterTest("tanc_exec_tests", test_name.c_str(), nullptr, file.c_str(), __FILE__, __LINE__, [=]() {
+      return new TanCExecTests(config);
+    });
   }
 
   return RUN_ALL_TESTS();

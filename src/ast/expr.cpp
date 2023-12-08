@@ -341,8 +341,8 @@ bool BinaryOrUnary::is_lvalue() { return get_expr_ptr()->is_lvalue(); }
 
 void BinaryOrUnary::set_lvalue(bool is_lvalue) { get_expr_ptr()->set_lvalue(is_lvalue); }
 
-IntegerLiteral *Literal::CreateIntegerLiteral(TokenizedSourceFile *src, uint64_t val, size_t bit_size,
-                                              bool is_unsigned) {
+IntegerLiteral *
+Literal::CreateIntegerLiteral(TokenizedSourceFile *src, uint64_t val, size_t bit_size, bool is_unsigned) {
   auto *ret = IntegerLiteral::Create(src, val, is_unsigned);
   ret->set_type(Type::GetIntegerType(bit_size, is_unsigned));
   return ret;

@@ -13,26 +13,35 @@ using namespace tanlang;
 int cli_main(int argc, char **argv) {
   // cmd parser
   cmd::OptionCategory cl_category("tanc");
-  cmd::opt<str> opt_output_file("o", cmd::desc("Output filename"), cmd::value_desc("output"), cmd::init("a.out"),
-                                cmd::cat(cl_category));
-  cmd::list<str> opt_link_libraries("l", cmd::desc("Libraries to link against"), cmd::value_desc("libraries"),
-                                    cmd::Prefix, cmd::cat(cl_category));
+  cmd::opt<str> opt_output_file(
+      "o", cmd::desc("Output filename"), cmd::value_desc("output"), cmd::init("a.out"), cmd::cat(cl_category));
+  cmd::list<str> opt_link_libraries(
+      "l", cmd::desc("Libraries to link against"), cmd::value_desc("libraries"), cmd::Prefix, cmd::cat(cl_category));
   cmd::list<str> opt_library_path("L", cmd::desc("Library search path"), cmd::Prefix, cmd::cat(cl_category));
-  cmd::list<str> opt_source_files(cmd::Positional, cmd::Required, cmd::desc("Files to compile"),
-                                  cmd::value_desc("<source files>"), cmd::OneOrMore, cmd::cat(cl_category));
+  cmd::list<str> opt_source_files(cmd::Positional,
+                                  cmd::Required,
+                                  cmd::desc("Files to compile"),
+                                  cmd::value_desc("<source files>"),
+                                  cmd::OneOrMore,
+                                  cmd::cat(cl_category));
   cmd::list<str> opt_import_dirs("I", cmd::desc("Import search directories"), cmd::Prefix, cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ir_code("print-ir", cmd::desc("Print LLVM IR code"), cmd::cat(cl_category));
   cmd::opt<bool> opt_print_ast("print-ast", cmd::desc("Print abstract syntax tree"), cmd::cat(cl_category));
-  cmd::opt<TanCompileType> opt_output_type(
-      cmd::desc("Output type"),
-      cmd::values(clEnumValN(DLIB, "shared", "Shared library"), clEnumValN(SLIB, "static", "Static library"),
-                  clEnumValN(EXE, "exe", "Executable"), clEnumValN(OBJ, "obj", "Object file")),
-      cmd::init(EXE), cmd::cat(cl_category));
+  cmd::opt<TanCompileType> opt_output_type(cmd::desc("Output type"),
+                                           cmd::values(clEnumValN(DLIB, "shared", "Shared library"),
+                                                       clEnumValN(SLIB, "static", "Static library"),
+                                                       clEnumValN(EXE, "exe", "Executable"),
+                                                       clEnumValN(OBJ, "obj", "Object file")),
+                                           cmd::init(EXE),
+                                           cmd::cat(cl_category));
   cmd::opt<TanOptLevel> opt_optimization_level(cmd::desc("Optimization level"),
-                                               cmd::values(clEnumValN(O0, "g", "None"), clEnumVal(O0, "None"),
-                                                           clEnumVal(O1, "Less"), clEnumVal(O2, "Default"),
+                                               cmd::values(clEnumValN(O0, "g", "None"),
+                                                           clEnumVal(O0, "None"),
+                                                           clEnumVal(O1, "Less"),
+                                                           clEnumVal(O2, "Default"),
                                                            clEnumVal(O3, "Aggressive")),
-                                               cmd::init(O0), cmd::cat(cl_category));
+                                               cmd::init(O0),
+                                               cmd::cat(cl_category));
 
   // std::cout << "PID: " << getpid() << '\n';
   // std::cout << "Args: ";

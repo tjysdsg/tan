@@ -62,8 +62,9 @@ int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
 
   bool shared_lib = str(argv[1]) == "true";
-  ::testing::RegisterTest("tanc_test_fixture", "lib_test", nullptr, "", __FILE__, __LINE__,
-                          [=]() -> MyFixture * { return new TestCompileLib(shared_lib); });
+  ::testing::RegisterTest("tanc_test_fixture", "lib_test", nullptr, "", __FILE__, __LINE__, [=]() -> MyFixture * {
+    return new TestCompileLib(shared_lib);
+  });
 
   return RUN_ALL_TESTS();
 }

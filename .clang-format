@@ -6,3 +6,5 @@ AlignEscapedNewlines: Left
 AlignTrailingComments: true
 FixNamespaceComments: true
 AlignArrayOfStructures: Left
+BinPackArguments: false
+BinPackParameters: false

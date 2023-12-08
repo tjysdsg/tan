@@ -187,7 +187,8 @@ Token *tokenize_char(SourceFile *src, SrcLoc &start) {
   if (end <= forward) {
     auto lineno = src->size() - 1;
     auto line = src->get_line(lineno);
-    Error(ErrorType::SYNTAX_ERROR, SourceSpan(src, (uint32_t)lineno, (uint32_t)line.length() - 1),
+    Error(ErrorType::SYNTAX_ERROR,
+          SourceSpan(src, (uint32_t)lineno, (uint32_t)line.length() - 1),
           "Incomplete character literal")
         .raise();
   } else {
@@ -221,7 +222,8 @@ Token *tokenize_string(SourceFile *src, SrcLoc &start) {
   if (end <= forward) {
     auto lineno = src->size() - 1;
     auto line = src->get_line(lineno);
-    Error(ErrorType::SYNTAX_ERROR, SourceSpan(src, (uint32_t)lineno, (uint32_t)line.length() - 1),
+    Error(ErrorType::SYNTAX_ERROR,
+          SourceSpan(src, (uint32_t)lineno, (uint32_t)line.length() - 1),
           "Incomplete string literal")
         .raise();
   } else {

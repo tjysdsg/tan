@@ -34,20 +34,43 @@ const vector<char> OP{'~', '!', '%', '^', '&', '*', '-', '=', '+', '|', '<', '>'
 const vector<str> OP_ALL{"==", "!=", ">=", "<=", ">", "<",  "&&", "||", "~", "%=",  "%",  "^=",  "^",  "&=", "&", "+=",
                          "+",  "-=", "-",  "*=", "*", "/=", "/",  "|=", "|", "<<=", "<<", ">>=", ">>", "!=", "."};
 
-umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{
-    // RELOP
-    pair("==", TokenType::RELOP), pair("!=", TokenType::RELOP), pair(">=", TokenType::RELOP),
-    pair("<=", TokenType::RELOP), pair(">", TokenType::RELOP), pair("<", TokenType::RELOP),
-    pair("&&", TokenType::RELOP), pair("||", TokenType::RELOP),
-    // UOP
-    pair("~", TokenType::UOP), pair("!", TokenType::UOP),
-    // BOP
-    pair("%=", TokenType::BOP), pair("%", TokenType::BOP), pair("^=", TokenType::BOP), pair("^", TokenType::BOP),
-    pair("&=", TokenType::BOP), pair("&", TokenType::BOP), pair("+=", TokenType::BOP), pair("+", TokenType::BOP),
-    pair("-=", TokenType::BOP), pair("-", TokenType::BOP), pair("*=", TokenType::BOP), pair("*", TokenType::BOP),
-    pair("/=", TokenType::BOP), pair("/", TokenType::BOP), pair("|=", TokenType::BOP), pair("|", TokenType::BOP),
-    pair("<<=", TokenType::BOP), pair("<<", TokenType::BOP), pair(">>=", TokenType::BOP), pair(">>", TokenType::BOP),
-    pair("!=", TokenType::BOP), pair(",", TokenType::BOP), pair(".", TokenType::BOP), pair("=", TokenType::BOP)};
+umap<str, TokenType> OPERATION_VALUE_TYPE_MAP{// RELOP
+                                              pair("==", TokenType::RELOP),
+                                              pair("!=", TokenType::RELOP),
+                                              pair(">=", TokenType::RELOP),
+                                              pair("<=", TokenType::RELOP),
+                                              pair(">", TokenType::RELOP),
+                                              pair("<", TokenType::RELOP),
+                                              pair("&&", TokenType::RELOP),
+                                              pair("||", TokenType::RELOP),
+                                              // UOP
+                                              pair("~", TokenType::UOP),
+                                              pair("!", TokenType::UOP),
+                                              // BOP
+                                              pair("%=", TokenType::BOP),
+                                              pair("%", TokenType::BOP),
+                                              pair("^=", TokenType::BOP),
+                                              pair("^", TokenType::BOP),
+                                              pair("&=", TokenType::BOP),
+                                              pair("&", TokenType::BOP),
+                                              pair("+=", TokenType::BOP),
+                                              pair("+", TokenType::BOP),
+                                              pair("-=", TokenType::BOP),
+                                              pair("-", TokenType::BOP),
+                                              pair("*=", TokenType::BOP),
+                                              pair("*", TokenType::BOP),
+                                              pair("/=", TokenType::BOP),
+                                              pair("/", TokenType::BOP),
+                                              pair("|=", TokenType::BOP),
+                                              pair("|", TokenType::BOP),
+                                              pair("<<=", TokenType::BOP),
+                                              pair("<<", TokenType::BOP),
+                                              pair(">>=", TokenType::BOP),
+                                              pair(">>", TokenType::BOP),
+                                              pair("!=", TokenType::BOP),
+                                              pair(",", TokenType::BOP),
+                                              pair(".", TokenType::BOP),
+                                              pair("=", TokenType::BOP)};
 
 Token::Token(TokenType tokenType, uint32_t line, uint32_t col, str value, SourceFile *src)
     : _type(tokenType), _value(std::move(value)), _line(line), _col(col), _src(src) {}

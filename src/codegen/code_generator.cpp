@@ -438,8 +438,7 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, DIFile *di_file, uint32
   } else if (p->is_string()) { /// str as char*
     auto *e_di_type = _di_builder->createBasicType("u8", 8, llvm::dwarf::DW_ATE_unsigned_char);
     ret = _di_builder->createPointerType(e_di_type, _target_machine->getPointerSizeInBits(0),
-                                         (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
-                                         p->get_typename());
+                                         _target_machine->getPointerSizeInBits(0), std::nullopt, p->get_typename());
   } else if (p->is_struct()) { /// struct
     auto member_types = pcast<StructType>(p)->get_member_types();
     unsigned n = (unsigned)member_types.size();
@@ -459,13 +458,12 @@ llvm::Metadata *CodeGenerator::to_llvm_metadata(Type *p, DIFile *di_file, uint32
   } else if (p->is_array()) { /// array as pointer
     auto *sub = to_llvm_metadata(pcast<ArrayType>(p)->get_element_type(), di_file, lineno);
     ret = _di_builder->createPointerType((DIType *)sub, _target_machine->getPointerSizeInBits(0),
-                                         (unsigned)_target_machine->getPointerSizeInBits(0), llvm::None,
-                                         p->get_typename());
+                                         _target_machine->getPointerSizeInBits(0), std::nullopt, p->get_typename());
   } else if (p->is_pointer()) { /// pointer
     // avoid infinite recursion by inserting a placeholder
-    _llvm_meta_cache[p] = ret = _di_builder->createPointerType(nullptr, _target_machine->getPointerSizeInBits(0),
-                                                               (unsigned)_target_machine->getPointerSizeInBits(0),
-                                                               llvm::None, p->get_typename());
+    _llvm_meta_cache[p] = ret =
+        _di_builder->createPointerType(nullptr, _target_machine->getPointerSizeInBits(0),
+                                       _target_machine->getPointerSizeInBits(0), std::nullopt, p->get_typename());
     auto *sub = to_llvm_metadata(pcast<PointerType>(p)->get_pointee(), di_file, lineno);
     ret->replaceOperandWith(3, sub);
   } else {
@@ -1341,7 +1339,7 @@ DEFINE_AST_VISITOR_IMPL(CodeGenerator, Loop) {
   if (p->_loop_type == ASTLoopType::FOR) {
     cached_visit(p->_initialization);
   }
-    _builder->CreateBr(predicate_block);
+  _builder->CreateBr(predicate_block);
 
   // 2. Predicate
   _builder->SetInsertPoint(predicate_block);

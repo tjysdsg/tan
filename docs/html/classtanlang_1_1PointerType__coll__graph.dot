@@ -1,0 +1,16 @@
+digraph "tanlang::PointerType"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="tanlang::PointerType",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tanlang::Type",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1Type.html",tooltip="Type is immutable once created. The exception is StructType. Its information is updated in multiple s..."];
+  Node3 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" _type_name" ,fontname="Helvetica"];
+  Node3 [label="std::string",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node4 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="std::basic_string\<\l Char \>",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled",tooltip=" "];
+  Node5 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" STRING_TYPE" ,fontname="Helvetica"];
+  Node5 [label="tanlang::StringType",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1StringType.html",tooltip=" "];
+  Node2 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

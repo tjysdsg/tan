@@ -45,8 +45,9 @@ public:
 };
 
 void register_tanc_test() {
-  ::testing::RegisterTest("tanc_test_fixture", "lib_test", nullptr, "", __FILE__, __LINE__,
-                          [=]() -> MyFixture * { return new TestUseLib(); });
+  ::testing::RegisterTest("tanc_test_fixture", "lib_test", nullptr, "", __FILE__, __LINE__, [=]() -> MyFixture * {
+    return new TestUseLib();
+  });
 }
 
 int main(int argc, char **argv) {

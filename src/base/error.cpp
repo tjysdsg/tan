@@ -27,8 +27,8 @@ Error::Error(ErrorType type, const str &error_message) : _type(type) {
 
 Error::Error(ErrorType type, SourceSpan span, const str &error_message) : _type(type) {
   SourceFile *src = span.src();
-  _msg = fmt::format("[{}] in {}:{} {}\n", ERROR_TYPE_ENUM_TO_STRING[type], src->get_filename(), span.start().l,
-                     error_message);
+  _msg = fmt::format(
+      "[{}] in {}:{} {}\n", ERROR_TYPE_ENUM_TO_STRING[type], src->get_filename(), span.start().l, error_message);
 
   uint32_t col = span.start().c;
   for (uint32_t line = span.start().l; line <= span.end().l; ++line) {
@@ -59,10 +59,15 @@ ErrorType Error::type() const { return _type; }
   { ErrorType::x, #x }
 
 umap<ErrorType, str> Error::ERROR_TYPE_ENUM_TO_STRING{
-    ERROR_TYPE_TO_STRING_HELPER(GENERIC_ERROR),   ERROR_TYPE_TO_STRING_HELPER(ASSERTION_FAILED),
-    ERROR_TYPE_TO_STRING_HELPER(FILE_NOT_FOUND),  ERROR_TYPE_TO_STRING_HELPER(SYNTAX_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(NOT_IMPLEMENTED), ERROR_TYPE_TO_STRING_HELPER(SEMANTIC_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(UNKNOWN_SYMBOL),  ERROR_TYPE_TO_STRING_HELPER(IMPORT_ERROR),
-    ERROR_TYPE_TO_STRING_HELPER(TYPE_ERROR),      ERROR_TYPE_TO_STRING_HELPER(COMPILE_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(GENERIC_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(ASSERTION_FAILED),
+    ERROR_TYPE_TO_STRING_HELPER(FILE_NOT_FOUND),
+    ERROR_TYPE_TO_STRING_HELPER(SYNTAX_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(NOT_IMPLEMENTED),
+    ERROR_TYPE_TO_STRING_HELPER(SEMANTIC_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(UNKNOWN_SYMBOL),
+    ERROR_TYPE_TO_STRING_HELPER(IMPORT_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(TYPE_ERROR),
+    ERROR_TYPE_TO_STRING_HELPER(COMPILE_ERROR),
     ERROR_TYPE_TO_STRING_HELPER(LINK_ERROR),
 };

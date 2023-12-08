@@ -57,9 +57,8 @@ using namespace llvm::opt;
 // Main driver
 //===----------------------------------------------------------------------===//
 
-static void LLVMErrorHandler(void *UserData, const char *Message,
-                             bool GenCrashDiag) {
-  DiagnosticsEngine &Diags = *static_cast<DiagnosticsEngine*>(UserData);
+static void LLVMErrorHandler(void *UserData, const char *Message, bool GenCrashDiag) {
+  DiagnosticsEngine &Diags = *static_cast<DiagnosticsEngine *>(UserData);
 
   Diags.Report(diag::err_fe_error_backend) << Message;
 
@@ -97,7 +96,8 @@ static size_t getCurrentStackAllocation() {
                "%*lu %*ld %*ld %*ld %*ld %*ld %*ld %*llu %*lu %*ld %*lu %*lu "
                "%*lu %*lu %lu %*lu %*lu %*lu %*lu %*lu %*llu %*lu %*lu %*d %*d "
                "%*u %*u %*llu %*lu %*ld %*lu %*lu %*lu %*lu %*lu %*lu %lu %*d",
-               &StackPtr, &EnvEnd) == 2) {
+               &StackPtr,
+               &EnvEnd) == 2) {
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
@@ -122,8 +122,7 @@ static void ensureStackAddressSpace() {
   size_t Curr = getCurrentStackAllocation();
   const int kTargetStack = DesiredStackSize - 256 * 1024;
   if (Curr < kTargetStack) {
-    volatile char *volatile Alloc =
-        static_cast<volatile char *>(alloca(kTargetStack - Curr));
+    volatile char *volatile Alloc = static_cast<volatile char *>(alloca(kTargetStack - Curr));
     Alloc[0] = 0;
     Alloc[kTargetStack - Curr - 1] = 0;
   }
@@ -140,19 +139,16 @@ static void ensureSufficientStack() {
 
   // Increase the soft stack limit to our desired level, if necessary and
   // possible.
-  if (rlim.rlim_cur != RLIM_INFINITY &&
-      rlim.rlim_cur < rlim_t(DesiredStackSize)) {
+  if (rlim.rlim_cur != RLIM_INFINITY && rlim.rlim_cur < rlim_t(DesiredStackSize)) {
     // Try to allocate sufficient stack.
-    if (rlim.rlim_max == RLIM_INFINITY ||
-        rlim.rlim_max >= rlim_t(DesiredStackSize))
+    if (rlim.rlim_max == RLIM_INFINITY || rlim.rlim_max >= rlim_t(DesiredStackSize))
       rlim.rlim_cur = DesiredStackSize;
     else if (rlim.rlim_cur == rlim.rlim_max)
       return;
     else
       rlim.rlim_cur = rlim.rlim_max;
 
-    if (setrlimit(RLIMIT_STACK, &rlim) != 0 ||
-        rlim.rlim_cur != DesiredStackSize)
+    if (setrlimit(RLIMIT_STACK, &rlim) != 0 || rlim.rlim_cur != DesiredStackSize)
       return;
   }
 
@@ -167,8 +163,7 @@ static void ensureSufficientStack() {}
 /// Print supported cpus of the given target.
 static int PrintSupportedCPUs(std::string TargetStr) {
   std::string Error;
-  const llvm::Target *TheTarget =
-      llvm::TargetRegistry::lookupTarget(TargetStr, Error);
+  const llvm::Target *TheTarget = llvm::TargetRegistry::lookupTarget(TargetStr, Error);
   if (!TheTarget) {
     llvm::errs() << Error;
     return 1;
@@ -177,8 +172,7 @@ static int PrintSupportedCPUs(std::string TargetStr) {
   // the target machine will handle the mcpu printing
   llvm::TargetOptions Options;
   std::unique_ptr<llvm::TargetMachine> TheTargetMachine(
-      TheTarget->createTargetMachine(TargetStr, "", "+cpuhelp", Options,
-                                     std::nullopt));
+      TheTarget->createTargetMachine(TargetStr, "", "+cpuhelp", Options, std::nullopt));
   return 0;
 }
 
@@ -207,27 +201,21 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
 
   // Setup round-trip remarks for the DiagnosticsEngine used in CreateFromArgs.
   if (find(Argv, StringRef("-Rround-trip-cc1-args")) != Argv.end())
-    Diags.setSeverity(diag::remark_cc1_round_trip_generated,
-                      diag::Severity::Remark, {});
+    Diags.setSeverity(diag::remark_cc1_round_trip_generated, diag::Severity::Remark, {});
 
-  bool Success = CompilerInvocation::CreateFromArgs(Clang->getInvocation(),
-                                                    Argv, Diags, Argv0);
+  bool Success = CompilerInvocation::CreateFromArgs(Clang->getInvocation(), Argv, Diags, Argv0);
 
-  if (Clang->getFrontendOpts().TimeTrace ||
-      !Clang->getFrontendOpts().TimeTracePath.empty()) {
+  if (Clang->getFrontendOpts().TimeTrace || !Clang->getFrontendOpts().TimeTracePath.empty()) {
     Clang->getFrontendOpts().TimeTrace = 1;
-    llvm::timeTraceProfilerInitialize(
-        Clang->getFrontendOpts().TimeTraceGranularity, Argv0);
+    llvm::timeTraceProfilerInitialize(Clang->getFrontendOpts().TimeTraceGranularity, Argv0);
   }
   // --print-supported-cpus takes priority over the actual compilation.
   if (Clang->getFrontendOpts().PrintSupportedCPUs)
     return PrintSupportedCPUs(Clang->getTargetOpts().Triple);
 
   // Infer the builtin include path if unspecified.
-  if (Clang->getHeaderSearchOpts().UseBuiltinIncludes &&
-      Clang->getHeaderSearchOpts().ResourceDir.empty())
-    Clang->getHeaderSearchOpts().ResourceDir =
-      CompilerInvocation::GetResourcesPath(Argv0, MainAddr);
+  if (Clang->getHeaderSearchOpts().UseBuiltinIncludes && Clang->getHeaderSearchOpts().ResourceDir.empty())
+    Clang->getHeaderSearchOpts().ResourceDir = CompilerInvocation::GetResourcesPath(Argv0, MainAddr);
 
   // Create the actual diagnostics engine.
   Clang->createDiagnostics();
@@ -236,8 +224,7 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
 
   // Set an error handler, so that any LLVM backend diagnostics go through our
   // error handler.
-  llvm::install_fatal_error_handler(LLVMErrorHandler,
-                                  static_cast<void*>(&Clang->getDiagnostics()));
+  llvm::install_fatal_error_handler(LLVMErrorHandler, static_cast<void *>(&Clang->getDiagnostics()));
 
   DiagsBuffer->FlushDiagnostics(Clang->getDiagnostics());
   if (!Success) {
@@ -266,9 +253,10 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
         llvm::sys::path::append(TracePath, llvm::sys::path::filename(Path));
       Path.assign(TracePath);
     }
-    if (auto profilerOutput = Clang->createOutputFile(
-            Path.str(), /*Binary=*/false, /*RemoveFileOnSignal=*/false,
-            /*useTemporary=*/false)) {
+    if (auto profilerOutput = Clang->createOutputFile(Path.str(),
+                                                      /*Binary=*/false,
+                                                      /*RemoveFileOnSignal=*/false,
+                                                      /*useTemporary=*/false)) {
       llvm::timeTraceProfilerWrite(*profilerOutput);
       profilerOutput.reset();
       llvm::timeTraceProfilerCleanup();

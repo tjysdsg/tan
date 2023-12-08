@@ -49,7 +49,8 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
 
   size_t n = candidate->get_n_args();
   if (n != args.size()) {
-    error(ErrorType::SEMANTIC_ERROR, p,
+    error(ErrorType::SEMANTIC_ERROR,
+          p,
           fmt::format("Incorrect number of arguments: expect {} but found {}", candidate->get_n_args(), n));
   }
 
@@ -63,9 +64,12 @@ FunctionDecl *TypeCheck::search_function_callee(FunctionCall *p) {
 
     if (actual_type != expected_type) {
       if (!CanImplicitlyConvert(actual_type, expected_type)) {
-        error(ErrorType::TYPE_ERROR, p,
-              fmt::format("Cannot implicitly convert the type of argument {}: expect {} but found {}", i + 1,
-                          actual_type->get_typename(), expected_type->get_typename()));
+        error(ErrorType::TYPE_ERROR,
+              p,
+              fmt::format("Cannot implicitly convert the type of argument {}: expect {} but found {}",
+                          i + 1,
+                          actual_type->get_typename(),
+                          expected_type->get_typename()));
       }
     }
   }
@@ -154,7 +158,8 @@ void TypeCheck::analyze_function_call(FunctionCall *p, bool include_intrinsics) 
   if (include_intrinsics || !callee->is_intrinsic()) {
     p->_callee = callee;
   } else {
-    error(ErrorType::UNKNOWN_SYMBOL, p,
+    error(ErrorType::UNKNOWN_SYMBOL,
+          p,
           fmt::format("Unknown function call. Maybe use @{} if you want to call this intrinsic?", p->get_name()));
   }
 
@@ -179,7 +184,8 @@ void TypeCheck::analyze_intrinsic_func_call(Intrinsic *p, FunctionCall *func_cal
 
     auto *target = func_call->get_arg(0);
     if (target->get_node_type() != ASTNodeType::ID) {
-      error(ErrorType::TYPE_ERROR, target,
+      error(ErrorType::TYPE_ERROR,
+            target,
             fmt::format("Expect an identifier as the operand, but got {}",
                         ASTBase::ASTTypeNames[target->get_node_type()]));
     }
@@ -262,8 +268,10 @@ void TypeCheck::analyze_bracket_access(MemberAccess *p, Expr *lhs, Expr *rhs) {
     if (rhs->get_node_type() == ASTNodeType::INTEGER_LITERAL) {
       uint64_t size = pcast<IntegerLiteral>(rhs)->get_value();
       if (lhs->get_type()->is_array() && (int)size >= array_type->array_size()) {
-        error(ErrorType::TYPE_ERROR, p,
-              fmt::format("Index {} out of bound, the array size is {}", std::to_string(size),
+        error(ErrorType::TYPE_ERROR,
+              p,
+              fmt::format("Index {} out of bound, the array size is {}",
+                          std::to_string(size),
                           std::to_string(array_type->array_size())));
       }
     }
@@ -299,7 +307,8 @@ void TypeCheck::analyze_member_access_member_variable(MemberAccess *p, Expr *lhs
 
   p->_access_idx = struct_decl->get_struct_member_index(m_name);
   if (p->_access_idx == -1) {
-    error(ErrorType::UNKNOWN_SYMBOL, p,
+    error(ErrorType::UNKNOWN_SYMBOL,
+          p,
           fmt::format("Cannot find member variable '{}' of struct '{}'", m_name, struct_decl->get_name()));
   }
   auto *mem_type = struct_decl->get_struct_member_ty(p->_access_idx);

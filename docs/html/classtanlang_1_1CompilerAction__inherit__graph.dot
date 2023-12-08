@@ -1,0 +1,28 @@
+digraph "tanlang::CompilerAction&lt; Derived, Input, Output &gt;"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="tanlang::CompilerAction\l\< Derived, Input, Output \>",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tanlang::ASTVisitor\l\< Derived \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1ASTVisitor.html",tooltip=" "];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="tanlang::SemanticAnalysis\lAction\< RegisterDeclarations,\l Program *, void \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SemanticAnalysisAction.html",tooltip=" "];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="tanlang::RegisterDeclarations",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1RegisterDeclarations.html",tooltip="Register all declarations (including local) in the corresponding scopes. Run this stage early to easi..."];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="tanlang::SemanticAnalysis\lAction\< TypePrecheck, Package\l *, void \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SemanticAnalysisAction.html",tooltip=" "];
+  Node5 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="tanlang::TypePrecheck",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1TypePrecheck.html",tooltip="Perform preliminary type checking. We try our best to resolve types, and remember those that cannot b..."];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="tanlang::SemanticAnalysis\lAction\< TypeCheck, Package\l *, void \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SemanticAnalysisAction.html",tooltip=" "];
+  Node7 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="tanlang::TypeCheck",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1TypeCheck.html",tooltip=" "];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="tanlang::SemanticAnalysis\lAction\< ScanImports, Package\l *, ScanImportsOutputType \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SemanticAnalysisAction.html",tooltip=" "];
+  Node9 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="tanlang::ScanImports",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1ScanImports.html",tooltip="Scans all dependencies in a package, and return their names and paths to relevant source files."];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="tanlang::SemanticAnalysis\lAction\< Derived, Input,\l Output \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SemanticAnalysisAction.html",tooltip=" "];
+}

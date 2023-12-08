@@ -1,0 +1,13 @@
+digraph "tanlang::Expr"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="tanlang::Expr",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip=" "];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="tanlang::ASTBase",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1ASTBase.html",tooltip=" "];
+  Node3 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="tanlang::SourceTraceable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1SourceTraceable.html",tooltip="Represents the nodes that can be traced back to tokens in the source file."];
+  Node4 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="tanlang::Typed",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classtanlang_1_1Typed.html",tooltip="All typed AST nodes should inherit this class."];
+}

@@ -184,8 +184,8 @@ char SrcLoc::operator*() {
   return _src->at(*this);
 }
 
-SourceSpan::SourceSpan(const SourceFile *src, uint32_t start_line, uint32_t start_col, uint32_t end_line,
-                       uint32_t end_col)
+SourceSpan::SourceSpan(
+    const SourceFile *src, uint32_t start_line, uint32_t start_col, uint32_t end_line, uint32_t end_col)
     : SourceSpan(SrcLoc(start_line, start_col, src), SrcLoc(end_line, end_col, src)) {}
 
 SourceSpan::SourceSpan(const SourceFile *src, uint32_t line, uint32_t col) : SourceSpan(src, line, col, line, col) {}

@@ -67,6 +67,6 @@ macro(enable_tests)
                 COMMAND llvm-profdata-15 merge -sparse *.profraw -o tan.profdata
                 COMMAND llvm-cov-15 export ${LLVM_COV_ARGS} --instr-profile=tan.profdata --format=lcov > coverage.txt
                 WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                )
+        )
     endif ()
 endmacro()

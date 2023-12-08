@@ -37,13 +37,17 @@ vector<FunctionDecl *> Intrinsic::GetIntrinsicFunctionDeclarations() {
   auto *src = new TokenizedSourceFile("__intrinsics__", {});
 
   // compprint
-  ret.push_back(FunctionDecl::Create(src, COMP_PRINT_NAME,
-                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}), true, false,
-                                     nullptr, true));
+  ret.push_back(FunctionDecl::Create(src,
+                                     COMP_PRINT_NAME,
+                                     Type::GetFunctionType(Type::GetVoidType(), {Type::GetStringType()}),
+                                     true,
+                                     false,
+                                     nullptr,
+                                     true));
 
   // abort
-  ret.push_back(FunctionDecl::Create(src, ABORT_NAME, Type::GetFunctionType(Type::GetVoidType(), {}), true, false,
-                                     nullptr, true));
+  ret.push_back(FunctionDecl::Create(
+      src, ABORT_NAME, Type::GetFunctionType(Type::GetVoidType(), {}), true, false, nullptr, true));
 
   return ret;
 }

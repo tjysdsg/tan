@@ -26,7 +26,7 @@ bool TypeCheck::CanImplicitlyConvert(Type *from, Type *to) {
     if (u1 == u2) { // rule #1
       return s2 >= s1;
     } else {
-      return s2 > s1;                              // rule #2 and #3
+      return s2 > s1; // rule #2 and #3
     }
   } else if (from->is_float() && to->is_float()) { // rule #4
     return s2 >= s1;
@@ -76,7 +76,7 @@ Type *TypeCheck::ImplicitTypePromote(Type *t1, Type *t2) {
         std::swap(u1, u2);
       }
 
-      if (s2 > s1) {        // rule #2
+      if (s2 > s1) { // rule #2
         return t2;
       } else if (s1 > s2) { // rule #3
         return t1;
@@ -110,7 +110,8 @@ Type *TypeCheck::ImplicitTypePromote(Type *t1, Type *t2) {
 
 Cast *TypeCheck::create_implicit_conversion(Expr *from, Type *to) {
   if (!CanImplicitlyConvert(from->get_type(), to)) {
-    error(ErrorType::TYPE_ERROR, from,
+    error(ErrorType::TYPE_ERROR,
+          from,
           fmt::format("Cannot implicitly convert type {} to {}", from->get_type()->get_typename(), to->get_typename()));
   }
 
@@ -128,8 +129,10 @@ Type *TypeCheck::auto_promote_bop_operand_types(BinaryOperator *bop) {
 
   auto *promoted_type = ImplicitTypePromote(lhs_type, rhs_type);
   if (!promoted_type) {
-    error(ErrorType::TYPE_ERROR, bop,
-          fmt::format("Cannot find a valid type promotion between {} and {}", lhs_type->get_typename(),
+    error(ErrorType::TYPE_ERROR,
+          bop,
+          fmt::format("Cannot find a valid type promotion between {} and {}",
+                      lhs_type->get_typename(),
                       rhs_type->get_typename()));
   }
 

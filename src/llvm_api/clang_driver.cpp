@@ -108,7 +108,9 @@ static const char *GetStableCStr(std::set<std::string> &SavedStrings, StringRef 
 /// \param Args - The vector of command line arguments.
 /// \param Edit - The override command to perform.
 /// \param SavedStrings - Set to use for storing string representations.
-static void ApplyOneQAOverride(raw_ostream &OS, SmallVectorImpl<const char *> &Args, StringRef Edit,
+static void ApplyOneQAOverride(raw_ostream &OS,
+                               SmallVectorImpl<const char *> &Args,
+                               StringRef Edit,
                                std::set<std::string> &SavedStrings) {
   // This does not need to be efficient.
 
@@ -174,8 +176,8 @@ static void ApplyOneQAOverride(raw_ostream &OS, SmallVectorImpl<const char *> &A
 
 /// ApplyQAOverride - Apply a comma separate list of edits to the
 /// input argument lists. See ApplyOneQAOverride.
-static void ApplyQAOverride(SmallVectorImpl<const char *> &Args, const char *OverrideStr,
-                            std::set<std::string> &SavedStrings) {
+static void
+ApplyQAOverride(SmallVectorImpl<const char *> &Args, const char *OverrideStr, std::set<std::string> &SavedStrings) {
   raw_ostream *OS = &llvm::errs();
 
   if (OverrideStr[0] == '#') {
@@ -204,7 +206,8 @@ extern int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAd
 extern int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr);
 extern int cc1gen_reproducer_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr);
 
-static void insertTargetAndModeArgs(const ParsedClangName &NameParts, SmallVectorImpl<const char *> &ArgVector,
+static void insertTargetAndModeArgs(const ParsedClangName &NameParts,
+                                    SmallVectorImpl<const char *> &ArgVector,
                                     std::set<std::string> &SavedStrings) {
   // Put target and mode arguments at the start of argument list so that
   // arguments specified in command line could override them. Avoid putting

@@ -12,7 +12,7 @@ target_compile_definitions(tanc_exec_tests PRIVATE
         -DTANC_PATH=$<TARGET_FILE:tanc>
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
-        )
+)
 add_dependencies(tanc_exec_tests runtime)
 
 # target that runs this test on all .tan files
@@ -39,21 +39,21 @@ set(TEST_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/bits.tan
         ${CMAKE_CURRENT_LIST_DIR}/import.tan
         ${CMAKE_CURRENT_LIST_DIR}/symbol_resolution.tan
-        )
+)
 foreach (test_src ${TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
             COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 0 out/
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
+    )
 endforeach ()
 
 # add negative compilation tests
 set(TEST_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/fail_recursive_type_reference.tan
-        )
+)
 foreach (test_src ${TEST_SRCS})
     add_custom_command(TARGET run_tanc_exec_tests POST_BUILD
             COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:tanc_exec_tests> ${test_src} 1 out/
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-            )
+    )
 endforeach ()

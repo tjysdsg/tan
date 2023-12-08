@@ -60,8 +60,8 @@ inline std::vector<StackFrame> stack_trace() {
   bool first = true;
 
   std::vector<StackFrame> frames;
-  while (StackWalk(machine, process, thread, &frame, &context, nullptr, SymFunctionTableAccess, SymGetModuleBase,
-                   nullptr)) {
+  while (StackWalk(
+      machine, process, thread, &frame, &context, nullptr, SymFunctionTableAccess, SymGetModuleBase, nullptr)) {
     StackFrame f{};
 
 #if _WIN64

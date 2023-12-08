@@ -88,10 +88,14 @@ private:
       bool is_func = node_type == ASTNodeType::FUNC_DECL;
       bool is_struct = node_type == ASTNodeType::STRUCT_DECL;
       if (tok == "pub" && !is_func && !is_struct)
-        error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+        error(ErrorType::SYNTAX_ERROR,
+              _curr,
+              _curr,
               fmt::format("Cannot use `{}` keyword to qualify {}", tok, ASTBase::ASTTypeNames[node_type]));
       if (tok == "extern" && !is_func)
-        error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+        error(ErrorType::SYNTAX_ERROR,
+              _curr,
+              _curr,
               fmt::format("Cannot use `{}` keyword to qualify {}", tok, ASTBase::ASTTypeNames[node_type]));
 
       _pub = false;
@@ -195,7 +199,9 @@ private:
       else if (tok == "||")
         op = BinaryOpKind::LOR;
       else
-        error(ErrorType::NOT_IMPLEMENTED, _curr, _curr,
+        error(ErrorType::NOT_IMPLEMENTED,
+              _curr,
+              _curr,
               fmt::format("Binary relational operator not implemented: {}", token->get_value().c_str()));
 
       node = BinaryOperator::Create(op, _src);
@@ -338,7 +344,9 @@ private:
     // look up parser func from the table
     auto it = NUD_PARSING_FUNC_TABLE.find(p->get_node_type());
     if (it == NUD_PARSING_FUNC_TABLE.end()) {
-      error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+      error(ErrorType::SYNTAX_ERROR,
+            _curr,
+            _curr,
             fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
     nud_parsing_func_t func = it->second;
@@ -381,7 +389,9 @@ private:
     // look up parser func from the table
     auto it = LED_PARSING_FUNC_TABLE.find(p->get_node_type());
     if (it == LED_PARSING_FUNC_TABLE.end()) {
-      error(ErrorType::SYNTAX_ERROR, _curr, _curr,
+      error(ErrorType::SYNTAX_ERROR,
+            _curr,
+            _curr,
             fmt::format("Unexpected token with type: {}", ASTBase::ASTTypeNames[p->get_node_type()]));
     }
     led_parsing_func_t func = it->second;
@@ -425,7 +435,9 @@ private:
   void expect_token(const str &value) {
     Token *token = at(_curr);
     if (token->get_value() != value) {
-      Error(ErrorType::SYNTAX_ERROR, token, token,
+      Error(ErrorType::SYNTAX_ERROR,
+            token,
+            token,
             fmt::format("Expect '{}' but got '{}' instead", value, token->get_value()))
           .raise();
     }

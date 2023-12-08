@@ -68,8 +68,25 @@ using namespace tanlang;
 namespace fs = std::filesystem;
 
 /// \see https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html
-static constexpr std::array CXX_EXTS{".cpp", ".CPP", ".cxx", ".c",  ".cc",  ".C",   ".c++", ".cp",  ".i",  ".ii",
-                                     ".h",   ".hh",  ".H",   ".hp", ".hxx", ".hpp", ".HPP", ".h++", ".tcc"};
+static constexpr std::array CXX_EXTS{".cpp",
+                                     ".CPP",
+                                     ".cxx",
+                                     ".c",
+                                     ".cc",
+                                     ".C",
+                                     ".c++",
+                                     ".cp",
+                                     ".i",
+                                     ".ii",
+                                     ".h",
+                                     ".hh",
+                                     ".H",
+                                     ".hp",
+                                     ".hxx",
+                                     ".hpp",
+                                     ".HPP",
+                                     ".h++",
+                                     ".tcc"};
 static constexpr str_view TAN_EXT = ".tan";
 
 static umap<TanOptLevel, llvm::CodeGenOpt::Level> tan_to_llvm_opt_level{
@@ -99,8 +116,8 @@ CompilerDriver::CompilerDriver(TanCompilation config) {
   // Register import dirs
   size_t n_import = _config.import_dirs.size();
   CompilerDriver::import_dirs.reserve(n_import);
-  CompilerDriver::import_dirs.insert(CompilerDriver::import_dirs.begin(), _config.import_dirs.begin(),
-                                     _config.import_dirs.end());
+  CompilerDriver::import_dirs.insert(
+      CompilerDriver::import_dirs.begin(), _config.import_dirs.begin(), _config.import_dirs.end());
 
   // Initialize LLVM
   llvm::InitializeAllTargetInfos();

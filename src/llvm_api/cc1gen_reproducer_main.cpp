@@ -110,8 +110,7 @@ static std::string generateReproducerMetaInfo(const ClangInvocationInfo &Info) {
 
 /// Generates a reproducer for a set of arguments from a specific invocation.
 static std::optional<driver::Driver::CompilationDiagnosticReport>
-generateReproducerForInvocationArguments(ArrayRef<const char *> Argv,
-                                         const ClangInvocationInfo &Info) {
+generateReproducerForInvocationArguments(ArrayRef<const char *> Argv, const ClangInvocationInfo &Info) {
   using namespace driver;
   auto TargetAndMode = ToolChain::getTargetAndModeFromProgramName(Argv[0]);
 
@@ -128,8 +127,7 @@ generateReproducerForInvocationArguments(ArrayRef<const char *> Argv,
     for (const auto &J : C->getJobs()) {
       if (const Command *Cmd = dyn_cast<Command>(&J)) {
         Driver::CompilationDiagnosticReport Report;
-        TheDriver.generateCompilationDiagnostics(
-            *C, *Cmd, generateReproducerMetaInfo(Info), &Report);
+        TheDriver.generateCompilationDiagnostics(*C, *Cmd, generateReproducerMetaInfo(Info), &Report);
         return Report;
       }
     }
@@ -140,9 +138,9 @@ generateReproducerForInvocationArguments(ArrayRef<const char *> Argv,
 
 std::string GetExecutablePath(const char *Argv0, bool CanonicalPrefixes);
 
-static void printReproducerInformation(
-    llvm::raw_ostream &OS, const ClangInvocationInfo &Info,
-    const driver::Driver::CompilationDiagnosticReport &Report) {
+static void printReproducerInformation(llvm::raw_ostream &OS,
+                                       const ClangInvocationInfo &Info,
+                                       const driver::Driver::CompilationDiagnosticReport &Report) {
   OS << "REPRODUCER:\n";
   OS << "{\n";
   OS << R"("files":[)";
@@ -154,19 +152,16 @@ static void printReproducerInformation(
   OS << "]\n}\n";
 }
 
-int cc1gen_reproducer_main(ArrayRef<const char *> Argv, const char *Argv0,
-                           void *MainAddr) {
+int cc1gen_reproducer_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
   if (Argv.size() < 1) {
     llvm::errs() << "error: missing invocation file\n";
     return 1;
   }
   // Parse the invocation descriptor.
   StringRef Input = Argv[0];
-  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> Buffer =
-      llvm::MemoryBuffer::getFile(Input, /*IsText=*/true);
+  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> Buffer = llvm::MemoryBuffer::getFile(Input, /*IsText=*/true);
   if (!Buffer) {
-    llvm::errs() << "error: failed to read " << Input << ": "
-                 << Buffer.getError().message() << "\n";
+    llvm::errs() << "error: failed to read " << Input << ": " << Buffer.getError().message() << "\n";
     return 1;
   }
   llvm::yaml::Input YAML(Buffer.get()->getBuffer());

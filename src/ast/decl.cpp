@@ -43,8 +43,13 @@ FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src, bool is_extern, boo
   return new FunctionDecl(src, is_extern, is_public);
 }
 
-FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src, const str &name, FunctionType *func_type, bool is_external,
-                                   bool is_public, Stmt *body, bool is_intrinsic) {
+FunctionDecl *FunctionDecl::Create(TokenizedSourceFile *src,
+                                   const str &name,
+                                   FunctionType *func_type,
+                                   bool is_external,
+                                   bool is_public,
+                                   Stmt *body,
+                                   bool is_intrinsic) {
   auto ret = new FunctionDecl(src, is_external, is_public);
   ret->set_name(name);
   if (!body) {

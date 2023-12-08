@@ -14,7 +14,7 @@ target_compile_definitions(test_compile_lib PRIVATE
         -DTANC_PATH=$<TARGET_FILE:tanc>
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
-        )
+)
 add_dependencies(test_compile_lib runtime)
 
 add_executable(test_use_lib test_use_lib.cpp ${PROJECT_SOURCE_DIR}/src/cli/cli_main.cpp)
@@ -25,7 +25,7 @@ target_compile_definitions(test_use_lib PRIVATE
         -DTANC_PATH=$<TARGET_FILE:tanc>
         -DTAN_PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DTAN_TEST_SOURCE_DIR=${CMAKE_CURRENT_LIST_DIR}
-        )
+)
 add_dependencies(test_use_lib runtime)
 
 # target that runs this test
@@ -41,4 +41,4 @@ add_custom_command(TARGET run_tanc_lib_tests POST_BUILD
         COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_compile_lib> false
         COMMAND ${RUN_TEST_COMMAND_PREFIX} $<TARGET_FILE:test_use_lib>
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        )
+)
